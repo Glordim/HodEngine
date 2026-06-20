@@ -1,16 +1,20 @@
 #include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 
 #include "HodEngine/Editor/Project.hpp"
 
+#include "TaskTracker/TaskTracker.hpp"
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/ImGuiManager.hpp>
+#include <HodEngine/ImGui/Helper.hpp>
 
 #include "HodEngine/Editor/HierachyWindow.hpp"
 #include "HodEngine/Editor/InspectorWindow.hpp"
 #include "HodEngine/Editor/ProjectBrowser.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
+#include "HodEngine/Editor/TaskTracker/TaskTrackerWindow.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
 
 #include "HodEngine/Core/ArgumentParser.hpp"
@@ -72,6 +76,16 @@
 
 #include "portable-file-dialogs.h"
 
+
+#include "HodEngine/Editor/AudioEditor/AudioImporter.hpp"
+#include "HodEngine/Editor/Importer/FontImporter.hpp"
+#include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
+#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceImporter.hpp"
+#include "HodEngine/Editor/EntityBasedTabEditor/PrefabImporter.hpp"
+#include "HodEngine/Editor/EntityBasedTabEditor/SceneImporter.hpp"
+#include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
+#include "HodEngine/Editor/TextureEditor/TextureImporter.hpp"
+
 #undef max
 #undef min
 
@@ -91,6 +105,7 @@ namespace hod::inline editor
 		UnloadEditorModules();
 
 		DefaultAllocator::GetInstance().Delete(_floatingAssetBrowserWindow);
+		DefaultAllocator::GetInstance().Delete(_floatingTaskTrackerWindow);
 		ImGuiManager::GetInstance()->DestroyAllWindow();
 
 		Project::DestroyInstance();
@@ -104,6 +119,8 @@ namespace hod::inline editor
 		DefaultAllocator::GetInstance().Delete(_prefabTexture);
 		DefaultAllocator::GetInstance().Delete(_serializedDataTexture);
 		DefaultAllocator::GetInstance().Delete(_checkerTexture);
+
+		DefaultAllocator::GetInstance().Delete(_taskTracker);
 	}
 
 	/// @brief
@@ -111,6 +128,8 @@ namespace hod::inline editor
 	/// @return
 	bool Editor::Init(const ArgumentParser& argumentParser)
 	{
+		_taskTracker = DefaultAllocator::GetInstance().New<TaskTracker>();
+
 		Project::CreateInstance();
 		WindowFactory::CreateInstance();
 
@@ -165,15 +184,8 @@ namespace hod::inline editor
 		_checkerTexture = Renderer::GetInstance()->CreateTexture();
 		_checkerTexture->BuildBuffer(2, 2, checkerBuffer, textureCreateInfo);
 
-		_editorTabFactory.emplace("SceneImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<SceneEditorTab>(asset); });
-		_editorTabFactory.emplace("PrefabImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<PrefabEditorTab>(asset); });
-		_editorTabFactory.emplace("TextureImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<TextureEditorTab>(asset); });
-		_editorTabFactory.emplace("MaterialImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<MaterialEditorTab>(asset); });
-		_editorTabFactory.emplace("MaterialInstanceImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<MaterialInstanceEditorTab>(asset); });
-		_editorTabFactory.emplace("SerializedDataImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<SerializedDataEditorTab>(asset); });
-		_editorTabFactory.emplace("AudioImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<AudioEditorTab>(asset); });
-
 		_floatingAssetBrowserWindow = DefaultAllocator::GetInstance().New<AssetBrowserWindow>();
+		_floatingTaskTrackerWindow = DefaultAllocator::GetInstance().New<TaskTrackerWindow>();
 
 		const hod::Argument* projectPathArgument = argumentParser.GetArgument('p', "ProjectPath");
 		if (projectPathArgument == nullptr || projectPathArgument->_values[0] == nullptr)
@@ -267,6 +279,29 @@ namespace hod::inline editor
 	bool Editor::LoadEditor()
 	{
 		AssetDatabase::CreateInstance();
+
+		AssetDatabase::GetInstance()->RegisterImporter<AudioImporter>();
+		_editorTabFactory.emplace("AudioImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<AudioEditorTab>(asset); });
+
+		AssetDatabase::GetInstance()->RegisterImporter<TextureImporter>();
+		_editorTabFactory.emplace("TextureImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<TextureEditorTab>(asset); });
+
+		AssetDatabase::GetInstance()->RegisterImporter<FontImporter>();
+
+		AssetDatabase::GetInstance()->RegisterImporter<SceneImporter>();
+		_editorTabFactory.emplace("SceneImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<SceneEditorTab>(asset); });
+
+		AssetDatabase::GetInstance()->RegisterImporter<PrefabImporter>();
+		_editorTabFactory.emplace("PrefabImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<PrefabEditorTab>(asset); });
+
+		AssetDatabase::GetInstance()->RegisterImporter<SerializedDataImporter>();
+		_editorTabFactory.emplace("SerializedDataImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<SerializedDataEditorTab>(asset); });
+
+		AssetDatabase::GetInstance()->RegisterImporter<MaterialImporter>();
+		_editorTabFactory.emplace("MaterialInstanceImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<MaterialInstanceEditorTab>(asset); });
+
+		AssetDatabase::GetInstance()->RegisterImporter<MaterialInstanceImporter>();
+		_editorTabFactory.emplace("MaterialImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<MaterialEditorTab>(asset); });
 
 		if (Project::GetInstance()->ReloadProjectModules() == false)
 		{
@@ -480,6 +515,19 @@ namespace hod::inline editor
 					if (ImGui::Button(ICON_MDI_TEXT_BOX "  Output Log", ImVec2(0.0f, statusBarHeight)))
 					{
 					}
+					ImGui::SameLine();
+					ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical, 2.0f);
+					ImGui::SameLine(ImGui::GetIO().DisplaySize.x - CalculateButtonSize(ICON_MDI_CIRCLE_OFF_OUTLINE "  Tasks").x - 2);
+					ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical, 2.0f);
+					ImGui::SameLine();
+					if (ImGui::Button(ICON_MDI_CIRCLE_OFF_OUTLINE "  Tasks", ImVec2(0.0f, statusBarHeight)))
+					{
+						_showFloatingTaskTracker = !_showFloatingTaskTracker;
+						if (_showFloatingTaskTracker)
+						{
+							_focusFloatingTaskTrackerWindow = true;
+						}
+					}
 					ImGui::PopStyleVar(3);
 					ImGui::PopStyleColor();
 				}
@@ -503,6 +551,26 @@ namespace hod::inline editor
 						ImGui::SetNextWindowFocus();
 					}
 					_floatingAssetBrowserWindow->Draw();
+				}
+
+				if (_showFloatingTaskTracker)
+				{
+					_floatingTaskTrackerWindowPos = std::min(555.0f, _floatingTaskTrackerWindowPos + ImGui::GetIO().DeltaTime * 4000.0f);
+				}
+				else
+				{
+					_floatingTaskTrackerWindowPos = std::max(0.0f, _floatingTaskTrackerWindowPos - ImGui::GetIO().DeltaTime * 4000.0f);
+				}
+				if (_floatingTaskTrackerWindowPos > 0.0f)
+				{
+					ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 350.0f - 20.0f, ImGui::GetIO().DisplaySize.y - statusBarHeight - _floatingTaskTrackerWindowPos));
+					ImGui::SetNextWindowSize(ImVec2(350.0f, 555.0f));
+					if (_focusFloatingTaskTrackerWindow)
+					{
+						_focusFloatingTaskTrackerWindow = false;
+						ImGui::SetNextWindowFocus();
+					}
+					_floatingTaskTrackerWindow->Draw();
 				}
 			});
 
@@ -968,17 +1036,30 @@ namespace hod::inline editor
 		pfd::settings::verbose(true);
 		pfd::open_file dialog("Import", Project::GetInstance()->GetSourceDirPath().GetString().CStr());
 		auto           result = dialog.result();
-		for (const auto& result : dialog.result())
+
+		if (result.size() == 1)
 		{
-			Editor::Import(result.c_str(), path);
+			Editor::Import(result[0].c_str(), path);
 		}
+		else if (result.size() > 1)
+		{
+			Vector<Path> sourceFilePaths;
+			sourceFilePaths.Reserve(dialog.result().size());
+			for (const auto& result : dialog.result())
+			{
+				sourceFilePaths.PushBack(result.c_str());
+			}
+			Editor::Import(sourceFilePaths, path);
+		}
+		
 	}
 
-	void Editor::Import(const Path& sourceFilePath, const Path& destinationDirPath)
+	void Editor::Import(const Path& /*sourceFilePath*/, const Path& /*destinationDirPath*/)
 	{
-		ImportRequest importRequest;
-		importRequest._sourceFilePath = sourceFilePath;
-		importRequest._destinationDirPath = destinationDirPath;
-		_importRequests.PushBack(importRequest);
+	}
+
+	void Editor::Import(const Vector<Path>& /*sourceFilePaths*/, const Path& /*destinationDirPath*/)
+	{
+		
 	}
 }

@@ -37,6 +37,8 @@ namespace hod::inline editor
 	class ViewportWindow;
 	class EditorTab;
 	class AssetBrowserWindow;
+	class TaskTrackerWindow;
+	class TaskTracker;
 
 	/// @brief
 	class HOD_EDITOR_API Editor
@@ -68,6 +70,7 @@ namespace hod::inline editor
 
 		void OpenImportDialog(const Path& path);
 		void Import(const Path& sourceFilePath, const Path& destinationDirPath);
+		void Import(const Vector<Path>& sourceFilePaths, const Path& destinationDirPath);
 
 		void Build(BuildPlatform buildPlatform);
 		void BuildAndRun();
@@ -116,6 +119,8 @@ namespace hod::inline editor
 			return _checkerTexture;
 		}
 
+		TaskTracker& GetTaskTracker() { return *_taskTracker; }
+
 	private:
 		bool AddProjectInRecentProject(const Path& path) const;
 
@@ -143,13 +148,12 @@ namespace hod::inline editor
 		float               _floatingAssetBrowserWindowPos = 0.0f;
 		AssetBrowserWindow* _floatingAssetBrowserWindow = nullptr;
 
-		struct ImportRequest
-		{
-			Path _sourceFilePath;
-			Path _destinationDirPath;
-		};
+		bool                _showFloatingTaskTracker = false;
+		bool                _focusFloatingTaskTrackerWindow = false;
+		float               _floatingTaskTrackerWindowPos = 0.0f;
+		TaskTrackerWindow*  _floatingTaskTrackerWindow = nullptr;
 
-		Vector<ImportRequest> _importRequests;
+		TaskTracker*		_taskTracker = nullptr;
 	};
 
 	template<typename _EditorTabType_>

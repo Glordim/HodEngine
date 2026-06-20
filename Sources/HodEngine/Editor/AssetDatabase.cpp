@@ -3,15 +3,7 @@
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/AudioEditor/AudioImporter.hpp"
-#include "HodEngine/Editor/Importer/FontImporter.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
-#include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
-#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceImporter.hpp"
-#include "HodEngine/Editor/EntityBasedTabEditor/PrefabImporter.hpp"
-#include "HodEngine/Editor/EntityBasedTabEditor/SceneImporter.hpp"
-#include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
-#include "HodEngine/Editor/TextureEditor/TextureImporter.hpp"
 #include "HodEngine/Editor/Project.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
@@ -43,15 +35,6 @@ namespace hod::inline editor
 	_SingletonConstructor(AssetDatabase)
 	{
 		_importers.push_back(&_defaultImporter);
-
-		RegisterImporter<AudioImporter>();
-		RegisterImporter<TextureImporter>();
-		RegisterImporter<FontImporter>();
-		RegisterImporter<SceneImporter>();
-		RegisterImporter<PrefabImporter>();
-		RegisterImporter<SerializedDataImporter>();
-		RegisterImporter<MaterialImporter>();
-		RegisterImporter<MaterialInstanceImporter>();
 	}
 
 	/// @brief
