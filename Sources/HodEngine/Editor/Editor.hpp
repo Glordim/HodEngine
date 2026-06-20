@@ -70,6 +70,7 @@ namespace hod::inline editor
 
 		void OpenImportDialog(const Path& path);
 		void Import(const Path& sourceFilePath, const Path& destinationDirPath);
+		void Import(const Vector<Path>& sourceFilePaths, const Path& destinationDirPath);
 
 		void Build(BuildPlatform buildPlatform);
 		void BuildAndRun();
@@ -153,14 +154,6 @@ namespace hod::inline editor
 		TaskTrackerWindow*  _floatingTaskTrackerWindow = nullptr;
 
 		TaskTracker*		_taskTracker = nullptr;
-
-		struct ImportRequest
-		{
-			Path _sourceFilePath;
-			Path _destinationDirPath;
-		};
-
-		Vector<ImportRequest> _importRequests;
 	};
 
 	template<typename _EditorTabType_>

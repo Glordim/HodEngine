@@ -1,4 +1,5 @@
 #include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 
 #include "HodEngine/Editor/Project.hpp"
@@ -74,6 +75,16 @@
 #include <string>
 
 #include "portable-file-dialogs.h"
+
+
+#include "HodEngine/Editor/AudioEditor/AudioImporter.hpp"
+#include "HodEngine/Editor/Importer/FontImporter.hpp"
+#include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
+#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceImporter.hpp"
+#include "HodEngine/Editor/EntityBasedTabEditor/PrefabImporter.hpp"
+#include "HodEngine/Editor/EntityBasedTabEditor/SceneImporter.hpp"
+#include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
+#include "HodEngine/Editor/TextureEditor/TextureImporter.hpp"
 
 #undef max
 #undef min
@@ -173,14 +184,6 @@ namespace hod::inline editor
 		_checkerTexture = Renderer::GetInstance()->CreateTexture();
 		_checkerTexture->BuildBuffer(2, 2, checkerBuffer, textureCreateInfo);
 
-		_editorTabFactory.emplace("SceneImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<SceneEditorTab>(asset); });
-		_editorTabFactory.emplace("PrefabImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<PrefabEditorTab>(asset); });
-		_editorTabFactory.emplace("TextureImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<TextureEditorTab>(asset); });
-		_editorTabFactory.emplace("MaterialImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<MaterialEditorTab>(asset); });
-		_editorTabFactory.emplace("MaterialInstanceImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<MaterialInstanceEditorTab>(asset); });
-		_editorTabFactory.emplace("SerializedDataImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<SerializedDataEditorTab>(asset); });
-		_editorTabFactory.emplace("AudioImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<AudioEditorTab>(asset); });
-
 		_floatingAssetBrowserWindow = DefaultAllocator::GetInstance().New<AssetBrowserWindow>();
 		_floatingTaskTrackerWindow = DefaultAllocator::GetInstance().New<TaskTrackerWindow>();
 
@@ -276,6 +279,29 @@ namespace hod::inline editor
 	bool Editor::LoadEditor()
 	{
 		AssetDatabase::CreateInstance();
+
+		AssetDatabase::GetInstance()->RegisterImporter<AudioImporter>();
+		_editorTabFactory.emplace("AudioImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<AudioEditorTab>(asset); });
+
+		AssetDatabase::GetInstance()->RegisterImporter<TextureImporter>();
+		_editorTabFactory.emplace("TextureImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<TextureEditorTab>(asset); });
+
+		AssetDatabase::GetInstance()->RegisterImporter<FontImporter>();
+
+		AssetDatabase::GetInstance()->RegisterImporter<SceneImporter>();
+		_editorTabFactory.emplace("SceneImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<SceneEditorTab>(asset); });
+
+		AssetDatabase::GetInstance()->RegisterImporter<PrefabImporter>();
+		_editorTabFactory.emplace("PrefabImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<PrefabEditorTab>(asset); });
+
+		AssetDatabase::GetInstance()->RegisterImporter<SerializedDataImporter>();
+		_editorTabFactory.emplace("SerializedDataImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<SerializedDataEditorTab>(asset); });
+
+		AssetDatabase::GetInstance()->RegisterImporter<MaterialImporter>();
+		_editorTabFactory.emplace("MaterialInstanceImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<MaterialInstanceEditorTab>(asset); });
+
+		AssetDatabase::GetInstance()->RegisterImporter<MaterialInstanceImporter>();
+		_editorTabFactory.emplace("MaterialImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<MaterialEditorTab>(asset); });
 
 		if (Project::GetInstance()->ReloadProjectModules() == false)
 		{
@@ -1010,17 +1036,30 @@ namespace hod::inline editor
 		pfd::settings::verbose(true);
 		pfd::open_file dialog("Import", Project::GetInstance()->GetSourceDirPath().GetString().CStr());
 		auto           result = dialog.result();
-		for (const auto& result : dialog.result())
+
+		if (result.size() == 1)
 		{
-			Editor::Import(result.c_str(), path);
+			Editor::Import(result[0].c_str(), path);
 		}
+		else if (result.size() > 1)
+		{
+			Vector<Path> sourceFilePaths;
+			sourceFilePaths.Reserve(dialog.result().size());
+			for (const auto& result : dialog.result())
+			{
+				sourceFilePaths.PushBack(result.c_str());
+			}
+			Editor::Import(sourceFilePaths, path);
+		}
+		
 	}
 
-	void Editor::Import(const Path& sourceFilePath, const Path& destinationDirPath)
+	void Editor::Import(const Path& /*sourceFilePath*/, const Path& /*destinationDirPath*/)
 	{
-		ImportRequest importRequest;
-		importRequest._sourceFilePath = sourceFilePath;
-		importRequest._destinationDirPath = destinationDirPath;
-		_importRequests.PushBack(importRequest);
+	}
+
+	void Editor::Import(const Vector<Path>& /*sourceFilePaths*/, const Path& /*destinationDirPath*/)
+	{
+		
 	}
 }
