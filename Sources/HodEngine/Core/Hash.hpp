@@ -26,7 +26,6 @@ namespace hod::inline core
 			return Fnv64(*str.data(), str.data() + 1, FNV_64_BASIS);
 		}
 
-	private:
 		static uint64_t ComputeFnv64(const std::string_view& str, uint64_t basis = FNV_64_BASIS);
 	};
 }

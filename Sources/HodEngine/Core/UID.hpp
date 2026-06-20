@@ -52,6 +52,9 @@ namespace hod::inline core
 
 		bool Compare(const UID& other) const;
 
+		uint64_t GetLow() const;
+		uint64_t GetHigh() const;
+
 	public:
 		static UID GenerateUID();
 		static UID FromString(const char* string);
