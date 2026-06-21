@@ -3,6 +3,7 @@
 
 #include <HodEngine/Core/FileSystem/Path.hpp>
 #include <HodEngine/GameSystems/Job/Job.hpp>
+#include <cstdint>
 
 namespace hod::inline editor
 {
@@ -17,5 +18,6 @@ namespace hod::inline editor
 	private:
 		Path _sourceFilePath;
 		Path _destinationDirPath;
+		uint64_t _taskId = 0;
 	};
 }

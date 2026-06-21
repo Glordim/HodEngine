@@ -1,7 +1,12 @@
 #include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include "HodEngine/Editor/Project.hpp"
+#include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/TaskTracker/TaskTracker.hpp"
 
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
@@ -10,6 +15,7 @@
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 #include "HodEngine/Core/UID.hpp"
 
+#include <cstdint>
 #include <fstream>
 #include <sstream>
 
@@ -38,6 +44,73 @@ namespace hod::inline editor
 				return true;
 			}
 		}
+		return false;
+	}
+
+	bool Importer::CheckSupportedExtensions(std::string_view extension) const
+	{
+		String extensionLower(extension);
+		for (char& c : extensionLower)
+		{
+			c = static_cast<char>(std::tolower((int)c));
+		}
+		for (const char* supportedExtension : _supportedDataFileExtensions)
+		{
+			if (extensionLower == supportedExtension)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	bool Importer::Import(const Path& sourcePath, const Path& destinationPath, const UID& uid, ImporterSettings* importSettings, uint64_t taskId)
+	{
+		AssetContainer assetContainer;
+		assetContainer.SetUid(uid);
+		assetContainer.SetSourcePath(sourcePath);
+
+		FileSystem::Handle sourceFile = FileSystem::GetInstance()->Open(sourcePath);
+		if (sourceFile.IsOpen() == false)
+		{
+			OUTPUT_ERROR("Importer::Import: Unable to open source file '{}'", sourcePath);
+			Editor::GetInstance()->GetTaskTracker().UpdateTaskStatus(taskId, TaskStatus::Failed);
+			return false;
+		}
+		char buffer[256 * 1024];
+		void* hashState = nullptr;
+		uint64_t fileHash = 0;
+		int32_t readBytes = 0;
+		while (true)
+		{
+			readBytes = FileSystem::GetInstance()->Read(sourceFile, buffer, sizeof(buffer));
+			if (readBytes > 0)
+			{
+				hashState = Hash::ComputeXxh3_64_Cumulated(hashState, buffer, readBytes);
+				if (readBytes != sizeof(buffer))
+				{
+					fileHash = Hash::ComputeXxh3_64_Result(hashState);
+					break;
+				}
+			}
+			else
+			{
+				OUTPUT_ERROR("Importer::Import: Unable to read source file '{}'", sourcePath);
+				Editor::GetInstance()->GetTaskTracker().UpdateTaskStatus(taskId, TaskStatus::Failed);
+				return false;
+			}
+		}
+		FileSystem::GetInstance()->Seek(sourceFile, 0, FileSystem::SeekMode::Begin);
+		assetContainer.SetSourceHash(fileHash);
+		
+		//assetContainer.SetImportSettings(importSettings);
+
+		(void)sourcePath;
+		(void)destinationPath;
+		(void)importSettings;
+		(void)taskId;
+
+		assetContainer.Save(destinationPath);
 		return false;
 	}
 

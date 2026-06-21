@@ -13,6 +13,11 @@ namespace hod::inline gamesystems
 		_taskSet = DefaultAllocator::GetInstance().New<enki::TaskSet>([&](enki::TaskSetPartition /*range*/, uint32_t /*threadnum*/)
 		{
 			Execution();
+
+			if (_autoDelete)
+			{
+				DefaultAllocator::GetInstance().Delete(this);
+			}
 		});
 	}
 

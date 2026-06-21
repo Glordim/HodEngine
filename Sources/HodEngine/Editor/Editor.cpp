@@ -1,9 +1,12 @@
 #include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 
+#include "HodEngine/Editor/Importer/DefaultImporter.hpp"
 #include "HodEngine/Editor/Project.hpp"
 
+#include "HodEngine/GameSystems/Job/JobScheduler.hpp"
 #include "TaskTracker/TaskTracker.hpp"
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
@@ -32,6 +35,7 @@
 
 #include "HodEngine/Editor/WindowFactory.hpp"
 
+#include "HodEngine/Editor/Importer/ImportJob.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/CMakeHelper.hpp"
 #include "HodEngine/Editor/RecentProjects.hpp"
@@ -1054,8 +1058,11 @@ namespace hod::inline editor
 		
 	}
 
-	void Editor::Import(const Path& /*sourceFilePath*/, const Path& /*destinationDirPath*/)
+	void Editor::Import(const Path& sourceFilePath, const Path& destinationDirPath)
 	{
+		ImportJob* importJob = DefaultAllocator::GetInstance().New<ImportJob>(sourceFilePath, destinationDirPath);
+		importJob->SetAutoDelete(true);
+		JobScheduler::GetInstance()->PushBackground(importJob);
 	}
 
 	void Editor::Import(const Vector<Path>& /*sourceFilePaths*/, const Path& /*destinationDirPath*/)

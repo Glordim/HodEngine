@@ -61,6 +61,8 @@ namespace hod::inline editor
 
 		std::shared_ptr<Asset> Find(const UID& uid) const;
 
+		Importer* FindCompatibleImporter(std::string_view extension) const;
+
 		FileSystemMapping& GetAssetRootNode();
 		FileSystemMapping* FindFileSystemMappingFromPath(const Path& path) const;
 

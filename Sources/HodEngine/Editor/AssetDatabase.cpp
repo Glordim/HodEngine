@@ -363,6 +363,18 @@ namespace hod::inline editor
 		*/
 	}
 
+	Importer* AssetDatabase::FindCompatibleImporter(std::string_view extension) const
+	{
+		for (Importer* importer : _importers)
+		{
+			if (importer->CheckSupportedExtensions(extension) == true)
+			{
+				return importer;
+			}
+		}
+		return nullptr;
+	}
+
 	/// @brief
 	/// @param asset
 	/// @return

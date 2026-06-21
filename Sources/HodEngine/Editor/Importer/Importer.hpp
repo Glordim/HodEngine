@@ -44,6 +44,9 @@ namespace hod::inline editor
 		Importer& operator=(Importer&&) = delete;
 
 	public:
+		bool CheckSupportedExtensions(std::string_view extension) const;
+		bool Import(const Path& sourcePath, const Path& destinationPath, const UID& uid, ImporterSettings* importSettings, uint64_t taskId);
+
 		bool CanImport(const Path& path);
 		bool Import(const Path& path);
 

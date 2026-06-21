@@ -23,6 +23,8 @@ namespace hod::inline gamesystems
 		Job& operator=(const Job&) = delete;
 		Job& operator=(Job&&) = delete;
 
+		void SetAutoDelete(bool autoDelete) { _autoDelete = autoDelete; }
+
 	public:
 		void Wait();
 
@@ -32,5 +34,6 @@ namespace hod::inline gamesystems
 	private:
 		enki::TaskSet* _taskSet = nullptr;
 		enki::TaskScheduler* _taskScheduler = nullptr;
+		bool _autoDelete = false;
 	};
 }
