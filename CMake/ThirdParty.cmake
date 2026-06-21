@@ -301,6 +301,11 @@ find_package(GTest REQUIRED CONFIG
 	NO_DEFAULT_PATH
 )
 
+find_package(xxHash REQUIRED CONFIG
+	PATHS "${THIRDPARTY_ROOT}/xxHash/lib/cmake"
+	NO_DEFAULT_PATH
+)
+
 if(ANDROID)
 	# Cross-compilation: find slangc on the host (find_program bypasses the Android sysroot)
 	set(_HOST_SLANG_BIN "${CMAKE_CURRENT_SOURCE_DIR}/ThirdParty/Install/${CMAKE_HOST_SYSTEM_NAME}/${CMAKE_HOST_SYSTEM_PROCESSOR}/Slang/bin")

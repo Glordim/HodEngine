@@ -1,6 +1,8 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Hash.hpp"
 
+#include <xxhash.h>
+
 namespace hod::inline core
 {
 	//-----------------------------------------------------------------------------
@@ -21,6 +23,30 @@ namespace hod::inline core
 			hash ^= static_cast<uint64_t>(str.data()[i]);
 		}
 
+		return hash;
+	}
+
+	uint64_t Hash::ComputeXxh3_64(const void* input, size_t length)
+	{
+		return XXH3_64bits(input, length);
+	}
+
+	void* Hash::ComputeXxh3_64_Cumulated(void* state, const void* input, size_t length)
+	{
+		if (state == nullptr)
+		{
+			state = XXH3_createState();
+			XXH3_64bits_reset(static_cast<XXH3_state_t*>(state));
+		}
+		XXH3_64bits_update(static_cast<XXH3_state_t*>(state), input, length);
+
+		return state;
+	}
+
+	uint64_t Hash::ComputeXxh3_64_Result(void* state)
+	{
+		uint64_t hash = XXH3_64bits_digest(static_cast<XXH3_state_t*>(state));
+		XXH3_freeState(static_cast<XXH3_state_t*>(state));
 		return hash;
 	}
 }
