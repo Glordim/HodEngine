@@ -23,6 +23,7 @@
 #include "HodEngine/Window/Window.hpp"
 
 #include <HodEngine/Core/Profiler.hpp>
+#include <HodEngine/Core/Thread/Thread.hpp>
 
 namespace hod::inline application
 {
