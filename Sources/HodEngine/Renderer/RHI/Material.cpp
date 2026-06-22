@@ -15,7 +15,6 @@
 #include "HodEngine/Core/Vector.hpp"
 
 #include <cassert>
-#include <iostream>
 
 namespace hod::inline renderer
 {

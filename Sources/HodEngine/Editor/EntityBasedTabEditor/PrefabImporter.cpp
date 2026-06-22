@@ -5,8 +5,6 @@
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 #include <HodEngine/Core/Document/DocumentWriterJson.hpp>
 
-#include <sstream>
-
 namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(PrefabImporterSettings, reflectionDescriptor)

@@ -9,8 +9,6 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
-#include <sstream>
-
 namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(FontImporterSettings, reflectionDescriptor)

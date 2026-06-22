@@ -1,12 +1,11 @@
 #include "HodEngine/Renderer/Pch.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterial.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalShader.hpp"
 #include "HodEngine/Renderer/RHI/Metal/RendererMetal.hpp"
 #include "HodEngine/Renderer/RHI/VertexInput.hpp"
 
 #include <Metal/Metal.hpp>
-
-#include <iostream> // TODO output
 
 namespace hod::inline renderer
 {
@@ -107,11 +106,11 @@ namespace hod::inline renderer
 			for (NS::UInteger i = 0; i < stageInputs->count(); ++i)
 			{
 				MTL::Attribute* attribute = static_cast<MTL::Attribute*>(stageInputs->object(i));
-				// std::cout << "Attribute at index " << attr->attributeIndex() << ": " << attr->name()->utf8String() << std::endl;
-				// std::cout << "  Format: " << attr->format() << std::endl;
+				// OUTPUT_MESSAGE("Attribute at index {}: {}", attr->attributeIndex(), attr->name()->utf8String());
+				// OUTPUT_MESSAGE("  Format: {}", attr->format());
 
-				std::cout << attribute->name()->utf8String() << std::endl;
-				std::cout << attribute->attributeType() << std::endl;
+				OUTPUT_MESSAGE("{}", attribute->name()->utf8String());
+				OUTPUT_MESSAGE("{}", attribute->attributeType());
 
 				MTL::VertexAttributeDescriptor* vertexAttribute = MTL::VertexAttributeDescriptor::alloc()->init();
 				vertexAttribute->setOffset(offset);
@@ -155,7 +154,7 @@ namespace hod::inline renderer
 		vertexDescriptor->release();
 		if (_renderPipelineState == nullptr)
 		{
-			std::cerr << "Failed to create render pipeline state: " << pipelineError->localizedDescription()->utf8String() << std::endl; // TODO Output
+			OUTPUT_ERROR("Failed to create render pipeline state: {}", pipelineError->localizedDescription()->utf8String());
 			return false;
 		}
 

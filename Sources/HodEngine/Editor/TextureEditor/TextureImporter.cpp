@@ -13,8 +13,6 @@
 #include <stb_image_write.h>
 #include <stb_image_resize2.h>
 
-#include <sstream>
-
 namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_ENUM(MeshType, reflectionDescriptor)

@@ -6,9 +6,6 @@
 #include <HodEngine/Core/Vector.hpp>
 #include <HodEngine/Window/Window.hpp>
 
-#include <fstream>
-#include <iostream>
-
 namespace hod::inline renderer
 {
 	PresentationSurface::PresentationSurface(Window* window)

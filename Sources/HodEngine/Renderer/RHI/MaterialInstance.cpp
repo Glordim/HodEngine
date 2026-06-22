@@ -6,8 +6,6 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
-#include <iostream>
-
 namespace hod::inline renderer
 {
 	//-----------------------------------------------------------------------------

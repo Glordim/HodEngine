@@ -6,7 +6,6 @@
 #include "HodEngine/Core/Output/OutputService.hpp"
 
 #include "HodEngine/Core/String.hpp"
-#include <iostream>
 
 namespace hod::inline renderer
 {

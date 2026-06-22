@@ -12,8 +12,7 @@
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Core/Process/Process.hpp>
-
-#include <sstream>
+#include <HodEngine/Core/ScopedGuard.hpp>
 
 namespace hod::inline editor
 {

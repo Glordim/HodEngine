@@ -11,8 +11,6 @@
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
 
-#include <sstream>
-
 namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(MaterialInstanceAsset, reflectionDescriptor)
