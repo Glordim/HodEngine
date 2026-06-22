@@ -34,15 +34,15 @@ namespace hod::inline editor
 	/// @brief
 	/// @param path
 	/// @return
-	bool MaterialImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail,
+	bool MaterialImporter::WriteResource(Stream& data, Stream& meta, Document& document, Vector<Resource::Data>& datas, Stream& thumbnail,
 	                                     ImporterSettings& settings)
 	{
 		(void)thumbnail; // TODO
 		(void)settings;
 
-		uint32_t dataSize = FileSystem::GetInstance()->GetSize(data);
+		uint32_t dataSize = data.GetSize();
 		char*    dataBuffer = DefaultAllocator::GetInstance().Allocate<char>(dataSize + 1);
-		if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(dataBuffer), dataSize) != (int32_t)dataSize)
+		if (data.Read(dataBuffer, dataSize) != dataSize)
 		{
 			OUTPUT_ERROR("MaterialImporter : Can't read Shader data");
 			return false;
@@ -62,17 +62,21 @@ namespace hod::inline editor
 			OUTPUT_ERROR("MaterialImporter : Can't find FragmentMain entry point");
 			return false;
 		}
-		DefaultAllocator::GetInstance().Free(dataBuffer); // todo remove (link with slang and don't use filesystem)
+		// todo remove: write to temp file for slangc (link with slang lib instead)
+		Path slangInputPath = FileSystem::GetInstance()->GenerateTemporaryFilePath();
+		FileSystem::GetInstance()->WriteAllText(slangInputPath, String(dataBuffer, dataSize));
+		DefaultAllocator::GetInstance().Free(dataBuffer);
+		ScopedGuard cleanupSlangInput = [&]() { FileSystem::GetInstance()->Remove(slangInputPath); };
 
 		Path   slangVertexOutput = FileSystem::GetTemporaryPath() / "HodShaderVertexImporter.tmp";
 		Path   slangVertexReflectionOutput = FileSystem::GetTemporaryPath() / "HodShaderVertexReflectionImporter.tmp";
 		String stageVertexParameter = "-entry VertexMain -stage vertex";
 #if defined(PLATFORM_WINDOWS)
-		bool slangResult = Process::Create("Tools/slangc.exe", fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", data._path, stageVertexParameter, slangVertexOutput, slangVertexReflectionOutput), false);
+		bool slangResult = Process::Create("Tools/slangc.exe", fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", slangInputPath, stageVertexParameter, slangVertexOutput, slangVertexReflectionOutput), false);
 #elif defined(PLATFORM_LINUX)
-		bool slangResult = Process::Create("Tools/slangc", fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", data._path, stageVertexParameter, slangVertexOutput, slangVertexReflectionOutput), false);
+		bool slangResult = Process::Create("Tools/slangc", fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", slangInputPath, stageVertexParameter, slangVertexOutput, slangVertexReflectionOutput), false);
 #else
-		bool slangResult = Process::Create("Tools/slangc", fmt::format("{} -target metallib {} -o {} -reflection-json {}", data._path, stageVertexParameter, slangVertexOutput, slangVertexReflectionOutput), false);
+		bool slangResult = Process::Create("Tools/slangc", fmt::format("{} -target metallib {} -o {} -reflection-json {}", slangInputPath, stageVertexParameter, slangVertexOutput, slangVertexReflectionOutput), false);
 #endif
 		if (slangResult == false)
 		{
@@ -84,11 +88,11 @@ namespace hod::inline editor
 		Path   slangFragmentReflectionOutput = FileSystem::GetTemporaryPath() / "HodShaderFragmentReflectionImporter.tmp";
 		String stageFragmentParameter = "-entry FragmentMain -stage fragment";
 #if defined(PLATFORM_WINDOWS)
-		slangResult = Process::Create("Tools/slangc.exe", fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", data._path, stageFragmentParameter, slangFragmentOutput, slangFragmentReflectionOutput), false);
+		slangResult = Process::Create("Tools/slangc.exe", fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", slangInputPath, stageFragmentParameter, slangFragmentOutput, slangFragmentReflectionOutput), false);
 #elif defined(PLATFORM_LINUX)
-		slangResult = Process::Create("Tools/slangc", fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", data._path, stageFragmentParameter, slangFragmentOutput, slangFragmentReflectionOutput), false);
+		slangResult = Process::Create("Tools/slangc", fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", slangInputPath, stageFragmentParameter, slangFragmentOutput, slangFragmentReflectionOutput), false);
 #else
-		slangResult = Process::Create("Tools/slangc", fmt::format("{} -target metallib {} -o {} -reflection-json {}", data._path, stageFragmentParameter, slangFragmentOutput, slangFragmentReflectionOutput), false);
+		slangResult = Process::Create("Tools/slangc", fmt::format("{} -target metallib {} -o {} -reflection-json {}", slangInputPath, stageFragmentParameter, slangFragmentOutput, slangFragmentReflectionOutput), false);
 #endif
 		if (slangResult == false)
 		{

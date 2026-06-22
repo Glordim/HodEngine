@@ -15,7 +15,7 @@ namespace hod::inline editor
 	/// @brief 
 	/// @param path 
 	/// @return 
-	bool PrefabImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings)
+	bool PrefabImporter::WriteResource(Stream& data, Stream& meta, Document& document, Vector<Resource::Data>& datas, Stream& thumbnail, ImporterSettings& settings)
 	{
 		// TODO
 		(void)meta;

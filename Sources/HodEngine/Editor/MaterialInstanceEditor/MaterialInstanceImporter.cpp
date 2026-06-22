@@ -34,7 +34,7 @@ namespace hod::inline editor
 	/// @brief 
 	/// @param path 
 	/// @return 
-	bool MaterialInstanceImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings)
+	bool MaterialInstanceImporter::WriteResource(Stream& data, Stream& meta, Document& document, Vector<Resource::Data>& datas, Stream& thumbnail, ImporterSettings& settings)
 	{
 		// TODO
 		(void)meta;

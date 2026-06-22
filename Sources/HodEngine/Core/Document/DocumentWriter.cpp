@@ -3,34 +3,36 @@
 
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
-
-#include <fstream>
+#include "HodEngine/Core/Stream/FileStream.hpp"
+#include "HodEngine/Core/Stream/MemoryStream.hpp"
+#include "HodEngine/Core/String.hpp"
 
 namespace hod::inline core
 {
-	/// @brief
-	/// @param document
-	/// @param path
-	/// @return
 	bool DocumentWriter::Write(Document& document, const Path& path)
 	{
-		std::ofstream fileStream(path.GetString().CStr());
+		FileStream fileStream;
+		if (fileStream.Open(path, FileSystem::OpenMode::Write) == false)
+		{
+			OUTPUT_ERROR("Can't write document at {}", path.GetString().CStr());
+			return false;
+		}
 		return Write(document, fileStream);
 	}
 
-	/// @brief
-	/// @param document
-	/// @param stream
-	/// @param Size
-	/// @return
-	bool DocumentWriter::Write(Document& document, std::ostream& stream)
+	bool DocumentWriter::Write(Document& document, Stream& stream)
 	{
-		if (stream.fail())
+		return WriteDocument(document, stream);
+	}
+
+	bool DocumentWriter::Write(Document& document, String& output)
+	{
+		MemoryStream memoryStream;
+		if (WriteDocument(document, memoryStream) == false)
 		{
-			OUTPUT_ERROR("Can't write document");
 			return false;
 		}
-
-		return WriteDocument(document, stream);
+		output = String(static_cast<const char*>(memoryStream.GetBuffer()), memoryStream.GetSize());
+		return true;
 	}
 }

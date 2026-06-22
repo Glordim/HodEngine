@@ -1,6 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
+#include "HodEngine/Core/ScopedGuard.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
@@ -16,8 +17,8 @@
 #include "HodEngine/Core/UID.hpp"
 
 #include <cstdint>
-#include <fstream>
-#include <sstream>
+
+#include "HodEngine/Core/Stream/FileStream.hpp"
 
 namespace hod::inline editor
 {
@@ -77,6 +78,23 @@ namespace hod::inline editor
 			Editor::GetInstance()->GetTaskTracker().UpdateTaskStatus(taskId, TaskStatus::Failed);
 			return false;
 		}
+
+		_tmpDir = FileSystem::GetInstance()->GetTemporaryPath() / "HodEngine" / Project::GetInstance()->GetName() / "Import" / uid.ToString();
+		ScopedGuard cleanupTmp = [&]()
+		{
+			FileSystem::GetInstance()->Close(sourceFile);
+			FileSystem::GetInstance()->RemoveAll(_tmpDir);
+		};
+		if (FileSystem::GetInstance()->CreateDirectories(_tmpDir) == false)
+		{
+			return false;
+		}
+
+		if (WriteContent(sourceFile, importSettings) == false)
+		{
+			return false;
+		}
+
 		char buffer[256 * 1024];
 		void* hashState = nullptr;
 		uint64_t fileHash = 0;
@@ -102,12 +120,13 @@ namespace hod::inline editor
 		}
 		FileSystem::GetInstance()->Seek(sourceFile, 0, FileSystem::SeekMode::Begin);
 		assetContainer.SetSourceHash(fileHash);
-		
-		//assetContainer.SetImportSettings(importSettings);
 
-		(void)sourcePath;
+		if (importSettings != nullptr)
+		{
+			Serializer::Serialize(*importSettings, assetContainer.GetImportSettings());
+		}
+
 		(void)destinationPath;
-		(void)importSettings;
 		(void)taskId;
 
 		assetContainer.Save(destinationPath);
@@ -139,7 +158,7 @@ namespace hod::inline editor
 
 		Document           metaDocument;
 		DocumentReaderJson documentReader;
-		if (documentReader.Read(metaDocument, metaFileHandle) == false)
+		if (documentReader.Read(metaDocument, metaFilePath) == false)
 		{
 			// TODO output reason
 			FileSystem::GetInstance()->Close(metaFileHandle);
@@ -183,8 +202,8 @@ namespace hod::inline editor
 		Path thumbnailFilePath = project->GetThumbnailDirPath() / meta._uid.ToString().CStr();
 		thumbnailFilePath += ".png";
 
-		std::ofstream thumbnailFile(thumbnailFilePath.GetString().CStr(), std::ios::binary);
-		if (thumbnailFile.is_open() == false)
+		FileStream thumbnailFile;
+		if (thumbnailFile.Open(thumbnailFilePath, FileSystem::OpenMode::Write) == false)
 		{
 			// TODO output reason
 			FileSystem::GetInstance()->Close(metaFileHandle);
@@ -194,56 +213,57 @@ namespace hod::inline editor
 
 		FileSystem::GetInstance()->Seek(metaFileHandle, 0, FileSystem::SeekMode::Begin);
 
+		FileSystem::GetInstance()->Close(metaFileHandle);
+		FileSystem::GetInstance()->Close(dataFile);
+
+		FileStream dataFileStream;
+		dataFileStream.Open(path);
+
+		FileStream metaFileStream;
+		metaFileStream.Open(metaFilePath);
+
 		Document               document;
 		Vector<Resource::Data> datas;
-		bool                   result = WriteResource(dataFile, metaFileHandle, document, datas, thumbnailFile, *meta._importerSettings);
+		bool                   result = WriteResource(dataFileStream, metaFileStream, document, datas, thumbnailFile, *meta._importerSettings);
 
 		Path resourceFilePath = project->GetResourceDirPath() / meta._uid.ToString().CStr();
 		resourceFilePath += ".dat";
 
-		std::ofstream resourceFile(resourceFilePath.GetString().CStr(), std::ios::binary);
-		if (resourceFile.is_open() == false)
+		FileStream resourceFile;
+		if (resourceFile.Open(resourceFilePath, FileSystem::OpenMode::Write) == false)
 		{
 			// TODO output reason
 			return false;
 		}
 
-		resourceFile.write("HodResource", 11);
+		resourceFile.Write("HodResource", 11);
 
 		uint32_t version = 1;
-		resourceFile.write(reinterpret_cast<char*>(&version), sizeof(version));
+		resourceFile.Write(&version, sizeof(version));
 
-		std::stringstream documentStringStream;
+		String documentString;
 
 		DocumentWriterJson documentWriter;
-		if (documentWriter.Write(document, documentStringStream) == false)
+		if (documentWriter.Write(document, documentString) == false)
 		{
 			// TODO message
 			return false;
 		}
 
-		uint32_t documentLen = (uint32_t)documentStringStream.str().size();
-		resourceFile.write(reinterpret_cast<char*>(&documentLen), sizeof(documentLen));
-
-		// todo use documentStringStream ?
-		if (documentWriter.Write(document, resourceFile) == false)
-		{
-			// TODO message
-			return false;
-		}
+		uint32_t documentLen = documentString.Length();
+		resourceFile.Write(&documentLen, sizeof(documentLen));
+		resourceFile.Write(documentString.CStr(), documentString.Length());
 
 		uint32_t dataCount = (uint32_t)datas.Size();
-		resourceFile.write(reinterpret_cast<char*>(&dataCount), sizeof(dataCount));
+		resourceFile.Write(&dataCount, sizeof(dataCount));
 
 		for (const Resource::Data& data : datas)
 		{
-			resourceFile.write(reinterpret_cast<const char*>(&data._size), sizeof(data._size));
-			resourceFile.write(static_cast<const char*>(data._buffer), data._size);
+			resourceFile.Write(&data._size, sizeof(data._size));
+			resourceFile.Write(data._buffer, data._size);
 
 			DefaultAllocator::GetInstance().Free(data._buffer);
 		}
-		FileSystem::GetInstance()->Close(metaFileHandle);
-		FileSystem::GetInstance()->Close(dataFile);
 		return result;
 	}
 
@@ -252,29 +272,23 @@ namespace hod::inline editor
 	/// @return
 	bool Importer::GenerateNewMeta(const Path& metaFilePath)
 	{
-		std::ofstream metaFile(metaFilePath.GetString().CStr());
-		if (metaFile.is_open() == true)
+		Meta meta;
+		meta._uid = UID::GenerateUID();
+		meta._importerType = GetTypeName();
+
+		Document document;
+		if (Serializer::Serialize(meta, document.GetRootNode()) == false)
 		{
-			Meta meta;
-			meta._uid = UID::GenerateUID();
-			meta._importerType = GetTypeName();
-
-			Document document;
-			if (Serializer::Serialize(meta, document.GetRootNode()) == false)
-			{
-				return false;
-			}
-
-			std::shared_ptr<ImporterSettings> settings = AllocateSettings();
-			if (Serializer::Serialize(settings.get(), document.GetRootNode().AddChild("importerSettings")) == false)
-			{
-				return false;
-			}
-
-			DocumentWriterJson documentWriter;
-			return documentWriter.Write(document, metaFile);
+			return false;
 		}
 
-		return true;
+		std::shared_ptr<ImporterSettings> settings = AllocateSettings();
+		if (Serializer::Serialize(settings.get(), document.GetRootNode().AddChild("importerSettings")) == false)
+		{
+			return false;
+		}
+
+		DocumentWriterJson documentWriter;
+		return documentWriter.Write(document, metaFilePath);
 	}
 }

@@ -55,7 +55,7 @@ namespace hod::inline editor
 		ReflectionDescriptor*             GetResourceDescriptor() const override;
 
 	protected:
-		bool WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail,
+		bool WriteResource(Stream& data, Stream& meta, Document& document, Vector<Resource::Data>& datas, Stream& thumbnail,
 		                   ImporterSettings& settings) override;
 	};
 }

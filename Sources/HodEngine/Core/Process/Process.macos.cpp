@@ -190,17 +190,14 @@ namespace hod::inline core
 
 				if (WIFEXITED(status))
 				{
-					// std::cout << "Child exited with status " << WEXITSTATUS(status) << std::endl;
 					result = (WEXITSTATUS(status) == EXIT_SUCCESS);
 				}
 				else if (WIFSIGNALED(status))
 				{
-					// printf("Child killed by signal %d\n", WTERMSIG(status));
 					result = false;
 				}
 				else
 				{
-					// std::cerr << "Child did not exit normally" << std::endl;
 					result = false;
 				}
 			}

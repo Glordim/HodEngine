@@ -1,6 +1,7 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
+#include "HodEngine/Editor/Importer/Importer.hpp"
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Core/FileSystem/Path.hpp>
@@ -55,6 +56,9 @@ namespace hod::inline editor
 		uint64_t GetSourceHash() const;
 		void     SetSourceHash(uint64_t sourceHash);
 
+		DocumentNode&       GetImportSettings();
+		const DocumentNode& GetImportSettings() const;
+
 		DocumentNode&       GetContentRoot();
 		const DocumentNode& GetContentRoot() const;
 
@@ -66,7 +70,7 @@ namespace hod::inline editor
 		void RemoveDataBlock(std::string_view name);
 
 	private:
-		bool ReadHeader(FileSystem::Handle& handle);
+		bool ReadHeader(Stream& stream);
 
 	private:
 		static const uint8_t MAGIC[8];
@@ -79,7 +83,8 @@ namespace hod::inline editor
 		uint64_t _sourceHash = 0;
 		Path     _sourcePath;
 
-		Document _content; // Root holds "_importerSettings"/"_content" and the reserved "_dataBlocks" array
+		Document _importSettings;
+		Document _content; // Root holds "_content" and the reserved "_dataBlocks" array
 
 		Vector<DataBlockInfo> _dataBlocks;
 		Vector<uint8_t>       _data;

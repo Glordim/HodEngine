@@ -6,7 +6,6 @@
 #include "HodEngine/Core/Output/OutputService.hpp"
 
 #include <fmt/format.h>
-#include <fstream>
 #include <string>
 
 #define STRINGIFY(x) #x
@@ -85,21 +84,14 @@ namespace hod::inline editor
 			}
 		}
 
-		try
+		String contentStr(content.data(), (uint32_t)content.size());
+		if (FileSystem::GetInstance()->WriteAllText(outputPath, contentStr) == false)
 		{
-			std::ofstream file;
-			file.exceptions(std::ofstream::failbit | std::ofstream::badbit);
-			file.open(outputPath.CStr(), std::ios_base::trunc);
-			file.write(content.data(), content.size());
-			file.close();
-			OUTPUT_MESSAGE("CMakeLists.txt generated at {}", outputPath);
-			return true;
-		}
-		catch (const std::ios_base::failure& e)
-		{
-			OUTPUT_ERROR("Failed to generate CMakeLists.txt at {} : {}", outputPath, e.what());
+			OUTPUT_ERROR("Failed to generate CMakeLists.txt at {}", outputPath);
 			return false;
 		}
+		OUTPUT_MESSAGE("CMakeLists.txt generated at {}", outputPath);
+		return true;
 	}
 
 	bool CMakeHelper::Configure(const Path& sourceDir, const Path& buildDir, const Path& installDir, Target target)

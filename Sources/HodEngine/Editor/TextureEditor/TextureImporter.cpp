@@ -45,15 +45,15 @@ namespace hod::inline editor
 	/// @brief
 	/// @param path
 	/// @return
-	bool TextureImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail,
+	bool TextureImporter::WriteResource(Stream& data, Stream& meta, Document& document, Vector<Resource::Data>& datas, Stream& thumbnail,
 	                                    ImporterSettings& settings)
 	{
 		// TODO
 		(void)meta;
 
-		uint32_t dataSize = FileSystem::GetInstance()->GetSize(data);
+		uint32_t dataSize = data.GetSize();
 		uint8_t* dataBuffer = DefaultAllocator::GetInstance().Allocate<uint8_t>(dataSize);
-		if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(dataBuffer), dataSize) != (int32_t)dataSize)
+		if (data.Read(dataBuffer, dataSize) != dataSize)
 		{
 			OUTPUT_ERROR("TextureImporter : Can't read Texture data");
 			return false;
@@ -89,8 +89,8 @@ namespace hod::inline editor
 		int writeResult = stbi_write_png_to_func(
 			[](void* context, void* data, int len)
 			{
-				std::ofstream* thumbnailStream = static_cast<std::ofstream*>(context);
-				thumbnailStream->write(reinterpret_cast<char*>(data), len);
+				Stream* thumbnailStream = static_cast<Stream*>(context);
+				thumbnailStream->Write(data, len);
 			},
 			&thumbnail, thumbnailWidth, thumbnailHeight, componentCount, thumbnailPixels, 0);
 		DefaultAllocator::GetInstance().Free(thumbnailPixels);

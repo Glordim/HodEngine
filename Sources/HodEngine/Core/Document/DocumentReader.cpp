@@ -3,53 +3,43 @@
 
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
+#include "HodEngine/Core/Stream/FileStream.hpp"
 
 namespace hod::inline core
 {
-	/// @brief
-	/// @param document
-	/// @param path
-	/// @return
 	bool DocumentReader::Read(Document& document, const Path& path)
 	{
-		FileSystem::Handle fileHandle = FileSystem::GetInstance()->Open(path);
-		bool               result = Read(document, fileHandle);
-		FileSystem::GetInstance()->Close(fileHandle);
-		return result;
-	}
-
-	/// @brief
-	/// @param document
-	/// @param fileHandle
-	/// @param Size
-	/// @return
-	bool DocumentReader::Read(Document& document, FileSystem::Handle& fileHandle, uint32_t Size)
-	{
-		if (fileHandle.IsOpen() == false)
+		FileStream fileStream;
+		if (fileStream.Open(path) == false)
 		{
-			OUTPUT_ERROR("Can't read document");
+			OUTPUT_ERROR("Can't read document at {}", path.GetString().CStr());
 			return false;
 		}
+		return Read(document, fileStream);
+	}
 
+	bool DocumentReader::Read(Document& document, Stream& stream, uint32_t size)
+	{
 		if (document.GetRootNode().GetFirstChild() != nullptr)
 		{
 			OUTPUT_ERROR("Document not empty");
 			return false;
 		}
 
-		if (Size == 0)
+		if (size == 0)
 		{
-			Size = FileSystem::GetInstance()->GetSize(fileHandle);
+			size = stream.GetSize();
 		}
 
-		char* buffer = DefaultAllocator::GetInstance().Allocate<char>(Size + 1);
-		if (FileSystem::GetInstance()->Read(fileHandle, buffer, Size) != (int32_t)Size)
+		char* buffer = DefaultAllocator::GetInstance().Allocate<char>(size + 1);
+		if (stream.Read(buffer, size) != size)
 		{
+			DefaultAllocator::GetInstance().Free(buffer);
 			return false;
 		}
-		buffer[Size] = '\0';
+		buffer[size] = '\0';
 
-		bool result = Read(document, buffer, Size);
+		bool result = Read(document, buffer, size);
 		DefaultAllocator::GetInstance().Free(buffer);
 		return result;
 	}

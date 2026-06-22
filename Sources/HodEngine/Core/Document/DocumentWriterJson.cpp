@@ -1,5 +1,6 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
+#include "HodEngine/Core/Stream/Stream.hpp"
 
 #include <cassert>
 #include <charconv>
@@ -7,39 +8,31 @@
 
 namespace hod::inline core
 {
-	/// @brief
-	/// @param document
-	/// @param stream
-	/// @return
-	bool DocumentWriterJson::WriteDocument(Document& document, std::ostream& stream)
+	bool DocumentWriterJson::WriteDocument(Document& document, Stream& stream)
 	{
 		return WriteNode(document.GetRootNode(), stream);
 	}
 
-	/// @brief
-	/// @param node
-	/// @param stream
-	/// @return
-	bool DocumentWriterJson::WriteNode(const DocumentNode& node, std::ostream& stream)
+	bool DocumentWriterJson::WriteNode(const DocumentNode& node, Stream& stream)
 	{
 		if (_pretty == true)
 		{
 			for (uint32_t i = 0; i < _indentation; ++i)
 			{
-				stream.write("\t", 1);
+				stream.Write("\t", 1);
 			}
 		}
 
 		const String& name = node.GetName();
 		if (name.Size() > 0)
 		{
-			stream.write("\"", 1);
-			stream.write(name.CStr(), name.Size());
-			stream.write("\":", 2);
+			stream.Write("\"", 1);
+			stream.Write(name.CStr(), name.Size());
+			stream.Write("\":", 2);
 
 			if (_pretty == true)
 			{
-				stream.write(" ", 1);
+				stream.Write(" ", 1);
 			}
 		}
 
@@ -50,15 +43,15 @@ namespace hod::inline core
 				DocumentNode* child = node.GetFirstChild();
 				if (child == nullptr)
 				{
-					stream.write("{}", 2);
+					stream.Write("{}", 2);
 				}
 				else
 				{
-					stream.write("{", 1);
+					stream.Write("{", 1);
 					if (_pretty == true)
 					{
 						++_indentation;
-						stream.write("\n", 1);
+						stream.Write("\n", 1);
 					}
 					while (child != nullptr)
 					{
@@ -66,23 +59,23 @@ namespace hod::inline core
 						child = child->GetNextSibling();
 						if (child != nullptr)
 						{
-							stream.write(",", 1);
+							stream.Write(",", 1);
 							if (_pretty == true)
 							{
-								stream.write("\n", 1);
+								stream.Write("\n", 1);
 							}
 						}
 					}
 					if (_pretty == true)
 					{
 						--_indentation;
-						stream.write("\n", 1);
+						stream.Write("\n", 1);
 						for (uint32_t i = 0; i < _indentation; ++i)
 						{
-							stream.write("\t", 1);
+							stream.Write("\t", 1);
 						}
 					}
-					stream.write("}", 1);
+					stream.Write("}", 1);
 				}
 			}
 			break;
@@ -92,15 +85,15 @@ namespace hod::inline core
 				DocumentNode* child = node.GetFirstChild();
 				if (child == nullptr)
 				{
-					stream.write("[]", 2);
+					stream.Write("[]", 2);
 				}
 				else
 				{
-					stream.write("[", 1);
+					stream.Write("[", 1);
 					if (_pretty == true)
 					{
 						++_indentation;
-						stream.write("\n", 1);
+						stream.Write("\n", 1);
 					}
 					while (child != nullptr)
 					{
@@ -108,23 +101,23 @@ namespace hod::inline core
 						child = child->GetNextSibling();
 						if (child != nullptr)
 						{
-							stream.write(",", 1);
+							stream.Write(",", 1);
 							if (_pretty == true)
 							{
-								stream.write("\n", 1);
+								stream.Write("\n", 1);
 							}
 						}
 					}
 					if (_pretty == true)
 					{
 						--_indentation;
-						stream.write("\n", 1);
+						stream.Write("\n", 1);
 						for (uint32_t i = 0; i < _indentation; ++i)
 						{
-							stream.write("\t", 1);
+							stream.Write("\t", 1);
 						}
 					}
-					stream.write("]", 1);
+					stream.Write("]", 1);
 				}
 			}
 			break;
@@ -133,11 +126,11 @@ namespace hod::inline core
 			{
 				if (node.GetBool() == true)
 				{
-					stream.write("true", 4);
+					stream.Write("true", 4);
 				}
 				else
 				{
-					stream.write("false", 5);
+					stream.Write("false", 5);
 				}
 			}
 			break;
@@ -147,7 +140,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetInt8());
 				assert(result.ec == std::errc());
-				stream.write(buffer, result.ptr - buffer);
+				stream.Write(buffer, result.ptr - buffer);
 			}
 			break;
 
@@ -156,7 +149,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetInt16());
 				assert(result.ec == std::errc());
-				stream.write(buffer, result.ptr - buffer);
+				stream.Write(buffer, result.ptr - buffer);
 			}
 			break;
 
@@ -165,7 +158,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetInt32());
 				assert(result.ec == std::errc());
-				stream.write(buffer, result.ptr - buffer);
+				stream.Write(buffer, result.ptr - buffer);
 			}
 			break;
 
@@ -174,7 +167,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetInt64());
 				assert(result.ec == std::errc());
-				stream.write(buffer, result.ptr - buffer);
+				stream.Write(buffer, result.ptr - buffer);
 			}
 			break;
 
@@ -183,7 +176,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetUInt8());
 				assert(result.ec == std::errc());
-				stream.write(buffer, result.ptr - buffer);
+				stream.Write(buffer, result.ptr - buffer);
 			}
 			break;
 
@@ -192,7 +185,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetUInt16());
 				assert(result.ec == std::errc());
-				stream.write(buffer, result.ptr - buffer);
+				stream.Write(buffer, result.ptr - buffer);
 			}
 			break;
 
@@ -201,7 +194,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetUInt32());
 				assert(result.ec == std::errc());
-				stream.write(buffer, result.ptr - buffer);
+				stream.Write(buffer, result.ptr - buffer);
 			}
 			break;
 
@@ -210,7 +203,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetUInt64());
 				assert(result.ec == std::errc());
-				stream.write(buffer, result.ptr - buffer);
+				stream.Write(buffer, result.ptr - buffer);
 			}
 			break;
 
@@ -219,7 +212,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetFloat32(), std::chars_format::scientific);
 				assert(result.ec == std::errc());
-				stream.write(buffer, result.ptr - buffer);
+				stream.Write(buffer, result.ptr - buffer);
 			}
 			break;
 
@@ -228,13 +221,13 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetFloat64(), std::chars_format::scientific);
 				assert(result.ec == std::errc());
-				stream.write(buffer, result.ptr - buffer);
+				stream.Write(buffer, result.ptr - buffer);
 			}
 			break;
 
 			case DocumentNode::Type::String:
 			{
-				stream.write("\"", 1);
+				stream.Write("\"", 1);
 				const String& value = node.GetString();
 				const char*   pos = std::strpbrk(value.CStr(), "\t\n\r\f\b\"\\");
 				if (pos != nullptr)
@@ -259,13 +252,13 @@ namespace hod::inline core
 						escapedValue.Insert(offset, "\\");
 						pos = std::strpbrk(escapedValue.CStr() + offset + 2, "\t\n\r\f\b\"\\");
 					}
-					stream.write(escapedValue.CStr(), escapedValue.Size());
+					stream.Write(escapedValue.CStr(), escapedValue.Size());
 				}
 				else
 				{
-					stream.write(value.CStr(), value.Size());
+					stream.Write(value.CStr(), value.Size());
 				}
-				stream.write("\"", 1);
+				stream.Write("\"", 1);
 			}
 			break;
 

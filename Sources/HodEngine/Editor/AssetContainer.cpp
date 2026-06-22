@@ -5,10 +5,9 @@
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Hash.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
+#include "HodEngine/Core/Stream/FileStream.hpp"
 
 #include <cstring>
-#include <fstream>
-#include <sstream>
 
 namespace hod::inline editor
 {
@@ -17,42 +16,42 @@ namespace hod::inline editor
 	/// @brief Read the fixed Header followed by the SourcePath block
 	/// @param handle
 	/// @return
-	bool AssetContainer::ReadHeader(FileSystem::Handle& handle)
+	bool AssetContainer::ReadHeader(Stream& stream)
 	{
 		uint8_t magic[8];
-		if (FileSystem::GetInstance()->Read(handle, magic, sizeof(magic)) != sizeof(magic) || std::memcmp(magic, MAGIC, sizeof(MAGIC)) != 0)
+		if (stream.Read(magic, sizeof(magic)) != sizeof(magic) || std::memcmp(magic, MAGIC, sizeof(MAGIC)) != 0)
 		{
-			OUTPUT_ERROR("AssetContainer::ReadHeader: invalid magic number for {}", handle._path);
+			OUTPUT_ERROR("AssetContainer::ReadHeader: invalid magic number");
 			return false;
 		}
 
 		uint32_t formatVersion = 0;
-		FileSystem::GetInstance()->Read(handle, &formatVersion, sizeof(formatVersion));
+		stream.Read(&formatVersion, sizeof(formatVersion));
 		if (formatVersion != FORMAT_VERSION)
 		{
-			OUTPUT_ERROR("AssetContainer::ReadHeader: unsupported format version {} for {}", formatVersion, handle._path);
+			OUTPUT_ERROR("AssetContainer::ReadHeader: unsupported format version {}", formatVersion);
 			return false;
 		}
 
 		uint64_t uidLow = 0;
 		uint64_t uidHigh = 0;
-		FileSystem::GetInstance()->Read(handle, &uidLow, sizeof(uidLow));
-		FileSystem::GetInstance()->Read(handle, &uidHigh, sizeof(uidHigh));
+		stream.Read(&uidLow, sizeof(uidLow));
+		stream.Read(&uidHigh, sizeof(uidHigh));
 		_uid = UID(uidLow, uidHigh);
 
-		FileSystem::GetInstance()->Read(handle, &_assetType, sizeof(_assetType));
-		FileSystem::GetInstance()->Read(handle, &_contentHash, sizeof(_contentHash));
+		stream.Read(&_assetType, sizeof(_assetType));
+		stream.Read(&_contentHash, sizeof(_contentHash));
 
-		FileSystem::GetInstance()->Read(handle, &_sourceHash, sizeof(_sourceHash));
+		stream.Read(&_sourceHash, sizeof(_sourceHash));
 
 		uint32_t sourcePathSize = 0;
-		FileSystem::GetInstance()->Read(handle, &sourcePathSize, sizeof(sourcePathSize));
+		stream.Read(&sourcePathSize, sizeof(sourcePathSize));
 
 		if (sourcePathSize > 0)
 		{
 			String sourcePathStr;
 			sourcePathStr.Resize(sourcePathSize);
-			FileSystem::GetInstance()->Read(handle, sourcePathStr.Data(), sourcePathSize);
+			stream.Read(sourcePathStr.Data(), sourcePathSize);
 			_sourcePath = sourcePathStr;
 		}
 		else
@@ -68,16 +67,14 @@ namespace hod::inline editor
 	/// @return
 	bool AssetContainer::LoadHeader(const Path& path)
 	{
-		FileSystem::Handle handle = FileSystem::GetInstance()->Open(path);
-		if (handle.IsOpen() == false)
+		FileStream fileStream;
+		if (fileStream.Open(path) == false)
 		{
 			OUTPUT_ERROR("AssetContainer::LoadHeader: can't open {}", path);
 			return false;
 		}
 
-		bool result = ReadHeader(handle);
-		FileSystem::GetInstance()->Close(handle);
-		return result;
+		return ReadHeader(fileStream);
 	}
 
 	/// @brief Read the whole asset (Header + SourcePath + Content + Data)
@@ -85,21 +82,20 @@ namespace hod::inline editor
 	/// @return
 	bool AssetContainer::Load(const Path& path)
 	{
-		FileSystem::Handle handle = FileSystem::GetInstance()->Open(path);
-		if (handle.IsOpen() == false)
+		FileStream fileStream;
+		if (fileStream.Open(path) == false)
 		{
 			OUTPUT_ERROR("AssetContainer::Load: can't open {}", path);
 			return false;
 		}
 
-		if (ReadHeader(handle) == false)
+		if (ReadHeader(fileStream) == false)
 		{
-			FileSystem::GetInstance()->Close(handle);
 			return false;
 		}
 
 		uint32_t contentSize = 0;
-		FileSystem::GetInstance()->Read(handle, &contentSize, sizeof(contentSize));
+		fileStream.Read(&contentSize, sizeof(contentSize));
 
 		_content.GetRootNode().Clear();
 		_dataBlocks.Clear();
@@ -107,10 +103,9 @@ namespace hod::inline editor
 		if (contentSize > 0)
 		{
 			DocumentReaderJson reader;
-			if (reader.Read(_content, handle, contentSize) == false)
+			if (reader.Read(_content, fileStream, contentSize) == false)
 			{
 				OUTPUT_ERROR("AssetContainer::Load: failed to parse Content for {}", path);
-				FileSystem::GetInstance()->Close(handle);
 				return false;
 			}
 
@@ -143,18 +138,17 @@ namespace hod::inline editor
 			}
 		}
 
-		uint32_t fileSize = FileSystem::GetInstance()->GetSize(handle);
-		uint32_t currentOffset = FileSystem::GetInstance()->GetOffset(handle);
+		uint32_t fileSize = fileStream.GetSize();
+		uint32_t currentOffset = fileStream.GetPosition();
 		uint32_t dataSize = (fileSize > currentOffset) ? (fileSize - currentOffset) : 0;
 
 		_data.Clear();
 		_data.Resize(dataSize);
 		if (dataSize > 0)
 		{
-			FileSystem::GetInstance()->Read(handle, _data.Data(), dataSize);
+			fileStream.Read(_data.Data(), dataSize);
 		}
 
-		FileSystem::GetInstance()->Close(handle);
 		return true;
 	}
 
@@ -180,18 +174,17 @@ namespace hod::inline editor
 			entryNode.GetOrAddChild("_size").SetUInt32(info._size);
 		}
 
-		std::ostringstream contentStream;
+		String contentStr;
 		DocumentWriterJson contentWriter;
-		if (contentWriter.Write(_content, contentStream) == false)
+		if (contentWriter.Write(_content, contentStr) == false)
 		{
 			OUTPUT_ERROR("AssetContainer::Save: failed to serialize Content for {}", path);
 			return false;
 		}
-		std::string contentStr = contentStream.str();
 
 		const String& sourcePathStr = _sourcePath.GetString();
 		uint32_t      sourcePathSize = sourcePathStr.Size();
-		uint32_t      contentSize = static_cast<uint32_t>(contentStr.size());
+		uint32_t      contentSize = contentStr.Size();
 
 		// ContentHash = Fnv64(SourceHash + SourcePathSize + SourcePath + ContentSize + Content + Data)
 		Vector<uint8_t> hashBuffer;
@@ -206,7 +199,7 @@ namespace hod::inline editor
 		hashCursor += sourcePathSize;
 		std::memcpy(hashCursor, &contentSize, sizeof(contentSize));
 		hashCursor += sizeof(contentSize);
-		std::memcpy(hashCursor, contentStr.data(), contentSize);
+		std::memcpy(hashCursor, contentStr.CStr(), contentSize);
 		hashCursor += contentSize;
 		if (_data.Empty() == false)
 		{
@@ -215,42 +208,42 @@ namespace hod::inline editor
 
 		_contentHash = Hash::ComputeFnv64(std::string_view(reinterpret_cast<const char*>(hashBuffer.Data()), hashBuffer.Size()));
 
-		std::ofstream file(path.GetString().CStr(), std::ios::binary | std::ios::trunc);
-		if (file.is_open() == false)
+		FileStream file;
+		if (file.Open(path, FileSystem::OpenMode::Write) == false)
 		{
 			OUTPUT_ERROR("AssetContainer::Save: can't open {}", path);
 			return false;
 		}
 
-		file.write(reinterpret_cast<const char*>(MAGIC), sizeof(MAGIC));
+		file.Write(MAGIC, sizeof(MAGIC));
 
 		uint32_t formatVersion = FORMAT_VERSION;
-		file.write(reinterpret_cast<const char*>(&formatVersion), sizeof(formatVersion));
+		file.Write(&formatVersion, sizeof(formatVersion));
 
 		uint64_t uidLow = _uid.GetLow();
 		uint64_t uidHigh = _uid.GetHigh();
-		file.write(reinterpret_cast<const char*>(&uidLow), sizeof(uidLow));
-		file.write(reinterpret_cast<const char*>(&uidHigh), sizeof(uidHigh));
+		file.Write(&uidLow, sizeof(uidLow));
+		file.Write(&uidHigh, sizeof(uidHigh));
 
-		file.write(reinterpret_cast<const char*>(&_assetType), sizeof(_assetType));
-		file.write(reinterpret_cast<const char*>(&_contentHash), sizeof(_contentHash));
+		file.Write(&_assetType, sizeof(_assetType));
+		file.Write(&_contentHash, sizeof(_contentHash));
 
-		file.write(reinterpret_cast<const char*>(&_sourceHash), sizeof(_sourceHash));
-		file.write(reinterpret_cast<const char*>(&sourcePathSize), sizeof(sourcePathSize));
+		file.Write(&_sourceHash, sizeof(_sourceHash));
+		file.Write(&sourcePathSize, sizeof(sourcePathSize));
 		if (sourcePathSize > 0)
 		{
-			file.write(sourcePathStr.CStr(), sourcePathSize);
+			file.Write(sourcePathStr.CStr(), sourcePathSize);
 		}
 
-		file.write(reinterpret_cast<const char*>(&contentSize), sizeof(contentSize));
+		file.Write(&contentSize, sizeof(contentSize));
 		if (contentSize > 0)
 		{
-			file.write(contentStr.data(), contentSize);
+			file.Write(contentStr.CStr(), contentSize);
 		}
 
 		if (_data.Empty() == false)
 		{
-			file.write(reinterpret_cast<const char*>(_data.Data()), _data.Size());
+			file.Write(_data.Data(), _data.Size());
 		}
 
 		return true;
@@ -304,6 +297,16 @@ namespace hod::inline editor
 	void AssetContainer::SetSourceHash(uint64_t sourceHash)
 	{
 		_sourceHash = sourceHash;
+	}
+
+	DocumentNode& AssetContainer::GetImportSettings()
+	{
+		return _importSettings.GetRootNode();
+	}
+
+	const DocumentNode& AssetContainer::GetImportSettings() const
+	{
+		return _importSettings.GetRootNode();
 	}
 
 	DocumentNode& AssetContainer::GetContentRoot()

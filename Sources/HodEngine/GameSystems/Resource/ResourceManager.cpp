@@ -3,7 +3,7 @@
 
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
-#include "HodEngine/Core/FileSystem/FileSystem.hpp"
+#include "HodEngine/Core/Stream/FileStream.hpp"
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
 
 #include "HodEngine/Core/Output/OutputService.hpp"
@@ -48,8 +48,8 @@ namespace hod::inline gamesystems
 		Path path = _directory;
 		path /= (uid.ToString() + ".dat").CStr(); // todo remove Cstr when remove Path
 
-		FileSystem::Handle fileHandle = FileSystem::GetInstance()->Open(path);
-		if (fileHandle.IsOpen() == false)
+		FileStream fileStream;
+		if (fileStream.Open(path) == false)
 		{
 			OUTPUT_ERROR("ResourceManager::Load: resource {} not found", uid.ToString());
 			return false;
@@ -68,53 +68,47 @@ namespace hod::inline gamesystems
 		// ]
 		//
 
-		constexpr size_t signatureLen = 11;
-		char             signature[signatureLen];
-		if (FileSystem::GetInstance()->Read(fileHandle, signature, signatureLen) != signatureLen)
+		constexpr uint32_t signatureLen = 11;
+		char               signature[signatureLen];
+		if (fileStream.Read(signature, signatureLen) != signatureLen)
 		{
 			OUTPUT_ERROR("ResourceManager::Load: resource {} unable to read signature", uid.ToString());
-			FileSystem::GetInstance()->Close(fileHandle);
 			return false;
 		}
 		if (std::strncmp(signature, "HodResource", signatureLen) != 0)
 		{
 			OUTPUT_ERROR("ResourceManager::Load: resource {} hasn't HodResource signature", uid.ToString());
-			FileSystem::GetInstance()->Close(fileHandle);
 			return false;
 		}
 
 		uint32_t version = 0;
-		if (FileSystem::GetInstance()->Read(fileHandle, (char*)(&version), sizeof(version)) != sizeof(version))
+		if (fileStream.Read(&version, sizeof(version)) != sizeof(version))
 		{
 			OUTPUT_ERROR("ResourceManager::Load: resource {} unable to read version", uid.ToString());
-			FileSystem::GetInstance()->Close(fileHandle);
 			return false;
 		}
 		if (version == 1)
 		{
 			uint32_t documentLen = 0;
-			if (FileSystem::GetInstance()->Read(fileHandle, (char*)(&documentLen), sizeof(documentLen)) != sizeof(documentLen))
+			if (fileStream.Read(&documentLen, sizeof(documentLen)) != sizeof(documentLen))
 			{
 				OUTPUT_ERROR("ResourceManager::Load: resource {} unable to read documentLen", uid.ToString());
-				FileSystem::GetInstance()->Close(fileHandle);
 				return false;
 			}
 
 			Document           document;
 			DocumentReaderJson documentReader;
-			if (documentReader.Read(document, fileHandle, documentLen) == false)
+			if (documentReader.Read(document, fileStream, documentLen) == false)
 			{
 				OUTPUT_ERROR("ResourceManager::Load: resource {} unable to read document", uid.ToString());
-				FileSystem::GetInstance()->Close(fileHandle);
 				return false;
 			}
 			DocumentNode& rootNode = document.GetRootNode();
 
 			uint32_t dataCount = 0;
-			if (FileSystem::GetInstance()->Read(fileHandle, (char*)(&dataCount), sizeof(dataCount)) != sizeof(dataCount))
+			if (fileStream.Read(&dataCount, sizeof(dataCount)) != sizeof(dataCount))
 			{
 				OUTPUT_ERROR("ResourceManager::Load: resource {} unable to read dataCount", uid.ToString());
-				FileSystem::GetInstance()->Close(fileHandle);
 				return false;
 			}
 			Vector<Resource::Data> datas;
@@ -122,10 +116,9 @@ namespace hod::inline gamesystems
 			for (uint32_t dataIndex = 0; dataIndex < dataCount; ++dataIndex)
 			{
 				uint32_t dataSize = 0;
-				if (FileSystem::GetInstance()->Read(fileHandle, (char*)(&dataSize), sizeof(dataSize)) != sizeof(dataSize))
+				if (fileStream.Read(&dataSize, sizeof(dataSize)) != sizeof(dataSize))
 				{
 					OUTPUT_ERROR("ResourceManager::Load: resource {} unable to read data size {}", uid.ToString(), dataIndex);
-					FileSystem::GetInstance()->Close(fileHandle);
 					return false;
 				}
 
@@ -133,16 +126,14 @@ namespace hod::inline gamesystems
 				data._buffer = DefaultAllocator::GetInstance().Allocate(dataSize);
 				data._size = dataSize;
 
-				if (FileSystem::GetInstance()->Read(fileHandle, (char*)(data._buffer), dataSize) != (int32_t)dataSize)
+				if (fileStream.Read(data._buffer, dataSize) != dataSize)
 				{
 					OUTPUT_ERROR("ResourceManager::Load: resource {} unable to read data {}", uid.ToString(), dataIndex);
-					FileSystem::GetInstance()->Close(fileHandle);
 					return false;
 				}
 
 				datas.push_back(data);
 			}
-			FileSystem::GetInstance()->Close(fileHandle);
 
 			bool result = resource->Initialize(rootNode, datas);
 			if (result == false)
@@ -160,7 +151,6 @@ namespace hod::inline gamesystems
 		else
 		{
 			OUTPUT_ERROR("ResourceManager::Load: unsupported version {}", uid.ToString(), version);
-			FileSystem::GetInstance()->Close(fileHandle);
 			return false;
 		}
 	}

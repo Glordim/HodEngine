@@ -6,6 +6,8 @@
 
 namespace hod::inline core
 {
+	class Stream;
+
 	/// @brief
 	class HOD_CORE_API DocumentWriterJson : public DocumentWriter
 	{
@@ -19,10 +21,10 @@ namespace hod::inline core
 		DocumentWriterJson& operator=(DocumentWriterJson&&) = delete;
 
 	protected:
-		bool WriteDocument(Document& document, std::ostream& stream) override;
+		bool WriteDocument(Document& document, Stream& stream) override;
 
 	private:
-		bool WriteNode(const DocumentNode& node, std::ostream& stream);
+		bool WriteNode(const DocumentNode& node, Stream& stream);
 
 	private:
 		bool     _pretty = true;

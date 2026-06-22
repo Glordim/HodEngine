@@ -15,8 +15,6 @@
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
-#include <fstream>
-
 namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(Meta, reflectionDescriptor)

@@ -1,17 +1,12 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
-#include <fstream>
+#include <HodEngine/Core/Stream/SpillStream.hpp>
 #include <HodEngine/Core/FileSystem/Path.hpp>
 
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
-
-namespace hod::inline core
-{
-	class FileStream;
-}
 
 namespace hod::inline editor
 {
@@ -58,14 +53,25 @@ namespace hod::inline editor
 	protected:
 		bool GenerateNewMeta(const Path& metaFilePath);
 
-		virtual bool WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail,
+		virtual bool WriteResource(Stream& data, Stream& meta, Document& document, Vector<Resource::Data>& datas, Stream& thumbnail,
 		                           ImporterSettings& settings) = 0;
+
+		virtual bool WriteContent(FileSystem::Handle& sourceFile, ImporterSettings* importSettings) { (void)sourceFile; (void)importSettings; return false; }; // todo retrocompat, make it pure
 
 		template<typename... Args>
 		void SetSupportedDataFileExtensions(Args... args);
 
 	private:
 		Vector<const char*> _supportedDataFileExtensions;
+
+		Path _tmpDir;
+
+		struct DataBlock
+		{
+			String name;
+			SpillStream stream;
+		};
+		Vector<DataBlock*> _dataBlocks;
 	};
 
 	// TODO inl

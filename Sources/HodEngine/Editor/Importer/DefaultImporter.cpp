@@ -11,7 +11,7 @@ namespace hod::inline editor
 	/// @brief 
 	/// @param path 
 	/// @return 
-	bool DefaultImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings)
+	bool DefaultImporter::WriteResource(Stream& data, Stream& meta, Document& document, Vector<Resource::Data>& datas, Stream& thumbnail, ImporterSettings& settings)
 	{
 		(void)data;
 		(void)meta;

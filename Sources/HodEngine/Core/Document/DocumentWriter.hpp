@@ -1,13 +1,12 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
-#include <cstdint>
 #include <HodEngine/Core/FileSystem/Path.hpp>
-#include <ostream>
 
 namespace hod::inline core
 {
 	class Stream;
+	class String;
 	class Document;
 
 	/// @brief
@@ -24,9 +23,10 @@ namespace hod::inline core
 
 	public:
 		bool Write(Document& document, const Path& path);
-		bool Write(Document& document, std::ostream& stream);
+		bool Write(Document& document, Stream& stream);
+		bool Write(Document& document, String& output);
 
 	protected:
-		virtual bool WriteDocument(Document& document, std::ostream& stream) = 0;
+		virtual bool WriteDocument(Document& document, Stream& stream) = 0;
 	};
 }

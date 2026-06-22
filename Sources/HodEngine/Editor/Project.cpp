@@ -9,7 +9,6 @@
 
 #include <algorithm>
 #include <fmt/format.h>
-#include <fstream>
 #include <functional>
 
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
@@ -120,23 +119,13 @@ namespace hod::inline editor
 				replaceIndex = content.Find(apiTag);
 			}
 
-			try
+			if (FileSystem::GetInstance()->WriteAllText(path, content) == false)
 			{
-				std::ofstream fileStream;
-				fileStream.exceptions(std::ofstream::failbit | std::ofstream::badbit);
-				fileStream.open(path.CStr(), std::ios_base::trunc);
-				fileStream.write(content.CStr(), content.Size());
-				fileStream.close();
-
-				OUTPUT_MESSAGE("MinimalSourceForModule generated at {}", path);
-
-				return true;
-			}
-			catch (const std::ios_base::failure& e)
-			{
-				OUTPUT_ERROR("Failed to generate MinimalSourceForModule at {} : {}", path, e.what());
+				OUTPUT_ERROR("Failed to generate MinimalSourceForModule at {}", path);
 				return false;
 			}
+			OUTPUT_MESSAGE("MinimalSourceForModule generated at {}", path);
+			return true;
 		};
 
 		if (writeFileFunc(sourcesDirPath / (_name + ".hpp").CStr(), Module_hpp, _name) == false)

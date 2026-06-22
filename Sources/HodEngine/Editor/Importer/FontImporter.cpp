@@ -26,7 +26,7 @@ namespace hod::inline editor
 	/// @brief 
 	/// @param path 
 	/// @return 
-	bool FontImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail, ImporterSettings& settings)
+	bool FontImporter::WriteResource(Stream& data, Stream& meta, Document& document, Vector<Resource::Data>& datas, Stream& thumbnail, ImporterSettings& settings)
 	{
 		(void)document;
 		(void)meta;
@@ -34,9 +34,9 @@ namespace hod::inline editor
 		(void)settings;
 
 		Resource::Data ttfData;
-		ttfData._size = FileSystem::GetInstance()->GetSize(data);
+		ttfData._size = data.GetSize();
 		ttfData._buffer = DefaultAllocator::GetInstance().Allocate<uint8_t>(ttfData._size);
-		if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(ttfData._buffer), ttfData._size) != (int32_t)ttfData._size)
+		if (data.Read(ttfData._buffer, ttfData._size) != ttfData._size)
 		{
 			OUTPUT_ERROR("FontImporter : Can't read Font data");
 			return false;

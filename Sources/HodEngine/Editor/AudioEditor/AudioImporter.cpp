@@ -27,7 +27,7 @@ namespace hod::inline editor
 	/// @brief
 	/// @param path
 	/// @return
-	bool AudioImporter::WriteResource(FileSystem::Handle& data, FileSystem::Handle& meta, Document& document, Vector<Resource::Data>& datas, std::ofstream& thumbnail,
+	bool AudioImporter::WriteResource(Stream& data, Stream& meta, Document& document, Vector<Resource::Data>& datas, Stream& thumbnail,
 	                                    ImporterSettings& /*settings*/)
 	{
 		// TODO
@@ -56,7 +56,7 @@ namespace hod::inline editor
 		#pragma pack(pop)
 
 		WAVHeader header;
-		if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(&header), sizeof(WAVHeader)) != (int32_t)sizeof(WAVHeader))
+		if (data.Read(&header, sizeof(WAVHeader)) != sizeof(WAVHeader))
 		{
 			OUTPUT_ERROR("AudioImporter : Can't read Wav header");
 			return false;
@@ -74,8 +74,8 @@ namespace hod::inline editor
 
 		while (std::string_view(header.dataMarker, 4) != "data")
 		{
-			FileSystem::GetInstance()->Seek(data, header.dataSize, FileSystem::SeekMode::Current);
-			if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(&header.dataMarker), sizeof(char) * 4 + sizeof(uint32_t)) != (int32_t)(sizeof(char) * 4 + sizeof(uint32_t)))
+			data.Seek(header.dataSize, Stream::SeekOrigin::Current);
+			if (data.Read(&header.dataMarker, sizeof(char) * 4 + sizeof(uint32_t)) != sizeof(char) * 4 + sizeof(uint32_t))
 			{
 				OUTPUT_ERROR("AudioImporter : Can't read data section");
 				return false;
@@ -84,7 +84,7 @@ namespace hod::inline editor
 
 		Vector<uint8_t> audioBuffer;
 		audioBuffer.Resize(header.dataSize);
-		if (FileSystem::GetInstance()->Read(data, reinterpret_cast<char*>(audioBuffer.Data()), header.dataSize) != (int32_t)header.dataSize)
+		if (data.Read(audioBuffer.Data(), header.dataSize) != header.dataSize)
 		{
 			OUTPUT_ERROR("AudioImporter : Can't read data");
 			return false;

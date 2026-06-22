@@ -4,8 +4,10 @@
 #include <HodEngine/Core/Document/DocumentWriterJson.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 
+#include <HodEngine/Core/Stream/MemoryStream.hpp>
+
 #include <limits>
-#include <sstream>
+#include <cstring>
 
 #undef min
 #undef max
@@ -537,12 +539,13 @@ namespace hod
 		Document document;
 		FillDocument(document);
 
-		std::stringstream output;
+		MemoryStream output;
 
 		DocumentWriterJson writer;
 		EXPECT_TRUE(writer.Write(document, output));
 
-		EXPECT_STREQ(output.str().c_str(), expectedJson);
+		EXPECT_EQ(output.GetSize(), strlen(expectedJson));
+		EXPECT_EQ(memcmp(output.GetBuffer(), expectedJson, output.GetSize()), 0);
 	}
 
 	TEST(Document, JsonReader)

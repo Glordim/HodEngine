@@ -1,4 +1,5 @@
 #include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
@@ -383,8 +384,7 @@ namespace hod::inline editor
 		Path resourceFilePath = Project::GetInstance()->GetResourceDirPath() / asset->GetUid().ToString().CStr();
 		resourceFilePath += ".dat";
 
-		std::ifstream resourceFile(resourceFilePath.CStr());
-		if (resourceFile.is_open() == false) // TODO replace by filesystem::exist ?
+		if (FileSystem::GetInstance()->Exists(resourceFilePath) == false)
 		{
 			return Import(asset);
 		}
