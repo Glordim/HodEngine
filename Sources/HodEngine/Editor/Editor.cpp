@@ -75,7 +75,6 @@
 #include "HodEngine/Editor/MissingGameModuleModal.hpp"
 
 #include <filesystem> // todo remove
-#include <fstream>
 #include <string>
 
 #include "portable-file-dialogs.h"
@@ -941,25 +940,23 @@ namespace hod::inline editor
 
 			std::string cmakeArgs = fmt::format("\"-DHodEngine_DIR={}\", \"-DHOD_GAME_BUILD_TYPE={}\"", engineDirPath, gameBuildType);
 
-			try
 			{
-				Path          buildGradlePath = buildDir / "AndroidStudioProject" / "app" / "build.gradle.kts";
-				std::ifstream inFile(buildGradlePath.GetString().CStr());
-				if (inFile.is_open() == false)
+				Path buildGradlePath = buildDir / "AndroidStudioProject" / "app" / "build.gradle.kts";
+				String content;
+				if (FileSystem::GetInstance()->ReadAllText(buildGradlePath, content) == false)
 				{
 					OUTPUT_ERROR("Build error : cannot open {}", buildGradlePath.GetString().CStr());
 					return;
 				}
-				std::string content {std::istreambuf_iterator<char>(inFile), std::istreambuf_iterator<char>()};
-				inFile.close();
 
-				auto replaceAll = [](std::string& str, const std::string& from, const std::string& to)
+				auto replaceAll = [](String& str, const char* from, const char* to)
 				{
-					size_t pos = 0;
-					while ((pos = str.find(from, pos)) != std::string::npos)
+					uint32_t fromLen = (uint32_t)strlen(from);
+					uint32_t pos = 0;
+					while ((pos = str.Find(from, pos)) != String::Npos)
 					{
-						str.replace(pos, from.length(), to);
-						pos += to.length();
+						str.Replace(pos, fromLen, to);
+						pos += (uint32_t)strlen(to);
 					}
 				};
 
@@ -969,61 +966,39 @@ namespace hod::inline editor
 				jniLibsDirPath.PortableSeparator();
 				replaceAll(content, "[[PROJECT_GAME_DATAS]]", dataDirPath.GetString().CStr());
 				replaceAll(content, "[[PROJECT_GAME_CMAKELIST]]", cmakeLists.GetString().CStr());
-				replaceAll(content, "[[PROJECT_CMAKE_ARGS]]", cmakeArgs);
+				replaceAll(content, "[[PROJECT_CMAKE_ARGS]]", cmakeArgs.c_str());
 				replaceAll(content, "[[EXTERNAL_JAR_DIR]]", externalJarDirPath.GetString().CStr());
 				replaceAll(content, "[[JNI_LIBS_DIR]]", jniLibsDirPath.GetString().CStr());
 
-				std::ofstream outFile(buildGradlePath.GetString().CStr());
-				if (outFile.is_open() == false)
+				if (FileSystem::GetInstance()->WriteAllText(buildGradlePath, content) == false)
 				{
 					OUTPUT_ERROR("Build error : cannot write {}", buildGradlePath.GetString().CStr());
 					return;
 				}
-				outFile << content;
-			}
-			catch (const std::exception& e)
-			{
-				OUTPUT_ERROR("Build error : {}", e.what());
-				return;
 			}
 
-			try
 			{
-				Path          manifestPath = buildDir / "AndroidStudioProject" / "app" / "src" / "main" / "AndroidManifest.xml";
-				std::ifstream inFile(manifestPath.GetString().CStr());
-				if (inFile.is_open() == false)
+				Path manifestPath = buildDir / "AndroidStudioProject" / "app" / "src" / "main" / "AndroidManifest.xml";
+				String content;
+				if (FileSystem::GetInstance()->ReadAllText(manifestPath, content) == false)
 				{
 					OUTPUT_ERROR("Build error : cannot open {}", manifestPath.GetString().CStr());
 					return;
 				}
-				std::string content {std::istreambuf_iterator<char>(inFile), std::istreambuf_iterator<char>()};
-				inFile.close();
-
-				auto replaceAll = [](std::string& str, const std::string& from, const std::string& to)
-				{
-					size_t pos = 0;
-					while ((pos = str.find(from, pos)) != std::string::npos)
-					{
-						str.replace(pos, from.length(), to);
-						pos += to.length();
-					}
-				};
 
 				String projectGameName = Project::GetInstance()->GetName() + "Game";
-				replaceAll(content, "[[PROJECT_GAME_NAME]]", projectGameName.CStr());
+				uint32_t pos = 0;
+				while ((pos = content.Find("[[PROJECT_GAME_NAME]]", pos)) != String::Npos)
+				{
+					content.Replace(pos, 21, projectGameName);
+					pos += projectGameName.Length();
+				}
 
-				std::ofstream outFile(manifestPath.GetString().CStr());
-				if (outFile.is_open() == false)
+				if (FileSystem::GetInstance()->WriteAllText(manifestPath, content) == false)
 				{
 					OUTPUT_ERROR("Build error : cannot write {}", manifestPath.GetString().CStr());
 					return;
 				}
-				outFile << content;
-			}
-			catch (const std::exception& e)
-			{
-				OUTPUT_ERROR("Build error : {}", e.what());
-				return;
 			}
 		}
 	}

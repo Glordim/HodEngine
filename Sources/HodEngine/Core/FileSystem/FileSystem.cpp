@@ -64,4 +64,34 @@ namespace hod::inline core
 	{
 		return Rename(pathSrc.GetString().CStr(), pathDst.GetString().CStr());
 	}
+
+	bool FileSystem::ReadAllText(const Path& path, String& content)
+	{
+		Handle handle = Open(path, OpenMode::Read);
+		if (handle.IsOpen() == false)
+		{
+			return false;
+		}
+
+		uint32_t size = GetSize(handle);
+		content.Resize(size);
+		int32_t readBytes = Read(handle, content.Data(), size);
+		Close(handle);
+
+		return readBytes == (int32_t)size;
+	}
+
+	bool FileSystem::WriteAllText(const Path& path, const String& content)
+	{
+		Handle handle = Open(path, OpenMode::Write);
+		if (handle.IsOpen() == false)
+		{
+			return false;
+		}
+
+		int32_t writtenBytes = Write(handle, content.CStr(), content.Length());
+		Close(handle);
+
+		return writtenBytes == (int32_t)content.Length();
+	}
 }

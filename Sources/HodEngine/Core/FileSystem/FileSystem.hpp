@@ -120,6 +120,9 @@ namespace hod::inline core
 
 		bool Close(FileSystem::Handle& handle);
 
+		bool ReadAllText(const Path& path, String& content);
+		bool WriteAllText(const Path& path, const String& content);
+
 		Path GenerateTemporaryFilePath() const;
 
 	private:
