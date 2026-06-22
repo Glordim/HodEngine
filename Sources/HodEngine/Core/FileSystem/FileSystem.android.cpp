@@ -39,9 +39,13 @@ namespace hod::inline core
 		return true;
 	}
 
-	FileSystem::Handle FileSystem::Open(const char* path)
+	FileSystem::Handle FileSystem::Open(const char* path, OpenMode mode)
 	{
 		FileSystem::Handle handle;
+		if (mode != OpenMode::Read)
+		{
+			return handle;
+		}
 		handle._asset = AAssetManager_open(_assetManager, path, AASSET_MODE_BUFFER);
 		return handle;
 	}
@@ -64,6 +68,14 @@ namespace hod::inline core
 	int32_t FileSystem::Read(FileSystem::Handle handle, void* buffer, uint32_t Size)
 	{
 		return AAsset_read(handle._asset, buffer, Size);
+	}
+
+	int32_t FileSystem::Write(FileSystem::Handle handle, const void* buffer, uint32_t size)
+	{
+		(void)handle;
+		(void)buffer;
+		(void)size;
+		return -1;
 	}
 
 	bool FileSystem::Close(FileSystem::Handle& handle)

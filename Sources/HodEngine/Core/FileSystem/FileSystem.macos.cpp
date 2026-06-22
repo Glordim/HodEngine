@@ -64,10 +64,31 @@ namespace hod::inline core
 	/// @brief
 	/// @param path
 	/// @return
-	FileSystem::Handle FileSystem::Open(const char* path)
+	FileSystem::Handle FileSystem::Open(const char* path, OpenMode mode)
 	{
+		int flags = 0;
+		switch (mode)
+		{
+		case OpenMode::Read:
+			flags = O_RDONLY;
+			break;
+		case OpenMode::Write:
+			flags = O_WRONLY | O_CREAT | O_TRUNC;
+			break;
+		case OpenMode::ReadWrite:
+			flags = O_RDWR | O_CREAT;
+			break;
+		}
+
 		FileSystem::Handle handle;
-		handle._fd = open(path, O_RDONLY);
+		if (mode == OpenMode::Read)
+		{
+			handle._fd = open(path, flags);
+		}
+		else
+		{
+			handle._fd = open(path, flags, 0644);
+		}
 		return handle;
 	}
 
@@ -111,9 +132,11 @@ namespace hod::inline core
 		return (int32_t)read(handle._fd, buffer, Size);
 	}
 
-	/// @brief
-	/// @param handle
-	/// @return
+	int32_t FileSystem::Write(FileSystem::Handle handle, const void* buffer, uint32_t size)
+	{
+		return (int32_t)write(handle._fd, buffer, size);
+	}
+
 	bool FileSystem::Close(FileSystem::Handle& handle)
 	{
 		if (close(handle._fd) == 0)

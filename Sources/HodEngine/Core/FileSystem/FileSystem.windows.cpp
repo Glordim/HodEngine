@@ -78,10 +78,33 @@ namespace hod::inline core
 	/// @brief
 	/// @param path
 	/// @return
-	FileSystem::Handle FileSystem::Open(const char* path)
+	FileSystem::Handle FileSystem::Open(const char* path, OpenMode mode)
 	{
+		DWORD access = 0;
+		DWORD shareMode = 0;
+		DWORD creation = 0;
+
+		switch (mode)
+		{
+		case OpenMode::Read:
+			access = GENERIC_READ;
+			shareMode = FILE_SHARE_READ;
+			creation = OPEN_EXISTING;
+			break;
+		case OpenMode::Write:
+			access = GENERIC_WRITE;
+			shareMode = 0;
+			creation = CREATE_ALWAYS;
+			break;
+		case OpenMode::ReadWrite:
+			access = GENERIC_READ | GENERIC_WRITE;
+			shareMode = 0;
+			creation = OPEN_ALWAYS;
+			break;
+		}
+
 		FileSystem::Handle handle;
-		handle._handle = CreateFileA(path, GENERIC_READ, FILE_SHARE_READ, NULL, OPEN_EXISTING, FILE_ATTRIBUTE_NORMAL, NULL);
+		handle._handle = CreateFileA(path, access, shareMode, NULL, creation, FILE_ATTRIBUTE_NORMAL, NULL);
 		if (handle._handle == INVALID_HANDLE_VALUE)
 		{
 			OUTPUT_ERROR("Unable to open file at : {}, {}", path, OS::GetLastWin32ErrorMessage());
@@ -129,9 +152,16 @@ namespace hod::inline core
 		return -1;
 	}
 
-	/// @brief
-	/// @param handle
-	/// @return
+	int32_t FileSystem::Write(FileSystem::Handle handle, const void* buffer, uint32_t size)
+	{
+		DWORD writtenBytes = 0;
+		if (WriteFile(handle._handle, buffer, size, &writtenBytes, NULL) == TRUE)
+		{
+			return (int32_t)writtenBytes;
+		}
+		return -1;
+	}
+
 	bool FileSystem::Close(FileSystem::Handle& handle)
 	{
 		if (CloseHandle(handle._handle) == TRUE)

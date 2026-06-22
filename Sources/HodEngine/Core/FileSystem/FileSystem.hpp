@@ -100,8 +100,15 @@ namespace hod::inline core
 		bool CreateDirectories(const char* path);
 		bool CreateDirectories(const Path& path);
 
-		FileSystem::Handle Open(const char* path);
-		FileSystem::Handle Open(const Path& path);
+		enum class OpenMode
+		{
+			Read,
+			Write,
+			ReadWrite,
+		};
+
+		FileSystem::Handle Open(const char* path, OpenMode mode = OpenMode::Read);
+		FileSystem::Handle Open(const Path& path, OpenMode mode = OpenMode::Read);
 
 		uint32_t GetSize(FileSystem::Handle handle);
 		uint32_t GetOffset(FileSystem::Handle handle);
@@ -109,6 +116,7 @@ namespace hod::inline core
 		void Seek(FileSystem::Handle handle, uint32_t position, SeekMode mode);
 
 		int32_t Read(FileSystem::Handle handle, void* buffer, uint32_t size);
+		int32_t Write(FileSystem::Handle handle, const void* buffer, uint32_t size);
 
 		bool Close(FileSystem::Handle& handle);
 

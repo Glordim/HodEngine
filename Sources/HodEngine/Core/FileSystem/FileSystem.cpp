@@ -18,9 +18,9 @@ namespace hod::inline core
 		return GetTemporaryPath() / ("Hod_Tmp_" + UID::GenerateUID().ToString()).CStr(); // Todo remove CStr()
 	}
 
-	FileSystem::Handle FileSystem::Open(const Path& path)
+	FileSystem::Handle FileSystem::Open(const Path& path, OpenMode mode)
 	{
-		FileSystem::Handle handle = Open(path.GetString().CStr());
+		FileSystem::Handle handle = Open(path.GetString().CStr(), mode);
 		handle._path = path;
 		return handle;
 	}
