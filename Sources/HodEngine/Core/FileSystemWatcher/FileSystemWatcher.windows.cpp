@@ -4,6 +4,7 @@
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Core/FileSystem/Path.hpp>
 #include <HodEngine/Core/OS.hpp>
+#include <HodEngine/Core/ScopedGuard.hpp>
 
 /*
 #include <win32/file.h>
@@ -20,24 +21,9 @@ extern "C"
 
 namespace hod::inline core
 {
-	class ScopedFunction
-	{
-	public:
-		template<typename F>
-		ScopedFunction(F&& function) : _function(std::forward<F>(function)) {}
-		~ScopedFunction() { if (_function) _function(); }
-
-		ScopedFunction& operator=(const ScopedFunction& copy) { _function = copy._function; return *this; }
-
-		void Disable() { _function = nullptr; }
-
-	private:
-		std::function<void()> _function;
-	};
-
 	bool FileSystemWatcher::InternalInit()
 	{
-		ScopedFunction cleanup = [&]() {
+		ScopedGuard cleanup = [&]() {
 			Cleanup();
 		};
 
