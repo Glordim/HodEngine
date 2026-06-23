@@ -3,6 +3,20 @@
 
 namespace hod::inline core
 {
+	FileStream::FileStream(const FileStream& other)
+	: _handle(other._handle.Duplicate())
+	, _openMode(other._openMode)
+	{
+	}
+
+	FileStream::FileStream(FileStream&& other) noexcept
+	: _handle(other._handle)
+	, _openMode(other._openMode)
+	{
+		other._handle = {};
+		other._openMode = FileSystem::OpenMode::Read;
+	}
+
 	FileStream::~FileStream()
 	{
 		Close();
