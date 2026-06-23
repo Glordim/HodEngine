@@ -90,6 +90,14 @@ namespace hod::inline core
 		return _asset != nullptr;
 	}
 
+	FileSystem::Handle FileSystem::Handle::Duplicate() const
+	{
+		Handle duplicate;
+		duplicate._path = _path;
+		// AAsset does not support duplication
+		return duplicate;
+	}
+
 	bool FileSystem::Exists(const char* /*path*/)
 	{
 		return false;

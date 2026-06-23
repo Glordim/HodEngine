@@ -179,6 +179,17 @@ namespace hod::inline core
 		return _handle != INVALID_HANDLE_VALUE;
 	}
 
+	FileSystem::Handle FileSystem::Handle::Duplicate() const
+	{
+		Handle duplicate;
+		duplicate._path = _path;
+		if (IsOpen())
+		{
+			::DuplicateHandle(GetCurrentProcess(), _handle, GetCurrentProcess(), &duplicate._handle, 0, FALSE, DUPLICATE_SAME_ACCESS);
+		}
+		return duplicate;
+	}
+
 	bool FileSystem::Exists(const char* path)
 	{
 		DWORD attr = GetFileAttributesA(path);

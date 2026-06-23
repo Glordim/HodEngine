@@ -8,6 +8,30 @@ namespace hod::inline core
 		Close();
 	}
 
+	FileStream& FileStream::operator=(const FileStream& other)
+	{
+		if (this != &other)
+		{
+			Close();
+			_handle = other._handle.Duplicate();
+			_openMode = other._openMode;
+		}
+		return *this;
+	}
+
+	FileStream& FileStream::operator=(FileStream&& other) noexcept
+	{
+		if (this != &other)
+		{
+			Close();
+			_handle = other._handle;
+			_openMode = other._openMode;
+			other._handle = {};
+			other._openMode = FileSystem::OpenMode::Read;
+		}
+		return *this;
+	}
+
 	bool FileStream::Open(const Path& path, FileSystem::OpenMode mode)
 	{
 		Close();

@@ -17,12 +17,12 @@ namespace hod::inline core
 
 	public:
 		Stream() = default;
-		Stream(const Stream&) = delete;
-		Stream(Stream&&) = delete;
+		Stream(const Stream&) = default;
+		Stream(Stream&&) = default;
 		virtual ~Stream() = default;
 
-		Stream& operator=(const Stream&) = delete;
-		Stream& operator=(Stream&&) = delete;
+		Stream& operator=(const Stream&) = default;
+		Stream& operator=(Stream&&) = default;
 
 	public:
 		virtual uint32_t Read(void* buffer, uint32_t size) = 0;

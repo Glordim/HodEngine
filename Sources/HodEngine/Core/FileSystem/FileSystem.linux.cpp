@@ -159,6 +159,17 @@ namespace hod::inline core
 		return _fd >= 0;
 	}
 
+	FileSystem::Handle FileSystem::Handle::Duplicate() const
+	{
+		Handle duplicate;
+		duplicate._path = _path;
+		if (IsOpen())
+		{
+			duplicate._fd = dup(_fd);
+		}
+		return duplicate;
+	}
+
 	bool FileSystem::Exists(const char* path)
 	{
 		return access(path, F_OK) == 0;

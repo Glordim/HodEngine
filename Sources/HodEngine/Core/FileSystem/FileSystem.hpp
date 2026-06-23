@@ -42,6 +42,7 @@ namespace hod::inline core
 			Path _path; // TODO REMOVE
 
 			bool IsOpen() const;
+			Handle Duplicate() const;
 		};
 
 #if defined(PLATFORM_WINDOWS)

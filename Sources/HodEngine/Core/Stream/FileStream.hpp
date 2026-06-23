@@ -9,12 +9,12 @@ namespace hod::inline core
 	{
 	public:
 		FileStream() = default;
-		FileStream(const FileStream&) = delete;
-		FileStream(FileStream&&) = delete;
+		FileStream(const FileStream& other);
+		FileStream(FileStream&& other) noexcept;
 		~FileStream() override;
 
-		FileStream& operator=(const FileStream&) = delete;
-		FileStream& operator=(FileStream&&) = delete;
+		FileStream& operator=(const FileStream& other);
+		FileStream& operator=(FileStream&& other) noexcept;
 
 	public:
 		bool Open(const Path& path, FileSystem::OpenMode mode = FileSystem::OpenMode::Read);
