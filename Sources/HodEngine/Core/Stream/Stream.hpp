@@ -35,5 +35,29 @@ namespace hod::inline core
 		virtual bool IsReadable() const = 0;
 		virtual bool IsWritable() const = 0;
 		virtual bool IsSeekable() const = 0;
+
+		void SetRange(uint32_t origin, uint32_t size) { _rangeOrigin = origin; _rangeSize = size; }
+		uint32_t GetRangeOrigin() const { return _rangeOrigin; }
+		uint32_t GetRangeSize() const { return _rangeSize; }
+		bool HasRange() const { return _rangeSize != 0; }
+
+	protected:
+		uint32_t ClampReadSize(uint32_t size, uint32_t position) const
+		{
+			if (HasRange() == false)
+			{
+				return size;
+			}
+			if (position >= _rangeSize)
+			{
+				return 0;
+			}
+			uint32_t remaining = _rangeSize - position;
+			return size < remaining ? size : remaining;
+		}
+
+	protected:
+		uint32_t _rangeOrigin = 0;
+		uint32_t _rangeSize = 0;
 	};
 }

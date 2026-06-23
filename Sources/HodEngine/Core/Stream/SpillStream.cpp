@@ -21,6 +21,12 @@ namespace hod::inline core
 
 	uint32_t SpillStream::Read(void* buffer, uint32_t size)
 	{
+		size = ClampReadSize(size, GetPosition());
+		if (size == 0)
+		{
+			return 0;
+		}
+
 		return GetActiveStream().Read(buffer, size);
 	}
 
@@ -39,17 +45,37 @@ namespace hod::inline core
 
 	bool SpillStream::Seek(uint32_t position, SeekOrigin origin)
 	{
+		switch (origin)
+		{
+		case SeekOrigin::Begin:
+			position += _rangeOrigin;
+			break;
+		case SeekOrigin::Current:
+			break;
+		case SeekOrigin::End:
+			if (HasRange())
+			{
+				position = _rangeOrigin + _rangeSize - position;
+				origin = SeekOrigin::Begin;
+			}
+			break;
+		}
+
 		return GetActiveStream().Seek(position, origin);
 	}
 
 	uint32_t SpillStream::GetPosition() const
 	{
-		return GetActiveStream().GetPosition();
+		return GetActiveStream().GetPosition() - _rangeOrigin;
 	}
 
 	uint32_t SpillStream::GetSize() const
 	{
-		return GetActiveStream().GetSize();
+		if (HasRange())
+		{
+			return _rangeSize;
+		}
+		return GetActiveStream().GetSize() - _rangeOrigin;
 	}
 
 	bool SpillStream::IsReadable() const

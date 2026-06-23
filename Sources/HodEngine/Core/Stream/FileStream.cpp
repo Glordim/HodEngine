@@ -69,6 +69,12 @@ namespace hod::inline core
 
 	uint32_t FileStream::Read(void* buffer, uint32_t size)
 	{
+		size = ClampReadSize(size, GetPosition());
+		if (size == 0)
+		{
+			return 0;
+		}
+
 		int32_t result = FileSystem::GetInstance()->Read(_handle, buffer, size);
 		if (result < 0)
 		{
@@ -93,13 +99,22 @@ namespace hod::inline core
 		switch (origin)
 		{
 		case SeekOrigin::Begin:
+			position += _rangeOrigin;
 			seekMode = FileSystem::SeekMode::Begin;
 			break;
 		case SeekOrigin::Current:
 			seekMode = FileSystem::SeekMode::Current;
 			break;
 		case SeekOrigin::End:
-			seekMode = FileSystem::SeekMode::End;
+			if (HasRange())
+			{
+				position = _rangeOrigin + _rangeSize - position;
+				seekMode = FileSystem::SeekMode::Begin;
+			}
+			else
+			{
+				seekMode = FileSystem::SeekMode::End;
+			}
 			break;
 		}
 
@@ -109,12 +124,16 @@ namespace hod::inline core
 
 	uint32_t FileStream::GetPosition() const
 	{
-		return FileSystem::GetInstance()->GetOffset(_handle);
+		return FileSystem::GetInstance()->GetOffset(_handle) - _rangeOrigin;
 	}
 
 	uint32_t FileStream::GetSize() const
 	{
-		return FileSystem::GetInstance()->GetSize(_handle);
+		if (HasRange())
+		{
+			return _rangeSize;
+		}
+		return FileSystem::GetInstance()->GetSize(_handle) - _rangeOrigin;
 	}
 
 	bool FileStream::IsReadable() const

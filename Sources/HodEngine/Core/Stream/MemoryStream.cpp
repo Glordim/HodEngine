@@ -19,6 +19,12 @@ namespace hod::inline core
 
 	uint32_t MemoryStream::Read(void* buffer, uint32_t size)
 	{
+		size = ClampReadSize(size, GetPosition());
+		if (size == 0)
+		{
+			return 0;
+		}
+
 		uint32_t available = _size - _position;
 		uint32_t toRead = Min(size, available);
 		if (toRead > 0)
@@ -54,13 +60,20 @@ namespace hod::inline core
 		switch (origin)
 		{
 		case SeekOrigin::Begin:
-			newPosition = position;
+			newPosition = _rangeOrigin + position;
 			break;
 		case SeekOrigin::Current:
 			newPosition = _position + position;
 			break;
 		case SeekOrigin::End:
-			newPosition = _size + position;
+			if (HasRange())
+			{
+				newPosition = _rangeOrigin + _rangeSize - position;
+			}
+			else
+			{
+				newPosition = _size + position;
+			}
 			break;
 		}
 
@@ -75,12 +88,16 @@ namespace hod::inline core
 
 	uint32_t MemoryStream::GetPosition() const
 	{
-		return _position;
+		return _position - _rangeOrigin;
 	}
 
 	uint32_t MemoryStream::GetSize() const
 	{
-		return _size;
+		if (HasRange())
+		{
+			return _rangeSize;
+		}
+		return _size - _rangeOrigin;
 	}
 
 	bool MemoryStream::IsReadable() const
