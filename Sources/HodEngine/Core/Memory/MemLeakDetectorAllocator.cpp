@@ -4,6 +4,7 @@
 #include "HodEngine/Core/Memory/MemLeakDetectorAllocator.hpp"
 #include "HodEngine/Core/OS.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
+#include <cstdint>
 
 #if defined(HOD_ENABLED_MEMLEAK_DETECTOR)
 
@@ -84,10 +85,19 @@ namespace hod::inline core
 	/// @return
 	void* MemLeakDetectorAllocator::ReallocateInternal(void* ptr, uint32_t newSize, uint32_t alignment)
 	{
-		(void)ptr;
-		(void)newSize;
-		(void)alignment;
-		return nullptr; // todo
+		void* allocation = AllocateInternal(newSize, alignment);
+		if (ptr != nullptr && allocation != nullptr)
+		{
+			AllocationHeader* allocationHeader = *reinterpret_cast<AllocationHeader**>(reinterpret_cast<uintptr_t>(ptr) - sizeof(AllocationHeader*));
+			uint32_t size = allocationHeader->_size;
+			if (newSize < size)
+			{
+				size = newSize;
+			}
+			std::memcpy(allocation, ptr, size);
+			FreeInternal(ptr);
+		}
+		return allocation;
 	}
 
 	bool MemLeakDetectorAllocator::ResizeInternal(void* /*ptr*/, uint32_t /*newSize*/, uint32_t /*alignment*/)
