@@ -3,8 +3,10 @@
 
 namespace hod::inline core
 {
-	SpillStream::SpillStream(uint32_t threshold)
+	SpillStream::SpillStream(uint32_t threshold, const Path& temporaryFilePath)
 	: _threshold(threshold)
+	, _memoryStream(threshold)
+	, _temporaryFilePath(temporaryFilePath)
 	{
 	}
 
@@ -72,7 +74,6 @@ namespace hod::inline core
 
 	bool SpillStream::SpillToDisk()
 	{
-		_temporaryFilePath = FileSystem::GetInstance()->GenerateTemporaryFilePath();
 		if (_fileStream.Open(_temporaryFilePath, FileSystem::OpenMode::ReadWrite) == false)
 		{
 			return false;

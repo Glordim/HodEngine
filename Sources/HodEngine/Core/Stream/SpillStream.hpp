@@ -13,7 +13,7 @@ namespace hod::inline core
 		static constexpr uint32_t DefaultThreshold = 2 * 1024 * 1024;
 
 	public:
-		SpillStream(uint32_t threshold = DefaultThreshold);
+		SpillStream(uint32_t threshold = DefaultThreshold, const Path& temporaryFilePath = FileSystem::GetInstance()->GenerateTemporaryFilePath());
 		SpillStream(const SpillStream&) = delete;
 		SpillStream(SpillStream&&) = delete;
 		~SpillStream() override;
