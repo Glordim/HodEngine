@@ -20,9 +20,8 @@ namespace hod::inline editor
 	public:
 		struct DataBlockInfo
 		{
-			String   _name;
-			uint32_t _offset = 0; // Relative to the start of the Data section
-			uint32_t _size = 0;
+			uint64_t _hashName = 0;
+			Stream*  _stream = nullptr;
 		};
 
 	public:
@@ -34,12 +33,13 @@ namespace hod::inline editor
 
 		/// @brief Read only the fixed Header and the SourcePath block (no Content/Data), for fast scans at startup
 		bool LoadHeader(const Path& path);
+		bool LoadSource(const Path& path);
 
 		/// @brief Read the whole asset (Header + SourcePath + Content + Data)
 		bool Load(const Path& path);
 
 		/// @brief Write the whole asset (Header + SourcePath + Content + Data)
-		bool Save(const Path& path);
+		bool Save(const Path& path, const Path& tmpDir);
 
 		const UID& GetUid() const;
 		void       SetUid(const UID& uid);
@@ -59,21 +59,24 @@ namespace hod::inline editor
 		DocumentNode&       GetImportSettings();
 		const DocumentNode& GetImportSettings() const;
 
-		DocumentNode&       GetContentRoot();
-		const DocumentNode& GetContentRoot() const;
-
 		const Vector<DataBlockInfo>& GetDataBlocks() const;
 		const DataBlockInfo*         FindDataBlock(std::string_view name) const;
-		const uint8_t*               GetDataBlockBuffer(const DataBlockInfo& dataBlock) const;
 
-		void SetDataBlock(std::string_view name, const void* buffer, uint32_t size);
+		void SetDataBlock(std::string_view name, Stream& stream);
 		void RemoveDataBlock(std::string_view name);
 
 	private:
 		bool ReadHeader(Stream& stream);
+		bool ReadSource(Stream& stream);
 
 	private:
 		static const uint8_t MAGIC[8];
+
+		struct DataBlockLocation
+		{
+			uint64_t hashName = 0;
+			uint64_t position = 0;
+		};
 
 	private:
 		UID      _uid;
@@ -84,9 +87,8 @@ namespace hod::inline editor
 		Path     _sourcePath;
 
 		Document _importSettings;
-		Document _content; // Root holds "_content" and the reserved "_dataBlocks" array
 
 		Vector<DataBlockInfo> _dataBlocks;
-		Vector<uint8_t>       _data;
+		Vector<FileStream> _internalDataBlockStream;
 	};
 }

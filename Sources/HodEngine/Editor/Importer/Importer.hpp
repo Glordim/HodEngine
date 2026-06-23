@@ -7,6 +7,7 @@
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
+#include <string_view>
 
 namespace hod::inline editor
 {
@@ -39,6 +40,8 @@ namespace hod::inline editor
 		Importer& operator=(Importer&&) = delete;
 
 	public:
+		const String& GetAssetExtension() const { return _assetExtension; }
+
 		bool CheckSupportedExtensions(std::string_view extension) const;
 		bool Import(const Path& sourcePath, const Path& destinationPath, const UID& uid, ImporterSettings* importSettings, uint64_t taskId);
 
@@ -56,20 +59,31 @@ namespace hod::inline editor
 		virtual bool WriteResource(Stream& data, Stream& meta, Document& document, Vector<Resource::Data>& datas, Stream& thumbnail,
 		                           ImporterSettings& settings) = 0;
 
-		virtual bool WriteContent(FileSystem::Handle& sourceFile, ImporterSettings* importSettings) { (void)sourceFile; (void)importSettings; return false; }; // todo retrocompat, make it pure
+		virtual bool WriteContent(Stream& source, ImporterSettings* importSettings) { (void)source; (void)importSettings; return false; }; // todo retrocompat, make it pure
 
 		template<typename... Args>
 		void SetSupportedDataFileExtensions(Args... args);
+		void SetAssetExtension(const char* extension) { _assetExtension = extension; }
+
+		SpillStream& AddDataBlockStream(std::string_view name);
 
 	private:
 		Vector<const char*> _supportedDataFileExtensions;
+		String _assetExtension;
 
 		Path _tmpDir;
 
 		struct DataBlock
 		{
-			String name;
-			SpillStream stream;
+			DataBlock(std::string_view name, const Path& tmpFile)
+			: _name(name)
+			, _stream(SpillStream::DefaultThreshold, tmpFile)
+			{
+
+			}
+
+			String _name;
+			SpillStream _stream;
 		};
 		Vector<DataBlock*> _dataBlocks;
 	};

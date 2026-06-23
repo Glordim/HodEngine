@@ -1,4 +1,5 @@
 #include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Editor/AssetContainer.hpp"
 
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
@@ -7,6 +8,7 @@
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/Stream/FileStream.hpp"
 
+#include <cstdint>
 #include <cstring>
 
 namespace hod::inline editor
@@ -42,8 +44,11 @@ namespace hod::inline editor
 		stream.Read(&_assetType, sizeof(_assetType));
 		stream.Read(&_contentHash, sizeof(_contentHash));
 
-		stream.Read(&_sourceHash, sizeof(_sourceHash));
+		return true;
+	}
 
+	bool AssetContainer::ReadSource(Stream& stream)
+	{
 		uint32_t sourcePathSize = 0;
 		stream.Read(&sourcePathSize, sizeof(sourcePathSize));
 
@@ -53,10 +58,12 @@ namespace hod::inline editor
 			sourcePathStr.Resize(sourcePathSize);
 			stream.Read(sourcePathStr.Data(), sourcePathSize);
 			_sourcePath = sourcePathStr;
+			stream.Read(&_sourceHash, sizeof(_sourceHash));
 		}
 		else
 		{
 			_sourcePath.Clear();
+			_sourceHash = 0;
 		}
 
 		return true;
@@ -77,6 +84,18 @@ namespace hod::inline editor
 		return ReadHeader(fileStream);
 	}
 
+	bool AssetContainer::LoadSource(const Path& path)
+	{
+		FileStream fileStream;
+		if (fileStream.Open(path) == false)
+		{
+			OUTPUT_ERROR("AssetContainer::LoadHeader: can't open {}", path);
+			return false;
+		}
+
+		return ReadHeader(fileStream) && ReadSource(fileStream);
+	}
+
 	/// @brief Read the whole asset (Header + SourcePath + Content + Data)
 	/// @param path
 	/// @return
@@ -94,122 +113,45 @@ namespace hod::inline editor
 			return false;
 		}
 
-		uint32_t contentSize = 0;
-		fileStream.Read(&contentSize, sizeof(contentSize));
-
-		_content.GetRootNode().Clear();
-		_dataBlocks.Clear();
-
-		if (contentSize > 0)
+		if (ReadSource(fileStream) == false)
 		{
-			DocumentReaderJson reader;
-			if (reader.Read(_content, fileStream, contentSize) == false)
-			{
-				OUTPUT_ERROR("AssetContainer::Load: failed to parse Content for {}", path);
-				return false;
-			}
-
-			const DocumentNode* dataBlocksNode = _content.GetRootNode().GetChild("_dataBlocks");
-			if (dataBlocksNode != nullptr)
-			{
-				for (DocumentNode* child = dataBlocksNode->GetFirstChild(); child != nullptr; child = child->GetNextSibling())
-				{
-					DataBlockInfo info;
-
-					const DocumentNode* nameNode = child->GetChild("_name");
-					const DocumentNode* offsetNode = child->GetChild("_offset");
-					const DocumentNode* sizeNode = child->GetChild("_size");
-
-					if (nameNode != nullptr)
-					{
-						info._name = nameNode->GetString();
-					}
-					if (offsetNode != nullptr)
-					{
-						info._offset = offsetNode->GetUInt32();
-					}
-					if (sizeNode != nullptr)
-					{
-						info._size = sizeNode->GetUInt32();
-					}
-
-					_dataBlocks.PushBack(std::move(info));
-				}
-			}
+			return false;
 		}
 
+		uint32_t importSettingsLen = 0;
+		fileStream.Read(&importSettingsLen, sizeof(importSettingsLen));
+		// Always 0 for now
+
+		uint32_t dataBlockCount = 0;
+		fileStream.Read(&dataBlockCount, sizeof(dataBlockCount));
+
+		Vector<DataBlockLocation> dataBlockLocation;
+		dataBlockLocation.Resize(dataBlockCount);
+		_internalDataBlockStream.Resize(dataBlockCount);
+		_dataBlocks.Resize(dataBlockCount);
+		fileStream.Read(dataBlockLocation.Data(), sizeof(DataBlockLocation) * dataBlockCount);
 		uint32_t fileSize = fileStream.GetSize();
-		uint32_t currentOffset = fileStream.GetPosition();
-		uint32_t dataSize = (fileSize > currentOffset) ? (fileSize - currentOffset) : 0;
-
-		_data.Clear();
-		_data.Resize(dataSize);
-		if (dataSize > 0)
+		for (uint32_t i = 0; i < dataBlockCount; ++i)
 		{
-			fileStream.Read(_data.Data(), dataSize);
-		}
+			uint32_t blockEnd = (i + 1 < dataBlockCount) ? dataBlockLocation[i + 1].position : fileSize;
+			_internalDataBlockStream[i].Open(path);
+			_internalDataBlockStream[i].SetRange(dataBlockLocation[i].position, blockEnd - dataBlockLocation[i].position);
 
+			_dataBlocks[i]._hashName = dataBlockLocation[i].hashName;
+			_dataBlocks[i]._stream = &_internalDataBlockStream[i];
+		}
 		return true;
 	}
 
 	/// @brief Write the whole asset (Header + SourcePath + Content + Data)
 	/// @param path
 	/// @return
-	bool AssetContainer::Save(const Path& path)
+	bool AssetContainer::Save(const Path& path, const Path& tmpDir)
 	{
-		DocumentNode& dataBlocksNode = _content.GetRootNode().GetOrAddChild("_dataBlocks");
-		dataBlocksNode.Clear();
-		dataBlocksNode.SetType(DocumentNode::Type::Array);
-
-		uint32_t cursor = 0;
-		for (DataBlockInfo& info : _dataBlocks)
-		{
-			info._offset = cursor;
-			cursor += info._size;
-
-			DocumentNode& entryNode = dataBlocksNode.AddChild("");
-			entryNode.SetType(DocumentNode::Type::Object);
-			entryNode.GetOrAddChild("_name").SetString(info._name);
-			entryNode.GetOrAddChild("_offset").SetUInt32(info._offset);
-			entryNode.GetOrAddChild("_size").SetUInt32(info._size);
-		}
-
-		String contentStr;
-		DocumentWriterJson contentWriter;
-		if (contentWriter.Write(_content, contentStr) == false)
-		{
-			OUTPUT_ERROR("AssetContainer::Save: failed to serialize Content for {}", path);
-			return false;
-		}
-
-		const String& sourcePathStr = _sourcePath.GetString();
-		uint32_t      sourcePathSize = sourcePathStr.Size();
-		uint32_t      contentSize = contentStr.Size();
-
-		// ContentHash = Fnv64(SourceHash + SourcePathSize + SourcePath + ContentSize + Content + Data)
-		Vector<uint8_t> hashBuffer;
-		hashBuffer.Resize(sizeof(_sourceHash) + sizeof(sourcePathSize) + sourcePathSize + sizeof(contentSize) + contentSize + _data.Size());
-
-		uint8_t* hashCursor = hashBuffer.Data();
-		std::memcpy(hashCursor, &_sourceHash, sizeof(_sourceHash));
-		hashCursor += sizeof(_sourceHash);
-		std::memcpy(hashCursor, &sourcePathSize, sizeof(sourcePathSize));
-		hashCursor += sizeof(sourcePathSize);
-		std::memcpy(hashCursor, sourcePathStr.CStr(), sourcePathSize);
-		hashCursor += sourcePathSize;
-		std::memcpy(hashCursor, &contentSize, sizeof(contentSize));
-		hashCursor += sizeof(contentSize);
-		std::memcpy(hashCursor, contentStr.CStr(), contentSize);
-		hashCursor += contentSize;
-		if (_data.Empty() == false)
-		{
-			std::memcpy(hashCursor, _data.Data(), _data.Size());
-		}
-
-		_contentHash = Hash::ComputeFnv64(std::string_view(reinterpret_cast<const char*>(hashBuffer.Data()), hashBuffer.Size()));
+		Path tmpFile = tmpDir / path.Filename();
 
 		FileStream file;
-		if (file.Open(path, FileSystem::OpenMode::Write) == false)
+		if (file.Open(tmpFile, FileSystem::OpenMode::Write) == false)
 		{
 			OUTPUT_ERROR("AssetContainer::Save: can't open {}", path);
 			return false;
@@ -226,27 +168,66 @@ namespace hod::inline editor
 		file.Write(&uidHigh, sizeof(uidHigh));
 
 		file.Write(&_assetType, sizeof(_assetType));
+		uint32_t contentHashPosition = file.GetPosition();
+		_contentHash = 0; // write 0 for now
+		file.Write(&_contentHash, sizeof(_contentHash)); 
+
+		uint32_t sourcePathLen = _sourcePath.GetString().Size();
+		file.Write(&sourcePathLen, sizeof(sourcePathLen));
+		if (sourcePathLen > 0)
+		{
+			file.Write(_sourcePath.CStr(), sourcePathLen);
+			file.Write(&_sourceHash, sizeof(_sourceHash));
+		}
+
+		uint32_t importSettingsLen = 0;
+		file.Write(&importSettingsLen, sizeof(importSettingsLen));
+
+		uint32_t dataBlockCount = _dataBlocks.Size();
+		file.Write(&dataBlockCount, sizeof(dataBlockCount));
+
+		uint32_t tablePosition = file.GetPosition();
+		Vector<DataBlockLocation> dataBlockLocations;
+		dataBlockLocations.Resize(dataBlockCount);
+		file.Write(dataBlockLocations.Data(), sizeof(DataBlockLocation) * dataBlockCount);
+
+		void* hashState = nullptr;
+		uint8_t buffer[256 * 1024];
+		for (uint32_t i = 0; i < dataBlockCount; ++i)
+		{
+			dataBlockLocations[i].hashName = _dataBlocks[i]._hashName;
+			dataBlockLocations[i].position = file.GetPosition();
+
+			_dataBlocks[i]._stream->Seek(0, Stream::SeekOrigin::Begin);
+			uint32_t readBytes = 0;
+			while (true)
+			{
+				readBytes = _dataBlocks[i]._stream->Read(buffer, sizeof(buffer));
+				if (readBytes > 0)
+				{
+					file.Write(buffer, readBytes);
+					hashState = Hash::ComputeXxh3_64_Cumulated(hashState, buffer, readBytes);
+					if (readBytes != sizeof(buffer))
+					{
+						break;
+					}
+				}
+				else
+				{
+					OUTPUT_ERROR("AssetContainer::Save: unable to read datablock");
+					return false;
+				}
+			}
+		}
+
+		file.Seek(tablePosition, Stream::SeekOrigin::Begin);
+		file.Write(dataBlockLocations.Data(), sizeof(DataBlockLocation) * dataBlockCount);
+		_contentHash = Hash::ComputeXxh3_64_Result(hashState);
+		file.Seek(contentHashPosition, Stream::SeekOrigin::Begin);
 		file.Write(&_contentHash, sizeof(_contentHash));
 
-		file.Write(&_sourceHash, sizeof(_sourceHash));
-		file.Write(&sourcePathSize, sizeof(sourcePathSize));
-		if (sourcePathSize > 0)
-		{
-			file.Write(sourcePathStr.CStr(), sourcePathSize);
-		}
-
-		file.Write(&contentSize, sizeof(contentSize));
-		if (contentSize > 0)
-		{
-			file.Write(contentStr.CStr(), contentSize);
-		}
-
-		if (_data.Empty() == false)
-		{
-			file.Write(_data.Data(), _data.Size());
-		}
-
-		return true;
+		file.Close();
+		return FileSystem::GetInstance()->Rename(tmpFile, path);
 	}
 
 	const UID& AssetContainer::GetUid() const
@@ -309,16 +290,6 @@ namespace hod::inline editor
 		return _importSettings.GetRootNode();
 	}
 
-	DocumentNode& AssetContainer::GetContentRoot()
-	{
-		return _content.GetRootNode();
-	}
-
-	const DocumentNode& AssetContainer::GetContentRoot() const
-	{
-		return _content.GetRootNode();
-	}
-
 	const Vector<AssetContainer::DataBlockInfo>& AssetContainer::GetDataBlocks() const
 	{
 		return _dataBlocks;
@@ -326,9 +297,11 @@ namespace hod::inline editor
 
 	const AssetContainer::DataBlockInfo* AssetContainer::FindDataBlock(std::string_view name) const
 	{
+		uint64_t hashName = Hash::ComputeXxh3_64(name.data(), name.size());
+
 		for (const DataBlockInfo& info : _dataBlocks)
 		{
-			if (std::string_view(info._name.CStr(), info._name.Size()) == name)
+			if (info._hashName == hashName)
 			{
 				return &info;
 			}
@@ -336,48 +309,25 @@ namespace hod::inline editor
 		return nullptr;
 	}
 
-	const uint8_t* AssetContainer::GetDataBlockBuffer(const DataBlockInfo& dataBlock) const
-	{
-		return _data.Data() + dataBlock._offset;
-	}
-
-	void AssetContainer::SetDataBlock(std::string_view name, const void* buffer, uint32_t size)
+	void AssetContainer::SetDataBlock(std::string_view name, Stream& stream)
 	{
 		RemoveDataBlock(name);
 
 		DataBlockInfo info;
-		info._name = String(name);
-		info._offset = _data.Size();
-		info._size = size;
-
-		uint32_t oldSize = _data.Size();
-		_data.Resize(oldSize + size);
-		if (size > 0)
-		{
-			std::memcpy(_data.Data() + oldSize, buffer, size);
-		}
+		info._hashName = Hash::ComputeXxh3_64(name.data(), name.size());
+		info._stream = &stream;
 
 		_dataBlocks.PushBack(std::move(info));
 	}
 
 	void AssetContainer::RemoveDataBlock(std::string_view name)
 	{
+		uint64_t hashName = Hash::ComputeXxh3_64(name.data(), name.size());
+
 		for (uint32_t i = 0; i < _dataBlocks.Size(); ++i)
 		{
-			if (std::string_view(_dataBlocks[i]._name.CStr(), _dataBlocks[i]._name.Size()) == name)
+			if (_dataBlocks[i]._hashName == hashName)
 			{
-				DataBlockInfo removed = _dataBlocks[i];
-
-				_data.Erase(_data.Begin() + removed._offset, _data.Begin() + removed._offset + removed._size);
-
-				for (uint32_t j = 0; j < _dataBlocks.Size(); ++j)
-				{
-					if (_dataBlocks[j]._offset > removed._offset)
-					{
-						_dataBlocks[j]._offset -= removed._size;
-					}
-				}
-
 				_dataBlocks.Erase(i);
 				return;
 			}

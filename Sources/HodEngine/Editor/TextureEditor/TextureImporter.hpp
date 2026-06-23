@@ -57,5 +57,7 @@ namespace hod::inline editor
 	protected:
 		bool WriteResource(Stream& data, Stream& meta, Document& document, Vector<Resource::Data>& datas, Stream& thumbnail,
 		                   ImporterSettings& settings) override;
+
+		bool WriteContent(Stream& source, ImporterSettings* importSettings) override;
 	};
 }

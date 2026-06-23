@@ -2,6 +2,7 @@
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
+#include "HodEngine/Core/Stream/SpillStream.hpp"
 #include "HodEngine/Editor/TextureEditor/TextureImporter.hpp"
 
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
@@ -40,6 +41,7 @@ namespace hod::inline editor
 	TextureImporter::TextureImporter()
 	{
 		SetSupportedDataFileExtensions("png", "tga", "jpg", "bmp", "psd", "gif", "hdr", "pic");
+		SetAssetExtension("texture");
 	}
 
 	/// @brief
@@ -128,6 +130,34 @@ namespace hod::inline editor
 		datas.push_back(pixelsData);
 
 		stbi_image_free(pixels);
+
+		return true;
+	}
+
+	bool TextureImporter::WriteContent(Stream& source, ImporterSettings* /*importSettings*/)
+	{
+		uint32_t dataSize = source.GetSize();
+		uint8_t* dataBuffer = DefaultAllocator::GetInstance().Allocate<uint8_t>(dataSize);
+		if (source.Read(dataBuffer, dataSize) != dataSize)
+		{
+			OUTPUT_ERROR("TextureImporter : Can't read Texture data");
+			return false;
+		}
+
+		int      x;
+		int      y;
+		int      componentCount;
+		uint8_t* pixels = stbi_load_from_memory(dataBuffer, (int)dataSize, &x, &y, &componentCount, 0); // TODO rgba
+		if (pixels == nullptr)
+		{
+			OUTPUT_ERROR("TextureImporter : Can't load Texture data");
+			return false;
+		}
+
+		DefaultAllocator::GetInstance().Free(dataBuffer);
+
+		SpillStream& pixelsStream = AddDataBlockStream("Pixels");
+		pixelsStream.Write(pixels, x * y * componentCount);
 
 		return true;
 	}

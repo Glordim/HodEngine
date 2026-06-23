@@ -1,7 +1,10 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
+#include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/ScopedGuard.hpp"
+#include "HodEngine/Core/Stream/SpillStream.hpp"
+#include "HodEngine/Core/Time/SystemTime.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
@@ -67,22 +70,17 @@ namespace hod::inline editor
 
 	bool Importer::Import(const Path& sourcePath, const Path& destinationPath, const UID& uid, ImporterSettings* importSettings, uint64_t taskId)
 	{
-		AssetContainer assetContainer;
-		assetContainer.SetUid(uid);
-		assetContainer.SetSourcePath(sourcePath);
-
-		FileSystem::Handle sourceFile = FileSystem::GetInstance()->Open(sourcePath);
-		if (sourceFile.IsOpen() == false)
+		FileStream sourceStream;
+		if (sourceStream.Open(sourcePath) == false)
 		{
 			OUTPUT_ERROR("Importer::Import: Unable to open source file '{}'", sourcePath);
 			Editor::GetInstance()->GetTaskTracker().UpdateTaskStatus(taskId, TaskStatus::Failed);
 			return false;
 		}
 
-		_tmpDir = FileSystem::GetInstance()->GetTemporaryPath() / "HodEngine" / Project::GetInstance()->GetName() / "Import" / uid.ToString();
+		_tmpDir = FileSystem::GetTemporaryPath() / "HodEngine" / Project::GetInstance()->GetName() / "Import" / uid.ToString(); // todo add datetime
 		ScopedGuard cleanupTmp = [&]()
 		{
-			FileSystem::GetInstance()->Close(sourceFile);
 			FileSystem::GetInstance()->RemoveAll(_tmpDir);
 		};
 		if (FileSystem::GetInstance()->CreateDirectories(_tmpDir) == false)
@@ -90,10 +88,12 @@ namespace hod::inline editor
 			return false;
 		}
 
-		if (WriteContent(sourceFile, importSettings) == false)
+		if (WriteContent(sourceStream, importSettings) == false)
 		{
 			return false;
 		}
+
+		sourceStream.Seek(0, Stream::SeekOrigin::Begin);
 
 		char buffer[256 * 1024];
 		void* hashState = nullptr;
@@ -101,7 +101,7 @@ namespace hod::inline editor
 		int32_t readBytes = 0;
 		while (true)
 		{
-			readBytes = FileSystem::GetInstance()->Read(sourceFile, buffer, sizeof(buffer));
+			readBytes = sourceStream.Read(buffer, sizeof(buffer));
 			if (readBytes > 0)
 			{
 				hashState = Hash::ComputeXxh3_64_Cumulated(hashState, buffer, readBytes);
@@ -118,7 +118,10 @@ namespace hod::inline editor
 				return false;
 			}
 		}
-		FileSystem::GetInstance()->Seek(sourceFile, 0, FileSystem::SeekMode::Begin);
+
+		AssetContainer assetContainer;
+		assetContainer.SetUid(uid);
+		assetContainer.SetSourcePath(sourcePath);
 		assetContainer.SetSourceHash(fileHash);
 
 		if (importSettings != nullptr)
@@ -126,11 +129,14 @@ namespace hod::inline editor
 			Serializer::Serialize(*importSettings, assetContainer.GetImportSettings());
 		}
 
-		(void)destinationPath;
+		for (DataBlock* dataBlock : _dataBlocks)
+		{
+			assetContainer.SetDataBlock(dataBlock->_name, dataBlock->_stream);
+		}
+
 		(void)taskId;
 
-		assetContainer.Save(destinationPath);
-		return false;
+		return assetContainer.Save(destinationPath, _tmpDir);
 	}
 
 	/// @brief
@@ -290,5 +296,18 @@ namespace hod::inline editor
 
 		DocumentWriterJson documentWriter;
 		return documentWriter.Write(document, metaFilePath);
+	}
+
+	SpillStream& Importer::AddDataBlockStream(std::string_view name)
+	{
+		for (DataBlock* dataBlock : _dataBlocks)
+		{
+			if (dataBlock->_name == name)
+			{
+				return dataBlock->_stream;
+			}
+		}
+		_dataBlocks.PushBack(DefaultAllocator::GetInstance().New<DataBlock>(name, _tmpDir / name));
+		return _dataBlocks.Back()->_stream;
 	}
 }

@@ -28,7 +28,8 @@ namespace hod::inline editor
 			Importer* importer = AssetDatabase::GetInstance()->FindCompatibleImporter(extension);
 			if (importer != nullptr)
 			{
-				importer->Import(_sourceFilePath, _destinationDirPath, UID::GenerateUID(), nullptr, _taskId);
+				Path destinationFilePath = _destinationDirPath / _sourceFilePath.Filename().ReplaceExtension(importer->GetAssetExtension());
+				importer->Import(_sourceFilePath, destinationFilePath, UID::GenerateUID(), nullptr, _taskId);
 			}
 			else
 			{
