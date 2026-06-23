@@ -47,9 +47,15 @@ namespace hod::inline editor
 
 		bool	RemoveTask(uint64_t id);
 
-		void				LockTasks() { _taskLock.lock(); }
-		const Vector<Task*>	GetTasks() const { return _tasks; }
-		void				UnlockTasks() { _taskLock.unlock(); }
+		template<typename Func>
+		void ForEachTasks(Func&& func)
+		{
+			std::scoped_lock lock(_taskLock);
+			for (uint32_t i = 0; i < _tasks.Size(); ++i)
+			{
+				func(*_tasks[i]);
+			}
+		}
 
 	private:
 		[[nodiscard]] Task* FindTask(uint64_t id) const;

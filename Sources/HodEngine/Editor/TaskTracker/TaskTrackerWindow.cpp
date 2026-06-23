@@ -84,12 +84,10 @@ namespace hod::inline editor
 
 		if (ImGui::BeginChild("Tasks", ImVec2(0.0f, 0.0f), 0, ImGuiWindowFlags_NoBackground))
 		{
-			taskTracker.LockTasks();
-			for (const Task* task : taskTracker.GetTasks())
+			taskTracker.ForEachTasks([&](const Task& task)
 			{
-				DrawTask(*task);
-			}
-			taskTracker.UnlockTasks();
+				DrawTask(task);
+			});
 		}
 		ImGui::EndChild();
 	}
