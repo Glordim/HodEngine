@@ -178,6 +178,7 @@ namespace hod::inline application
 		SystemTime::TimeStamp last = SystemTime::Now();
 		while (_shouldQuit == false)
 		{
+			JobScheduler::GetInstance()->CleanupCompleted();
 			frameSequencer->EnqueueAndWaitJobs();
 
 			SystemTime::TimeStamp now = SystemTime::Now();

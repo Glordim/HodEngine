@@ -35,5 +35,7 @@ namespace hod::inline gamesystems
 		enki::TaskSet* _taskSet = nullptr;
 		enki::TaskScheduler* _taskScheduler = nullptr;
 		bool _autoDelete = false;
+
+		std::atomic<Job*> _nextCompleted = nullptr;
 	};
 }

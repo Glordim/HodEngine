@@ -29,6 +29,9 @@ namespace hod::inline gamesystems
 		void PushBackground(Job* job);
 		void WaitBackground();
 
+		void MarkForCleanup(Job* job);
+		void CleanupCompleted();
+
 	protected:
 		JobScheduler();
 		~JobScheduler();
@@ -36,5 +39,7 @@ namespace hod::inline gamesystems
 	private:
 		enki::TaskScheduler* _frameScheduler = nullptr;
 		enki::TaskScheduler* _backgroundScheduler = nullptr;
+
+		std::atomic<Job*> _completedHead = nullptr;
 	};
 }

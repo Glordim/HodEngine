@@ -2,6 +2,7 @@
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/GameSystems/Job/Job.hpp"
 
+#include "HodEngine/GameSystems/Job/JobScheduler.hpp"
 #include <TaskScheduler.h>
 #include <cassert>
 
@@ -16,7 +17,7 @@ namespace hod::inline gamesystems
 
 			if (_autoDelete)
 			{
-				DefaultAllocator::GetInstance().Delete(this);
+				JobScheduler::GetInstance()->MarkForCleanup(this);
 			}
 		});
 	}

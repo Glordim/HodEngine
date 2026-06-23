@@ -58,4 +58,24 @@ namespace hod::inline gamesystems
 	{
 		_backgroundScheduler->WaitforAll();
 	}
+
+	void JobScheduler::MarkForCleanup(Job* job)
+	{
+		Job* head = _completedHead.load(std::memory_order_relaxed);
+		do
+		{
+			job->_nextCompleted = head;
+		} while (!_completedHead.compare_exchange_weak(head, job, std::memory_order_release, std::memory_order_relaxed));
+	}
+
+	void JobScheduler::CleanupCompleted()
+	{
+		Job* job = _completedHead.exchange(nullptr, std::memory_order_acquire);
+		while (job)
+		{
+			Job* next = job->_nextCompleted;
+			DefaultAllocator::GetInstance().Delete(job);
+			job = next;
+		}
+	}
 }

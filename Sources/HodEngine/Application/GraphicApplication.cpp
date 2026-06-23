@@ -188,6 +188,7 @@ namespace hod::inline application
 				break;
 			}
 
+			JobScheduler::GetInstance()->CleanupCompleted();
 			frameSequencer->EnqueueAndWaitJobs();
 
 			Renderer::GetInstance()->Render();
