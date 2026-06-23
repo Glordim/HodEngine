@@ -39,7 +39,7 @@ else()
 endif()
 
 target_link_libraries(Core
-	PRIVATE ${PLATFORM_LIBS} $<$<BOOL:${WIN32}>:WindowsHModular::WindowsHModular> xxHash::xxhash
+	PRIVATE ${PLATFORM_LIBS} $<$<BOOL:${WIN32}>:WindowsHModular::WindowsHModular> xxHash::xxhash zstd::libzstd
 	PUBLIC fmt::fmt
 )
 
