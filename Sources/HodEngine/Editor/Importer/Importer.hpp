@@ -1,7 +1,9 @@
 #pragma once
+#include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/Editor/Export.hpp"
 
 #include <HodEngine/Core/Stream/SpillStream.hpp>
+#include <HodEngine/Core/Stream/CompressionStream.hpp>
 #include <HodEngine/Core/FileSystem/Path.hpp>
 
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
@@ -59,13 +61,13 @@ namespace hod::inline editor
 		virtual bool WriteResource(Stream& data, Stream& meta, Document& document, Vector<Resource::Data>& datas, Stream& thumbnail,
 		                           ImporterSettings& settings) = 0;
 
-		virtual bool WriteContent(Stream& source, ImporterSettings* importSettings) { (void)source; (void)importSettings; return false; }; // todo retrocompat, make it pure
+		virtual bool FillDataBlock(Stream& source, ImporterSettings* importSettings) { (void)source; (void)importSettings; return false; }; // todo retrocompat, make it pure
 
 		template<typename... Args>
 		void SetSupportedDataFileExtensions(Args... args);
 		void SetAssetExtension(const char* extension) { _assetExtension = extension; }
 
-		SpillStream& AddDataBlockStream(std::string_view name);
+		Stream& AddDataBlockStream(std::string_view name, bool compressed);
 
 	private:
 		Vector<const char*> _supportedDataFileExtensions;
@@ -73,17 +75,26 @@ namespace hod::inline editor
 
 		Path _tmpDir;
 
-		struct DataBlock
+		class DataBlock
 		{
-			DataBlock(std::string_view name, const Path& tmpFile)
+		public:
+			DataBlock(std::string_view name, const Path& tmpFile, bool compressed)
 			: _name(name)
-			, _stream(SpillStream::DefaultThreshold, tmpFile)
+			, _spillStream(SpillStream::DefaultThreshold, tmpFile)
+			, _compressionStream(_spillStream)
+			, _compressed(compressed)
 			{
-
 			}
 
+			const String& GetName() const { return _name; }
+			bool GetCompressed() const { return _compressed; }
+			Stream& GetStream() { return _compressed ? static_cast<Stream&>(_compressionStream) : static_cast<Stream&>(_spillStream); }
+
+		private:
 			String _name;
-			SpillStream _stream;
+			SpillStream _spillStream;
+			CompressionStream _compressionStream;
+			bool _compressed;
 		};
 		Vector<DataBlock*> _dataBlocks;
 	};

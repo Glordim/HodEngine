@@ -10,6 +10,7 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
+#include <cstdint>
 #include <stb_image.h>
 #include <stb_image_write.h>
 #include <stb_image_resize2.h>
@@ -134,7 +135,7 @@ namespace hod::inline editor
 		return true;
 	}
 
-	bool TextureImporter::WriteContent(Stream& source, ImporterSettings* /*importSettings*/)
+	bool TextureImporter::FillDataBlock(Stream& source, ImporterSettings* /*importSettings*/)
 	{
 		uint32_t dataSize = source.GetSize();
 		uint8_t* dataBuffer = DefaultAllocator::GetInstance().Allocate<uint8_t>(dataSize);
@@ -156,10 +157,9 @@ namespace hod::inline editor
 
 		DefaultAllocator::GetInstance().Free(dataBuffer);
 
-		SpillStream& pixelsStream = AddDataBlockStream("Pixels");
-		pixelsStream.Write(pixels, x * y * componentCount);
-
-		return true;
+		Stream& pixelsStream = AddDataBlockStream("Pixels", true);
+		uint32_t pixelsSize = x * y * componentCount;
+		return pixelsStream.Write(pixels, pixelsSize) == pixelsSize;
 	}
 
 	// TODO Move all virtual in Ctor const init ?

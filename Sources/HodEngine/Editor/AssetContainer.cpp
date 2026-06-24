@@ -1,5 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
+#include "HodEngine/Core/Stream/CompressionStream.hpp"
+#include "HodEngine/Core/Stream/Stream.hpp"
 #include "HodEngine/Editor/AssetContainer.hpp"
 
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
@@ -130,6 +132,17 @@ namespace hod::inline editor
 		_internalDataBlockStream.Resize(dataBlockCount);
 		_dataBlocks.Resize(dataBlockCount);
 		fileStream.Read(dataBlockLocation.Data(), sizeof(DataBlockLocation) * dataBlockCount);
+
+		uint32_t compressedCount = 0;
+		for (uint32_t i = 0; i < dataBlockCount; ++i)
+		{
+			if (dataBlockLocation[i].compressed)
+			{
+				++compressedCount;
+			}
+		}
+		_internalCompressionStream.Reserve(compressedCount);
+
 		uint32_t fileSize = fileStream.GetSize();
 		for (uint32_t i = 0; i < dataBlockCount; ++i)
 		{
@@ -138,7 +151,17 @@ namespace hod::inline editor
 			_internalDataBlockStream[i].SetRange(dataBlockLocation[i].position, blockEnd - dataBlockLocation[i].position);
 
 			_dataBlocks[i]._hashName = dataBlockLocation[i].hashName;
-			_dataBlocks[i]._stream = &_internalDataBlockStream[i];
+			_dataBlocks[i]._compressed = dataBlockLocation[i].compressed;
+
+			if (dataBlockLocation[i].compressed)
+			{
+				_internalCompressionStream.EmplaceBack(_internalDataBlockStream[i]);
+				_dataBlocks[i]._stream = &_internalCompressionStream.Back();
+			}
+			else
+			{
+				_dataBlocks[i]._stream = &_internalDataBlockStream[i];
+			}
 		}
 		return true;
 	}
@@ -197,12 +220,14 @@ namespace hod::inline editor
 		{
 			dataBlockLocations[i].hashName = _dataBlocks[i]._hashName;
 			dataBlockLocations[i].position = file.GetPosition();
+			dataBlockLocations[i].compressed = _dataBlocks[i]._compressed;
 
-			_dataBlocks[i]._stream->Seek(0, Stream::SeekOrigin::Begin);
+			Stream& realStream = _dataBlocks[i]._compressed ? *static_cast<CompressionStream*>(_dataBlocks[i]._stream)->GetRealStream() : *_dataBlocks[i]._stream;
+			realStream.Seek(0, Stream::SeekOrigin::Begin);
 			uint32_t readBytes = 0;
 			while (true)
 			{
-				readBytes = _dataBlocks[i]._stream->Read(buffer, sizeof(buffer));
+				readBytes = realStream.Read(buffer, sizeof(buffer));
 				if (readBytes > 0)
 				{
 					file.Write(buffer, readBytes);
@@ -309,13 +334,14 @@ namespace hod::inline editor
 		return nullptr;
 	}
 
-	void AssetContainer::SetDataBlock(std::string_view name, Stream& stream)
+	void AssetContainer::SetDataBlock(std::string_view name, Stream& stream, bool compressed)
 	{
 		RemoveDataBlock(name);
 
 		DataBlockInfo info;
 		info._hashName = Hash::ComputeXxh3_64(name.data(), name.size());
 		info._stream = &stream;
+		info._compressed = compressed;
 
 		_dataBlocks.PushBack(std::move(info));
 	}

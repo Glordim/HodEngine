@@ -4,6 +4,7 @@
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
+#include <HodEngine/Core/Stream/CompressionStream.hpp>
 #include <HodEngine/Core/FileSystem/Path.hpp>
 #include <HodEngine/Core/String.hpp>
 #include <HodEngine/Core/UID.hpp>
@@ -22,6 +23,7 @@ namespace hod::inline editor
 		{
 			uint64_t _hashName = 0;
 			Stream*  _stream = nullptr;
+			bool _compressed = false;
 		};
 
 	public:
@@ -62,7 +64,7 @@ namespace hod::inline editor
 		const Vector<DataBlockInfo>& GetDataBlocks() const;
 		const DataBlockInfo*         FindDataBlock(std::string_view name) const;
 
-		void SetDataBlock(std::string_view name, Stream& stream);
+		void SetDataBlock(std::string_view name, Stream& stream, bool compressed);
 		void RemoveDataBlock(std::string_view name);
 
 	private:
@@ -76,6 +78,7 @@ namespace hod::inline editor
 		{
 			uint64_t hashName = 0;
 			uint64_t position = 0;
+			bool compressed = false;
 		};
 
 	private:
@@ -90,5 +93,6 @@ namespace hod::inline editor
 
 		Vector<DataBlockInfo> _dataBlocks;
 		Vector<FileStream> _internalDataBlockStream;
+		Vector<CompressionStream> _internalCompressionStream;
 	};
 }

@@ -88,7 +88,7 @@ namespace hod::inline editor
 			return false;
 		}
 
-		if (WriteContent(sourceStream, importSettings) == false)
+		if (FillDataBlock(sourceStream, importSettings) == false)
 		{
 			return false;
 		}
@@ -131,10 +131,10 @@ namespace hod::inline editor
 
 		for (DataBlock* dataBlock : _dataBlocks)
 		{
-			assetContainer.SetDataBlock(dataBlock->_name, dataBlock->_stream);
+			assetContainer.SetDataBlock(dataBlock->GetName(), dataBlock->GetStream(), dataBlock->GetCompressed());
 		}
 
-		(void)taskId;
+		(void)taskId; // todo
 
 		return assetContainer.Save(destinationPath, _tmpDir);
 	}
@@ -298,16 +298,16 @@ namespace hod::inline editor
 		return documentWriter.Write(document, metaFilePath);
 	}
 
-	SpillStream& Importer::AddDataBlockStream(std::string_view name)
+	Stream& Importer::AddDataBlockStream(std::string_view name, bool compressed)
 	{
 		for (DataBlock* dataBlock : _dataBlocks)
 		{
-			if (dataBlock->_name == name)
+			if (dataBlock->GetName() == name)
 			{
-				return dataBlock->_stream;
+				return dataBlock->GetStream();
 			}
 		}
-		_dataBlocks.PushBack(DefaultAllocator::GetInstance().New<DataBlock>(name, _tmpDir / name));
-		return _dataBlocks.Back()->_stream;
+		_dataBlocks.PushBack(DefaultAllocator::GetInstance().New<DataBlock>(name, _tmpDir / name, compressed));
+		return _dataBlocks.Back()->GetStream();
 	}
 }
