@@ -70,6 +70,10 @@ namespace hod::inline editor
 
 	bool Importer::Import(const Path& sourcePath, const Path& destinationPath, const UID& uid, ImporterSettings* importSettings, uint64_t taskId)
 	{
+		_taskId = taskId;
+		Editor::GetInstance()->GetTaskTracker().UpdateTaskProgress(_taskId, 0.0f);
+		Editor::GetInstance()->GetTaskTracker().UpdateTaskDescription(_taskId, "Opening source");
+
 		FileStream sourceStream;
 		if (sourceStream.Open(sourcePath) == false)
 		{
@@ -78,6 +82,8 @@ namespace hod::inline editor
 			return false;
 		}
 
+		Editor::GetInstance()->GetTaskTracker().UpdateTaskProgress(_taskId, 2.0f);
+		Editor::GetInstance()->GetTaskTracker().UpdateTaskDescription(_taskId, "Creating tmp folder");
 		_tmpDir = FileSystem::GetTemporaryPath() / "HodEngine" / Project::GetInstance()->GetName() / "Import" / uid.ToString(); // todo add datetime
 		ScopedGuard cleanupTmp = [&]()
 		{
@@ -85,25 +91,34 @@ namespace hod::inline editor
 		};
 		if (FileSystem::GetInstance()->CreateDirectories(_tmpDir) == false)
 		{
+			OUTPUT_ERROR("Importer::Import: Unable to create tmp dir '{}'", _tmpDir);
+			Editor::GetInstance()->GetTaskTracker().UpdateTaskStatus(taskId, TaskStatus::Failed);
 			return false;
 		}
 
+		Editor::GetInstance()->GetTaskTracker().UpdateTaskProgress(_taskId, 5.0f);
+		Editor::GetInstance()->GetTaskTracker().UpdateTaskDescription(_taskId, "Processing source");
 		if (FillDataBlock(sourceStream, importSettings) == false)
 		{
+			Editor::GetInstance()->GetTaskTracker().UpdateTaskStatus(taskId, TaskStatus::Failed);
 			return false;
 		}
-
 		sourceStream.Seek(0, Stream::SeekOrigin::Begin);
+
+		Editor::GetInstance()->GetTaskTracker().UpdateTaskDescription(_taskId, "Computing source hash");
+		Editor::GetInstance()->GetTaskTracker().UpdateTaskProgress(_taskId, 80.0f);
 
 		char buffer[256 * 1024];
 		void* hashState = nullptr;
 		uint64_t fileHash = 0;
 		int32_t readBytes = 0;
+		uint32_t sourceSize = sourceStream.GetSize();
 		while (true)
 		{
 			readBytes = sourceStream.Read(buffer, sizeof(buffer));
 			if (readBytes > 0)
 			{
+				Editor::GetInstance()->GetTaskTracker().UpdateTaskProgress(_taskId, 80.0f + 5.0f * (static_cast<float>(readBytes) / static_cast<float>(sourceSize)));
 				hashState = Hash::ComputeXxh3_64_Cumulated(hashState, buffer, readBytes);
 				if (readBytes != sizeof(buffer))
 				{
@@ -118,6 +133,9 @@ namespace hod::inline editor
 				return false;
 			}
 		}
+
+		Editor::GetInstance()->GetTaskTracker().UpdateTaskDescription(_taskId, "Writing asset");
+		Editor::GetInstance()->GetTaskTracker().UpdateTaskProgress(_taskId, 85.0f);
 
 		AssetContainer assetContainer;
 		assetContainer.SetUid(uid);
@@ -134,9 +152,17 @@ namespace hod::inline editor
 			assetContainer.SetDataBlock(dataBlock->GetName(), dataBlock->GetStream(), dataBlock->GetCompressed());
 		}
 
-		(void)taskId; // todo
-
-		return assetContainer.Save(destinationPath, _tmpDir);
+		if (assetContainer.Save(destinationPath, _tmpDir))
+		{
+			Editor::GetInstance()->GetTaskTracker().UpdateTaskStatus(taskId, TaskStatus::Succeeded);
+			Editor::GetInstance()->GetTaskTracker().UpdateTaskProgress(_taskId, 100.0f);
+			return true;
+		}
+		else
+		{
+			Editor::GetInstance()->GetTaskTracker().UpdateTaskStatus(taskId, TaskStatus::Failed);
+			return false;
+		}
 	}
 
 	/// @brief
@@ -309,5 +335,15 @@ namespace hod::inline editor
 		}
 		_dataBlocks.PushBack(DefaultAllocator::GetInstance().New<DataBlock>(name, _tmpDir / name, compressed));
 		return _dataBlocks.Back()->GetStream();
+	}
+
+	void Importer::UpdateFillDataBlockProgress(float percent)
+	{
+		Editor::GetInstance()->GetTaskTracker().UpdateTaskProgress(_taskId, 5.0f + 75.0f * percent);
+	}
+
+	void Importer::UpdateFillDataBlockDescription(std::string_view description)
+	{
+		Editor::GetInstance()->GetTaskTracker().UpdateTaskDescription(_taskId, description);
 	}
 }

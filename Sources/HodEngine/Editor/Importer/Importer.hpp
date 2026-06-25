@@ -9,6 +9,7 @@
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
+#include <cstdint>
 #include <string_view>
 
 namespace hod::inline editor
@@ -62,6 +63,8 @@ namespace hod::inline editor
 		                           ImporterSettings& settings) = 0;
 
 		virtual bool FillDataBlock(Stream& source, ImporterSettings* importSettings) { (void)source; (void)importSettings; return false; }; // todo retrocompat, make it pure
+		void UpdateFillDataBlockProgress(float percent);
+		void UpdateFillDataBlockDescription(std::string_view description);
 
 		template<typename... Args>
 		void SetSupportedDataFileExtensions(Args... args);
@@ -74,6 +77,7 @@ namespace hod::inline editor
 		String _assetExtension;
 
 		Path _tmpDir;
+		uint64_t _taskId = 0;
 
 		class DataBlock
 		{
