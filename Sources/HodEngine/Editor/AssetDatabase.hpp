@@ -10,8 +10,10 @@
 #include <HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp>
 #include <HodEngine/Core/Singleton.hpp>
 #include <HodEngine/Core/UID.hpp>
+#include <HodEngine/GameSystems/Job/MemberFunctionJob.hpp>
 
 #include "HodEngine/Editor/Importer/DefaultImporter.hpp"
+#include <unordered_map>
 
 namespace hod::inline editor
 {
@@ -88,6 +90,8 @@ namespace hod::inline editor
 
 		void ListAsset(Vector<FileSystemMapping*>& result, const FileSystemMapping& from, ReflectionDescriptor* resourceDescriptor);
 
+		void UpdateFileWatchers();
+
 	private:
 		void ExploreAndDetectAsset(FileSystemMapping* parentFileSystemMapping);
 		void FilesystemWatcherJob();
@@ -98,10 +102,15 @@ namespace hod::inline editor
 		void MoveNode(FileSystemMapping& node, const Path& newPath);
 		void DeleteNode(FileSystemMapping& node);
 
-		void FileSystemWatcherOnCreateFile(const Path& path);
-		void FileSystemWatcherOnDeleteFile(const Path& path);
-		void FileSystemWatcherOnChangeFile(const Path& path);
-		void FileSystemWatcherOnMoveFile(const Path& oldPath, const Path& newPath);
+		void FileSystemWatcherAssetOnCreateFile(const Path& path);
+		void FileSystemWatcherAssetOnDeleteFile(const Path& path);
+		void FileSystemWatcherAssetOnChangeFile(const Path& path);
+		void FileSystemWatcherAssetOnMoveFile(const Path& oldPath, const Path& newPath);
+
+		void FileSystemWatcherSourceOnCreateFile(const Path& path);
+		void FileSystemWatcherSourceOnDeleteFile(const Path& path);
+		void FileSystemWatcherSourceOnChangeFile(const Path& path);
+		void FileSystemWatcherSourceOnMoveFile(const Path& oldPath, const Path& newPath);
 
 		void ClearFilesystemMapping(FileSystemMapping& filesystemMapping);
 
@@ -110,12 +119,16 @@ namespace hod::inline editor
 
 	private:
 		std::map<UID, std::shared_ptr<Asset>> _uidToAssetMap;
+		std::unordered_map<Path, std::shared_ptr<Asset>> _sourcePathToAssetMap;
 		FileSystemMapping                     _rootFileSystemMapping;
 
-		FileSystemWatcher _fileSystemWatcher;
+		FileSystemWatcher _fileSystemWatcherAsset;
+		FileSystemWatcher _fileSystemWatcherSource;
 
 		Vector<Importer*> _importers;
 		DefaultImporter   _defaultImporter;
+
+		MemberFunctionJob<AssetDatabase> _updateJob;
 	};
 }
 

@@ -7,11 +7,13 @@
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include "HodEngine/Editor/Project.hpp"
 
+#include "HodEngine/GameSystems/Frame/FrameSequencer.hpp"
 #include <HodEngine/Core/Output/OutputService.hpp>
 
 #include "HodEngine/Core/Vector.hpp"
 
 #include <filesystem> // todo remove
+#include <memory>
 
 namespace hod::inline editor
 {
@@ -34,6 +36,7 @@ namespace hod::inline editor
 	}
 
 	_SingletonConstructor(AssetDatabase)
+	: _updateJob(this, &AssetDatabase::UpdateFileWatchers)
 	{
 		_importers.push_back(&_defaultImporter);
 	}
@@ -41,7 +44,8 @@ namespace hod::inline editor
 	/// @brief
 	AssetDatabase::~AssetDatabase()
 	{
-		_fileSystemWatcher.Cleanup();
+		_fileSystemWatcherAsset.Cleanup();
+		_fileSystemWatcherSource.Cleanup();
 
 		ClearFilesystemMapping(_rootFileSystemMapping);
 
@@ -88,15 +92,31 @@ namespace hod::inline editor
 		_rootFileSystemMapping._path = project->GetAssetDirPath();
 		ExploreAndDetectAsset(&_rootFileSystemMapping);
 
-		if (_fileSystemWatcher.Init(project->GetAssetDirPath(), std::bind(&AssetDatabase::FileSystemWatcherOnCreateFile, this, std::placeholders::_1),
-		                            std::bind(&AssetDatabase::FileSystemWatcherOnDeleteFile, this, std::placeholders::_1),
-		                            std::bind(&AssetDatabase::FileSystemWatcherOnChangeFile, this, std::placeholders::_1),
-		                            std::bind(&AssetDatabase::FileSystemWatcherOnMoveFile, this, std::placeholders::_1, std::placeholders::_2)) == false)
+		if (_fileSystemWatcherAsset.Init(project->GetAssetDirPath(), std::bind(&AssetDatabase::FileSystemWatcherAssetOnCreateFile, this, std::placeholders::_1),
+		                            std::bind(&AssetDatabase::FileSystemWatcherAssetOnDeleteFile, this, std::placeholders::_1),
+		                            std::bind(&AssetDatabase::FileSystemWatcherAssetOnChangeFile, this, std::placeholders::_1),
+		                            std::bind(&AssetDatabase::FileSystemWatcherAssetOnMoveFile, this, std::placeholders::_1, std::placeholders::_2)) == false)
 		{
 			return false;
 		}
 
+		if (_fileSystemWatcherSource.Init(project->GetSourceDirPath(), std::bind(&AssetDatabase::FileSystemWatcherSourceOnCreateFile, this, std::placeholders::_1),
+		                            std::bind(&AssetDatabase::FileSystemWatcherSourceOnDeleteFile, this, std::placeholders::_1),
+		                            std::bind(&AssetDatabase::FileSystemWatcherSourceOnChangeFile, this, std::placeholders::_1),
+		                            std::bind(&AssetDatabase::FileSystemWatcherSourceOnMoveFile, this, std::placeholders::_1, std::placeholders::_2)) == false)
+		{
+			return false;
+		}
+
+		FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::PostRender);
+
 		return true;
+	}
+
+	void AssetDatabase::UpdateFileWatchers()
+	{
+		_fileSystemWatcherAsset.Update();
+		_fileSystemWatcherSource.Update();
 	}
 
 	/// @brief
@@ -142,6 +162,11 @@ namespace hod::inline editor
 				}
 				else
 				{
+					if (asset->HasSource())
+					{
+						_sourcePathToAssetMap.emplace(asset->GetSourcePath(), asset);
+					}
+
 					_uidToAssetMap.emplace(asset->GetUid(), asset);
 				}
 			}
@@ -333,7 +358,7 @@ namespace hod::inline editor
 		Importer* importer = GetImporter(asset->GetMeta()._importerType);
 		if (importer != nullptr)
 		{
-			return importer->Import(asset->GetPath());
+			return importer->Import(asset->GetSourcePath(), asset->GetPath(), asset->GetUid(), nullptr, 0);
 		}
 		return false;
 	}
@@ -545,55 +570,115 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param path
-	void AssetDatabase::FileSystemWatcherOnCreateFile(const Path& path)
+	void AssetDatabase::FileSystemWatcherAssetOnCreateFile(const Path& path)
 	{
-		if (path.HasExtension() && path.Extension().GetString() == ".meta")
-		{
-			return;
-		}
-
 		if (FindFileSystemMappingFromPath(path) == nullptr)
 		{
-			FileSystemMapping* node = DefaultAllocator::GetInstance().New<FileSystemMapping>();
-			node->_path = path;
-			node->_parentFolder = FindFileSystemMappingFromPath(path.ParentPath());
-
 			if (FileSystem::GetInstance()->IsDirectory(path))
 			{
+				FileSystemMapping* node = DefaultAllocator::GetInstance().New<FileSystemMapping>();
+				node->_path = path;
+				node->_parentFolder = FindFileSystemMappingFromPath(path.ParentPath());
+
 				node->_parentFolder->_childrenFolder.push_back(node);
 				node->_type = FileSystemMapping::Type::FolderType;
 			}
 			else
 			{
+				std::shared_ptr<Asset> asset = std::make_shared<Asset>(path);
+				if (asset->Load() == false)
+				{
+					OUTPUT_ERROR("Unable to load Asset : {}", path);
+					return;
+				}
+				else
+				{
+					if (asset->HasSource())
+					{
+						_sourcePathToAssetMap.emplace(asset->GetSourcePath(), asset);
+					}
+
+					_uidToAssetMap.emplace(asset->GetUid(), asset);
+				}
+
+				FileSystemMapping* node = DefaultAllocator::GetInstance().New<FileSystemMapping>();
+				node->_path = path;
+				node->_parentFolder = FindFileSystemMappingFromPath(path.ParentPath());
 				node->_parentFolder->_childrenAsset.push_back(node);
 				node->_type = FileSystemMapping::Type::AssetType;
-				// todo create Asset?
-				Import(path);
+				node->_asset = asset;
 			}
 		}
 	}
 
 	/// @brief
 	/// @param path
-	void AssetDatabase::FileSystemWatcherOnDeleteFile(const Path& path)
+	void AssetDatabase::FileSystemWatcherAssetOnDeleteFile(const Path& path)
 	{
 		FileSystemMapping* nodeToMove = FindFileSystemMappingFromPath(path);
 		if (nodeToMove != nullptr)
 		{
+			std::shared_ptr<Asset> asset = nodeToMove->_asset;
+			if (asset != nullptr)
+			{
+				if (asset->HasSource())
+				{
+					auto it = _sourcePathToAssetMap.find(asset->GetSourcePath());
+					if (it != _sourcePathToAssetMap.end())
+					{
+						_sourcePathToAssetMap.erase(it);
+					}
+				}
+
+				auto it = _uidToAssetMap.find(asset->GetUid());
+				if (it != _uidToAssetMap.end())
+				{
+					_uidToAssetMap.erase(it);
+				}
+			}
+
 			DeleteNode(*nodeToMove);
 		}
 	}
 
 	/// @brief
 	/// @param path
-	void AssetDatabase::FileSystemWatcherOnChangeFile(const Path& path)
+	void AssetDatabase::FileSystemWatcherAssetOnChangeFile(const Path& path)
 	{
 		if (FileSystem::GetInstance()->IsDirectory(path) == false)
 		{
 			FileSystemMapping* nodeToReimport = FindFileSystemMappingFromPath(path);
 			if (nodeToReimport != nullptr)
 			{
-				Import(nodeToReimport->_path);
+				std::shared_ptr<Asset> asset = nodeToReimport->_asset;
+				if (asset != nullptr)
+				{
+					Path oldSourcePath = asset->GetSourcePath();
+
+					if (asset->Load() == false)
+					{
+						FileSystemWatcherAssetOnDeleteFile(path);
+						OUTPUT_ERROR("Unable to load Asset : {}", path);
+						return;
+					}
+
+					if (oldSourcePath != asset->GetSourcePath())
+					{
+						if (oldSourcePath.Empty() == false)
+						{
+							auto it = _sourcePathToAssetMap.find(asset->GetSourcePath());
+							if (it != _sourcePathToAssetMap.end())
+							{
+								_sourcePathToAssetMap.erase(it);
+							}
+						}
+						if (asset->GetSourcePath().Empty() == false)
+						{
+							_sourcePathToAssetMap.emplace(asset->GetSourcePath(), asset);
+						}
+					}
+					_uidToAssetMap[asset->GetUid()] = asset;
+				}
 			}
 		}
 	}
@@ -601,12 +686,48 @@ namespace hod::inline editor
 	/// @brief
 	/// @param oldPath
 	/// @param newPath
-	void AssetDatabase::FileSystemWatcherOnMoveFile(const Path& oldPath, const Path& newPath)
+	void AssetDatabase::FileSystemWatcherAssetOnMoveFile(const Path& oldPath, const Path& newPath)
 	{
+		FileSystemWatcherAssetOnDeleteFile(oldPath);
+		FileSystemWatcherAssetOnCreateFile(newPath);
+		/*
 		FileSystemMapping* nodeToMove = FindFileSystemMappingFromPath(oldPath);
 		if (nodeToMove != nullptr)
 		{
 			MoveNode(*nodeToMove, newPath);
 		}
+		*/
+	}
+
+	/// @brief
+	/// @param path
+	void AssetDatabase::FileSystemWatcherSourceOnCreateFile(const Path& path)
+	{
+		FileSystemWatcherSourceOnChangeFile(path);
+	}
+
+	/// @brief
+	/// @param path
+	void AssetDatabase::FileSystemWatcherSourceOnDeleteFile(const Path& /*path*/)
+	{
+	}
+
+	/// @brief
+	/// @param path
+	void AssetDatabase::FileSystemWatcherSourceOnChangeFile(const Path& path)
+	{
+		auto it = _sourcePathToAssetMap.find(path);
+		if (it != _sourcePathToAssetMap.end())
+		{
+			Import(it->second);
+		}
+	}
+
+	/// @brief
+	/// @param oldPath
+	/// @param newPath
+	void AssetDatabase::FileSystemWatcherSourceOnMoveFile(const Path& /*oldPath*/, const Path& newPath)
+	{
+		FileSystemWatcherSourceOnChangeFile(newPath);
 	}
 }

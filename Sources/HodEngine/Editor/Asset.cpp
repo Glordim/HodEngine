@@ -1,6 +1,8 @@
 #include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 
+#include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Project.hpp"
@@ -60,6 +62,20 @@ namespace hod::inline editor
 	/// @return
 	bool Asset::Load()
 	{
+		AssetContainer assetContainer;
+		if (assetContainer.Load(_path) == false)
+		{
+			OUTPUT_ERROR("Asset::Load: Unable to load AssetContainer from {}", _path);
+			return false;
+		}
+
+		_uid = assetContainer.GetUid();
+		_assetType = assetContainer.GetAssetType();
+		_contentHash = assetContainer.GetContentHash();
+		_sourcePath = assetContainer.GetSourcePath();
+		_sourceHash = assetContainer.GetSourceHash();
+
+		/*
 		Path metaPath = _path;
 		metaPath += ".meta";
 
@@ -110,7 +126,7 @@ namespace hod::inline editor
 		{
 			DefaultAllocator::GetInstance().Delete(_thumbnail);
 			_thumbnail = nullptr;
-		}
+		}*/
 
 		return true;
 	}

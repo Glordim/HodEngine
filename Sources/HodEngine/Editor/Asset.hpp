@@ -1,6 +1,7 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
+#include <cstdint>
 #include <stdint.h>
 
 #include <HodEngine/Core/FileSystem/Path.hpp>
@@ -49,6 +50,9 @@ namespace hod::inline editor
 		const Path&   GetPath() const;
 		const String& GetName() const;
 
+		bool HasSource() const { return _sourcePath.Empty() == false; }
+		const Path& GetSourcePath() const { return _sourcePath; }
+
 		Meta& GetMeta();
 
 		Texture* GetThumbnail() const;
@@ -67,7 +71,12 @@ namespace hod::inline editor
 		Meta _meta;
 
 		String _name;
-		Path   _path;
+		Path _path;
+		UID _uid;
+		uint64_t _assetType = 0;
+		uint64_t _contentHash = 0;
+		Path _sourcePath;
+		uint64_t _sourceHash = 0;
 
 		Texture* _thumbnail = nullptr;
 
