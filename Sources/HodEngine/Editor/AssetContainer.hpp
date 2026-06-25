@@ -74,6 +74,18 @@ namespace hod::inline editor
 	private:
 		static const uint8_t MAGIC[8];
 
+		#pragma pack(push, 1)
+		struct Header
+		{
+			uint8_t  magic[8] = {};
+			uint32_t formatVersion = 0;
+			UID      uid;
+			uint64_t assetType = 0;
+			uint64_t contentHash = 0;
+		};
+		#pragma pack(pop)
+		static_assert(sizeof(Header) == 44);
+
 		struct DataBlockLocation
 		{
 			uint64_t hashName = 0;

@@ -10,6 +10,7 @@
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/Stream/FileStream.hpp"
 
+#include <cstddef>
 #include <cstdint>
 #include <cstring>
 
@@ -22,29 +23,28 @@ namespace hod::inline editor
 	/// @return
 	bool AssetContainer::ReadHeader(Stream& stream)
 	{
-		uint8_t magic[8];
-		if (stream.Read(magic, sizeof(magic)) != sizeof(magic) || std::memcmp(magic, MAGIC, sizeof(MAGIC)) != 0)
+		Header header;
+		if (stream.Read(&header, sizeof(header)) != sizeof(header))
+		{
+			OUTPUT_ERROR("AssetContainer::ReadHeader: read failed");
+			return false;
+		}
+
+		if (std::memcmp(header.magic, MAGIC, sizeof(MAGIC)) != 0)
 		{
 			OUTPUT_ERROR("AssetContainer::ReadHeader: invalid magic number");
 			return false;
 		}
 
-		uint32_t formatVersion = 0;
-		stream.Read(&formatVersion, sizeof(formatVersion));
-		if (formatVersion != FORMAT_VERSION)
+		if (header.formatVersion != FORMAT_VERSION)
 		{
-			OUTPUT_ERROR("AssetContainer::ReadHeader: unsupported format version {}", formatVersion);
+			OUTPUT_ERROR("AssetContainer::ReadHeader: unsupported format version {}", header.formatVersion);
 			return false;
 		}
 
-		uint64_t uidLow = 0;
-		uint64_t uidHigh = 0;
-		stream.Read(&uidLow, sizeof(uidLow));
-		stream.Read(&uidHigh, sizeof(uidHigh));
-		_uid = UID(uidLow, uidHigh);
-
-		stream.Read(&_assetType, sizeof(_assetType));
-		stream.Read(&_contentHash, sizeof(_contentHash));
+		_uid = header.uid;
+		_assetType = header.assetType;
+		_contentHash = header.contentHash;
 
 		return true;
 	}
@@ -180,20 +180,13 @@ namespace hod::inline editor
 			return false;
 		}
 
-		file.Write(MAGIC, sizeof(MAGIC));
-
-		uint32_t formatVersion = FORMAT_VERSION;
-		file.Write(&formatVersion, sizeof(formatVersion));
-
-		uint64_t uidLow = _uid.GetLow();
-		uint64_t uidHigh = _uid.GetHigh();
-		file.Write(&uidLow, sizeof(uidLow));
-		file.Write(&uidHigh, sizeof(uidHigh));
-
-		file.Write(&_assetType, sizeof(_assetType));
-		uint32_t contentHashPosition = file.GetPosition();
-		_contentHash = 0; // write 0 for now
-		file.Write(&_contentHash, sizeof(_contentHash)); 
+		Header header;
+		std::memcpy(header.magic, MAGIC, sizeof(MAGIC));
+		header.formatVersion = FORMAT_VERSION;
+		header.uid = _uid;
+		header.assetType = _assetType;
+		header.contentHash = 0; // tmp, real value will be write at the end
+		file.Write(&header, sizeof(header));
 
 		uint32_t sourcePathLen = _sourcePath.GetString().Size();
 		file.Write(&sourcePathLen, sizeof(sourcePathLen));
@@ -248,7 +241,7 @@ namespace hod::inline editor
 		file.Seek(tablePosition, Stream::SeekOrigin::Begin);
 		file.Write(dataBlockLocations.Data(), sizeof(DataBlockLocation) * dataBlockCount);
 		_contentHash = Hash::ComputeXxh3_64_Result(hashState);
-		file.Seek(contentHashPosition, Stream::SeekOrigin::Begin);
+		file.Seek(offsetof(Header, contentHash), Stream::SeekOrigin::Begin);
 		file.Write(&_contentHash, sizeof(_contentHash));
 
 		file.Close();
