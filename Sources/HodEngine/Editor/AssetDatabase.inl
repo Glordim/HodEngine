@@ -13,6 +13,15 @@ namespace hod::inline editor
 		return true;
 	}
 
+	template<typename _Cooker_>
+	bool AssetDatabase::RegisterCooker()
+	{
+		// TODO check duplicate
+		_Cooker_* cooker = DefaultAllocator::GetInstance().New<_Cooker_>();
+		_cookers.push_back(cooker);
+		return true;
+	}
+
 	/// @brief
 	/// @tparam _Object_
 	/// @param path

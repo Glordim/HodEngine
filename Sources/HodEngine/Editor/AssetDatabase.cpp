@@ -5,6 +5,7 @@
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
+#include "HodEngine/Editor/Cooker/Cooker.hpp"
 #include "HodEngine/Editor/Project.hpp"
 
 #include "HodEngine/GameSystems/Frame/FrameSequencer.hpp"
@@ -62,6 +63,11 @@ namespace hod::inline editor
 			{
 				DefaultAllocator::GetInstance().Delete(importer);
 			}
+		}
+
+		for (Cooker* cooker : _cookers)
+		{
+			DefaultAllocator::GetInstance().Delete(cooker);
 		}
 	}
 
@@ -396,6 +402,18 @@ namespace hod::inline editor
 			if (importer->CheckSupportedExtensions(extension) == true)
 			{
 				return importer;
+			}
+		}
+		return nullptr;
+	}
+
+	Cooker* AssetDatabase::FindCompatibleCooker(uint64_t type) const
+	{
+		for (Cooker* cooker : _cookers)
+		{
+			if (cooker->GetAssetType() == type)
+			{
+				return cooker;
 			}
 		}
 		return nullptr;

@@ -47,7 +47,6 @@
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
 #include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
-#include "HodEngine/Editor/TextureEditor/TextureImporter.hpp"
 
 #include "HodEngine/Editor/AudioEditor/AudioEditorTab.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialEditorTab.hpp"
@@ -55,7 +54,6 @@
 #include "HodEngine/Editor/PrefabEditor/PrefabEditorTab.hpp"
 #include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
 #include "HodEngine/Editor/SerializedDataEditor/SerializedDataEditorTab.hpp"
-#include "HodEngine/Editor/TextureEditor/TextureEditorTab.hpp"
 
 #include "HodEngine/Editor/ViewportWindow.hpp"
 #include "HodEngine/ImGui/ImGuiManager.hpp"
@@ -87,7 +85,10 @@
 #include "HodEngine/Editor/EntityBasedTabEditor/PrefabImporter.hpp"
 #include "HodEngine/Editor/EntityBasedTabEditor/SceneImporter.hpp"
 #include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
+
 #include "HodEngine/Editor/TextureEditor/TextureImporter.hpp"
+#include "HodEngine/Editor/TextureEditor/TextureCooker.hpp"
+#include "HodEngine/Editor/TextureEditor/TextureEditorTab.hpp"
 
 #undef max
 #undef min
@@ -95,7 +96,7 @@
 namespace hod::inline editor
 {
 	_SingletonConstructor(Editor) {}
-
+	
 	/// @brief
 	Editor::~Editor()
 	{
@@ -287,6 +288,7 @@ namespace hod::inline editor
 		_editorTabFactory.emplace("AudioImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<AudioEditorTab>(asset); });
 
 		AssetDatabase::GetInstance()->RegisterImporter<TextureImporter>();
+		AssetDatabase::GetInstance()->RegisterCooker<TextureCooker>();
 		_editorTabFactory.emplace("TextureImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<TextureEditorTab>(asset); });
 
 		AssetDatabase::GetInstance()->RegisterImporter<FontImporter>();

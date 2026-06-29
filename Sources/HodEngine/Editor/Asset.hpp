@@ -50,6 +50,9 @@ namespace hod::inline editor
 		const Path&   GetPath() const;
 		const String& GetName() const;
 
+		uint64_t GetType() const { return _assetType; }
+		uint64_t GetContentHash() const { return _contentHash; }
+
 		bool HasSource() const { return _sourcePath.Empty() == false; }
 		const Path& GetSourcePath() const { return _sourcePath; }
 

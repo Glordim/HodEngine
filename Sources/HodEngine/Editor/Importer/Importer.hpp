@@ -56,7 +56,12 @@ namespace hod::inline editor
 		virtual const char*                       GetTypeName() const = 0;
 		virtual ReflectionDescriptor*             GetResourceDescriptor() const = 0;
 
+		uint64_t GetAssetType() const { return _assetType; }
+
 	protected:
+
+		void SetAssetType(std::string_view assetType);
+
 		bool GenerateNewMeta(const Path& metaFilePath);
 
 		virtual bool WriteResource(Stream& data, Stream& meta, Document& document, Vector<Resource::Data>& datas, Stream& thumbnail,
@@ -78,6 +83,7 @@ namespace hod::inline editor
 
 		Path _tmpDir;
 		uint64_t _taskId = 0;
+		uint64_t _assetType = 0;
 
 		class DataBlock
 		{

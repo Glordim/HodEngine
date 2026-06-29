@@ -22,6 +22,7 @@
 #include <cstdint>
 
 #include "HodEngine/Core/Stream/FileStream.hpp"
+#include "HodEngine/Core/Hash.hpp"
 
 namespace hod::inline editor
 {
@@ -66,6 +67,11 @@ namespace hod::inline editor
 			}
 		}
 		return false;
+	}
+
+	void Importer::SetAssetType(std::string_view assetType)
+	{
+		_assetType = Hash::ComputeXxh3_64(assetType.data(), assetType.size());
 	}
 
 	bool Importer::Import(const Path& sourcePath, const Path& destinationPath, const UID& uid, ImporterSettings* importSettings, uint64_t taskId)
@@ -139,6 +145,7 @@ namespace hod::inline editor
 
 		AssetContainer assetContainer;
 		assetContainer.SetUid(uid);
+		assetContainer.SetAssetType(_assetType);
 		assetContainer.SetSourcePath(sourcePath);
 		assetContainer.SetSourceHash(fileHash);
 

@@ -43,6 +43,7 @@ namespace hod::inline editor
 	{
 		SetSupportedDataFileExtensions("png", "tga", "jpg", "bmp", "psd", "gif", "hdr", "pic");
 		SetAssetExtension("texture");
+		SetAssetType("texture");
 	}
 
 	/// @brief

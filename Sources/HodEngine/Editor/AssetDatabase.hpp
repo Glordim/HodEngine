@@ -1,6 +1,7 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
+#include <cstdint>
 #include <stdint.h>
 
 #include <HodEngine/Core/FileSystem/Path.hpp>
@@ -20,6 +21,7 @@ namespace hod::inline editor
 	class Asset;
 	class Project;
 	class Importer;
+	class Cooker;
 
 	/// @brief
 	class HOD_EDITOR_API AssetDatabase
@@ -64,6 +66,7 @@ namespace hod::inline editor
 		std::shared_ptr<Asset> Find(const UID& uid) const;
 
 		Importer* FindCompatibleImporter(std::string_view extension) const;
+		Cooker* FindCompatibleCooker(uint64_t type) const;
 
 		FileSystemMapping& GetAssetRootNode();
 		FileSystemMapping* FindFileSystemMappingFromPath(const Path& path) const;
@@ -80,6 +83,9 @@ namespace hod::inline editor
 
 		bool Import(const Path& path);
 		bool Import(std::shared_ptr<Asset> asset);
+
+		template<typename _Cooker_>
+		bool                   RegisterCooker();
 
 		template<typename _Importer_>
 		bool                   RegisterImporter();
@@ -127,6 +133,7 @@ namespace hod::inline editor
 
 		Vector<Importer*> _importers;
 		DefaultImporter   _defaultImporter;
+		Vector<Cooker*> _cookers;
 
 		MemberFunctionJob<AssetDatabase> _updateJob;
 	};
