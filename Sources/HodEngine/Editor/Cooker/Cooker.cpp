@@ -20,7 +20,7 @@ namespace hod::inline editor
 		_assetType = Hash::ComputeXxh3_64(assetType.data(), assetType.size());
 	}
 
-	bool Cooker::Cook(const Path& path, uint8_t platforms, uint8_t configs, uint32_t languages, uint64_t taskId)
+	bool Cooker::Cook(const Path& path, uint32_t platforms, uint8_t configs, uint32_t languages, uint64_t taskId)
 	{
 		AssetDatabase::FileSystemMapping* fileSystemNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(path);
 		if (fileSystemNode != nullptr && fileSystemNode->_asset != nullptr)
@@ -34,7 +34,7 @@ namespace hod::inline editor
 		}
 	}
 	
-	bool Cooker::Cook(const Asset& asset, uint8_t platforms, uint8_t configs, uint32_t languages, uint64_t taskId)
+	bool Cooker::Cook(const Asset& asset, uint32_t platforms, uint8_t configs, uint32_t languages, uint64_t taskId)
 	{
 		_taskId = taskId;
 		Editor::GetInstance()->GetTaskTracker().UpdateTaskProgress(_taskId, 0.0f);
@@ -100,7 +100,7 @@ namespace hod::inline editor
 		return true;
 	}
 
-	Stream& Cooker::AddDataBlockStream(std::string_view name, bool compressed, uint8_t platforms, uint8_t configs, uint32_t languages)
+	Stream& Cooker::AddDataBlockStream(std::string_view name, bool compressed, uint32_t platforms, uint8_t configs, uint32_t languages)
 	{
 		(void)platforms;
 		(void)configs;

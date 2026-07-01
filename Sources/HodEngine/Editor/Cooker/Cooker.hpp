@@ -7,31 +7,40 @@
 
 #include <cstdint>
 #include <string_view>
+#include <type_traits>
+
+#undef max
 
 namespace hod::inline editor
 {
 	class Asset;
 
-	enum class Platform : uint8_t
+	enum class Platform : uint32_t
 	{
 		Windows = (1 << 0),
 		MacOs = (1 << 1),
 		Linux = (1 << 2),
 		Android = (1 << 3),
 		Ios = (1 << 4),
+
+		All = std::numeric_limits<std::underlying_type_t<Platform>>::max()
 	};
 
 	enum class Config : uint8_t
 	{
-		Editor = (1 << 0),
-		Release = (1 << 1),
+		Development = (1 << 0),
+		Profile = (1 << 1),
 		Retail = (1 << 2),
+
+		All = std::numeric_limits<std::underlying_type_t<Config>>::max()
 	};
 
 	enum class Language : uint32_t
 	{
 		ENG = (1 << 0),
 		FRE = (1 << 1),
+
+		All = std::numeric_limits<std::underlying_type_t<Language>>::max()
 	};
 
 	/// @brief
@@ -47,18 +56,18 @@ namespace hod::inline editor
 		Cooker& operator=(Cooker&&) = delete;
 
 	public:
-		bool Cook(const Path& path, uint8_t platforms, uint8_t configs, uint32_t languages, uint64_t taskId);
-		bool Cook(const Asset& asset, uint8_t platforms, uint8_t configs, uint32_t languages, uint64_t taskId);
+		bool Cook(const Path& path, uint32_t platforms, uint8_t configs, uint32_t languages, uint64_t taskId);
+		bool Cook(const Asset& asset, uint32_t platforms, uint8_t configs, uint32_t languages, uint64_t taskId);
 
 		uint64_t GetAssetType() const { return _assetType; }
 
 	protected:
 
-		virtual bool FillDataBlock(const Asset& asset, uint8_t platforms, uint8_t configs, uint32_t languages) = 0;
+		virtual bool FillDataBlock(const Asset& asset, uint32_t platforms, uint8_t configs, uint32_t languages) = 0;
 		void UpdateFillDataBlockProgress(float percent);
 		void UpdateFillDataBlockDescription(std::string_view description);
 
-		Stream& AddDataBlockStream(std::string_view name, bool compressed, uint8_t platforms, uint8_t configs, uint32_t languages);
+		Stream& AddDataBlockStream(std::string_view name, bool compressed, uint32_t platforms, uint8_t configs, uint32_t languages);
 
 		void SetAssetType(std::string_view assetType);
 

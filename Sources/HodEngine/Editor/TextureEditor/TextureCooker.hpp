@@ -16,6 +16,6 @@ namespace hod::inline editor
 		TextureCooker& operator=(TextureCooker&&) = delete;
 
 	protected:
-		bool FillDataBlock(const Asset& asset, uint8_t platforms, uint8_t configs, uint32_t languages) override;
+		bool FillDataBlock(const Asset& asset, uint32_t platforms, uint8_t configs, uint32_t languages) override;
 	};
 }

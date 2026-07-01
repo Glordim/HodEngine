@@ -158,9 +158,17 @@ namespace hod::inline editor
 
 		DefaultAllocator::GetInstance().Free(dataBuffer);
 
+		uint16_t width = x;
+		uint16_t height = y;
+		Stream& infoStream = AddDataBlockStream("Info", false);
+		infoStream.Write(&width, sizeof(width));
+		infoStream.Write(&height, sizeof(height));
+
 		Stream& pixelsStream = AddDataBlockStream("Pixels", true);
 		uint32_t pixelsSize = x * y * componentCount;
-		return pixelsStream.Write(pixels, pixelsSize) == pixelsSize;
+		pixelsStream.Write(pixels, pixelsSize);
+		stbi_image_free(pixels);
+		return true;
 	}
 
 	// TODO Move all virtual in Ctor const init ?

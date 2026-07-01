@@ -1,34 +1,84 @@
 #include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/Core/Memory/DefaultAllocator.hpp"
+#include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/TextureEditor/TextureCooker.hpp"
+#include "HodEngine/Editor/Asset.hpp"
 
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
-#include "HodEngine/Core/Output/OutputService.hpp"
-#include "HodEngine/Core/Stream/SpillStream.hpp"
 #include "HodEngine/Editor/Cooker/Cooker.hpp"
 
-#include "HodEngine/Renderer/Resource/TextureResource.hpp"
-
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
-#include "HodEngine/Core/Serialization/Serializer.hpp"
-
 #include <cstdint>
-#include <stb_image.h>
-#include <stb_image_write.h>
-#include <stb_image_resize2.h>
+#include <type_traits>
+#include <utility>
 
 namespace hod::inline editor
 {
+	static constexpr std::underlying_type_t<Platform> bcPlatforms = std::to_underlying(Platform::Windows) | std::to_underlying(Platform::Linux);
+	static constexpr std::underlying_type_t<Platform> astcPlatforms = std::to_underlying(Platform::MacOs) | std::to_underlying(Platform::Ios) | std::to_underlying(Platform::Android);
+
+	static constexpr std::underlying_type_t<Config> debugConfigs = std::to_underlying(Config::Development) | std::to_underlying(Config::Profile);
+
 	/// @brief
 	TextureCooker::TextureCooker()
 	{
 		SetAssetType("texture");
 	}
 
-	bool TextureCooker::FillDataBlock(const Asset& asset, uint8_t platforms, uint8_t configs, uint32_t languages)
+	bool TextureCooker::FillDataBlock(const Asset& asset, uint32_t platforms, uint8_t configs, uint32_t /*languages*/)
 	{
-		// TODO use https://github.com/GPUOpen-Tools/compressonator and compress to the most adapted format related to platform's capabilities
-		// For now always use png
+		AssetContainer assetContainer;
+		if (assetContainer.Load(asset.GetPath()) == false)
+		{
+			return false;
+		}
+
+		if (configs & debugConfigs)
+		{
+			Stream& outDebugStream = AddDataBlockStream("Debug", false, std::to_underlying(Platform::All), debugConfigs, std::to_underlying(Language::All));
+
+			Document debugDocument;
+			debugDocument.GetRootNode().AddChild("Name").SetValue(asset.GetName());
+			DocumentWriterJson documentWriter;
+			documentWriter.Write(debugDocument, outDebugStream);
+		}
+
+		uint16_t width = 0;
+		uint16_t height = 0;
+		Stream* inInfoStream = assetContainer.FindDataBlock("Info")->_stream;
+		inInfoStream->Read(&width, sizeof(width));
+		inInfoStream->Read(&height, sizeof(height));
+
+		Stream& outInfoStream = AddDataBlockStream("Info", false, std::to_underlying(Platform::All), std::to_underlying(Config::All), std::to_underlying(Language::All));
+		outInfoStream.Write(&width, sizeof(width));
+		outInfoStream.Write(&height, sizeof(height));
+
+		Stream* inPixelStream = assetContainer.FindDataBlock("Pixels")->_stream;
+		uint32_t pixelsSize = width * height * 4;
+		uint8_t* pixels = DefaultAllocator::GetInstance().Allocate<uint8_t>(pixelsSize);
+		inPixelStream->Read(pixels, pixelsSize);
+
+		if (platforms & bcPlatforms)
+		{
+			uint8_t* blockCompressedPixels = pixels; // TODO use bc7enc_rdo
+			uint32_t blockCompressedPixelsSize = pixelsSize;
+			Stream& outPixelStream = AddDataBlockStream("Pixels", true, bcPlatforms, std::to_underlying(Config::All), std::to_underlying(Language::All));
+			outPixelStream.Write(blockCompressedPixels, blockCompressedPixelsSize);
+		}
+		if (platforms & astcPlatforms)
+		{
+			uint8_t* blockCompressedPixels = pixels; // TODO use astcenc
+			uint32_t blockCompressedPixelsSize = pixelsSize;
+			Stream& outPixelStream = AddDataBlockStream("Pixels", true, astcPlatforms, std::to_underlying(Config::All), std::to_underlying(Language::All));
+			outPixelStream.Write(blockCompressedPixels, blockCompressedPixelsSize);
+		}
+
+		DefaultAllocator::GetInstance().Free(pixels);
+		return true;
+	}
+}
+
+// old Thumbnail generation
 		/*
 		int thumbnailWidth = 256;
 		int thumbnailHeight = 256;
@@ -67,10 +117,3 @@ namespace hod::inline editor
 		uint32_t pixelsSize = x * y * componentCount;
 		return pixelsStream.Write(pixels, pixelsSize) == pixelsSize;
 		*/
-		(void)asset;
-		(void)platforms;
-		(void)configs;
-		(void)languages;
-		return false;
-	}
-}
