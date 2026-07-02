@@ -23,6 +23,7 @@ namespace hod::inline editor
 	TextureCooker::TextureCooker()
 	{
 		SetAssetType("texture");
+		SetCookerVersion(1);
 	}
 
 	bool TextureCooker::FillDataBlock(const Asset& asset, uint32_t platforms, uint8_t configs, uint32_t /*languages*/)

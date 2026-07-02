@@ -60,6 +60,7 @@ namespace hod::inline editor
 		bool Cook(const Asset& asset, uint32_t platforms, uint8_t configs, uint32_t languages, uint64_t taskId);
 
 		uint64_t GetAssetType() const { return _assetType; }
+		uint32_t GetCookerVersion() const { return _cookerVersion; }
 
 	protected:
 
@@ -70,21 +71,29 @@ namespace hod::inline editor
 		Stream& AddDataBlockStream(std::string_view name, bool compressed, uint32_t platforms, uint8_t configs, uint32_t languages);
 
 		void SetAssetType(std::string_view assetType);
+		void SetCookerVersion(uint32_t cookerVersion);
+
+	private:
+		void ClearDataBlocks();
 
 	private:
 		Path _tmpDir;
 		uint64_t _taskId = 0;
 
 		uint64_t _assetType = 0;
+		uint32_t _cookerVersion = 0;
 
 		class DataBlock
 		{
 		public:
-			DataBlock(std::string_view name, const Path& tmpFile, bool compressed)
+			DataBlock(std::string_view name, const Path& tmpFile, bool compressed, uint32_t platforms, uint8_t configs, uint32_t languages)
 			: _name(name)
 			, _spillStream(SpillStream::DefaultThreshold, tmpFile)
 			, _compressionStream(_spillStream)
 			, _compressed(compressed)
+			, _platforms(platforms)
+			, _configs(configs)
+			, _languages(languages)
 			{
 			}
 
@@ -92,11 +101,19 @@ namespace hod::inline editor
 			bool GetCompressed() const { return _compressed; }
 			Stream& GetStream() { return _compressed ? static_cast<Stream&>(_compressionStream) : static_cast<Stream&>(_spillStream); }
 
+			uint32_t GetPlatforms() const { return _platforms; }
+			uint8_t GetConfigs() const { return _configs; }
+			uint32_t GetLanguages() const { return _languages; }
+
 		private:
 			String _name;
 			SpillStream _spillStream;
 			CompressionStream _compressionStream;
 			bool _compressed;
+
+			uint32_t _platforms;
+			uint8_t _configs;
+			uint32_t _languages;
 		};
 		Vector<DataBlock*> _dataBlocks;
 	};
