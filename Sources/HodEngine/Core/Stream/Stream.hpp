@@ -28,7 +28,7 @@ namespace hod::inline core
 		virtual uint32_t Read(void* buffer, uint32_t size) = 0;
 		virtual uint32_t Write(const void* buffer, uint32_t size) = 0;
 
-		virtual bool Seek(uint32_t position, SeekOrigin origin) = 0;
+		virtual bool     Seek(uint32_t position, SeekOrigin origin) = 0;
 		virtual uint32_t GetPosition() const = 0;
 		virtual uint32_t GetSize() const = 0;
 
@@ -36,10 +36,35 @@ namespace hod::inline core
 		virtual bool IsWritable() const = 0;
 		virtual bool IsSeekable() const = 0;
 
-		void SetRange(uint32_t origin, uint32_t size) { _rangeOrigin = origin; _rangeSize = size; }
-		uint32_t GetRangeOrigin() const { return _rangeOrigin; }
-		uint32_t GetRangeSize() const { return _rangeSize; }
-		bool HasRange() const { return _rangeSize != 0; }
+		void SetRange(uint32_t origin, uint32_t size)
+		{
+			uint32_t absolutePosition = GetPosition() + _rangeOrigin;
+			_rangeOrigin = origin;
+			_rangeSize = size;
+			if (absolutePosition < origin)
+			{
+				Seek(0, SeekOrigin::Begin);
+			}
+			else if (absolutePosition > origin + size)
+			{
+				Seek(size, SeekOrigin::Begin);
+			}
+		}
+
+		uint32_t GetRangeOrigin() const
+		{
+			return _rangeOrigin;
+		}
+
+		uint32_t GetRangeSize() const
+		{
+			return _rangeSize;
+		}
+
+		bool HasRange() const
+		{
+			return _rangeSize != 0;
+		}
 
 	protected:
 		uint32_t ClampReadSize(uint32_t size, uint32_t position) const

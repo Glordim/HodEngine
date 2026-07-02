@@ -72,6 +72,8 @@ namespace hod::inline editor
 		void Import(const Path& sourceFilePath, const Path& destinationDirPath);
 		void Import(const Vector<Path>& sourceFilePaths, const Path& destinationDirPath);
 
+		void Cook(const Path& asset);
+
 		void Build(BuildPlatform buildPlatform);
 		void BuildAndRun();
 
@@ -119,7 +121,10 @@ namespace hod::inline editor
 			return _checkerTexture;
 		}
 
-		TaskTracker& GetTaskTracker() { return *_taskTracker; }
+		TaskTracker& GetTaskTracker()
+		{
+			return *_taskTracker;
+		}
 
 	private:
 		bool AddProjectInRecentProject(const Path& path) const;
@@ -148,12 +153,12 @@ namespace hod::inline editor
 		float               _floatingAssetBrowserWindowPos = 0.0f;
 		AssetBrowserWindow* _floatingAssetBrowserWindow = nullptr;
 
-		bool                _showFloatingTaskTracker = false;
-		bool                _focusFloatingTaskTrackerWindow = false;
-		float               _floatingTaskTrackerWindowPos = 0.0f;
-		TaskTrackerWindow*  _floatingTaskTrackerWindow = nullptr;
+		bool               _showFloatingTaskTracker = false;
+		bool               _focusFloatingTaskTrackerWindow = false;
+		float              _floatingTaskTrackerWindowPos = 0.0f;
+		TaskTrackerWindow* _floatingTaskTrackerWindow = nullptr;
 
-		TaskTracker*		_taskTracker = nullptr;
+		TaskTracker* _taskTracker = nullptr;
 	};
 
 	template<typename _EditorTabType_>

@@ -8,8 +8,8 @@
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
-#include "HodEngine/Editor/Project.hpp"
 #include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/Project.hpp"
 #include "HodEngine/Editor/ResourceContainer.hpp"
 #include "HodEngine/Editor/TaskTracker/TaskTracker.hpp"
 
@@ -22,26 +22,37 @@ namespace hod::inline editor
 {
 	namespace
 	{
-		struct PlatformEntry { Platform value; std::string_view name; };
-		constexpr PlatformEntry kPlatforms[] = {
-			{ Platform::Windows, "Windows" },
-			{ Platform::MacOs, "MacOs" },
-			{ Platform::Linux, "Linux" },
-			{ Platform::Android, "Android" },
-			{ Platform::Ios, "Ios" },
+		struct PlatformEntry
+		{
+			Platform         value;
+			std::string_view name;
 		};
 
-		struct ConfigEntry { Config value; std::string_view name; };
-		constexpr ConfigEntry kConfigs[] = {
-			{ Config::Development, "Development" },
-			{ Config::Profile, "Profile" },
-			{ Config::Retail, "Retail" },
+		constexpr PlatformEntry platformEntries[] = {
+			{Platform::Windows, "Windows"}, {Platform::MacOs, "MacOs"}, {Platform::Linux, "Linux"}, {Platform::Android, "Android"}, {Platform::Ios, "Ios"},
 		};
 
-		struct LanguageEntry { Language value; std::string_view name; };
-		constexpr LanguageEntry kLanguages[] = {
-			{ Language::ENG, "ENG" },
-			{ Language::FRE, "FRE" },
+		struct ConfigEntry
+		{
+			Config           value;
+			std::string_view name;
+		};
+
+		constexpr ConfigEntry configEntries[] = {
+			{Config::Development, "Development"},
+			{Config::Profile, "Profile"},
+			{Config::Retail, "Retail"},
+		};
+
+		struct LanguageEntry
+		{
+			Language         value;
+			std::string_view name;
+		};
+
+		constexpr LanguageEntry languageEntries[] = {
+			{Language::ENG, "ENG"},
+			{Language::FRE, "FRE"},
 		};
 	}
 
@@ -77,7 +88,7 @@ namespace hod::inline editor
 			return false;
 		}
 	}
-	
+
 	bool Cooker::Cook(const Asset& asset, uint32_t platforms, uint8_t configs, uint32_t languages, uint64_t taskId)
 	{
 		_taskId = taskId;
@@ -94,18 +105,12 @@ namespace hod::inline editor
 		assetStream.Close();
 
 		ClearDataBlocks();
-		ScopedGuard cleanupDataBlocks = [&]()
-		{
-			ClearDataBlocks();
-		};
+		ScopedGuard cleanupDataBlocks = [&]() { ClearDataBlocks(); };
 
 		Editor::GetInstance()->GetTaskTracker().UpdateTaskProgress(_taskId, 2.0f);
 		Editor::GetInstance()->GetTaskTracker().UpdateTaskDescription(_taskId, "Creating tmp folder");
 		_tmpDir = FileSystem::GetTemporaryPath() / "HodEngine" / Project::GetInstance()->GetName() / "Cook" / asset.GetUid().ToString(); // todo add datetime
-		ScopedGuard cleanupTmp = [&]()
-		{
-			FileSystem::GetInstance()->RemoveAll(_tmpDir);
-		};
+		ScopedGuard cleanupTmp = [&]() { FileSystem::GetInstance()->RemoveAll(_tmpDir); };
 		if (FileSystem::GetInstance()->CreateDirectories(_tmpDir) == false)
 		{
 			OUTPUT_ERROR("Importer::Import: Unable to create tmp dir '{}'", _tmpDir);
@@ -124,7 +129,7 @@ namespace hod::inline editor
 		Editor::GetInstance()->GetTaskTracker().UpdateTaskDescription(_taskId, "Writing resource");
 		Editor::GetInstance()->GetTaskTracker().UpdateTaskProgress(_taskId, 80.0f);
 
-		for (const PlatformEntry& platformEntry : kPlatforms)
+		for (const PlatformEntry& platformEntry : platformEntries)
 		{
 			uint32_t platformBit = std::to_underlying(platformEntry.value);
 			if ((platforms & platformBit) == 0)
@@ -132,7 +137,7 @@ namespace hod::inline editor
 				continue;
 			}
 
-			for (const ConfigEntry& configEntry : kConfigs)
+			for (const ConfigEntry& configEntry : configEntries)
 			{
 				uint8_t configBit = std::to_underlying(configEntry.value);
 				if ((configs & configBit) == 0)
@@ -140,7 +145,7 @@ namespace hod::inline editor
 					continue;
 				}
 
-				for (const LanguageEntry& languageEntry : kLanguages)
+				for (const LanguageEntry& languageEntry : languageEntries)
 				{
 					uint32_t languageBit = std::to_underlying(languageEntry.value);
 					if ((languages & languageBit) == 0)
@@ -168,7 +173,7 @@ namespace hod::inline editor
 						continue;
 					}
 
-					Path destinationDir = Project::GetInstance()->GetCacheBuildDirPath() / "Resource" / Path(platformEntry.name);
+					Path destinationDir = Project::GetInstance()->GetResourceDirPath() / Path(platformEntry.name);
 					if (FileSystem::GetInstance()->CreateDirectories(destinationDir) == false)
 					{
 						OUTPUT_ERROR("Cooker::Cook: Unable to create resource dir '{}'", destinationDir);

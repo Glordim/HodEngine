@@ -3,10 +3,11 @@
 #include "HodEngine/Editor/AssetDatabase.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/Cooker/Cooker.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
-#include "HodEngine/Editor/Cooker/Cooker.hpp"
 #include "HodEngine/Editor/Project.hpp"
+
 
 #include "HodEngine/GameSystems/Frame/FrameSequencer.hpp"
 #include <HodEngine/Core/Output/OutputService.hpp>
@@ -99,17 +100,17 @@ namespace hod::inline editor
 		ExploreAndDetectAsset(&_rootFileSystemMapping);
 
 		if (_fileSystemWatcherAsset.Init(project->GetAssetDirPath(), std::bind(&AssetDatabase::FileSystemWatcherAssetOnCreateFile, this, std::placeholders::_1),
-		                            std::bind(&AssetDatabase::FileSystemWatcherAssetOnDeleteFile, this, std::placeholders::_1),
-		                            std::bind(&AssetDatabase::FileSystemWatcherAssetOnChangeFile, this, std::placeholders::_1),
-		                            std::bind(&AssetDatabase::FileSystemWatcherAssetOnMoveFile, this, std::placeholders::_1, std::placeholders::_2)) == false)
+		                                 std::bind(&AssetDatabase::FileSystemWatcherAssetOnDeleteFile, this, std::placeholders::_1),
+		                                 std::bind(&AssetDatabase::FileSystemWatcherAssetOnChangeFile, this, std::placeholders::_1),
+		                                 std::bind(&AssetDatabase::FileSystemWatcherAssetOnMoveFile, this, std::placeholders::_1, std::placeholders::_2)) == false)
 		{
 			return false;
 		}
 
 		if (_fileSystemWatcherSource.Init(project->GetSourceDirPath(), std::bind(&AssetDatabase::FileSystemWatcherSourceOnCreateFile, this, std::placeholders::_1),
-		                            std::bind(&AssetDatabase::FileSystemWatcherSourceOnDeleteFile, this, std::placeholders::_1),
-		                            std::bind(&AssetDatabase::FileSystemWatcherSourceOnChangeFile, this, std::placeholders::_1),
-		                            std::bind(&AssetDatabase::FileSystemWatcherSourceOnMoveFile, this, std::placeholders::_1, std::placeholders::_2)) == false)
+		                                  std::bind(&AssetDatabase::FileSystemWatcherSourceOnDeleteFile, this, std::placeholders::_1),
+		                                  std::bind(&AssetDatabase::FileSystemWatcherSourceOnChangeFile, this, std::placeholders::_1),
+		                                  std::bind(&AssetDatabase::FileSystemWatcherSourceOnMoveFile, this, std::placeholders::_1, std::placeholders::_2)) == false)
 		{
 			return false;
 		}
@@ -712,7 +713,7 @@ namespace hod::inline editor
 		FileSystemMapping* nodeToMove = FindFileSystemMappingFromPath(oldPath);
 		if (nodeToMove != nullptr)
 		{
-			MoveNode(*nodeToMove, newPath);
+		    MoveNode(*nodeToMove, newPath);
 		}
 		*/
 	}
@@ -726,9 +727,7 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param path
-	void AssetDatabase::FileSystemWatcherSourceOnDeleteFile(const Path& /*path*/)
-	{
-	}
+	void AssetDatabase::FileSystemWatcherSourceOnDeleteFile(const Path& /*path*/) {}
 
 	/// @brief
 	/// @param path

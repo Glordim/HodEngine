@@ -2,24 +2,26 @@
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
-#include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Project.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
+
 
 #include <algorithm>
 #include <fmt/format.h>
 #include <functional>
 
-#include "HodEngine/Core/FileSystem/FileSystem.hpp"
-#include "HodEngine/Editor/CMakeHelper.hpp"
-#include "FileTemplates/CMakeListsRoot.txt.hpp"
-#include "FileTemplates/CMakeListsGame.txt.hpp"
 #include "FileTemplates/CMakeListsEditor.txt.hpp"
+#include "FileTemplates/CMakeListsGame.txt.hpp"
+#include "FileTemplates/CMakeListsRoot.txt.hpp"
 #include "FileTemplates/Component.cpp.hpp"
 #include "FileTemplates/Component.hpp.hpp"
 #include "FileTemplates/Module.cpp.hpp"
 #include "FileTemplates/Module.hpp.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
+#include "HodEngine/Editor/CMakeHelper.hpp"
+
 
 // todo move ?
 #define STRINGIZE(x) #x
@@ -39,12 +41,12 @@ namespace hod::inline editor
 
 	Project::~Project()
 	{
-		auto shutdownFunc = _gameModule.LoadFunction<int(*)()>("ShutdownModule");
+		auto shutdownFunc = _gameModule.LoadFunction<int (*)()>("ShutdownModule");
 		if (shutdownFunc != nullptr)
 		{
 			shutdownFunc();
 		}
-		shutdownFunc = _editorModule.LoadFunction<int(*)()>("ShutdownModule");
+		shutdownFunc = _editorModule.LoadFunction<int (*)()>("ShutdownModule");
 		if (shutdownFunc != nullptr)
 		{
 			shutdownFunc();
@@ -205,8 +207,10 @@ namespace hod::inline editor
 		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath);
 
 		String gameModuleName = _name + "Game";
-		Path moduleBuildDirectoryPath = GetCacheBuildDirPath() / "Editor";
-		_gameModule.Init(moduleBuildDirectoryPath / "Output" / "platforms" / Path(CMakeHelper::GetCurrentPlatform()) / Path(CMakeHelper::GetCurrentAbi()) / "shared" / "bin" / gameModuleName, true);
+		Path   moduleBuildDirectoryPath = GetCacheBuildDirPath() / "Editor";
+		_gameModule.Init(moduleBuildDirectoryPath / "Output" / "platforms" / Path(CMakeHelper::GetCurrentPlatform()) / Path(CMakeHelper::GetCurrentAbi()) / "shared" / "bin" /
+		                     gameModuleName,
+		                 true);
 		FileSystem::GetInstance()->CreateDirectories(_gameModule.GetPath().ParentPath());
 		if (_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const Path&) { ReloadProjectModules(); }, nullptr) == false)
 		{
@@ -214,7 +218,9 @@ namespace hod::inline editor
 		}
 
 		String editorModuleName = _name + "Editor";
-		_editorModule.Init(moduleBuildDirectoryPath / "Output" / "platforms" / Path(CMakeHelper::GetCurrentPlatform()) / Path(CMakeHelper::GetCurrentAbi()) / "shared" / "bin" / editorModuleName, false);
+		_editorModule.Init(moduleBuildDirectoryPath / "Output" / "platforms" / Path(CMakeHelper::GetCurrentPlatform()) / Path(CMakeHelper::GetCurrentAbi()) / "shared" / "bin" /
+		                       editorModuleName,
+		                   false);
 		FileSystem::GetInstance()->CreateDirectories(_editorModule.GetPath().ParentPath());
 		if (_editorModuleFileSystemWatcher.Init(_editorModule.GetPath(), nullptr, nullptr, [this](const Path&) { ReloadProjectModules(); }, nullptr) == false)
 		{
@@ -344,40 +350,31 @@ namespace hod::inline editor
 		std::transform(projectGameExport.begin(), projectGameExport.end(), projectGameExport.begin(), [](char c) { return std::toupper(c); });
 
 		bool result = true;
-		result &= CMakeHelper::GenerateCMakeLists(
-			_projectPath.ParentPath() / "Code" / projectGameName / "CMakeLists.txt",
-			CMakeListsGame_txt,
-			{
-				{"[[PROJECT_NAME]]", projectName},
-				{"[[PROJECT_GAME_NAME]]", projectGameName},
-				{"[[PROJECT_GAME_EXPORT]]", projectGameExport},
-			}
-		);
+		result &= CMakeHelper::GenerateCMakeLists(_projectPath.ParentPath() / "Code" / projectGameName / "CMakeLists.txt", CMakeListsGame_txt,
+		                                          {
+													  {"[[PROJECT_NAME]]", projectName},
+													  {"[[PROJECT_GAME_NAME]]", projectGameName},
+													  {"[[PROJECT_GAME_EXPORT]]", projectGameExport},
+												  });
 
 		String projectEditorName = _name + "Editor";
 		String projectEditorExport = _name + "_EDITOR_EXPORT";
 		std::transform(projectEditorExport.begin(), projectEditorExport.end(), projectEditorExport.begin(), [](char c) { return std::toupper(c); });
 
-		result &= CMakeHelper::GenerateCMakeLists(
-			_projectPath.ParentPath() / "Code" / projectEditorName / "CMakeLists.txt",
-			CMakeListsEditor_txt,
-			{
-				{"[[PROJECT_NAME]]", projectName},
-				{"[[PROJECT_GAME_NAME]]", projectGameName},
-				{"[[PROJECT_EDITOR_NAME]]", projectEditorName},
-				{"[[PROJECT_EDITOR_EXPORT]]", projectEditorExport},
-			}
-		);
+		result &= CMakeHelper::GenerateCMakeLists(_projectPath.ParentPath() / "Code" / projectEditorName / "CMakeLists.txt", CMakeListsEditor_txt,
+		                                          {
+													  {"[[PROJECT_NAME]]", projectName},
+													  {"[[PROJECT_GAME_NAME]]", projectGameName},
+													  {"[[PROJECT_EDITOR_NAME]]", projectEditorName},
+													  {"[[PROJECT_EDITOR_EXPORT]]", projectEditorExport},
+												  });
 
-		result &= CMakeHelper::GenerateCMakeLists(
-			_projectPath.ParentPath() / "CMakeLists.txt",
-			CMakeListsRoot_txt,
-			{
-				{"[[PROJECT_NAME]]", projectName},
-				{"[[PROJECT_GAME_NAME]]", projectGameName},
-				{"[[PROJECT_EDITOR_NAME]]", projectEditorName},
-			}
-		);
+		result &= CMakeHelper::GenerateCMakeLists(_projectPath.ParentPath() / "CMakeLists.txt", CMakeListsRoot_txt,
+		                                          {
+													  {"[[PROJECT_NAME]]", projectName},
+													  {"[[PROJECT_GAME_NAME]]", projectGameName},
+													  {"[[PROJECT_EDITOR_NAME]]", projectEditorName},
+												  });
 
 		return result;
 	}
@@ -423,12 +420,12 @@ namespace hod::inline editor
 	/// @return
 	bool Project::ReloadProjectModules()
 	{
-		auto shutdownFunc = _gameModule.LoadFunction<int(*)()>("ShutdownModule");
+		auto shutdownFunc = _gameModule.LoadFunction<int (*)()>("ShutdownModule");
 		if (shutdownFunc != nullptr)
 		{
 			shutdownFunc();
 		}
-		shutdownFunc = _editorModule.LoadFunction<int(*)()>("ShutdownModule");
+		shutdownFunc = _editorModule.LoadFunction<int (*)()>("ShutdownModule");
 		if (shutdownFunc != nullptr)
 		{
 			shutdownFunc();
@@ -440,14 +437,14 @@ namespace hod::inline editor
 		}
 		_editorModule.Reload();
 
-		auto startupFunc = _gameModule.LoadFunction<int(*)()>("StartupModule");
+		auto startupFunc = _gameModule.LoadFunction<int (*)()>("StartupModule");
 		if (startupFunc == nullptr)
 		{
 			return false;
 		}
 		startupFunc();
 
-		startupFunc = _editorModule.LoadFunction<int(*)()>("StartupModule");
+		startupFunc = _editorModule.LoadFunction<int (*)()>("StartupModule");
 		if (startupFunc != nullptr)
 		{
 			startupFunc();

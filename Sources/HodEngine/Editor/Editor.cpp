@@ -1,6 +1,8 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/Editor/Cooker/Cooker.hpp"
+#include "HodEngine/Editor/Cooker/CookJob.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 
 #include "HodEngine/Editor/Importer/DefaultImporter.hpp"
@@ -10,8 +12,8 @@
 #include "TaskTracker/TaskTracker.hpp"
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
-#include <HodEngine/ImGui/ImGuiManager.hpp>
 #include <HodEngine/ImGui/Helper.hpp>
+#include <HodEngine/ImGui/ImGuiManager.hpp>
 
 #include "HodEngine/Editor/HierachyWindow.hpp"
 #include "HodEngine/Editor/InspectorWindow.hpp"
@@ -35,9 +37,9 @@
 
 #include "HodEngine/Editor/WindowFactory.hpp"
 
-#include "HodEngine/Editor/Importer/ImportJob.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/CMakeHelper.hpp"
+#include "HodEngine/Editor/Importer/ImportJob.hpp"
 #include "HodEngine/Editor/RecentProjects.hpp"
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/World.hpp"
@@ -77,18 +79,18 @@
 
 #include "portable-file-dialogs.h"
 
-
 #include "HodEngine/Editor/AudioEditor/AudioImporter.hpp"
-#include "HodEngine/Editor/Importer/FontImporter.hpp"
-#include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
-#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceImporter.hpp"
 #include "HodEngine/Editor/EntityBasedTabEditor/PrefabImporter.hpp"
 #include "HodEngine/Editor/EntityBasedTabEditor/SceneImporter.hpp"
+#include "HodEngine/Editor/Importer/FontImporter.hpp"
 #include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
+#include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
+#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceImporter.hpp"
 
-#include "HodEngine/Editor/TextureEditor/TextureImporter.hpp"
 #include "HodEngine/Editor/TextureEditor/TextureCooker.hpp"
 #include "HodEngine/Editor/TextureEditor/TextureEditorTab.hpp"
+#include "HodEngine/Editor/TextureEditor/TextureImporter.hpp"
+#include <utility>
 
 #undef max
 #undef min
@@ -96,7 +98,7 @@
 namespace hod::inline editor
 {
 	_SingletonConstructor(Editor) {}
-	
+
 	/// @brief
 	Editor::~Editor()
 	{
@@ -943,7 +945,7 @@ namespace hod::inline editor
 			std::string cmakeArgs = fmt::format("\"-DHodEngine_DIR={}\", \"-DHOD_GAME_BUILD_TYPE={}\"", engineDirPath, gameBuildType);
 
 			{
-				Path buildGradlePath = buildDir / "AndroidStudioProject" / "app" / "build.gradle.kts";
+				Path   buildGradlePath = buildDir / "AndroidStudioProject" / "app" / "build.gradle.kts";
 				String content;
 				if (FileSystem::GetInstance()->ReadAllText(buildGradlePath, content) == false)
 				{
@@ -980,7 +982,7 @@ namespace hod::inline editor
 			}
 
 			{
-				Path manifestPath = buildDir / "AndroidStudioProject" / "app" / "src" / "main" / "AndroidManifest.xml";
+				Path   manifestPath = buildDir / "AndroidStudioProject" / "app" / "src" / "main" / "AndroidManifest.xml";
 				String content;
 				if (FileSystem::GetInstance()->ReadAllText(manifestPath, content) == false)
 				{
@@ -988,7 +990,7 @@ namespace hod::inline editor
 					return;
 				}
 
-				String projectGameName = Project::GetInstance()->GetName() + "Game";
+				String   projectGameName = Project::GetInstance()->GetName() + "Game";
 				uint32_t pos = 0;
 				while ((pos = content.Find("[[PROJECT_GAME_NAME]]", pos)) != String::Npos)
 				{
@@ -1032,7 +1034,6 @@ namespace hod::inline editor
 			}
 			Editor::Import(sourceFilePaths, path);
 		}
-		
 	}
 
 	void Editor::Import(const Path& sourceFilePath, const Path& destinationDirPath)
@@ -1042,8 +1043,13 @@ namespace hod::inline editor
 		JobScheduler::GetInstance()->PushBackground(importJob);
 	}
 
-	void Editor::Import(const Vector<Path>& /*sourceFilePaths*/, const Path& /*destinationDirPath*/)
+	void Editor::Import(const Vector<Path>& /*sourceFilePaths*/, const Path& /*destinationDirPath*/) {}
+
+	void Editor::Cook(const Path& asset)
 	{
-		
+		CookJob* cookJob =
+			DefaultAllocator::GetInstance().New<CookJob>(asset, std::to_underlying(Platform::Windows), std::to_underlying(Config::Development), std::to_underlying(Language::All));
+		cookJob->SetAutoDelete(true);
+		JobScheduler::GetInstance()->PushBackground(cookJob);
 	}
 }

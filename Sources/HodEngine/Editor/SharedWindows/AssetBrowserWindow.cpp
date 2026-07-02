@@ -226,6 +226,12 @@ namespace hod::inline editor
 				.execute = +[](const Context& context) { AssetDatabase::GetInstance()->Import(context.selectedItems[0]); },
 			});
 			RegisterContextualMenuAction({
+				.path = "Recook",
+				.group = "",
+				.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
+				.execute = +[](const Context& context) { Editor::GetInstance()->Cook(context.selectedItems[0]); },
+			});
+			RegisterContextualMenuAction({
 				.path = "Show Resource in explorer",
 				.group = "",
 				.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
