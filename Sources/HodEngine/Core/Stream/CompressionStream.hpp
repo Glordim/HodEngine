@@ -24,6 +24,7 @@ namespace hod::inline core
 
 		uint32_t Read(void* buffer, uint32_t size) override;
 		uint32_t Write(const void* buffer, uint32_t size) override;
+		void Flush() override;
 
 		bool Seek(uint32_t position, SeekOrigin origin) override;
 		uint32_t GetPosition() const override;

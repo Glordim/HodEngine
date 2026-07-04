@@ -134,6 +134,11 @@ namespace hod::inline editor
 			return false;
 		}
 
+		for (DataBlock* dataBlock : _dataBlocks)
+		{
+			dataBlock->GetStream().Flush();
+		}
+
 		Editor::GetInstance()->GetTaskTracker().UpdateTaskDescription(_taskId, "Writing resource");
 		Editor::GetInstance()->GetTaskTracker().UpdateTaskProgress(_taskId, 80.0f);
 

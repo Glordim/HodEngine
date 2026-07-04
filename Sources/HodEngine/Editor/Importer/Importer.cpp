@@ -156,6 +156,7 @@ namespace hod::inline editor
 
 		for (DataBlock* dataBlock : _dataBlocks)
 		{
+			dataBlock->GetStream().Flush();
 			assetContainer.SetDataBlock(dataBlock->GetName(), dataBlock->GetStream(), dataBlock->GetCompressed());
 		}
 

@@ -78,7 +78,7 @@ namespace hod::inline core
 		Close();
 	}
 
-	void CompressionStream::Close()
+	void CompressionStream::Flush()
 	{
 		if (_compressionContext != nullptr)
 		{
@@ -93,6 +93,14 @@ namespace hod::inline core
 					_stream->Write(_internalBuffer, static_cast<uint32_t>(output.pos));
 				}
 			} while (remaining > 0);
+		}
+	}
+
+	void CompressionStream::Close()
+	{
+		if (_compressionContext != nullptr)
+		{
+			Flush();
 
 			ZSTD_freeCCtx(_compressionContext);
 			_compressionContext = nullptr;

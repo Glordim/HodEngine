@@ -28,6 +28,10 @@ namespace hod::inline core
 		virtual uint32_t Read(void* buffer, uint32_t size) = 0;
 		virtual uint32_t Write(const void* buffer, uint32_t size) = 0;
 
+		/// @brief Push any data buffered internally by the stream out to whatever it wraps (e.g. finalize a compressed frame).
+		/// Must be called before reading back a stream's underlying storage out-of-band (e.g. via CompressionStream::GetRealStream()).
+		virtual void Flush() {}
+
 		virtual bool     Seek(uint32_t position, SeekOrigin origin) = 0;
 		virtual uint32_t GetPosition() const = 0;
 		virtual uint32_t GetSize() const = 0;
