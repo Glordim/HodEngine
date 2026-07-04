@@ -24,8 +24,10 @@ namespace hod::inline audio
 	/// @param document
 	/// @param stream
 	/// @return
-	bool AudioResource::Initialize(const DocumentNode& documentNode, const Vector<Resource::Data>& datas)
+	bool AudioResource::Initialize(const ResourceContainer& /*resourceContainer*/)
 	{
+		return false;
+		/*
 		if (Serializer::Deserialize(*this, documentNode) == false)
 		{
 			OUTPUT_ERROR("AudioResource::Initialize: unable to deserialize");
@@ -45,5 +47,6 @@ namespace hod::inline audio
 		_frameCount = _samples.Size() / _channelCount;
 
 		return true;
+		*/
 	}
 }

@@ -10,6 +10,8 @@
 
 namespace hod::inline gamesystems
 {
+	class ResourceContainer;
+
 	class HOD_GAME_SYSTEMS_API Resource : public std::enable_shared_from_this<Resource>
 	{
 		REFLECTED_CLASS_NO_PARENT(Resource)
@@ -41,7 +43,7 @@ namespace hod::inline gamesystems
 			_uid = uid;
 		}
 
-		virtual bool Initialize(const DocumentNode& documentNode, const Vector<Resource::Data>& datas) = 0;
+		virtual bool Initialize(const ResourceContainer& resourceContainer) = 0;
 
 	private:
 		UID _uid;

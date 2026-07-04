@@ -20,8 +20,9 @@ namespace hod::inline game
 	/// @param documentNode 
 	/// @param stream 
 	/// @return 
-	bool SerializedDataResource::Initialize(const DocumentNode& documentNode, const Vector<Resource::Data>& /*datas*/)
+	bool SerializedDataResource::Initialize(const ResourceContainer& /*resourceContainer*/)
 	{
+		/*
 		const DocumentNode* typeNode = documentNode.GetChild("Type");
 		if (typeNode == nullptr)
 		{
@@ -58,6 +59,8 @@ namespace hod::inline game
 		}
 
 		return true;
+		*/
+		return false;
 	}
 
 	/// @brief 

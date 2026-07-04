@@ -17,10 +17,13 @@ namespace hod::inline game
 	/// @param documentNode 
 	/// @param stream 
 	/// @return 
-	bool SceneResource::Initialize(const DocumentNode& documentNode, const Vector<Resource::Data>& /*datas*/)
+	bool SceneResource::Initialize(const ResourceContainer& /*resourceContainer*/)
 	{
+		/*
 		_document.GetRootNode().Copy(documentNode);
 		return true;
+		*/
+		return false;
 	}
 
 	/// @brief 

@@ -1,6 +1,8 @@
 #include "HodEngine/GameSystems/Pch.hpp"
 #include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
 
+#include "HodEngine/GameSystems/Resource/ResourceContainer.hpp"
+
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Stream/FileStream.hpp"
@@ -47,113 +49,21 @@ namespace hod::inline gamesystems
 	bool ResourceManager::Load(Resource* resource, const UID& uid)
 	{
 		Path path = _directory / ResourceVariant::UnlocalizedName;
-		path /= (uid.ToString() + ".res").CStr(); // todo remove Cstr when remove Path
+		path /= (uid.ToString() + ".res");
 
-		FileStream fileStream;
-		if (fileStream.Open(path) == false)
+		ResourceContainer resourceContainer;
+		if (resourceContainer.Load(path) == false)
 		{
-			OUTPUT_ERROR("ResourceManager::Load: resource {} not found", uid.ToString());
 			return false;
 		}
 
-		// Resource format (Version 1)
-		//
-		// HodResource (signature)
-		// Version
-		// DocumentLen
-		// Document
-		// DataCount
-		// [
-		//    DataSize
-		//    Data
-		// ]
-		//
-
-		constexpr uint32_t signatureLen = 11;
-		char               signature[signatureLen];
-		if (fileStream.Read(signature, signatureLen) != signatureLen)
+		bool result = resource->Initialize(resourceContainer);
+		if (result == false)
 		{
-			OUTPUT_ERROR("ResourceManager::Load: resource {} unable to read signature", uid.ToString());
-			return false;
-		}
-		if (std::strncmp(signature, "HodResource", signatureLen) != 0)
-		{
-			OUTPUT_ERROR("ResourceManager::Load: resource {} hasn't HodResource signature", uid.ToString());
-			return false;
+			OUTPUT_ERROR("ResourceManager::Load: resource {} initialize failed", uid.ToString());
 		}
 
-		uint32_t version = 0;
-		if (fileStream.Read(&version, sizeof(version)) != sizeof(version))
-		{
-			OUTPUT_ERROR("ResourceManager::Load: resource {} unable to read version", uid.ToString());
-			return false;
-		}
-		if (version == 1)
-		{
-			uint32_t documentLen = 0;
-			if (fileStream.Read(&documentLen, sizeof(documentLen)) != sizeof(documentLen))
-			{
-				OUTPUT_ERROR("ResourceManager::Load: resource {} unable to read documentLen", uid.ToString());
-				return false;
-			}
-
-			Document           document;
-			DocumentReaderJson documentReader;
-			if (documentReader.Read(document, fileStream, documentLen) == false)
-			{
-				OUTPUT_ERROR("ResourceManager::Load: resource {} unable to read document", uid.ToString());
-				return false;
-			}
-			DocumentNode& rootNode = document.GetRootNode();
-
-			uint32_t dataCount = 0;
-			if (fileStream.Read(&dataCount, sizeof(dataCount)) != sizeof(dataCount))
-			{
-				OUTPUT_ERROR("ResourceManager::Load: resource {} unable to read dataCount", uid.ToString());
-				return false;
-			}
-			Vector<Resource::Data> datas;
-			datas.Reserve(dataCount);
-			for (uint32_t dataIndex = 0; dataIndex < dataCount; ++dataIndex)
-			{
-				uint32_t dataSize = 0;
-				if (fileStream.Read(&dataSize, sizeof(dataSize)) != sizeof(dataSize))
-				{
-					OUTPUT_ERROR("ResourceManager::Load: resource {} unable to read data size {}", uid.ToString(), dataIndex);
-					return false;
-				}
-
-				Resource::Data data;
-				data._buffer = DefaultAllocator::GetInstance().Allocate(dataSize);
-				data._size = dataSize;
-
-				if (fileStream.Read(data._buffer, dataSize) != dataSize)
-				{
-					OUTPUT_ERROR("ResourceManager::Load: resource {} unable to read data {}", uid.ToString(), dataIndex);
-					return false;
-				}
-
-				datas.push_back(data);
-			}
-
-			bool result = resource->Initialize(rootNode, datas);
-			if (result == false)
-			{
-				OUTPUT_ERROR("ResourceManager::Load: resource {} initialize failed", uid.ToString());
-			}
-
-			for (const Resource::Data& data : datas)
-			{
-				DefaultAllocator::GetInstance().Free(data._buffer);
-			}
-
-			return result;
-		}
-		else
-		{
-			OUTPUT_ERROR("ResourceManager::Load: unsupported version {}", uid.ToString(), version);
-			return false;
-		}
+		return result;
 	}
 
 	/// @brief

@@ -18,8 +18,9 @@ namespace hod::inline game
 	/// @param documentNode 
 	/// @param stream 
 	/// @return 
-	bool PrefabResource::Initialize(const DocumentNode& documentNode, const Vector<Resource::Data>& datas)
+	bool PrefabResource::Initialize(const ResourceContainer& /*resourceContainer*/)
 	{
+		/*
 		(void)datas;
 
 		_document.GetRootNode().Copy(documentNode);
@@ -31,6 +32,8 @@ namespace hod::inline game
 			DefaultAllocator::GetInstance().Delete(_prefab);
 		}
 		return result;
+		*/
+		return false;
 	}
 
 	/// @brief 

@@ -23,7 +23,7 @@ namespace hod::inline renderer
 
 	public:
 
-		bool				Initialize(const DocumentNode& documentNode, const Vector<Resource::Data>& datas) override;
+		bool				Initialize(const ResourceContainer& resourceContainer) override;
 
 		Texture*			GetTexture() const;
 

@@ -28,8 +28,10 @@ namespace hod::inline renderer
 	/// @param document
 	/// @param stream
 	/// @return
-	bool FontResource::Initialize(const DocumentNode& documentNode, const Vector<Resource::Data>& datas)
+	bool FontResource::Initialize(const ResourceContainer& /*resourceContainer*/)
 	{
+		return false;
+		/*
 		(void)documentNode; // TODO
 
 		if (datas.Empty())
@@ -49,6 +51,7 @@ namespace hod::inline renderer
 			return false;
 		}
 		return true;
+		*/
 	}
 
 	Font* FontResource::GetFont() const

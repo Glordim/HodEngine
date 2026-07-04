@@ -1,10 +1,15 @@
 #include "HodEngine/Renderer/Pch.hpp"
+#include "HodEngine/Core/Document/DocumentReaderJson.hpp"
+#include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
+
+#include "HodEngine/GameSystems/Resource/ResourceContainer.hpp"
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
+#include <cstdint>
 
 namespace hod::inline renderer
 {
@@ -28,34 +33,44 @@ namespace hod::inline renderer
 	/// @param document
 	/// @param stream
 	/// @return
-	bool TextureResource::Initialize(const DocumentNode& documentNode, const Vector<Resource::Data>& datas)
+	bool TextureResource::Initialize(const ResourceContainer& resourceContainer)
 	{
-		if (Serializer::Deserialize(*this, documentNode) == false)
+		const ResourceContainer::DataBlockInfo* infoDataBlock = resourceContainer.FindDataBlock("Info");
+		if (infoDataBlock == nullptr)
 		{
-			OUTPUT_ERROR("TextureResource::Initialize: unable to deserialize");
 			return false;
 		}
 
-		if (datas.Empty())
+		infoDataBlock->_stream->Read(&_width, sizeof(_width));
+		infoDataBlock->_stream->Read(&_height, sizeof(_height));
+
+		const ResourceContainer::DataBlockInfo* pixelsDataBlock = resourceContainer.FindDataBlock("Pixels");
+		if (pixelsDataBlock == nullptr)
 		{
-			OUTPUT_ERROR("TextureResource::Initialize: invalid data count");
 			return false;
 		}
 
-		const Resource::Data& data = datas[0];
+		uint8_t* pixels = DefaultAllocator::GetInstance().Allocate<uint8_t>(_width * _height * 4);
+		if (pixelsDataBlock->_stream->Read(pixels, _width * _height * 4) == false)
+		{
+			DefaultAllocator::GetInstance().Free(pixels);
+			return false;
+		}
 
 		Texture::CreateInfo createInfo;
 		createInfo._wrapMode = _wrapMode;
 		createInfo._filterMode = _filterMode;
 
 		_texture = Renderer::GetInstance()->CreateTexture();
-		if (_texture->BuildBuffer(_width, _height, (unsigned char*)data._buffer, createInfo) == false) // todo BuildBuffer doesn't take void* ?
+		if (_texture->BuildBuffer(_width, _height, pixels, createInfo) == false)
 		{
 			OUTPUT_ERROR("TextureResource::Initialize: load texture failed");
 			DefaultAllocator::GetInstance().Delete(_texture);
+			DefaultAllocator::GetInstance().Free(pixels);
 			_texture = nullptr;
 			return false;
 		}
+		DefaultAllocator::GetInstance().Free(pixels);
 		return true;
 	}
 

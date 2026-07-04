@@ -30,8 +30,10 @@ namespace hod::inline renderer
 	/// @param document 
 	/// @param stream 
 	/// @return 
-	bool MaterialInstanceResource::Initialize(const DocumentNode& documentNode, const Vector<Resource::Data>& /*datas*/)
+	bool MaterialInstanceResource::Initialize(const ResourceContainer& /*resourceContainer*/)
 	{
+		return false;
+		/*
 		if (Serializer::Deserialize(*this, documentNode) == false)
 		{
 			OUTPUT_ERROR("MaterialInstanceResource::Initialize: Unable to deserialize");
@@ -61,6 +63,7 @@ namespace hod::inline renderer
 		MaterialSerializationHelper::ApplyParamsFromDocument(*_materialInstance, _params.GetRootNode(), _textureResources);
 
 		return true;
+		*/
 	}
 
 	/// @brief 
