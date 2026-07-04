@@ -10,8 +10,8 @@
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Project.hpp"
-#include "HodEngine/Editor/ResourceContainer.hpp"
 #include "HodEngine/Editor/TaskTracker/TaskTracker.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceContainer.hpp"
 
 #include "HodEngine/Core/Hash.hpp"
 

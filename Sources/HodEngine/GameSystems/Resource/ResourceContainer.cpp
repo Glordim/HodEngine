@@ -1,8 +1,8 @@
-#include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/GameSystems/Pch.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Core/Stream/CompressionStream.hpp"
 #include "HodEngine/Core/Stream/Stream.hpp"
-#include "HodEngine/Editor/ResourceContainer.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceContainer.hpp"
 
 #include "HodEngine/Core/Hash.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
@@ -12,7 +12,7 @@
 #include <cstdint>
 #include <cstring>
 
-namespace hod::inline editor
+namespace hod::inline gamesystems
 {
 	const uint8_t ResourceContainer::MAGIC[8] = { 'H', 'R', 'E', 'S', 'R', 'C', '\0', '\0' };
 

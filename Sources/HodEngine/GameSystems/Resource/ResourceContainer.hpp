@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/Editor/Export.hpp"
+#include "HodEngine/GameSystems/Export.hpp"
 
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Core/Stream/CompressionStream.hpp>
@@ -11,10 +11,10 @@
 #include <cstdint>
 #include <string_view>
 
-namespace hod::inline editor
+namespace hod::inline gamesystems
 {
 	/// @brief Binary container for cooked .res files: Header(fixed) + Data section
-	class HOD_EDITOR_API ResourceContainer
+	class HOD_GAME_SYSTEMS_API ResourceContainer
 	{
 	public:
 		struct DataBlockInfo
