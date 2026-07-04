@@ -1,13 +1,17 @@
 #include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/Editor/Project.hpp"
+
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 #include "HodEngine/Editor/Asset.hpp"
-#include "HodEngine/Editor/Project.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceContainer.hpp"
 #include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
 
 
+#include "HodEngine/GameSystems/Resource/ResourceVariant.hpp"
 #include <algorithm>
 #include <fmt/format.h>
 #include <functional>
@@ -22,6 +26,8 @@
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Editor/CMakeHelper.hpp"
 #include "HodEngine/Editor/Cooker/Cooker.hpp"
+#include <memory>
+#include <utility>
 
 
 // todo move ?
@@ -206,6 +212,38 @@ namespace hod::inline editor
 		}
 
 		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath / CMakeHelper::GetCurrentPlatform() / ToString(Config::Debug)); // TODO uniformize Config and Platform setup
+		ResourceManager::GetInstance()->SetFileNotFoundCallback(+[](const UID& uid) {
+			std::shared_ptr<Asset> asset = AssetDatabase::GetInstance()->Find(uid);
+			if (asset == nullptr)
+			{
+				return false;
+			}
+			uint64_t type = asset->GetType();
+			Cooker* cooker = AssetDatabase::GetInstance()->FindCompatibleCooker(type);
+			if (cooker == nullptr)
+			{
+				return false;
+			}
+			return cooker->Cook(*asset, std::to_underlying(Platform::Windows), std::to_underlying(Config::Debug), std::to_underlying(ResourceVariant::Language::All), 0);
+		});
+		ResourceManager::GetInstance()->SetCheckUpToDateCallback(+[](const UID& uid, const ResourceContainer& resourceContainer) {
+			std::shared_ptr<Asset> asset = AssetDatabase::GetInstance()->Find(uid);
+			if (asset == nullptr)
+			{
+				return false;
+			}
+			uint64_t type = asset->GetType();
+			Cooker* cooker = AssetDatabase::GetInstance()->FindCompatibleCooker(type);
+			if (cooker == nullptr)
+			{
+				return false;
+			}
+			if (asset->GetContentHash() == resourceContainer.GetAssetContentHash() && cooker->GetCookerVersion() == resourceContainer.GetCookerVersion())
+			{
+				return true;
+			}
+			return cooker->Cook(*asset, std::to_underlying(Platform::Windows), std::to_underlying(Config::Debug), std::to_underlying(ResourceVariant::Language::All), 0);
+		});
 
 		String gameModuleName = _name + "Game";
 		Path   moduleBuildDirectoryPath = GetCacheBuildDirPath() / "Editor";

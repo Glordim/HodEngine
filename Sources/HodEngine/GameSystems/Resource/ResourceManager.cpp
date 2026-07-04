@@ -1,4 +1,5 @@
 #include "HodEngine/GameSystems/Pch.hpp"
+#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
 
 #include "HodEngine/GameSystems/Resource/ResourceContainer.hpp"
@@ -51,7 +52,31 @@ namespace hod::inline gamesystems
 		Path path = _directory / ResourceVariant::UnlocalizedName;
 		path /= (uid.ToString() + ".res");
 
+		if (_fileNotFoundCallback != nullptr)
+		{
+			if (FileSystem::GetInstance()->Exists(path) == false)
+			{
+				if (_fileNotFoundCallback(uid) == false)
+				{
+					return false;
+				}
+			}
+		}
+
 		ResourceContainer resourceContainer;
+		if (resourceContainer.LoadHeader(path) == false)
+		{
+			return false;
+		}
+
+		if (_checkUpToDateCallback != nullptr)
+		{
+			if (_checkUpToDateCallback(uid, resourceContainer) == false)
+			{
+				return false;
+			}
+		}
+
 		if (resourceContainer.Load(path) == false)
 		{
 			return false;

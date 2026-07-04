@@ -3,12 +3,14 @@
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 #include "HodEngine/Core/UID.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceContainer.hpp"
 #include <HodEngine/Core/FileSystem/Path.hpp>
 #include <map>
 
 #include "HodEngine/Core/Singleton.hpp"
 
 #include <memory>
+#include <functional>
 
 #undef FindResource
 
@@ -23,6 +25,8 @@ namespace hod::inline gamesystems
 
 	public:
 		void SetResourceDirectory(const Path& directory);
+		void SetFileNotFoundCallback(const std::function<bool(const UID&)>& callback) { _fileNotFoundCallback = callback; }
+		void SetCheckUpToDateCallback(std::function<bool(const UID&, const ResourceContainer&)> callback) { _checkUpToDateCallback = callback; }
 
 		std::shared_ptr<Resource> GetResource(const ReflectionDescriptor& reflectionDescriptor, const UID& uid);
 
@@ -41,6 +45,9 @@ namespace hod::inline gamesystems
 		Path _directory;
 
 		std::map<UID, std::weak_ptr<Resource>> _resources;
+
+		std::function<bool(const UID&)> _fileNotFoundCallback = nullptr;
+		std::function<bool(const UID&, const ResourceContainer&)> _checkUpToDateCallback = nullptr;
 	};
 }
 

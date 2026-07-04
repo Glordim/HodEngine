@@ -12,6 +12,8 @@
 #include <HodEngine/Core/Singleton.hpp>
 #include <HodEngine/Core/UID.hpp>
 
+#include <memory>
+
 namespace hod::inline editor
 {
 	class Asset;
