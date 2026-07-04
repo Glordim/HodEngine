@@ -66,7 +66,7 @@ namespace hod::inline editor
 
 	void Cooker::SetAssetType(std::string_view assetType)
 	{
-		_assetType = Hash::ComputeXxh3_64(assetType.data(), assetType.size());
+		_assetType = Hash::ComputeXxh3_64(assetType);
 	}
 
 	void Cooker::SetCookerVersion(uint32_t cookerVersion)

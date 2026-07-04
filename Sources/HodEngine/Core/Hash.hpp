@@ -28,6 +28,7 @@ namespace hod::inline core
 
 		static uint64_t ComputeFnv64(const std::string_view& str, uint64_t basis = FNV_64_BASIS);
 
+		static uint64_t ComputeXxh3_64(const std::string_view& str);
 		static uint64_t ComputeXxh3_64(const void* input, size_t length);
 		static void* ComputeXxh3_64_Cumulated(void* state, const void* input, size_t length);
 		static uint64_t ComputeXxh3_64_Result(void* state);

@@ -26,6 +26,11 @@ namespace hod::inline core
 		return hash;
 	}
 
+	uint64_t Hash::ComputeXxh3_64(const std::string_view& str)
+	{
+		return ComputeXxh3_64(str.data(), str.size());
+	}
+
 	uint64_t Hash::ComputeXxh3_64(const void* input, size_t length)
 	{
 		return XXH3_64bits(input, length);

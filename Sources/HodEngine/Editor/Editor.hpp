@@ -1,6 +1,7 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
+#include <cstdint>
 #include <stdint.h>
 
 #include <HodEngine/Core/Document/Document.hpp>
@@ -136,7 +137,7 @@ namespace hod::inline editor
 		Vector<DynamicLibrary*> _editorModules;
 
 		Vector<EditorTab*>                                                            _editorTabs;
-		std::unordered_map<String, std::function<EditorTab*(std::shared_ptr<Asset>)>> _editorTabFactory;
+		std::unordered_map<uint64_t, std::function<EditorTab*(std::shared_ptr<Asset>)>> _editorTabFactory;
 
 		Texture* _hodTexture = nullptr;
 		Texture* _folderTexture = nullptr;

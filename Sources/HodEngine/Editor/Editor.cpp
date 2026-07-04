@@ -287,28 +287,28 @@ namespace hod::inline editor
 		AssetDatabase::CreateInstance();
 
 		AssetDatabase::GetInstance()->RegisterImporter<AudioImporter>();
-		_editorTabFactory.emplace("AudioImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<AudioEditorTab>(asset); });
+		_editorTabFactory.emplace(Hash::ComputeXxh3_64("Audio"), [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<AudioEditorTab>(asset); });
 
 		AssetDatabase::GetInstance()->RegisterImporter<TextureImporter>();
 		AssetDatabase::GetInstance()->RegisterCooker<TextureCooker>();
-		_editorTabFactory.emplace("TextureImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<TextureEditorTab>(asset); });
+		_editorTabFactory.emplace(Hash::ComputeXxh3_64("Texture"), [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<TextureEditorTab>(asset); });
 
 		AssetDatabase::GetInstance()->RegisterImporter<FontImporter>();
 
 		AssetDatabase::GetInstance()->RegisterImporter<SceneImporter>();
-		_editorTabFactory.emplace("SceneImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<SceneEditorTab>(asset); });
+		_editorTabFactory.emplace(Hash::ComputeXxh3_64("Scene"), [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<SceneEditorTab>(asset); });
 
 		AssetDatabase::GetInstance()->RegisterImporter<PrefabImporter>();
-		_editorTabFactory.emplace("PrefabImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<PrefabEditorTab>(asset); });
+		_editorTabFactory.emplace(Hash::ComputeXxh3_64("Prefab"), [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<PrefabEditorTab>(asset); });
 
 		AssetDatabase::GetInstance()->RegisterImporter<SerializedDataImporter>();
-		_editorTabFactory.emplace("SerializedDataImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<SerializedDataEditorTab>(asset); });
+		_editorTabFactory.emplace(Hash::ComputeXxh3_64("SerializedData"), [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<SerializedDataEditorTab>(asset); });
 
 		AssetDatabase::GetInstance()->RegisterImporter<MaterialImporter>();
-		_editorTabFactory.emplace("MaterialInstanceImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<MaterialInstanceEditorTab>(asset); });
+		_editorTabFactory.emplace(Hash::ComputeXxh3_64("MaterialInstance"), [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<MaterialInstanceEditorTab>(asset); });
 
 		AssetDatabase::GetInstance()->RegisterImporter<MaterialInstanceImporter>();
-		_editorTabFactory.emplace("MaterialImporter", [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<MaterialEditorTab>(asset); });
+		_editorTabFactory.emplace(Hash::ComputeXxh3_64("Material"), [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<MaterialEditorTab>(asset); });
 
 		if (Project::GetInstance()->ReloadProjectModules() == false)
 		{
@@ -738,7 +738,7 @@ namespace hod::inline editor
 			}
 		}
 
-		auto it = _editorTabFactory.find(asset->GetMeta()._importerType);
+		auto it = _editorTabFactory.find(asset->GetType());
 		if (it == _editorTabFactory.end())
 		{
 			return nullptr; // todo message

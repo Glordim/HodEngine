@@ -71,7 +71,7 @@ namespace hod::inline editor
 
 	void Importer::SetAssetType(std::string_view assetType)
 	{
-		_assetType = Hash::ComputeXxh3_64(assetType.data(), assetType.size());
+		_assetType = Hash::ComputeXxh3_64(assetType);
 	}
 
 	bool Importer::Import(const Path& sourcePath, const Path& destinationPath, const UID& uid, ImporterSettings* importSettings, uint64_t taskId)
