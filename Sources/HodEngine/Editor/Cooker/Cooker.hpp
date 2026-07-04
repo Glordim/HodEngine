@@ -27,6 +27,17 @@ namespace hod::inline editor
 		All = std::numeric_limits<std::underlying_type_t<Platform>>::max()
 	};
 
+	/// @brief Config only affects what gets baked into a cooked Resource (e.g. debug metadata); the runtime
+	/// ResourceManager never needs to pick between variants of it, unlike Language, so it lives here rather
+	/// than in GameSystems/Resource/ResourceVariant.hpp.
+	enum class Config : uint8_t
+	{
+		Debug = (1 << 0),
+		Retail = (1 << 1),
+
+		All = std::numeric_limits<std::underlying_type_t<Config>>::max()
+	};
+
 	/// @brief
 	class HOD_EDITOR_API Cooker
 	{

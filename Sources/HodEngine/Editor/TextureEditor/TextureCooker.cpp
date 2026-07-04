@@ -17,8 +17,6 @@ namespace hod::inline editor
 	static constexpr std::underlying_type_t<Platform> bcPlatforms = std::to_underlying(Platform::Windows) | std::to_underlying(Platform::Linux);
 	static constexpr std::underlying_type_t<Platform> astcPlatforms = std::to_underlying(Platform::MacOs) | std::to_underlying(Platform::Ios) | std::to_underlying(Platform::Android);
 
-	static constexpr std::underlying_type_t<ResourceVariant::Config> debugConfigs = std::to_underlying(ResourceVariant::Config::Development) | std::to_underlying(ResourceVariant::Config::Profile);
-
 	/// @brief
 	TextureCooker::TextureCooker()
 	{
@@ -34,9 +32,9 @@ namespace hod::inline editor
 			return false;
 		}
 
-		if (configs & debugConfigs)
+		if (configs & std::to_underlying(Config::Debug))
 		{
-			Stream& outDebugStream = AddDataBlockStream("Debug", false, std::to_underlying(Platform::All), debugConfigs, std::to_underlying(ResourceVariant::Language::All));
+			Stream& outDebugStream = AddDataBlockStream("Debug", false, std::to_underlying(Platform::All), std::to_underlying(Config::Debug), std::to_underlying(ResourceVariant::Language::All));
 
 			Document debugDocument;
 			debugDocument.GetRootNode().AddChild("Name").SetValue(asset.GetName());
@@ -50,7 +48,7 @@ namespace hod::inline editor
 		inInfoStream->Read(&width, sizeof(width));
 		inInfoStream->Read(&height, sizeof(height));
 
-		Stream& outInfoStream = AddDataBlockStream("Info", false, std::to_underlying(Platform::All), std::to_underlying(ResourceVariant::Config::All), std::to_underlying(ResourceVariant::Language::All));
+		Stream& outInfoStream = AddDataBlockStream("Info", false, std::to_underlying(Platform::All), std::to_underlying(Config::All), std::to_underlying(ResourceVariant::Language::All));
 		outInfoStream.Write(&width, sizeof(width));
 		outInfoStream.Write(&height, sizeof(height));
 
@@ -63,14 +61,14 @@ namespace hod::inline editor
 		{
 			uint8_t* blockCompressedPixels = pixels; // TODO use bc7enc_rdo
 			uint32_t blockCompressedPixelsSize = pixelsSize;
-			Stream& outPixelStream = AddDataBlockStream("Pixels", true, bcPlatforms, std::to_underlying(ResourceVariant::Config::All), std::to_underlying(ResourceVariant::Language::All));
+			Stream& outPixelStream = AddDataBlockStream("Pixels", true, bcPlatforms, std::to_underlying(Config::All), std::to_underlying(ResourceVariant::Language::All));
 			outPixelStream.Write(blockCompressedPixels, blockCompressedPixelsSize);
 		}
 		if (platforms & astcPlatforms)
 		{
 			uint8_t* blockCompressedPixels = pixels; // TODO use astcenc
 			uint32_t blockCompressedPixelsSize = pixelsSize;
-			Stream& outPixelStream = AddDataBlockStream("Pixels", true, astcPlatforms, std::to_underlying(ResourceVariant::Config::All), std::to_underlying(ResourceVariant::Language::All));
+			Stream& outPixelStream = AddDataBlockStream("Pixels", true, astcPlatforms, std::to_underlying(Config::All), std::to_underlying(ResourceVariant::Language::All));
 			outPixelStream.Write(blockCompressedPixels, blockCompressedPixelsSize);
 		}
 

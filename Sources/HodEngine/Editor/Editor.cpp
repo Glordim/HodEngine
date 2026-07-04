@@ -1048,7 +1048,7 @@ namespace hod::inline editor
 	void Editor::Cook(const Path& asset)
 	{
 		CookJob* cookJob =
-			DefaultAllocator::GetInstance().New<CookJob>(asset, std::to_underlying(Platform::Windows), std::to_underlying(ResourceVariant::Config::Development), std::to_underlying(ResourceVariant::Language::All));
+			DefaultAllocator::GetInstance().New<CookJob>(asset, std::to_underlying(Platform::Windows), std::to_underlying(Config::Debug), std::to_underlying(ResourceVariant::Language::All));
 		cookJob->SetAutoDelete(true);
 		JobScheduler::GetInstance()->PushBackground(cookJob);
 	}

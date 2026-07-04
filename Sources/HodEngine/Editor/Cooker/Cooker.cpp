@@ -31,6 +31,25 @@ namespace hod::inline editor
 		constexpr PlatformEntry platformEntries[] = {
 			{Platform::Windows, "Windows"}, {Platform::MacOs, "MacOs"}, {Platform::Linux, "Linux"}, {Platform::Android, "Android"}, {Platform::Ios, "Ios"},
 		};
+
+		struct ConfigEntry
+		{
+			Config           value;
+			std::string_view name;
+		};
+
+		constexpr ConfigEntry configEntries[] = {
+			{Config::Debug, "Debug"},
+			{Config::Retail, "Retail"},
+		};
+
+		struct LanguageVariant
+		{
+			uint32_t         value;
+			std::string_view name;
+		};
+
+		constexpr size_t languageEntryCount = sizeof(ResourceVariant::LanguageEntries) / sizeof(ResourceVariant::LanguageEntries[0]);
 	}
 
 	void Cooker::SetAssetType(std::string_view assetType)
@@ -114,7 +133,7 @@ namespace hod::inline editor
 				continue;
 			}
 
-			for (const ResourceVariant::ConfigEntry& configEntry : ResourceVariant::ConfigEntries)
+			for (const ConfigEntry& configEntry : configEntries)
 			{
 				uint8_t configBit = std::to_underlying(configEntry.value);
 				if ((configs & configBit) == 0)
@@ -122,13 +141,49 @@ namespace hod::inline editor
 					continue;
 				}
 
-				for (const ResourceVariant::LanguageEntry& languageEntry : ResourceVariant::LanguageEntries)
+				// A resource whose data never varies per requested language (every relevant data block either
+				// doesn't apply or fully covers the requested language mask) is written once, under
+				// "Unlocalized", instead of once per language.
+				bool languageInvariant = (languages == std::to_underlying(ResourceVariant::Language::All));
+				if (languageInvariant)
 				{
-					uint32_t languageBit = std::to_underlying(languageEntry.value);
-					if ((languages & languageBit) == 0)
+					for (DataBlock* dataBlock : _dataBlocks)
 					{
-						continue;
+						if ((dataBlock->GetPlatforms() & platformBit) == 0 || (dataBlock->GetConfigs() & configBit) == 0)
+						{
+							continue;
+						}
+						uint32_t overlap = dataBlock->GetLanguages() & languages;
+						if (overlap != 0 && overlap != languages)
+						{
+							languageInvariant = false;
+							break;
+						}
 					}
+				}
+
+				LanguageVariant languageVariants[languageEntryCount + 1];
+				size_t languageVariantCount = 0;
+				if (languageInvariant)
+				{
+					languageVariants[languageVariantCount++] = {languages, "Unlocalized"};
+				}
+				else
+				{
+					for (const ResourceVariant::LanguageEntry& languageEntry : ResourceVariant::LanguageEntries)
+					{
+						uint32_t languageBit = std::to_underlying(languageEntry.value);
+						if ((languages & languageBit) != 0)
+						{
+							languageVariants[languageVariantCount++] = {languageBit, languageEntry.name};
+						}
+					}
+				}
+
+				for (size_t languageIndex = 0; languageIndex < languageVariantCount; ++languageIndex)
+				{
+					uint32_t         languageBit = languageVariants[languageIndex].value;
+					std::string_view languageName = languageVariants[languageIndex].name;
 
 					ResourceContainer resourceContainer;
 					resourceContainer.SetType(_assetType);
@@ -150,7 +205,7 @@ namespace hod::inline editor
 						continue;
 					}
 
-					Path destinationDir = Project::GetInstance()->GetResourceDirPath() / Path(platformEntry.name);
+					Path destinationDir = Project::GetInstance()->GetResourceDirPath() / Path(platformEntry.name) / Path(configEntry.name) / Path(languageName);
 					if (FileSystem::GetInstance()->CreateDirectories(destinationDir) == false)
 					{
 						OUTPUT_ERROR("Cooker::Cook: Unable to create resource dir '{}'", destinationDir);
@@ -158,7 +213,7 @@ namespace hod::inline editor
 						return false;
 					}
 
-					Path destinationPath = destinationDir / (asset.GetUid().ToString() + "_" + String(languageEntry.name) + "_" + String(configEntry.name) + ".res").CStr();
+					Path destinationPath = destinationDir / (asset.GetUid().ToString() + ".res").CStr();
 					if (resourceContainer.Save(destinationPath, _tmpDir) == false)
 					{
 						Editor::GetInstance()->GetTaskTracker().UpdateTaskStatus(taskId, TaskStatus::Failed);
