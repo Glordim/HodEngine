@@ -30,7 +30,8 @@ namespace hod::inline editor
 	: _path(path)
 	{
 		_name = _path.Stem().GetString();
-		_meta._uid = UID::GenerateUID();
+		_uid = UID::GenerateUID();
+		_meta._uid = _uid;
 
 		_meta._importerSettings = AssetDatabase::GetInstance()->GetDefaultImporter().AllocateSettings();
 	}
@@ -185,7 +186,7 @@ namespace hod::inline editor
 	/// @return
 	const UID& Asset::GetUid() const
 	{
-		return _meta._uid;
+		return _uid;
 	}
 
 	/// @brief

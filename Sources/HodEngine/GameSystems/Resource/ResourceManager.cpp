@@ -47,7 +47,7 @@ namespace hod::inline gamesystems
 	bool ResourceManager::Load(Resource* resource, const UID& uid)
 	{
 		Path path = _directory / ResourceVariant::UnlocalizedName;
-		path /= (uid.ToString() + ".dat").CStr(); // todo remove Cstr when remove Path
+		path /= (uid.ToString() + ".res").CStr(); // todo remove Cstr when remove Path
 
 		FileStream fileStream;
 		if (fileStream.Open(path) == false)
