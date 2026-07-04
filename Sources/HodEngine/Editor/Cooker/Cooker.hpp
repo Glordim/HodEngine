@@ -4,6 +4,7 @@
 #include <HodEngine/Core/Stream/SpillStream.hpp>
 #include <HodEngine/Core/Stream/CompressionStream.hpp>
 #include <HodEngine/Core/FileSystem/Path.hpp>
+#include <HodEngine/GameSystems/Resource/ResourceVariant.hpp>
 
 #include <cstdint>
 #include <string_view>
@@ -24,23 +25,6 @@ namespace hod::inline editor
 		Ios = (1 << 4),
 
 		All = std::numeric_limits<std::underlying_type_t<Platform>>::max()
-	};
-
-	enum class Config : uint8_t
-	{
-		Development = (1 << 0),
-		Profile = (1 << 1),
-		Retail = (1 << 2),
-
-		All = std::numeric_limits<std::underlying_type_t<Config>>::max()
-	};
-
-	enum class Language : uint32_t
-	{
-		ENG = (1 << 0),
-		FRE = (1 << 1),
-
-		All = std::numeric_limits<std::underlying_type_t<Language>>::max()
 	};
 
 	/// @brief

@@ -31,29 +31,6 @@ namespace hod::inline editor
 		constexpr PlatformEntry platformEntries[] = {
 			{Platform::Windows, "Windows"}, {Platform::MacOs, "MacOs"}, {Platform::Linux, "Linux"}, {Platform::Android, "Android"}, {Platform::Ios, "Ios"},
 		};
-
-		struct ConfigEntry
-		{
-			Config           value;
-			std::string_view name;
-		};
-
-		constexpr ConfigEntry configEntries[] = {
-			{Config::Development, "Development"},
-			{Config::Profile, "Profile"},
-			{Config::Retail, "Retail"},
-		};
-
-		struct LanguageEntry
-		{
-			Language         value;
-			std::string_view name;
-		};
-
-		constexpr LanguageEntry languageEntries[] = {
-			{Language::ENG, "ENG"},
-			{Language::FRE, "FRE"},
-		};
 	}
 
 	void Cooker::SetAssetType(std::string_view assetType)
@@ -137,7 +114,7 @@ namespace hod::inline editor
 				continue;
 			}
 
-			for (const ConfigEntry& configEntry : configEntries)
+			for (const ResourceVariant::ConfigEntry& configEntry : ResourceVariant::ConfigEntries)
 			{
 				uint8_t configBit = std::to_underlying(configEntry.value);
 				if ((configs & configBit) == 0)
@@ -145,7 +122,7 @@ namespace hod::inline editor
 					continue;
 				}
 
-				for (const LanguageEntry& languageEntry : languageEntries)
+				for (const ResourceVariant::LanguageEntry& languageEntry : ResourceVariant::LanguageEntries)
 				{
 					uint32_t languageBit = std::to_underlying(languageEntry.value);
 					if ((languages & languageBit) == 0)
