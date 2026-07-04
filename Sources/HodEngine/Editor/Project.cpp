@@ -21,6 +21,7 @@
 #include "FileTemplates/Module.hpp.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Editor/CMakeHelper.hpp"
+#include "HodEngine/Editor/Cooker/Cooker.hpp"
 
 
 // todo move ?
@@ -204,7 +205,7 @@ namespace hod::inline editor
 			return false;
 		}
 
-		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath);
+		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath / CMakeHelper::GetCurrentPlatform() / ToString(Config::Debug)); // TODO uniformize Config and Platform setup
 
 		String gameModuleName = _name + "Game";
 		Path   moduleBuildDirectoryPath = GetCacheBuildDirPath() / "Editor";

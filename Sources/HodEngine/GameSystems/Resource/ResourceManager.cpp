@@ -5,6 +5,7 @@
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Stream/FileStream.hpp"
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceVariant.hpp"
 
 #include "HodEngine/Core/Output/OutputService.hpp"
 
@@ -45,7 +46,7 @@ namespace hod::inline gamesystems
 	/// @return
 	bool ResourceManager::Load(Resource* resource, const UID& uid)
 	{
-		Path path = _directory;
+		Path path = _directory / ResourceVariant::UnlocalizedName;
 		path /= (uid.ToString() + ".dat").CStr(); // todo remove Cstr when remove Path
 
 		FileStream fileStream;

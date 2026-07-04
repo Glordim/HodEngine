@@ -29,5 +29,8 @@ namespace hod::inline gamesystems
 			{Language::ENG, "ENG"},
 			{Language::FRE, "FRE"},
 		};
+
+		/// @brief Directory/variant name used when a resource's data doesn't vary per language.
+		static constexpr std::string_view UnlocalizedName = "Unlocalized";
 	};
 }

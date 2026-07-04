@@ -38,6 +38,8 @@ namespace hod::inline editor
 		All = std::numeric_limits<std::underlying_type_t<Config>>::max()
 	};
 
+	HOD_EDITOR_API std::string_view ToString(Config config);
+
 	/// @brief
 	class HOD_EDITOR_API Cooker
 	{

@@ -52,6 +52,18 @@ namespace hod::inline editor
 		constexpr size_t languageEntryCount = sizeof(ResourceVariant::LanguageEntries) / sizeof(ResourceVariant::LanguageEntries[0]);
 	}
 
+	std::string_view ToString(Config config)
+	{
+		for (const ConfigEntry& configEntry : configEntries)
+		{
+			if (configEntry.value == config)
+			{
+				return configEntry.name;
+			}
+		}
+		return "";
+	}
+
 	void Cooker::SetAssetType(std::string_view assetType)
 	{
 		_assetType = Hash::ComputeXxh3_64(assetType.data(), assetType.size());
@@ -166,7 +178,7 @@ namespace hod::inline editor
 				size_t languageVariantCount = 0;
 				if (languageInvariant)
 				{
-					languageVariants[languageVariantCount++] = {languages, "Unlocalized"};
+					languageVariants[languageVariantCount++] = {languages, ResourceVariant::UnlocalizedName};
 				}
 				else
 				{
