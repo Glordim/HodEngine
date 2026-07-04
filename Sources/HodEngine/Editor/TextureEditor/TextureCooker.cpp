@@ -14,13 +14,20 @@
 
 namespace hod::inline editor
 {
+	DESCRIBE_REFLECTED_CLASS(TextureSettings, reflectionDescriptor)
+	{
+		AddPropertyT(reflectionDescriptor, &TextureSettings::_generateMipmap, "GenerateMipmap");
+		AddPropertyT(reflectionDescriptor, &TextureSettings::_filterMode, "FilterMode");
+		AddPropertyT(reflectionDescriptor, &TextureSettings::_wrapMode, "WrapMode");
+	}
+
 	static constexpr std::underlying_type_t<Platform> bcPlatforms = std::to_underlying(Platform::Windows) | std::to_underlying(Platform::Linux);
 	static constexpr std::underlying_type_t<Platform> astcPlatforms = std::to_underlying(Platform::MacOs) | std::to_underlying(Platform::Ios) | std::to_underlying(Platform::Android);
 
 	/// @brief
 	TextureCooker::TextureCooker()
 	{
-		SetAssetType("texture");
+		SetAssetType("Texture");
 		SetCookerVersion(1);
 	}
 

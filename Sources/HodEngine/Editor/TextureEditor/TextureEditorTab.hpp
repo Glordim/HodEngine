@@ -30,8 +30,8 @@ namespace hod::inline editor
 				~TextureEditorTab() override;
 
 		std::shared_ptr<TextureResource>	GetTexture() const;
-		float										GetZoomFactor() const;
-		void										SetZoomFactor(float zoomFactor);
+		float								GetZoomFactor() const;
+		void								SetZoomFactor(float zoomFactor);
 
 	protected:
 

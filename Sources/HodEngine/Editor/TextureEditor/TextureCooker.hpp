@@ -1,9 +1,22 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
+
 #include "HodEngine/Editor/Cooker/Cooker.hpp"
+#include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
+#include "HodEngine/Renderer/Enums.hpp"
 
 namespace hod::inline editor
 {
+	class HOD_EDITOR_API TextureSettings
+	{
+		REFLECTED_CLASS_NO_VIRTUAL(TextureSettings)
+
+	public:
+		bool       _generateMipmap = false;
+		FilterMode _filterMode = FilterMode::Linear;
+		WrapMode   _wrapMode = WrapMode::Clamp;
+	};
+
 	class HOD_EDITOR_API TextureCooker : public Cooker
 	{
 	public:

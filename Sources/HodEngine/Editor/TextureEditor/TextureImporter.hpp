@@ -1,43 +1,10 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
-#include "HodEngine/Math/Rect.hpp"
-#include "HodEngine/Core/UID.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
-#include "HodEngine/Renderer/Enums.hpp"
 
 namespace hod::inline editor
 {
-	enum class MeshType
-	{
-		Rect,
-		Tight,
-	};
-	REFLECTED_ENUM2(HOD_EDITOR_API, MeshType);
-
-	struct HOD_EDITOR_API SpriteData
-	{
-		REFLECTED_CLASS_NO_PARENT(SpriteData)
-
-	public:
-		virtual ~SpriteData() = default;
-
-		UID      _uid;
-		Rect     _rect;
-		MeshType _meshType = MeshType::Rect;
-	};
-
-	class HOD_EDITOR_API TextureImporterSettings : public ImporterSettings
-	{
-		REFLECTED_CLASS(TextureImporterSettings, ImporterSettings)
-
-	public:
-		bool                 _generateMipmap = false;
-		FilterMode _filterMode = FilterMode::Linear;
-		WrapMode   _wrapMode = WrapMode::Clamp;
-		Vector<SpriteData>   _spriteDatas;
-	};
-
 	class HOD_EDITOR_API TextureImporter : public Importer
 	{
 	public:

@@ -71,6 +71,10 @@ namespace hod::inline editor
 	void TextureEditorViewportWindow::DrawContent()
 	{
 		std::shared_ptr<TextureResource> textureResource = GetOwner<TextureEditorTab>()->GetTexture();
+		if (textureResource == nullptr)
+		{
+			return;
+		}
 		Texture* texture = textureResource->GetTexture();
 
 		float zoomFactor = GetOwner<TextureEditorTab>()->GetZoomFactor();

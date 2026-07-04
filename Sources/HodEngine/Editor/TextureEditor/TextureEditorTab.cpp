@@ -30,7 +30,7 @@ namespace hod::inline editor
 	{
 		if (asset != nullptr)
 		{
-			_texture = ResourceManager::GetInstance()->GetResource<TextureResource>(asset->GetMeta()._uid);
+			_texture = ResourceManager::GetInstance()->GetResource<TextureResource>(asset->GetUid());
 		}
 	}
 
