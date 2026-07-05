@@ -1,14 +1,15 @@
 #include "HodEngine/Editor/Pch.hpp"
+#include "EntityBasedTabEditor/PrefabCooker.hpp"
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Cooker/Cooker.hpp"
 #include "HodEngine/Editor/Cooker/CookJob.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 
-#include "HodEngine/Editor/Importer/DefaultImporter.hpp"
 #include "HodEngine/Editor/Project.hpp"
 
 #include "HodEngine/GameSystems/Job/JobScheduler.hpp"
+#include "SerializedDataEditor/SerializedDataCooker.hpp"
 #include "TaskTracker/TaskTracker.hpp"
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
@@ -48,8 +49,6 @@
 
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
-#include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
-
 #include "HodEngine/Editor/AudioEditor/AudioEditorTab.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialEditorTab.hpp"
 #include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorTab.hpp"
@@ -80,12 +79,14 @@
 #include "portable-file-dialogs.h"
 
 #include "HodEngine/Editor/AudioEditor/AudioImporter.hpp"
-#include "HodEngine/Editor/EntityBasedTabEditor/PrefabImporter.hpp"
-#include "HodEngine/Editor/EntityBasedTabEditor/SceneImporter.hpp"
-#include "HodEngine/Editor/Importer/FontImporter.hpp"
-#include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
+#include "HodEngine/Editor/EntityBasedTabEditor/PrefabCooker.hpp"
+#include "HodEngine/Editor/EntityBasedTabEditor/SceneCooker.hpp"
+#include "HodEngine/Editor/FontEditor/FontCooker.hpp"
+#include "HodEngine/Editor/FontEditor/FontImporter.hpp"
+#include "HodEngine/Editor/SerializedDataEditor/SerializedDataCooker.hpp"
+#include "HodEngine/Editor/MaterialEditor/MaterialCooker.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
-#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceImporter.hpp"
+#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceCooker.hpp"
 
 #include "HodEngine/Editor/TextureEditor/TextureCooker.hpp"
 #include "HodEngine/Editor/TextureEditor/TextureEditorTab.hpp"
@@ -286,29 +287,31 @@ namespace hod::inline editor
 	{
 		AssetDatabase::CreateInstance();
 
-		AssetDatabase::GetInstance()->RegisterImporter<AudioImporter>();
-		_editorTabFactory.emplace(Hash::ComputeXxh3_64("Audio"), [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<AudioEditorTab>(asset); });
+		AssetDatabase::GetInstance()->RegisterImporter<AudioImporter>("wav");
+		RegisterEditorTab<AudioEditorTab>("Audio");
 
-		AssetDatabase::GetInstance()->RegisterImporter<TextureImporter>();
-		AssetDatabase::GetInstance()->RegisterCooker<TextureCooker>();
-		_editorTabFactory.emplace(Hash::ComputeXxh3_64("Texture"), [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<TextureEditorTab>(asset); });
+		AssetDatabase::GetInstance()->RegisterImporter<TextureImporter>("png", "tga", "jpg", "bmp", "psd", "gif", "hdr", "pic");
+		AssetDatabase::GetInstance()->RegisterCooker<TextureCooker>("Texture");
+		RegisterEditorTab<TextureEditorTab>("Texture");
 
-		AssetDatabase::GetInstance()->RegisterImporter<FontImporter>();
+		AssetDatabase::GetInstance()->RegisterImporter<FontImporter>("ttf");
+		AssetDatabase::GetInstance()->RegisterCooker<FontCooker>("Font");
 
-		AssetDatabase::GetInstance()->RegisterImporter<SceneImporter>();
-		_editorTabFactory.emplace(Hash::ComputeXxh3_64("Scene"), [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<SceneEditorTab>(asset); });
+		AssetDatabase::GetInstance()->RegisterCooker<SceneCooker>("Scene");
+		RegisterEditorTab<SceneEditorTab>("Scene");
 
-		AssetDatabase::GetInstance()->RegisterImporter<PrefabImporter>();
-		_editorTabFactory.emplace(Hash::ComputeXxh3_64("Prefab"), [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<PrefabEditorTab>(asset); });
+		AssetDatabase::GetInstance()->RegisterCooker<PrefabCooker>("Prefab");
+		RegisterEditorTab<PrefabEditorTab>("Prefab");
 
-		AssetDatabase::GetInstance()->RegisterImporter<SerializedDataImporter>();
-		_editorTabFactory.emplace(Hash::ComputeXxh3_64("SerializedData"), [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<SerializedDataEditorTab>(asset); });
+		AssetDatabase::GetInstance()->RegisterCooker<SerializedDataCooker>("SerializedData");
+		RegisterEditorTab<SerializedDataEditorTab>("SerializedData");
 
-		AssetDatabase::GetInstance()->RegisterImporter<MaterialImporter>();
-		_editorTabFactory.emplace(Hash::ComputeXxh3_64("MaterialInstance"), [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<MaterialInstanceEditorTab>(asset); });
+		AssetDatabase::GetInstance()->RegisterImporter<MaterialImporter>("slang");
+		AssetDatabase::GetInstance()->RegisterCooker<MaterialCooker>("Material");
+		RegisterEditorTab<MaterialEditorTab>("Material");
 
-		AssetDatabase::GetInstance()->RegisterImporter<MaterialInstanceImporter>();
-		_editorTabFactory.emplace(Hash::ComputeXxh3_64("Material"), [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<MaterialEditorTab>(asset); });
+		AssetDatabase::GetInstance()->RegisterCooker<MaterialInstanceCooker>("MaterialInstance");
+		RegisterEditorTab<MaterialInstanceEditorTab>("MaterialInstance");
 
 		if (Project::GetInstance()->ReloadProjectModules() == false)
 		{

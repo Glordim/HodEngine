@@ -1,7 +1,9 @@
 #include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/Editor/Importer/ImportJob.hpp"
+
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
-#include "HodEngine/Editor/Importer/ImportJob.hpp"
+#include "HodEngine/Editor/Importer/Importer.hpp"
 
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/TaskTracker/TaskTracker.hpp"
@@ -25,11 +27,12 @@ namespace hod::inline editor
 		if (_sourceFilePath.HasExtension())
 		{
 			String extension = _sourceFilePath.Extension().GetString().SubStr(1);
-			Importer* importer = AssetDatabase::GetInstance()->FindCompatibleImporter(extension);
+			Importer* importer = AssetDatabase::GetInstance()->AcquireImporter(extension);
 			if (importer != nullptr)
 			{
 				Path destinationFilePath = _destinationDirPath / _sourceFilePath.Filename().ReplaceExtension(importer->GetAssetExtension());
 				importer->Import(_sourceFilePath, destinationFilePath, UID::GenerateUID(), nullptr, _taskId);
+				AssetDatabase::GetInstance()->ReleaseImporter(importer);
 			}
 			else
 			{

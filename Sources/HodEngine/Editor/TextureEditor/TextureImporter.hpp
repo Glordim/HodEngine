@@ -16,14 +16,7 @@ namespace hod::inline editor
 		TextureImporter& operator=(const TextureImporter&) = delete;
 		TextureImporter& operator=(TextureImporter&&) = delete;
 
-	public:
-		std::shared_ptr<ImporterSettings> AllocateSettings() const override;
-		const char*                       GetTypeName() const override;
-		ReflectionDescriptor*             GetResourceDescriptor() const override;
-
 	protected:
-		bool WriteResource(Stream& data, Stream& meta, Document& document, Vector<Resource::Data>& datas, Stream& thumbnail,
-		                   ImporterSettings& settings) override;
 
 		bool FillDataBlock(Stream& source, ImporterSettings* importSettings) override;
 	};

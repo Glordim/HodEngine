@@ -104,7 +104,7 @@ namespace hod::inline editor
 		if (ImGui::Button("Apply"))
 		{
 			asset->Save();
-			AssetDatabase::GetInstance()->Import(asset->GetPath());
+			//AssetDatabase::GetInstance()->Import(asset->GetPath()); // TODO
 		}
 		ImGui::EndDisabled();
 

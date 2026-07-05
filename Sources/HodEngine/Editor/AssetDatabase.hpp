@@ -8,13 +8,14 @@
 #include <map>
 
 #include <HodEngine/Core/Event.hpp>
+#include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp>
 #include <HodEngine/Core/Singleton.hpp>
 #include <HodEngine/Core/UID.hpp>
 #include <HodEngine/GameSystems/Job/MemberFunctionJob.hpp>
 
-#include "HodEngine/Editor/Importer/DefaultImporter.hpp"
-#include <unordered_map>
+#include <HodEngine/Core/Hash.hpp>
+#include <memory>
 
 namespace hod::inline editor
 {
@@ -22,6 +23,7 @@ namespace hod::inline editor
 	class Project;
 	class Importer;
 	class Cooker;
+	class ImporterSettings;
 
 	/// @brief
 	class HOD_EDITOR_API AssetDatabase
@@ -65,8 +67,15 @@ namespace hod::inline editor
 
 		std::shared_ptr<Asset> Find(const UID& uid) const;
 
-		Importer* FindCompatibleImporter(std::string_view extension) const;
-		Cooker* FindCompatibleCooker(uint64_t type) const;
+		/// @brief Allocates a fresh Cooker instance for the given asset type, usable to Cook concurrently
+		/// with other in-flight Cook calls on the same type. Must be paired with ReleaseCooker, which
+		/// destroys it.
+		Cooker* AcquireCooker(uint64_t type);
+		void    ReleaseCooker(Cooker* cooker);
+
+		/// @brief Same as AcquireCooker/ReleaseCooker, for Importer batch/parallel usage.
+		Importer* AcquireImporter(std::string_view extension);
+		void      ReleaseImporter(Importer* importer);
 
 		FileSystemMapping& GetAssetRootNode();
 		FileSystemMapping* FindFileSystemMappingFromPath(const Path& path) const;
@@ -81,16 +90,11 @@ namespace hod::inline editor
 		void Move(FileSystemMapping& node, const Path& newPath);
 		void Delete(FileSystemMapping& node);
 
-		bool Import(const Path& path);
-		bool Import(std::shared_ptr<Asset> asset);
-
 		template<typename _Cooker_>
-		bool                   RegisterCooker();
+		bool                   RegisterCooker(std::string_view assetType);
 
-		template<typename _Importer_>
-		bool                   RegisterImporter();
-		Importer*              GetImporter(const std::string_view& name) const;
-		const DefaultImporter& GetDefaultImporter() const;
+		template<typename _Importer_, typename... Args>
+		bool                   RegisterImporter(Args... extensions);
 
 		bool ReimportAssetIfNecessary(std::shared_ptr<Asset> asset);
 
@@ -124,6 +128,24 @@ namespace hod::inline editor
 		static Path GenerateUniqueAssetPath(const Path& path);
 
 	private:
+		/// @brief One entry per registered Cooker type. _assetType is cached at registration so matching a
+		/// type doesn't require an instance. Acquire allocates a fresh instance via _factory, Release
+		/// destroys it, so concurrent batch jobs on the same type never share an instance. _cookerEntries is
+		/// only appended to at startup (RegisterCooker), before any Cook job runs, so no locking is needed.
+		struct CookerEntry
+		{
+			Cooker* (*_factory)() = nullptr;
+			uint64_t _assetType = 0;
+		};
+
+		/// @brief Same as CookerEntry, for Importer; matching is by supported file extension instead of a
+		/// single type value, so _extensions is a list instead of a scalar.
+		struct ImporterEntry
+		{
+			Importer* (*_factory)() = nullptr;
+			Vector<String> _extensions;
+		};
+
 		std::map<UID, std::shared_ptr<Asset>> _uidToAssetMap;
 		std::unordered_map<Path, std::shared_ptr<Asset>> _sourcePathToAssetMap;
 		FileSystemMapping                     _rootFileSystemMapping;
@@ -131,9 +153,8 @@ namespace hod::inline editor
 		FileSystemWatcher _fileSystemWatcherAsset;
 		FileSystemWatcher _fileSystemWatcherSource;
 
-		Vector<Importer*> _importers;
-		DefaultImporter   _defaultImporter;
-		Vector<Cooker*> _cookers;
+		Vector<ImporterEntry*> _importerEntries;
+		Vector<CookerEntry*> _cookerEntries;
 
 		MemberFunctionJob<AssetDatabase> _updateJob;
 	};

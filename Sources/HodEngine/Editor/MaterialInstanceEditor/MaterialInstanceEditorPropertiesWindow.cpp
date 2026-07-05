@@ -55,7 +55,7 @@ namespace hod::inline editor
 		bool changed = false;
 
 		std::shared_ptr<Asset>                    asset = GetOwner()->GetAsset();
-		std::shared_ptr<MaterialImporterSettings> materialImporterSettings = std::static_pointer_cast<MaterialImporterSettings>(asset->GetMeta()._importerSettings);
+		std::shared_ptr<MaterialImporterSettings> materialImporterSettings = nullptr; // std::static_pointer_cast<MaterialImporterSettings>(asset->GetMeta()._importerSettings); TODO
 		MaterialInstanceAsset&                    materialInstanceAsset = GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstanceAsset();
 
 		if (ImGui::CollapsingHeader("Data", ImGuiTreeNodeFlags_DefaultOpen))
@@ -187,7 +187,7 @@ namespace hod::inline editor
 				}
 			}
 			asset->Save(&materialInstanceAsset, &materialInstanceAsset.GetReflectionDescriptorV());
-			AssetDatabase::GetInstance()->Import(asset->GetPath());
+			// AssetDatabase::GetInstance()->Import(asset->GetPath()); TODO
 		}
 		ImGui::EndDisabled();
 

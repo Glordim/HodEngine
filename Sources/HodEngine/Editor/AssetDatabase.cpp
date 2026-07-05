@@ -14,6 +14,7 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
+#include <cctype>
 #include <filesystem> // todo remove
 #include <memory>
 
@@ -40,7 +41,6 @@ namespace hod::inline editor
 	_SingletonConstructor(AssetDatabase)
 	: _updateJob(this, &AssetDatabase::UpdateFileWatchers)
 	{
-		_importers.push_back(&_defaultImporter);
 	}
 
 	/// @brief
@@ -58,17 +58,14 @@ namespace hod::inline editor
 
 		_uidToAssetMap.clear();
 
-		for (Importer* importer : _importers)
+		for (ImporterEntry* entry : _importerEntries)
 		{
-			if (importer != &_defaultImporter)
-			{
-				DefaultAllocator::GetInstance().Delete(importer);
-			}
+			DefaultAllocator::GetInstance().Delete(entry);
 		}
 
-		for (Cooker* cooker : _cookers)
+		for (CookerEntry* entry : _cookerEntries)
 		{
-			DefaultAllocator::GetInstance().Delete(cooker);
+			DefaultAllocator::GetInstance().Delete(entry);
 		}
 	}
 
@@ -285,7 +282,7 @@ namespace hod::inline editor
 		childFileSystemMapping->_asset = std::make_shared<Asset>(childFileSystemMapping->_path);
 		if (importerSettings != nullptr && importerType != nullptr)
 		{
-			childFileSystemMapping->_asset->GetMeta().SetImporterConfig(importerSettings, importerType);
+			//childFileSystemMapping->_asset->GetMeta().SetImporterConfig(importerSettings, importerType); // TODO
 		}
 
 		if (childFileSystemMapping->_asset->Save(instance, reflectionDescriptor) == false)
@@ -357,106 +354,55 @@ namespace hod::inline editor
 		DeleteNode(node);
 	}
 
-	/// @brief
-	/// @param path
-	/// @return
-	bool AssetDatabase::Import(std::shared_ptr<Asset> asset)
+	namespace
 	{
-		Importer* importer = GetImporter(asset->GetMeta()._importerType);
-		if (importer != nullptr)
+		String ToLowerCopy(std::string_view value)
 		{
-			return importer->Import(asset->GetSourcePath(), asset->GetPath(), asset->GetUid(), nullptr, 0);
-		}
-		return false;
-	}
-
-	/// @brief
-	/// @param path
-	/// @return
-	bool AssetDatabase::Import(const Path& path)
-	{
-		FileSystemMapping* node = FindFileSystemMappingFromPath(path);
-		if (node != nullptr && node->_asset != nullptr)
-		{
-			return Import(node->_asset);
-		}
-
-		for (Importer* importer : _importers)
-		{
-			if (importer->CanImport(path) == true)
+			String result(value);
+			for (char& c : result)
 			{
-				return importer->Import(path);
+				c = static_cast<char>(std::tolower(static_cast<int>(c)));
 			}
+			return result;
 		}
-
-		return _defaultImporter.Import(path);
-		/*
-		        OUTPUT_ERROR("Can't import \"{}\", not importer support it", path.string().c_str());
-		        return false;
-		*/
 	}
 
-	Importer* AssetDatabase::FindCompatibleImporter(std::string_view extension) const
+	Cooker* AssetDatabase::AcquireCooker(uint64_t type)
 	{
-		for (Importer* importer : _importers)
+		for (CookerEntry* entry : _cookerEntries)
 		{
-			if (importer->CheckSupportedExtensions(extension) == true)
+			if (entry->_assetType == type)
 			{
-				return importer;
+				return entry->_factory();
 			}
 		}
 		return nullptr;
 	}
 
-	Cooker* AssetDatabase::FindCompatibleCooker(uint64_t type) const
+	void AssetDatabase::ReleaseCooker(Cooker* cooker)
 	{
-		for (Cooker* cooker : _cookers)
+		DefaultAllocator::GetInstance().Delete(cooker);
+	}
+
+	Importer* AssetDatabase::AcquireImporter(std::string_view extension)
+	{
+		String extensionLower = ToLowerCopy(extension);
+		for (ImporterEntry* entry : _importerEntries)
 		{
-			if (cooker->GetAssetType() == type)
+			for (const String& supportedExtension : entry->_extensions)
 			{
-				return cooker;
+				if (extensionLower == supportedExtension)
+				{
+					return entry->_factory();
+				}
 			}
 		}
 		return nullptr;
 	}
 
-	/// @brief
-	/// @param asset
-	/// @return
-	bool AssetDatabase::ReimportAssetIfNecessary(std::shared_ptr<Asset> asset)
+	void AssetDatabase::ReleaseImporter(Importer* importer)
 	{
-		Path resourceFilePath = Project::GetInstance()->GetResourceDirPath() / asset->GetUid().ToString().CStr();
-		resourceFilePath += ".dat";
-
-		if (FileSystem::GetInstance()->Exists(resourceFilePath) == false)
-		{
-			return Import(asset);
-		}
-
-		return false;
-	}
-
-	/// @brief
-	/// @param name
-	/// @return
-	Importer* AssetDatabase::GetImporter(const std::string_view& name) const
-	{
-		for (Importer* importer : _importers)
-		{
-			if (importer->GetTypeName() == name)
-			{
-				return importer;
-			}
-		}
-
-		return nullptr;
-	}
-
-	/// @brief
-	/// @return
-	const DefaultImporter& AssetDatabase::GetDefaultImporter() const
-	{
-		return _defaultImporter;
+		DefaultAllocator::GetInstance().Delete(importer);
 	}
 
 	/// @brief
@@ -485,8 +431,7 @@ namespace hod::inline editor
 	{
 		for (FileSystemMapping* assetNode : from._childrenAsset)
 		{
-			Importer* importer = GetImporter(assetNode->_asset->GetMeta()._importerType);
-			if (importer != nullptr && resourceDescriptor == importer->GetResourceDescriptor()) // TODO default import can't be listed
+			if (resourceDescriptor->GetType() == assetNode->_asset->GetType()) // TODO resourceDescriptorType is not AssetType
 			{
 				result.push_back(assetNode);
 			}
@@ -736,7 +681,7 @@ namespace hod::inline editor
 		auto it = _sourcePathToAssetMap.find(path);
 		if (it != _sourcePathToAssetMap.end())
 		{
-			Import(it->second);
+			// TODO reimport
 		}
 	}
 

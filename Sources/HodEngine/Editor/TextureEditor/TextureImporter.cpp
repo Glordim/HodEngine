@@ -1,12 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Editor/TextureEditor/TextureImporter.hpp"
-
-#include "HodEngine/Renderer/Resource/TextureResource.hpp"
-
-#include "HodEngine/Core/Serialization/Serializer.hpp"
 
 #include <cstdint>
 #include <stb_image.h>
@@ -18,24 +13,8 @@ namespace hod::inline editor
 	/// @brief
 	TextureImporter::TextureImporter()
 	{
-		SetSupportedDataFileExtensions("png", "tga", "jpg", "bmp", "psd", "gif", "hdr", "pic");
 		SetAssetExtension("texture");
 		SetAssetType("Texture");
-	}
-
-	/// @brief
-	/// @param path
-	/// @return
-	bool TextureImporter::WriteResource(Stream& data, Stream& meta, Document& document, Vector<Resource::Data>& datas, Stream& thumbnail,
-	                                    ImporterSettings& settings)
-	{
-		(void)data;
-		(void)meta;
-		(void)document;
-		(void)datas;
-		(void)thumbnail;
-		(void)settings;
-		return false;
 	}
 
 	bool TextureImporter::FillDataBlock(Stream& source, ImporterSettings* /*importSettings*/)
@@ -71,24 +50,5 @@ namespace hod::inline editor
 		pixelsStream.Write(pixels, pixelsSize);
 		stbi_image_free(pixels);
 		return true;
-	}
-
-	// TODO Move all virtual in Ctor const init ?
-
-	/// @brief
-	/// @return
-	const char* TextureImporter::GetTypeName() const
-	{
-		return "TextureImporter";
-	}
-
-	ReflectionDescriptor* TextureImporter::GetResourceDescriptor() const
-	{
-		return &TextureResource::GetReflectionDescriptor();
-	}
-
-	std::shared_ptr<ImporterSettings> TextureImporter::AllocateSettings() const
-	{
-		return nullptr;//std::make_shared<TextureImporterSettings>();
 	}
 }

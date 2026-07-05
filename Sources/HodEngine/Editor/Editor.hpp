@@ -3,6 +3,7 @@
 
 #include <cstdint>
 #include <stdint.h>
+#include <string_view>
 
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
@@ -84,6 +85,9 @@ namespace hod::inline editor
 
 		template<typename _EditorTabType_>
 		_EditorTabType_* OpenEditorTab();
+
+		template<typename _EditorTabType_>
+		void RegisterEditorTab(std::string_view name);
 
 		void PingAsset(std::shared_ptr<Asset> asset);
 
@@ -174,5 +178,11 @@ namespace hod::inline editor
 		_EditorTabType_* editorTab = DefaultAllocator::GetInstance().New<_EditorTabType_>(nullptr);
 		_editorTabs.push_back(editorTab);
 		return editorTab;
+	}
+
+	template<typename _EditorTabType_>
+	void Editor::RegisterEditorTab(std::string_view name)
+	{
+		_editorTabFactory.emplace(Hash::ComputeXxh3_64(name), [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<_EditorTabType_>(asset); });
 	}
 }

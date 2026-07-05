@@ -4,15 +4,6 @@
 #include "HodEngine/Editor/EditorTab.hpp"
 
 #include <memory>
-#include "HodEngine/Core/Vector.hpp"
-
-#include "HodEngine/Editor/Importer/SerializedDataAsset.hpp"
-#include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
-
-namespace hod::inline renderer
-{
-	class MaterialResource;
-}
 
 namespace hod::inline editor
 {

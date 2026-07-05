@@ -26,8 +26,6 @@ namespace hod::inline editor
 
 		ImporterSettings& operator=(const ImporterSettings&) = delete;
 		ImporterSettings& operator=(ImporterSettings&&) = delete;
-
-	public:
 	};
 
 	/// @brief
@@ -45,16 +43,8 @@ namespace hod::inline editor
 	public:
 		const String& GetAssetExtension() const { return _assetExtension; }
 
-		bool CheckSupportedExtensions(std::string_view extension) const;
 		bool Import(const Path& sourcePath, const Path& destinationPath, const UID& uid, ImporterSettings* importSettings, uint64_t taskId);
-
-		bool CanImport(const Path& path);
 		bool Import(const Path& path);
-
-	public:
-		virtual std::shared_ptr<ImporterSettings> AllocateSettings() const = 0; // TODO macro IMPORTER
-		virtual const char*                       GetTypeName() const = 0;
-		virtual ReflectionDescriptor*             GetResourceDescriptor() const = 0;
 
 		uint64_t GetAssetType() const { return _assetType; }
 
@@ -62,23 +52,16 @@ namespace hod::inline editor
 
 		void SetAssetType(std::string_view assetType);
 
-		bool GenerateNewMeta(const Path& metaFilePath);
+		virtual bool FillDataBlock(Stream& source, ImporterSettings* importSettings) = 0;
 
-		virtual bool WriteResource(Stream& data, Stream& meta, Document& document, Vector<Resource::Data>& datas, Stream& thumbnail,
-		                           ImporterSettings& settings) = 0;
-
-		virtual bool FillDataBlock(Stream& source, ImporterSettings* importSettings) { (void)source; (void)importSettings; return false; }; // todo retrocompat, make it pure
 		void UpdateFillDataBlockProgress(float percent);
 		void UpdateFillDataBlockDescription(std::string_view description);
 
-		template<typename... Args>
-		void SetSupportedDataFileExtensions(Args... args);
 		void SetAssetExtension(const char* extension) { _assetExtension = extension; }
 
 		Stream& AddDataBlockStream(std::string_view name, bool compressed);
 
 	private:
-		Vector<const char*> _supportedDataFileExtensions;
 		String _assetExtension;
 
 		Path _tmpDir;
@@ -108,15 +91,4 @@ namespace hod::inline editor
 		};
 		Vector<DataBlock*> _dataBlocks;
 	};
-
-	// TODO inl
-	template<typename... Args>
-	void Importer::SetSupportedDataFileExtensions(Args... args)
-	{
-		_supportedDataFileExtensions.Clear();
-		for (const char* extension : {args...})
-		{
-			_supportedDataFileExtensions.push_back(extension);
-		}
-	}
 }

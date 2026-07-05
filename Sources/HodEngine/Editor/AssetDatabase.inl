@@ -4,21 +4,30 @@ namespace hod::inline editor
 	/// @brief
 	/// @tparam _Importer_
 	/// @return
-	template<typename _Importer_>
-	bool AssetDatabase::RegisterImporter()
+	template<typename _Importer_, typename... Args>
+	bool AssetDatabase::RegisterImporter(Args... extensions)
 	{
 		// TODO check duplicate
-		_Importer_* importer = DefaultAllocator::GetInstance().New<_Importer_>();
-		_importers.push_back(importer);
+		ImporterEntry* entry = DefaultAllocator::GetInstance().New<ImporterEntry>();
+		entry->_factory = []() -> Importer* { return DefaultAllocator::GetInstance().New<_Importer_>(); };
+		for (const char* extension : {extensions...})
+		{
+			entry->_extensions.PushBack(String(extension));
+		}
+
+		_importerEntries.PushBack(entry);
 		return true;
 	}
 
 	template<typename _Cooker_>
-	bool AssetDatabase::RegisterCooker()
+	bool AssetDatabase::RegisterCooker(std::string_view assetType)
 	{
 		// TODO check duplicate
-		_Cooker_* cooker = DefaultAllocator::GetInstance().New<_Cooker_>();
-		_cookers.push_back(cooker);
+		CookerEntry* entry = DefaultAllocator::GetInstance().New<CookerEntry>();
+		entry->_factory = []() -> Cooker* { return DefaultAllocator::GetInstance().New<_Cooker_>(); };
+		entry->_assetType = Hash::ComputeXxh3_64(assetType);
+
+		_cookerEntries.PushBack(entry);
 		return true;
 	}
 

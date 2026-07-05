@@ -3,7 +3,7 @@
 
 #include "HodEngine/Editor/EditorTab.hpp"
 #include "HodEngine/Editor/SerializedDataEditor/SerializedDataEditorTab.hpp"
-#include "HodEngine/Editor/Importer/SerializedDataAsset.hpp"
+#include "HodEngine/Editor/SerializedDataEditor/SerializedDataAsset.hpp"
 #include "HodEngine/Game/SerializedData.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -64,7 +64,7 @@ namespace hod::inline editor
 		if (ImGui::Button("Apply"))
 		{
 			asset->Save(&serializedDataAsset, &serializedDataAsset.GetReflectionDescriptorV());
-			AssetDatabase::GetInstance()->Import(asset->GetPath());
+			//AssetDatabase::GetInstance()->Import(asset->GetPath()); // TODO
 		}
 		ImGui::EndDisabled();
 

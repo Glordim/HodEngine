@@ -13,8 +13,6 @@
 #include "HodEngine/Editor/TaskTracker/TaskTracker.hpp"
 #include "HodEngine/GameSystems/Resource/ResourceContainer.hpp"
 
-#include "HodEngine/Core/Hash.hpp"
-
 #include <type_traits>
 #include <utility>
 
@@ -62,11 +60,6 @@ namespace hod::inline editor
 			}
 		}
 		return "";
-	}
-
-	void Cooker::SetAssetType(std::string_view assetType)
-	{
-		_assetType = Hash::ComputeXxh3_64(assetType);
 	}
 
 	void Cooker::SetCookerVersion(uint32_t cookerVersion)
@@ -203,7 +196,7 @@ namespace hod::inline editor
 					std::string_view languageName = languageVariants[languageIndex].name;
 
 					ResourceContainer resourceContainer;
-					resourceContainer.SetType(_assetType);
+					resourceContainer.SetType(asset.GetType());
 					resourceContainer.SetCookerVersion(_cookerVersion);
 					resourceContainer.SetAssetContentHash(asset.GetContentHash());
 

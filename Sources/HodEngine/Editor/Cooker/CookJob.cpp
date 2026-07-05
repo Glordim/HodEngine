@@ -47,10 +47,11 @@ namespace hod::inline editor
 		if (_asset != nullptr)
 		{
 			uint64_t type = _asset->GetType();
-			Cooker* cooker = AssetDatabase::GetInstance()->FindCompatibleCooker(type);
+			Cooker* cooker = AssetDatabase::GetInstance()->AcquireCooker(type);
 			if (cooker != nullptr)
 			{
 				cooker->Cook(*_asset, _platforms, _configs, _languages, _taskId);
+				AssetDatabase::GetInstance()->ReleaseCooker(cooker);
 			}
 			else
 			{

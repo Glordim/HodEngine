@@ -219,12 +219,14 @@ namespace hod::inline editor
 				return false;
 			}
 			uint64_t type = asset->GetType();
-			Cooker* cooker = AssetDatabase::GetInstance()->FindCompatibleCooker(type);
+			Cooker* cooker = AssetDatabase::GetInstance()->AcquireCooker(type);
 			if (cooker == nullptr)
 			{
 				return false;
 			}
-			return cooker->Cook(*asset, std::to_underlying(Platform::Windows), std::to_underlying(Config::Debug), std::to_underlying(ResourceVariant::Language::All), 0);
+			bool result = cooker->Cook(*asset, std::to_underlying(Platform::Windows), std::to_underlying(Config::Debug), std::to_underlying(ResourceVariant::Language::All), 0);
+			AssetDatabase::GetInstance()->ReleaseCooker(cooker);
+			return result;
 		});
 		ResourceManager::GetInstance()->SetCheckUpToDateCallback(+[](const UID& uid, const ResourceContainer& resourceContainer) {
 			std::shared_ptr<Asset> asset = AssetDatabase::GetInstance()->Find(uid);
@@ -233,16 +235,19 @@ namespace hod::inline editor
 				return false;
 			}
 			uint64_t type = asset->GetType();
-			Cooker* cooker = AssetDatabase::GetInstance()->FindCompatibleCooker(type);
+			Cooker* cooker = AssetDatabase::GetInstance()->AcquireCooker(type);
 			if (cooker == nullptr)
 			{
 				return false;
 			}
 			if (asset->GetContentHash() == resourceContainer.GetAssetContentHash() && cooker->GetCookerVersion() == resourceContainer.GetCookerVersion())
 			{
+				AssetDatabase::GetInstance()->ReleaseCooker(cooker);
 				return true;
 			}
-			return cooker->Cook(*asset, std::to_underlying(Platform::Windows), std::to_underlying(Config::Debug), std::to_underlying(ResourceVariant::Language::All), 0);
+			bool result = cooker->Cook(*asset, std::to_underlying(Platform::Windows), std::to_underlying(Config::Debug), std::to_underlying(ResourceVariant::Language::All), 0);
+			AssetDatabase::GetInstance()->ReleaseCooker(cooker);
+			return result;
 		});
 
 		String gameModuleName = _name + "Game";
@@ -299,7 +304,7 @@ namespace hod::inline editor
 	/// @param asset
 	void Project::SetStartupScene(std::shared_ptr<Asset> asset)
 	{
-		_startupScene = asset->GetMeta()._uid;
+		_startupScene = asset->GetUid();
 		Save();
 	}
 

@@ -18,23 +18,6 @@ namespace hod::inline renderer
 
 namespace hod::inline editor
 {
-	// TODO embed in Asset when reflection support it
-	struct HOD_EDITOR_API Meta
-	{
-		REFLECTED_CLASS_NO_VIRTUAL(Meta)
-
-	public:
-		bool LoadImporterConfig(const DocumentNode& documentNode);
-		bool SaveImporterConfig(DocumentNode& documentNode) const;
-
-		void SetImporterConfig(std::shared_ptr<ImporterSettings> importerSettings, const char* importerType);
-
-	public:
-		UID                               _uid;
-		String                            _importerType;
-		std::shared_ptr<ImporterSettings> _importerSettings;
-	};
-
 	/// @brief
 	class HOD_EDITOR_API Asset : public std::enable_shared_from_this<Asset>
 	{
@@ -56,8 +39,6 @@ namespace hod::inline editor
 		bool HasSource() const { return _sourcePath.Empty() == false; }
 		const Path& GetSourcePath() const { return _sourcePath; }
 
-		Meta& GetMeta();
-
 		Texture* GetThumbnail() const;
 
 		bool IsDirty() const;
@@ -70,8 +51,6 @@ namespace hod::inline editor
 
 	private:
 		bool _dirty = false;
-
-		Meta _meta;
 
 		String _name;
 		Path _path;

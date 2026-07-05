@@ -7,7 +7,6 @@
 #include "HodEngine/Editor/HierachyWindow.hpp"
 #include "HodEngine/Editor/InspectorWindow.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
-#include "HodEngine/Editor/EntityBasedTabEditor/SceneImporter.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -32,11 +31,9 @@ namespace hod::inline editor
 	{
 		if (asset != nullptr)
 		{
-			_material = ResourceManager::GetInstance()->GetResource<MaterialResource>(asset->GetMeta()._uid);
+			_material = ResourceManager::GetInstance()->GetResource<MaterialResource>(asset->GetUid());
 			if (_material != nullptr)
 			{
-				std::shared_ptr<MaterialImporterSettings> materialImporterSettings = std::static_pointer_cast<MaterialImporterSettings>(asset->GetMeta()._importerSettings);
-
 				const Material* material = _material->GetMaterial();
 				if (material != nullptr)
 				{
@@ -74,6 +71,7 @@ namespace hod::inline editor
 					}
 				}
 
+				std::shared_ptr<MaterialImporterSettings> materialImporterSettings = nullptr; // std::static_pointer_cast<MaterialImporterSettings>(asset->GetMeta()._importerSettings); TODO
 				const DocumentNode* paramNode = materialImporterSettings->_defaultInstanceParams.GetRootNode().GetFirstChild();
 				while (paramNode != nullptr)
 				{

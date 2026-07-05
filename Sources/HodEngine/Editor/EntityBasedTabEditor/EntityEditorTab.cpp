@@ -5,7 +5,6 @@
 #include "HodEngine/Editor/HierachyWindow.hpp"
 #include "HodEngine/Editor/InspectorWindow.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
-#include "HodEngine/Editor/EntityBasedTabEditor/SceneImporter.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>

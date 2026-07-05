@@ -13,27 +13,14 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(AudioImporterSettings, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
-
-	/// @brief
-	AudioImporter::AudioImporter()
-	{
-		SetSupportedDataFileExtensions("wav");
-	}
-
 	/// @brief
 	/// @param path
 	/// @return
-	bool AudioImporter::WriteResource(Stream& data, Stream& meta, Document& document, Vector<Resource::Data>& datas, Stream& thumbnail,
-	                                    ImporterSettings& /*settings*/)
+	bool AudioImporter::FillDataBlock(Stream& source, ImporterSettings* importSettings)
 	{
-		// TODO
-		(void)meta;
-		(void)thumbnail;
-
+		(void)source;
+		(void)importSettings;
+		/*
 		#pragma pack(push, 1)
 		struct WAVHeader
 		{
@@ -146,24 +133,7 @@ namespace hod::inline editor
 		datas.push_back(sampleData);
 
 		return true;
-	}
-
-	// TODO Move all virtual in Ctor const init ?
-
-	/// @brief
-	/// @return
-	const char* AudioImporter::GetTypeName() const
-	{
-		return "AudioImporter";
-	}
-
-	ReflectionDescriptor* AudioImporter::GetResourceDescriptor() const
-	{
-		return &AudioResource::GetReflectionDescriptor();
-	}
-
-	std::shared_ptr<ImporterSettings> AudioImporter::AllocateSettings() const
-	{
-		return std::make_shared<AudioImporterSettings>();
+		*/
+		return false;
 	}
 }

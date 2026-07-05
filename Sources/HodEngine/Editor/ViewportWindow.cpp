@@ -1,8 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/Core/Hash.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/EntityBasedTabEditor/PrefabImporter.hpp"
-#include "HodEngine/Editor/EntityBasedTabEditor/SceneImporter.hpp"
 #include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
 
@@ -379,8 +378,7 @@ namespace hod::inline editor
 						std::shared_ptr<Asset>            asset = node->_asset;
 						if (asset != nullptr)
 						{
-							PrefabImporter prefabImporter;
-							if (asset->GetMeta()._importerType == prefabImporter.GetTypeName())
+							if (asset->GetType() == Hash::ComputeXxh3_64("Prefab"))
 							{
 								std::shared_ptr<PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<PrefabResource>(asset->GetUid());
 

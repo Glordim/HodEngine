@@ -6,8 +6,7 @@
 #include <memory>
 #include "HodEngine/Core/Vector.hpp"
 
-#include "HodEngine/Editor/Importer/SerializedDataAsset.hpp"
-#include "HodEngine/Editor/Importer/SerializedDataImporter.hpp"
+#include "HodEngine/Editor/SerializedDataEditor/SerializedDataAsset.hpp"
 
 namespace hod::inline renderer
 {

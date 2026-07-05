@@ -20,7 +20,7 @@ namespace hod::inline editor
 	TaskTrackerWindow::TaskTrackerWindow()
 	{
 		SetFlags(ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
-
+		/*
 		uint64_t taskId = 0;
 		TaskTracker& taskTracker = Editor::GetInstance()->GetTaskTracker();
 
@@ -50,6 +50,7 @@ namespace hod::inline editor
 		taskId = taskTracker.CreateTask("Canceled", "Description toto");
 		taskTracker.UpdateTaskProgress(taskId, 0.2f);
 		taskTracker.UpdateTaskStatus(taskId, TaskStatus::Canceled);
+		*/
 	}
 
 	/// @brief

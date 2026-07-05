@@ -25,7 +25,7 @@ namespace hod::inline editor
 	{
 	public:
 
-							MaterialImporter();
+							MaterialImporter() = default;
 							MaterialImporter(const MaterialImporter&) = delete;
 							MaterialImporter(MaterialImporter&&) = delete;
 							~MaterialImporter() override = default;
@@ -35,13 +35,10 @@ namespace hod::inline editor
 
 	public:
 
-		std::shared_ptr<ImporterSettings> AllocateSettings() const override;
-		const char*				GetTypeName() const override;
-		ReflectionDescriptor*	GetResourceDescriptor() const override;
 		Document&				GetDefaultInstanceParamsDocument();
 
 	protected:
 
-		bool				WriteResource(Stream& data, Stream& meta, Document& document, Vector<Resource::Data>& datas, Stream& thumbnail, ImporterSettings& settings) override;
+		bool	FillDataBlock(Stream& source, ImporterSettings* importSettings) override;
 	};
 }

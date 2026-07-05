@@ -1,7 +1,8 @@
 #include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/Core/Hash.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/Importer/SerializedDataAsset.hpp"
+#include "HodEngine/Editor/SerializedDataEditor/SerializedDataAsset.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
@@ -16,10 +17,8 @@
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/EntityBasedTabEditor/PrefabImporter.hpp"
-#include "HodEngine/Editor/EntityBasedTabEditor/SceneImporter.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
-#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceImporter.hpp"
+#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceCooker.hpp"
 #include "HodEngine/Editor/Project.hpp"
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
@@ -215,15 +214,18 @@ namespace hod::inline editor
 				.execute =
 					+[](const Context& context)
 					{
+						(void)context; // TODO
+						/*
 						Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Scene, SceneImporter>(context.currentDirectory / "Scene.asset");
 						context.assetBrowserWindow.Rename(newAssetPath);
+						*/
 					},
 			});
 			RegisterContextualMenuAction({
 				.path = "Reimport",
 				.group = "",
 				.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
-				.execute = +[](const Context& context) { AssetDatabase::GetInstance()->Import(context.selectedItems[0]); },
+				.execute = +[](const Context& context) { (void)context;/*AssetDatabase::GetInstance()->Import(context.selectedItems[0]); TODO*/  },
 			});
 			RegisterContextualMenuAction({
 				.path = "Recook",
@@ -256,7 +258,7 @@ namespace hod::inline editor
 							AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
 							if (asset != nullptr)
 							{
-								return asset->_asset->GetMeta()._importerType == "SceneImporter";
+								return asset->_asset->GetType() == Hash::ComputeXxh3_64("Scene");
 							}
 						}
 						return false;
@@ -756,13 +758,14 @@ namespace hod::inline editor
 							}
 							else
 							{
-								Path                              newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Prefab, PrefabImporter>(_currentFolderTreeNode->_path /
-								                                                                                                                   (dropEntityLock->GetName() + ".asset").CStr());
+								Path                              newAssetPath; // TODO
+								//Path                              newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Prefab, PrefabImporter>(_currentFolderTreeNode->_path /
+								//                                                                                                                   (dropEntityLock->GetName() + ".asset").CStr());
 								AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 								if (newAssetNode != nullptr)
 								{
 									newAssetNode->_asset->Save(&prefab, &prefab.GetReflectionDescriptorV());
-									AssetDatabase::GetInstance()->Import(newAssetPath);
+									// AssetDatabase::GetInstance()->Import(newAssetPath); TODO
 									dropEntityLock->SetPrefabResource(ResourceManager::GetInstance()->GetResource<PrefabResource>(newAssetNode->_asset->GetUid()));
 									payloadData->_hierarchyWindow->GetOwner()->MarkAssetAsDirty();
 								}
@@ -829,14 +832,15 @@ namespace hod::inline editor
 			{
 				if (ImGui::MenuItem("Prefab") == true)
 				{
-					Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Prefab, PrefabImporter>(_currentFolderTreeNode->_path / "Prefab.asset");
+					Path newAssetPath;
+					//Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Prefab, PrefabImporter>(_currentFolderTreeNode->_path / "Prefab.asset");
 					AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 					if (newAssetNode != nullptr)
 					{
 						Prefab prefab;
 						prefab.CreateEntity("Prefab");
 						newAssetNode->_asset->Save(&prefab, &prefab.GetReflectionDescriptorV());
-						AssetDatabase::GetInstance()->Import(newAssetPath);
+						// AssetDatabase::GetInstance()->Import(newAssetPath); TODO
 						_itemToRename = newAssetNode;
 						std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().CStr());
 						ImGui::CloseCurrentPopup();
@@ -844,7 +848,8 @@ namespace hod::inline editor
 				}
 				if (ImGui::MenuItem("Scene") == true)
 				{
-					Path                              newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Scene, SceneImporter>(_currentFolderTreeNode->_path / "Scene.asset");
+					//Path                              newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Scene, SceneImporter>(_currentFolderTreeNode->_path / "Scene.asset");
+					Path                              newAssetPath;
 					AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 					if (newAssetNode != nullptr)
 					{
@@ -864,10 +869,12 @@ namespace hod::inline editor
 
 							SerializedDataAsset serializedDataAsset(serializedData.get());
 
-							Importer* importer = AssetDatabase::GetInstance()->GetImporter("SerializedDataImporter");
+							Path      newAssetPath;
+							/*
 							Path      newAssetPath = AssetDatabase::GetInstance()->CreateAsset(&serializedDataAsset, &serializedDataAsset.GetReflectionDescriptor(),
 							                                                                   importer->AllocateSettings(), importer->GetTypeName(),
 							                                                                   _currentFolderTreeNode->_path / (pair.second->GetDisplayName() + ".asset").CStr());
+																							   */
 							AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 							if (newAssetNode != nullptr)
 							{
@@ -882,8 +889,11 @@ namespace hod::inline editor
 				}
 				if (ImGui::MenuItem("Material Instance") == true)
 				{
+					Path newAssetPath;
+					/*
 					Path newAssetPath =
 						AssetDatabase::GetInstance()->CreateAsset<MaterialInstanceAsset, MaterialInstanceImporter>(_currentFolderTreeNode->_path / "MaterialInstance.mati");
+						*/
 					AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
 					if (newAssetNode != nullptr)
 					{
@@ -955,15 +965,15 @@ namespace hod::inline editor
 			Texture* thumbnailTexture = asset->GetThumbnail();
 			if (thumbnailTexture == nullptr)
 			{
-				if (asset->GetMeta()._importerType == "PrefabImporter")
+				if (asset->GetType() == Hash::ComputeXxh3_64("Prefab"))
 				{
 					thumbnailTexture = Editor::GetInstance()->GetPrefabTexture();
 				}
-				else if (asset->GetMeta()._importerType == "SceneImporter")
+				else if (asset->GetType() == Hash::ComputeXxh3_64("Scene"))
 				{
 					thumbnailTexture = Editor::GetInstance()->GetSceneTexture();
 				}
-				else if (asset->GetMeta()._importerType == "SerializedDataImporter")
+				else if (asset->GetType() == Hash::ComputeXxh3_64("SerializedData"))
 				{
 					thumbnailTexture = Editor::GetInstance()->GetSerializedDataTexture();
 				}

@@ -19,21 +19,12 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(Meta, reflectionDescriptor)
-	{
-		AddPropertyT(reflectionDescriptor, &Meta::_uid, "_uid");
-		AddPropertyT(reflectionDescriptor, &Meta::_importerType, "_importerType");
-	}
-
 	/// @brief
 	Asset::Asset(const Path& path)
 	: _path(path)
 	{
 		_name = _path.Stem().GetString();
 		_uid = UID::GenerateUID();
-		_meta._uid = _uid;
-
-		_meta._importerSettings = AssetDatabase::GetInstance()->GetDefaultImporter().AllocateSettings();
 	}
 
 	/// @brief
@@ -145,41 +136,13 @@ namespace hod::inline editor
 	/// @return
 	bool Asset::Save(const void* instance, ReflectionDescriptor* reflectionDescriptor)
 	{
-		Document metaDocument;
-		if (Serializer::Serialize(_meta, metaDocument.GetRootNode()) == false)
-		{
-			return false;
-		}
-		if (_meta.SaveImporterConfig(metaDocument.GetRootNode().AddChild("importerSettings")) == false) // TODO improve reflection
-		{
-			return false;
-		}
-
-		Path metaPath = _path;
-		metaPath += ".meta";
-
-		DocumentWriterJson documentWriter;
-		if (documentWriter.Write(metaDocument, metaPath) == false)
-		{
-			return false;
-		}
-
-		if (instance != nullptr)
-		{
-			Document objectDocument;
-			if (Serializer::Serialize(*reflectionDescriptor, instance, objectDocument.GetRootNode()) == false)
-			{
-				return false;
-			}
-
-			if (documentWriter.Write(objectDocument, _path) == false)
-			{
-				return false;
-			}
-		}
-
+		(void)instance;
+		(void)reflectionDescriptor;
+		return false;
+		/*
 		_dirty = false;
 		return true;
+		*/
 	}
 
 	/// @brief
@@ -224,64 +187,8 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
-	Meta& Asset::GetMeta()
-	{
-		return _meta;
-	}
-
-	/// @brief
-	/// @return
 	Texture* Asset::GetThumbnail() const
 	{
 		return _thumbnail;
-	}
-
-	/// @brief
-	/// @param importerSettings
-	/// @param importerType
-	void Meta::SetImporterConfig(std::shared_ptr<ImporterSettings> importerSettings, const char* importerType)
-	{
-		_importerSettings = importerSettings;
-		_importerType = importerType;
-	}
-
-	/// @brief
-	/// @param documentNode
-	/// @return
-	bool Meta::LoadImporterConfig(const DocumentNode& documentNode)
-	{
-		Importer* importer = AssetDatabase::GetInstance()->GetImporter(_importerType);
-		if (importer != nullptr)
-		{
-			_importerSettings = importer->AllocateSettings();
-		}
-
-		if (_importerSettings == nullptr)
-		{
-			// TODO message;
-			return false;
-		}
-
-		if (Serializer::Deserialize(*_importerSettings.get(), documentNode) == false)
-		{
-			// TODO message;
-			return false;
-		}
-		return true;
-	}
-
-	/// @brief
-	/// @param documentNode
-	/// @return
-	bool Meta::SaveImporterConfig(DocumentNode& documentNode) const
-	{
-		// TODO Ensure _importerSettings == nullptr
-
-		if (Serializer::Serialize(_importerSettings.get(), documentNode) == false)
-		{
-			// TODO message;
-			return false;
-		}
-		return true;
 	}
 }

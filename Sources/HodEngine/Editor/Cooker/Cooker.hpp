@@ -56,7 +56,6 @@ namespace hod::inline editor
 		bool Cook(const Path& path, uint32_t platforms, uint8_t configs, uint32_t languages, uint64_t taskId);
 		bool Cook(const Asset& asset, uint32_t platforms, uint8_t configs, uint32_t languages, uint64_t taskId);
 
-		uint64_t GetAssetType() const { return _assetType; }
 		uint32_t GetCookerVersion() const { return _cookerVersion; }
 
 	protected:
@@ -67,7 +66,6 @@ namespace hod::inline editor
 
 		Stream& AddDataBlockStream(std::string_view name, bool compressed, uint32_t platforms, uint8_t configs, uint32_t languages);
 
-		void SetAssetType(std::string_view assetType);
 		void SetCookerVersion(uint32_t cookerVersion);
 
 	private:
@@ -77,7 +75,6 @@ namespace hod::inline editor
 		Path _tmpDir;
 		uint64_t _taskId = 0;
 
-		uint64_t _assetType = 0;
 		uint32_t _cookerVersion = 0;
 
 		class DataBlock

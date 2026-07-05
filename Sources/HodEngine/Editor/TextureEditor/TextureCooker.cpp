@@ -27,7 +27,6 @@ namespace hod::inline editor
 	/// @brief
 	TextureCooker::TextureCooker()
 	{
-		SetAssetType("Texture");
 		SetCookerVersion(1);
 	}
 
