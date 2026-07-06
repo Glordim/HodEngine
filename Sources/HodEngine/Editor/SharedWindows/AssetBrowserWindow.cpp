@@ -782,7 +782,7 @@ namespace hod::inline editor
 									newAssetNode->_asset->Save(&prefab, &prefab.GetReflectionDescriptorV());
 									// AssetDatabase::GetInstance()->Import(newAssetPath); TODO
 									dropEntityLock->SetPrefabResource(ResourceManager::GetInstance()->GetResource<PrefabResource>(newAssetNode->_asset->GetUid()));
-									payloadData->_hierarchyWindow->GetOwner()->MarkAssetAsDirty();
+									payloadData->_hierarchyWindow->GetOwner()->MarkAsDirty();
 								}
 								else
 								{

@@ -22,8 +22,9 @@ namespace hod::inline editor
 		bool                   Draw();
 		std::shared_ptr<Asset> GetAsset() const;
 
-		bool AssetIsDirty() const;
-		void MarkAssetAsDirty();
+		bool IsDirty() const;
+		void MarkAsDirty();
+		bool Save();
 
 		template<typename _EditorTabWindow_>
 		_EditorTabWindow_* OpenWindow();
@@ -35,12 +36,16 @@ namespace hod::inline editor
 		virtual void DrawMenuBar() = 0;
 		virtual bool DrawContent() = 0;
 
+		/// @brief Serializes this tab's edited data to its Asset. Overridden by tabs that hold savable data.
+		virtual bool OnSave(); // TODO make it pure
+
 	protected:
 		String  _title;
 		ImGuiID _dockSpaceId;
 
 	private:
 		bool _initialLayoutCreated = false;
+		bool _dirty = false;
 
 		std::shared_ptr<Asset> _asset;
 

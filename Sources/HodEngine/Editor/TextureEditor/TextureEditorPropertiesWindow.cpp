@@ -99,18 +99,17 @@ namespace hod::inline editor
 			}
 			ImGui::EndCombo();
 		}
-		std::shared_ptr<Asset> asset = GetOwner()->GetAsset();
-		ImGui::BeginDisabled(asset->IsDirty() == false);
+		ImGui::BeginDisabled(GetOwner()->IsDirty() == false);
 		if (ImGui::Button("Apply"))
 		{
-			asset->Save();
-			//AssetDatabase::GetInstance()->Import(asset->GetPath()); // TODO
+			GetOwner()->Save();
+			//AssetDatabase::GetInstance()->Import(GetOwner()->GetAsset()->GetPath()); // TODO
 		}
 		ImGui::EndDisabled();
 
 		if (changed)
 		{
-			GetOwner()->MarkAssetAsDirty();
+			GetOwner()->MarkAsDirty();
 		}
 	}
 }

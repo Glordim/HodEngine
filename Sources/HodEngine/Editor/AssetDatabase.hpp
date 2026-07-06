@@ -63,7 +63,6 @@ namespace hod::inline editor
 		~AssetDatabase();
 
 		bool Init();
-		bool Save();
 
 		std::shared_ptr<Asset> Find(const UID& uid) const;
 

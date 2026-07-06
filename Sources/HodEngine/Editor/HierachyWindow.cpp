@@ -88,7 +88,7 @@ namespace hod::inline editor
 
 				GetOwner<EntityEditorTab>()->SetEntitySelection(entity);
 
-				GetOwner()->MarkAssetAsDirty();
+				GetOwner()->MarkAsDirty();
 
 				ImGui::CloseCurrentPopup();
 			}
@@ -99,13 +99,13 @@ namespace hod::inline editor
 				if (ImGui::MenuItem("Delete") == true)
 				{
 					world->DestroyEntity(selection);
-					GetOwner()->MarkAssetAsDirty();
+					GetOwner()->MarkAsDirty();
 				}
 
 				if (isPrefab && ImGui::MenuItem("Unpack Prefab"))
 				{
 					selection->SetPrefabResource(nullptr);
-					GetOwner()->MarkAssetAsDirty();
+					GetOwner()->MarkAsDirty();
 				}
 			}
 			ImGui::EndPopup();
@@ -149,7 +149,7 @@ namespace hod::inline editor
 					{
 						dropEntity->SetParent(entity->GetParent());
 						dropEntity->SetSiblingIndex(entity->GetSiblingIndex());
-						GetOwner()->MarkAssetAsDirty();
+						GetOwner()->MarkAsDirty();
 					}
 				}
 			}
@@ -229,7 +229,7 @@ namespace hod::inline editor
 					if (dropEntity != nullptr)
 					{
 						dropEntity->SetParent(entity);
-						GetOwner()->MarkAssetAsDirty();
+						GetOwner()->MarkAsDirty();
 					}
 				}
 			}

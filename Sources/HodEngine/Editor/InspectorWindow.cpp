@@ -175,7 +175,7 @@ namespace hod::inline editor
 		if (ImGui::InputText("##Name", buffer, sizeof(buffer) - 1) == true)
 		{
 			selection->SetName(buffer);
-			GetOwner()->MarkAssetAsDirty();
+			GetOwner()->MarkAsDirty();
 		}
 
 		for (Component* component : selection->GetComponents())
@@ -290,7 +290,7 @@ namespace hod::inline editor
 					if (mustBeDelete)
 					{
 						selection->RemoveComponent(component);
-						GetOwner()->MarkAssetAsDirty();
+						GetOwner()->MarkAsDirty();
 					}
 
 					if (ImGui::IsWindowHovered())
@@ -303,7 +303,7 @@ namespace hod::inline editor
 					    if (ImGui::Button("Delete") == true)
 					    {
 					        selection->RemoveComponent(componentLock);
-					        GetOwner()->MarkAssetAsDirty();
+					        GetOwner()->MarkAsDirty();
 					    }
 					    ImGui::EndPopup();
 					}
@@ -335,7 +335,7 @@ namespace hod::inline editor
 						}
 						if (changed == true)
 						{
-							GetOwner()->MarkAssetAsDirty();
+							GetOwner()->MarkAsDirty();
 						}
 					}
 					else
@@ -393,7 +393,7 @@ namespace hod::inline editor
 						if (ImGui::MenuItem(displayName.CStr()) == true)
 						{
 							selection->AddComponent(componentDescriptor);
-							GetOwner()->MarkAssetAsDirty();
+							GetOwner()->MarkAsDirty();
 							ImGui::CloseCurrentPopup();
 						}
 					}

@@ -314,7 +314,7 @@ namespace hod::inline editor
 								{
 									if (drawer->OnDrawGizmo(component, *this, entityPair.second == sceneSelection))
 									{
-										GetOwner()->MarkAssetAsDirty();
+										GetOwner()->MarkAsDirty();
 									}
 								}
 							}
@@ -384,7 +384,7 @@ namespace hod::inline editor
 
 								GetOwner<EntityEditorTab>()->GetCurrentScene()->Instantiate(prefabResource);
 
-								GetOwner()->MarkAssetAsDirty();
+								GetOwner()->MarkAsDirty();
 							}
 						}
 					}

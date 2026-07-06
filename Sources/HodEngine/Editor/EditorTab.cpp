@@ -45,7 +45,7 @@ namespace hod::inline editor
 		ImGui::SetNextItemWidth(210);
 		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8, 8));
 		ImGuiTabItemFlags tabItemFlags = ImGuiTabItemFlags_None;
-		if (AssetIsDirty())
+		if (IsDirty())
 		{
 			tabItemFlags |= ImGuiTabItemFlags_UnsavedDocument;
 		}
@@ -71,12 +71,12 @@ namespace hod::inline editor
 			cursorPos.y += 32.0f;
 
 			ImGui::SetCursorScreenPos(ImVec2(0.0f, y));
-			ImGui::BeginDisabled(_asset != nullptr && _asset->IsDirty() == false);
+			ImGui::BeginDisabled(_dirty == false);
 			if (ImGui::Button(ICON_MDI_CONTENT_SAVE, ImVec2(0.0f, 32.0f)))
 			{
 				if (_asset)
 				{
-					_asset->Save();
+					Save();
 				}
 				else
 				{
@@ -143,25 +143,40 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
-	bool EditorTab::AssetIsDirty() const
+	bool EditorTab::IsDirty() const
 	{
-		if (_asset)
-		{
-			return _asset->IsDirty();
-		}
-		else
-		{
-			return true;
-		}
+		return _dirty;
 	}
 
 	/// @brief
-	void EditorTab::MarkAssetAsDirty()
+	void EditorTab::MarkAsDirty()
 	{
-		if (_asset)
+		_dirty = true;
+	}
+
+	/// @brief
+	/// @return
+	bool EditorTab::Save()
+	{
+		if (_dirty == false)
 		{
-			return _asset->SetDirty();
+			return true;
 		}
+
+		if (OnSave() == false)
+		{
+			return false;
+		}
+
+		_dirty = false;
+		return true;
+	}
+
+	/// @brief
+	/// @return
+	bool EditorTab::OnSave()
+	{
+		return false;
 	}
 
 	/// @brief

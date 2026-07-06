@@ -60,7 +60,7 @@ namespace hod::inline editor
 			changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
 		}
 
-		ImGui::BeginDisabled(asset->IsDirty() == false);
+		ImGui::BeginDisabled(GetOwner()->IsDirty() == false);
 		if (ImGui::Button("Apply"))
 		{
 			asset->Save(&serializedDataAsset, &serializedDataAsset.GetReflectionDescriptorV());
@@ -70,7 +70,7 @@ namespace hod::inline editor
 
 		if (changed)
 		{
-			GetOwner()->MarkAssetAsDirty();
+			GetOwner()->MarkAsDirty();
 		}
 	}
 }

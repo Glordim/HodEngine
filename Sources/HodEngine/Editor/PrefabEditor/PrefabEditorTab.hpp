@@ -16,5 +16,6 @@ namespace hod::inline editor
 
 		void	CreateDefaultLayout() override;
 		bool	DrawContent() override;
+		bool	OnSave() override;
 	};
 }

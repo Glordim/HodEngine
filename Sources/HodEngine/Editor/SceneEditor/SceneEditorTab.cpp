@@ -60,14 +60,22 @@ namespace hod::inline editor
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	SceneEditorTab::~SceneEditorTab()
 	{
+	}
+
+	/// @brief
+	/// @return
+	bool SceneEditorTab::OnSave()
+	{
 		std::shared_ptr<Asset> asset = GetAsset();
-		if (asset != nullptr)
+		if (asset == nullptr)
 		{
-			asset->ResetDirty();
+			return false;
 		}
+
+		return asset->Save(_scene, &_scene->GetReflectionDescriptorV());
 	}
 
 	/// @brief 

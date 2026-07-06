@@ -42,15 +42,6 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @param instance
-	/// @param reflectionDescriptor
-	void Asset::SetInstanceToSave(const void* instance, ReflectionDescriptor* reflectionDescriptor)
-	{
-		_instanceToSave = instance;
-		_instanceToSaveReflectionDescriptor = reflectionDescriptor;
-	}
-
-	/// @brief
 	/// @return
 	bool Asset::Load()
 	{
@@ -124,13 +115,6 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @return
-	bool Asset::Save()
-	{
-		return Save(_instanceToSave, _instanceToSaveReflectionDescriptor);
-	}
-
-	/// @brief
 	/// @param instance
 	/// @param reflectionDescriptor
 	/// @return
@@ -139,10 +123,6 @@ namespace hod::inline editor
 		(void)instance;
 		(void)reflectionDescriptor;
 		return false;
-		/*
-		_dirty = false;
-		return true;
-		*/
 	}
 
 	/// @brief
@@ -164,25 +144,6 @@ namespace hod::inline editor
 	const String& Asset::GetName() const
 	{
 		return _name;
-	}
-
-	/// @brief
-	/// @return
-	bool Asset::IsDirty() const
-	{
-		return _dirty;
-	}
-
-	/// @brief
-	void Asset::SetDirty()
-	{
-		_dirty = true;
-	}
-
-	/// @brief
-	void Asset::ResetDirty()
-	{
-		_dirty = false;
 	}
 
 	/// @brief

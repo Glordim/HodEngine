@@ -27,7 +27,6 @@ namespace hod::inline editor
 
 		bool Load();
 		bool Save(const void* instance, ReflectionDescriptor* reflectionDescriptor);
-		bool Save();
 
 		const UID&    GetUid() const;
 		const Path&   GetPath() const;
@@ -41,17 +40,9 @@ namespace hod::inline editor
 
 		Texture* GetThumbnail() const;
 
-		bool IsDirty() const;
-		void SetDirty();
-		void ResetDirty();
-
 		void SetPath(const Path& path);
 
-		void SetInstanceToSave(const void* instance, ReflectionDescriptor* reflectionDescriptor);
-
 	private:
-		bool _dirty = false;
-
 		String _name;
 		Path _path;
 		UID _uid;
@@ -61,8 +52,5 @@ namespace hod::inline editor
 		uint64_t _sourceHash = 0;
 
 		Texture* _thumbnail = nullptr;
-
-		const void*           _instanceToSave = nullptr;
-		ReflectionDescriptor* _instanceToSaveReflectionDescriptor = nullptr;
 	};
 }

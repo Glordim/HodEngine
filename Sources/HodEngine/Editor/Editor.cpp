@@ -686,7 +686,16 @@ namespace hod::inline editor
 	}
 		*/
 
-		return AssetDatabase::GetInstance()->Save();
+		bool result = true;
+		for (EditorTab* editorTab : _editorTabs)
+		{
+			if (editorTab->IsDirty() == true && editorTab->Save() == false)
+			{
+				result = false;
+			}
+		}
+
+		return result;
 	}
 
 	/// @brief

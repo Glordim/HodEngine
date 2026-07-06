@@ -144,7 +144,7 @@ namespace hod::inline editor
 			}
 		}
 
-		ImGui::BeginDisabled(asset->IsDirty() == false);
+		ImGui::BeginDisabled(GetOwner()->IsDirty() == false);
 		if (ImGui::Button("Apply"))
 		{
 			std::shared_ptr<MaterialInstanceResource> materialInstanceResource = GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance();
@@ -193,7 +193,7 @@ namespace hod::inline editor
 
 		if (changed)
 		{
-			GetOwner()->MarkAssetAsDirty();
+			GetOwner()->MarkAsDirty();
 		}
 	}
 }

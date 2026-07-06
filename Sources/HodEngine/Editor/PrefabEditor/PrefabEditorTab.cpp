@@ -43,21 +43,27 @@ namespace hod::inline editor
 			Entity* prefabRootEntity = _scene->Instantiate(prefabResource);
 			prefabRootEntity->SetPrefabResource(nullptr); // Invalid reference to PrefabResource to avoid serialization as PrefabInstance
 			prefabRootEntity->SetLocalId(prefabResource->GetPrefab().GetRootEntity()->GetLocalId());
-			asset->SetInstanceToSave(_scene, &_scene->GetReflectionDescriptorV());
 
 			_scene->ProcessActivation();
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	PrefabEditorTab::~PrefabEditorTab()
 	{
+	}
+
+	/// @brief
+	/// @return
+	bool PrefabEditorTab::OnSave()
+	{
 		std::shared_ptr<Asset> asset = GetAsset();
-		if (asset != nullptr)
+		if (asset == nullptr)
 		{
-			asset->SetInstanceToSave(nullptr, nullptr);
-			asset->ResetDirty();
+			return false;
 		}
+
+		return asset->Save(_scene, &_scene->GetReflectionDescriptorV());
 	}
 
 	/// @brief 

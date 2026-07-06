@@ -143,7 +143,7 @@ namespace hod::inline editor
 			}
 		}
 
-		ImGui::BeginDisabled(asset->IsDirty() == false);
+		ImGui::BeginDisabled(GetOwner()->IsDirty() == false);
 		if (ImGui::Button("Apply"))
 		{
 			std::shared_ptr<MaterialResource> materialResource = GetOwner<MaterialEditorTab>()->GetMaterial();
@@ -185,14 +185,14 @@ namespace hod::inline editor
 					// materialAsset._defaultInstanceParams.GetRootNode());
 				}
 			}
-			asset->Save();
+			GetOwner()->Save();
 			//AssetDatabase::GetInstance()->Import(asset->GetPath()); TODO
 		}
 		ImGui::EndDisabled();
 
 		if (changed)
 		{
-			GetOwner()->MarkAssetAsDirty();
+			GetOwner()->MarkAsDirty();
 		}
 	}
 }
