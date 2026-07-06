@@ -1,5 +1,5 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/EntityBasedTabEditor/SceneCooker.hpp"
+#include "HodEngine/Editor/SceneEditor/SceneCooker.hpp"
 
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 #include <HodEngine/Core/Document/DocumentWriterJson.hpp>

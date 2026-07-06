@@ -1,5 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Core/Hash.hpp"
+#include "HodEngine/Core/ScopedGuard.hpp"
+#include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/SerializedDataEditor/SerializedDataAsset.hpp"
@@ -214,11 +216,24 @@ namespace hod::inline editor
 				.execute =
 					+[](const Context& context)
 					{
-						(void)context; // TODO
-						/*
-						Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Scene, SceneImporter>(context.currentDirectory / "Scene.asset");
-						context.assetBrowserWindow.Rename(newAssetPath);
-						*/
+						AssetContainer assetContainer;
+						assetContainer.SetAssetType(Hash::ComputeXxh3_64("Scene"));
+						assetContainer.SetUid(UID::GenerateUID());
+
+						Path tmpDir = FileSystem::GetTemporaryPath() / "HodEngine" / Project::GetInstance()->GetName() / "Save" / assetContainer.GetUid().ToString(); // todo add datetime
+						ScopedGuard cleanupTmp = [&]()
+						{
+							FileSystem::GetInstance()->RemoveAll(tmpDir);
+						};
+						if (FileSystem::GetInstance()->CreateDirectories(tmpDir) == false)
+						{
+							OUTPUT_ERROR("CreateScene: Unable to create tmp dir '{}'", tmpDir);
+							return;
+						}
+
+						Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / "NewScene.scene");
+						assetContainer.Save(assetPath, tmpDir);
+						context.assetBrowserWindow.Rename(assetPath);
 					},
 			});
 			RegisterContextualMenuAction({

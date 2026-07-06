@@ -1,4 +1,5 @@
 #include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
 
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
@@ -31,9 +32,21 @@ namespace hod::inline editor
 		{
 			_scene->SetName(asset->GetName());
 
+			AssetContainer assetContainer;
+			if (assetContainer.Load(asset->GetPath()) == false)
+			{
+				return;
+			}
+
+			const AssetContainer::DataBlockInfo* entitiesDataBlock = assetContainer.FindDataBlock("Entities");
+			if (entitiesDataBlock == nullptr) 
+			{
+				return;
+			}
+
 			Document document;
 			DocumentReaderJson documentReader;
-			if (documentReader.Read(document, asset->GetPath()) == false)
+			if (documentReader.Read(document, *entitiesDataBlock->_stream) == false)
 			{
 				return; // todo message + bool
 			}
@@ -42,7 +55,6 @@ namespace hod::inline editor
 			{
 				return; // todo message + bool
 			}
-			asset->SetInstanceToSave(_scene, &_scene->GetReflectionDescriptorV());
 
 			_scene->ProcessActivation();
 		}
@@ -54,7 +66,6 @@ namespace hod::inline editor
 		std::shared_ptr<Asset> asset = GetAsset();
 		if (asset != nullptr)
 		{
-			asset->SetInstanceToSave(nullptr, nullptr);
 			asset->ResetDirty();
 		}
 	}

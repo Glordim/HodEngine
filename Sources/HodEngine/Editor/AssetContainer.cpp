@@ -202,45 +202,48 @@ namespace hod::inline editor
 		uint32_t dataBlockCount = _dataBlocks.Size();
 		file.Write(&dataBlockCount, sizeof(dataBlockCount));
 
-		uint32_t tablePosition = file.GetPosition();
-		Vector<DataBlockLocation> dataBlockLocations;
-		dataBlockLocations.Resize(dataBlockCount);
-		file.Write(dataBlockLocations.Data(), sizeof(DataBlockLocation) * dataBlockCount);
-
-		void* hashState = nullptr;
-		uint8_t buffer[256 * 1024];
-		for (uint32_t i = 0; i < dataBlockCount; ++i)
+		if (dataBlockCount > 0)
 		{
-			dataBlockLocations[i].hashName = _dataBlocks[i]._hashName;
-			dataBlockLocations[i].position = file.GetPosition();
-			dataBlockLocations[i].compressed = _dataBlocks[i]._compressed;
+			uint32_t tablePosition = file.GetPosition();
+			Vector<DataBlockLocation> dataBlockLocations;
+			dataBlockLocations.Resize(dataBlockCount);
+			file.Write(dataBlockLocations.Data(), sizeof(DataBlockLocation) * dataBlockCount);
 
-			Stream& realStream = _dataBlocks[i]._compressed ? *static_cast<CompressionStream*>(_dataBlocks[i]._stream)->GetRealStream() : *_dataBlocks[i]._stream;
-			realStream.Seek(0, Stream::SeekOrigin::Begin);
-			uint32_t readBytes = 0;
-			while (true)
+			void* hashState = nullptr;
+			uint8_t buffer[256 * 1024];
+			for (uint32_t i = 0; i < dataBlockCount; ++i)
 			{
-				readBytes = realStream.Read(buffer, sizeof(buffer));
-				if (readBytes > 0)
+				dataBlockLocations[i].hashName = _dataBlocks[i]._hashName;
+				dataBlockLocations[i].position = file.GetPosition();
+				dataBlockLocations[i].compressed = _dataBlocks[i]._compressed;
+
+				Stream& realStream = _dataBlocks[i]._compressed ? *static_cast<CompressionStream*>(_dataBlocks[i]._stream)->GetRealStream() : *_dataBlocks[i]._stream;
+				realStream.Seek(0, Stream::SeekOrigin::Begin);
+				uint32_t readBytes = 0;
+				while (true)
 				{
-					file.Write(buffer, readBytes);
-					hashState = Hash::ComputeXxh3_64_Cumulated(hashState, buffer, readBytes);
-					if (readBytes != sizeof(buffer))
+					readBytes = realStream.Read(buffer, sizeof(buffer));
+					if (readBytes > 0)
 					{
-						break;
+						file.Write(buffer, readBytes);
+						hashState = Hash::ComputeXxh3_64_Cumulated(hashState, buffer, readBytes);
+						if (readBytes != sizeof(buffer))
+						{
+							break;
+						}
+					}
+					else
+					{
+						OUTPUT_ERROR("AssetContainer::Save: unable to read datablock");
+						return false;
 					}
 				}
-				else
-				{
-					OUTPUT_ERROR("AssetContainer::Save: unable to read datablock");
-					return false;
-				}
 			}
-		}
 
-		file.Seek(tablePosition, Stream::SeekOrigin::Begin);
-		file.Write(dataBlockLocations.Data(), sizeof(DataBlockLocation) * dataBlockCount);
-		_contentHash = Hash::ComputeXxh3_64_Result(hashState);
+			file.Seek(tablePosition, Stream::SeekOrigin::Begin);
+			file.Write(dataBlockLocations.Data(), sizeof(DataBlockLocation) * dataBlockCount);
+			_contentHash = Hash::ComputeXxh3_64_Result(hashState);
+		}
 		file.Seek(offsetof(Header, contentHash), Stream::SeekOrigin::Begin);
 		file.Write(&_contentHash, sizeof(_contentHash));
 

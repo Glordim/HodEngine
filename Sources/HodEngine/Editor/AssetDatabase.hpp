@@ -102,6 +102,8 @@ namespace hod::inline editor
 
 		void UpdateFileWatchers();
 
+		static Path GenerateUniqueAssetPath(const Path& path);
+
 	private:
 		void ExploreAndDetectAsset(FileSystemMapping* parentFileSystemMapping);
 		void FilesystemWatcherJob();
@@ -123,9 +125,6 @@ namespace hod::inline editor
 		void FileSystemWatcherSourceOnMoveFile(const Path& oldPath, const Path& newPath);
 
 		void ClearFilesystemMapping(FileSystemMapping& filesystemMapping);
-
-	private:
-		static Path GenerateUniqueAssetPath(const Path& path);
 
 	private:
 		/// @brief One entry per registered Cooker type. _assetType is cached at registration so matching a
