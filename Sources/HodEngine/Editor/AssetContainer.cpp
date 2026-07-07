@@ -171,7 +171,23 @@ namespace hod::inline editor
 	/// @return
 	bool AssetContainer::Save(const Path& path, const Path& tmpDir)
 	{
-		Path tmpFile = tmpDir / path.Filename();
+		Path        tmpFile;
+		ScopedGuard cleanupTmp = [&]() {};
+		if (tmpDir.Empty())
+		{
+			Path generatedTmpDir = FileSystem::GetTemporaryPath() / "HodEngine" / Project::GetInstance()->GetName() / "Save" / _uid.ToString(); // todo add datetime
+			cleanupTmp = [generatedTmpDir]() { FileSystem::GetInstance()->RemoveAll(generatedTmpDir); };
+			if (FileSystem::GetInstance()->CreateDirectories(generatedTmpDir) == false)
+			{
+				OUTPUT_ERROR("CreateScene: Unable to create tmp dir '{}'", generatedTmpDir);
+				return false;
+			}
+			tmpFile = generatedTmpDir / path.Filename();
+		}
+		else
+		{
+			tmpFile = tmpDir / path.Filename();
+		}
 
 		FileStream file;
 		if (file.Open(tmpFile, FileSystem::OpenMode::Write) == false)
@@ -204,12 +220,12 @@ namespace hod::inline editor
 
 		if (dataBlockCount > 0)
 		{
-			uint32_t tablePosition = file.GetPosition();
+			uint32_t                  tablePosition = file.GetPosition();
 			Vector<DataBlockLocation> dataBlockLocations;
 			dataBlockLocations.Resize(dataBlockCount);
 			file.Write(dataBlockLocations.Data(), sizeof(DataBlockLocation) * dataBlockCount);
 
-			void* hashState = nullptr;
+			void*   hashState = nullptr;
 			uint8_t buffer[256 * 1024];
 			for (uint32_t i = 0; i < dataBlockCount; ++i)
 			{

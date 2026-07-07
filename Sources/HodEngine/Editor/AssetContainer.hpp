@@ -41,7 +41,7 @@ namespace hod::inline editor
 		bool Load(const Path& path);
 
 		/// @brief Write the whole asset (Header + SourcePath + Content + Data)
-		bool Save(const Path& path, const Path& tmpDir);
+		bool Save(const Path& path, const Path& tmpDir = Path());
 
 		const UID& GetUid() const;
 		void       SetUid(const UID& uid);
