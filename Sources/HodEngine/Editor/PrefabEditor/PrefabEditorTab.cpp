@@ -1,29 +1,30 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/PrefabEditor/PrefabEditorTab.hpp"
 
-#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
+#include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/HierachyWindow.hpp"
 #include "HodEngine/Editor/InspectorWindow.hpp"
+#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
-#include "HodEngine/Editor/Asset.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include <HodEngine/Game/World.hpp>
-#include <HodEngine/Game/Scene.hpp>
 #include <HodEngine/Game/PrefabResource.hpp>
+#include <HodEngine/Game/Scene.hpp>
+#include <HodEngine/Game/World.hpp>
 
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
+#include <HodEngine/Core/Document/DocumentWriterJson.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 #include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 
 namespace hod::inline editor
 {
-	/// @brief 
+	/// @brief
 	PrefabEditorTab::PrefabEditorTab(std::shared_ptr<Asset> asset)
 	: EntityEditorTab(asset, ICON_MDI_CUBE)
 	{
@@ -31,9 +32,15 @@ namespace hod::inline editor
 		{
 			_scene->SetName(asset->GetName());
 
-			Document document;
+			const AssetContainer::DataBlockInfo* entitiesDataBlock = _assetContainer.FindDataBlock("Entities");
+			if (entitiesDataBlock == nullptr)
+			{
+				return;
+			}
+
+			Document           document;
 			DocumentReaderJson documentReader;
-			if (documentReader.Read(document, asset->GetPath()) == false)
+			if (documentReader.Read(document, *entitiesDataBlock->_stream) == false)
 			{
 				return; // todo message + bool
 			}
@@ -49,9 +56,7 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	PrefabEditorTab::~PrefabEditorTab()
-	{
-	}
+	PrefabEditorTab::~PrefabEditorTab() {}
 
 	/// @brief
 	/// @return
@@ -63,16 +68,33 @@ namespace hod::inline editor
 			return false;
 		}
 
-		return asset->Save(_scene, &_scene->GetReflectionDescriptorV());
+		_assetContainer.ClearDataBlocks();
+
+		SpillStream entitiesStream;
+
+		Document document;
+		if (Serializer::Serialize(_scene, document.GetRootNode()) == false)
+		{
+			return false; // todo message + bool
+		}
+
+		DocumentWriterJson documentwriter;
+		if (documentwriter.Write(document, entitiesStream) == false)
+		{
+			return false; // todo message + bool
+		}
+		_assetContainer.SetDataBlock("Entities", entitiesStream, false);
+
+		return _assetContainer.Save(asset->GetPath());
 	}
 
-	/// @brief 
+	/// @brief
 	void PrefabEditorTab::CreateDefaultLayout()
 	{
-		//ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
-		HierachyWindow* hierarchyWindow = OpenWindow<HierachyWindow>();
+		// ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
+		HierachyWindow*  hierarchyWindow = OpenWindow<HierachyWindow>();
 		InspectorWindow* inspectorWindow = OpenWindow<InspectorWindow>();
-		ViewportWindow* viewportWindow = OpenWindow<ViewportWindow>();
+		ViewportWindow*  viewportWindow = OpenWindow<ViewportWindow>();
 
 		ImGui::DockBuilderRemoveNode(_dockSpaceId);
 		ImGui::DockBuilderRemoveNodeChildNodes(_dockSpaceId);
@@ -90,16 +112,16 @@ namespace hod::inline editor
 		ImGui::DockBuilderFinish(_dockSpaceId);
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool PrefabEditorTab::DrawContent()
 	{
 		// todo override GetIdentifier ?
 		/*
 		if (_asset != nullptr && _assetWasDirty == true && _asset->IsDirty() == false)
 		{
-			_assetWasDirty = false;
-			SetTitle(_asset->GetName());
+		    _assetWasDirty = false;
+		    SetTitle(_asset->GetName());
 		}
 		*/
 		//
