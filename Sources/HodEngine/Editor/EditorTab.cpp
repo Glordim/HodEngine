@@ -18,10 +18,12 @@ namespace hod::inline editor
 		_asset = asset;
 		if (_asset == nullptr)
 		{
+			_assetContainer.SetUid(UID::GenerateUID());
 			_title = fmt::format("{}   Untitled", icon);
 		}
 		else
 		{
+			_assetContainer.Load(asset->GetPath());
 			_title = fmt::format("{}   {}", icon, _asset->GetName());
 		}
 

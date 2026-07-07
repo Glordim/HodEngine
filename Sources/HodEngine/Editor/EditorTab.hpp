@@ -8,6 +8,8 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
+#include <HodEngine/Editor/AssetContainer.hpp>
+
 namespace hod::inline editor
 {
 	class Asset;
@@ -42,6 +44,8 @@ namespace hod::inline editor
 	protected:
 		String  _title;
 		ImGuiID _dockSpaceId;
+
+		AssetContainer _assetContainer;
 
 	private:
 		bool _initialLayoutCreated = false;

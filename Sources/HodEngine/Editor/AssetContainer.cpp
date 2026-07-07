@@ -3,11 +3,13 @@
 #include "HodEngine/Core/Stream/CompressionStream.hpp"
 #include "HodEngine/Core/Stream/Stream.hpp"
 #include "HodEngine/Editor/AssetContainer.hpp"
+#include "HodEngine/Editor/Project.hpp"
 
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Hash.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
+#include "HodEngine/Core/ScopedGuard.hpp"
 #include "HodEngine/Core/Stream/FileStream.hpp"
 
 #include <cstddef>
@@ -16,7 +18,7 @@
 
 namespace hod::inline editor
 {
-	const uint8_t AssetContainer::MAGIC[8] = { 'H', 'A', 'S', 'S', 'E', 'T', '\0', '\0' };
+	const uint8_t AssetContainer::MAGIC[8] = {'H', 'A', 'S', 'S', 'E', 'T', '\0', '\0'};
 
 	/// @brief Read the fixed Header followed by the SourcePath block
 	/// @param handle
@@ -370,5 +372,12 @@ namespace hod::inline editor
 				return;
 			}
 		}
+	}
+
+	void AssetContainer::ClearDataBlocks()
+	{
+		_dataBlocks.Clear();
+		_internalDataBlockStream.Clear();
+		_internalCompressionStream.Clear();
 	}
 }

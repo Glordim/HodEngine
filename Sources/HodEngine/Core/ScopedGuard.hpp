@@ -17,6 +17,13 @@ namespace hod::inline core
 		ScopedGuard& operator=(const ScopedGuard&) = delete;
 		ScopedGuard& operator=(ScopedGuard&&) = delete;
 
+		template<typename F>
+		ScopedGuard& operator=(F&& function)
+		{
+			_function = std::forward<F>(function);
+			return *this;
+		}
+
 		void Disable() { _function = nullptr; }
 
 	private:

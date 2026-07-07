@@ -4,8 +4,8 @@
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
-#include <HodEngine/Core/Stream/CompressionStream.hpp>
 #include <HodEngine/Core/FileSystem/Path.hpp>
+#include <HodEngine/Core/Stream/CompressionStream.hpp>
 #include <HodEngine/Core/String.hpp>
 #include <HodEngine/Core/UID.hpp>
 #include <HodEngine/Core/Vector.hpp>
@@ -23,7 +23,7 @@ namespace hod::inline editor
 		{
 			uint64_t _hashName = 0;
 			Stream*  _stream = nullptr;
-			bool _compressed = false;
+			bool     _compressed = false;
 		};
 
 	public:
@@ -66,6 +66,7 @@ namespace hod::inline editor
 
 		void SetDataBlock(std::string_view name, Stream& stream, bool compressed);
 		void RemoveDataBlock(std::string_view name);
+		void ClearDataBlocks();
 
 	private:
 		bool ReadHeader(Stream& stream);
@@ -74,7 +75,8 @@ namespace hod::inline editor
 	private:
 		static const uint8_t MAGIC[8];
 
-		#pragma pack(push, 1)
+#pragma pack(push, 1)
+
 		struct Header
 		{
 			uint8_t  magic[8] = {};
@@ -83,14 +85,15 @@ namespace hod::inline editor
 			uint64_t assetType = 0;
 			uint64_t contentHash = 0;
 		};
-		#pragma pack(pop)
+
+#pragma pack(pop)
 		static_assert(sizeof(Header) == 44);
 
 		struct DataBlockLocation
 		{
 			uint64_t hashName = 0;
 			uint64_t position = 0;
-			bool compressed = false;
+			bool     compressed = false;
 		};
 
 	private:
@@ -103,8 +106,8 @@ namespace hod::inline editor
 
 		Document _importSettings;
 
-		Vector<DataBlockInfo> _dataBlocks;
-		Vector<FileStream> _internalDataBlockStream;
+		Vector<DataBlockInfo>     _dataBlocks;
+		Vector<FileStream>        _internalDataBlockStream;
 		Vector<CompressionStream> _internalCompressionStream;
 	};
 }
