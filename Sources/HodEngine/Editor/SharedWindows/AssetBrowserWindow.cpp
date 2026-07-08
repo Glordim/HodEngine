@@ -227,6 +227,23 @@ namespace hod::inline editor
 					},
 			});
 			RegisterContextualMenuAction({
+				.path = "Create/Prefab",
+				.group = "New",
+				.available = +[](const Context& context) { return context.selectedItems.Empty(); },
+				.execute =
+					+[](const Context& context)
+					{
+						Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / "NewPrefab.prefab");
+
+						AssetContainer assetContainer;
+						assetContainer.SetAssetType(Hash::ComputeXxh3_64("Prefab"));
+						assetContainer.SetUid(UID::GenerateUID());
+						assetContainer.Save(assetPath);
+
+						context.assetBrowserWindow.Rename(assetPath);
+					},
+			});
+			RegisterContextualMenuAction({
 				.path = "Reimport",
 				.group = "",
 				.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
