@@ -1,26 +1,23 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Editor/AudioEditor/AudioImporter.hpp"
-
-#include "HodEngine/Audio/AudioResource.hpp"
-
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
-#include "HodEngine/Core/Serialization/Serializer.hpp"
 
 #include <cstdint>
 
 namespace hod::inline editor
 {
+	AudioImporter::AudioImporter()
+	{
+		SetAssetExtension("audio");
+		SetAssetType("Audio");
+	}
+
 	/// @brief
 	/// @param path
 	/// @return
-	bool AudioImporter::FillDataBlock(Stream& source, ImporterSettings* importSettings)
+	bool AudioImporter::FillDataBlock(Stream& source, ImporterSettings* /*importSettings*/)
 	{
-		(void)source;
-		(void)importSettings;
-		/*
 		#pragma pack(push, 1)
 		struct WAVHeader
 		{
@@ -43,7 +40,7 @@ namespace hod::inline editor
 		#pragma pack(pop)
 
 		WAVHeader header;
-		if (data.Read(&header, sizeof(WAVHeader)) != sizeof(WAVHeader))
+		if (source.Read(&header, sizeof(WAVHeader)) != sizeof(WAVHeader))
 		{
 			OUTPUT_ERROR("AudioImporter : Can't read Wav header");
 			return false;
@@ -61,79 +58,41 @@ namespace hod::inline editor
 
 		while (std::string_view(header.dataMarker, 4) != "data")
 		{
-			data.Seek(header.dataSize, Stream::SeekOrigin::Current);
-			if (data.Read(&header.dataMarker, sizeof(char) * 4 + sizeof(uint32_t)) != sizeof(char) * 4 + sizeof(uint32_t))
+			source.Seek(header.dataSize, Stream::SeekOrigin::Current);
+			if (source.Read(&header.dataMarker, sizeof(char) * 4 + sizeof(uint32_t)) != sizeof(char) * 4 + sizeof(uint32_t))
 			{
 				OUTPUT_ERROR("AudioImporter : Can't read data section");
 				return false;
 			}
 		}
 
-		Vector<uint8_t> audioBuffer;
-		audioBuffer.Resize(header.dataSize);
-		if (data.Read(audioBuffer.Data(), header.dataSize) != header.dataSize)
+		uint8_t channelCount = header.numChannels;
+		uint8_t bitsPerSample = header.bitsPerSample;
+		uint32_t sampleRate = header.sampleRate;
+		uint32_t sampleCount = header.dataSize / (header.bitsPerSample / 8) / channelCount;
+
+		Stream& infoStream = AddDataBlockStream("Info", false);
+		infoStream.Write(&channelCount, sizeof(channelCount));
+		infoStream.Write(&bitsPerSample, sizeof(bitsPerSample));
+		infoStream.Write(&sampleRate, sizeof(sampleRate));
+		infoStream.Write(&sampleCount, sizeof(sampleCount));
+
+		if (header.dataSize != sampleCount * (header.bitsPerSample / 8) * channelCount)
+		{
+			OUTPUT_ERROR("AudioImporter : dataSize mismatch sampleCount * bitPerSample * channelCount");
+			return false;
+		}
+
+		Vector<uint8_t> pcm;
+		pcm.Resize(header.dataSize);
+		if (source.Read(pcm.Data(), header.dataSize) != header.dataSize)
 		{
 			OUTPUT_ERROR("AudioImporter : Can't read data");
 			return false;
 		}
-
-		//AudioImporterSettings& audioSettings = (AudioImporterSettings&)settings;
-
-		AudioResource audioResource;
-		audioResource._channelCount = header.numChannels;
-		audioResource._sampleRate = header.sampleRate;
-
-		if (Serializer::Serialize(audioResource, document.GetRootNode()) == false)
-		{
-			// TODO message
-			return false;
-		}
-
-		uint32_t sampleCount = header.dataSize / (header.bitsPerSample / 8);
-		Vector<float> floatSamples;
-		floatSamples.Resize(sampleCount);
-
-		if (header.bitsPerSample == 8)
-		{
-			for (uint32_t i = 0; i < sampleCount; ++i)
-				floatSamples[i] = (static_cast<float>(audioBuffer[i]) - 128.0f) / 128.0f;
-		}
-		else if (header.bitsPerSample == 16)
-		{
-			const int16_t* src = reinterpret_cast<const int16_t*>(audioBuffer.Data());
-			for (uint32_t i = 0; i < sampleCount; ++i)
-				floatSamples[i] = static_cast<float>(src[i]) / 32768.0f;
-		}
-		else if (header.bitsPerSample == 24)
-		{
-			for (uint32_t i = 0; i < sampleCount; ++i)
-			{
-				int32_t sample = (audioBuffer[i * 3 + 2] << 16) | (audioBuffer[i * 3 + 1] << 8) | audioBuffer[i * 3];
-				if (sample & 0x800000)
-					sample |= 0xFF000000;
-				floatSamples[i] = static_cast<float>(sample) / 8388608.0f;
-			}
-		}
-		else if (header.bitsPerSample == 32)
-		{
-			const int32_t* src = reinterpret_cast<const int32_t*>(audioBuffer.Data());
-			for (uint32_t i = 0; i < sampleCount; ++i)
-				floatSamples[i] = static_cast<float>(src[i]) / 2147483648.0f;
-		}
-		else
-		{
-			OUTPUT_ERROR("AudioImporter : unsupported bitsPerSample (%u)", header.bitsPerSample);
-			return false;
-		}
-
-		Resource::Data sampleData;
-		sampleData._buffer = DefaultAllocator::GetInstance().Allocate(sampleCount * sizeof(float));
-		std::memcpy(sampleData._buffer, floatSamples.Data(), sampleCount * sizeof(float));
-		sampleData._size = sampleCount * sizeof(float);
-		datas.push_back(sampleData);
+		Stream& pcmStream = AddDataBlockStream("Pcm", true);
+		pcmStream.Write(pcm.Data(), sampleCount * (header.bitsPerSample / 8) * channelCount);
 
 		return true;
-		*/
-		return false;
 	}
 }

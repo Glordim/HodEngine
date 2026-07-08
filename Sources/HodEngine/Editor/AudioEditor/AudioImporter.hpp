@@ -8,7 +8,7 @@ namespace hod::inline editor
 	class HOD_EDITOR_API AudioImporter : public Importer
 	{
 	public:
-		AudioImporter() = default;
+		AudioImporter();
 		AudioImporter(const AudioImporter&) = delete;
 		AudioImporter(AudioImporter&&) = delete;
 		~AudioImporter() override = default;
