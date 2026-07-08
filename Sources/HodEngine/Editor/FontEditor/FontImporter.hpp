@@ -2,9 +2,6 @@
 #include "HodEngine/Editor/Export.hpp"
 
 #include "HodEngine/Editor/Importer/Importer.hpp"
-#include "HodEngine/Core/UID.hpp"
-#include "HodEngine/Math/Rect.hpp"
-#include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
 namespace hod::inline editor
 {
@@ -12,7 +9,7 @@ namespace hod::inline editor
 	{
 	public:
 
-							FontImporter() = default;
+							FontImporter();
 							FontImporter(const FontImporter&) = delete;
 							FontImporter(FontImporter&&) = delete;
 							~FontImporter() override = default;
