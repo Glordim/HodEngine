@@ -1,6 +1,9 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/SceneResource.hpp"
 
+#include "HodEngine/Core/Document/DocumentReaderJson.hpp"
+#include <HodEngine/GameSystems/Resource/ResourceContainer.hpp>
+
 namespace hod::inline game
 {
 	DESCRIBE_REFLECTED_CLASS(SceneResource, reflectionDescriptor)
@@ -17,13 +20,21 @@ namespace hod::inline game
 	/// @param documentNode 
 	/// @param stream 
 	/// @return 
-	bool SceneResource::Initialize(const ResourceContainer& /*resourceContainer*/)
+	bool SceneResource::Initialize(const ResourceContainer& resourceContainer)
 	{
-		/*
-		_document.GetRootNode().Copy(documentNode);
+		const ResourceContainer::DataBlockInfo* entitiesDataBlock = resourceContainer.FindDataBlock("Entities");
+		if (entitiesDataBlock == nullptr)
+		{
+			return false;
+		}
+
+		DocumentReaderJson documentReader;
+		if (documentReader.Read(_document, *entitiesDataBlock->_stream) == false)
+		{
+			return false;
+		}
+		
 		return true;
-		*/
-		return false;
 	}
 
 	/// @brief 

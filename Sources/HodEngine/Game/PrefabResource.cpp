@@ -1,6 +1,9 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/PrefabResource.hpp"
 
+#include "HodEngine/Core/Document/DocumentReaderJson.hpp"
+#include <HodEngine/GameSystems/Resource/ResourceContainer.hpp>
+
 namespace hod::inline game
 {
 	DESCRIBE_REFLECTED_CLASS(PrefabResource, reflectionDescriptor)
@@ -18,22 +21,27 @@ namespace hod::inline game
 	/// @param documentNode 
 	/// @param stream 
 	/// @return 
-	bool PrefabResource::Initialize(const ResourceContainer& /*resourceContainer*/)
+	bool PrefabResource::Initialize(const ResourceContainer& resourceContainer)
 	{
-		/*
-		(void)datas;
+		const ResourceContainer::DataBlockInfo* entitiesDataBlock = resourceContainer.FindDataBlock("Entities");
+		if (entitiesDataBlock == nullptr)
+		{
+			return false;
+		}
 
-		_document.GetRootNode().Copy(documentNode);
-
+		DocumentReaderJson documentReader;
+		if (documentReader.Read(_document, *entitiesDataBlock->_stream) == false)
+		{
+			return false;
+		}
+		
 		_prefab = DefaultAllocator::GetInstance().New<Prefab>();
-		bool result = _prefab->DeserializeFromDocument(documentNode);
+		bool result = _prefab->DeserializeFromDocument(_document.GetRootNode());
 		if (result == false)
 		{
 			DefaultAllocator::GetInstance().Delete(_prefab);
 		}
 		return result;
-		*/
-		return false;
 	}
 
 	/// @brief 
