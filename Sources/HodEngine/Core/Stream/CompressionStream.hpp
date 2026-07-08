@@ -1,6 +1,7 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 #include "HodEngine/Core/Stream/Stream.hpp"
+#include <cstdint>
 
 struct ZSTD_CCtx_s;
 struct ZSTD_DCtx_s;
@@ -19,6 +20,7 @@ namespace hod::inline core
 		CompressionStream& operator=(CompressionStream&& other) noexcept;
 
 		Stream* GetRealStream() { return _stream; }
+		uint32_t GetWrittenSize() { return _totalProcessed; }
 
 		void Close();
 

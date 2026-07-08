@@ -21,6 +21,7 @@ namespace hod::inline gamesystems
 		{
 			uint64_t _hashName = 0;
 			Stream*  _stream = nullptr;
+			uint32_t _uncompressedSize = 0;
 			bool _compressed = false;
 		};
 
@@ -77,6 +78,8 @@ namespace hod::inline gamesystems
 		{
 			uint64_t hashName = 0;
 			uint64_t position = 0;
+			uint32_t size = 0;
+			uint32_t uncompressedSize = 0;
 			bool compressed = false;
 		};
 

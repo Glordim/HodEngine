@@ -145,15 +145,14 @@ namespace hod::inline editor
 		}
 		_internalCompressionStream.Reserve(compressedCount);
 
-		uint32_t fileSize = fileStream.GetSize();
 		for (uint32_t i = 0; i < dataBlockCount; ++i)
 		{
-			uint32_t blockEnd = (i + 1 < dataBlockCount) ? dataBlockLocation[i + 1].position : fileSize;
 			_internalDataBlockStream[i].Open(path);
-			_internalDataBlockStream[i].SetRange(dataBlockLocation[i].position, blockEnd - dataBlockLocation[i].position);
+			_internalDataBlockStream[i].SetRange(dataBlockLocation[i].position, dataBlockLocation[i].size);
 
 			_dataBlocks[i]._hashName = dataBlockLocation[i].hashName;
 			_dataBlocks[i]._compressed = dataBlockLocation[i].compressed;
+			_dataBlocks[i]._uncompressedSize = dataBlockLocation[i].uncompressedSize;
 
 			if (dataBlockLocation[i].compressed)
 			{
@@ -234,6 +233,7 @@ namespace hod::inline editor
 				dataBlockLocations[i].hashName = _dataBlocks[i]._hashName;
 				dataBlockLocations[i].position = file.GetPosition();
 				dataBlockLocations[i].compressed = _dataBlocks[i]._compressed;
+				dataBlockLocations[i].size = 0;
 
 				Stream& realStream = _dataBlocks[i]._compressed ? *static_cast<CompressionStream*>(_dataBlocks[i]._stream)->GetRealStream() : *_dataBlocks[i]._stream;
 				realStream.Seek(0, Stream::SeekOrigin::Begin);
@@ -243,7 +243,7 @@ namespace hod::inline editor
 					readBytes = realStream.Read(buffer, sizeof(buffer));
 					if (readBytes > 0)
 					{
-						file.Write(buffer, readBytes);
+						dataBlockLocations[i].size += file.Write(buffer, readBytes);
 						hashState = Hash::ComputeXxh3_64_Cumulated(hashState, buffer, readBytes);
 						if (readBytes != sizeof(buffer))
 						{
@@ -256,6 +256,8 @@ namespace hod::inline editor
 						return false;
 					}
 				}
+
+				dataBlockLocations[i].uncompressedSize = _dataBlocks[i]._compressed ? static_cast<CompressionStream*>(_dataBlocks[i]._stream)->GetWrittenSize() : dataBlockLocations[i].size;
 			}
 
 			file.Seek(tablePosition, Stream::SeekOrigin::Begin);
