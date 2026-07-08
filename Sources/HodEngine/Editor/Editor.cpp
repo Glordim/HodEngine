@@ -69,6 +69,9 @@
 #include "Icons/HodIcon.png.hpp"
 #include "Icons/landscape.png.hpp"
 #include "Icons/prefab.png.hpp"
+#include "Icons/Material.png.hpp"
+#include "Icons/Font.png.hpp"
+#include "Icons/Audio.png.hpp"
 #include "Icons/SerializedData.png.hpp"
 
 #include "HodEngine/Editor/MissingGameModuleModal.hpp"
@@ -124,6 +127,9 @@ namespace hod::inline editor
 		DefaultAllocator::GetInstance().Delete(_folderOpenTexture);
 		DefaultAllocator::GetInstance().Delete(_sceneTexture);
 		DefaultAllocator::GetInstance().Delete(_prefabTexture);
+		DefaultAllocator::GetInstance().Delete(_materialTexture);
+		DefaultAllocator::GetInstance().Delete(_fontTexture);
+		DefaultAllocator::GetInstance().Delete(_audioTexture);
 		DefaultAllocator::GetInstance().Delete(_serializedDataTexture);
 		DefaultAllocator::GetInstance().Delete(_checkerTexture);
 
@@ -174,6 +180,18 @@ namespace hod::inline editor
 		pixels = stbi_load_from_memory(prefab_png, prefab_png_size, &x, &y, &component, 0);
 		_prefabTexture = Renderer::GetInstance()->CreateTexture();
 		_prefabTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
+
+		pixels = stbi_load_from_memory(Material_png, Material_png_size, &x, &y, &component, 0);
+		_materialTexture = Renderer::GetInstance()->CreateTexture();
+		_materialTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
+
+		pixels = stbi_load_from_memory(Font_png, Font_png_size, &x, &y, &component, 0);
+		_fontTexture = Renderer::GetInstance()->CreateTexture();
+		_fontTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
+
+		pixels = stbi_load_from_memory(Audio_png, Audio_png_size, &x, &y, &component, 0);
+		_audioTexture = Renderer::GetInstance()->CreateTexture();
+		_audioTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 
 		pixels = stbi_load_from_memory(SerializedData_png, SerializedData_png_size, &x, &y, &component, 0);
 		_serializedDataTexture = Renderer::GetInstance()->CreateTexture();

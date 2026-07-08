@@ -116,6 +116,21 @@ namespace hod::inline editor
 			return _prefabTexture;
 		}
 
+		Texture* GetMaterialTexture() const
+		{
+			return _materialTexture;
+		}
+
+		Texture* GetFontTexture() const
+		{
+			return _fontTexture;
+		}
+
+		Texture* GetAudioTexture() const
+		{
+			return _audioTexture;
+		}
+
 		Texture* GetSerializedDataTexture() const
 		{
 			return _serializedDataTexture;
@@ -148,6 +163,9 @@ namespace hod::inline editor
 		Texture* _folderOpenTexture = nullptr;
 		Texture* _sceneTexture = nullptr;
 		Texture* _prefabTexture = nullptr;
+		Texture* _materialTexture = nullptr;
+		Texture* _fontTexture = nullptr;
+		Texture* _audioTexture = nullptr;
 		Texture* _serializedDataTexture = nullptr;
 		Texture* _checkerTexture = nullptr;
 

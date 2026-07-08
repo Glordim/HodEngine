@@ -985,6 +985,18 @@ namespace hod::inline editor
 				{
 					thumbnailTexture = Editor::GetInstance()->GetSceneTexture();
 				}
+				else if (asset->GetType() == Hash::ComputeXxh3_64("Material"))
+				{
+					thumbnailTexture = Editor::GetInstance()->GetMaterialTexture();
+				}
+				else if (asset->GetType() == Hash::ComputeXxh3_64("Font"))
+				{
+					thumbnailTexture = Editor::GetInstance()->GetFontTexture();
+				}
+				else if (asset->GetType() == Hash::ComputeXxh3_64("Audio"))
+				{
+					thumbnailTexture = Editor::GetInstance()->GetAudioTexture();
+				}
 				else if (asset->GetType() == Hash::ComputeXxh3_64("SerializedData"))
 				{
 					thumbnailTexture = Editor::GetInstance()->GetSerializedDataTexture();
