@@ -102,7 +102,7 @@ namespace hod::inline editor
 					clicked = true;
 
 					assetList.Clear();
-					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), weakResource.GetResourceDescriptor());
+					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), *weakResource.GetResourceDescriptor());
 				}
 			}
 		}
@@ -122,7 +122,7 @@ namespace hod::inline editor
 					clicked = true;
 
 					assetList.Clear();
-					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), weakResource.GetResourceDescriptor());
+					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), *weakResource.GetResourceDescriptor());
 				}
 			}
 		}

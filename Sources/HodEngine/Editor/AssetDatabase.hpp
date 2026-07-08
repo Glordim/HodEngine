@@ -1,4 +1,5 @@
 #pragma once
+#include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Editor/Export.hpp"
 
 #include <cstdint>
@@ -95,9 +96,12 @@ namespace hod::inline editor
 		template<typename _Importer_, typename... Args>
 		bool                   RegisterImporter(Args... extensions);
 
+		template<typename _Resource_>
+		bool                   RegisterResource(std::string_view assetType);
+
 		bool ReimportAssetIfNecessary(std::shared_ptr<Asset> asset);
 
-		void ListAsset(Vector<FileSystemMapping*>& result, const FileSystemMapping& from, ReflectionDescriptor* resourceDescriptor);
+		void ListAsset(Vector<FileSystemMapping*>& result, const FileSystemMapping& from, const ReflectionDescriptor& resourceDescriptor);
 
 		void UpdateFileWatchers();
 
@@ -144,6 +148,12 @@ namespace hod::inline editor
 			Vector<String> _extensions;
 		};
 
+		struct ResourceEntry
+		{
+			const ReflectionDescriptor* _resourceDescriptor = nullptr;
+			uint64_t _assetType = 0;
+		};
+
 		std::map<UID, std::shared_ptr<Asset>> _uidToAssetMap;
 		std::unordered_map<Path, std::shared_ptr<Asset>> _sourcePathToAssetMap;
 		FileSystemMapping                     _rootFileSystemMapping;
@@ -153,6 +163,7 @@ namespace hod::inline editor
 
 		Vector<ImporterEntry*> _importerEntries;
 		Vector<CookerEntry*> _cookerEntries;
+		Vector<ResourceEntry*> _resourceEntries;
 
 		MemberFunctionJob<AssetDatabase> _updateJob;
 	};

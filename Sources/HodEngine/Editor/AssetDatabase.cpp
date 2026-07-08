@@ -15,6 +15,7 @@
 #include "HodEngine/Core/Vector.hpp"
 
 #include <cctype>
+#include <cstdint>
 #include <filesystem> // todo remove
 #include <memory>
 
@@ -64,6 +65,11 @@ namespace hod::inline editor
 		}
 
 		for (CookerEntry* entry : _cookerEntries)
+		{
+			DefaultAllocator::GetInstance().Delete(entry);
+		}
+
+		for (ResourceEntry* entry : _resourceEntries)
 		{
 			DefaultAllocator::GetInstance().Delete(entry);
 		}
@@ -409,11 +415,26 @@ namespace hod::inline editor
 	/// @param result
 	/// @param from
 	/// @param resourceDescriptor
-	void AssetDatabase::ListAsset(Vector<FileSystemMapping*>& result, const FileSystemMapping& from, ReflectionDescriptor* resourceDescriptor)
+	void AssetDatabase::ListAsset(Vector<FileSystemMapping*>& result, const FileSystemMapping& from, const ReflectionDescriptor& resourceDescriptor)
 	{
+		uint64_t assetType = 0;
+		for (const ResourceEntry* resourceEntry : _resourceEntries)
+		{
+			if (resourceEntry->_resourceDescriptor == &resourceDescriptor)
+			{
+				assetType = resourceEntry->_assetType;
+				break;
+			}
+		}
+		if (assetType == 0)
+		{
+			OUTPUT_ERROR("AssetDatabase::ListAsset: No assetType associated to resourceDescriptor");
+			return;
+		}
+
 		for (FileSystemMapping* assetNode : from._childrenAsset)
 		{
-			if (resourceDescriptor->GetType() == assetNode->_asset->GetType()) // TODO resourceDescriptorType is not AssetType
+			if (assetType == assetNode->_asset->GetType())
 			{
 				result.push_back(assetNode);
 			}

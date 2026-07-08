@@ -31,6 +31,18 @@ namespace hod::inline editor
 		return true;
 	}
 
+	template<typename _Resource_>
+	bool AssetDatabase::RegisterResource(std::string_view assetType)
+	{
+		// TODO check duplicate
+		ResourceEntry* entry = DefaultAllocator::GetInstance().New<ResourceEntry>();
+		entry->_resourceDescriptor = &_Resource_::GetReflectionDescriptor();
+		entry->_assetType = Hash::ComputeXxh3_64(assetType);
+
+		_resourceEntries.PushBack(entry);
+		return true;
+	}
+
 	/// @brief
 	/// @tparam _Object_
 	/// @param path

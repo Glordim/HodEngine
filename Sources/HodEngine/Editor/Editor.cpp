@@ -8,6 +8,8 @@
 #include "HodEngine/Editor/Project.hpp"
 
 #include "HodEngine/GameSystems/Job/JobScheduler.hpp"
+#include "HodEngine/Renderer/Resource/FontResource.hpp"
+#include "HodEngine/Renderer/Resource/MaterialResource.hpp"
 #include "SerializedDataEditor/SerializedDataCooker.hpp"
 #include "TaskTracker/TaskTracker.hpp"
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
@@ -31,10 +33,6 @@
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
-#include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
-#include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
-
 #include "HodEngine/Editor/WindowFactory.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
@@ -43,18 +41,8 @@
 #include "HodEngine/Editor/PrefabEditor/PrefabCooker.hpp"
 #include "HodEngine/Editor/RecentProjects.hpp"
 #include "HodEngine/Game/Scene.hpp"
-#include "HodEngine/Game/World.hpp"
-
-#include "HodEngine/Window/Dialog/PlatformDialog.hpp"
 
 #include "HodEngine/Core/Serialization/Serializer.hpp"
-
-#include "HodEngine/Editor/AudioEditor/AudioEditorTab.hpp"
-#include "HodEngine/Editor/MaterialEditor/MaterialEditorTab.hpp"
-#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorTab.hpp"
-#include "HodEngine/Editor/PrefabEditor/PrefabEditorTab.hpp"
-#include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
-#include "HodEngine/Editor/SerializedDataEditor/SerializedDataEditorTab.hpp"
 
 #include "HodEngine/Editor/ViewportWindow.hpp"
 #include "HodEngine/ImGui/ImGuiManager.hpp"
@@ -81,19 +69,41 @@
 
 #include "portable-file-dialogs.h"
 
+#include "HodEngine/Editor/AudioEditor/AudioEditorTab.hpp"
 #include "HodEngine/Editor/AudioEditor/AudioImporter.hpp"
+#include "HodEngine/Editor/AudioEditor/AudioCooker.hpp"
+#include "HodEngine/Audio/AudioResource.hpp"
+
+#include "HodEngine/Editor/PrefabEditor/PrefabEditorTab.hpp"
 #include "HodEngine/Editor/PrefabEditor/PrefabCooker.hpp"
+#include "HodEngine/Game/PrefabResource.hpp"
+
+#include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
 #include "HodEngine/Editor/SceneEditor/SceneCooker.hpp"
+#include "HodEngine/Game/SceneResource.hpp"
+
 #include "HodEngine/Editor/FontEditor/FontCooker.hpp"
 #include "HodEngine/Editor/FontEditor/FontImporter.hpp"
+#include "HodEngine/Renderer/Resource/FontResource.hpp"
+
+#include "HodEngine/Editor/SerializedDataEditor/SerializedDataEditorTab.hpp"
 #include "HodEngine/Editor/SerializedDataEditor/SerializedDataCooker.hpp"
+#include "HodEngine/Game/SerializedDataResource.hpp"
+
+#include "HodEngine/Editor/MaterialEditor/MaterialEditorTab.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialCooker.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
-#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceCooker.hpp"
+#include "HodEngine/Renderer/Resource/MaterialResource.hpp"
 
-#include "HodEngine/Editor/TextureEditor/TextureCooker.hpp"
+#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorTab.hpp"
+#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceCooker.hpp"
+#include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
+
 #include "HodEngine/Editor/TextureEditor/TextureEditorTab.hpp"
+#include "HodEngine/Editor/TextureEditor/TextureCooker.hpp"
 #include "HodEngine/Editor/TextureEditor/TextureImporter.hpp"
+#include "HodEngine/Renderer/Resource/TextureResource.hpp"
+
 #include <utility>
 
 #undef max
@@ -306,29 +316,38 @@ namespace hod::inline editor
 		AssetDatabase::CreateInstance();
 
 		AssetDatabase::GetInstance()->RegisterImporter<AudioImporter>("wav");
+		AssetDatabase::GetInstance()->RegisterCooker<AudioCooker>("Audio");
+		AssetDatabase::GetInstance()->RegisterResource<AudioResource>("Audio");
 		RegisterEditorTab<AudioEditorTab>("Audio");
 
 		AssetDatabase::GetInstance()->RegisterImporter<TextureImporter>("png", "tga", "jpg", "bmp", "psd", "gif", "hdr", "pic");
 		AssetDatabase::GetInstance()->RegisterCooker<TextureCooker>("Texture");
+		AssetDatabase::GetInstance()->RegisterResource<TextureResource>("Texture");
 		RegisterEditorTab<TextureEditorTab>("Texture");
 
 		AssetDatabase::GetInstance()->RegisterImporter<FontImporter>("ttf");
 		AssetDatabase::GetInstance()->RegisterCooker<FontCooker>("Font");
+		AssetDatabase::GetInstance()->RegisterResource<FontResource>("Font");
 
 		AssetDatabase::GetInstance()->RegisterCooker<SceneCooker>("Scene");
+		AssetDatabase::GetInstance()->RegisterResource<SceneResource>("Scene");
 		RegisterEditorTab<SceneEditorTab>("Scene");
 
 		AssetDatabase::GetInstance()->RegisterCooker<PrefabCooker>("Prefab");
+		AssetDatabase::GetInstance()->RegisterResource<PrefabResource>("Prefab");
 		RegisterEditorTab<PrefabEditorTab>("Prefab");
 
 		AssetDatabase::GetInstance()->RegisterCooker<SerializedDataCooker>("SerializedData");
+		AssetDatabase::GetInstance()->RegisterResource<SerializedDataResource>("SerializedData");
 		RegisterEditorTab<SerializedDataEditorTab>("SerializedData");
 
 		AssetDatabase::GetInstance()->RegisterImporter<MaterialImporter>("slang");
 		AssetDatabase::GetInstance()->RegisterCooker<MaterialCooker>("Material");
+		AssetDatabase::GetInstance()->RegisterResource<MaterialResource>("Material");
 		RegisterEditorTab<MaterialEditorTab>("Material");
 
 		AssetDatabase::GetInstance()->RegisterCooker<MaterialInstanceCooker>("MaterialInstance");
+		AssetDatabase::GetInstance()->RegisterResource<MaterialInstanceResource>("MaterialInstance");
 		RegisterEditorTab<MaterialInstanceEditorTab>("MaterialInstance");
 
 		if (Project::GetInstance()->ReloadProjectModules() == false)
