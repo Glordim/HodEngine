@@ -1,4 +1,5 @@
 #include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/EditorTab.hpp"
 #include "HodEngine/Editor/EditorTabWindow.hpp"
 
@@ -167,6 +168,13 @@ namespace hod::inline editor
 
 		if (OnSave() == false)
 		{
+			return false;
+		}
+
+		if (_assetContainer.Save(_asset->GetPath()) == false)
+		{
+			_assetContainer = AssetContainer();
+			_assetContainer.Load(_asset->GetPath()); // Save clear all datablock before moving tmp to dst, if save fail we re-load to restore it
 			return false;
 		}
 

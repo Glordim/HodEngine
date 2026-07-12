@@ -47,6 +47,7 @@ namespace hod::inline editor
 	MaterialEditorPropertiesWindow::MaterialEditorPropertiesWindow(EditorTab* editorTab)
 	: EditorTabWindow(editorTab)
 	{
+		SetTitle("Properties");
 	}
 
 	/// @brief
@@ -55,11 +56,12 @@ namespace hod::inline editor
 		bool changed = false;
 
 		std::shared_ptr<Asset>                    asset = GetOwner()->GetAsset();
-		std::shared_ptr<MaterialImporterSettings> materialImporterSettings = nullptr; // std::static_pointer_cast<MaterialImporterSettings>(asset->GetMeta()._importerSettings); TODO
+
+		MaterialSettings& materialSettings = GetOwner<MaterialEditorTab>()->GetMaterialSettings();
 
 		if (ImGui::CollapsingHeader("Data", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			EditorReflectedObject reflectedObject(materialImporterSettings.get(), &materialImporterSettings->GetReflectionDescriptorV(), nullptr, this);
+			EditorReflectedObject reflectedObject(&materialSettings, &materialSettings.GetReflectionDescriptorV(), nullptr, this);
 			changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
 		}
 
@@ -142,53 +144,6 @@ namespace hod::inline editor
 				ImGui::PopID();
 			}
 		}
-
-		ImGui::BeginDisabled(GetOwner()->IsDirty() == false);
-		if (ImGui::Button("Apply"))
-		{
-			std::shared_ptr<MaterialResource> materialResource = GetOwner<MaterialEditorTab>()->GetMaterial();
-			if (materialResource != nullptr)
-			{
-				Material* material = materialResource->GetMaterial();
-				if (material != nullptr)
-				{
-					materialImporterSettings->_defaultInstanceParams.GetRootNode().Clear();
-					for (const MaterialEditorTab::ShaderParamScalar& scalarParameter : GetOwner<MaterialEditorTab>()->GetScalarParameters())
-					{
-						DocumentNode& node = materialImporterSettings->_defaultInstanceParams.GetRootNode().AddChild("");
-						node.AddChild("Name").SetString(scalarParameter._name);
-						node.AddChild("Type").SetUInt8((uint8_t)scalarParameter._type);
-						node.AddChild("Value").SetFloat32(scalarParameter._value.floatValue);
-					}
-					for (const MaterialEditorTab::ShaderParamVec2& vec2Parameter : GetOwner<MaterialEditorTab>()->GetVector2Parameters())
-					{
-						DocumentNode& node = materialImporterSettings->_defaultInstanceParams.GetRootNode().AddChild("");
-						node.AddChild("Name").SetString(vec2Parameter._name);
-						node.AddChild("Type").SetUInt8((uint8_t)vec2Parameter._type);
-						Serializer::Serialize(vec2Parameter._value, node.AddChild("Value"));
-					}
-					for (const MaterialEditorTab::ShaderParamVec4& vec4Parameter : GetOwner<MaterialEditorTab>()->GetVector4Parameters())
-					{
-						DocumentNode& node = materialImporterSettings->_defaultInstanceParams.GetRootNode().AddChild("");
-						node.AddChild("Name").SetString(vec4Parameter._name);
-						node.AddChild("Type").SetUInt8((uint8_t)vec4Parameter._type);
-						Serializer::Serialize(vec4Parameter._value, node.AddChild("Value"));
-					}
-					for (const MaterialEditorTab::ShaderParamTexture& textureParameter : GetOwner<MaterialEditorTab>()->GetTextureParameters())
-					{
-						DocumentNode& node = materialImporterSettings->_defaultInstanceParams.GetRootNode().AddChild("");
-						node.AddChild("Name").SetString(textureParameter._name);
-						node.AddChild("Type").SetUInt8((uint8_t)textureParameter._type);
-						Serializer::Serialize(textureParameter._value, node.AddChild("Value"));
-					}
-					// Serializer::Serialize(material->GetReflectionDescriptorForParameters(), static_cast<void*>(materialAsset._paramsBuffer),
-					// materialAsset._defaultInstanceParams.GetRootNode());
-				}
-			}
-			GetOwner()->Save();
-			//AssetDatabase::GetInstance()->Import(asset->GetPath()); TODO
-		}
-		ImGui::EndDisabled();
 
 		if (changed)
 		{

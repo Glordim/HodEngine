@@ -172,9 +172,9 @@ namespace hod::inline editor
 				}
 				else
 				{
-					if (asset->HasSource())
+					for (const AssetContainer::SourceInfo& source : asset->GetSources())
 					{
-						_sourcePathToAssetMap.emplace(asset->GetSourcePath(), asset);
+						_sourcePathToAssetMap.emplace(source._path, asset);
 					}
 
 					_uidToAssetMap.emplace(asset->GetUid(), asset);
@@ -560,9 +560,9 @@ namespace hod::inline editor
 				}
 				else
 				{
-					if (asset->HasSource())
+					for (const AssetContainer::SourceInfo& source : asset->GetSources())
 					{
-						_sourcePathToAssetMap.emplace(asset->GetSourcePath(), asset);
+						_sourcePathToAssetMap.emplace(source._path, asset);
 					}
 
 					_uidToAssetMap.emplace(asset->GetUid(), asset);
@@ -588,12 +588,16 @@ namespace hod::inline editor
 			std::shared_ptr<Asset> asset = nodeToMove->_asset;
 			if (asset != nullptr)
 			{
-				if (asset->HasSource())
+				for (const AssetContainer::SourceInfo& source : asset->GetSources())
 				{
-					auto it = _sourcePathToAssetMap.find(asset->GetSourcePath());
-					if (it != _sourcePathToAssetMap.end())
+					auto range = _sourcePathToAssetMap.equal_range(source._path);
+					for (auto it = range.first; it != range.second; ++it)
 					{
-						_sourcePathToAssetMap.erase(it);
+						if (it->second == asset)
+						{
+							_sourcePathToAssetMap.erase(it);
+							break;
+						}
 					}
 				}
 
@@ -620,7 +624,7 @@ namespace hod::inline editor
 				std::shared_ptr<Asset> asset = nodeToReimport->_asset;
 				if (asset != nullptr)
 				{
-					Path oldSourcePath = asset->GetSourcePath();
+					Vector<AssetContainer::SourceInfo> oldSources = asset->GetSources();
 
 					if (asset->Load() == false)
 					{
@@ -629,21 +633,50 @@ namespace hod::inline editor
 						return;
 					}
 
-					if (oldSourcePath != asset->GetSourcePath())
+					const Vector<AssetContainer::SourceInfo>& newSources = asset->GetSources();
+
+					for (const AssetContainer::SourceInfo& oldSource : oldSources)
 					{
-						if (oldSourcePath.Empty() == false)
+						bool stillPresent = false;
+						for (const AssetContainer::SourceInfo& newSource : newSources)
 						{
-							auto it = _sourcePathToAssetMap.find(asset->GetSourcePath());
-							if (it != _sourcePathToAssetMap.end())
+							if (newSource._path == oldSource._path)
 							{
-								_sourcePathToAssetMap.erase(it);
+								stillPresent = true;
+								break;
 							}
 						}
-						if (asset->GetSourcePath().Empty() == false)
+						if (stillPresent == false)
 						{
-							_sourcePathToAssetMap.emplace(asset->GetSourcePath(), asset);
+							auto range = _sourcePathToAssetMap.equal_range(oldSource._path);
+							for (auto it = range.first; it != range.second; ++it)
+							{
+								if (it->second == asset)
+								{
+									_sourcePathToAssetMap.erase(it);
+									break;
+								}
+							}
 						}
 					}
+
+					for (const AssetContainer::SourceInfo& newSource : newSources)
+					{
+						bool wasPresent = false;
+						for (const AssetContainer::SourceInfo& oldSource : oldSources)
+						{
+							if (oldSource._path == newSource._path)
+							{
+								wasPresent = true;
+								break;
+							}
+						}
+						if (wasPresent == false)
+						{
+							_sourcePathToAssetMap.emplace(newSource._path, asset);
+						}
+					}
+
 					_uidToAssetMap[asset->GetUid()] = asset;
 				}
 			}
@@ -681,8 +714,8 @@ namespace hod::inline editor
 	/// @param path
 	void AssetDatabase::FileSystemWatcherSourceOnChangeFile(const Path& path)
 	{
-		auto it = _sourcePathToAssetMap.find(path);
-		if (it != _sourcePathToAssetMap.end())
+		auto range = _sourcePathToAssetMap.equal_range(path);
+		for (auto it = range.first; it != range.second; ++it)
 		{
 			// TODO reimport
 		}

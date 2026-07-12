@@ -7,6 +7,7 @@
 
 #include <HodEngine/Core/FileSystem/Path.hpp>
 #include <map>
+#include <unordered_map>
 
 #include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
@@ -155,7 +156,7 @@ namespace hod::inline editor
 		};
 
 		std::map<UID, std::shared_ptr<Asset>> _uidToAssetMap;
-		std::unordered_map<Path, std::shared_ptr<Asset>> _sourcePathToAssetMap;
+		std::unordered_multimap<Path, std::shared_ptr<Asset>> _sourcePathToAssetMap;
 		FileSystemMapping                     _rootFileSystemMapping;
 
 		FileSystemWatcher _fileSystemWatcherAsset;

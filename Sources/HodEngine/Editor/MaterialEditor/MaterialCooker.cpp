@@ -1,193 +1,183 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Core/Document/Document.hpp"
-#include "HodEngine/Core/Document/DocumentReaderJson.hpp"
-#include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialCooker.hpp"
 
-#include "HodEngine/Renderer/Resource/MaterialResource.hpp"
-
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
-#include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
-#include "HodEngine/Core/Serialization/Serializer.hpp"
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Core/Process/Process.hpp>
 #include <HodEngine/Core/ScopedGuard.hpp>
+#include <HodEngine/Core/UID.hpp>
+
+#include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetContainer.hpp"
+#include "HodEngine/Editor/Project.hpp"
+
+#include <utility>
 
 namespace hod::inline editor
 {
+	namespace
+	{
+		/// @brief Rewrite, under outputDir, every slang source registered on the asset (root file first, then its
+		/// transitive includes), mirroring their original relative layout so slangc can resolve #include directives
+		bool ReconstituteSlangSources(const AssetContainer& assetContainer, const Path& outputDir, Path& outRootPath)
+		{
+			const Vector<AssetContainer::SourceInfo>& sources = assetContainer.GetSources();
+			if (sources.Empty())
+			{
+				OUTPUT_ERROR("MaterialCooker: asset has no registered source");
+				return false;
+			}
+
+			Path rootDir = sources[0]._path.ParentPath();
+
+			for (uint32_t i = 0; i < sources.Size(); ++i)
+			{
+				Path relativePath = sources[i]._path.LexicallyRelative(rootDir);
+				relativePath.PortableSeparator();
+
+				const AssetContainer::DataBlockInfo* dataBlock = assetContainer.FindDataBlock(relativePath.GetString());
+				if (dataBlock == nullptr)
+				{
+					OUTPUT_ERROR("MaterialCooker: missing data block for '{}'", relativePath);
+					return false;
+				}
+
+				String content;
+				content.Resize(dataBlock->_uncompressedSize);
+				if (dataBlock->_stream->Read(content.Data(), content.Size()) != content.Size())
+				{
+					OUTPUT_ERROR("MaterialCooker: can't read data block for '{}'", relativePath);
+					return false;
+				}
+
+				Path filePath = outputDir / relativePath;
+				if (FileSystem::GetInstance()->CreateDirectories(filePath.ParentPath()) == false
+					|| FileSystem::GetInstance()->WriteAllText(filePath, content) == false)
+				{
+					OUTPUT_ERROR("MaterialCooker: can't write reconstituted source '{}'", filePath);
+					return false;
+				}
+
+				if (i == 0)
+				{
+					outRootPath = filePath;
+				}
+			}
+
+			return true;
+		}
+
+		/// @brief Read a whole file into memory, for picking up slangc's output/reflection files
+		bool ReadBinaryFile(const Path& path, Vector<uint8_t>& outData)
+		{
+			FileSystem::Handle handle = FileSystem::GetInstance()->Open(path);
+			if (handle.IsOpen() == false)
+			{
+				return false;
+			}
+
+			uint32_t size = FileSystem::GetInstance()->GetSize(handle);
+			outData.Resize(size);
+			bool result = FileSystem::GetInstance()->Read(handle, outData.Data(), size) == static_cast<int32_t>(size);
+			FileSystem::GetInstance()->Close(handle);
+			return result;
+		}
+	}
+
 	bool MaterialCooker::FillDataBlock(const Asset& asset, uint32_t platforms, uint8_t configs, uint32_t languages)
 	{
-		(void)asset;
 		(void)platforms;
 		(void)configs;
 		(void)languages;
 
-		return false;
-
-		/*
-
-		uint32_t dataSize = data.GetSize();
-		char*    dataBuffer = DefaultAllocator::GetInstance().Allocate<char>(dataSize + 1);
-		if (data.Read(dataBuffer, dataSize) != dataSize)
+		AssetContainer assetContainer;
+		if (assetContainer.Load(asset.GetPath()) == false)
 		{
-			OUTPUT_ERROR("MaterialImporter : Can't read Shader data");
-			return false;
-		}
-		dataBuffer[dataSize] = '\0';
-
-		String shaderTypeParams;
-		if (std::strstr(dataBuffer, "VertexMain") == nullptr)
-		{
-			DefaultAllocator::GetInstance().Free(dataBuffer);
-			OUTPUT_ERROR("MaterialImporter : Can't find VertexMain entry point");
-			return false;
-		}
-		if (std::strstr(dataBuffer, "FragmentMain") == nullptr)
-		{
-			DefaultAllocator::GetInstance().Free(dataBuffer);
-			OUTPUT_ERROR("MaterialImporter : Can't find FragmentMain entry point");
-			return false;
-		}
-		// todo remove: write to temp file for slangc (link with slang lib instead)
-		Path slangInputPath = FileSystem::GetInstance()->GenerateTemporaryFilePath();
-		FileSystem::GetInstance()->WriteAllText(slangInputPath, String(dataBuffer, dataSize));
-		DefaultAllocator::GetInstance().Free(dataBuffer);
-		ScopedGuard cleanupSlangInput = [&]() { FileSystem::GetInstance()->Remove(slangInputPath); };
-
-		Path   slangVertexOutput = FileSystem::GetTemporaryPath() / "HodShaderVertexImporter.tmp";
-		Path   slangVertexReflectionOutput = FileSystem::GetTemporaryPath() / "HodShaderVertexReflectionImporter.tmp";
-		String stageVertexParameter = "-entry VertexMain -stage vertex";
-#if defined(PLATFORM_WINDOWS)
-		bool slangResult = Process::Create("Tools/slangc.exe", fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", slangInputPath, stageVertexParameter, slangVertexOutput, slangVertexReflectionOutput), false);
-#elif defined(PLATFORM_LINUX)
-		bool slangResult = Process::Create("Tools/slangc", fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", slangInputPath, stageVertexParameter, slangVertexOutput, slangVertexReflectionOutput), false);
-#else
-		bool slangResult = Process::Create("Tools/slangc", fmt::format("{} -target metallib {} -o {} -reflection-json {}", slangInputPath, stageVertexParameter, slangVertexOutput, slangVertexReflectionOutput), false);
-#endif
-		if (slangResult == false)
-		{
-			// todo message
 			return false;
 		}
 
-		Path   slangFragmentOutput = FileSystem::GetTemporaryPath() / "HodShaderFragmentImporter.tmp";
-		Path   slangFragmentReflectionOutput = FileSystem::GetTemporaryPath() / "HodShaderFragmentReflectionImporter.tmp";
-		String stageFragmentParameter = "-entry FragmentMain -stage fragment";
-#if defined(PLATFORM_WINDOWS)
-		slangResult = Process::Create("Tools/slangc.exe", fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", slangInputPath, stageFragmentParameter, slangFragmentOutput, slangFragmentReflectionOutput), false);
-#elif defined(PLATFORM_LINUX)
-		slangResult = Process::Create("Tools/slangc", fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", slangInputPath, stageFragmentParameter, slangFragmentOutput, slangFragmentReflectionOutput), false);
-#else
-		slangResult = Process::Create("Tools/slangc", fmt::format("{} -target metallib {} -o {} -reflection-json {}", slangInputPath, stageFragmentParameter, slangFragmentOutput, slangFragmentReflectionOutput), false);
-#endif
-		if (slangResult == false)
+		Path slangDir = FileSystem::GetTemporaryPath() / "HodEngine" / Project::GetInstance()->GetName() / "Cook" / asset.GetUid().ToString() / "Slang";
+		ScopedGuard cleanupSlangDir = [&]() { FileSystem::GetInstance()->RemoveAll(slangDir); };
+		if (FileSystem::GetInstance()->CreateDirectories(slangDir) == false)
 		{
-			// todo message
+			OUTPUT_ERROR("MaterialCooker: unable to create tmp dir '{}'", slangDir);
 			return false;
 		}
 
-		FileSystem::Handle vertexSlangOutputHandle = FileSystem::GetInstance()->Open(slangVertexOutput);
-		uint32_t           vertexDataSize = FileSystem::GetInstance()->GetSize(vertexSlangOutputHandle);
-		char*              vertexDataBuffer = DefaultAllocator::GetInstance().Allocate<char>(vertexDataSize + 1);
-		if (FileSystem::GetInstance()->Read(vertexSlangOutputHandle, reinterpret_cast<char*>(vertexDataBuffer), vertexDataSize) != (int32_t)vertexDataSize)
+		Path slangRootPath;
+		if (ReconstituteSlangSources(assetContainer, slangDir, slangRootPath) == false)
 		{
-			DefaultAllocator::GetInstance().Free(vertexDataBuffer);
-			FileSystem::GetInstance()->Close(vertexSlangOutputHandle);
-			OUTPUT_ERROR("MaterialImporter : Can't read Vertex output");
 			return false;
 		}
-		FileSystem::GetInstance()->Close(vertexSlangOutputHandle);
-		vertexDataBuffer[vertexDataSize] = '\0';
 
-		FileSystem::Handle vertexSlangReflectionOutputHandle = FileSystem::GetInstance()->Open(slangVertexReflectionOutput);
-		uint32_t           vertexReflectionDataSize = FileSystem::GetInstance()->GetSize(vertexSlangReflectionOutputHandle);
-		char*              vertexReflectionDataBuffer = DefaultAllocator::GetInstance().Allocate<char>(vertexReflectionDataSize + 1);
-		if (FileSystem::GetInstance()->Read(vertexSlangReflectionOutputHandle, reinterpret_cast<char*>(vertexReflectionDataBuffer), vertexReflectionDataSize) != (int32_t)vertexReflectionDataSize)
+		String rootContent;
+		if (FileSystem::GetInstance()->ReadAllText(slangRootPath, rootContent) == false)
 		{
-			DefaultAllocator::GetInstance().Free(vertexDataBuffer);
-			DefaultAllocator::GetInstance().Free(vertexReflectionDataBuffer);
-			FileSystem::GetInstance()->Close(vertexSlangReflectionOutputHandle);
-			OUTPUT_ERROR("MaterialImporter : Can't read Vertex Reflection output");
+			OUTPUT_ERROR("MaterialCooker: can't read '{}'", slangRootPath);
 			return false;
 		}
-		FileSystem::GetInstance()->Close(vertexSlangReflectionOutputHandle);
-		vertexReflectionDataBuffer[vertexReflectionDataSize] = '\0';
-
-		FileSystem::Handle fragmentSlangOutputHandle = FileSystem::GetInstance()->Open(slangFragmentOutput);
-		uint32_t           fragmentDataSize = FileSystem::GetInstance()->GetSize(fragmentSlangOutputHandle);
-		char*              fragmentDataBuffer = DefaultAllocator::GetInstance().Allocate<char>(fragmentDataSize + 1);
-		if (FileSystem::GetInstance()->Read(fragmentSlangOutputHandle, reinterpret_cast<char*>(fragmentDataBuffer), fragmentDataSize) != (int32_t)fragmentDataSize)
+		if (rootContent.Find("VertexMain") == String::Npos)
 		{
-			DefaultAllocator::GetInstance().Free(vertexDataBuffer);
-			DefaultAllocator::GetInstance().Free(vertexReflectionDataBuffer);
-			DefaultAllocator::GetInstance().Free(fragmentDataBuffer);
-			FileSystem::GetInstance()->Close(fragmentSlangOutputHandle);
-			OUTPUT_ERROR("MaterialImporter : Can't read Fragment output");
+			OUTPUT_ERROR("MaterialCooker: can't find VertexMain entry point");
 			return false;
 		}
-		FileSystem::GetInstance()->Close(fragmentSlangOutputHandle);
-		fragmentDataBuffer[fragmentDataSize] = '\0';
-
-		FileSystem::Handle fragmentSlangReflectionOutputHandle = FileSystem::GetInstance()->Open(slangFragmentReflectionOutput);
-		uint32_t           fragmentReflectionDataSize = FileSystem::GetInstance()->GetSize(fragmentSlangReflectionOutputHandle);
-		char*              fragmentReflectionDataBuffer = DefaultAllocator::GetInstance().Allocate<char>(fragmentReflectionDataSize + 1);
-		if (FileSystem::GetInstance()->Read(fragmentSlangReflectionOutputHandle, reinterpret_cast<char*>(fragmentReflectionDataBuffer), fragmentReflectionDataSize) != (int32_t)fragmentReflectionDataSize)
+		if (rootContent.Find("FragmentMain") == String::Npos)
 		{
-			DefaultAllocator::GetInstance().Free(vertexDataBuffer);
-			DefaultAllocator::GetInstance().Free(vertexReflectionDataBuffer);
-			DefaultAllocator::GetInstance().Free(fragmentDataBuffer);
-			DefaultAllocator::GetInstance().Free(fragmentReflectionDataBuffer);
-			FileSystem::GetInstance()->Close(fragmentSlangReflectionOutputHandle);
-			OUTPUT_ERROR("MaterialImporter : Can't read Fragment Reflection output");
+			OUTPUT_ERROR("MaterialCooker: can't find FragmentMain entry point");
 			return false;
 		}
-		FileSystem::GetInstance()->Close(fragmentSlangReflectionOutputHandle);
-		fragmentReflectionDataBuffer[fragmentReflectionDataSize] = '\0';
 
-		Document           metaDocument;
-		DocumentReaderJson documentReader;
-		if (documentReader.Read(metaDocument, meta) == false) // todo dont copy all meta
+		if (CompileSlangStage(slangRootPath, "VertexMain", "vertex", "Vertex") == false)
 		{
-			DefaultAllocator::GetInstance().Free(vertexDataBuffer);
-			DefaultAllocator::GetInstance().Free(vertexReflectionDataBuffer);
-			DefaultAllocator::GetInstance().Free(fragmentDataBuffer);
-			DefaultAllocator::GetInstance().Free(fragmentReflectionDataBuffer);
 			return false;
 		}
-		const DocumentNode* importerSettings = metaDocument.GetRootNode().GetChild("importerSettings");
-		if (importerSettings == nullptr)
+		if (CompileSlangStage(slangRootPath, "FragmentMain", "fragment", "Fragment") == false)
 		{
-			DefaultAllocator::GetInstance().Free(vertexDataBuffer);
-			DefaultAllocator::GetInstance().Free(vertexReflectionDataBuffer);
-			DefaultAllocator::GetInstance().Free(fragmentDataBuffer);
-			DefaultAllocator::GetInstance().Free(fragmentReflectionDataBuffer);
 			return false;
 		}
-		document.GetRootNode().Copy(*importerSettings);
-		document.GetRootNode().SetName("");
-
-		Resource::Data vertexData;
-		vertexData._buffer = vertexDataBuffer;
-		vertexData._size = vertexDataSize;
-		datas.push_back(vertexData);
-
-		Resource::Data vertexReflectionData;
-		vertexReflectionData._buffer = vertexReflectionDataBuffer;
-		vertexReflectionData._size = vertexReflectionDataSize;
-		datas.push_back(vertexReflectionData);
-
-		Resource::Data fragmentData;
-		fragmentData._buffer = fragmentDataBuffer;
-		fragmentData._size = fragmentDataSize;
-		datas.push_back(fragmentData);
-
-		Resource::Data fragmentReflectionData;
-		fragmentReflectionData._buffer = fragmentReflectionDataBuffer;
-		fragmentReflectionData._size = fragmentReflectionDataSize;
-		datas.push_back(fragmentReflectionData);
 
 		return true;
-		*/
+	}
+
+	bool MaterialCooker::CompileSlangStage(const Path& slangRootPath, std::string_view entryPoint, std::string_view stage, std::string_view dataBlockName)
+	{
+		Path   stageOutput = slangRootPath.ParentPath() / (String(dataBlockName) + ".bin");
+		Path   stageReflectionOutput = slangRootPath.ParentPath() / (String(dataBlockName) + ".reflection.json");
+		String stageParameter(fmt::format("-entry {} -stage {}", entryPoint, stage));
+#if defined(PLATFORM_WINDOWS)
+		bool slangResult = Process::Create("Tools/slangc.exe", fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
+#elif defined(PLATFORM_LINUX)
+		bool slangResult = Process::Create("Tools/slangc", fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
+#else
+		bool slangResult = Process::Create("Tools/slangc", fmt::format("{} -target metallib {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
+#endif
+		if (slangResult == false)
+		{
+			OUTPUT_ERROR("MaterialCooker: slangc failed for '{}' stage", stage);
+			return false;
+		}
+
+		Vector<uint8_t> stageData;
+		if (ReadBinaryFile(stageOutput, stageData) == false)
+		{
+			OUTPUT_ERROR("MaterialCooker: can't read slangc output '{}'", stageOutput);
+			return false;
+		}
+
+		Vector<uint8_t> stageReflectionData;
+		if (ReadBinaryFile(stageReflectionOutput, stageReflectionData) == false)
+		{
+			OUTPUT_ERROR("MaterialCooker: can't read slangc reflection '{}'", stageReflectionOutput);
+			return false;
+		}
+
+		// Compiled against the host toolchain's target (spirv/metallib), not per requested platform yet
+		Stream& stageStream = AddDataBlockStream(dataBlockName, true, std::to_underlying(Platform::All), std::to_underlying(Config::All), std::to_underlying(ResourceVariant::Language::All));
+		stageStream.Write(stageData.Data(), stageData.Size());
+
+		Stream& stageReflectionStream = AddDataBlockStream(String(dataBlockName) + "Reflection", true, std::to_underlying(Platform::All), std::to_underlying(Config::All), std::to_underlying(ResourceVariant::Language::All));
+		stageReflectionStream.Write(stageReflectionData.Data(), stageReflectionData.Size());
+
+		return true;
 	}
 }

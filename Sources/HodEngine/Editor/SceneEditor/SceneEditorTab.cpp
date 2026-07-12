@@ -86,7 +86,7 @@ namespace hod::inline editor
 		}
 		_assetContainer.SetDataBlock("Entities", entitiesStream, false);
 
-		return _assetContainer.Save(asset->GetPath());
+		return true;
 	}
 
 	/// @brief

@@ -38,6 +38,8 @@ namespace hod::inline editor
 	bool Importer::Import(const Path& sourcePath, const Path& destinationPath, const UID& uid, ImporterSettings* importSettings, uint64_t taskId)
 	{
 		_taskId = taskId;
+		_sourcePath = sourcePath;
+		_additionalSources.Clear();
 		Editor::GetInstance()->GetTaskTracker().UpdateTaskProgress(_taskId, 0.0f);
 		Editor::GetInstance()->GetTaskTracker().UpdateTaskDescription(_taskId, "Opening source");
 
@@ -107,8 +109,11 @@ namespace hod::inline editor
 		AssetContainer assetContainer;
 		assetContainer.SetUid(uid);
 		assetContainer.SetAssetType(_assetType);
-		assetContainer.SetSourcePath(sourcePath);
-		assetContainer.SetSourceHash(fileHash);
+		assetContainer.AddSource(sourcePath, fileHash);
+		for (const AssetContainer::SourceInfo& additionalSource : _additionalSources)
+		{
+			assetContainer.AddSource(additionalSource._path, additionalSource._hash);
+		}
 
 		if (importSettings != nullptr)
 		{
@@ -132,6 +137,13 @@ namespace hod::inline editor
 			Editor::GetInstance()->GetTaskTracker().UpdateTaskStatus(taskId, TaskStatus::Failed);
 			return false;
 		}
+	}
+
+	void Importer::AddSource(const Path& sourcePath, uint64_t sourceHash)
+	{
+		AssetContainer::SourceInfo& source = _additionalSources.EmplaceBack();
+		source._path = sourcePath;
+		source._hash = sourceHash;
 	}
 
 	Stream& Importer::AddDataBlockStream(std::string_view name, bool compressed)

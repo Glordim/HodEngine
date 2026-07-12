@@ -15,6 +15,9 @@
 #include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
+#include "HodEngine/Core/Document/Document.hpp"
+#include "HodEngine/Renderer/RHI/Material.hpp"
+
 namespace hod::inline renderer
 {
 	class MaterialResource;
@@ -22,6 +25,16 @@ namespace hod::inline renderer
 
 namespace hod::inline editor
 {
+	class HOD_EDITOR_API MaterialSettings
+	{
+		REFLECTED_CLASS_NO_VIRTUAL(MaterialSettings)
+
+		Material::PolygonMode		_polygonMode = Material::PolygonMode::Fill;
+		Material::Topololy			_topololy = Material::Topololy::TRIANGLE;
+
+		Document					_defaultInstanceParams;
+	};
+
 	/// @brief 
 	class HOD_EDITOR_API MaterialEditorTab : public EditorTab
 	{
@@ -58,6 +71,8 @@ namespace hod::inline editor
 
 		std::shared_ptr<MaterialResource>	GetMaterial() const;
 
+		MaterialSettings&	GetMaterialSettings() { return _materialSettings; }
+
 		Vector<ShaderParamScalar>&					GetScalarParameters();
 		Vector<ShaderParamTexture>&					GetTextureParameters();
 		Vector<ShaderParamVec2>&					GetVector2Parameters();
@@ -71,10 +86,13 @@ namespace hod::inline editor
 		void	CreateDefaultLayout() override;
 		bool	DrawContent() override;
 		void	DrawMenuBar() override;
+		bool	OnSave() override;
 
 	private:
 
 		float _zoomFactor = 1.0f;
+		
+		MaterialSettings _materialSettings;
 
 		std::shared_ptr<MaterialResource>	_material;
 

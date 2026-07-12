@@ -7,6 +7,7 @@
 #include <HodEngine/Core/FileSystem/Path.hpp>
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
+#include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/UID.hpp>
@@ -35,8 +36,8 @@ namespace hod::inline editor
 		uint64_t GetType() const { return _assetType; }
 		uint64_t GetContentHash() const { return _contentHash; }
 
-		bool HasSource() const { return _sourcePath.Empty() == false; }
-		const Path& GetSourcePath() const { return _sourcePath; }
+		bool HasSources() const { return _sources.Empty() == false; }
+		const Vector<AssetContainer::SourceInfo>& GetSources() const { return _sources; }
 
 		Texture* GetThumbnail() const;
 
@@ -48,8 +49,7 @@ namespace hod::inline editor
 		UID _uid;
 		uint64_t _assetType = 0;
 		uint64_t _contentHash = 0;
-		Path _sourcePath;
-		uint64_t _sourceHash = 0;
+		Vector<AssetContainer::SourceInfo> _sources;
 
 		Texture* _thumbnail = nullptr;
 	};

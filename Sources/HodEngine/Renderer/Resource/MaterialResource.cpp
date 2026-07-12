@@ -10,6 +10,7 @@
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 
 #include <HodEngine/Core/Output/OutputService.hpp>
+#include <HodEngine/GameSystems/Resource/ResourceContainer.hpp>
 
 namespace hod::inline renderer
 {
@@ -30,30 +31,38 @@ namespace hod::inline renderer
 		DefaultAllocator::GetInstance().Delete(_fragmentShader);
 	}
 
-	/// @brief
-	/// @param document
-	/// @param stream
-	/// @return
-	bool MaterialResource::Initialize(const ResourceContainer& /*resourceContainer*/)
+	namespace
 	{
-		return false;
-		/*
-		if (Serializer::Deserialize(*this, documentNode) == false)
+		bool ReadDataBlock(const ResourceContainer& resourceContainer, std::string_view name, Vector<uint8_t>& outData)
 		{
-			OUTPUT_ERROR("MaterialResource::Initialize: unable to deserialize");
+			const ResourceContainer::DataBlockInfo* dataBlock = resourceContainer.FindDataBlock(name);
+			if (dataBlock == nullptr)
+			{
+				OUTPUT_ERROR("MaterialResource::Initialize: missing '{}' data block", name);
+				return false;
+			}
+
+			outData.Resize(dataBlock->_uncompressedSize);
+			if (dataBlock->_stream->Read(outData.Data(), outData.Size()) != outData.Size())
+			{
+				OUTPUT_ERROR("MaterialResource::Initialize: can't read '{}' data block", name);
+				return false;
+			}
+			return true;
+		}
+	}
+
+	bool MaterialResource::Initialize(const ResourceContainer& resourceContainer)
+	{
+		Vector<uint8_t> vertexData;
+		Vector<uint8_t> vertexReflectionData;
+		if (ReadDataBlock(resourceContainer, "Vertex", vertexData) == false || ReadDataBlock(resourceContainer, "VertexReflection", vertexReflectionData) == false)
+		{
 			return false;
 		}
 
-		if (datas.Size() != 4)
-		{
-			OUTPUT_ERROR("MaterialResource::Initialize: invalid data count");
-			return false;
-		}
-
-		const Resource::Data& vertexData = datas[0];
-		const Resource::Data& vertexReflectionData = datas[1];
 		_vertexShader = Renderer::GetInstance()->CreateShader(Shader::ShaderType::Vertex);
-		if (_vertexShader->LoadFromIR(vertexData._buffer, vertexData._size, (const char*)vertexReflectionData._buffer, vertexReflectionData._size) == false) // todo reflection
+		if (_vertexShader->LoadFromIR(vertexData.Data(), vertexData.Size(), reinterpret_cast<const char*>(vertexReflectionData.Data()), vertexReflectionData.Size()) == false)
 		{
 			OUTPUT_ERROR("MaterialResource::Initialize: load vertex shader failed");
 			DefaultAllocator::GetInstance().Delete(_vertexShader);
@@ -61,10 +70,15 @@ namespace hod::inline renderer
 			return false;
 		}
 
-		const Resource::Data& fragmentData = datas[2];
-		const Resource::Data& fragmentReflectionData = datas[3];
+		Vector<uint8_t> fragmentData;
+		Vector<uint8_t> fragmentReflectionData;
+		if (ReadDataBlock(resourceContainer, "Fragment", fragmentData) == false || ReadDataBlock(resourceContainer, "FragmentReflection", fragmentReflectionData) == false)
+		{
+			return false;
+		}
+
 		_fragmentShader = Renderer::GetInstance()->CreateShader(Shader::ShaderType::Fragment);
-		if (_fragmentShader->LoadFromIR(fragmentData._buffer, fragmentData._size, (const char*)fragmentReflectionData._buffer, fragmentReflectionData._size) == false) // todo reflection
+		if (_fragmentShader->LoadFromIR(fragmentData.Data(), fragmentData.Size(), reinterpret_cast<const char*>(fragmentReflectionData.Data()), fragmentReflectionData.Size()) == false)
 		{
 			OUTPUT_ERROR("MaterialResource::Initialize: load fragment shader failed");
 			DefaultAllocator::GetInstance().Delete(_fragmentShader);
@@ -73,8 +87,8 @@ namespace hod::inline renderer
 		}
 
 		Vector<VertexInput> vertexInputs;
-		vertexInputs.push_back(VertexInput(0, 0, VertexInput::Format::R32G32_SFloat));
-		vertexInputs.push_back(VertexInput(1, 8, VertexInput::Format::R32G32_SFloat));
+		vertexInputs.PushBack(VertexInput(0, 0, VertexInput::Format::R32G32_SFloat));
+		vertexInputs.PushBack(VertexInput(1, 8, VertexInput::Format::R32G32_SFloat));
 
 		_material = Renderer::GetInstance()->CreateMaterial(vertexInputs.Data(), (uint32_t)vertexInputs.Size(), _vertexShader, _fragmentShader, _polygonMode, _topololy, false);
 		if (_material == nullptr)
@@ -88,7 +102,6 @@ namespace hod::inline renderer
 		                                                     _textureResources);
 
 		return true;
-		*/
 	}
 
 	/// @brief

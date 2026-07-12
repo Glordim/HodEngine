@@ -8,6 +8,7 @@
 
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
+#include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
 #include <cstdint>
 #include <string_view>
@@ -61,12 +62,21 @@ namespace hod::inline editor
 
 		Stream& AddDataBlockStream(std::string_view name, bool compressed);
 
+		/// @brief Path of the file passed to Import(), available to FillDataBlock() overrides
+		const Path& GetSourcePath() const { return _sourcePath; }
+
+		/// @brief Register an additional source (besides the main source path) that this asset was imported from
+		void AddSource(const Path& sourcePath, uint64_t sourceHash);
+
 	private:
 		String _assetExtension;
 
 		Path _tmpDir;
+		Path _sourcePath;
 		uint64_t _taskId = 0;
 		uint64_t _assetType = 0;
+
+		Vector<AssetContainer::SourceInfo> _additionalSources;
 
 		class DataBlock
 		{

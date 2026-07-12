@@ -16,25 +16,49 @@
 
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
+#include <HodEngine/Core/Document/DocumentWriterJson.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
+#include <HodEngine/Core/Stream/SpillStream.hpp>
 #include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
+#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
+
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
 
 namespace hod::inline editor
 {
+	DESCRIBE_REFLECTED_CLASS(MaterialSettings, reflectionDescriptor)
+	{
+		AddPropertyT(reflectionDescriptor, &MaterialSettings::_polygonMode, "_polygonMode");
+		AddPropertyT(reflectionDescriptor, &MaterialSettings::_topololy, "_topololy");
+
+		AddPropertyT(reflectionDescriptor, &MaterialSettings::_defaultInstanceParams, "_defaultInstanceParams")->AddTrait<ReflectionTraitHide>();
+	}
+
 	/// @brief 
 	MaterialEditorTab::MaterialEditorTab(std::shared_ptr<Asset> asset)
 	: EditorTab(asset, ICON_MDI_CIRCLE_OPACITY)
 	{
 		if (asset != nullptr)
 		{
+			const AssetContainer::DataBlockInfo* settingsDataBlock = _assetContainer.FindDataBlock("Settings");
+			if (settingsDataBlock != nullptr)
+			{
+				Document           settingsDocument;
+				DocumentReaderJson documentReader;
+				if (documentReader.Read(settingsDocument, *settingsDataBlock->_stream) == true)
+				{
+					Serializer::Deserialize(_materialSettings, settingsDocument.GetRootNode());
+				}
+			}
+
 			_material = ResourceManager::GetInstance()->GetResource<MaterialResource>(asset->GetUid());
 			if (_material != nullptr)
 			{
-				const Material* material = _material->GetMaterial();
+				Material* material = _material->GetMaterial();
 				if (material != nullptr)
 				{
 					MaterialSerializationHelper::GenerateParameters(*material, _parameters);
@@ -71,8 +95,7 @@ namespace hod::inline editor
 					}
 				}
 
-				std::shared_ptr<MaterialImporterSettings> materialImporterSettings = nullptr; // std::static_pointer_cast<MaterialImporterSettings>(asset->GetMeta()._importerSettings); TODO
-				const DocumentNode* paramNode = materialImporterSettings->_defaultInstanceParams.GetRootNode().GetFirstChild();
+				const DocumentNode* paramNode = _materialSettings._defaultInstanceParams.GetRootNode().GetFirstChild();
 				while (paramNode != nullptr)
 				{
 					String name = paramNode->GetChild("Name")->GetString();
@@ -127,6 +150,28 @@ namespace hod::inline editor
 						break;
 					}
 					paramNode = paramNode->GetNextSibling();
+				}
+
+				MaterialInstance* defaultInstance = material->EditDefaultInstance();
+				for (const ShaderParamScalar& param : _scalarParameters)
+				{
+					defaultInstance->SetFloat("ubo." + param._name, param._value.floatValue);
+				}
+				for (const ShaderParamVec2& param : _vec2Parameters)
+				{
+					defaultInstance->SetVec2("ubo." + param._name, param._value);
+				}
+				for (const ShaderParamVec4& param : _vec4Parameters)
+				{
+					defaultInstance->SetVec4("ubo." + param._name, param._value);
+				}
+				for (const ShaderParamTexture& param : _textureParameters)
+				{
+					std::shared_ptr<TextureResource> textureResource = param._value.Lock();
+					if (textureResource != nullptr)
+					{
+						defaultInstance->SetTexture(param._name, textureResource->GetTexture());
+					}
 				}
 			}
 		}
@@ -222,7 +267,58 @@ namespace hod::inline editor
 		return true;
 	}
 
-	/// @brief 
+	/// @brief
+	/// @return
+	bool MaterialEditorTab::OnSave()
+	{
+		DocumentNode& defaultInstanceParamsNode = _materialSettings._defaultInstanceParams.GetRootNode();
+		defaultInstanceParamsNode.Clear();
+		for (const ShaderParamScalar& param : _scalarParameters)
+		{
+			DocumentNode& node = defaultInstanceParamsNode.AddChild("");
+			node.AddChild("Name").SetString(param._name);
+			node.AddChild("Type").SetUInt8((uint8_t)param._type);
+			node.AddChild("Value").SetFloat32(param._value.floatValue);
+		}
+		for (const ShaderParamVec2& param : _vec2Parameters)
+		{
+			DocumentNode& node = defaultInstanceParamsNode.AddChild("");
+			node.AddChild("Name").SetString(param._name);
+			node.AddChild("Type").SetUInt8((uint8_t)param._type);
+			Serializer::Serialize(param._value, node.AddChild("Value"));
+		}
+		for (const ShaderParamVec4& param : _vec4Parameters)
+		{
+			DocumentNode& node = defaultInstanceParamsNode.AddChild("");
+			node.AddChild("Name").SetString(param._name);
+			node.AddChild("Type").SetUInt8((uint8_t)param._type);
+			Serializer::Serialize(param._value, node.AddChild("Value"));
+		}
+		for (const ShaderParamTexture& param : _textureParameters)
+		{
+			DocumentNode& node = defaultInstanceParamsNode.AddChild("");
+			node.AddChild("Name").SetString(param._name);
+			node.AddChild("Type").SetUInt8((uint8_t)param._type);
+			Serializer::Serialize(param._value, node.AddChild("Value"));
+		}
+
+		Document settingsDocument;
+		if (Serializer::Serialize(_materialSettings, settingsDocument.GetRootNode()) == false)
+		{
+			return false;
+		}
+
+		Stream& settingsStream = _assetContainer.AddDataBlock("Settings", false);
+		DocumentWriterJson documentWriter;
+		if (documentWriter.Write(settingsDocument, settingsStream) == false)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	/// @brief
 	void MaterialEditorTab::DrawMenuBar()
 	{
 		ImGui::SameLine(0.0f, 8.0f);

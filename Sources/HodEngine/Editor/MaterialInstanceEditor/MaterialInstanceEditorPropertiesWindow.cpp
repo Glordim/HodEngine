@@ -2,7 +2,6 @@
 #include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorPropertiesWindow.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
-#include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
 #include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorTab.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -55,7 +54,7 @@ namespace hod::inline editor
 		bool changed = false;
 
 		std::shared_ptr<Asset>                    asset = GetOwner()->GetAsset();
-		std::shared_ptr<MaterialImporterSettings> materialImporterSettings = nullptr; // std::static_pointer_cast<MaterialImporterSettings>(asset->GetMeta()._importerSettings); TODO
+		//std::shared_ptr<MaterialImporterSettings> materialImporterSettings = nullptr; // std::static_pointer_cast<MaterialImporterSettings>(asset->GetMeta()._importerSettings); TODO
 		MaterialInstanceAsset&                    materialInstanceAsset = GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstanceAsset();
 
 		if (ImGui::CollapsingHeader("Data", ImGuiTreeNodeFlags_DefaultOpen))

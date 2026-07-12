@@ -20,7 +20,12 @@ namespace hod::inline editor
 {
 	const uint8_t AssetContainer::MAGIC[8] = {'H', 'A', 'S', 'S', 'E', 'T', '\0', '\0'};
 
-	/// @brief Read the fixed Header followed by the SourcePath block
+	AssetContainer::~AssetContainer()
+	{
+
+	}
+
+	/// @brief Read the fixed Header followed by the Sources block
 	/// @param handle
 	/// @return
 	bool AssetContainer::ReadHeader(Stream& stream)
@@ -51,29 +56,29 @@ namespace hod::inline editor
 		return true;
 	}
 
-	bool AssetContainer::ReadSource(Stream& stream)
+	bool AssetContainer::ReadSources(Stream& stream)
 	{
-		uint32_t sourcePathSize = 0;
-		stream.Read(&sourcePathSize, sizeof(sourcePathSize));
+		uint32_t sourceCount = 0;
+		stream.Read(&sourceCount, sizeof(sourceCount));
 
-		if (sourcePathSize > 0)
+		_sources.Clear();
+		_sources.Resize(sourceCount);
+		for (uint32_t i = 0; i < sourceCount; ++i)
 		{
+			uint32_t sourcePathSize = 0;
+			stream.Read(&sourcePathSize, sizeof(sourcePathSize));
+
 			String sourcePathStr;
 			sourcePathStr.Resize(sourcePathSize);
 			stream.Read(sourcePathStr.Data(), sourcePathSize);
-			_sourcePath = sourcePathStr;
-			stream.Read(&_sourceHash, sizeof(_sourceHash));
-		}
-		else
-		{
-			_sourcePath.Clear();
-			_sourceHash = 0;
+			_sources[i]._path = sourcePathStr;
+			stream.Read(&_sources[i]._hash, sizeof(_sources[i]._hash));
 		}
 
 		return true;
 	}
 
-	/// @brief Read only the fixed Header and the SourcePath block (no Content/Data), for fast scans at startup
+	/// @brief Read only the fixed Header and the Sources block (no Content/Data), for fast scans at startup
 	/// @param path
 	/// @return
 	bool AssetContainer::LoadHeader(const Path& path)
@@ -88,7 +93,7 @@ namespace hod::inline editor
 		return ReadHeader(fileStream);
 	}
 
-	bool AssetContainer::LoadSource(const Path& path)
+	bool AssetContainer::LoadSources(const Path& path)
 	{
 		FileStream fileStream;
 		if (fileStream.Open(path) == false)
@@ -97,10 +102,10 @@ namespace hod::inline editor
 			return false;
 		}
 
-		return ReadHeader(fileStream) && ReadSource(fileStream);
+		return ReadHeader(fileStream) && ReadSources(fileStream);
 	}
 
-	/// @brief Read the whole asset (Header + SourcePath + Content + Data)
+	/// @brief Read the whole asset (Header + Sources + Content + Data)
 	/// @param path
 	/// @return
 	bool AssetContainer::Load(const Path& path)
@@ -117,7 +122,7 @@ namespace hod::inline editor
 			return false;
 		}
 
-		if (ReadSource(fileStream) == false)
+		if (ReadSources(fileStream) == false)
 		{
 			return false;
 		}
@@ -167,7 +172,7 @@ namespace hod::inline editor
 		return true;
 	}
 
-	/// @brief Write the whole asset (Header + SourcePath + Content + Data)
+	/// @brief Write the whole asset (Header + Sources + Content + Data)
 	/// @param path
 	/// @return
 	bool AssetContainer::Save(const Path& path, const Path& tmpDir)
@@ -205,12 +210,17 @@ namespace hod::inline editor
 		header.contentHash = 0; // tmp, real value will be write at the end
 		file.Write(&header, sizeof(header));
 
-		uint32_t sourcePathLen = _sourcePath.GetString().Size();
-		file.Write(&sourcePathLen, sizeof(sourcePathLen));
-		if (sourcePathLen > 0)
+		uint32_t sourceCount = _sources.Size();
+		file.Write(&sourceCount, sizeof(sourceCount));
+		for (const SourceInfo& source : _sources)
 		{
-			file.Write(_sourcePath.CStr(), sourcePathLen);
-			file.Write(&_sourceHash, sizeof(_sourceHash));
+			uint32_t sourcePathLen = source._path.GetString().Size();
+			file.Write(&sourcePathLen, sizeof(sourcePathLen));
+			if (sourcePathLen > 0)
+			{
+				file.Write(source._path.CStr(), sourcePathLen);
+			}
+			file.Write(&source._hash, sizeof(source._hash));
 		}
 
 		uint32_t importSettingsLen = 0;
@@ -257,7 +267,19 @@ namespace hod::inline editor
 					}
 				}
 
-				dataBlockLocations[i].uncompressedSize = _dataBlocks[i]._compressed ? static_cast<CompressionStream*>(_dataBlocks[i]._stream)->GetWrittenSize() : dataBlockLocations[i].size;
+				if (_dataBlocks[i]._compressed)
+				{
+					// GetWrittenSize() only reflects bytes processed through this CompressionStream instance in
+					// this session; a block reloaded from disk and re-saved unchanged (e.g. only other data blocks
+					// were touched) never had Read()/Write() called on it, so fall back to the size already known
+					// from the previous Load().
+					uint32_t writtenSize = static_cast<CompressionStream*>(_dataBlocks[i]._stream)->GetWrittenSize();
+					dataBlockLocations[i].uncompressedSize = writtenSize > 0 ? writtenSize : _dataBlocks[i]._uncompressedSize;
+				}
+				else
+				{
+					dataBlockLocations[i].uncompressedSize = dataBlockLocations[i].size;
+				}
 			}
 
 			file.Seek(tablePosition, Stream::SeekOrigin::Begin);
@@ -268,6 +290,9 @@ namespace hod::inline editor
 		file.Write(&_contentHash, sizeof(_contentHash));
 
 		file.Close();
+
+		ClearDataBlocks(); // close FileStream before moving
+
 		return FileSystem::GetInstance()->Rename(tmpFile, path);
 	}
 
@@ -296,29 +321,31 @@ namespace hod::inline editor
 		return _contentHash;
 	}
 
-	bool AssetContainer::HasSourcePath() const
+	bool AssetContainer::HasSources() const
 	{
-		return _sourcePath.Empty() == false;
+		return _sources.Empty() == false;
 	}
 
-	const Path& AssetContainer::GetSourcePath() const
+	const Vector<AssetContainer::SourceInfo>& AssetContainer::GetSources() const
 	{
-		return _sourcePath;
+		return _sources;
 	}
 
-	void AssetContainer::SetSourcePath(const Path& sourcePath)
+	void AssetContainer::SetSources(Vector<SourceInfo> sources)
 	{
-		_sourcePath = sourcePath;
+		_sources = std::move(sources);
 	}
 
-	uint64_t AssetContainer::GetSourceHash() const
+	void AssetContainer::AddSource(const Path& sourcePath, uint64_t sourceHash)
 	{
-		return _sourceHash;
+		SourceInfo& source = _sources.EmplaceBack();
+		source._path = sourcePath;
+		source._hash = sourceHash;
 	}
 
-	void AssetContainer::SetSourceHash(uint64_t sourceHash)
+	void AssetContainer::ClearSources()
 	{
-		_sourceHash = sourceHash;
+		_sources.Clear();
 	}
 
 	DocumentNode& AssetContainer::GetImportSettings()
@@ -362,6 +389,22 @@ namespace hod::inline editor
 		_dataBlocks.PushBack(std::move(info));
 	}
 
+	Stream& AssetContainer::AddDataBlock(std::string_view name, bool compressed)
+	{
+		RemoveDataBlock(name);
+
+		OwnedDataBlock* ownedDataBlock = DefaultAllocator::GetInstance().New<OwnedDataBlock>(compressed);
+		_ownedDataBlocks.PushBack(ownedDataBlock);
+
+		DataBlockInfo info;
+		info._hashName = Hash::ComputeXxh3_64(name.data(), name.size());
+		info._stream = &ownedDataBlock->GetStream();
+		info._compressed = compressed;
+
+		_dataBlocks.PushBack(std::move(info));
+		return *info._stream;
+	}
+
 	void AssetContainer::RemoveDataBlock(std::string_view name)
 	{
 		uint64_t hashName = Hash::ComputeXxh3_64(name.data(), name.size());
@@ -370,7 +413,18 @@ namespace hod::inline editor
 		{
 			if (_dataBlocks[i]._hashName == hashName)
 			{
+				Stream* stream = _dataBlocks[i]._stream;
 				_dataBlocks.Erase(i);
+
+				for (uint32_t j = 0; j < _ownedDataBlocks.Size(); ++j)
+				{
+					if (&_ownedDataBlocks[j]->GetStream() == stream)
+					{
+						DefaultAllocator::GetInstance().Delete(_ownedDataBlocks[j]);
+						_ownedDataBlocks.Erase(j);
+						break;
+					}
+				}
 				return;
 			}
 		}
@@ -381,5 +435,11 @@ namespace hod::inline editor
 		_dataBlocks.Clear();
 		_internalDataBlockStream.Clear();
 		_internalCompressionStream.Clear();
+
+		for (OwnedDataBlock* ownedDataBlock : _ownedDataBlocks)
+		{
+			DefaultAllocator::GetInstance().Delete(ownedDataBlock);
+		}
+		_ownedDataBlocks.Clear();
 	}
 }

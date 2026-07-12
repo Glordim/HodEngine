@@ -55,8 +55,7 @@ namespace hod::inline editor
 		_uid = assetContainer.GetUid();
 		_assetType = assetContainer.GetAssetType();
 		_contentHash = assetContainer.GetContentHash();
-		_sourcePath = assetContainer.GetSourcePath();
-		_sourceHash = assetContainer.GetSourceHash();
+		_sources = assetContainer.GetSources();
 
 		/*
 		Path metaPath = _path;
