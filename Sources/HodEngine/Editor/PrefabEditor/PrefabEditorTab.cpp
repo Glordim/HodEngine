@@ -69,8 +69,7 @@ namespace hod::inline editor
 		}
 
 		_assetContainer.ClearDataBlocks();
-
-		SpillStream entitiesStream;
+		Stream& entitiesStream = _assetContainer.AddDataBlock("Entities", false);
 
 		Document document;
 		if (Serializer::Serialize(_scene, document.GetRootNode()) == false)
@@ -83,7 +82,6 @@ namespace hod::inline editor
 		{
 			return false; // todo message + bool
 		}
-		_assetContainer.SetDataBlock("Entities", entitiesStream, false);
 
 		return true;
 	}
