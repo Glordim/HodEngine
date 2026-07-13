@@ -70,22 +70,22 @@ namespace hod::inline editor
 		}
 
 		Vector<float> floatSamples;
-		floatSamples.Resize(sampleCount);
+		floatSamples.Resize(sampleCount * channelCount);
 
 		if (bitsPerSample == 8)
 		{
-			for (uint32_t i = 0; i < sampleCount; ++i)
+			for (uint32_t i = 0; i < sampleCount * channelCount; ++i)
 				floatSamples[i] = (static_cast<float>(pcm[i]) - 128.0f) / 128.0f;
 		}
 		else if (bitsPerSample == 16)
 		{
 			const int16_t* src = reinterpret_cast<const int16_t*>(pcm.Data());
-			for (uint32_t i = 0; i < sampleCount; ++i)
+			for (uint32_t i = 0; i < sampleCount * channelCount; ++i)
 				floatSamples[i] = static_cast<float>(src[i]) / 32768.0f;
 		}
 		else if (bitsPerSample == 24)
 		{
-			for (uint32_t i = 0; i < sampleCount; ++i)
+			for (uint32_t i = 0; i < sampleCount * channelCount; ++i)
 			{
 				int32_t sample = (pcm[i * 3 + 2] << 16) | (pcm[i * 3 + 1] << 8) | pcm[i * 3];
 				if (sample & 0x800000)
@@ -96,7 +96,7 @@ namespace hod::inline editor
 		else if (bitsPerSample == 32)
 		{
 			const int32_t* src = reinterpret_cast<const int32_t*>(pcm.Data());
-			for (uint32_t i = 0; i < sampleCount; ++i)
+			for (uint32_t i = 0; i < sampleCount * channelCount; ++i)
 				floatSamples[i] = static_cast<float>(src[i]) / 2147483648.0f;
 		}
 		else
@@ -106,7 +106,11 @@ namespace hod::inline editor
 		}
 
 		Stream& pcmOutStream = AddDataBlockStream("Pcm", false, std::to_underlying(Platform::All), std::to_underlying(Config::All), std::to_underlying(ResourceVariant::Language::All));
-		pcmOutStream.Write(floatSamples.Data(), sampleCount * sizeof(float) * channelCount);
+		if (pcmOutStream.Write(floatSamples.Data(), sampleCount * sizeof(float) * channelCount) != sampleCount * sizeof(float) * channelCount)
+		{
+			OUTPUT_ERROR("AudioImporter : unable to write pcm");
+			return false;
+		}
 
 		return true;
 	}
