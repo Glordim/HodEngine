@@ -85,72 +85,86 @@ namespace hod::inline core
 
 		if (result == WAIT_OBJECT_0)
 		{
-			DWORD bytes_transferred;
-			GetOverlappedResult(_hDir, _overlapped, &bytes_transferred, FALSE);
-
-			Path oldFilePathToRename;
-
-			FILE_NOTIFY_INFORMATION* fni = (FILE_NOTIFY_INFORMATION*)_changeBuf;
-			while (true)
+			DWORD bytesTransferred = 0;
+			if (GetOverlappedResult(_hDir, _overlapped, &bytesTransferred, FALSE) && bytesTransferred > 0)
 			{
-				std::wstring result(fni->FileName, fni->FileNameLength / sizeof(wchar_t));
-				String       relativefilePath;
-				StringConversion::WStringToString(result, relativefilePath);
+				Path oldFilePathToRename;
 
-				Path filePath = _watchingPath / relativefilePath.CStr();
-				if (_isFile == false || fni->Action == FILE_ACTION_RENAMED_NEW_NAME || _path == filePath)
+				FILE_NOTIFY_INFORMATION* fni = (FILE_NOTIFY_INFORMATION*)_changeBuf;
+				while (true)
 				{
-					switch (fni->Action)
+					std::wstring result(fni->FileName, fni->FileNameLength / sizeof(wchar_t));
+					String       relativefilePath;
+					StringConversion::WStringToString(result, relativefilePath);
+
+					Path filePath = _watchingPath / relativefilePath.CStr();
+					if (_isFile == false || fni->Action == FILE_ACTION_RENAMED_NEW_NAME || _path == filePath)
 					{
-						case FILE_ACTION_ADDED:
+						switch (fni->Action)
 						{
-							if (_onCreateFile != nullptr)
+							case FILE_ACTION_ADDED:
 							{
-								_onCreateFile(filePath);
+								if (_onCreateFile != nullptr)
+								{
+									_onCreateFile(filePath);
+								}
 							}
-						}
-						break;
+							break;
 
-						case FILE_ACTION_REMOVED:
-						{
-							if (_onDeleteFile != nullptr)
+							case FILE_ACTION_REMOVED:
 							{
-								_onDeleteFile(filePath);
+								if (_onDeleteFile != nullptr)
+								{
+									_onDeleteFile(filePath);
+								}
 							}
-						}
-						break;
+							break;
 
-						case FILE_ACTION_MODIFIED:
-						{
-							if (_onChangeFile != nullptr)
+							case FILE_ACTION_MODIFIED:
 							{
-								_onChangeFile(filePath);
+								if (_onChangeFile != nullptr)
+								{
+									_onChangeFile(filePath);
+								}
 							}
-						}
-						break;
+							break;
 
-						case FILE_ACTION_RENAMED_OLD_NAME:
-						{
-							oldFilePathToRename = filePath;
-						}
-						break;
-
-						case FILE_ACTION_RENAMED_NEW_NAME:
-						{
-							if (_onMoveFile != nullptr)
+							case FILE_ACTION_RENAMED_OLD_NAME:
 							{
-								_onMoveFile(oldFilePathToRename, filePath);
+								oldFilePathToRename = filePath;
 							}
+							break;
+
+							case FILE_ACTION_RENAMED_NEW_NAME:
+							{
+								if (_onMoveFile != nullptr)
+								{
+									_onMoveFile(oldFilePathToRename, filePath);
+								}
+							}
+							break;
 						}
+					}
+
+					if (fni->NextEntryOffset == 0)
+					{
 						break;
 					}
+					fni = reinterpret_cast<FILE_NOTIFY_INFORMATION*>((uint8_t*)fni + fni->NextEntryOffset);
 				}
-
-				if (fni->NextEntryOffset == 0)
+			}
+			else
+			{
+				// The notification buffer overflowed: some individual notifications since the last Update() were
+				// discarded by the OS and cannot be recovered here. Let the caller reconcile on its own terms.
+				if (_onOverflow != nullptr)
 				{
-					break;
+					_onOverflow();
 				}
-				fni = reinterpret_cast<FILE_NOTIFY_INFORMATION*>((uint8_t*)fni + fni->NextEntryOffset);
+				else
+				{
+					OUTPUT_ERROR("FileSystemWatcher::Update, notification buffer overflow on {}, some file changes may have been missed", _watchingPath);
+				}
 			}
 
 			::ReadDirectoryChangesW(_hDir, _changeBuf, sizeof(_changeBuf), TRUE, FILE_NOTIFY_CHANGE_FILE_NAME | FILE_NOTIFY_CHANGE_DIR_NAME | FILE_NOTIFY_CHANGE_LAST_WRITE, NULL,

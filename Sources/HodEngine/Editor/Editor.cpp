@@ -1066,7 +1066,7 @@ namespace hod::inline editor
 	void Editor::OpenImportDialog(const Path& path)
 	{
 		pfd::settings::verbose(true);
-		pfd::open_file dialog("Import", Project::GetInstance()->GetSourceDirPath().GetString().CStr());
+		pfd::open_file dialog("Import", Project::GetInstance()->GetSourceDirPath().GetString().CStr(), { "All Files", "*" }, pfd::opt::multiselect);
 		auto           result = dialog.result();
 
 		if (result.size() == 1)
@@ -1092,7 +1092,13 @@ namespace hod::inline editor
 		JobScheduler::GetInstance()->PushBackground(importJob);
 	}
 
-	void Editor::Import(const Vector<Path>& /*sourceFilePaths*/, const Path& /*destinationDirPath*/) {}
+	void Editor::Import(const Vector<Path>& sourceFilePaths, const Path& destinationDirPath)
+	{
+		for (const Path& sourceFilePath : sourceFilePaths)
+		{
+			Editor::Import(sourceFilePath, destinationDirPath);
+		}
+	}
 
 	void Editor::Cook(const Path& asset)
 	{

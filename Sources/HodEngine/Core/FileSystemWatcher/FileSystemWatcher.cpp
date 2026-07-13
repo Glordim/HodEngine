@@ -23,7 +23,8 @@ namespace hod::inline core
 	/// @param onMoveFile
 	/// @return
 	bool FileSystemWatcher::Init(const Path& path, const std::function<void(const Path&)>& onCreateFile, const std::function<void(const Path&)>& onDeleteFile,
-	                             const std::function<void(const Path&)>& onChangeFile, const std::function<void(const Path& old, const Path&)>& onMoveFile)
+	                             const std::function<void(const Path&)>& onChangeFile, const std::function<void(const Path& old, const Path&)>& onMoveFile,
+	                             const std::function<void()>& onOverflow)
 	{
 		_path = path;
 		if (FileSystem::GetInstance()->IsDirectory(_path))
@@ -40,6 +41,7 @@ namespace hod::inline core
 		_onDeleteFile = onDeleteFile;
 		_onChangeFile = onChangeFile;
 		_onMoveFile = onMoveFile;
+		_onOverflow = onOverflow;
 
 		if (FileSystem::GetInstance()->Exists(_watchingPath) == false)
 		{
