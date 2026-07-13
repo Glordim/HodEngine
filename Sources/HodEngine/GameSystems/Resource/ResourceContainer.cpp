@@ -165,19 +165,17 @@ namespace hod::inline gamesystems
 			while (true)
 			{
 				readBytes = realStream.Read(buffer, sizeof(buffer));
-				if (readBytes > 0)
+				dataBlockLocations[i].size += file.Write(buffer, readBytes);
+				if (readBytes != sizeof(buffer))
 				{
-					dataBlockLocations[i].size += file.Write(buffer, readBytes);
-					if (readBytes != sizeof(buffer))
-					{
-						break;
-					}
+					break;
 				}
-				else
-				{
-					OUTPUT_ERROR("ResourceContainer::Save: unable to read datablock");
-					return false;
-				}
+			}
+
+			if (dataBlockLocations[i].size == 0)
+			{
+				OUTPUT_ERROR("ResourceContainer::Save: datablock is empty");
+				return false;
 			}
 
 			dataBlockLocations[i].uncompressedSize = _dataBlocks[i]._compressed ? static_cast<CompressionStream*>(_dataBlocks[i]._stream)->GetWrittenSize() : dataBlockLocations[i].size;

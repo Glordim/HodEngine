@@ -251,20 +251,18 @@ namespace hod::inline editor
 				while (true)
 				{
 					readBytes = realStream.Read(buffer, sizeof(buffer));
-					if (readBytes > 0)
+					dataBlockLocations[i].size += file.Write(buffer, readBytes);
+					hashState = Hash::ComputeXxh3_64_Cumulated(hashState, buffer, readBytes);
+					if (readBytes != sizeof(buffer))
 					{
-						dataBlockLocations[i].size += file.Write(buffer, readBytes);
-						hashState = Hash::ComputeXxh3_64_Cumulated(hashState, buffer, readBytes);
-						if (readBytes != sizeof(buffer))
-						{
-							break;
-						}
+						break;
 					}
-					else
-					{
-						OUTPUT_ERROR("AssetContainer::Save: unable to read datablock");
-						return false;
-					}
+				}
+
+				if (dataBlockLocations[i].size == 0)
+				{
+					OUTPUT_ERROR("AssetContainer::Save: datablock is empty");
+					return false;
 				}
 
 				if (_dataBlocks[i]._compressed)
