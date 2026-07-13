@@ -3,7 +3,6 @@
 #include "HodEngine/Editor/EditorTabWindow.hpp"
 
 #include <HodEngine/ImGui/Window/Window.hpp>
-#include <HodEngine/Editor/TextureEditor/TextureCooker.hpp>
 
 namespace hod::inline core
 {
@@ -28,7 +27,5 @@ namespace hod::inline editor
 	public:
 
 		void		DrawContent() override;
-
-		TextureSettings _textureSettings;
 	};
 }

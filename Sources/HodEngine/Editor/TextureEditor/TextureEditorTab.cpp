@@ -16,6 +16,7 @@
 
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
+#include <HodEngine/Core/Document/DocumentWriterJson.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 #include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 
@@ -29,6 +30,17 @@ namespace hod::inline editor
 	{
 		if (asset != nullptr)
 		{
+			const AssetContainer::DataBlockInfo* settingsDataBlock = _assetContainer.FindDataBlock("Settings");
+			if (settingsDataBlock != nullptr)
+			{
+				Document           settingsDocument;
+				DocumentReaderJson documentReader;
+				if (documentReader.Read(settingsDocument, *settingsDataBlock->_stream) == true)
+				{
+					Serializer::Deserialize(_textureSettings, settingsDocument.GetRootNode());
+				}
+			}
+
 			_texture = ResourceManager::GetInstance()->GetResource<TextureResource>(asset->GetUid());
 		}
 	}
@@ -95,7 +107,27 @@ namespace hod::inline editor
 		return true;
 	}
 
-	/// @brief 
+	/// @brief
+	/// @return
+	bool TextureEditorTab::OnSave()
+	{
+		Document settingsDocument;
+		if (Serializer::Serialize(_textureSettings, settingsDocument.GetRootNode()) == false)
+		{
+			return false;
+		}
+
+		Stream& settingsStream = _assetContainer.AddDataBlock("Settings", false);
+		DocumentWriterJson documentWriter;
+		if (documentWriter.Write(settingsDocument, settingsStream) == false)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	/// @brief
 	void TextureEditorTab::DrawMenuBar()
 	{
 		ImGui::SameLine(0.0f, 8.0f);

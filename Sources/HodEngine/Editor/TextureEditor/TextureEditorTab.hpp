@@ -2,6 +2,7 @@
 #include "HodEngine/Editor/Export.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
+#include "HodEngine/Editor/TextureEditor/TextureCooker.hpp"
 
 #include <HodEngine/Core/TypeTrait.hpp>
 #include <memory>
@@ -33,11 +34,14 @@ namespace hod::inline editor
 		float								GetZoomFactor() const;
 		void								SetZoomFactor(float zoomFactor);
 
+		TextureSettings&					GetTextureSettings() { return _textureSettings; }
+
 	protected:
 
 		void	CreateDefaultLayout() override;
 		bool	DrawContent() override;
 		void	DrawMenuBar() override;
+		bool	OnSave() override;
 
 	private:
 
@@ -46,6 +50,8 @@ namespace hod::inline editor
 		uint8_t	_mipmapLevel = 0;
 		uint8_t	_maxMipmapLevel = 0;
 		float _zoomFactor = 1.0f;
+
+		TextureSettings _textureSettings;
 
 		std::shared_ptr<TextureResource>	_texture;
 	};

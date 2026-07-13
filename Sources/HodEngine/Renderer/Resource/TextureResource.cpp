@@ -43,6 +43,8 @@ namespace hod::inline renderer
 
 		infoDataBlock->_stream->Read(&_width, sizeof(_width));
 		infoDataBlock->_stream->Read(&_height, sizeof(_height));
+		infoDataBlock->_stream->Read(&_filterMode, sizeof(_filterMode));
+		infoDataBlock->_stream->Read(&_wrapMode, sizeof(_wrapMode));
 
 		const ResourceContainer::DataBlockInfo* pixelsDataBlock = resourceContainer.FindDataBlock("Pixels");
 		if (pixelsDataBlock == nullptr)

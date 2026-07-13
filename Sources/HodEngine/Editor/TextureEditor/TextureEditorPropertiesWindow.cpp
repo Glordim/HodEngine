@@ -1,10 +1,9 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Core/Document/DocumentReaderJson.hpp"
-#include "HodEngine/Core/Serialization/Serializer.hpp"
-#include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/TextureEditor/TextureEditorPropertiesWindow.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
+#include "HodEngine/Editor/TextureEditor/TextureCooker.hpp"
+#include "HodEngine/Editor/TextureEditor/TextureEditorTab.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
@@ -13,10 +12,7 @@
 #include <HodEngine/ImGui/Helper.hpp>
 
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
-#include "HodEngine/Editor/AssetDatabase.hpp"
-#include "HodEngine/Editor/Asset.hpp"
 
 namespace hod::inline editor
 {
@@ -30,27 +26,15 @@ namespace hod::inline editor
 	TextureEditorPropertiesWindow::TextureEditorPropertiesWindow(EditorTab* editorTab)
 	: EditorTabWindow(editorTab)
 	{
-		std::shared_ptr<Asset> asset = GetOwner()->GetAsset();
-		AssetContainer assetContainer;
-		if (assetContainer.Load(asset->GetPath()) == false)
-		{
-			return;
-		}
-
-		const AssetContainer::DataBlockInfo* settingsDataBlock = assetContainer.FindDataBlock("Settings");
-		if (settingsDataBlock != nullptr)
-		{
-			Document document;
-			DocumentReaderJson documentReader;
-			documentReader.Read(document, *settingsDataBlock->_stream);
-			Serializer::Deserialize(_textureSettings, document.GetRootNode());
-		}
+		SetTitle("Properties");
 	}
 
-	/// @brief 
+	/// @brief
 	void TextureEditorPropertiesWindow::DrawContent()
 	{
 		bool changed = false;
+
+		TextureSettings& textureSettings = GetOwner<TextureEditorTab>()->GetTextureSettings();
 
 		float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
 
@@ -58,7 +42,7 @@ namespace hod::inline editor
 		ImGui::TextUnformatted("Generate mipmap");
 		ImGui::SameLine(valuePos);
 		ImGui::SetNextItemWidth(-1);
-		changed |= ImGui::Checkbox("##Generate mipmap", &_textureSettings._generateMipmap);
+		changed |= ImGui::Checkbox("##Generate mipmap", &textureSettings._generateMipmap);
 
 		static const char* filterModeLabels[static_cast<std::underlying_type_t<FilterMode>>(FilterMode::Count)] = { "Nearest", "Linear" };
 
@@ -66,13 +50,13 @@ namespace hod::inline editor
 		ImGui::TextUnformatted("Filter Mode");
 		ImGui::SameLine(valuePos);
 		ImGui::SetNextItemWidth(-1);
-		if (ImGui::BeginCombo("##FilterMode", filterModeLabels[static_cast<std::underlying_type_t<FilterMode>>(_textureSettings._filterMode)]))
+		if (ImGui::BeginCombo("##FilterMode", filterModeLabels[static_cast<std::underlying_type_t<FilterMode>>(textureSettings._filterMode)]))
 		{
 			for (uint32_t filterMode = 0; filterMode < static_cast<std::underlying_type_t<FilterMode>>(FilterMode::Count); ++filterMode)
 			{
 				if (ImGui::MenuItem(filterModeLabels[filterMode]))
 				{
-					_textureSettings._filterMode = static_cast<FilterMode>(filterMode);
+					textureSettings._filterMode = static_cast<FilterMode>(filterMode);
 					changed = true;
 					ImGui::CloseCurrentPopup();
 				}
@@ -86,26 +70,19 @@ namespace hod::inline editor
 		ImGui::TextUnformatted("Wrap Mode");
 		ImGui::SameLine(valuePos);
 		ImGui::SetNextItemWidth(-1);
-		if (ImGui::BeginCombo("##WrapMode", wrapModeLabels[static_cast<std::underlying_type_t<WrapMode>>(_textureSettings._wrapMode)]))
+		if (ImGui::BeginCombo("##WrapMode", wrapModeLabels[static_cast<std::underlying_type_t<WrapMode>>(textureSettings._wrapMode)]))
 		{
 			for (uint32_t wrapMode = 0; wrapMode < static_cast<std::underlying_type_t<WrapMode>>(WrapMode::Count); ++wrapMode)
 			{
 				if (ImGui::MenuItem(wrapModeLabels[wrapMode]))
 				{
-					_textureSettings._wrapMode = static_cast<WrapMode>(wrapMode);
+					textureSettings._wrapMode = static_cast<WrapMode>(wrapMode);
 					changed = true;
 					ImGui::CloseCurrentPopup();
 				}
 			}
 			ImGui::EndCombo();
 		}
-		ImGui::BeginDisabled(GetOwner()->IsDirty() == false);
-		if (ImGui::Button("Apply"))
-		{
-			GetOwner()->Save();
-			//AssetDatabase::GetInstance()->Import(GetOwner()->GetAsset()->GetPath()); // TODO
-		}
-		ImGui::EndDisabled();
 
 		if (changed)
 		{

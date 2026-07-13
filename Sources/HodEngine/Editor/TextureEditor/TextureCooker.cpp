@@ -5,7 +5,9 @@
 #include "HodEngine/Editor/Asset.hpp"
 
 #include "HodEngine/Core/Document/Document.hpp"
+#include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
+#include "HodEngine/Core/Serialization/Serializer.hpp"
 #include "HodEngine/Editor/Cooker/Cooker.hpp"
 
 #include <cstdint>
@@ -54,9 +56,23 @@ namespace hod::inline editor
 		inInfoStream->Read(&width, sizeof(width));
 		inInfoStream->Read(&height, sizeof(height));
 
+		TextureSettings textureSettings;
+		const AssetContainer::DataBlockInfo* settingsDataBlock = assetContainer.FindDataBlock("Settings");
+		if (settingsDataBlock != nullptr)
+		{
+			Document           settingsDocument;
+			DocumentReaderJson documentReader;
+			if (documentReader.Read(settingsDocument, *settingsDataBlock->_stream) == true)
+			{
+				Serializer::Deserialize(textureSettings, settingsDocument.GetRootNode());
+			}
+		}
+
 		Stream& outInfoStream = AddDataBlockStream("Info", false, std::to_underlying(Platform::All), std::to_underlying(Config::All), std::to_underlying(ResourceVariant::Language::All));
 		outInfoStream.Write(&width, sizeof(width));
 		outInfoStream.Write(&height, sizeof(height));
+		outInfoStream.Write(&textureSettings._filterMode, sizeof(textureSettings._filterMode));
+		outInfoStream.Write(&textureSettings._wrapMode, sizeof(textureSettings._wrapMode));
 
 		Stream* inPixelStream = assetContainer.FindDataBlock("Pixels")->_stream;
 		uint32_t pixelsSize = width * height * 4;
