@@ -52,6 +52,7 @@ namespace hod::inline editor
 	: EditorTabWindow(editorTab)
 	{
 		SetFlags(ImGuiWindowFlags_NoScrollbar);
+		SetTitle("Viewport");
 
 		_renderTarget = Renderer::GetInstance()->CreateRenderTarget();
 	}

@@ -16,6 +16,7 @@
 
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
+#include <HodEngine/Core/Document/DocumentWriterJson.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 #include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 
@@ -23,23 +24,34 @@
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
 
 namespace hod::inline editor
 {
+	DESCRIBE_REFLECTED_CLASS(MaterialInstanceSettings, reflectionDescriptor)
+	{
+		AddPropertyT(reflectionDescriptor, &MaterialInstanceSettings::_material, "_material");
+		AddPropertyT(reflectionDescriptor, &MaterialInstanceSettings::_params, "_params")->AddTrait<ReflectionTraitHide>();
+	}
+
 	/// @brief 
 	MaterialInstanceEditorTab::MaterialInstanceEditorTab(std::shared_ptr<Asset> asset)
 	: EditorTab(asset, ICON_MDI_CIRCLE)
 	{
 		if (asset != nullptr)
 		{
+			const AssetContainer::DataBlockInfo* settingsDataBlock = _assetContainer.FindDataBlock("Settings");
+			if (settingsDataBlock != nullptr)
+			{
+				Document           settingsDocument;
+				DocumentReaderJson documentReader;
+				if (documentReader.Read(settingsDocument, *settingsDataBlock->_stream) == true)
+				{
+					Serializer::Deserialize(_materialInstanceSettings, settingsDocument.GetRootNode());
+				}
+			}
+
 			_materialInstance = ResourceManager::GetInstance()->GetResource<MaterialInstanceResource>(asset->GetUid());
-
-			Document document;
-			DocumentReaderJson reader;
-			reader.Read(document, asset->GetPath());
-
-			Serializer::Deserialize(_materialInstanceAsset, document.GetRootNode());
-
 			if (_materialInstance != nullptr)
 			{
 				MaterialInstance* materialInstance = _materialInstance->GetMaterialInstance();
@@ -79,64 +91,85 @@ namespace hod::inline editor
 							_scalarParameters.push_back(value);
 						}
 					}
+
+					const DocumentNode* paramNode = _materialInstanceSettings._params.GetRootNode().GetFirstChild();
+					while (paramNode != nullptr)
+					{
+						String name = paramNode->GetChild("Name")->GetString();
+						ShaderParameter::Type type = static_cast<ShaderParameter::Type>(paramNode->GetChild("Type")->GetUInt8());
+						switch (type)
+						{
+						case ShaderParameter::Type::Float:
+							for (ShaderParamScalar& param : _scalarParameters)
+							{
+								if (param._name == name)
+								{
+									param._value.floatValue = paramNode->GetChild("Value")->GetFloat32();
+									break;
+								}
+							}
+							break;
+
+						case ShaderParameter::Type::Float2:
+							for (ShaderParamVec2& param : _vec2Parameters)
+							{
+								if (param._name == name)
+								{
+									Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
+									break;
+								}
+							}
+							break;
+
+						case ShaderParameter::Type::Float4:
+							for (ShaderParamVec4& param : _vec4Parameters)
+							{
+								if (param._name == name)
+								{
+									Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
+									break;
+								}
+							}
+							break;
+
+						case ShaderParameter::Type::Texture:
+							for (ShaderParamTexture& param : _textureParameters)
+							{
+								if (param._name == name)
+								{
+									Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
+									break;
+								}
+							}
+							break;
+
+						default:
+							break;
+						}
+						paramNode = paramNode->GetNextSibling();
+					}
+
+					for (const ShaderParamScalar& param : _scalarParameters)
+					{
+						materialInstance->SetFloat("ubo." + param._name, param._value.floatValue);
+					}
+					for (const ShaderParamVec2& param : _vec2Parameters)
+					{
+						materialInstance->SetVec2("ubo." + param._name, param._value);
+					}
+					for (const ShaderParamVec4& param : _vec4Parameters)
+					{
+						materialInstance->SetVec4("ubo." + param._name, param._value);
+					}
+					for (const ShaderParamTexture& param : _textureParameters)
+					{
+						std::shared_ptr<TextureResource> textureResource = param._value.Lock();
+						if (textureResource != nullptr)
+						{
+							materialInstance->SetTexture(param._name, textureResource->GetTexture());
+						}
+					}
 				}
-			}
-
-			const DocumentNode* paramNode = _materialInstanceAsset._params.GetRootNode().GetFirstChild();
-			while (paramNode != nullptr)
-			{
-				String name = paramNode->GetChild("Name")->GetString();
-				ShaderParameter::Type type = static_cast<ShaderParameter::Type>(paramNode->GetChild("Type")->GetUInt8());
-				switch (type)
-				{
-				case ShaderParameter::Type::Float:
-					for (ShaderParamScalar& param : _scalarParameters)
-					{
-						if (param._name == name)
-						{
-							param._value.floatValue = paramNode->GetChild("Value")->GetFloat32();
-							break;
-						}
-					}
-					break;
-
-				case ShaderParameter::Type::Float2:
-					for (ShaderParamVec2& param : _vec2Parameters)
-					{
-						if (param._name == name)
-						{
-							Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
-							break;
-						}
-					}
-					break;
-
-				case ShaderParameter::Type::Float4:
-					for (ShaderParamVec4& param : _vec4Parameters)
-					{
-						if (param._name == name)
-						{
-							Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
-							break;
-						}
-					}
-					break;
-
-				case ShaderParameter::Type::Texture:
-					for (ShaderParamTexture& param : _textureParameters)
-					{
-						if (param._name == name)
-						{
-							Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
-							break;
-						}
-					}
-					break;
-				
-				default:
-					break;
-				}
-				paramNode = paramNode->GetNextSibling();
 			}
 		}
 	}
@@ -155,9 +188,9 @@ namespace hod::inline editor
 
 	/// @brief 
 	/// @return 
-	MaterialInstanceAsset& MaterialInstanceEditorTab::GetMaterialInstanceAsset()
+	MaterialInstanceSettings& MaterialInstanceEditorTab::GetMaterialInstanceSettings()
 	{
-		return _materialInstanceAsset;
+		return _materialInstanceSettings;
 	}
 
 	/// @brief 
@@ -268,5 +301,54 @@ namespace hod::inline editor
 			_zoomFactor = 1.0f;
 		}
 		ImGui::EndDisabled();
+	}
+
+	bool MaterialInstanceEditorTab::OnSave()
+	{
+		DocumentNode& paramsNode = _materialInstanceSettings._params.GetRootNode();
+		paramsNode.Clear();
+		for (const ShaderParamScalar& param : _scalarParameters)
+		{
+			DocumentNode& node = paramsNode.AddChild("");
+			node.AddChild("Name").SetString(param._name);
+			node.AddChild("Type").SetUInt8((uint8_t)param._type);
+			node.AddChild("Value").SetFloat32(param._value.floatValue);
+		}
+		for (const ShaderParamVec2& param : _vec2Parameters)
+		{
+			DocumentNode& node = paramsNode.AddChild("");
+			node.AddChild("Name").SetString(param._name);
+			node.AddChild("Type").SetUInt8((uint8_t)param._type);
+			Serializer::Serialize(param._value, node.AddChild("Value"));
+		}
+		for (const ShaderParamVec4& param : _vec4Parameters)
+		{
+			DocumentNode& node = paramsNode.AddChild("");
+			node.AddChild("Name").SetString(param._name);
+			node.AddChild("Type").SetUInt8((uint8_t)param._type);
+			Serializer::Serialize(param._value, node.AddChild("Value"));
+		}
+		for (const ShaderParamTexture& param : _textureParameters)
+		{
+			DocumentNode& node = paramsNode.AddChild("");
+			node.AddChild("Name").SetString(param._name);
+			node.AddChild("Type").SetUInt8((uint8_t)param._type);
+			Serializer::Serialize(param._value, node.AddChild("Value"));
+		}
+
+		Document settingsDocument;
+		if (Serializer::Serialize(_materialInstanceSettings, settingsDocument.GetRootNode()) == false)
+		{
+			return false;
+		}
+
+		Stream& settingsStream = _assetContainer.AddDataBlock("Settings", false);
+		DocumentWriterJson documentWriter;
+		if (documentWriter.Write(settingsDocument, settingsStream) == false)
+		{
+			return false;
+		}
+
+		return true;
 	}
 }

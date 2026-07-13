@@ -22,6 +22,16 @@ namespace hod::inline renderer
 
 namespace hod::inline editor
 {
+	class HOD_EDITOR_API MaterialInstanceSettings
+	{
+		REFLECTED_CLASS_NO_PARENT(MaterialInstanceSettings)
+
+		virtual ~MaterialInstanceSettings() = default;
+
+		WeakResource<MaterialResource>	_material;
+		Document						_params;
+	};
+
 	/// @brief 
 	class HOD_EDITOR_API MaterialInstanceEditorTab : public EditorTab
 	{
@@ -57,12 +67,12 @@ namespace hod::inline editor
 				~MaterialInstanceEditorTab() override;
 
 		std::shared_ptr<MaterialInstanceResource>	GetMaterialInstance() const;
-		MaterialInstanceAsset&								GetMaterialInstanceAsset();
+		MaterialInstanceSettings&					GetMaterialInstanceSettings();
 
-		Vector<ShaderParamScalar>&				GetScalarParameters();
-		Vector<ShaderParamTexture>&			GetTextureParameters();
-		Vector<ShaderParamVec2>&				GetVector2Parameters();
-		Vector<ShaderParamVec4>&				GetVector4Parameters();
+		Vector<ShaderParamScalar>&					GetScalarParameters();
+		Vector<ShaderParamTexture>&					GetTextureParameters();
+		Vector<ShaderParamVec2>&					GetVector2Parameters();
+		Vector<ShaderParamVec4>&					GetVector4Parameters();
 
 		float										GetZoomFactor() const;
 		void										SetZoomFactor(float zoomFactor);
@@ -72,6 +82,7 @@ namespace hod::inline editor
 		void	CreateDefaultLayout() override;
 		bool	DrawContent() override;
 		void	DrawMenuBar() override;
+		bool	OnSave() override;
 
 	private:
 
@@ -79,12 +90,12 @@ namespace hod::inline editor
 
 		std::shared_ptr<MaterialInstanceResource>	_materialInstance;
 
-		Vector<ShaderParameter>	_parameters;
-		Vector<ShaderParamScalar>			_scalarParameters;
-		Vector<ShaderParamTexture>			_textureParameters;
+		Vector<ShaderParameter>			_parameters;
+		Vector<ShaderParamScalar>		_scalarParameters;
+		Vector<ShaderParamTexture>		_textureParameters;
 		Vector<ShaderParamVec2>			_vec2Parameters;
 		Vector<ShaderParamVec4>			_vec4Parameters;
 
-		MaterialInstanceAsset					_materialInstanceAsset;
+		MaterialInstanceSettings		_materialInstanceSettings;
 	};
 }

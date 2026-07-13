@@ -8,16 +8,6 @@
 
 namespace hod::inline editor
 {
-	class HOD_EDITOR_API MaterialInstanceAsset
-	{
-		REFLECTED_CLASS_NO_PARENT(MaterialInstanceAsset)
-
-		virtual ~MaterialInstanceAsset() = default;
-
-		WeakResource<MaterialResource>	_material;
-		Document									_params;
-	};
-
 	class HOD_EDITOR_API MaterialInstanceCooker : public Cooker
 	{
 	public:

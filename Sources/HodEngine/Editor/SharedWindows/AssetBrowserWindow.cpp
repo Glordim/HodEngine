@@ -21,7 +21,10 @@
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
 #include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceCooker.hpp"
+#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorTab.hpp"
 #include "HodEngine/Editor/Project.hpp"
+
+#include <HodEngine/Core/Document/DocumentWriterJson.hpp>
 
 #include "HodEngine/Renderer/RHI/Texture.hpp"
 
@@ -238,6 +241,52 @@ namespace hod::inline editor
 						AssetContainer assetContainer;
 						assetContainer.SetAssetType(Hash::ComputeXxh3_64("Prefab"));
 						assetContainer.SetUid(UID::GenerateUID());
+						assetContainer.Save(assetPath);
+
+						context.assetBrowserWindow.Rename(assetPath);
+					},
+			});
+			RegisterContextualMenuAction({
+				.path = "Create/Material Instance",
+				.group = "New",
+				.available =
+					+[](const Context& context)
+					{
+						if (context.selectedItems.Size() == 1)
+						{
+							AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
+							if (asset != nullptr)
+							{
+								return asset->_asset->GetType() == Hash::ComputeXxh3_64("Material");
+							}
+						}
+						return false;
+					},
+				.execute =
+					+[](const Context& context)
+					{
+						AssetDatabase::FileSystemMapping* materialNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
+						if (materialNode == nullptr)
+						{
+							return;
+						}
+
+						Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / (materialNode->_asset->GetName() + ".materialinstance"));
+
+						MaterialInstanceSettings materialInstanceSettings;
+						materialInstanceSettings._material.SetUid(materialNode->_asset->GetUid());
+
+						Document settingsDocument;
+						Serializer::Serialize(materialInstanceSettings, settingsDocument.GetRootNode());
+
+						AssetContainer assetContainer;
+						assetContainer.SetAssetType(Hash::ComputeXxh3_64("MaterialInstance"));
+						assetContainer.SetUid(UID::GenerateUID());
+
+						Stream& settingsStream = assetContainer.AddDataBlock("Settings", false);
+						DocumentWriterJson documentWriter;
+						documentWriter.Write(settingsDocument, settingsStream);
+
 						assetContainer.Save(assetPath);
 
 						context.assetBrowserWindow.Rename(assetPath);

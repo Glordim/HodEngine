@@ -5,11 +5,14 @@
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
+#include "HodEngine/Core/Document/Document.hpp"
+#include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
 #include "HodEngine/Core/Output/OutputService.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceContainer.hpp"
 
 namespace hod::inline renderer
 {
@@ -26,15 +29,27 @@ namespace hod::inline renderer
 		DefaultAllocator::GetInstance().Delete(_materialInstance);
 	}
 
-	/// @brief 
-	/// @param document 
-	/// @param stream 
-	/// @return 
-	bool MaterialInstanceResource::Initialize(const ResourceContainer& /*resourceContainer*/)
+	/// @brief
+	/// @param resourceContainer
+	/// @return
+	bool MaterialInstanceResource::Initialize(const ResourceContainer& resourceContainer)
 	{
-		return false;
-		/*
-		if (Serializer::Deserialize(*this, documentNode) == false)
+		const ResourceContainer::DataBlockInfo* settingsDataBlock = resourceContainer.FindDataBlock("Settings");
+		if (settingsDataBlock == nullptr)
+		{
+			OUTPUT_ERROR("MaterialInstanceResource::Initialize: missing 'Settings' data block");
+			return false;
+		}
+
+		Document           settingsDocument;
+		DocumentReaderJson documentReader;
+		if (documentReader.Read(settingsDocument, *settingsDataBlock->_stream) == false)
+		{
+			OUTPUT_ERROR("MaterialInstanceResource::Initialize: can't read 'Settings' data block");
+			return false;
+		}
+
+		if (Serializer::Deserialize(*this, settingsDocument.GetRootNode()) == false)
 		{
 			OUTPUT_ERROR("MaterialInstanceResource::Initialize: Unable to deserialize");
 			return false;
@@ -63,7 +78,6 @@ namespace hod::inline renderer
 		MaterialSerializationHelper::ApplyParamsFromDocument(*_materialInstance, _params.GetRootNode(), _textureResources);
 
 		return true;
-		*/
 	}
 
 	/// @brief 

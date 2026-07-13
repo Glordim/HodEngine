@@ -1,41 +1,45 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceCooker.hpp"
-#include "HodEngine/Core/Document/Document.hpp"
-#include "HodEngine/Core/Document/DocumentReaderJson.hpp"
-#include "HodEngine/Core/Document/DocumentWriterJson.hpp"
-#include "HodEngine/Core/Output/OutputService.hpp"
 
-#include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
+#include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetContainer.hpp"
 
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
-#include "HodEngine/Core/Serialization/Serializer.hpp"
-#include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
+#include <HodEngine/Core/Document/Document.hpp>
+#include <HodEngine/Core/Document/DocumentReaderJson.hpp>
+#include <HodEngine/Core/Document/DocumentWriterJson.hpp>
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(MaterialInstanceAsset, reflectionDescriptor)
+	/// @brief
+	/// @param asset
+	/// @return
+	bool MaterialInstanceCooker::FillDataBlock(const Asset& asset, uint32_t /*platforms*/, uint8_t /*configs*/, uint32_t /*languages*/)
 	{
-		AddPropertyT(reflectionDescriptor, &MaterialInstanceAsset::_material, "_material");
-		AddPropertyT(reflectionDescriptor, &MaterialInstanceAsset::_params, "_params")->AddTrait<ReflectionTraitHide>();
-	}
+		AssetContainer assetContainer;
+		if (assetContainer.Load(asset.GetPath()) == false)
+		{
+			return false;
+		}
 
-	/// @brief 
-	/// @param path 
-	/// @return 
-	bool MaterialInstanceCooker::FillDataBlock(const Asset& asset, uint32_t platforms, uint8_t configs, uint32_t languages)
-	{
-		(void)asset;
-		(void)platforms;
-		(void)configs;
-		(void)languages;
-		/*
+		const AssetContainer::DataBlockInfo* settingsDataBlock = assetContainer.FindDataBlock("Settings");
+		if (settingsDataBlock == nullptr)
+		{
+			return false;
+		}
+
+		Document           document;
 		DocumentReaderJson documentReader;
-		if (documentReader.Read(document, data) == false)
+		if (documentReader.Read(document, *settingsDataBlock->_stream) == false)
+		{
+			return false;
+		}
+
+		Stream& settingsStream = AddDataBlockStream("Settings", false, std::to_underlying(Platform::All), std::to_underlying(Config::All), std::to_underlying(ResourceVariant::Language::All));
+		DocumentWriterJson documentWriter;
+		if (documentWriter.Write(document, settingsStream) == false)
 		{
 			return false;
 		}
 		return true;
-		*/
-		return false;
 	}
 }
