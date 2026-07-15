@@ -16,7 +16,7 @@ namespace hod::inline editor
 {
 	/// @brief 
 	AudioEditorTab::AudioEditorTab(std::shared_ptr<Asset> asset)
-	: EditorTab(asset, ICON_MDI_TABLE)
+	: EditorTab(asset, ICON_MDI_VOLUME_HIGH)
 	{
 	}
 
