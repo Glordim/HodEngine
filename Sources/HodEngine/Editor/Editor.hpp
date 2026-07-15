@@ -153,6 +153,8 @@ namespace hod::inline editor
 		bool UnloadEditorModules();
 
 	private:
+		Event<>::Slot _onProjectModulesReloadedSlot;
+
 		Vector<DynamicLibrary*> _editorModules;
 
 		Vector<EditorTab*>                                                            _editorTabs;

@@ -494,6 +494,8 @@ namespace hod::inline editor
 			startupFunc();
 		}
 
+		_onModulesReloadedEvent.Emit();
+
 		return true;
 	}
 }

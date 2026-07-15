@@ -111,7 +111,10 @@
 
 namespace hod::inline editor
 {
-	_SingletonConstructor(Editor) {}
+	_SingletonConstructor(Editor)
+	: _onProjectModulesReloadedSlot([]() { AssetBrowserWindow::PopulateContextualMenuActions(); })
+	{
+	}
 
 	/// @brief
 	Editor::~Editor()
@@ -154,6 +157,8 @@ namespace hod::inline editor
 		_taskTracker = DefaultAllocator::GetInstance().New<TaskTracker>();
 
 		Project::CreateInstance();
+		Project::GetInstance()->GetOnModulesReloadedEvent().Connect(_onProjectModulesReloadedSlot);
+
 		WindowFactory::CreateInstance();
 
 		if (LoadEditorModules() == false)

@@ -7,6 +7,7 @@
 
 #include <HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp>
 #include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
+#include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <HodEngine/Core/Singleton.hpp>
@@ -58,6 +59,8 @@ namespace hod::inline editor
 
 		bool CreateMinimalSourceForModule(const Path& directory);
 
+		Event<>& GetOnModulesReloadedEvent() { return _onModulesReloadedEvent; }
+
 	private:
 		Path _projectPath;
 		Path _sourceDirPath;
@@ -75,5 +78,7 @@ namespace hod::inline editor
 
 		DynamicLibrary    _editorModule;
 		FileSystemWatcher _editorModuleFileSystemWatcher;
+
+		Event<> _onModulesReloadedEvent;
 	};
 }

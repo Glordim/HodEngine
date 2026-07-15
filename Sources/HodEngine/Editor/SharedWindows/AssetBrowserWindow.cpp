@@ -144,143 +144,182 @@ namespace hod::inline editor
 	/// @brief
 	AssetBrowserWindow::AssetBrowserWindow()
 	{
-		static bool contextualActionInitialized = false;
-		if (contextualActionInitialized == false)
+		SetFlags(ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+
+		_folderTree._path = Project::GetInstance()->GetAssetDirPath();
+
+		ResyncFolderTree(&_folderTree);
+	}
+
+	/// @brief Rebuilds the contextual menu actions from scratch. Must be called whenever the project modules
+	/// (re)load, since some actions (eg. SerializedData creation) are derived from reflection descriptors coming
+	/// from the project DLL, which may not be loaded yet at static-init time and can change on hot-reload.
+	void AssetBrowserWindow::PopulateContextualMenuActions()
+	{
+		_contextualMenuActions.Clear();
+
+		RegisterContextualMenuAction({
+			.path = "Import",
+			.group = "",
+			.available = +[](const Context& context) { return context.selectedItems.Size() == 0; },
+			.execute = +[](const Context& context) { Editor::GetInstance()->OpenImportDialog(context.currentDirectory); },
+		});
+		RegisterContextualMenuAction({
+			.path = "Rename",
+			.group = "Edit",
+			.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
+			.execute = +[](const Context& context) { context.assetBrowserWindow.Rename(context.selectedItems[0]); },
+		});
+		RegisterContextualMenuAction({
+			.path = "Delete",
+			.group = "Edit",
+			.available = +[](const Context& context) { return context.selectedItems.Size() > 0; },
+			.execute =
+				+[](const Context& context)
+				{
+					for (Path selectedAsset : context.selectedItems)
+					{
+						auto filesystemMapping = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(selectedAsset);
+						if (filesystemMapping != nullptr)
+						{
+							AssetDatabase::GetInstance()->Delete(*filesystemMapping);
+						}
+					}
+				},
+		});
+		RegisterContextualMenuAction({
+			.path = "Show in Explorer",
+			.group = "Explore",
+			.available = +[](const Context& context) { return context.selectedItems.Size() <= 1; },
+			.execute =
+				+[](const Context& context)
+				{
+					if (context.selectedItems.Size() == 1)
+					{
+						OpenExplorerAtPath(context.selectedItems[0]);
+					}
+					else
+					{
+						OpenExplorerAtPath(context.currentDirectory);
+					}
+				},
+		});
+		RegisterContextualMenuAction({
+			.path = "Copy path",
+			.group = "Explore",
+			.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
+			.execute = +[](const Context& context) { OS::WriteClipboard(context.selectedItems[0].GetString()); },
+		});
+		RegisterContextualMenuAction({
+			.path = "New folder",
+			.group = "New",
+			.available = +[](const Context& context) { return context.selectedItems.Size() == 0; },
+			.execute =
+				+[](const Context& context)
+				{
+					Path newFolderPath = AssetDatabase::GetInstance()->CreateFolder(context.currentDirectory / "Folder");
+					context.assetBrowserWindow.Rename(newFolderPath);
+				},
+		});
+		RegisterContextualMenuAction({
+			.path = "Create/Scene",
+			.group = "New",
+			.available = +[](const Context& context) { return context.selectedItems.Empty(); },
+			.execute =
+				+[](const Context& context)
+				{
+					Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / "NewScene.scene");
+
+					AssetContainer assetContainer;
+					assetContainer.SetAssetType(Hash::ComputeXxh3_64("Scene"));
+					assetContainer.SetUid(UID::GenerateUID());
+					assetContainer.Save(assetPath);
+
+					context.assetBrowserWindow.Rename(assetPath);
+				},
+		});
+		RegisterContextualMenuAction({
+			.path = "Create/Prefab",
+			.group = "New",
+			.available = +[](const Context& context) { return context.selectedItems.Empty(); },
+			.execute =
+				+[](const Context& context)
+				{
+					Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / "NewPrefab.prefab");
+
+					AssetContainer assetContainer;
+					assetContainer.SetAssetType(Hash::ComputeXxh3_64("Prefab"));
+					assetContainer.SetUid(UID::GenerateUID());
+					assetContainer.Save(assetPath);
+
+					context.assetBrowserWindow.Rename(assetPath);
+				},
+		});
+		RegisterContextualMenuAction({
+			.path = "Create/Material Instance",
+			.group = "New",
+			.available =
+				+[](const Context& context)
+				{
+					if (context.selectedItems.Size() == 1)
+					{
+						AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
+						if (asset != nullptr)
+						{
+							return asset->_asset->GetType() == Hash::ComputeXxh3_64("Material");
+						}
+					}
+					return false;
+				},
+			.execute =
+				+[](const Context& context)
+				{
+					AssetDatabase::FileSystemMapping* materialNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
+					if (materialNode == nullptr)
+					{
+						return;
+					}
+
+					Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / (materialNode->_asset->GetName() + ".materialinstance"));
+
+					MaterialInstanceSettings materialInstanceSettings;
+					materialInstanceSettings._material.SetUid(materialNode->_asset->GetUid());
+
+					Document settingsDocument;
+					Serializer::Serialize(materialInstanceSettings, settingsDocument.GetRootNode());
+
+					AssetContainer assetContainer;
+					assetContainer.SetAssetType(Hash::ComputeXxh3_64("MaterialInstance"));
+					assetContainer.SetUid(UID::GenerateUID());
+
+					Stream& settingsStream = assetContainer.AddDataBlock("Settings", false);
+					DocumentWriterJson documentWriter;
+					documentWriter.Write(settingsDocument, settingsStream);
+
+					assetContainer.Save(assetPath);
+
+					context.assetBrowserWindow.Rename(assetPath);
+				},
+		});
+		for (const auto& pair : SerializedDataFactory::GetInstance()->GetAllDescriptors())
 		{
-			contextualActionInitialized = true;
-
+			ReflectionDescriptor* descriptor = pair.second;
 			RegisterContextualMenuAction({
-				.path = "Import",
-				.group = "",
-				.available = +[](const Context& context) { return context.selectedItems.Size() == 0; },
-				.execute = +[](const Context& context) { Editor::GetInstance()->OpenImportDialog(context.currentDirectory); },
-			});
-			RegisterContextualMenuAction({
-				.path = "Rename",
-				.group = "Edit",
-				.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
-				.execute = +[](const Context& context) { context.assetBrowserWindow.Rename(context.selectedItems[0]); },
-			});
-			RegisterContextualMenuAction({
-				.path = "Delete",
-				.group = "Edit",
-				.available = +[](const Context& context) { return context.selectedItems.Size() > 0; },
-				.execute =
-					+[](const Context& context)
-					{
-						for (Path selectedAsset : context.selectedItems)
-						{
-							auto filesystemMapping = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(selectedAsset);
-							if (filesystemMapping != nullptr)
-							{
-								AssetDatabase::GetInstance()->Delete(*filesystemMapping);
-							}
-						}
-					},
-			});
-			RegisterContextualMenuAction({
-				.path = "Show in Explorer",
-				.group = "Explore",
-				.available = +[](const Context& context) { return context.selectedItems.Size() <= 1; },
-				.execute =
-					+[](const Context& context)
-					{
-						if (context.selectedItems.Size() == 1)
-						{
-							OpenExplorerAtPath(context.selectedItems[0]);
-						}
-						else
-						{
-							OpenExplorerAtPath(context.currentDirectory);
-						}
-					},
-			});
-			RegisterContextualMenuAction({
-				.path = "Copy path",
-				.group = "Explore",
-				.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
-				.execute = +[](const Context& context) { OS::WriteClipboard(context.selectedItems[0].GetString()); },
-			});
-			RegisterContextualMenuAction({
-				.path = "New folder",
-				.group = "New",
-				.available = +[](const Context& context) { return context.selectedItems.Size() == 0; },
-				.execute =
-					+[](const Context& context)
-					{
-						Path newFolderPath = AssetDatabase::GetInstance()->CreateFolder(context.currentDirectory / "Folder");
-						context.assetBrowserWindow.Rename(newFolderPath);
-					},
-			});
-			RegisterContextualMenuAction({
-				.path = "Create/Scene",
+				.path = String("Create/Data/") + descriptor->GetDisplayName(),
 				.group = "New",
 				.available = +[](const Context& context) { return context.selectedItems.Empty(); },
 				.execute =
-					+[](const Context& context)
+					[descriptor](const Context& context)
 					{
-						Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / "NewScene.scene");
-
-						AssetContainer assetContainer;
-						assetContainer.SetAssetType(Hash::ComputeXxh3_64("Scene"));
-						assetContainer.SetUid(UID::GenerateUID());
-						assetContainer.Save(assetPath);
-
-						context.assetBrowserWindow.Rename(assetPath);
-					},
-			});
-			RegisterContextualMenuAction({
-				.path = "Create/Prefab",
-				.group = "New",
-				.available = +[](const Context& context) { return context.selectedItems.Empty(); },
-				.execute =
-					+[](const Context& context)
-					{
-						Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / "NewPrefab.prefab");
-
-						AssetContainer assetContainer;
-						assetContainer.SetAssetType(Hash::ComputeXxh3_64("Prefab"));
-						assetContainer.SetUid(UID::GenerateUID());
-						assetContainer.Save(assetPath);
-
-						context.assetBrowserWindow.Rename(assetPath);
-					},
-			});
-			RegisterContextualMenuAction({
-				.path = "Create/Material Instance",
-				.group = "New",
-				.available =
-					+[](const Context& context)
-					{
-						if (context.selectedItems.Size() == 1)
-						{
-							AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
-							if (asset != nullptr)
-							{
-								return asset->_asset->GetType() == Hash::ComputeXxh3_64("Material");
-							}
-						}
-						return false;
-					},
-				.execute =
-					+[](const Context& context)
-					{
-						AssetDatabase::FileSystemMapping* materialNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
-						if (materialNode == nullptr)
-						{
-							return;
-						}
-
-						Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / (materialNode->_asset->GetName() + ".materialinstance"));
-
-						MaterialInstanceSettings materialInstanceSettings;
-						materialInstanceSettings._material.SetUid(materialNode->_asset->GetUid());
+						SerializedDataAsset serializedDataAsset(descriptor->CreateInstance<SerializedData>());
 
 						Document settingsDocument;
-						Serializer::Serialize(materialInstanceSettings, settingsDocument.GetRootNode());
+						Serializer::Serialize(serializedDataAsset, settingsDocument.GetRootNode());
+
+						Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / (descriptor->GetDisplayName() + ".serializeddata"));
 
 						AssetContainer assetContainer;
-						assetContainer.SetAssetType(Hash::ComputeXxh3_64("MaterialInstance"));
+						assetContainer.SetAssetType(Hash::ComputeXxh3_64("SerializedData"));
 						assetContainer.SetUid(UID::GenerateUID());
 
 						Stream& settingsStream = assetContainer.AddDataBlock("Settings", false);
@@ -292,69 +331,63 @@ namespace hod::inline editor
 						context.assetBrowserWindow.Rename(assetPath);
 					},
 			});
-			RegisterContextualMenuAction({
-				.path = "Reimport",
-				.group = "",
-				.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
-				.execute =
-					+[](const Context& context)
-					{
-						(void)context; /*AssetDatabase::GetInstance()->Import(context.selectedItems[0]); TODO*/
-					},
-			});
-			RegisterContextualMenuAction({
-				.path = "Recook",
-				.group = "",
-				.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
-				.execute = +[](const Context& context) { Editor::GetInstance()->Cook(context.selectedItems[0]); },
-			});
-			RegisterContextualMenuAction({
-				.path = "Show Resource in explorer",
-				.group = "",
-				.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
-				.execute =
-					+[](const Context& context)
-					{
-						AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
-						if (asset != nullptr)
-						{
-							OpenExplorerAtPath(Project::GetInstance()->GetResourceDirPath() / (asset->_asset->GetUid().ToString() + ".dat").CStr());
-						}
-					},
-			});
-			RegisterContextualMenuAction({
-				.path = "Set as startup scene",
-				.group = "",
-				.available =
-					+[](const Context& context)
-					{
-						if (context.selectedItems.Size() == 1)
-						{
-							AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
-							if (asset != nullptr)
-							{
-								return asset->_asset->GetType() == Hash::ComputeXxh3_64("Scene");
-							}
-						}
-						return false;
-					},
-				.execute =
-					+[](const Context& context)
-					{
-						AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
-						if (asset != nullptr)
-						{
-							Project::GetInstance()->SetStartupScene(asset->_asset);
-						}
-					},
-			});
 		}
-
-		SetFlags(ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
-
-		_folderTree._path = Project::GetInstance()->GetAssetDirPath();
-
-		ResyncFolderTree(&_folderTree);
+		RegisterContextualMenuAction({
+			.path = "Reimport",
+			.group = "",
+			.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
+			.execute =
+				+[](const Context& context)
+				{
+					(void)context; /*AssetDatabase::GetInstance()->Import(context.selectedItems[0]); TODO*/
+				},
+		});
+		RegisterContextualMenuAction({
+			.path = "Recook",
+			.group = "",
+			.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
+			.execute = +[](const Context& context) { Editor::GetInstance()->Cook(context.selectedItems[0]); },
+		});
+		RegisterContextualMenuAction({
+			.path = "Show Resource in explorer",
+			.group = "",
+			.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
+			.execute =
+				+[](const Context& context)
+				{
+					AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
+					if (asset != nullptr)
+					{
+						OpenExplorerAtPath(Project::GetInstance()->GetResourceDirPath() / (asset->_asset->GetUid().ToString() + ".dat").CStr());
+					}
+				},
+		});
+		RegisterContextualMenuAction({
+			.path = "Set as startup scene",
+			.group = "",
+			.available =
+				+[](const Context& context)
+				{
+					if (context.selectedItems.Size() == 1)
+					{
+						AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
+						if (asset != nullptr)
+						{
+							return asset->_asset->GetType() == Hash::ComputeXxh3_64("Scene");
+						}
+					}
+					return false;
+				},
+			.execute =
+				+[](const Context& context)
+				{
+					AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
+					if (asset != nullptr)
+					{
+						Project::GetInstance()->SetStartupScene(asset->_asset);
+					}
+				},
+		});
 	}
 
 	/// @brief
@@ -904,83 +937,6 @@ namespace hod::inline editor
 
 					menuItem.callback(context);
 				}
-			}
-			if (_currentExplorerNode == nullptr && ImGui::BeginMenu("Create") == true)
-			{
-				if (ImGui::MenuItem("Prefab") == true)
-				{
-					Path newAssetPath;
-					// Path newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Prefab, PrefabImporter>(_currentFolderTreeNode->_path / "Prefab.asset");
-					AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
-					if (newAssetNode != nullptr)
-					{
-						Prefab prefab;
-						prefab.CreateEntity("Prefab");
-						newAssetNode->_asset->Save(&prefab, &prefab.GetReflectionDescriptorV());
-						// AssetDatabase::GetInstance()->Import(newAssetPath); TODO
-						_itemToRename = newAssetNode;
-						std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().CStr());
-						ImGui::CloseCurrentPopup();
-					}
-				}
-				if (ImGui::MenuItem("Scene") == true)
-				{
-					// Path                              newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Scene, SceneImporter>(_currentFolderTreeNode->_path /
-					// "Scene.asset");
-					Path                              newAssetPath;
-					AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
-					if (newAssetNode != nullptr)
-					{
-						_itemToRename = newAssetNode;
-						std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().CStr());
-						ImGui::CloseCurrentPopup();
-					}
-				}
-				if (ImGui::BeginMenu("Data") == true)
-				{
-					for (const auto& pair : SerializedDataFactory::GetInstance()->GetAllDescriptors())
-					{
-						ImGui::PushID(pair.second);
-						if (ImGui::MenuItem(pair.second->GetDisplayName().CStr()))
-						{
-							std::shared_ptr<SerializedData> serializedData(pair.second->CreateInstance<SerializedData>());
-
-							SerializedDataAsset serializedDataAsset(serializedData.get());
-
-							Path newAssetPath;
-							/*
-							Path      newAssetPath = AssetDatabase::GetInstance()->CreateAsset(&serializedDataAsset, &serializedDataAsset.GetReflectionDescriptor(),
-							                                                                   importer->AllocateSettings(), importer->GetTypeName(),
-							                                                                   _currentFolderTreeNode->_path / (pair.second->GetDisplayName() + ".asset").CStr());
-							                                                                   */
-							AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
-							if (newAssetNode != nullptr)
-							{
-								_itemToRename = newAssetNode;
-								std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().CStr());
-								ImGui::CloseCurrentPopup();
-							}
-						}
-						ImGui::PopID();
-					}
-					ImGui::EndMenu();
-				}
-				if (ImGui::MenuItem("Material Instance") == true)
-				{
-					Path newAssetPath;
-					/*
-					Path newAssetPath =
-					    AssetDatabase::GetInstance()->CreateAsset<MaterialInstanceAsset, MaterialInstanceImporter>(_currentFolderTreeNode->_path / "MaterialInstance.mati");
-					    */
-					AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
-					if (newAssetNode != nullptr)
-					{
-						_itemToRename = newAssetNode;
-						std::strcpy(_itemRenameBuffer, newAssetNode->_asset->GetName().CStr());
-						ImGui::CloseCurrentPopup();
-					}
-				}
-				ImGui::EndMenu();
 			}
 			ImGui::EndPopup();
 		}

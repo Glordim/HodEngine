@@ -47,6 +47,8 @@ namespace hod::inline editor
 		static uint32_t RegisterContextualMenuAction(ContextualMenuAction contextualMenuAction);
 		static void UnregisterContextualMenuAction(uint32_t contextualMenuActionId);
 
+		static void PopulateContextualMenuActions();
+
 	private:
 		struct HOD_EDITOR_API FolderItem
 		{
