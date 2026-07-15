@@ -17,16 +17,16 @@ namespace hod::inline editor
 {
 	class EditorReflectedObject;
 
-	/// @brief 
-	class HOD_EDITOR_API SerializedDataEditorPropertiesWindow : public EditorTabWindow
+	/// @brief
+	class HOD_EDITOR_API DataItemEditorPropertiesWindow : public EditorTabWindow
 	{
-		REFLECTED_CLASS(SerializedDataEditorPropertiesWindow, EditorTabWindow)
+		REFLECTED_CLASS(DataItemEditorPropertiesWindow, EditorTabWindow)
 
 	public:
 
-					SerializedDataEditorPropertiesWindow() = default;
-					SerializedDataEditorPropertiesWindow(EditorTab* editorTab);
-					~SerializedDataEditorPropertiesWindow() override = default;
+					DataItemEditorPropertiesWindow() = default;
+					DataItemEditorPropertiesWindow(EditorTab* editorTab);
+					~DataItemEditorPropertiesWindow() override = default;
 
 	public:
 

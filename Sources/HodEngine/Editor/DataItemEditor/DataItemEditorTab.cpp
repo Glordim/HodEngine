@@ -1,6 +1,6 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/SerializedDataEditor/SerializedDataEditorTab.hpp"
-#include "HodEngine/Editor/SerializedDataEditor/SerializedDataEditorPropertiesWindow.hpp"
+#include "HodEngine/Editor/DataItemEditor/DataItemEditorTab.hpp"
+#include "HodEngine/Editor/DataItemEditor/DataItemEditorPropertiesWindow.hpp"
 
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/HierachyWindow.hpp"
@@ -22,8 +22,8 @@
 namespace hod::inline editor
 {
 	/// @brief
-	SerializedDataEditorTab::SerializedDataEditorTab(std::shared_ptr<Asset> asset)
-	: EditorTab(asset, ICON_MDI_TABLE)
+	DataItemEditorTab::DataItemEditorTab(std::shared_ptr<Asset> asset)
+	: EditorTab(asset, ICON_MDI_TEXT_BOX)
 	{
 		if (asset != nullptr)
 		{
@@ -34,28 +34,28 @@ namespace hod::inline editor
 				DocumentReaderJson documentReader;
 				if (documentReader.Read(settingsDocument, *settingsDataBlock->_stream) == true)
 				{
-					Serializer::Deserialize(_serializedDataContainer, settingsDocument.GetRootNode());
+					Serializer::Deserialize(_dataItemContainer, settingsDocument.GetRootNode());
 				}
 			}
 		}
 	}
 
 	/// @brief
-	SerializedDataEditorTab::~SerializedDataEditorTab()
+	DataItemEditorTab::~DataItemEditorTab()
 	{
 	}
 
 	/// @brief
 	/// @return
-	SerializedDataContainer& SerializedDataEditorTab::GetSerializedDataContainer()
+	DataItemContainer& DataItemEditorTab::GetDataItemContainer()
 	{
-		return _serializedDataContainer;
+		return _dataItemContainer;
 	}
 
-	/// @brief 
-	void SerializedDataEditorTab::CreateDefaultLayout()
+	/// @brief
+	void DataItemEditorTab::CreateDefaultLayout()
 	{
-		SerializedDataEditorPropertiesWindow* propertiesWindow = OpenWindow<SerializedDataEditorPropertiesWindow>();
+		DataItemEditorPropertiesWindow* propertiesWindow = OpenWindow<DataItemEditorPropertiesWindow>();
 
 		ImGui::DockBuilderRemoveNode(_dockSpaceId);
 		ImGui::DockBuilderRemoveNodeChildNodes(_dockSpaceId);
@@ -67,9 +67,9 @@ namespace hod::inline editor
 		ImGui::DockBuilderFinish(_dockSpaceId);
 	}
 
-	/// @brief 
-	/// @return 
-	bool SerializedDataEditorTab::DrawContent()
+	/// @brief
+	/// @return
+	bool DataItemEditorTab::DrawContent()
 	{
 		// todo override GetIdentifier ?
 		/*
@@ -86,10 +86,10 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
-	bool SerializedDataEditorTab::OnSave()
+	bool DataItemEditorTab::OnSave()
 	{
 		Document settingsDocument;
-		if (Serializer::Serialize(_serializedDataContainer, settingsDocument.GetRootNode()) == false)
+		if (Serializer::Serialize(_dataItemContainer, settingsDocument.GetRootNode()) == false)
 		{
 			return false;
 		}
@@ -105,7 +105,7 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	void SerializedDataEditorTab::DrawMenuBar()
+	void DataItemEditorTab::DrawMenuBar()
 	{
 	}
 }

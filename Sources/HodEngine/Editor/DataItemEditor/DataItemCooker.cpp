@@ -1,5 +1,5 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/SerializedDataEditor/SerializedDataCooker.hpp"
+#include "HodEngine/Editor/DataItemEditor/DataItemCooker.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetContainer.hpp"
@@ -10,7 +10,7 @@
 
 namespace hod::inline editor
 {
-	bool SerializedDataCooker::FillDataBlock(const Asset& asset, uint32_t /*platforms*/, uint8_t /*configs*/, uint32_t /*languages*/)
+	bool DataItemCooker::FillDataBlock(const Asset& asset, uint32_t /*platforms*/, uint8_t /*configs*/, uint32_t /*languages*/)
 	{
 		AssetContainer assetContainer;
 		if (assetContainer.Load(asset.GetPath()) == false)
@@ -21,7 +21,7 @@ namespace hod::inline editor
 		const AssetContainer::DataBlockInfo* settingsDataBlock = assetContainer.FindDataBlock("Settings");
 		if (settingsDataBlock == nullptr)
 		{
-			OUTPUT_ERROR("SerializedDataCooker: missing 'Settings' data block");
+			OUTPUT_ERROR("DataItemCooker: missing 'Settings' data block");
 			return false;
 		}
 
@@ -29,14 +29,14 @@ namespace hod::inline editor
 		settingsData.Resize(settingsDataBlock->_uncompressedSize);
 		if (settingsDataBlock->_stream->Read(settingsData.Data(), settingsData.Size()) != settingsData.Size())
 		{
-			OUTPUT_ERROR("SerializedDataCooker: can't read 'Settings' data block");
+			OUTPUT_ERROR("DataItemCooker: can't read 'Settings' data block");
 			return false;
 		}
 
 		Stream& settingsStream = AddDataBlockStream("Settings", false, std::to_underlying(Platform::All), std::to_underlying(Config::All), std::to_underlying(ResourceVariant::Language::All));
 		if (settingsStream.Write(settingsData.Data(), settingsData.Size()) != settingsData.Size())
 		{
-			OUTPUT_ERROR("SerializedDataCooker: unable to write 'Settings' data block");
+			OUTPUT_ERROR("DataItemCooker: unable to write 'Settings' data block");
 			return false;
 		}
 

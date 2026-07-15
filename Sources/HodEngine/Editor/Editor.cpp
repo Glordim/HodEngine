@@ -10,7 +10,6 @@
 #include "HodEngine/GameSystems/Job/JobScheduler.hpp"
 #include "HodEngine/Renderer/Resource/FontResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"
-#include "SerializedDataEditor/SerializedDataCooker.hpp"
 #include "TaskTracker/TaskTracker.hpp"
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
@@ -60,7 +59,8 @@
 #include "Icons/Material.png.hpp"
 #include "Icons/Font.png.hpp"
 #include "Icons/Audio.png.hpp"
-#include "Icons/SerializedData.png.hpp"
+#include "Icons/DataItem.png.hpp"
+#include "Icons/DataTable.png.hpp"
 
 #include "HodEngine/Editor/MissingGameModuleModal.hpp"
 
@@ -86,9 +86,9 @@
 #include "HodEngine/Editor/FontEditor/FontImporter.hpp"
 #include "HodEngine/Renderer/Resource/FontResource.hpp"
 
-#include "HodEngine/Editor/SerializedDataEditor/SerializedDataEditorTab.hpp"
-#include "HodEngine/Editor/SerializedDataEditor/SerializedDataCooker.hpp"
-#include "HodEngine/Game/SerializedDataResource.hpp"
+#include "HodEngine/Editor/DataItemEditor/DataItemEditorTab.hpp"
+#include "HodEngine/Editor/DataItemEditor/DataItemCooker.hpp"
+#include "HodEngine/Game/DataItemResource.hpp"
 
 #include "HodEngine/Editor/MaterialEditor/MaterialEditorTab.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialCooker.hpp"
@@ -143,7 +143,8 @@ namespace hod::inline editor
 		DefaultAllocator::GetInstance().Delete(_materialTexture);
 		DefaultAllocator::GetInstance().Delete(_fontTexture);
 		DefaultAllocator::GetInstance().Delete(_audioTexture);
-		DefaultAllocator::GetInstance().Delete(_serializedDataTexture);
+		DefaultAllocator::GetInstance().Delete(_dataItemTexture);
+		DefaultAllocator::GetInstance().Delete(_dataTableTexture);
 		DefaultAllocator::GetInstance().Delete(_checkerTexture);
 
 		DefaultAllocator::GetInstance().Delete(_taskTracker);
@@ -208,9 +209,13 @@ namespace hod::inline editor
 		_audioTexture = Renderer::GetInstance()->CreateTexture();
 		_audioTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 
-		pixels = stbi_load_from_memory(SerializedData_png, SerializedData_png_size, &x, &y, &component, 0);
-		_serializedDataTexture = Renderer::GetInstance()->CreateTexture();
-		_serializedDataTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
+		pixels = stbi_load_from_memory(DataItem_png, DataItem_png_size, &x, &y, &component, 0);
+		_dataItemTexture = Renderer::GetInstance()->CreateTexture();
+		_dataItemTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
+
+		pixels = stbi_load_from_memory(DataTable_png, DataTable_png_size, &x, &y, &component, 0);
+		_dataTableTexture = Renderer::GetInstance()->CreateTexture();
+		_dataTableTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 
 		static constexpr uint8_t primaryGrey = 71;
 		static constexpr uint8_t secondaryGrey = 102;
@@ -342,9 +347,9 @@ namespace hod::inline editor
 		AssetDatabase::GetInstance()->RegisterResource<PrefabResource>("Prefab");
 		RegisterEditorTab<PrefabEditorTab>("Prefab");
 
-		AssetDatabase::GetInstance()->RegisterCooker<SerializedDataCooker>("SerializedData");
-		AssetDatabase::GetInstance()->RegisterResource<SerializedDataResource>("SerializedData");
-		RegisterEditorTab<SerializedDataEditorTab>("SerializedData");
+		AssetDatabase::GetInstance()->RegisterCooker<DataItemCooker>("DataItem");
+		AssetDatabase::GetInstance()->RegisterResource<DataItemResource>("DataItem");
+		RegisterEditorTab<DataItemEditorTab>("DataItem");
 
 		AssetDatabase::GetInstance()->RegisterImporter<MaterialImporter>("slang");
 		AssetDatabase::GetInstance()->RegisterCooker<MaterialCooker>("Material");

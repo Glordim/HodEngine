@@ -6,18 +6,18 @@
 #include <memory>
 #include "HodEngine/Core/Vector.hpp"
 
-#include "HodEngine/Game/SerializedDataContainer.hpp"
+#include "HodEngine/Game/DataItemContainer.hpp"
 
 namespace hod::inline editor
 {
 	/// @brief
-	class HOD_EDITOR_API SerializedDataEditorTab : public EditorTab
+	class HOD_EDITOR_API DataItemEditorTab : public EditorTab
 	{
 	public:
-				SerializedDataEditorTab(std::shared_ptr<Asset> asset);
-				~SerializedDataEditorTab() override;
+				DataItemEditorTab(std::shared_ptr<Asset> asset);
+				~DataItemEditorTab() override;
 
-		SerializedDataContainer&	GetSerializedDataContainer();
+		DataItemContainer&	GetDataItemContainer();
 
 	protected:
 
@@ -28,6 +28,6 @@ namespace hod::inline editor
 
 	private:
 
-		SerializedDataContainer	_serializedDataContainer;
+		DataItemContainer	_dataItemContainer;
 	};
 }

@@ -4,7 +4,7 @@
 #include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Game/SerializedDataContainer.hpp"
+#include "HodEngine/Game/DataItemContainer.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
@@ -34,7 +34,7 @@
 #include "HodEngine/Game/PrefabResource.hpp"
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/SceneSerializer.hpp"
-#include "HodEngine/Game/SerializedDataFactory.hpp"
+#include "HodEngine/Game/DataStructFactory.hpp"
 #include "HodEngine/Game/World.hpp"
 
 #include <HodEngine/Core/Serialization/Serializer.hpp>
@@ -152,7 +152,7 @@ namespace hod::inline editor
 	}
 
 	/// @brief Rebuilds the contextual menu actions from scratch. Must be called whenever the project modules
-	/// (re)load, since some actions (eg. SerializedData creation) are derived from reflection descriptors coming
+	/// (re)load, since some actions (eg. DataItem/DataTable creation) are derived from reflection descriptors coming
 	/// from the project DLL, which may not be loaded yet at static-init time and can change on hot-reload.
 	void AssetBrowserWindow::PopulateContextualMenuActions()
 	{
@@ -301,25 +301,56 @@ namespace hod::inline editor
 					context.assetBrowserWindow.Rename(assetPath);
 				},
 		});
-		for (const auto& pair : SerializedDataFactory::GetInstance()->GetAllDescriptors())
+		for (const auto& pair : DataStructFactory::GetInstance()->GetAllDescriptors())
 		{
 			ReflectionDescriptor* descriptor = pair.second;
 			RegisterContextualMenuAction({
-				.path = String("Create/Data/") + descriptor->GetDisplayName(),
+				.path = String("Create/DataItem/") + descriptor->GetDisplayName(),
 				.group = "New",
 				.available = +[](const Context& context) { return context.selectedItems.Empty(); },
 				.execute =
 					[descriptor](const Context& context)
 					{
-						SerializedDataContainer serializedDataContainer(descriptor->CreateInstance<SerializedData>());
+						DataItemContainer dataItemContainer(descriptor->CreateInstance<DataStruct>());
 
 						Document settingsDocument;
-						Serializer::Serialize(serializedDataContainer, settingsDocument.GetRootNode());
+						Serializer::Serialize(dataItemContainer, settingsDocument.GetRootNode());
 
-						Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / (descriptor->GetDisplayName() + ".serializeddata"));
+						Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / (descriptor->GetDisplayName() + ".dataitem"));
 
 						AssetContainer assetContainer;
-						assetContainer.SetAssetType(Hash::ComputeXxh3_64("SerializedData"));
+						assetContainer.SetAssetType(Hash::ComputeXxh3_64("DataItem"));
+						assetContainer.SetUid(UID::GenerateUID());
+
+						Stream& settingsStream = assetContainer.AddDataBlock("Settings", false);
+						DocumentWriterJson documentWriter;
+						documentWriter.Write(settingsDocument, settingsStream);
+
+						assetContainer.Save(assetPath);
+
+						context.assetBrowserWindow.Rename(assetPath);
+					},
+			});
+		}
+		for (const auto& pair : DataStructFactory::GetInstance()->GetAllDescriptors())
+		{
+			ReflectionDescriptor* descriptor = pair.second;
+			RegisterContextualMenuAction({
+				.path = String("Create/DataTable/") + descriptor->GetDisplayName(),
+				.group = "New",
+				.available = +[](const Context& context) { return context.selectedItems.Empty(); },
+				.execute =
+					[descriptor](const Context& context)
+					{
+						DataItemContainer dataItemContainer(descriptor->CreateInstance<DataStruct>());
+
+						Document settingsDocument;
+						Serializer::Serialize(dataItemContainer, settingsDocument.GetRootNode());
+
+						Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / (descriptor->GetDisplayName() + ".datatable"));
+
+						AssetContainer assetContainer;
+						assetContainer.SetAssetType(Hash::ComputeXxh3_64("DataTable"));
 						assetContainer.SetUid(UID::GenerateUID());
 
 						Stream& settingsStream = assetContainer.AddDataBlock("Settings", false);
@@ -1019,9 +1050,13 @@ namespace hod::inline editor
 				{
 					thumbnailTexture = Editor::GetInstance()->GetAudioTexture();
 				}
-				else if (asset->GetType() == Hash::ComputeXxh3_64("SerializedData"))
+				else if (asset->GetType() == Hash::ComputeXxh3_64("DataItem"))
 				{
-					thumbnailTexture = Editor::GetInstance()->GetSerializedDataTexture();
+					thumbnailTexture = Editor::GetInstance()->GetDataItemTexture();
+				}
+				else if (asset->GetType() == Hash::ComputeXxh3_64("DataTable"))
+				{
+					thumbnailTexture = Editor::GetInstance()->GetDataTableTexture();
 				}
 				else
 				{

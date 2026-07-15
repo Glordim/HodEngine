@@ -9,7 +9,7 @@
 
 #include "HodEngine/Game/Builtin.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
-#include "HodEngine/Game/SerializedDataFactory.hpp"
+#include "HodEngine/Game/DataStructFactory.hpp"
 
 #include "HodEngine/UI/Builtin.hpp"
 
@@ -97,7 +97,7 @@ namespace hod::inline application
 	bool Application::InitGame()
 	{
 		ComponentFactory::CreateInstance();
-		SerializedDataFactory::CreateInstance();
+		DataStructFactory::CreateInstance();
 		game::RegisterBuiltin();
 		ui::RegisterBuiltin();
 		return true;
@@ -150,7 +150,7 @@ namespace hod::inline application
 		ShutdownModule();
 #endif
 
-		SerializedDataFactory::DestroyInstance();
+		DataStructFactory::DestroyInstance();
 		ComponentFactory::DestroyInstance();
 		return true;
 	}

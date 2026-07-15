@@ -131,9 +131,14 @@ namespace hod::inline editor
 			return _audioTexture;
 		}
 
-		Texture* GetSerializedDataTexture() const
+		Texture* GetDataItemTexture() const
 		{
-			return _serializedDataTexture;
+			return _dataItemTexture;
+		}
+
+		Texture* GetDataTableTexture() const
+		{
+			return _dataTableTexture;
 		}
 
 		Texture* GetCheckerTexture() const
@@ -168,7 +173,8 @@ namespace hod::inline editor
 		Texture* _materialTexture = nullptr;
 		Texture* _fontTexture = nullptr;
 		Texture* _audioTexture = nullptr;
-		Texture* _serializedDataTexture = nullptr;
+		Texture* _dataItemTexture = nullptr;
+		Texture* _dataTableTexture = nullptr;
 		Texture* _checkerTexture = nullptr;
 
 		FpsCounter _fpsCounter;

@@ -1,10 +1,10 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/SerializedDataEditor/SerializedDataEditorPropertiesWindow.hpp"
+#include "HodEngine/Editor/DataItemEditor/DataItemEditorPropertiesWindow.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
-#include "HodEngine/Editor/SerializedDataEditor/SerializedDataEditorTab.hpp"
-#include "HodEngine/Game/SerializedDataContainer.hpp"
-#include "HodEngine/Game/SerializedData.hpp"
+#include "HodEngine/Editor/DataItemEditor/DataItemEditorTab.hpp"
+#include "HodEngine/Game/DataItemContainer.hpp"
+#include "HodEngine/Game/DataStruct.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
@@ -32,30 +32,27 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(SerializedDataEditorPropertiesWindow, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(DataItemEditorPropertiesWindow, reflectionDescriptor)
 	{
 		(void)reflectionDescriptor;
 	}
 
-	/// @brief 
-	/// @param editorTab 
-	SerializedDataEditorPropertiesWindow::SerializedDataEditorPropertiesWindow(EditorTab* editorTab)
+	/// @brief
+	/// @param editorTab
+	DataItemEditorPropertiesWindow::DataItemEditorPropertiesWindow(EditorTab* editorTab)
 	: EditorTabWindow(editorTab)
 	{
-
+		SetTitle("Properties");
 	}
 
 	/// @brief
-	void SerializedDataEditorPropertiesWindow::DrawContent()
+	void DataItemEditorPropertiesWindow::DrawContent()
 	{
 		bool changed = false;
-		SerializedDataContainer& serializedDataContainer = GetOwner<SerializedDataEditorTab>()->GetSerializedDataContainer();
+		DataItemContainer& dataItemContainer = GetOwner<DataItemEditorTab>()->GetDataItemContainer();
 
-		if (ImGui::CollapsingHeader("Data", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			EditorReflectedObject reflectedObject(serializedDataContainer.GetData(), &serializedDataContainer.GetData()->GetReflectionDescriptorV(), nullptr, this);
-			changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
-		}
+		EditorReflectedObject reflectedObject(dataItemContainer.GetData(), &dataItemContainer.GetData()->GetReflectionDescriptorV(), nullptr, this);
+		changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
 
 		if (changed)
 		{

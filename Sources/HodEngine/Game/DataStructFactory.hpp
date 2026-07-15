@@ -3,7 +3,7 @@
 
 #include <HodEngine/Core/Singleton.hpp>
 #include "HodEngine/Core/TypeTrait.hpp"
-#include "HodEngine/Game/SerializedData.hpp"
+#include "HodEngine/Game/DataStruct.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
 
 #include <map>
@@ -15,17 +15,17 @@ namespace hod::inline core
 
 namespace hod::inline game
 {
-	/// @brief 
-	class HOD_GAME_API SerializedDataFactory
+	/// @brief
+	class HOD_GAME_API DataStructFactory
 	{
-		_Singleton(SerializedDataFactory)
+		_Singleton(DataStructFactory)
 
 	public:
 
-		template<typename _SerializedData_>
+		template<typename _DataStruct_>
 		bool				Register();
 
-		template<typename _SerializedData_>
+		template<typename _DataStruct_>
 		bool				Unregister();
 
 		const std::map<RttiType, ReflectionDescriptor*>& GetAllDescriptors() const { return _RttiTypeToDescriptors; }
@@ -33,7 +33,7 @@ namespace hod::inline game
 
 	protected:
 
-		~SerializedDataFactory() = default;
+		~DataStructFactory() = default;
 
 	private:
 
@@ -41,4 +41,4 @@ namespace hod::inline game
 	};
 }
 
-#include "SerializedDataFactory.inl"
+#include "DataStructFactory.inl"
