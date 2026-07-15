@@ -4,7 +4,7 @@
 #include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/SerializedDataEditor/SerializedDataAsset.hpp"
+#include "HodEngine/Game/SerializedDataContainer.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
@@ -311,10 +311,10 @@ namespace hod::inline editor
 				.execute =
 					[descriptor](const Context& context)
 					{
-						SerializedDataAsset serializedDataAsset(descriptor->CreateInstance<SerializedData>());
+						SerializedDataContainer serializedDataContainer(descriptor->CreateInstance<SerializedData>());
 
 						Document settingsDocument;
-						Serializer::Serialize(serializedDataAsset, settingsDocument.GetRootNode());
+						Serializer::Serialize(serializedDataContainer, settingsDocument.GetRootNode());
 
 						Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / (descriptor->GetDisplayName() + ".serializeddata"));
 

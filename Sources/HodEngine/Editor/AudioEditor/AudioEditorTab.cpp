@@ -18,16 +18,6 @@ namespace hod::inline editor
 	AudioEditorTab::AudioEditorTab(std::shared_ptr<Asset> asset)
 	: EditorTab(asset, ICON_MDI_TABLE)
 	{
-		if (asset != nullptr)
-		{
-			/*
-			Document document;
-			DocumentReaderJson reader;
-			reader.Read(document, asset->GetPath());
-			
-			Serializer::Deserialize(_serializedDataAsset, document.GetRootNode());
-			*/
-		}
 	}
 
 	/// @brief 

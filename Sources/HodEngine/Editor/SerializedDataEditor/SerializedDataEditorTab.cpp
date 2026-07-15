@@ -15,39 +15,41 @@
 
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
+#include <HodEngine/Core/Document/DocumentWriterJson.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 #include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 
-#include "HodEngine/Renderer/Resource/TextureResource.hpp"
-#include "HodEngine/Renderer/Resource/MaterialResource.hpp"
-#include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
-
 namespace hod::inline editor
 {
-	/// @brief 
+	/// @brief
 	SerializedDataEditorTab::SerializedDataEditorTab(std::shared_ptr<Asset> asset)
 	: EditorTab(asset, ICON_MDI_TABLE)
 	{
 		if (asset != nullptr)
 		{
-			Document document;
-			DocumentReaderJson reader;
-			reader.Read(document, asset->GetPath());
-
-			Serializer::Deserialize(_serializedDataAsset, document.GetRootNode());
+			const AssetContainer::DataBlockInfo* settingsDataBlock = _assetContainer.FindDataBlock("Settings");
+			if (settingsDataBlock != nullptr)
+			{
+				Document           settingsDocument;
+				DocumentReaderJson documentReader;
+				if (documentReader.Read(settingsDocument, *settingsDataBlock->_stream) == true)
+				{
+					Serializer::Deserialize(_serializedDataContainer, settingsDocument.GetRootNode());
+				}
+			}
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	SerializedDataEditorTab::~SerializedDataEditorTab()
 	{
 	}
 
-	/// @brief 
-	/// @return 
-	SerializedDataAsset& SerializedDataEditorTab::GetSerializedDataAsset()
+	/// @brief
+	/// @return
+	SerializedDataContainer& SerializedDataEditorTab::GetSerializedDataContainer()
 	{
-		return _serializedDataAsset;
+		return _serializedDataContainer;
 	}
 
 	/// @brief 
@@ -82,7 +84,27 @@ namespace hod::inline editor
 		return true;
 	}
 
-	/// @brief 
+	/// @brief
+	/// @return
+	bool SerializedDataEditorTab::OnSave()
+	{
+		Document settingsDocument;
+		if (Serializer::Serialize(_serializedDataContainer, settingsDocument.GetRootNode()) == false)
+		{
+			return false;
+		}
+
+		Stream& settingsStream = _assetContainer.AddDataBlock("Settings", false);
+		DocumentWriterJson documentWriter;
+		if (documentWriter.Write(settingsDocument, settingsStream) == false)
+		{
+			return false;
+		}
+
+		return true;
+	}
+
+	/// @brief
 	void SerializedDataEditorTab::DrawMenuBar()
 	{
 	}

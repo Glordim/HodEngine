@@ -6,32 +6,28 @@
 #include <memory>
 #include "HodEngine/Core/Vector.hpp"
 
-#include "HodEngine/Editor/SerializedDataEditor/SerializedDataAsset.hpp"
-
-namespace hod::inline renderer
-{
-	class MaterialResource;
-}
+#include "HodEngine/Game/SerializedDataContainer.hpp"
 
 namespace hod::inline editor
 {
-	/// @brief 
+	/// @brief
 	class HOD_EDITOR_API SerializedDataEditorTab : public EditorTab
 	{
 	public:
 				SerializedDataEditorTab(std::shared_ptr<Asset> asset);
 				~SerializedDataEditorTab() override;
 
-		SerializedDataAsset&	GetSerializedDataAsset();
+		SerializedDataContainer&	GetSerializedDataContainer();
 
 	protected:
 
 		void	CreateDefaultLayout() override;
 		bool	DrawContent() override;
 		void	DrawMenuBar() override;
+		bool	OnSave() override;
 
 	private:
 
-		SerializedDataAsset	_serializedDataAsset;
+		SerializedDataContainer	_serializedDataContainer;
 	};
 }

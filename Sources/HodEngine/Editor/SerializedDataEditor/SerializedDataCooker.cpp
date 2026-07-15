@@ -1,25 +1,45 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/SerializedDataEditor/SerializedDataCooker.hpp"
 
-#include "HodEngine/Game/SerializedDataResource.hpp"
+#include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetContainer.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceVariant.hpp"
 
-#include <HodEngine/Core/Document/DocumentReaderJson.hpp>
-#include <HodEngine/Core/Document/DocumentWriterJson.hpp>
+#include <utility>
 
 namespace hod::inline editor
 {
-	bool SerializedDataCooker::FillDataBlock(const Asset& asset, uint32_t /*platforms*/, uint8_t configs, uint32_t /*languages*/)
+	bool SerializedDataCooker::FillDataBlock(const Asset& asset, uint32_t /*platforms*/, uint8_t /*configs*/, uint32_t /*languages*/)
 	{
-		/*
-		DocumentReaderJson documentReader;
-		if (documentReader.Read(document, data) == false)
+		AssetContainer assetContainer;
+		if (assetContainer.Load(asset.GetPath()) == false)
 		{
 			return false;
 		}
+
+		const AssetContainer::DataBlockInfo* settingsDataBlock = assetContainer.FindDataBlock("Settings");
+		if (settingsDataBlock == nullptr)
+		{
+			OUTPUT_ERROR("SerializedDataCooker: missing 'Settings' data block");
+			return false;
+		}
+
+		Vector<uint8_t> settingsData;
+		settingsData.Resize(settingsDataBlock->_uncompressedSize);
+		if (settingsDataBlock->_stream->Read(settingsData.Data(), settingsData.Size()) != settingsData.Size())
+		{
+			OUTPUT_ERROR("SerializedDataCooker: can't read 'Settings' data block");
+			return false;
+		}
+
+		Stream& settingsStream = AddDataBlockStream("Settings", false, std::to_underlying(Platform::All), std::to_underlying(Config::All), std::to_underlying(ResourceVariant::Language::All));
+		if (settingsStream.Write(settingsData.Data(), settingsData.Size()) != settingsData.Size())
+		{
+			OUTPUT_ERROR("SerializedDataCooker: unable to write 'Settings' data block");
+			return false;
+		}
+
 		return true;
-		*/
-		(void)asset;
-		(void)configs;
-		return false;
 	}
 }

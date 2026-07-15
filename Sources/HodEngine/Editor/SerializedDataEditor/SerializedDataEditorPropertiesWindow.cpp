@@ -3,7 +3,7 @@
 
 #include "HodEngine/Editor/EditorTab.hpp"
 #include "HodEngine/Editor/SerializedDataEditor/SerializedDataEditorTab.hpp"
-#include "HodEngine/Editor/SerializedDataEditor/SerializedDataAsset.hpp"
+#include "HodEngine/Game/SerializedDataContainer.hpp"
 #include "HodEngine/Game/SerializedData.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -13,7 +13,6 @@
 #include <HodEngine/ImGui/Helper.hpp>
 
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 
 #include "HodEngine/Game/ComponentFactory.hpp"
@@ -25,7 +24,6 @@
 
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
-#include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 
 #include <HodEngine/Core/Serialization/Serializer.hpp>
@@ -47,26 +45,17 @@ namespace hod::inline editor
 
 	}
 
-	/// @brief 
+	/// @brief
 	void SerializedDataEditorPropertiesWindow::DrawContent()
 	{
 		bool changed = false;
-		std::shared_ptr<Asset> asset = GetOwner()->GetAsset();
-		SerializedDataAsset& serializedDataAsset = GetOwner<SerializedDataEditorTab>()->GetSerializedDataAsset();
+		SerializedDataContainer& serializedDataContainer = GetOwner<SerializedDataEditorTab>()->GetSerializedDataContainer();
 
 		if (ImGui::CollapsingHeader("Data", ImGuiTreeNodeFlags_DefaultOpen))
 		{
-			EditorReflectedObject reflectedObject(serializedDataAsset.GetData(), &serializedDataAsset.GetData()->GetReflectionDescriptorV(), nullptr, this);
+			EditorReflectedObject reflectedObject(serializedDataContainer.GetData(), &serializedDataContainer.GetData()->GetReflectionDescriptorV(), nullptr, this);
 			changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
 		}
-
-		ImGui::BeginDisabled(GetOwner()->IsDirty() == false);
-		if (ImGui::Button("Apply"))
-		{
-			asset->Save(&serializedDataAsset, &serializedDataAsset.GetReflectionDescriptorV());
-			//AssetDatabase::GetInstance()->Import(asset->GetPath()); // TODO
-		}
-		ImGui::EndDisabled();
 
 		if (changed)
 		{

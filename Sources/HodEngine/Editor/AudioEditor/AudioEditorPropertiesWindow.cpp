@@ -27,29 +27,5 @@ namespace hod::inline editor
 	/// @brief 
 	void AudioEditorPropertiesWindow::DrawContent()
 	{
-		/*
-		bool changed = false;
-		std::shared_ptr<Asset> asset = GetOwner()->GetAsset();
-		SerializedDataAsset& serializedDataAsset = GetOwner<SerializedDataEditorTab>()->GetSerializedDataAsset();
-
-		if (ImGui::CollapsingHeader("Data", ImGuiTreeNodeFlags_DefaultOpen))
-		{
-			EditorReflectedObject reflectedObject(serializedDataAsset.GetData(), &serializedDataAsset.GetData()->GetReflectionDescriptorV(), nullptr, this);
-			changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
-		}
-
-		ImGui::BeginDisabled(asset->IsDirty() == false);
-		if (ImGui::Button("Apply"))
-		{
-			asset->Save(&serializedDataAsset, &serializedDataAsset.GetReflectionDescriptorV());
-			AssetDatabase::GetInstance()->Import(asset->GetPath());
-		}
-		ImGui::EndDisabled();
-
-		if (changed)
-		{
-			GetOwner()->MarkAssetAsDirty();
-		}
-		*/
 	}
 }

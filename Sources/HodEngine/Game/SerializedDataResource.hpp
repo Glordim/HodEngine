@@ -3,10 +3,11 @@
 
 #include <HodEngine/GameSystems/Resource/Resource.hpp>
 #include "HodEngine/Game/SerializedData.hpp"
+#include "HodEngine/Game/SerializedDataContainer.hpp"
 
 namespace hod::inline game
 {
-	/// @brief 
+	/// @brief
 	class HOD_GAME_API SerializedDataResource : public Resource
 	{
 		REFLECTED_CLASS(SerializedDataResource, Resource)
@@ -15,7 +16,7 @@ namespace hod::inline game
 								SerializedDataResource() = default;
 								SerializedDataResource(const SerializedDataResource&) = delete;
 								SerializedDataResource(SerializedDataResource&&) = delete;
-								~SerializedDataResource() override;
+								~SerializedDataResource() override = default;
 
 		SerializedDataResource&	operator=(const SerializedDataResource&) = delete;
 		SerializedDataResource&	operator=(SerializedDataResource&&) = delete;
@@ -28,6 +29,6 @@ namespace hod::inline game
 
 	private:
 
-		SerializedData*			_serializedData = nullptr;
+		SerializedDataContainer	_serializedDataContainer;
 	};
 }

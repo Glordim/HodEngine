@@ -1,7 +1,11 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/SerializedDataResource.hpp"
-#include "HodEngine/Game/SerializedDataFactory.hpp"
-#include <HodEngine/Core/Serialization/Serializer.hpp>
+
+#include "HodEngine/Core/Document/Document.hpp"
+#include "HodEngine/Core/Document/DocumentReaderJson.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
+#include "HodEngine/Core/Serialization/Serializer.hpp"
+#include <HodEngine/GameSystems/Resource/ResourceContainer.hpp>
 
 namespace hod::inline game
 {
@@ -10,63 +14,38 @@ namespace hod::inline game
 		(void)reflectionDescriptor;
 	}
 
-	/// @brief 
-	SerializedDataResource::~SerializedDataResource()
+	/// @brief
+	/// @return
+	bool SerializedDataResource::Initialize(const ResourceContainer& resourceContainer)
 	{
-		DefaultAllocator::GetInstance().Delete(_serializedData);
-	}
-
-	/// @brief 
-	/// @param documentNode 
-	/// @param stream 
-	/// @return 
-	bool SerializedDataResource::Initialize(const ResourceContainer& /*resourceContainer*/)
-	{
-		/*
-		const DocumentNode* typeNode = documentNode.GetChild("Type");
-		if (typeNode == nullptr)
+		const ResourceContainer::DataBlockInfo* settingsDataBlock = resourceContainer.FindDataBlock("Settings");
+		if (settingsDataBlock == nullptr)
 		{
-			OUTPUT_ERROR("SerializedDataResource::Initialize: missing Type");
+			OUTPUT_ERROR("SerializedDataResource::Initialize: missing 'Settings' data block");
 			return false;
 		}
 
-		RttiType RttiType = typeNode->GetUInt64();
-
-		ReflectionDescriptor* reflectionDescriptor = SerializedDataFactory::GetInstance()->FindReflectionDescriptor(RttiType);
-		if (reflectionDescriptor == nullptr)
+		Document           settingsDocument;
+		DocumentReaderJson documentReader;
+		if (documentReader.Read(settingsDocument, *settingsDataBlock->_stream) == false)
 		{
-			OUTPUT_ERROR("SerializedDataResource::Initialize: unable to find reflectionDescriptor");
+			OUTPUT_ERROR("SerializedDataResource::Initialize: unable to read 'Settings' data block");
 			return false;
 		}
 
-		_serializedData = static_cast<SerializedData*>(reflectionDescriptor->CreateInstance());
-
-		const DocumentNode* dataNode = documentNode.GetChild("Data");
-		if (typeNode == nullptr)
+		if (Serializer::Deserialize(_serializedDataContainer, settingsDocument.GetRootNode()) == false)
 		{
-			OUTPUT_ERROR("SerializedDataResource::Initialize: missing Data");
-			DefaultAllocator::GetInstance().Delete(_serializedData);
-			_serializedData = nullptr;
-			return false;
-		}
-
-		if (Serializer::Deserialize(*reflectionDescriptor, _serializedData, *dataNode) == false)
-		{
-			OUTPUT_ERROR("SerializedDataResource::Initialize: unable to deserialize");
-			DefaultAllocator::GetInstance().Delete(_serializedData);
-			_serializedData = nullptr;
+			OUTPUT_ERROR("SerializedDataResource::Initialize: unable to deserialize 'Settings' data block");
 			return false;
 		}
 
 		return true;
-		*/
-		return false;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	SerializedData& SerializedDataResource::GetSerializedData()
 	{
-		return *_serializedData;
+		return *_serializedDataContainer.GetData();
 	}
 }
