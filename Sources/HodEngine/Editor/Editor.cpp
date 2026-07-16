@@ -90,6 +90,8 @@
 #include "HodEngine/Editor/DataItemEditor/DataItemCooker.hpp"
 #include "HodEngine/Game/DataItemResource.hpp"
 
+#include "HodEngine/Editor/DataTableEditor/DataTableEditorTab.hpp"
+
 #include "HodEngine/Editor/MaterialEditor/MaterialEditorTab.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialCooker.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
@@ -350,6 +352,8 @@ namespace hod::inline editor
 		AssetDatabase::GetInstance()->RegisterCooker<DataItemCooker>("DataItem");
 		AssetDatabase::GetInstance()->RegisterResource<DataItemResource>("DataItem");
 		RegisterEditorTab<DataItemEditorTab>("DataItem");
+
+		RegisterEditorTab<DataTableEditorTab>("DataTable");
 
 		AssetDatabase::GetInstance()->RegisterImporter<MaterialImporter>("slang");
 		AssetDatabase::GetInstance()->RegisterCooker<MaterialCooker>("Material");

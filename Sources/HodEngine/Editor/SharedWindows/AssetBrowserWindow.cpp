@@ -5,6 +5,7 @@
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Game/DataItemContainer.hpp"
+#include "HodEngine/Game/DataTableContainer.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
@@ -342,10 +343,10 @@ namespace hod::inline editor
 				.execute =
 					[descriptor](const Context& context)
 					{
-						DataItemContainer dataItemContainer(descriptor->CreateInstance<DataStruct>());
+						DataTableContainer dataTableContainer(descriptor->GetType());
 
 						Document settingsDocument;
-						Serializer::Serialize(dataItemContainer, settingsDocument.GetRootNode());
+						Serializer::Serialize(dataTableContainer, settingsDocument.GetRootNode());
 
 						Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / (descriptor->GetDisplayName() + ".datatable"));
 
