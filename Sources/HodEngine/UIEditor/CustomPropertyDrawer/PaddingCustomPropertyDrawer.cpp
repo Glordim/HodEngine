@@ -19,11 +19,14 @@ namespace hod::inline editor
 	/// @brief 
 	/// @param instance 
 	/// @return 
-	bool PaddingCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty)
+	bool PaddingCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
 	{
 		bool changed = false;
-		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
-		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+		if (onlyValue)
+		{
+			changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
+			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+		}
 
 		Padding value = *editorReflectedProperty.GetObject<Padding>();
 		changed |= DrawHelper::DrawVector4(value._vector4, "Left", "Bottom", "Right", "Top");

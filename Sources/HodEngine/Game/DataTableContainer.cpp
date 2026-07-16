@@ -6,6 +6,8 @@
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
+#include <algorithm>
+
 namespace hod::inline game
 {
 	DESCRIBE_REFLECTED_CLASS(DataTableContainer, reflectionDescriptor)
@@ -51,7 +53,7 @@ namespace hod::inline game
 						return false;
 					}
 
-					dataTableContainer->_rows.emplace(rowNode->GetName(), dataStruct);
+					dataTableContainer->_rows.emplace_back(rowNode->GetName(), dataStruct);
 
 					rowNode = rowNode->GetNextSibling();
 				}
@@ -95,7 +97,7 @@ namespace hod::inline game
 		ReflectionDescriptor* rowReflectionDescriptor = DataStructFactory::GetInstance()->FindReflectionDescriptor(_rowType);
 		DataStruct* dataStruct = static_cast<DataStruct*>(rowReflectionDescriptor->CreateInstance());
 
-		auto it = _rows.find(key);
+		auto it = std::find_if(_rows.begin(), _rows.end(), [&key](const auto& pair) { return pair.first == key; });
 		if (it != _rows.end())
 		{
 			DefaultAllocator::GetInstance().Delete(it->second);
@@ -103,7 +105,7 @@ namespace hod::inline game
 		}
 		else
 		{
-			_rows.emplace(key, dataStruct);
+			_rows.emplace_back(key, dataStruct);
 		}
 		return dataStruct;
 	}
@@ -112,7 +114,7 @@ namespace hod::inline game
 	/// @param key
 	void DataTableContainer::RemoveRow(const String& key)
 	{
-		auto it = _rows.find(key);
+		auto it = std::find_if(_rows.begin(), _rows.end(), [&key](const auto& pair) { return pair.first == key; });
 		if (it != _rows.end())
 		{
 			DefaultAllocator::GetInstance().Delete(it->second);
@@ -125,7 +127,7 @@ namespace hod::inline game
 	/// @return
 	DataStruct* DataTableContainer::FindRow(const String& key)
 	{
-		auto it = _rows.find(key);
+		auto it = std::find_if(_rows.begin(), _rows.end(), [&key](const auto& pair) { return pair.first == key; });
 		if (it != _rows.end())
 		{
 			return it->second;
@@ -135,14 +137,14 @@ namespace hod::inline game
 
 	/// @brief
 	/// @return
-	std::unordered_map<String, DataStruct*>& DataTableContainer::GetRows()
+	std::vector<std::pair<String, DataStruct*>>& DataTableContainer::GetRows()
 	{
 		return _rows;
 	}
 
 	/// @brief
 	/// @return
-	const std::unordered_map<String, DataStruct*>& DataTableContainer::GetRows() const
+	const std::vector<std::pair<String, DataStruct*>>& DataTableContainer::GetRows() const
 	{
 		return _rows;
 	}

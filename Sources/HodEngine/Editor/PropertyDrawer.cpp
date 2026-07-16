@@ -32,7 +32,7 @@ namespace hod::inline editor
 		return changed;
 	}
 
-	bool PropertyDrawer::DrawProperty(EditorReflectedProperty& reflectedProperty)
+	bool PropertyDrawer::DrawProperty(EditorReflectedProperty& reflectedProperty, bool onlyValue)
 	{
 		ReflectionProperty* reflectionProperty = reflectedProperty.GetReflectionProperty();
 		if (reflectionProperty->FindTrait<ReflectionTraitHide>() != nullptr)
@@ -45,15 +45,15 @@ namespace hod::inline editor
 
 		if (reflectionProperty->GetRttiType() == ReflectionPropertyVariable::GetRttiTypeStatic())
 		{
-			changed = DrawPropertyVariable(reflectedProperty);
+			changed = DrawPropertyVariable(reflectedProperty, onlyValue);
 		}
 		else if (reflectionProperty->GetRttiType() == ReflectionPropertyArray::GetRttiTypeStatic())
 		{
-			changed = DrawPropertyArray(reflectedProperty);
+			changed = DrawPropertyArray(reflectedProperty, onlyValue);
 		}
 		else if (reflectionProperty->GetRttiType() == ReflectionPropertyObject::GetRttiTypeStatic())
 		{
-			changed = DrawPropertyObject(reflectedProperty);
+			changed = DrawPropertyObject(reflectedProperty, onlyValue);
 
 			if (changed == true)
 			{
@@ -102,11 +102,14 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param property
-	bool PropertyDrawer::DrawPropertyVariable(EditorReflectedProperty& editorReflectedProperty)
+	bool PropertyDrawer::DrawPropertyVariable(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
 	{
 		bool changed = false;
-		changed |= BeginProperty(editorReflectedProperty);
-		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+		if (onlyValue == false)
+		{
+			changed |= BeginProperty(editorReflectedProperty);
+			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+		}
 
 		ReflectionPropertyVariable* property = static_cast<ReflectionPropertyVariable*>(editorReflectedProperty.GetReflectionProperty());
 		switch (property->GetType())
@@ -381,11 +384,14 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param property
-	bool PropertyDrawer::DrawPropertyArray(EditorReflectedProperty& editorReflectedProperty)
+	bool PropertyDrawer::DrawPropertyArray(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
 	{
 		bool changed = false;
-		changed |= BeginProperty(editorReflectedProperty);
-		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+		if (onlyValue == false)
+		{
+			changed |= BeginProperty(editorReflectedProperty);
+			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+		}
 
 		float cursorX = ImGui::GetCursorPosX();
 
@@ -468,7 +474,7 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param property
-	bool PropertyDrawer::DrawPropertyObject(EditorReflectedProperty& reflectedProperty)
+	bool PropertyDrawer::DrawPropertyObject(EditorReflectedProperty& reflectedProperty, bool onlyValue)
 	{
 		ReflectionDescriptor* instanceDescriptor;
 
@@ -494,7 +500,7 @@ namespace hod::inline editor
 		CustomPropertyDrawer* customPropertyDrawer = CustomPropertyDrawerRegistry::Find(*instanceDescriptor);
 		if (customPropertyDrawer != nullptr)
 		{
-			changed = customPropertyDrawer->Draw(reflectedProperty);
+			changed = customPropertyDrawer->Draw(reflectedProperty, onlyValue);
 		}
 		else
 		{

@@ -30,10 +30,10 @@ namespace hod::inline editor
     public:
 
         static bool     DrawDescriptor(EditorReflectedObject& reflectedObject);
-        static bool     DrawProperty(EditorReflectedProperty& reflectedProperty);
-		static bool     DrawPropertyVariable(EditorReflectedProperty& reflectedProperty);
-		static bool     DrawPropertyArray(EditorReflectedProperty& reflectedProperty);
-		static bool     DrawPropertyObject(EditorReflectedProperty& reflectedProperty);
+        static bool     DrawProperty(EditorReflectedProperty& reflectedProperty, bool onlyValue = false);
+		static bool     DrawPropertyVariable(EditorReflectedProperty& reflectedProperty, bool onlyValue = false);
+		static bool     DrawPropertyArray(EditorReflectedProperty& reflectedProperty, bool onlyValue = false);
+		static bool     DrawPropertyObject(EditorReflectedProperty& reflectedProperty, bool onlyValue = false);
 
         static bool     BeginProperty(EditorReflectedProperty& editorReflectedProperty);
     };

@@ -25,6 +25,6 @@ namespace hod::inline editor
 
 	public:
 
-		bool						Draw(EditorReflectedProperty& editorReflectedProperty) override;
+		bool						Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue = false) override;
 	};
 }

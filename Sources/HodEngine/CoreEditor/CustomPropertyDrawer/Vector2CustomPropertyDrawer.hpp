@@ -23,6 +23,6 @@ namespace hod::inline editor
 		Vector2CustomPropertyDrawer& operator=(Vector2CustomPropertyDrawer&&) = delete;
 
 	public:
-		bool Draw(EditorReflectedProperty& editorReflectedProperty) override;
+		bool Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue = false) override;
 	};
 }

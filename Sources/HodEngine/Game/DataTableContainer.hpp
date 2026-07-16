@@ -5,7 +5,8 @@
 #include <HodEngine/Core/Reflection/Rtti.hpp>
 #include <HodEngine/Core/String.hpp>
 
-#include <unordered_map>
+#include <utility>
+#include <vector>
 
 namespace hod::inline game
 {
@@ -37,12 +38,12 @@ namespace hod::inline game
 		void		RemoveRow(const String& key);
 		DataStruct*	FindRow(const String& key);
 
-		std::unordered_map<String, DataStruct*>&			GetRows();
-		const std::unordered_map<String, DataStruct*>&	GetRows() const;
+		std::vector<std::pair<String, DataStruct*>>&		GetRows();
+		const std::vector<std::pair<String, DataStruct*>>&	GetRows() const;
 
 	private:
 
-		RttiType									_rowType = 0;
-		std::unordered_map<String, DataStruct*>	_rows;
+		RttiType										_rowType = 0;
+		std::vector<std::pair<String, DataStruct*>>	_rows;
 	};
 }

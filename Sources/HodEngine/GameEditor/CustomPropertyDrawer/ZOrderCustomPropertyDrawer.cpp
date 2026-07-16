@@ -16,11 +16,16 @@ namespace hod::inline editor
 	/// @brief 
 	/// @param editorReflectedProperty 
 	/// @return 
-	bool ZOrderCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty)
+	bool ZOrderCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
 	{
 		bool changed = false;
-		//changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
-		//ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+		if (onlyValue == false)
+		{
+			/*
+			changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
+			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+			*/
+		}
 
 		ZOrder& value = *editorReflectedProperty.GetObject<ZOrder>();
 		changed |= ZOrderCustomPropertyDrawer::Draw(value);

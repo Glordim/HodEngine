@@ -27,7 +27,7 @@ namespace hod::inline editor
 		WeakResourceCustomPropertyDrawer& operator=(WeakResourceCustomPropertyDrawer&&) = delete;
 
 	public:
-		bool Draw(EditorReflectedProperty& editorReflectedProperty) override;
+		bool Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue = false) override;
 
 		static bool Draw(WeakResourceBase& weakResource);
 	};

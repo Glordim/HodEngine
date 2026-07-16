@@ -25,6 +25,6 @@ namespace hod::inline editor
 
 	public:
 
-		virtual bool				Draw(EditorReflectedProperty& editorReflectedProperty) = 0;
+		virtual bool				Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue = false) = 0;
 	};
 }

@@ -14,11 +14,14 @@ namespace hod::inline editor
 	/// @brief
 	/// @param editorReflectedProperty
 	/// @return
-	bool Vector2CustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty)
+	bool Vector2CustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
 	{
 		bool changed = false;
-		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
-		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+		if (onlyValue == false)
+		{
+			changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
+			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+		}
 
 		Vector2 value = *editorReflectedProperty.GetObject<Vector2>();
 		changed |= DrawHelper::DrawVector2(value);

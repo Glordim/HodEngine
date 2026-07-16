@@ -31,11 +31,14 @@ namespace hod::inline editor
 	/// @brief
 	/// @param instance
 	/// @return
-	bool WeakResourceCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty)
+	bool WeakResourceCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
 	{
 		bool changed = false;
-		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
-		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+		if (onlyValue == false)
+		{
+			changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
+			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+		}
 
 		WeakResourceBase* value = editorReflectedProperty.GetObject<WeakResourceBase>();
 		changed |= WeakResourceCustomPropertyDrawer::Draw(*value);

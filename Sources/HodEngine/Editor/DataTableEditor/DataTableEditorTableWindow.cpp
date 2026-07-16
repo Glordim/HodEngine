@@ -9,6 +9,7 @@
 #include "HodEngine/Game/DataStructFactory.hpp"
 #include "HodEngine/Game/DataTableContainer.hpp"
 
+#include "HodEngine/ImGui/DearImGui/imgui_internal.h"
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
@@ -79,16 +80,17 @@ namespace hod::inline editor
 
 				DataTableContainer& dataTable = editorTab->GetDataTableContainer();
 
-				for (const auto& pair : dataTable.GetRows())
+				for (auto& pair : dataTable.GetRows())
 				{
 					ImGui::PushID(pair.first.CStr());
 					ImGui::TableNextRow();
 
 					ImGui::TableNextColumn();
-					bool selected = (pair.first == selectedKey);
-					if (ImGui::Selectable(pair.first.CStr(), selected, ImGuiSelectableFlags_SpanAllColumns) == true)
+					pair.first.Reserve(255);
+					if (ImGui::InputText("##key", pair.first.Data(), pair.first.Capacity(), ImGuiInputTextFlags_EnterReturnsTrue))
 					{
-						editorTab->SetRowSelection(pair.first);
+						pair.first = pair.first.Data(); // refresh size
+						changed |= true;
 					}
 
 					EditorReflectedObject reflectedObject(pair.second, reflectionDescriptor, nullptr, this);
@@ -98,8 +100,19 @@ namespace hod::inline editor
 						EditorReflectedProperty* reflectedProperty = reflectedObject.FindProperty(reflectionProperty->GetName());
 						if (reflectedProperty != nullptr)
 						{
-							changed |= PropertyDrawer::DrawProperty(*reflectedProperty);
+							changed |= PropertyDrawer::DrawProperty(*reflectedProperty, true);
 						}
+					}
+
+					ImGui::TableSetColumnIndex(0);
+					ImGuiTable* table = ImGui::GetCurrentTable();
+					float rowHeight = table->RowPosY2 - table->RowPosY1;
+					bool selected = (pair.first == selectedKey);
+					if (ImGui::Selectable("##row_select", selected, 
+										ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap, 
+										ImVec2(0, rowHeight - 20)))
+					{
+						editorTab->SetRowSelection(pair.first);
 					}
 
 					ImGui::PopID();

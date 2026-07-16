@@ -36,11 +36,14 @@ namespace hod::inline editor
 	/// @brief
 	/// @param instance
 	/// @return
-	bool WeakComponentCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty)
+	bool WeakComponentCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
 	{
 		bool changed = false;
-		changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
-		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+		if (onlyValue == false)
+		{
+			changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
+			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+		}
 
 		static Vector<AssetDatabase::FileSystemMapping*> assetList;
 
