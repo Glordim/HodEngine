@@ -3,6 +3,8 @@
 
 #include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
+#include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitAssetSubType.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 #include "HodEngine/ImGui/Helper.hpp"
@@ -41,7 +43,18 @@ namespace hod::inline editor
 		}
 
 		WeakResourceBase* value = editorReflectedProperty.GetObject<WeakResourceBase>();
-		changed |= WeakResourceCustomPropertyDrawer::Draw(*value);
+
+		uint64_t expectedSubType = 0;
+		ReflectionProperty* reflectionProperty = editorReflectedProperty.GetReflectionProperty();
+		if (reflectionProperty != nullptr)
+		{
+			if (ReflectionTraitAssetSubType* subTypeTrait = reflectionProperty->FindTrait<ReflectionTraitAssetSubType>())
+			{
+				expectedSubType = subTypeTrait->GetExpectedSubType();
+			}
+		}
+
+		changed |= WeakResourceCustomPropertyDrawer::Draw(*value, expectedSubType);
 		if (changed == true)
 		{
 			editorReflectedProperty.SetObject(*value); // Set to itself for call SetFunction // todo affect a new object, wrong if SetFunction check if the value is the same
@@ -52,7 +65,7 @@ namespace hod::inline editor
 	/// @brief
 	/// @param weakResource
 	/// @return
-	bool WeakResourceCustomPropertyDrawer::Draw(WeakResourceBase& weakResource)
+	bool WeakResourceCustomPropertyDrawer::Draw(WeakResourceBase& weakResource, uint64_t expectedSubType)
 	{
 		static Vector<AssetDatabase::FileSystemMapping*> assetList;
 
@@ -105,7 +118,7 @@ namespace hod::inline editor
 					clicked = true;
 
 					assetList.Clear();
-					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), *weakResource.GetResourceDescriptor());
+					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), *weakResource.GetResourceDescriptor(), expectedSubType);
 				}
 			}
 		}
@@ -125,7 +138,7 @@ namespace hod::inline editor
 					clicked = true;
 
 					assetList.Clear();
-					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), *weakResource.GetResourceDescriptor());
+					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), *weakResource.GetResourceDescriptor(), expectedSubType);
 				}
 			}
 		}

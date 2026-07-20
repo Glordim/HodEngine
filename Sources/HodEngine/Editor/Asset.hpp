@@ -34,6 +34,7 @@ namespace hod::inline editor
 		const String& GetName() const;
 
 		uint64_t GetType() const { return _assetType; }
+		uint64_t GetSubType() const { return _subType; }
 		uint64_t GetContentHash() const { return _contentHash; }
 
 		bool HasSources() const { return _sources.Empty() == false; }
@@ -48,6 +49,7 @@ namespace hod::inline editor
 		Path _path;
 		UID _uid;
 		uint64_t _assetType = 0;
+		uint64_t _subType = 0;
 		uint64_t _contentHash = 0;
 		Vector<AssetContainer::SourceInfo> _sources;
 

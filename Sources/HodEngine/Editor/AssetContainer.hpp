@@ -35,7 +35,7 @@ namespace hod::inline editor
 		};
 
 	public:
-		static constexpr uint32_t FORMAT_VERSION = 2;
+		static constexpr uint32_t FORMAT_VERSION = 1;
 
 	public:
 		AssetContainer() = default;
@@ -56,6 +56,12 @@ namespace hod::inline editor
 
 		uint64_t GetAssetType() const;
 		void     SetAssetType(uint64_t assetType);
+
+		/// @brief Row/item RttiType for assets whose concrete C++ class is shared across many data shapes
+		/// (DataTable, DataItem); 0 for assets with no such notion. Lets the editor asset picker filter
+		/// candidates by row/item type without opening each asset's Content block.
+		uint64_t GetSubType() const;
+		void     SetSubType(uint64_t subType);
 
 		uint64_t GetContentHash() const;
 
@@ -91,11 +97,12 @@ namespace hod::inline editor
 			uint32_t formatVersion = 0;
 			UID      uid;
 			uint64_t assetType = 0;
+			uint64_t subType = 0;
 			uint64_t contentHash = 0;
 		};
 
 #pragma pack(pop)
-		static_assert(sizeof(Header) == 44);
+		static_assert(sizeof(Header) == 52);
 
 		struct DataBlockLocation
 		{
@@ -127,6 +134,7 @@ namespace hod::inline editor
 	private:
 		UID      _uid;
 		uint64_t _assetType = 0;
+		uint64_t _subType = 0;
 		uint64_t _contentHash = 0;
 
 		Vector<SourceInfo> _sources;

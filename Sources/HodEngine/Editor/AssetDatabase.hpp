@@ -102,7 +102,9 @@ namespace hod::inline editor
 
 		bool ReimportAssetIfNecessary(std::shared_ptr<Asset> asset);
 
-		void ListAsset(Vector<FileSystemMapping*>& result, const FileSystemMapping& from, const ReflectionDescriptor& resourceDescriptor);
+		/// @brief expectedSubType, when non-zero, additionally restricts the result to assets whose cooked
+		/// asset subType (row/item RttiType, see ReflectionTraitAssetSubType) matches.
+		void ListAsset(Vector<FileSystemMapping*>& result, const FileSystemMapping& from, const ReflectionDescriptor& resourceDescriptor, uint64_t expectedSubType = 0);
 
 		void UpdateFileWatchers();
 

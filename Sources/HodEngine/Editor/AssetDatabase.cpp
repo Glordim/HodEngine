@@ -415,7 +415,7 @@ namespace hod::inline editor
 	/// @param result
 	/// @param from
 	/// @param resourceDescriptor
-	void AssetDatabase::ListAsset(Vector<FileSystemMapping*>& result, const FileSystemMapping& from, const ReflectionDescriptor& resourceDescriptor)
+	void AssetDatabase::ListAsset(Vector<FileSystemMapping*>& result, const FileSystemMapping& from, const ReflectionDescriptor& resourceDescriptor, uint64_t expectedSubType)
 	{
 		uint64_t assetType = 0;
 		for (const ResourceEntry* resourceEntry : _resourceEntries)
@@ -434,7 +434,7 @@ namespace hod::inline editor
 
 		for (FileSystemMapping* assetNode : from._childrenAsset)
 		{
-			if (assetType == assetNode->_asset->GetType())
+			if (assetType == assetNode->_asset->GetType() && (expectedSubType == 0 || assetNode->_asset->GetSubType() == expectedSubType))
 			{
 				result.push_back(assetNode);
 			}
@@ -442,7 +442,7 @@ namespace hod::inline editor
 
 		for (FileSystemMapping* folderNode : from._childrenFolder)
 		{
-			ListAsset(result, *folderNode, resourceDescriptor);
+			ListAsset(result, *folderNode, resourceDescriptor, expectedSubType);
 		}
 	}
 

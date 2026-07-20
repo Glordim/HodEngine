@@ -51,6 +51,7 @@ namespace hod::inline editor
 
 		_uid = header.uid;
 		_assetType = header.assetType;
+		_subType = header.subType;
 		_contentHash = header.contentHash;
 
 		return true;
@@ -207,6 +208,7 @@ namespace hod::inline editor
 		header.formatVersion = FORMAT_VERSION;
 		header.uid = _uid;
 		header.assetType = _assetType;
+		header.subType = _subType;
 		header.contentHash = 0; // tmp, real value will be write at the end
 		file.Write(&header, sizeof(header));
 
@@ -312,6 +314,16 @@ namespace hod::inline editor
 	void AssetContainer::SetAssetType(uint64_t assetType)
 	{
 		_assetType = assetType;
+	}
+
+	uint64_t AssetContainer::GetSubType() const
+	{
+		return _subType;
+	}
+
+	void AssetContainer::SetSubType(uint64_t subType)
+	{
+		_subType = subType;
 	}
 
 	uint64_t AssetContainer::GetContentHash() const

@@ -321,6 +321,7 @@ namespace hod::inline editor
 
 						AssetContainer assetContainer;
 						assetContainer.SetAssetType(Hash::ComputeXxh3_64("DataItem"));
+						assetContainer.SetSubType(descriptor->GetType());
 						assetContainer.SetUid(UID::GenerateUID());
 
 						Stream& settingsStream = assetContainer.AddDataBlock("Settings", false);
@@ -352,6 +353,7 @@ namespace hod::inline editor
 
 						AssetContainer assetContainer;
 						assetContainer.SetAssetType(Hash::ComputeXxh3_64("DataTable"));
+						assetContainer.SetSubType(descriptor->GetType());
 						assetContainer.SetUid(UID::GenerateUID());
 
 						Stream& settingsStream = assetContainer.AddDataBlock("Settings", false);

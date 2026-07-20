@@ -29,6 +29,8 @@ namespace hod::inline editor
 	public:
 		bool Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue = false) override;
 
-		static bool Draw(WeakResourceBase& weakResource);
+		/// @brief expectedSubType, when non-zero, restricts the asset picker to resources whose subType
+		/// (see ReflectionTraitAssetSubType) matches.
+		static bool Draw(WeakResourceBase& weakResource, uint64_t expectedSubType = 0);
 	};
 }
