@@ -3,8 +3,8 @@
 
 #include "HodEngine/Editor/EditorTab.hpp"
 #include "HodEngine/Editor/DataItemEditor/DataItemEditorTab.hpp"
-#include "HodEngine/Game/DataItemContainer.hpp"
-#include "HodEngine/Game/DataStruct.hpp"
+#include "HodEngine/Game/DataStruct/DataItemContainer.hpp"
+#include "HodEngine/Game/DataStruct/DataStruct.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 

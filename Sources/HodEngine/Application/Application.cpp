@@ -9,7 +9,7 @@
 
 #include "HodEngine/Game/Builtin.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
-#include "HodEngine/Game/DataStructFactory.hpp"
+#include "HodEngine/Game/DataStruct/DataStructFactory.hpp"
 
 #include "HodEngine/UI/Builtin.hpp"
 

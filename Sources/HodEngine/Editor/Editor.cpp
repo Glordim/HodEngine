@@ -88,11 +88,11 @@
 
 #include "HodEngine/Editor/DataItemEditor/DataItemEditorTab.hpp"
 #include "HodEngine/Editor/DataItemEditor/DataItemCooker.hpp"
-#include "HodEngine/Game/DataItemResource.hpp"
+#include "HodEngine/Game/DataStruct/DataItemResource.hpp"
 
 #include "HodEngine/Editor/DataTableEditor/DataTableEditorTab.hpp"
 #include "HodEngine/Editor/DataTableEditor/DataTableCooker.hpp"
-#include "HodEngine/Game/DataTableResource.hpp"
+#include "HodEngine/Game/DataStruct/DataTableResource.hpp"
 
 #include "HodEngine/Editor/MaterialEditor/MaterialEditorTab.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialCooker.hpp"

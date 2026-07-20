@@ -4,8 +4,8 @@
 #include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Game/DataItemContainer.hpp"
-#include "HodEngine/Game/DataTableContainer.hpp"
+#include "HodEngine/Game/DataStruct/DataItemContainer.hpp"
+#include "HodEngine/Game/DataStruct/DataTableContainer.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
@@ -35,7 +35,7 @@
 #include "HodEngine/Game/PrefabResource.hpp"
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/SceneSerializer.hpp"
-#include "HodEngine/Game/DataStructFactory.hpp"
+#include "HodEngine/Game/DataStruct/DataStructFactory.hpp"
 #include "HodEngine/Game/World.hpp"
 
 #include <HodEngine/Core/Serialization/Serializer.hpp>

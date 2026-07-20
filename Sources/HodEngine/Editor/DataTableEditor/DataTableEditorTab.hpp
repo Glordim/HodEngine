@@ -6,7 +6,7 @@
 #include <memory>
 #include "HodEngine/Core/Vector.hpp"
 
-#include "HodEngine/Game/DataTableContainer.hpp"
+#include "HodEngine/Game/DataStruct/DataTableContainer.hpp"
 
 namespace hod::inline editor
 {

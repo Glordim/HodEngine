@@ -1,7 +1,7 @@
 #include "HodEngine/Game/Pch.hpp"
-#include "HodEngine/Game/DataTableResource.hpp"
-#include "HodEngine/Game/DataStruct.hpp"
-#include "HodEngine/Game/DataStructFactory.hpp"
+#include "HodEngine/Game/DataStruct/DataTableResource.hpp"
+#include "HodEngine/Game/DataStruct/DataStruct.hpp"
+#include "HodEngine/Game/DataStruct/DataStructFactory.hpp"
 
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"

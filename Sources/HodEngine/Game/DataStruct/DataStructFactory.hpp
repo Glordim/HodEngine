@@ -3,7 +3,7 @@
 
 #include <HodEngine/Core/Singleton.hpp>
 #include "HodEngine/Core/TypeTrait.hpp"
-#include "HodEngine/Game/DataStruct.hpp"
+#include "HodEngine/Game/DataStruct/DataStruct.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
 
 #include <map>

@@ -3,7 +3,7 @@
 
 #include "HodEngine/Editor/EditorTab.hpp"
 #include "HodEngine/Editor/DataTableEditor/DataTableEditorTab.hpp"
-#include "HodEngine/Game/DataStruct.hpp"
+#include "HodEngine/Game/DataStruct/DataStruct.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 

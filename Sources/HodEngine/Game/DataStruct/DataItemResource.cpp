@@ -1,5 +1,5 @@
 #include "HodEngine/Game/Pch.hpp"
-#include "HodEngine/Game/DataItemResource.hpp"
+#include "HodEngine/Game/DataStruct/DataItemResource.hpp"
 
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"

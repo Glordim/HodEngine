@@ -6,8 +6,8 @@
 
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
-#include "HodEngine/Game/DataStructFactory.hpp"
-#include "HodEngine/Game/DataTableContainer.hpp"
+#include "HodEngine/Game/DataStruct/DataStructFactory.hpp"
+#include "HodEngine/Game/DataStruct/DataTableContainer.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui_internal.h"
 #include <HodEngine/ImGui/DearImGui/imgui.h>

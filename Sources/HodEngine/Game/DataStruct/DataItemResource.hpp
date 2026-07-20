@@ -2,8 +2,8 @@
 #include "HodEngine/Game/Export.hpp"
 
 #include <HodEngine/GameSystems/Resource/Resource.hpp>
-#include "HodEngine/Game/DataStruct.hpp"
-#include "HodEngine/Game/DataItemContainer.hpp"
+#include "HodEngine/Game/DataStruct/DataStruct.hpp"
+#include "HodEngine/Game/DataStruct/DataItemContainer.hpp"
 
 namespace hod::inline game
 {

@@ -1,7 +1,7 @@
 #include "HodEngine/Game/Pch.hpp"
-#include "HodEngine/Game/DataItemContainer.hpp"
-#include "HodEngine/Game/DataStruct.hpp"
-#include "HodEngine/Game/DataStructFactory.hpp"
+#include "HodEngine/Game/DataStruct/DataItemContainer.hpp"
+#include "HodEngine/Game/DataStruct/DataStruct.hpp"
+#include "HodEngine/Game/DataStruct/DataStructFactory.hpp"
 
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCustomSerialization.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"

@@ -10,8 +10,8 @@
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
-#include "HodEngine/Game/DataTableContainer.hpp"
-#include "HodEngine/Game/DataStruct.hpp"
+#include "HodEngine/Game/DataStruct/DataTableContainer.hpp"
+#include "HodEngine/Game/DataStruct/DataStruct.hpp"
 #include <HodEngine/GameSystems/Resource/ResourceVariant.hpp>
 
 #include <utility>

@@ -4,7 +4,7 @@
 #include <HodEngine/GameSystems/Resource/Resource.hpp>
 #include <HodEngine/Core/Reflection/Rtti.hpp>
 #include <HodEngine/Core/String.hpp>
-#include "HodEngine/Game/DataStruct.hpp"
+#include "HodEngine/Game/DataStruct/DataStruct.hpp"
 
 #include <unordered_map>
 #include <string_view>

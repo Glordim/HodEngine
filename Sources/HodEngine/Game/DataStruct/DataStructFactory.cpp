@@ -1,5 +1,5 @@
 #include "HodEngine/Game/Pch.hpp"
-#include "HodEngine/Game/DataStructFactory.hpp"
+#include "HodEngine/Game/DataStruct/DataStructFactory.hpp"
 
 namespace hod::inline game
 {
