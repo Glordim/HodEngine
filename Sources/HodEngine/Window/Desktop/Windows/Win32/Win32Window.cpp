@@ -259,7 +259,7 @@ namespace hod::inline window
 	bool Win32Window::CreateHWND()
 	{
 		Assert(_hWnd == nullptr);
-		_hWnd = CreateWindowExA(0, Win32DisplayManager::_className, "Window", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, _width, _height, nullptr, nullptr, _hInstance,
+		_hWnd = CreateWindowExA(0, Win32DisplayManager::_className, "Hod Engine", WS_OVERLAPPEDWINDOW, CW_USEDEFAULT, CW_USEDEFAULT, _width, _height, nullptr, nullptr, _hInstance,
 		                        nullptr);
 
 		if (_hWnd == nullptr)

@@ -3,6 +3,9 @@ project(HodEditor LANGUAGES CXX)
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 
 assign_source_group(${Srcs}) # for VS
+if (WIN32)
+	list(APPEND Srcs "${CMAKE_CURRENT_SOURCE_DIR}/icon.rc")
+endif()
 
 add_executable(HodEditor ${Srcs} ${Includes})
 set_target_properties(HodEditor PROPERTIES

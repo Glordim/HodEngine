@@ -38,12 +38,12 @@ namespace hod::inline window
 		windowClass.cbClsExtra = 0;
 		windowClass.cbWndExtra = 0;
 		windowClass.hInstance = _hInstance;
-		windowClass.hIcon = NULL;
 		windowClass.hCursor = ::LoadCursor(_hInstance, IDC_ARROW);
 		windowClass.hbrBackground = ::CreateSolidBrush(RGB(0, 0, 0));
 		windowClass.lpszMenuName = NULL;
 		windowClass.lpszClassName = _className;
-		windowClass.hIconSm = NULL;
+		windowClass.hIcon = LoadIcon(_hInstance, MAKEINTRESOURCE(101));
+		windowClass.hIconSm = LoadIcon(_hInstance, MAKEINTRESOURCE(101));
 		windowClass.hbrBackground = NULL;
 
 		_class = ::RegisterClassEx(&windowClass);
