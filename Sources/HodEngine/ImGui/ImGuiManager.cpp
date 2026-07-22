@@ -2,8 +2,8 @@
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/ImGui/ImGuiManager.hpp"
 
-#include <HodEngine/GameSystems/Job/Job.hpp>
 #include <HodEngine/Core/Time/SystemTime.hpp>
+#include <HodEngine/GameSystems/Job/Job.hpp>
 
 #include "HodEngine/Window/PlatformWindow.hpp"
 
@@ -29,9 +29,9 @@
 #include <HodEngine/Window/Desktop/DesktopDisplayManager.hpp>
 #include <HodEngine/Window/Desktop/DesktopWindow.hpp>
 
-#include "HodEngine/ImGui/Font/IconsMaterialDesignIcons.h"
 #include "Font/MaterialDesignIcons.ttf.hpp"
 #include "Font/Roboto-Regular.ttf.hpp"
+#include "HodEngine/ImGui/Font/IconsMaterialDesignIcons.h"
 #include "Shader/ImGui_Fragment.hpp"
 #include "Shader/ImGui_Vertex.hpp"
 
@@ -47,6 +47,29 @@
 
 namespace hod::inline imgui
 {
+	void ImGuiPlatformCreateWindow(ImGuiViewport* vp)
+	{
+		DesktopWindow* desktopWindow = (DesktopWindow*)DesktopDisplayManager::GetInstance()->CreateWindow();
+		desktopWindow->SetSize(vp->Size.x, vp->Size.y);
+		vp->PlatformHandle = desktopWindow;
+	}
+
+	ImVec2 ImGuiPlatformGetWindowSize(ImGuiViewport* vp)
+	{
+		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
+
+		ImVec2 size;
+		size.x = desktopWindow->GetWidth();
+		size.y = desktopWindow->GetHeight();
+		return size;
+	}
+
+	void ImGuiPlatformSetWindowSize(ImGuiViewport* vp, ImVec2 size)
+	{
+		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
+		desktopWindow->SetSize(size.x, size.y);
+	}
+
 	ImGuiKey KeyToImGuiKeyTable[] = {
 		/* Key::None */ ImGuiKey_None,
 
@@ -284,10 +307,10 @@ namespace hod::inline imgui
 		style.TabBorderSize = 1;
 		style.WindowRounding = 7;
 		style.ChildRounding = 4;
-		style.FrameRounding = 3;
+		style.FrameRounding = 4;
 		style.PopupRounding = 4;
 		style.ScrollbarRounding = 9;
-		style.GrabRounding = 3;
+		style.GrabRounding = 4;
 		style.LogSliderDeadzone = 4;
 		style.TabRounding = 4;
 		style.DisabledAlpha = 0.5f;
@@ -317,8 +340,8 @@ namespace hod::inline imgui
 		std::strcpy(iniFileName, projectsPath.GetString().CStr());
 
 		ImGui::GetIO().IniFilename = iniFileName;
-		ImGui::GetIO().BackendFlags |= ImGuiBackendFlags_RendererHasTextures;
-		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable;
+		ImGui::GetIO().BackendFlags |= ImGuiBackendFlags_RendererHasTextures | ImGuiBackendFlags_PlatformHasViewports;
+		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
 
 		// ImGui::GetIO().Fonts->AddFontDefault();
 		/*
@@ -357,6 +380,10 @@ namespace hod::inline imgui
 		_mainWindow = window;
 #if defined(PLATFORM_MACOS)
 		ImGui_ImplOSX_Init(static_cast<MacOsWindow*>(_mainWindow)->GetNsView());
+#else
+		ImGui::GetPlatformIO().Platform_CreateWindow = &ImGuiPlatformCreateWindow;
+		ImGui::GetPlatformIO().Platform_GetWindowSize = &ImGuiPlatformGetWindowSize;
+		ImGui::GetPlatformIO().Platform_SetWindowSize = &ImGuiPlatformSetWindowSize;
 #endif
 
 		FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::PreRender);
@@ -623,6 +650,7 @@ namespace hod::inline imgui
 		}
 
 		ImGui::Render();
+		ImGui::UpdatePlatformWindows();
 
 		ImDrawData* drawData = ImGui::GetDrawData();
 
