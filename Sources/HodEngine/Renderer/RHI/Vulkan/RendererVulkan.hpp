@@ -47,9 +47,9 @@ namespace hod::inline renderer
 		bool Init(Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) override;
 		void WaitIdle() override;
 
-		// bool CreateContext(Window* window); // TODO virtual in Renderer ?
-
 		bool GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) override;
+
+		PresentationSurface* CreatePresentationSurface(window::Window* window) override;
 
 		bool CreateDevice();
 		bool CreateCommandPool();

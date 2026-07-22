@@ -1,4 +1,5 @@
 #include "HodEngine/Renderer/Pch.hpp"
+#include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
 
 #include "HodEngine/Renderer/Font/FontManager.hpp"
@@ -17,8 +18,8 @@
 
 #include "HodEngine/Renderer/FrameResources.hpp"
 
-#include <HodEngine/Window/Event.hpp>
 #include <HodEngine/Window/Window.hpp>
+#include <algorithm>
 
 namespace hod::inline renderer
 {
@@ -293,45 +294,33 @@ namespace hod::inline renderer
 
 	bool Renderer::AcquireNextFrame()
 	{
-		Vector<PresentationSurface*> presentationSurfaceToResize;
-		for (PresentationSurface* presentationSurface : _presentationSurfaces)
-		{
-			window::Event event;
-			uint32_t      eventIndex = 0;
-
-			Window* window = presentationSurface->GetWindow();
-			if (window->PollEvent(eventIndex, event, 1 << static_cast<uint8_t>(EventType::Resized)))
-			{
-				presentationSurfaceToResize.PushBack(presentationSurface);
-			}
-		}
-
+		// Presentation surfaces are no longer acquired eagerly here: a surface is only acquired
+		// (and resized if needed) lazily, the first time a RenderView targets it this frame
+		// (see FrameResources::AcquireSurface, called from RenderView::Prepare). This avoids
+		// acquiring images for surfaces that end up not being rendered this frame, and allows
+		// surfaces created mid-frame (e.g. a new ImGui viewport) to be acquired correctly.
 		FrameResources& frameResources = GetCurrentFrameResources();
 		frameResources.Wait();
 		frameResources.DestroyAll();
 
-		if (presentationSurfaceToResize.Empty() == false)
-		{
-			for (PresentationSurface* presentationSurface : presentationSurfaceToResize)
-			{
-				Window* window = presentationSurface->GetWindow();
-				presentationSurface->Resize(window->GetWidth(), window->GetHeight());
-			}
-		}
-
-		for (PresentationSurface* presentationSurface : _presentationSurfaces)
-		{
-			if (presentationSurface->AcquireNextImageIndex(GetCurrentFrameResources().GetImageAvalaibleSemaphore()) == false)
-			{
-				return false;
-			}
-		}
-
-		// Present semaphores from previous frame at this slot are now safe to destroy:
-		// vkAcquireNextImageKHR guarantees the presentation engine has consumed them.
 		FlushDeferredDeletions(_frameIndex);
 
 		return true;
+	}
+
+	void Renderer::DestroyPresentationSurface(window::Window* window)
+	{
+		for (auto it = _presentationSurfaces.Begin(); it != _presentationSurfaces.End(); ++it)
+		{
+			if ((*it)->GetWindow() == window)
+			{
+				WaitIdle();
+				PresentationSurface* presentationSurface = *it;
+				_presentationSurfaces.Erase(it);
+				DefaultAllocator::GetInstance().Delete(presentationSurface);
+				return;
+			}
+		}
 	}
 
 	PresentationSurface* Renderer::FindPresentationSurface(Window* window) const

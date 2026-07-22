@@ -84,6 +84,8 @@ namespace hod::inline renderer
 
 		bool AcquireNextFrame();
 
+		virtual PresentationSurface* CreatePresentationSurface(window::Window* window) = 0;
+		void DestroyPresentationSurface(window::Window* window);
 		PresentationSurface* FindPresentationSurface(window::Window* window) const;
 
 		uint32_t GetFrameIndex() const;

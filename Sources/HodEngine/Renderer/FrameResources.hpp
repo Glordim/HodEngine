@@ -12,6 +12,7 @@ namespace hod::inline renderer
 	class Semaphore;
 	class Fence;
 	class RenderView;
+	class PresentationSurface;
 
 	class HOD_RENDERER_API FrameResources
 	{
@@ -26,11 +27,19 @@ namespace hod::inline renderer
 
 		RenderView* CreateRenderView();
 
-		Semaphore* GetImageAvalaibleSemaphore();
+		bool       AcquireSurface(PresentationSurface* presentationSurface);
+		Semaphore* GetImageAvalaibleSemaphore(PresentationSurface* presentationSurface);
 
 		bool Submit();
 		void Wait();
 		void DestroyAll();
+
+	private:
+		struct ImageAvalaibleSemaphore
+		{
+			PresentationSurface* _presentationSurface = nullptr;
+			Semaphore*           _semaphore = nullptr;
+		};
 
 	private:
 		Vector<CommandBuffer*> _commandBuffers;
@@ -40,6 +49,6 @@ namespace hod::inline renderer
 
 		Vector<RenderView*> _renderViews;
 
-		Semaphore* _imageAvalaibleSemaphore = nullptr;
+		Vector<ImageAvalaibleSemaphore> _imageAvalaibleSemaphores;
 	};
 }

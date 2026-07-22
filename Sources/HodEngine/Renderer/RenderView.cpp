@@ -1,6 +1,7 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/RenderView.hpp"
 
+#include "HodEngine/Renderer/FrameResources.hpp"
 #include "HodEngine/Renderer/RenderCommand/RenderCommand.hpp"
 #include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
 #include "HodEngine/Renderer/RHI/Fence.hpp"
@@ -49,7 +50,12 @@ namespace hod::inline renderer
 	bool RenderView::Prepare(PresentationSurface* presentationSurface)
 	{
 		_presentationSurface = presentationSurface;
-		return true;
+		if (presentationSurface == nullptr)
+		{
+			return false;
+		}
+
+		return Renderer::GetInstance()->GetCurrentFrameResources().AcquireSurface(presentationSurface);
 	}
 
 	bool RenderView::Prepare(Window* window)

@@ -307,6 +307,14 @@ namespace hod::inline renderer
 		_renderPassesToDestroy[frameIndex].Clear();
 	}
 
+	PresentationSurface* RendererVulkan::CreatePresentationSurface(window::Window* window)
+	{
+		VkPresentationSurface* presentationSurface = DefaultAllocator::GetInstance().New<VkPresentationSurface>(window);
+		presentationSurface->Resize(window->GetWidth(), window->GetHeight());
+		_presentationSurfaces.PushBack(presentationSurface);
+		return presentationSurface;
+	}
+
 	/// @brief
 	/// @return
 	bool RendererVulkan::Init(Window* mainWindow, uint32_t physicalDeviceIdentifier)
@@ -354,9 +362,7 @@ namespace hod::inline renderer
 			return false;
 		}
 
-		VkPresentationSurface* presentationSurface = DefaultAllocator::GetInstance().New<VkPresentationSurface>(mainWindow);
-		presentationSurface->Resize(mainWindow->GetWidth(), mainWindow->GetHeight());
-		_presentationSurfaces.PushBack(presentationSurface);
+		CreatePresentationSurface(mainWindow);
 
 		// TODO
 		{
