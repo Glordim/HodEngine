@@ -84,6 +84,28 @@ namespace hod::inline imgui
 
 		static ImGuiKey KeyToImGuiKey(Key key);
 
+		void ProcessDrawData(ImDrawData* drawData, window::Window* window);
+		void ProcessWindowEvent(window::Window* window);
+
+		static void PlatformCreateWindow(ImGuiViewport* vp);
+		static void PlatformDestroyWindow(ImGuiViewport* vp);
+		static void PlatformShowWindow(ImGuiViewport* vp);
+		static void PlatformSetWindowPos(ImGuiViewport* vp, ImVec2 pos);
+		static ImVec2 PlatformGetWindowPos(ImGuiViewport* vp);
+		static void PlatformSetWindowSize(ImGuiViewport* vp, ImVec2 size);
+		static ImVec2 PlatformGetWindowSize(ImGuiViewport* vp);
+		static ImVec2 PlatformGetWindowFramebufferScale(ImGuiViewport* vp);
+		static void PlatformSetWindowFocus(ImGuiViewport* vp);
+		static bool PlatformGetWindowFocus(ImGuiViewport* vp);
+		static bool PlatformGetWindowMinimized(ImGuiViewport* vp);
+		static void PlatformSetWindowTitle(ImGuiViewport* vp, const char* str);
+
+		static void RendererCreateWindow(ImGuiViewport* vp);
+		static void RendererDestroyWindow(ImGuiViewport* vp);
+		static void RendererSetWindowSize(ImGuiViewport* vp, ImVec2 size);
+		static void RendererRenderWindow(ImGuiViewport* vp, void* render_arg);
+		static void RendererSwapBuffers(ImGuiViewport* vp, void* render_arg);
+
 	private:
 		MemberFunctionJob<ImGuiManager> _updateJob;
 

@@ -8,6 +8,7 @@
 #include "HodEngine/Editor/Project.hpp"
 
 #include "HodEngine/GameSystems/Job/JobScheduler.hpp"
+#include "HodEngine/ImGui/DearImGui/imgui.h"
 #include "HodEngine/Renderer/Resource/FontResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"
 #include "TaskTracker/TaskTracker.hpp"
@@ -394,7 +395,8 @@ namespace hod::inline editor
 				ImGui::PopStyleColor(2);
 				if (visible)
 				{
-					ImGui::SetCursorScreenPos(ImVec2(64.0f, 0.0f));
+					ImGuiViewport* mainViewport = ImGui::GetMainViewport();
+					ImGui::SetCursorScreenPos(mainViewport->Pos + ImVec2(64.0f, 0.0f));
 
 					if (ImGui::BeginMenu("File") == true)
 					{
@@ -496,16 +498,18 @@ namespace hod::inline editor
 					ImGui::EndMainMenuBar();
 				}
 
-				ImVec2 logoPos = ImVec2((64.0f - 48.0f) * 0.5f, 0.0f);
-				ImGui::GetForegroundDrawList()->AddImage(_hodTexture, logoPos, logoPos + ImVec2(48.0f, 48.0f));
+				ImGuiViewport* mainViewport = ImGui::GetMainViewport();
+				ImVec2 logoPos = mainViewport->Pos + ImVec2((64.0f - 48.0f) * 0.5f, 0.0f);
+				ImGui::GetForegroundDrawList(mainViewport)->AddImage(_hodTexture, logoPos, logoPos + ImVec2(48.0f, 48.0f));
 
 				float statusBarHeight = 32;
 
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
 				ImGui::PushStyleColor(ImGuiCol_WindowBg, ImVec4(0.08f, 0.08f, 0.08f, 1.0f));
-				ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetFrameHeight()));
-				ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, ImGui::GetIO().DisplaySize.y - ImGui::GetFrameHeight() - statusBarHeight));
+				ImGui::SetNextWindowPos(mainViewport->Pos + ImVec2(0, ImGui::GetFrameHeight()));
+				ImGui::SetNextWindowSize(mainViewport->Size - ImVec2(0, ImGui::GetFrameHeight() + statusBarHeight));
+				ImGui::SetNextWindowViewport(mainViewport->ID);
 				bool open = ImGui::Begin("TabBarContainer", nullptr,
 			                             ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoResize | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoScrollbar |
 			                                 ImGuiWindowFlags_NoScrollWithMouse | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoBringToFrontOnFocus);
@@ -549,14 +553,14 @@ namespace hod::inline editor
 				}
 				ImGui::End();
 
-				ImGui::SetNextWindowPos(ImVec2(0, ImGui::GetIO().DisplaySize.y - statusBarHeight));
-				ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x, statusBarHeight));
-
 				ImGuiWindowFlags window_flags = ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings |
 			                                    ImGuiWindowFlags_NoBringToFrontOnFocus | ImGuiWindowFlags_NoDocking;
 
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 				ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+				ImGui::SetNextWindowPos(mainViewport->Pos + ImVec2(0, mainViewport->Size.y - statusBarHeight));
+				ImGui::SetNextWindowSize(ImVec2(mainViewport->Size.x, statusBarHeight));
+				ImGui::SetNextWindowViewport(mainViewport->ID);
 				bool draw = ImGui::Begin("Bottom Menu Bar", nullptr, window_flags);
 				ImGui::PopStyleVar(2);
 				if (draw)
@@ -608,8 +612,9 @@ namespace hod::inline editor
 				}
 				if (_floatingAssetBrowserWindowPos > 0.0f)
 				{
-					ImGui::SetNextWindowPos(ImVec2(20.0f, ImGui::GetIO().DisplaySize.y - statusBarHeight - _floatingAssetBrowserWindowPos));
-					ImGui::SetNextWindowSize(ImVec2(ImGui::GetIO().DisplaySize.x - 40.0f, 350));
+					ImGui::SetNextWindowPos(mainViewport->Pos + ImVec2(20.0f, mainViewport->Size.y - statusBarHeight - _floatingAssetBrowserWindowPos));
+					ImGui::SetNextWindowSize(ImVec2(mainViewport->Size.x - 40.0f, 350));
+					ImGui::SetNextWindowViewport(mainViewport->ID);
 					if (_focusFloatingAssetBrowserWindow)
 					{
 						_focusFloatingAssetBrowserWindow = false;
@@ -628,8 +633,9 @@ namespace hod::inline editor
 				}
 				if (_floatingTaskTrackerWindowPos > 0.0f)
 				{
-					ImGui::SetNextWindowPos(ImVec2(ImGui::GetIO().DisplaySize.x - 350.0f - 20.0f, ImGui::GetIO().DisplaySize.y - statusBarHeight - _floatingTaskTrackerWindowPos));
+					ImGui::SetNextWindowPos(mainViewport->Pos + ImVec2(mainViewport->Size.x - 350.0f - 20.0f, mainViewport->Size.y - statusBarHeight - _floatingTaskTrackerWindowPos));
 					ImGui::SetNextWindowSize(ImVec2(350.0f, 555.0f));
+					ImGui::SetNextWindowViewport(mainViewport->ID);
 					if (_focusFloatingTaskTrackerWindow)
 					{
 						_focusFloatingTaskTrackerWindow = false;

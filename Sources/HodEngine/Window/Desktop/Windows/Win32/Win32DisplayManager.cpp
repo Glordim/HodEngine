@@ -79,7 +79,8 @@ namespace hod::inline window
 				}
 				else if (msg.message == WM_DESTROY_WINDOW)
 				{
-					// todo ?
+					Win32Window* window = reinterpret_cast<Win32Window*>(msg.wParam);
+					DefaultAllocator::GetInstance().Delete(window);
 				}
 			}
 			else
@@ -149,7 +150,17 @@ namespace hod::inline window
 		{
 			_windows.Erase(it);
 		}
-		DefaultAllocator::GetInstance().Delete(window);
+		if (_mainThreadId == Thread::GetCurrentThreadId())
+		{
+			DefaultAllocator::GetInstance().Delete(window);
+		}
+		else
+		{
+			if (PostThreadMessageA(_mainThreadId, WM_DESTROY_WINDOW, reinterpret_cast<WPARAM>(window), 0) == FALSE)
+			{
+				OUTPUT_ERROR("DestroyWindow PostThreadMessageA: {}", OS::GetLastWin32ErrorMessage());
+			}
+		}
 	}
 
 	Cursor* Win32DisplayManager::CreateBuiltinCursor(BuiltinCursor builtinCursor)

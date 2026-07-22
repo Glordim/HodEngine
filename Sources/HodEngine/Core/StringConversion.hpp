@@ -20,7 +20,7 @@ namespace hod::inline core
 #endif
 
 		template<typename... Args>
-		HOD_CORE_API String StringFormat(const std::string_view& format, Args... args)
+		String StringFormat(const std::string_view& format, Args... args)
 		{
 			int size = std::snprintf(nullptr, 0, format.data(), args...) + 1; // Extra space for '\0'
 			if (size <= 0)

@@ -54,10 +54,12 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	void ProjectBrowser::DrawContent()
+	bool ProjectBrowser::Draw()
 	{
-		ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
-		ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+		ImGuiViewport* mainViewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(mainViewport->Pos);
+		ImGui::SetNextWindowSize(mainViewport->Size);
+		ImGui::SetNextWindowViewport(mainViewport->ID);
 
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 		if (ImGui::Begin("ProjectBrowser", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize) == true)
@@ -172,5 +174,6 @@ namespace hod::inline editor
 		}
 		ImGui::End();
 		ImGui::PopStyleVar(1);
+		return true;
 	}
 }

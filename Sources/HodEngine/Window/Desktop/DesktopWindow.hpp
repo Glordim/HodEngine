@@ -10,6 +10,7 @@
 #include <HodEngine/Math/Vector2.hpp>
 
 #include <array>
+#include <string_view>
 
 namespace hod::inline window
 {
@@ -28,6 +29,12 @@ namespace hod::inline window
 		virtual void SetVisible(bool visible) = 0;
 
 		bool IsFocused() const;
+
+		virtual void SetTitle(const char* title) = 0;
+		virtual void SetDecoration(bool decoration) = 0;
+
+		virtual void SetPosition(const Vector2& position) = 0;
+		const Vector2 GetPosition() const { return _position; }
 
 		const Vector2& GetMousePosition() const;
 
@@ -49,6 +56,9 @@ namespace hod::inline window
 		void EmitMouseMoved(int x, int y);
 		void EmitMouseScroll(float scroll);
 		void EmitMouseHorizontalScroll(float scroll);
+	
+	protected:
+		Vector2 _position;
 
 	private:
 		Vector2 _mousePosition;

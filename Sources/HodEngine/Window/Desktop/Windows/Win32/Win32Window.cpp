@@ -1,4 +1,6 @@
 #include "HodEngine/Window/Pch.hpp"
+#include "HodEngine/Core/Memory/DefaultAllocator.hpp"
+#include "HodEngine/Core/StringConversion.hpp"
 #include "HodEngine/Window/Desktop/Windows/Win32/Win32Cursor.hpp"
 #include "HodEngine/Window/Desktop/Windows/Win32/Win32DisplayManager.hpp"
 #include "HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp"
@@ -153,6 +155,12 @@ namespace hod::inline window
 		{
 			return 1;
 		}
+		else if (msg == WM_MOVE)
+		{
+			_position.SetX(GET_X_LPARAM(lParam));
+			_position.SetY(GET_Y_LPARAM(lParam));
+			return 0;
+		}
 		else if (msg == WM_SIZE)
 		{
 			_sizeLock.lock();
@@ -287,12 +295,37 @@ namespace hod::inline window
 		return _hInstance;
 	}
 
+	void Win32Window::SetDecoration(bool decoration)
+	{
+		RunOnWin32Thread([this, decoration]() {
+			if (decoration == false)
+			{
+				LONG_PTR style = GetWindowLongPtr(_hWnd, GWL_STYLE);
+				style &= ~(WS_CAPTION | WS_THICKFRAME | WS_MINIMIZEBOX | WS_MAXIMIZEBOX | WS_SYSMENU);
+				style |= WS_POPUP;
+				SetWindowLongPtr(_hWnd, GWL_STYLE, style);
+				SetWindowPos(_hWnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+			}
+		});
+	}
+
 	void Win32Window::SetSize(uint16_t width, uint16_t height)
 	{
 		_width = width;
 		_height = height;
 
-		RunOnWin32Thread([this]() { SetWindowPos(_hWnd, nullptr, 0, 0, _width, _height, SWP_NOMOVE); });
+		RunOnWin32Thread([this]() {
+			RECT rect = { 0, 0, static_cast<LONG>(_width), static_cast<LONG>(_height) };
+			DWORD style = GetWindowLong(_hWnd, GWL_STYLE);
+			DWORD exStyle = GetWindowLong(_hWnd, GWL_EXSTYLE);
+			BOOL hasMenu = (GetMenu(_hWnd) != nullptr);
+			AdjustWindowRectEx(&rect, style, hasMenu, exStyle);
+
+			int totalWidth  = rect.right - rect.left;
+			int totalHeight = rect.bottom - rect.top;
+
+			SetWindowPos(_hWnd, nullptr, 0, 0, totalWidth, totalHeight, SWP_NOMOVE | SWP_NOZORDER);
+		});
 	}
 
 	void Win32Window::CenterToScreen()
@@ -324,6 +357,31 @@ namespace hod::inline window
 				{
 					ShowWindow(_hWnd, SW_HIDE);
 				}
+			});
+	}
+
+	void Win32Window::SetTitle(const char* title)
+	{
+		size_t size = StringConversion::StringToWStringSize(title);
+		wchar_t* titleUtf16 = DefaultAllocator::GetInstance().Allocate<wchar_t>(sizeof(wchar_t) * (size + 1));
+		StringConversion::StringToWString(title, titleUtf16, size);
+		titleUtf16[size] = L'\0';
+
+		RunOnWin32Thread(
+			[this, titleUtf16]()
+			{
+				SetWindowTextW(_hWnd, titleUtf16);
+				DefaultAllocator::GetInstance().Free(titleUtf16);
+			});
+	}
+
+	void Win32Window::SetPosition(const Vector2& position)
+	{
+		Vector2 pos = position;
+		RunOnWin32Thread(
+			[this, pos]()
+			{
+				SetWindowPos(_hWnd, NULL, pos.GetX(), pos.GetY(), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
 			});
 	}
 

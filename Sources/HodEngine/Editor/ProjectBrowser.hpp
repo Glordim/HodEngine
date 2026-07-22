@@ -21,7 +21,8 @@ namespace hod::inline editor
 		~ProjectBrowser() override = default;
 
 	public:
-		void DrawContent() override;
+		bool Draw() override;
+		void DrawContent() override {};
 
 	private:
 		RecentProjects _recentProjects;

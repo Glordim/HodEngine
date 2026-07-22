@@ -428,6 +428,7 @@ namespace hod::inline editor
 	/// @return
 	bool AssetBrowserWindow::Draw()
 	{
+		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
 		if (ImGui::Begin(GetIdentifier(), nullptr, GetFlags()) == true)
 		{
 			ImRect cliprect = ImGui::GetCurrentWindow()->ClipRect;

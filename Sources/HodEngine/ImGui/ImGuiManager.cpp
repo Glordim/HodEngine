@@ -1,7 +1,10 @@
 #include "HodEngine/ImGui/Pch.hpp"
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
+#include "HodEngine/Core/Vector.hpp"
 #include "HodEngine/ImGui/ImGuiManager.hpp"
 
+#include "HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp"
+#include "HodEngine/Window/Window.hpp"
 #include <HodEngine/Core/Time/SystemTime.hpp>
 #include <HodEngine/GameSystems/Job/Job.hpp>
 
@@ -9,6 +12,7 @@
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 #include "HodEngine/ImGui/DearImGui/imgui_internal.h"
+#include <cstdint>
 #if defined(PLATFORM_MACOS)
 	#include "HodEngine/ImGui/DearImGui/imgui_impl_osx.h"
 #endif
@@ -47,14 +51,54 @@
 
 namespace hod::inline imgui
 {
-	void ImGuiPlatformCreateWindow(ImGuiViewport* vp)
+	void ImGuiManager::PlatformCreateWindow(ImGuiViewport* vp)
 	{
 		DesktopWindow* desktopWindow = (DesktopWindow*)DesktopDisplayManager::GetInstance()->CreateWindow();
+		#if PLATFORM_WINDOWS
+			Win32Window* win32Window = static_cast<Win32Window*>(desktopWindow);
+			while (win32Window->GetWindowHandle() == NULL) {}
+		#endif
+		desktopWindow->SetDecoration((vp->Flags & ImGuiViewportFlags_NoDecoration) == 0);
 		desktopWindow->SetSize(vp->Size.x, vp->Size.y);
 		vp->PlatformHandle = desktopWindow;
 	}
 
-	ImVec2 ImGuiPlatformGetWindowSize(ImGuiViewport* vp)
+	void ImGuiManager::PlatformDestroyWindow(ImGuiViewport* vp)
+	{
+		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
+		DesktopDisplayManager::GetInstance()->DestroyWindow(desktopWindow);
+		vp->PlatformHandle = nullptr;
+	}
+
+	void ImGuiManager::PlatformShowWindow(ImGuiViewport* vp)
+	{
+		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
+		desktopWindow->SetVisible(true);
+	}
+
+	void ImGuiManager::PlatformSetWindowPos(ImGuiViewport* vp, ImVec2 pos)
+	{
+		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
+		desktopWindow->SetPosition(Vector2(pos.x, pos.y));
+	}
+
+	ImVec2 ImGuiManager::PlatformGetWindowPos(ImGuiViewport* vp)
+	{
+		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
+
+		ImVec2 pos;
+		pos.x = desktopWindow->GetPosition().GetX();
+		pos.y = desktopWindow->GetPosition().GetY();
+		return pos;
+	}
+
+	void ImGuiManager::PlatformSetWindowSize(ImGuiViewport* vp, ImVec2 size)
+	{
+		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
+		desktopWindow->SetSize(size.x, size.y);
+	}
+
+	ImVec2 ImGuiManager::PlatformGetWindowSize(ImGuiViewport* vp)
 	{
 		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
 
@@ -64,10 +108,75 @@ namespace hod::inline imgui
 		return size;
 	}
 
-	void ImGuiPlatformSetWindowSize(ImGuiViewport* vp, ImVec2 size)
+	ImVec2 ImGuiManager::PlatformGetWindowFramebufferScale(ImGuiViewport* vp)
+	{
+		(void)vp;
+		return ImVec2(1, 1);
+	}
+
+	void ImGuiManager::PlatformSetWindowFocus(ImGuiViewport* vp)
+	{
+		(void)vp;
+		/*
+		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
+		desktopWindow->Set(size.x, size.y);
+		*/
+	}
+
+	bool ImGuiManager::PlatformGetWindowFocus(ImGuiViewport* vp)
 	{
 		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
-		desktopWindow->SetSize(size.x, size.y);
+		return desktopWindow->IsFocused();
+	}
+
+	bool ImGuiManager::PlatformGetWindowMinimized(ImGuiViewport* vp)
+	{
+		(void)vp;
+		return false;
+	}
+
+	void ImGuiManager::PlatformSetWindowTitle(ImGuiViewport* vp, const char* str)
+	{
+		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
+		desktopWindow->SetTitle(str);
+	}
+
+	void ImGuiManager::RendererCreateWindow(ImGuiViewport* vp)
+	{
+		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
+		Renderer::GetInstance()->CreatePresentationSurface(desktopWindow);
+	}
+
+	void ImGuiManager::RendererDestroyWindow(ImGuiViewport* vp)
+	{
+		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
+		(void)desktopWindow;
+		//Renderer::GetInstance()->DestroyPresentationSurface(desktopWindow);
+	}
+
+	void ImGuiManager::RendererSetWindowSize(ImGuiViewport* vp, ImVec2 size)
+	{
+		(void)vp;
+		(void)size;
+		/*
+		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
+		Renderer::PresentationSurface* presentationSurface = Renderer::GetInstance()->FindPresentationSurface(desktopWindow);
+		presentationSurface->
+		*/
+	}
+
+	void ImGuiManager::RendererRenderWindow(ImGuiViewport* vp, void* render_arg)
+	{
+		(void)render_arg;
+
+		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
+		ImGuiManager::GetInstance()->ProcessDrawData(vp->DrawData, desktopWindow);
+	}
+
+	void ImGuiManager::RendererSwapBuffers(ImGuiViewport* vp, void* render_arg)
+	{
+		(void)vp;
+		(void)render_arg;
 	}
 
 	ImGuiKey KeyToImGuiKeyTable[] = {
@@ -340,7 +449,7 @@ namespace hod::inline imgui
 		std::strcpy(iniFileName, projectsPath.GetString().CStr());
 
 		ImGui::GetIO().IniFilename = iniFileName;
-		ImGui::GetIO().BackendFlags |= ImGuiBackendFlags_RendererHasTextures | ImGuiBackendFlags_PlatformHasViewports;
+		ImGui::GetIO().BackendFlags |= ImGuiBackendFlags_RendererHasTextures | ImGuiBackendFlags_RendererHasViewports | ImGuiBackendFlags_PlatformHasViewports;
 		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
 
 		// ImGui::GetIO().Fonts->AddFontDefault();
@@ -381,10 +490,42 @@ namespace hod::inline imgui
 #if defined(PLATFORM_MACOS)
 		ImGui_ImplOSX_Init(static_cast<MacOsWindow*>(_mainWindow)->GetNsView());
 #else
-		ImGui::GetPlatformIO().Platform_CreateWindow = &ImGuiPlatformCreateWindow;
-		ImGui::GetPlatformIO().Platform_GetWindowSize = &ImGuiPlatformGetWindowSize;
-		ImGui::GetPlatformIO().Platform_SetWindowSize = &ImGuiPlatformSetWindowSize;
+
+		ImGui::GetPlatformIO().Platform_CreateWindow = &ImGuiManager::PlatformCreateWindow;
+		ImGui::GetPlatformIO().Platform_DestroyWindow = &ImGuiManager::PlatformDestroyWindow;
+		ImGui::GetPlatformIO().Platform_ShowWindow = &ImGuiManager::PlatformShowWindow;
+		ImGui::GetPlatformIO().Platform_SetWindowPos = &ImGuiManager::PlatformSetWindowPos;
+		ImGui::GetPlatformIO().Platform_GetWindowPos = &ImGuiManager::PlatformGetWindowPos;
+		ImGui::GetPlatformIO().Platform_SetWindowSize = &ImGuiManager::PlatformSetWindowSize;
+		ImGui::GetPlatformIO().Platform_GetWindowSize = &ImGuiManager::PlatformGetWindowSize;
+		ImGui::GetPlatformIO().Platform_GetWindowFramebufferScale = &ImGuiManager::PlatformGetWindowFramebufferScale;
+		ImGui::GetPlatformIO().Platform_SetWindowFocus = &ImGuiManager::PlatformSetWindowFocus;
+		ImGui::GetPlatformIO().Platform_GetWindowFocus = &ImGuiManager::PlatformGetWindowFocus;
+		ImGui::GetPlatformIO().Platform_GetWindowMinimized = &ImGuiManager::PlatformGetWindowMinimized;
+		ImGui::GetPlatformIO().Platform_SetWindowTitle = &ImGuiManager::PlatformSetWindowTitle;
+
+		ImGui::GetPlatformIO().Renderer_CreateWindow = &ImGuiManager::RendererCreateWindow;
+		ImGui::GetPlatformIO().Renderer_DestroyWindow = &ImGuiManager::RendererDestroyWindow;
+		ImGui::GetPlatformIO().Renderer_SetWindowSize = &ImGuiManager::RendererSetWindowSize;
+		ImGui::GetPlatformIO().Renderer_RenderWindow = &ImGuiManager::RendererRenderWindow;
+		ImGui::GetPlatformIO().Renderer_SwapBuffers = &ImGuiManager::RendererSwapBuffers;
 #endif
+
+		ImGuiViewport* mainViewport = ImGui::GetMainViewport();
+		mainViewport->PlatformHandle = _mainWindow;
+		mainViewport->PlatformUserData = _mainWindow;
+		mainViewport->Pos.x = static_cast<DesktopWindow*>(_mainWindow)->GetPosition().GetX();
+		mainViewport->Pos.y = static_cast<DesktopWindow*>(_mainWindow)->GetPosition().GetY();
+		mainViewport->Size.x = static_cast<DesktopWindow*>(_mainWindow)->GetWidth();
+		mainViewport->Size.y = static_cast<DesktopWindow*>(_mainWindow)->GetHeight();
+		mainViewport->DpiScale = 1.0f;
+
+		ImGui::GetPlatformIO().Monitors.resize(1);
+		ImGui::GetPlatformIO().Monitors[0].DpiScale = 1.0f;
+		ImGui::GetPlatformIO().Monitors[0].MainPos = ImVec2(0.0f, 0.0f);
+		ImGui::GetPlatformIO().Monitors[0].MainSize = ImVec2(3440, 1440); // TODO
+		ImGui::GetPlatformIO().Monitors[0].WorkPos = ImGui::GetPlatformIO().Monitors[0].MainPos;
+		ImGui::GetPlatformIO().Monitors[0].WorkSize = ImGui::GetPlatformIO().Monitors[0].MainSize;
 
 		FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::PreRender);
 
@@ -443,76 +584,11 @@ namespace hod::inline imgui
 		// To avoid having animations (ping, translation, etc.) that lag too much (and to keep them at a reasonable duration) in the editor, even when there is lag.
 		io.DeltaTime = std::min(io.DeltaTime, 1.0f / 30.0f);
 
-		window::Event event;
-		uint32_t      eventIndex = 0;
-		while (_mainWindow->PollEvent(eventIndex, event))
+		ImGuiPlatformIO& platformIO = ImGui::GetPlatformIO();
+		for (int i = 0; i < platformIO.Viewports.Size; i++)
 		{
-			if (event.type == EventType::MouseMoved)
-			{
-				io.AddMousePosEvent(event.data.mouseMove.x, event.data.mouseMove.y);
-			}
-			else if (event.type == EventType::MouseButtonDown)
-			{
-				io.AddMouseButtonEvent(static_cast<ImGuiMouseButton>(event.data.mouseButton.button), true);
-			}
-			else if (event.type == EventType::MouseButtonUp)
-			{
-				io.AddMouseButtonEvent(static_cast<ImGuiMouseButton>(event.data.mouseButton.button), false);
-			}
-			else if (event.type == EventType::MouseScroll)
-			{
-				io.AddMouseWheelEvent(0.0f, event.data.mouseScroll.value);
-			}
-			else if (event.type == EventType::MouseHorizontalScroll)
-			{
-				io.AddMouseWheelEvent(event.data.mouseScroll.value, 0.0f);
-			}
-			else if (event.type == EventType::KeyPressed)
-			{
-				ImGuiKey imguiKey = KeyToImGuiKey(event.data.key.key);
-				if (imguiKey == ImGuiKey_LeftShift)
-				{
-					io.AddKeyEvent(ImGuiMod_Shift, true);
-				}
-				else if (imguiKey == ImGuiKey_LeftCtrl)
-				{
-					io.AddKeyEvent(ImGuiMod_Ctrl, true);
-				}
-				else if (imguiKey == ImGuiKey_LeftAlt)
-				{
-					io.AddKeyEvent(ImGuiMod_Alt, true);
-				}
-				io.AddKeyEvent(imguiKey, true);
-			}
-			else if (event.type == EventType::KeyReleased)
-			{
-				ImGuiKey imguiKey = KeyToImGuiKey(event.data.key.key);
-				if (imguiKey == ImGuiKey_LeftShift)
-				{
-					io.AddKeyEvent(ImGuiMod_Shift, false);
-				}
-				else if (imguiKey == ImGuiKey_LeftCtrl)
-				{
-					io.AddKeyEvent(ImGuiMod_Ctrl, false);
-				}
-				else if (imguiKey == ImGuiKey_LeftAlt)
-				{
-					io.AddKeyEvent(ImGuiMod_Alt, false);
-				}
-				io.AddKeyEvent(imguiKey, false);
-			}
-			else if (event.type == EventType::Char)
-			{
-				io.AddInputCharacter(event.data.character.c);
-			}
-			else if (event.type == EventType::FocusGained)
-			{
-				io.AddFocusEvent(true);
-			}
-			else if (event.type == EventType::FocusLost)
-			{
-				io.AddFocusEvent(false);
-			}
+			ImGuiViewport* viewport = platformIO.Viewports[i];
+			ProcessWindowEvent(static_cast<window::Window*>(viewport->PlatformHandle));
 		}
 
 		Vector2 resolution;
@@ -549,6 +625,13 @@ namespace hod::inline imgui
 		static_cast<DesktopWindow*>(_mainWindow)->SetCursor(DesktopDisplayManager::GetInstance()->GetBultinCursor(builtinCursorMapping[mouseCursor]));
 	#endif
 #endif
+
+		ImGuiViewport* mainViewport = ImGui::GetMainViewport();
+		mainViewport->Pos.x = static_cast<DesktopWindow*>(_mainWindow)->GetPosition().GetX();
+		mainViewport->Pos.y = static_cast<DesktopWindow*>(_mainWindow)->GetPosition().GetY();
+		mainViewport->Size.x = static_cast<DesktopWindow*>(_mainWindow)->GetWidth();
+		mainViewport->Size.y = static_cast<DesktopWindow*>(_mainWindow)->GetHeight();
+		mainViewport->DpiScale = 1.0f;
 
 		ImGui::NewFrame();
 
@@ -650,10 +733,105 @@ namespace hod::inline imgui
 		}
 
 		ImGui::Render();
-		ImGui::UpdatePlatformWindows();
 
 		ImDrawData* drawData = ImGui::GetDrawData();
 
+		ProcessDrawData(drawData, _mainWindow);
+
+		if ((io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) != 0)
+		{
+			ImGui::UpdatePlatformWindows();
+			ImGui::RenderPlatformWindowsDefault();
+		}
+	}
+
+	void ImGuiManager::ProcessWindowEvent(window::Window* window)
+	{
+		ImGuiIO& io = ImGui::GetIO();
+
+		window::Event event;
+		uint32_t      eventIndex = 0;
+		while (window->PollEvent(eventIndex, event))
+		{
+			if (event.type == EventType::MouseMoved)
+			{
+				if ((io.ConfigFlags & ImGuiConfigFlags_ViewportsEnable) != 0)
+				{
+					Vector2 windowPos = static_cast<DesktopWindow*>(window)->GetPosition();
+					io.AddMousePosEvent(event.data.mouseMove.x + windowPos.GetX(), event.data.mouseMove.y + windowPos.GetY());
+				}
+				else
+				{
+					io.AddMousePosEvent(event.data.mouseMove.x, event.data.mouseMove.y);
+				}
+			}
+			else if (event.type == EventType::MouseButtonDown)
+			{
+				io.AddMouseButtonEvent(static_cast<ImGuiMouseButton>(event.data.mouseButton.button), true);
+			}
+			else if (event.type == EventType::MouseButtonUp)
+			{
+				io.AddMouseButtonEvent(static_cast<ImGuiMouseButton>(event.data.mouseButton.button), false);
+			}
+			else if (event.type == EventType::MouseScroll)
+			{
+				io.AddMouseWheelEvent(0.0f, event.data.mouseScroll.value);
+			}
+			else if (event.type == EventType::MouseHorizontalScroll)
+			{
+				io.AddMouseWheelEvent(event.data.mouseScroll.value, 0.0f);
+			}
+			else if (event.type == EventType::KeyPressed)
+			{
+				ImGuiKey imguiKey = KeyToImGuiKey(event.data.key.key);
+				if (imguiKey == ImGuiKey_LeftShift)
+				{
+					io.AddKeyEvent(ImGuiMod_Shift, true);
+				}
+				else if (imguiKey == ImGuiKey_LeftCtrl)
+				{
+					io.AddKeyEvent(ImGuiMod_Ctrl, true);
+				}
+				else if (imguiKey == ImGuiKey_LeftAlt)
+				{
+					io.AddKeyEvent(ImGuiMod_Alt, true);
+				}
+				io.AddKeyEvent(imguiKey, true);
+			}
+			else if (event.type == EventType::KeyReleased)
+			{
+				ImGuiKey imguiKey = KeyToImGuiKey(event.data.key.key);
+				if (imguiKey == ImGuiKey_LeftShift)
+				{
+					io.AddKeyEvent(ImGuiMod_Shift, false);
+				}
+				else if (imguiKey == ImGuiKey_LeftCtrl)
+				{
+					io.AddKeyEvent(ImGuiMod_Ctrl, false);
+				}
+				else if (imguiKey == ImGuiKey_LeftAlt)
+				{
+					io.AddKeyEvent(ImGuiMod_Alt, false);
+				}
+				io.AddKeyEvent(imguiKey, false);
+			}
+			else if (event.type == EventType::Char)
+			{
+				io.AddInputCharacter(event.data.character.c);
+			}
+			else if (event.type == EventType::FocusGained)
+			{
+				io.AddFocusEvent(true);
+			}
+			else if (event.type == EventType::FocusLost)
+			{
+				io.AddFocusEvent(false);
+			}
+		}
+	}
+
+	void ImGuiManager::ProcessDrawData(ImDrawData* drawData, window::Window* window)
+	{
 		if (drawData->Textures != nullptr)
 		{
 			for (ImTextureData* textureData : *drawData->Textures)
@@ -741,6 +919,14 @@ namespace hod::inline imgui
 			}
 		}
 
+		RenderView* renderView = Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
+		renderView->Init();
+		if (renderView->Prepare(window) == false)
+		{
+			// Surface couldn't be acquired this frame (e.g. window just created, hidden or minimized): nothing to render into.
+			return;
+		}
+
 		ImVec2 clipOffset = drawData->DisplayPos;
 		ImVec2 clipScale = drawData->FramebufferScale;
 
@@ -787,15 +973,12 @@ namespace hod::inline imgui
 
 		Rect viewport;
 		viewport._position.SetX(0.0f);
-		viewport._position.SetY(ImGui::GetIO().DisplaySize.y * ImGui::GetIO().DisplayFramebufferScale.y);
-		viewport._size.SetX(ImGui::GetIO().DisplaySize.x * ImGui::GetIO().DisplayFramebufferScale.x);
-		viewport._size.SetY(-ImGui::GetIO().DisplaySize.y * ImGui::GetIO().DisplayFramebufferScale.y);
+		viewport._position.SetY(drawData->OwnerViewport->Size.y);
+		viewport._size.SetX(drawData->OwnerViewport->Size.x);
+		viewport._size.SetY(-drawData->OwnerViewport->Size.y);
 
 		RenderCommandImGui* renderCommand = DefaultAllocator::GetInstance().New<RenderCommandImGui>(drawLists, viewport);
 
-		RenderView* renderView = Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
-		renderView->Init();
-		renderView->Prepare(_mainWindow);
 		renderView->SetupCamera(Matrix4::Identity, Matrix4::Identity, viewport);
 		renderView->PushRenderCommand(renderCommand);
 	}
