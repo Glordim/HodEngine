@@ -17,7 +17,7 @@ namespace hod::inline gamesystems
 		/*
 		for (uint32_t index = 0; index < static_cast<uint32_t>(JobQueue::Queue::COUNT); ++index)
 		{
-			_queues[index].Init(static_cast<JobQueue::Queue>(index));
+		    _queues[index].Init(static_cast<JobQueue::Queue>(index));
 		}
 		*/
 	}
@@ -40,13 +40,27 @@ namespace hod::inline gamesystems
 	void JobScheduler::Push(Job* job)
 	{
 		job->_taskScheduler = _frameScheduler;
-		_frameScheduler->AddTaskSetToPipe(job->_taskSet);
+		if (job->_pinnedThreadId == 0xFFFFFFFF)
+		{
+			_frameScheduler->AddTaskSetToPipe(static_cast<enki::ITaskSet*>(job->_completable));
+		}
+		else
+		{
+			_frameScheduler->AddPinnedTask(static_cast<enki::IPinnedTask*>(job->_completable));
+		}
 	}
 
 	void JobScheduler::PushBackground(Job* job)
 	{
 		job->_taskScheduler = _backgroundScheduler;
-		_backgroundScheduler->AddTaskSetToPipe(job->_taskSet);
+		if (job->_pinnedThreadId == 0xFFFFFFFF)
+		{
+			_backgroundScheduler->AddTaskSetToPipe(static_cast<enki::ITaskSet*>(job->_completable));
+		}
+		else
+		{
+			_backgroundScheduler->AddPinnedTask(static_cast<enki::IPinnedTask*>(job->_completable));
+		}
 	}
 
 	void JobScheduler::Wait()

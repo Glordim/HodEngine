@@ -1,9 +1,11 @@
 #pragma once
 #include "HodEngine/GameSystems/Export.hpp"
 
+#include <HodEngine/Core/Thread/Thread.hpp>
+
 namespace enki
 {
-	class TaskSet;
+	class ICompletable;
 	class TaskScheduler;
 }
 
@@ -15,7 +17,7 @@ namespace hod::inline gamesystems
 		friend class JobScheduler;
 
 	public:
-		Job();
+		Job(uint32_t threadId = 0xFFFFFFFF);
 		Job(const Job&) = delete;
 		Job(Job&&) = delete;
 		virtual ~Job();
@@ -23,7 +25,10 @@ namespace hod::inline gamesystems
 		Job& operator=(const Job&) = delete;
 		Job& operator=(Job&&) = delete;
 
-		void SetAutoDelete(bool autoDelete) { _autoDelete = autoDelete; }
+		void SetAutoDelete(bool autoDelete)
+		{
+			_autoDelete = autoDelete;
+		}
 
 	public:
 		void Wait();
@@ -32,10 +37,11 @@ namespace hod::inline gamesystems
 		virtual void Execution() = 0;
 
 	private:
-		enki::TaskSet* _taskSet = nullptr;
+		enki::ICompletable*  _completable = nullptr;
 		enki::TaskScheduler* _taskScheduler = nullptr;
-		bool _autoDelete = false;
+		bool                 _autoDelete = false;
 
 		std::atomic<Job*> _nextCompleted = nullptr;
+		uint32_t          _pinnedThreadId = 0;
 	};
 }

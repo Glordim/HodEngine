@@ -3,33 +3,53 @@
 #include "HodEngine/GameSystems/Job/Job.hpp"
 
 #include "HodEngine/GameSystems/Job/JobScheduler.hpp"
-#include <TaskScheduler.h>
 #include <cassert>
+#include <cstdint>
+#include <TaskScheduler.h>
+
 
 namespace hod::inline gamesystems
 {
 	/// @brief
-	Job::Job()
+	Job::Job(uint32_t threadId)
 	{
-		_taskSet = DefaultAllocator::GetInstance().New<enki::TaskSet>([&](enki::TaskSetPartition /*range*/, uint32_t /*threadnum*/)
+		_pinnedThreadId = threadId;
+		if (threadId == enki::NO_THREAD_NUM)
 		{
-			Execution();
+			_completable = DefaultAllocator::GetInstance().New<enki::TaskSet>(
+				[&](enki::TaskSetPartition /*range*/, uint32_t /*threadnum*/)
+				{
+					Execution();
 
-			if (_autoDelete)
-			{
-				JobScheduler::GetInstance()->MarkForCleanup(this);
-			}
-		});
+					if (_autoDelete)
+					{
+						JobScheduler::GetInstance()->MarkForCleanup(this);
+					}
+				});
+		}
+		else
+		{
+			_completable = DefaultAllocator::GetInstance().New<enki::LambdaPinnedTask>(threadId,
+			                                                                           [&]()
+			                                                                           {
+																						   Execution();
+
+																						   if (_autoDelete)
+																						   {
+																							   JobScheduler::GetInstance()->MarkForCleanup(this);
+																						   }
+																					   });
+		}
 	}
 
 	Job::~Job()
 	{
-		DefaultAllocator::GetInstance().Delete(_taskSet);
+		DefaultAllocator::GetInstance().Delete(_completable);
 	}
 
 	/// @brief
 	void Job::Wait()
 	{
-		_taskScheduler->WaitforTask(_taskSet);
+		_taskScheduler->WaitforTask(_completable);
 	}
 }
