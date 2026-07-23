@@ -10,8 +10,10 @@
 
 namespace hod::inline renderer
 {
+	class CommandBuffer;
+
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	class HOD_RENDERER_API Texture
 	{
@@ -39,6 +41,11 @@ namespace hod::inline renderer
 		virtual bool BuildBuffer(uint32_t width, uint32_t height, const uint8_t* buffer, const CreateInfo& createInfo) = 0;
 
 		virtual Color ReadPixel(const Vector2& position) const = 0;
+
+		// Records (into the given, already-recording command buffer) whatever is needed to capture
+		// this texture's current content for a later ReadPixel() call. No-op for textures that were
+		// not built with CreateInfo::_allowReadWrite.
+		virtual void CaptureReadback(CommandBuffer* commandBuffer) = 0;
 
 	protected:
 

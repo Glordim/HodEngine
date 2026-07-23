@@ -102,7 +102,7 @@ namespace hod::inline renderer
 		bool TransitionImageLayoutImmediate(VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout);
 		bool TransitionImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout);
 		bool CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
-		bool CopyImageToBuffer(VkImage image, VkBuffer buffer, uint32_t width, uint32_t height);
+		void CopyImageToBuffer(VkCommandBuffer commandBuffer, VkImage image, VkBuffer buffer, uint32_t width, uint32_t height);
 
 		bool FindMemoryTypeIndex(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryProperties, uint32_t* memoryTypeIndex);
 

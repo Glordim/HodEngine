@@ -2,6 +2,7 @@
 #include "HodEngine/Renderer/RHI/Vulkan/VkTexture.hpp"
 
 #include "HodEngine/Renderer/RHI/Vulkan/RendererVulkan.hpp"
+#include "HodEngine/Renderer/RHI/Vulkan/CommandBufferVk.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
@@ -46,6 +47,12 @@ namespace hod::inline renderer
 		if (_textureImage != VK_NULL_HANDLE)
 		{
 			renderer->DeferDestroy(_textureImage, _textureImageMemory);
+		}
+
+		if (_readbackBuffer != VK_NULL_HANDLE)
+		{
+			vmaUnmapMemory(renderer->GetVmaAllocator(), _readbackBufferMemory);
+			renderer->DeferDestroy(_readbackBuffer, _readbackBufferMemory);
 		}
 	}
 
@@ -156,10 +163,12 @@ namespace hod::inline renderer
 		VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
 		bool           ret = false;
 
-		VkMemoryPropertyFlags memoryPropertyFlags =
-			createInfo._allowReadWrite ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
-		VkImageTiling     imageTiling = createInfo._allowReadWrite ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
-		VkImageUsageFlags imageUseFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
+		// The image itself always stays optimal-tiled/device-local (fastest to render into); when
+		// _allowReadWrite is requested, readback goes through a separate persistently-mapped staging
+		// buffer (see below) instead of making the render target image itself host-visible.
+		VkMemoryPropertyFlags memoryPropertyFlags = VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
+		VkImageTiling         imageTiling = VK_IMAGE_TILING_OPTIMAL;
+		VkImageUsageFlags     imageUseFlags = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT | VK_IMAGE_USAGE_SAMPLED_BIT;
 		if (createInfo._allowReadWrite)
 		{
 			imageUseFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
@@ -191,6 +200,30 @@ namespace hod::inline renderer
 			goto exit;
 		}
 
+		if (createInfo._allowReadWrite)
+		{
+			VkBufferCreateInfo readbackBufferCreateInfo = {};
+			readbackBufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+			readbackBufferCreateInfo.size = width * height * 4;
+			readbackBufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
+			readbackBufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+			VmaAllocationCreateInfo readbackAllocCreateInfo = {};
+			readbackAllocCreateInfo.usage = VMA_MEMORY_USAGE_GPU_TO_CPU;
+
+			if (vmaCreateBuffer(renderer->GetVmaAllocator(), &readbackBufferCreateInfo, &readbackAllocCreateInfo, &_readbackBuffer, &_readbackBufferMemory, nullptr) != VK_SUCCESS)
+			{
+				OUTPUT_ERROR("Vulkan: Texture, unable to create readback buffer");
+				goto exit;
+			}
+
+			if (vmaMapMemory(renderer->GetVmaAllocator(), _readbackBufferMemory, &_readbackMappedData) != VK_SUCCESS)
+			{
+				OUTPUT_ERROR("Vulkan: Texture, unable to map readback buffer");
+				goto exit;
+			}
+		}
+
 		ret = true;
 
 	exit:
@@ -205,6 +238,18 @@ namespace hod::inline renderer
 
 		if (ret == false)
 		{
+			if (_readbackBuffer != VK_NULL_HANDLE)
+			{
+				if (_readbackMappedData != nullptr)
+				{
+					vmaUnmapMemory(renderer->GetVmaAllocator(), _readbackBufferMemory);
+					_readbackMappedData = nullptr;
+				}
+				vmaDestroyBuffer(renderer->GetVmaAllocator(), _readbackBuffer, _readbackBufferMemory);
+				_readbackBuffer = VK_NULL_HANDLE;
+				_readbackBufferMemory = VK_NULL_HANDLE;
+			}
+
 			if (_textureSampler != VK_NULL_HANDLE)
 			{
 				vkDestroySampler(renderer->GetVkDevice(), _textureSampler, nullptr);
@@ -367,47 +412,34 @@ namespace hod::inline renderer
 			return Color(0.0f, 0.0f, 0.0f, 0.0f);
 		}
 
+		if (_readbackReady == false)
+		{
+			return Color(0.0f, 0.0f, 0.0f, 0.0f);
+		}
+
+		const uint8_t* pixelData = (const uint8_t*)_readbackMappedData + ((uint32_t)position.GetY() * _width + (uint32_t)position.GetX()) * 4;
+
+		return Color(((float)pixelData[0]) / 255.0f, ((float)pixelData[1]) / 255.0f, ((float)pixelData[2]) / 255.0f, ((float)pixelData[3]) / 255.0f);
+	}
+
+	/// @brief Records, into commandBuffer, a copy of this texture's current content into its
+	/// persistently-mapped readback buffer, so a later ReadPixel() call can read it back for free.
+	/// No-op if this texture wasn't built with CreateInfo::_allowReadWrite.
+	/// @param commandBuffer
+	void VkTexture::CaptureReadback(CommandBuffer* commandBuffer)
+	{
+		if (_readbackBuffer == VK_NULL_HANDLE)
+		{
+			return;
+		}
+
 		RendererVulkan* renderer = (RendererVulkan*)Renderer::GetInstance();
+		VkCommandBuffer vkCommandBuffer = static_cast<CommandBufferVk*>(commandBuffer)->GetVkCommandBuffer();
 
-		VkBuffer      stagingBuffer;
-		VmaAllocation stagingBufferAllocation;
+		renderer->TransitionImageLayout(vkCommandBuffer, _textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
+		renderer->CopyImageToBuffer(vkCommandBuffer, _textureImage, _readbackBuffer, _width, _height);
+		renderer->TransitionImageLayout(vkCommandBuffer, _textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-		VkBufferCreateInfo bufferCreateInfo = {};
-		bufferCreateInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferCreateInfo.size = _width * _height * 4;
-		bufferCreateInfo.usage = VK_BUFFER_USAGE_TRANSFER_DST_BIT;
-		bufferCreateInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-		VmaAllocationCreateInfo allocCreateInfo = {};
-		allocCreateInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY;
-		if (vmaCreateBuffer(renderer->GetVmaAllocator(), &bufferCreateInfo, &allocCreateInfo, &stagingBuffer, &stagingBufferAllocation, nullptr) != VK_SUCCESS)
-		{
-			// todo output
-			return Color(0.0f, 0.0f, 0.0f, 0.0f);
-		}
-
-		renderer->TransitionImageLayoutImmediate(_textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL);
-		if (renderer->CopyImageToBuffer(_textureImage, stagingBuffer, _width, _height) == false)
-		{
-			// todo ouput
-			return Color(0.0f, 0.0f, 0.0f, 0.0f);
-		}
-		renderer->TransitionImageLayoutImmediate(_textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
-
-		void* data;
-		if (vmaMapMemory(renderer->GetVmaAllocator(), stagingBufferAllocation, &data) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Texture, unable to map memory");
-			return Color(0.0f, 0.0f, 0.0f, 0.0f);
-		}
-
-		uint8_t* pixelData = (uint8_t*)data + ((uint32_t)position.GetY() * _width + (uint32_t)position.GetX()) * 4;
-
-		Color color(((float)pixelData[0]) / 255.0f, ((float)pixelData[1]) / 255.0f, ((float)pixelData[2]) / 255.0f, ((float)pixelData[3]) / 255.0f);
-
-		vmaUnmapMemory(renderer->GetVmaAllocator(), stagingBufferAllocation);
-		vmaDestroyBuffer(renderer->GetVmaAllocator(), stagingBuffer, stagingBufferAllocation);
-
-		return color;
+		_readbackReady = true;
 	}
 }

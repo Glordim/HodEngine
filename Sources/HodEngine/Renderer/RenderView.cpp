@@ -133,6 +133,7 @@ namespace hod::inline renderer
 
 				commandBuffer->EndRenderPass();
 				//_pickingRenderTarget->PrepareForRead(commandBuffer);
+				_pickingRenderTarget->GetColorTexture()->CaptureReadback(commandBuffer);
 				commandBuffer->EndRecord();
 			}
 

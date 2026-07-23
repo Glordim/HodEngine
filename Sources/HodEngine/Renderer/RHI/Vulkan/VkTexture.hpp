@@ -22,6 +22,7 @@ namespace hod::inline renderer
 		bool BuildBuffer(uint32_t width, uint32_t height, const uint8_t* buffer, const CreateInfo& createInfo) override;
 
 		Color ReadPixel(const Vector2& position) const override;
+		void  CaptureReadback(CommandBuffer* commandBuffer) override;
 
 		VkImage     GetTextureImage() const;
 		VkImageView GetTextureImageView() const;
@@ -33,5 +34,12 @@ namespace hod::inline renderer
 
 		VkImageView _textureImageView;
 		VkSampler   _textureSampler;
+
+		// CPU-visible copy of the texture content, kept up to date once per frame by CaptureReadback,
+		// so ReadPixel() can be a plain memory read instead of an immediate, blocking GPU round-trip.
+		VkBuffer      _readbackBuffer = VK_NULL_HANDLE;
+		VmaAllocation _readbackBufferMemory = VK_NULL_HANDLE;
+		void*         _readbackMappedData = nullptr;
+		bool          _readbackReady = false;
 	};
 }

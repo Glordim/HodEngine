@@ -1161,6 +1161,14 @@ namespace hod::inline renderer
 			sourceStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
 			destinationStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
 		}
+		else if (oldLayout == VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL && newLayout == VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL)
+		{
+			barrier.srcAccessMask = VK_ACCESS_SHADER_READ_BIT;
+			barrier.dstAccessMask = VK_ACCESS_TRANSFER_READ_BIT;
+
+			sourceStage = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+			destinationStage = VK_PIPELINE_STAGE_TRANSFER_BIT;
+		}
 		else
 		{
 			OUTPUT_ERROR("Vulkan: TransitionImageLayout, unsupported layout transition!");
@@ -1233,15 +1241,8 @@ namespace hod::inline renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool RendererVulkan::CopyImageToBuffer(VkImage image, VkBuffer buffer, uint32_t width, uint32_t height)
+	void RendererVulkan::CopyImageToBuffer(VkCommandBuffer commandBuffer, VkImage image, VkBuffer buffer, uint32_t width, uint32_t height)
 	{
-		VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-
-		if (BeginSingleTimeCommands(&commandBuffer) == false)
-		{
-			return false;
-		}
-
 		VkBufferImageCopy region = {};
 		region.bufferOffset = 0;
 		region.bufferRowLength = 0;
@@ -1254,13 +1255,6 @@ namespace hod::inline renderer
 		region.imageExtent = {width, height, 1};
 
 		vkCmdCopyImageToBuffer(commandBuffer, image, VK_IMAGE_LAYOUT_TRANSFER_SRC_OPTIMAL, buffer, 1, &region);
-
-		if (EndSingleTimeCommands(commandBuffer) == false)
-		{
-			return false;
-		}
-
-		return true;
 	}
 
 	//-----------------------------------------------------------------------------

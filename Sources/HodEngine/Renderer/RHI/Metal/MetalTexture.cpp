@@ -121,6 +121,13 @@ namespace hod::inline renderer
 		return Color();
 	}
 
+	/// @brief
+	/// @param commandBuffer
+	void MetalTexture::CaptureReadback(CommandBuffer* commandBuffer)
+	{
+		(void)commandBuffer; // TODO
+	}
+
 	MTL::Texture* MetalTexture::GetNativeTexture() const
 	{
 		return _texture;
