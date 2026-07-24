@@ -4,6 +4,7 @@
 #include "HodEngine/ImGui/ImGuiManager.hpp"
 
 #include "HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp"
+#include "HodEngine/Window/DisplayManager.hpp"
 #include "HodEngine/Window/Window.hpp"
 #include <HodEngine/Core/Time/SystemTime.hpp>
 #include <HodEngine/GameSystems/Job/Job.hpp>
@@ -320,7 +321,7 @@ namespace hod::inline imgui
 
 	/// @brief
 	_SingletonConstructor(ImGuiManager)
-	: _updateJob(this, &ImGuiManager::Update)
+	: _updateJob(this, &ImGuiManager::Update, DisplayManager::GetInstance()->GetThreadId())
 	{
 	}
 

@@ -21,7 +21,6 @@ namespace hod::inline window
 	public:
 		bool Initialize() override;
 		void Update() override;
-		bool Run() override;
 		void Terminate() override;
 
 		Window* CreateWindow(bool hidden = false) override;

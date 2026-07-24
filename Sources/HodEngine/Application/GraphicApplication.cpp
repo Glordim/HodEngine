@@ -153,27 +153,9 @@ namespace hod::inline application
 
 	bool GraphicApplication::RunGraphicLoop()
 	{
-		Thread engineLoop;
-		engineLoop.Start(&GraphicApplication::EngineLoopEntry, this, Thread::Priority::High, "EngineLoop");
-
-		bool result = DisplayManager::GetInstance()->Run();
-
-		engineLoop.Join();
-
-		Renderer::GetInstance()->WaitIdle();
-
-		return result;
-	}
-
-	int GraphicApplication::EngineLoopEntry(void* data)
-	{
-		return static_cast<GraphicApplication*>(data)->EngineLoop();
-	}
-
-	int GraphicApplication::EngineLoop()
-	{
 		JobScheduler::GetInstance()->Init();
 		FrameSequencer* frameSequencer = FrameSequencer::GetInstance();
+		DisplayManager::GetInstance()->SetThreadId(0);
 
 		while (_shouldQuit == false)
 		{
@@ -196,6 +178,8 @@ namespace hod::inline application
 			PROFILER_END_EVENT();
 		}
 
-		return EXIT_SUCCESS;
+		Renderer::GetInstance()->WaitIdle();
+
+		return true;
 	}
 }

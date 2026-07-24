@@ -7,6 +7,7 @@
 #include <HodEngine/Core/Output/OutputService.hpp>
 
 #include <ole2.h>
+#include <winuser.h>
 
 #undef CreateWindow
 
@@ -62,13 +63,10 @@ namespace hod::inline window
 		return true;
 	}
 
-	/// @brief
-	bool Win32DisplayManager::Run()
+	void Win32DisplayManager::Update()
 	{
-		MSG  msg = {};
-		BOOL result = 0;
-
-		while ((result = GetMessageA(&msg, nullptr, 0, 0)) > 0)
+		MSG msg = {};
+		while (PeekMessageA(&msg, nullptr, 0, 0, PM_REMOVE) == TRUE)
 		{
 			if (msg.hwnd == nullptr)
 			{
@@ -89,16 +87,7 @@ namespace hod::inline window
 				DispatchMessage(&msg);
 			}
 		}
-		if (result == -1)
-		{
-			OUTPUT_ERROR("Win32DisplayManager GetMessageA: {}", OS::GetLastWin32ErrorMessage());
-			return EXIT_FAILURE;
-		}
-		return EXIT_SUCCESS;
-	}
 
-	void Win32DisplayManager::Update()
-	{
 		for (Window* window : _windows)
 		{
 			window->Update();

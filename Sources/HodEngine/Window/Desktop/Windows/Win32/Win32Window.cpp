@@ -378,10 +378,15 @@ namespace hod::inline window
 	void Win32Window::SetPosition(const Vector2& position)
 	{
 		Vector2 pos = position;
+		_position = pos;
 		RunOnWin32Thread(
 			[this, pos]()
 			{
 				SetWindowPos(_hWnd, NULL, pos.GetX(), pos.GetY(), 0, 0, SWP_NOSIZE | SWP_NOZORDER);
+				POINT point = { 0, 0 };
+    			::ClientToScreen(_hWnd, &point);
+				_position.SetX(point.x);
+				_position.SetY(point.y);
 			});
 	}
 
