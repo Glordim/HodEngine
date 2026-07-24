@@ -362,7 +362,7 @@ namespace hod::inline renderer
 			return false;
 		}
 
-		CreatePresentationSurface(mainWindow);
+		_mainPresentationSurface = CreatePresentationSurface(mainWindow);
 
 		// TODO
 		{

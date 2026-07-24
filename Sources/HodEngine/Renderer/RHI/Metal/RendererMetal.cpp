@@ -77,6 +77,7 @@ namespace hod::inline renderer
 		MetalPresentationSurface* presentationSurface = DefaultAllocator::GetInstance().New<MetalPresentationSurface>(static_cast<MacOsWindow*>(mainWindow));
 		presentationSurface->Resize(mainWindow->GetWidth(), mainWindow->GetHeight());
 		_presentationSurfaces.PushBack(presentationSurface);
+		_mainPresentationSurface = presentationSurface;
 
 		return true;
 	}

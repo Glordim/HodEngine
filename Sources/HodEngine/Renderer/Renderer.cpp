@@ -294,16 +294,25 @@ namespace hod::inline renderer
 
 	bool Renderer::AcquireNextFrame()
 	{
-		// Presentation surfaces are no longer acquired eagerly here: a surface is only acquired
-		// (and resized if needed) lazily, the first time a RenderView targets it this frame
-		// (see FrameResources::AcquireSurface, called from RenderView::Prepare). This avoids
-		// acquiring images for surfaces that end up not being rendered this frame, and allows
-		// surfaces created mid-frame (e.g. a new ImGui viewport) to be acquired correctly.
+		// Secondary presentation surfaces (e.g. ImGui viewports) are still acquired lazily, the
+		// first time a RenderView targets them this frame (see FrameResources::AcquireSurface,
+		// called from RenderView::Prepare). This avoids acquiring images for surfaces that end up
+		// not being rendered this frame, and allows surfaces created mid-frame to be acquired
+		// correctly.
+		// The main surface is acquired eagerly here instead: vkAcquireNextImageKHR is the real
+		// vsync/FIFO pacing point, and doing it before input is polled (see GraphicApplication::
+		// EngineLoop) keeps input sampling as close as possible to that pacing point, instead of
+		// having input go stale while queued behind it.
 		FrameResources& frameResources = GetCurrentFrameResources();
 		frameResources.Wait();
 		frameResources.DestroyAll();
 
 		FlushDeferredDeletions(_frameIndex);
+
+		if (_mainPresentationSurface != nullptr)
+		{
+			frameResources.AcquireSurface(_mainPresentationSurface);
+		}
 
 		return true;
 	}

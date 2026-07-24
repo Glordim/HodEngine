@@ -119,6 +119,7 @@ namespace hod::inline renderer
 
 		Vector<RenderView*>          _renderViews;
 		Vector<PresentationSurface*> _presentationSurfaces;
+		PresentationSurface*         _mainPresentationSurface = nullptr;
 
 		/*
 		Material* _unlitVertexColorMaterial = nullptr;
