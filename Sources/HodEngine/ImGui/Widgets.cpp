@@ -12,8 +12,8 @@ namespace hod::inline imgui
 		const float border_size = g.Style.FrameBorderSize;
 		if (border && border_size > 0.0f)
 		{
-			window->DrawList->AddRect(p_min + ImVec2(1, 1), p_max + ImVec2(1, 1), ImGui::GetColorU32(ImGuiCol_BorderShadow), rounding, drawFlags, border_size);
-			window->DrawList->AddRect(p_min, p_max, ImGui::GetColorU32(ImGuiCol_Border), rounding, drawFlags, border_size);
+			window->DrawList->AddRect(p_min + ImVec2(1, 1), p_max + ImVec2(1, 1), ImGui::GetColorU32(ImGuiCol_BorderShadow), rounding, border_size, drawFlags);
+			window->DrawList->AddRect(p_min, p_max, ImGui::GetColorU32(ImGuiCol_Border), rounding, border_size, drawFlags);
 		}
 	}
 

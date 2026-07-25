@@ -252,7 +252,7 @@ namespace hod::inline editor
 
 		float thickness = 1.0f;
 
-		drawList->AddRect(pos, pos + Size, boundsColor, 0.0f, 0, thickness);
+		drawList->AddRect(pos, pos + Size, boundsColor, 0.0f, thickness, 0);
 
 		float arrowWidth = 8.0f;
 		float arrowHeight = 4.0f;

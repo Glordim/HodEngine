@@ -49,63 +49,41 @@ namespace ImGui
 {
 	void OpenPopupOnItemClick(const char* str_id, ImGuiPopupFlags popup_flags, bool* p_open)
 	{
+		bool open = false;
 		ImGuiContext& g = *GImGui;
-		ImGuiWindow*  window = g.CurrentWindow;
-		int           mouse_button = (popup_flags & ImGuiPopupFlags_MouseButtonMask_);
-		if (IsMouseReleased(mouse_button) && IsItemHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup))
+		if (IsPopupOpenRequestForItem(popup_flags, g.LastItemData.ID))
 		{
-			ImGuiID id =
-				str_id ? window->GetID(str_id) : g.LastItemData.ID; // If user hasn't passed an ID, we can use the LastItemID. Using LastItemID as a Popup ID won't conflict!
-			IM_ASSERT(id != 0);                                     // You cannot pass a NULL str_id if the last item has no identifier (e.g. a Text() item)
-			OpenPopupEx(id, popup_flags);
-			if (p_open != NULL)
-			{
-				*p_open = true;
-			}
+			ImGuiWindow* window = g.CurrentWindow;
+			ImGuiID id = str_id ? window->GetID(str_id) : g.LastItemData.ID; // If user hasn't passed an ID, we can use the LastItemID. Using LastItemID as a Popup ID won't conflict!
+			IM_ASSERT(id != 0);                                              // You cannot pass a NULL str_id if the last item has no identifier (e.g. a Text() item)
+			open = OpenPopupEx(id, popup_flags);
 		}
-		else
+		if (p_open != NULL)
 		{
-			if (p_open != NULL)
-			{
-				*p_open = false;
-			}
+			*p_open = open;
 		}
 	}
 
 	void OpenPopupOnWindowClick(const char* str_id, ImGuiPopupFlags popup_flags, bool* p_open)
 	{
-		ImGuiContext& g = *GImGui;
-		ImGuiWindow*  window = g.CurrentWindow;
-		if (!str_id)
-		{
-			str_id = "window_context";
-		}
-		ImGuiID id = window->GetID(str_id);
-		int     mouse_button = (popup_flags & ImGuiPopupFlags_MouseButtonMask_);
-		if (IsMouseReleased(mouse_button) && IsWindowHovered(ImGuiHoveredFlags_AllowWhenBlockedByPopup))
+		bool open = false;
+		if (IsPopupOpenRequestForWindow(popup_flags))
 		{
 			if (!(popup_flags & ImGuiPopupFlags_NoOpenOverItems) || !IsAnyItemHovered())
 			{
-				OpenPopupEx(id, popup_flags);
-				if (p_open != NULL)
+				ImGuiContext& g = *GImGui;
+				ImGuiWindow*  window = g.CurrentWindow;
+				if (!str_id)
 				{
-					*p_open = true;
+					str_id = "window_context";
 				}
-			}
-			else
-			{
-				if (p_open != NULL)
-				{
-					*p_open = false;
-				}
+				ImGuiID id = window->GetID(str_id);
+				open = OpenPopupEx(id, popup_flags);
 			}
 		}
-		else
+		if (p_open != NULL)
 		{
-			if (p_open != NULL)
-			{
-				*p_open = false;
-			}
+			*p_open = open;
 		}
 	}
 }
