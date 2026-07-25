@@ -932,9 +932,9 @@ namespace hod::inline imgui
 		ImVec2 clipScale = drawData->FramebufferScale;
 
 		Vector<RenderCommandImGui::DrawList*> drawLists;
-		drawLists.Resize(drawData->CmdListsCount);
+		drawLists.Resize(drawData->CmdLists.size());
 
-		for (int drawListIndex = 0; drawListIndex < drawData->CmdListsCount; ++drawListIndex)
+		for (int drawListIndex = 0; drawListIndex < drawData->CmdLists.size(); ++drawListIndex)
 		{
 			ImDrawList* imDrawList = drawData->CmdLists[drawListIndex];
 
