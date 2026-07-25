@@ -47,26 +47,8 @@
 
 namespace ImGui
 {
-	void OpenPopupOnItemClick(const char* str_id, ImGuiPopupFlags popup_flags, bool* p_open)
+	bool OpenPopupOnWindowClick(const char* str_id, ImGuiPopupFlags popup_flags)
 	{
-		bool open = false;
-		ImGuiContext& g = *GImGui;
-		if (IsPopupOpenRequestForItem(popup_flags, g.LastItemData.ID))
-		{
-			ImGuiWindow* window = g.CurrentWindow;
-			ImGuiID id = str_id ? window->GetID(str_id) : g.LastItemData.ID; // If user hasn't passed an ID, we can use the LastItemID. Using LastItemID as a Popup ID won't conflict!
-			IM_ASSERT(id != 0);                                              // You cannot pass a NULL str_id if the last item has no identifier (e.g. a Text() item)
-			open = OpenPopupEx(id, popup_flags);
-		}
-		if (p_open != NULL)
-		{
-			*p_open = open;
-		}
-	}
-
-	void OpenPopupOnWindowClick(const char* str_id, ImGuiPopupFlags popup_flags, bool* p_open)
-	{
-		bool open = false;
 		if (IsPopupOpenRequestForWindow(popup_flags))
 		{
 			if (!(popup_flags & ImGuiPopupFlags_NoOpenOverItems) || !IsAnyItemHovered())
@@ -78,13 +60,10 @@ namespace ImGui
 					str_id = "window_context";
 				}
 				ImGuiID id = window->GetID(str_id);
-				open = OpenPopupEx(id, popup_flags);
+				return OpenPopupEx(id, popup_flags);
 			}
 		}
-		if (p_open != NULL)
-		{
-			*p_open = open;
-		}
+		return false;
 	}
 }
 
@@ -826,9 +805,7 @@ namespace hod::inline editor
 					itemToDelete = asset;
 				}
 			}
-			bool open = false;
-			ImGui::OpenPopupOnItemClick("FolderExplorerContext", ImGuiPopupFlags_MouseButtonRight, &open);
-			if (open)
+			if (ImGui::OpenPopupOnItemClick("FolderExplorerContext", ImGuiPopupFlags_MouseButtonRight))
 			{
 				_currentExplorerNode = asset;
 			}
@@ -904,9 +881,7 @@ namespace hod::inline editor
 			ImGui::EndDragDropTarget();
 		}
 
-		bool open = false;
-		ImGui::OpenPopupOnWindowClick("FolderExplorerContext", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems, &open);
-		if (open)
+		if (ImGui::OpenPopupOnWindowClick("FolderExplorerContext", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
 		{
 			_currentExplorerNode = nullptr;
 		}
