@@ -62,7 +62,7 @@ namespace hod::inline editor
 		if (draw && open) // check open to avoid crash when RT owner is deleted after push rendercommand using it
 		{
 			float y = ImGui::GetCursorScreenPos().y - ImGui::GetStyle().ItemSpacing.y;
-			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(0.0f, y), ImVec2(ImGui::GetIO().DisplaySize.x, y + 32), ImGui::GetColorU32(ImGuiCol_TabSelected));
+			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetMainViewport()->Pos.x, y), ImVec2(ImGui::GetMainViewport()->Pos.x + ImGui::GetMainViewport()->Size.x, y + 32), ImGui::GetColorU32(ImGuiCol_TabSelected));
 
 			ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
 			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
@@ -70,10 +70,10 @@ namespace hod::inline editor
 			ImGui::PushStyleVarX(ImGuiStyleVar_FramePadding, 12.0f);
 
 			ImVec2 cursorPos = ImGui::GetCursorScreenPos();
-			cursorPos.x = 0.0f;
+			cursorPos.x = ImGui::GetMainViewport()->Pos.x;
 			cursorPos.y += 32.0f;
 
-			ImGui::SetCursorScreenPos(ImVec2(0.0f, y));
+			ImGui::SetCursorScreenPos(ImVec2(ImGui::GetMainViewport()->Pos.x, y));
 			ImGui::BeginDisabled(_dirty == false);
 			if (ImGui::Button(ICON_MDI_CONTENT_SAVE, ImVec2(0.0f, 32.0f)))
 			{
