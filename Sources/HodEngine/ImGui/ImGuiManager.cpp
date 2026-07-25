@@ -452,26 +452,16 @@ namespace hod::inline imgui
 		ImGui::GetIO().BackendFlags |= ImGuiBackendFlags_RendererHasTextures | ImGuiBackendFlags_RendererHasViewports | ImGuiBackendFlags_PlatformHasViewports;
 		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
 
-		// ImGui::GetIO().Fonts->AddFontDefault();
-		/*
-		ImFontConfig icons_configProggyClean;
-		icons_configProggyClean.SizePixels = 13.0f;
-		icons_configProggyClean.OversampleH = 1;
-		icons_configProggyClean.OversampleV = 1;
-		icons_configProggyClean.PixelSnapH = true;
-		*/
-		// ImGui::GetIO().Fonts->AddFontDefault(&icons_configProggyClean);
-
-		ImFontConfig icons_configProggyClean;
-		icons_configProggyClean.SizePixels = 13.0f;
-		icons_configProggyClean.OversampleH = 1;
-		icons_configProggyClean.OversampleV = 1;
-		icons_configProggyClean.PixelSnapH = true;
+		ImFontConfig icons_configRoboto;
+		icons_configRoboto.SizePixels = 13.0f;
+		icons_configRoboto.OversampleH = 1;
+		icons_configRoboto.OversampleV = 1;
+		icons_configRoboto.PixelSnapH = true;
 #if defined(PLATFORM_MACOS)
 		MacOsWindow* macOsWindow = static_cast<MacOsWindow*>(window);
-		icons_configProggyClean.RasterizerDensity = macOsWindow->GetScaleFactor();
+		icons_configRoboto.RasterizerDensity = macOsWindow->GetScaleFactor();
 #endif
-		ImGui::GetIO().Fonts->AddFontFromMemoryTTF((void*)Roboto_Regular_ttf, Roboto_Regular_ttf_size, 16.0f, &icons_configProggyClean);
+		ImGui::GetIO().Fonts->AddFontFromMemoryTTF((void*)Roboto_Regular_ttf, Roboto_Regular_ttf_size, 16.0f, &icons_configRoboto);
 
 		const ImWchar iconsRangesMDI[] = {ICON_MIN_MDI, ICON_MAX_MDI, 0};
 		ImFontConfig  icons_configMDI;
@@ -481,7 +471,7 @@ namespace hod::inline imgui
 		icons_configMDI.GlyphOffset.x = -0.5;
 		icons_configMDI.GlyphMaxAdvanceX = 13;
 #if defined(PLATFORM_MACOS)
-		icons_configProggyClean.RasterizerDensity = macOsWindow->GetScaleFactor();
+		icons_configMDI.RasterizerDensity = macOsWindow->GetScaleFactor();
 #endif
 
 		ImGui::GetIO().Fonts->AddFontFromMemoryTTF((void*)MaterialDesignIcons_ttf, MaterialDesignIcons_ttf_size, 16.0f, &icons_configMDI, iconsRangesMDI);
