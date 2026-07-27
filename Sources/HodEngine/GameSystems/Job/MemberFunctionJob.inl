@@ -2,7 +2,7 @@
 namespace hod::inline gamesystems
 {
 	template<typename Type, typename Function>
-	MemberFunctionJob<Type, Function>::MemberFunctionJob(Type* instance, Function memberFunction, Thread::Id threadId)
+	MemberFunctionJob<Type, Function>::MemberFunctionJob(Type* instance, Function memberFunction, uint32_t threadId)
 	: Job(threadId)
 	, _instance(instance)
 	, _memberFunction(memberFunction)

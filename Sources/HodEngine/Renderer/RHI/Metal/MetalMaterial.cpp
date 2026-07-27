@@ -110,7 +110,7 @@ namespace hod::inline renderer
 				// OUTPUT_MESSAGE("  Format: {}", attr->format());
 
 				OUTPUT_MESSAGE("{}", attribute->name()->utf8String());
-				OUTPUT_MESSAGE("{}", attribute->attributeType());
+				OUTPUT_MESSAGE("{}", static_cast<int>(attribute->attributeType()));
 
 				MTL::VertexAttributeDescriptor* vertexAttribute = MTL::VertexAttributeDescriptor::alloc()->init();
 				vertexAttribute->setOffset(offset);

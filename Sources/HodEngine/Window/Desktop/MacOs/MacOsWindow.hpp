@@ -52,11 +52,18 @@ namespace hod::inline window
 
 		void								SetVisible(bool visible) override;
 
+		void								SetTitle(const char* title) override;
+		void								SetDecoration(bool decoration) override;
+
+		void								SetPosition(const Vector2& position) override;
+
 		NSView* 							GetNsView() const;
 
 		float								GetScaleFactor() const;
 
 		void								ResizeContext();
+
+		void								UpdatePositionFromNative();
 
 	private:
 

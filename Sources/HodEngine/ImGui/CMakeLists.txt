@@ -64,11 +64,20 @@ set_target_properties(Renderer PROPERTIES
 	FOLDER "HodEngine"
 )
 
-target_include_directories(ImGui PUBLIC 
+target_include_directories(ImGui PUBLIC
 	$<BUILD_INTERFACE:${CMAKE_SOURCE_DIR}/Sources>
 	$<INSTALL_INTERFACE:include>
-	PRIVATE ${GENERATED_DIR} ${CMAKE_CURRENT_SOURCE_DIR} SYSTEM "DearImGui"
+	PRIVATE ${GENERATED_DIR} ${CMAKE_CURRENT_SOURCE_DIR}
 )
+target_include_directories(ImGui SYSTEM PRIVATE "DearImGui")
+
+if (APPLE)
+	# ImGuiManager.cpp includes DearImGui/imgui_impl_osx.h through the PUBLIC
+	# "HodEngine/ImGui/DearImGui/..." path, which does not go through the
+	# SYSTEM-marked "DearImGui" include dir above, so the vendored header's
+	# use of the _Nullable/_Nonnull Clang extension still triggers -Wpedantic.
+	set_source_files_properties(ImGuiManager.cpp PROPERTIES COMPILE_OPTIONS "-Wno-nullability-extension")
+endif()
 target_precompile_headers(ImGui PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 if (APPLE)
