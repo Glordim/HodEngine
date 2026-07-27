@@ -74,10 +74,7 @@ namespace hod::inline renderer
 		_device = MTL::CreateSystemDefaultDevice();
 		_commandQueue = _device->newCommandQueue();
 
-		MetalPresentationSurface* presentationSurface = DefaultAllocator::GetInstance().New<MetalPresentationSurface>(static_cast<MacOsWindow*>(mainWindow));
-		presentationSurface->Resize(mainWindow->GetWidth(), mainWindow->GetHeight());
-		_presentationSurfaces.PushBack(presentationSurface);
-		_mainPresentationSurface = presentationSurface;
+		_mainPresentationSurface = CreatePresentationSurface(mainWindow);
 
 		return true;
 	}
@@ -89,6 +86,17 @@ namespace hod::inline renderer
 	{
 		(void)availableDevices; // TODO
 		return true;
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	PresentationSurface* RendererMetal::CreatePresentationSurface(window::Window* window)
+	{
+		MetalPresentationSurface* presentationSurface = DefaultAllocator::GetInstance().New<MetalPresentationSurface>(static_cast<MacOsWindow*>(window));
+		presentationSurface->Resize(window->GetWidth(), window->GetHeight());
+		_presentationSurfaces.PushBack(presentationSurface);
+		return presentationSurface;
 	}
 
 	//-----------------------------------------------------------------------------

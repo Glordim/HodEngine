@@ -104,6 +104,10 @@
 - (void)windowDidResize:(NSNotification *)notification {
   _window->ResizeContext();
 }
+
+- (void)windowDidMove:(NSNotification *)notification {
+  _window->UpdatePositionFromNative();
+}
 @end
 
 namespace hod::inline window {
@@ -190,5 +194,43 @@ void MacOsWindow::ResizeContext() {
   NSSize contentSize = contentRect.size;
   hod::MacOsWindowEventCaller::EmitResize(this, contentSize.width,
                                           contentSize.height);
+}
+
+/// @brief
+/// @param title
+void MacOsWindow::SetTitle(const char* title) {
+  NSString *nsTitle = [NSString stringWithUTF8String:title];
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [_window setTitle:nsTitle];
+  });
+}
+
+/// @brief
+/// @param decoration
+void MacOsWindow::SetDecoration(bool decoration) {
+  dispatch_async(dispatch_get_main_queue(), ^{
+    if (decoration == false) {
+      [_window setStyleMask:NSWindowStyleMaskBorderless];
+    } else {
+      [_window setStyleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
+                             NSWindowStyleMaskResizable];
+    }
+  });
+}
+
+/// @brief
+/// @param position
+void MacOsWindow::SetPosition(const Vector2& position) {
+  NSPoint origin = NSMakePoint(position.GetX(), position.GetY());
+  dispatch_async(dispatch_get_main_queue(), ^{
+    [_window setFrameOrigin:origin];
+  });
+}
+
+/// @brief
+void MacOsWindow::UpdatePositionFromNative() {
+  NSRect frame = [_window frame];
+  _position.SetX(static_cast<float>(frame.origin.x));
+  _position.SetY(static_cast<float>(frame.origin.y));
 }
 }

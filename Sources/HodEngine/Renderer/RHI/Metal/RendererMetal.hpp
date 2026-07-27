@@ -33,6 +33,8 @@ namespace hod::inline renderer
 
 		bool GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) override;
 
+		PresentationSurface* CreatePresentationSurface(window::Window* window) override;
+
 		bool SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore = nullptr,
 									const Semaphore* waitSemaphore = nullptr, const Fence* fence = nullptr) override;
 
