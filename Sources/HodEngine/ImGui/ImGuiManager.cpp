@@ -499,7 +499,6 @@ namespace hod::inline imgui
 		ImGui::GetPlatformIO().Renderer_SetWindowSize = &ImGuiManager::RendererSetWindowSize;
 		ImGui::GetPlatformIO().Renderer_RenderWindow = &ImGuiManager::RendererRenderWindow;
 		ImGui::GetPlatformIO().Renderer_SwapBuffers = &ImGuiManager::RendererSwapBuffers;
-#endif
 
 		ImGuiViewport* mainViewport = ImGui::GetMainViewport();
 		mainViewport->PlatformHandle = _mainWindow;
@@ -516,6 +515,7 @@ namespace hod::inline imgui
 		ImGui::GetPlatformIO().Monitors[0].MainSize = ImVec2(3440, 1440); // TODO
 		ImGui::GetPlatformIO().Monitors[0].WorkPos = ImGui::GetPlatformIO().Monitors[0].MainPos;
 		ImGui::GetPlatformIO().Monitors[0].WorkSize = ImGui::GetPlatformIO().Monitors[0].MainSize;
+#endif
 
 		FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::PreRender);
 
@@ -616,13 +616,14 @@ namespace hod::inline imgui
 	#endif
 #endif
 
+/*
 		ImGuiViewport* mainViewport = ImGui::GetMainViewport();
 		mainViewport->Pos.x = static_cast<DesktopWindow*>(_mainWindow)->GetPosition().GetX();
 		mainViewport->Pos.y = static_cast<DesktopWindow*>(_mainWindow)->GetPosition().GetY();
 		mainViewport->Size.x = static_cast<DesktopWindow*>(_mainWindow)->GetWidth();
 		mainViewport->Size.y = static_cast<DesktopWindow*>(_mainWindow)->GetHeight();
 		mainViewport->DpiScale = 1.0f;
-
+*/
 		ImGui::NewFrame();
 
 		if (_mainBar != nullptr)
@@ -963,9 +964,9 @@ namespace hod::inline imgui
 
 		Rect viewport;
 		viewport._position.SetX(0.0f);
-		viewport._position.SetY(drawData->OwnerViewport->Size.y);
-		viewport._size.SetX(drawData->OwnerViewport->Size.x);
-		viewport._size.SetY(-drawData->OwnerViewport->Size.y);
+		viewport._position.SetY(drawData->OwnerViewport->Size.y * drawData->FramebufferScale.y);
+		viewport._size.SetX(drawData->OwnerViewport->Size.x * drawData->FramebufferScale.x);
+		viewport._size.SetY(-drawData->OwnerViewport->Size.y * drawData->FramebufferScale.y);
 
 		RenderCommandImGui* renderCommand = DefaultAllocator::GetInstance().New<RenderCommandImGui>(drawLists, viewport);
 
