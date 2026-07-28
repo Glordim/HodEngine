@@ -188,7 +188,7 @@ namespace hod::inline core
 
 		if (IsDirectory(path))
 		{
-			return false;
+			return true;
 		}
 
 		String cleaned = path;
