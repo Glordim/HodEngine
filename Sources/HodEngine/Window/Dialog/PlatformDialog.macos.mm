@@ -1,4 +1,5 @@
 #include "HodEngine/Window/Pch.hpp"
+#include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Window/Dialog/PlatformDialog.hpp>
 
 #import <Cocoa/Cocoa.h>
@@ -25,5 +26,18 @@ Path GetOpenFileDialog() {
   }
 
   return Path();
+}
+
+/// @brief
+/// @param path
+void OpenExplorerAtPath(const Path& path) {
+  NSString *nsPath = [NSString stringWithUTF8String:path.GetString().CStr()];
+
+  if (FileSystem::GetInstance()->IsDirectory(path)) {
+    [[NSWorkspace sharedWorkspace] openURL:[NSURL fileURLWithPath:nsPath isDirectory:YES]];
+  }
+  else if (FileSystem::GetInstance()->IsRegularFile(path)) {
+    [[NSWorkspace sharedWorkspace] selectFile:nsPath inFileViewerRootedAtPath:@""];
+  }
 }
 }
