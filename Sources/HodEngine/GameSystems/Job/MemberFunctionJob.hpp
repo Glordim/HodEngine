@@ -9,7 +9,7 @@ namespace hod::inline gamesystems
 	class MemberFunctionJob : public Job
 	{
 	public:
-		MemberFunctionJob(Type* instance, Function memberFunction, uint32_t threadId = 0);
+		MemberFunctionJob(Type* instance, Function memberFunction, uint32_t threadId = 0xFFFFFFFF);
 		MemberFunctionJob(const Job&) = delete;
 		MemberFunctionJob(Job&&) = delete;
 		~MemberFunctionJob() override = default;
