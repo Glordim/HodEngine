@@ -571,6 +571,8 @@ namespace hod::inline imgui
 
 		io.DisplaySize.x = _mainWindow->GetWidth();
 		io.DisplaySize.y = _mainWindow->GetHeight();
+		float mainWindowScale = static_cast<DesktopWindow*>(_mainWindow)->GetScaleFactor();
+		io.DisplayFramebufferScale = ImVec2(mainWindowScale, mainWindowScale);
 
 	#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_MACOS) || defined(PLATFORM_LINUX)
 		ImGuiMouseCursor mouseCursor = io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor();
