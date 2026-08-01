@@ -28,6 +28,32 @@
   [super drawRect:dirtyRect];
 }
 
+// Top-left origin, Y growing down: matches the coordinate space ImGui (and
+// the rest of the engine's Window lib) expects, so no manual flip is needed
+// when reporting mouse positions.
+- (BOOL)isFlipped {
+  return YES;
+}
+
+// NSWindow.acceptsMouseMovedEvents alone is not reliably enough to get
+// mouseMoved: called; a tracking area with NSTrackingMouseMoved is the
+// robust way to receive hover events regardless of that window flag.
+- (void)updateTrackingAreas {
+  [super updateTrackingAreas];
+  for (NSTrackingArea *area in self.trackingAreas) {
+    [self removeTrackingArea:area];
+  }
+  NSTrackingAreaOptions options = NSTrackingMouseMoved |
+                                   NSTrackingActiveAlways |
+                                   NSTrackingInVisibleRect;
+  NSTrackingArea *trackingArea =
+      [[NSTrackingArea alloc] initWithRect:self.bounds
+                                    options:options
+                                      owner:self
+                                   userInfo:nil];
+  [self addTrackingArea:trackingArea];
+}
+
 - (void)keyDown:(NSEvent *)event {
   hod::MacOsWindowEventCaller::EmitKeyPressed(
       window, hod::MacOSKeyCodeToScanCode([event keyCode]));

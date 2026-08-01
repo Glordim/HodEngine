@@ -59,7 +59,7 @@ namespace hod::inline window
 
 		NSView* 							GetNsView() const;
 
-		float								GetScaleFactor() const;
+		float								GetScaleFactor() const override;
 
 		void								ResizeContext();
 
