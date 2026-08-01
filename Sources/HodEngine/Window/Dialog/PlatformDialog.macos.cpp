@@ -25,12 +25,4 @@ namespace hod::inline window
 
 		return Path();
 	}
-
-	/// @brief
-	/// @param path
-	void OpenExplorerAtPath(const Path& path)
-	{
-		// TODO
-		(void)path;
-	}
 }
