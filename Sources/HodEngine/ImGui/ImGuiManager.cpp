@@ -14,9 +14,6 @@
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 #include "HodEngine/ImGui/DearImGui/imgui_internal.h"
 #include <cstdint>
-#if defined(PLATFORM_MACOS)
-	#include "HodEngine/ImGui/DearImGui/imgui_impl_osx.h"
-#endif
 #include "HodEngine/ImGui/RenderCommandImGui.hpp"
 
 #include "HodEngine/ImGui/MainBar.hpp"
@@ -111,8 +108,9 @@ namespace hod::inline imgui
 
 	ImVec2 ImGuiManager::PlatformGetWindowFramebufferScale(ImGuiViewport* vp)
 	{
-		(void)vp;
-		return ImVec2(1, 1);
+		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
+		float          scale = desktopWindow->GetScaleFactor();
+		return ImVec2(scale, scale);
 	}
 
 	void ImGuiManager::PlatformSetWindowFocus(ImGuiViewport* vp)
@@ -478,9 +476,6 @@ namespace hod::inline imgui
 		ImGui::GetIO().Fonts->AddFontFromMemoryTTF((void*)MaterialDesignIcons_ttf, MaterialDesignIcons_ttf_size, 16.0f, &icons_configMDI, iconsRangesMDI);
 
 		_mainWindow = window;
-#if defined(PLATFORM_MACOS)
-		ImGui_ImplOSX_Init(static_cast<MacOsWindow*>(_mainWindow)->GetNsView());
-#else
 
 		ImGui::GetPlatformIO().Platform_CreateWindow = &ImGuiManager::PlatformCreateWindow;
 		ImGui::GetPlatformIO().Platform_DestroyWindow = &ImGuiManager::PlatformDestroyWindow;
@@ -516,7 +511,6 @@ namespace hod::inline imgui
 		ImGui::GetPlatformIO().Monitors[0].MainSize = ImVec2(3440, 1440); // TODO
 		ImGui::GetPlatformIO().Monitors[0].WorkPos = ImGui::GetPlatformIO().Monitors[0].MainPos;
 		ImGui::GetPlatformIO().Monitors[0].WorkSize = ImGui::GetPlatformIO().Monitors[0].MainSize;
-#endif
 
 		FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::PreRender);
 
@@ -561,12 +555,6 @@ namespace hod::inline imgui
 	{
 		ImGuiIO& io = ImGui::GetIO();
 
-#if defined(PLATFORM_MACOS)
-		DesktopWindow* window = static_cast<DesktopWindow*>(_mainWindow);
-		ImGui_ImplOSX_NewFrame(static_cast<MacOsWindow*>(window)->GetNsView());
-		// To avoid having animations (ping, translation, etc.) that lag too much (and to keep them at a reasonable duration) in the editor, even when there is lag.
-		io.DeltaTime = std::min(io.DeltaTime, 1.0f / 30.0f);
-#else
 		static SystemTime::TimeStamp last = SystemTime::INVALID_TIMESTAMP;
 		SystemTime::TimeStamp        now = SystemTime::Now();
 		io.DeltaTime = SystemTime::ElapsedTimeInSeconds(last, now);
@@ -582,20 +570,8 @@ namespace hod::inline imgui
 			ProcessWindowEvent(static_cast<window::Window*>(viewport->PlatformHandle));
 		}
 
-		Vector2 resolution;
-
-		PresentationSurface* presentationSurface = Renderer::GetInstance()->FindPresentationSurface(_mainWindow);
-		if (presentationSurface)
-		{
-			resolution = presentationSurface->GetResolution();
-		}
-
-		if (resolution == Vector2::Zero)
-		{
-			return;
-		}
-		io.DisplaySize.x = resolution.GetX();
-		io.DisplaySize.y = resolution.GetY();
+		io.DisplaySize.x = _mainWindow->GetWidth();
+		io.DisplaySize.y = _mainWindow->GetHeight();
 
 	#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_MACOS) || defined(PLATFORM_LINUX)
 		ImGuiMouseCursor mouseCursor = io.MouseDrawCursor ? ImGuiMouseCursor_None : ImGui::GetMouseCursor();
@@ -615,7 +591,6 @@ namespace hod::inline imgui
 		};
 		static_cast<DesktopWindow*>(_mainWindow)->SetCursor(DesktopDisplayManager::GetInstance()->GetBultinCursor(builtinCursorMapping[mouseCursor]));
 	#endif
-#endif
 
 /*
 		ImGuiViewport* mainViewport = ImGui::GetMainViewport();

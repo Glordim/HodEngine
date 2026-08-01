@@ -36,6 +36,8 @@ namespace hod::inline window
 		virtual void SetPosition(const Vector2& position) = 0;
 		const Vector2 GetPosition() const { return _position; }
 
+		virtual float GetScaleFactor() const { return 1.0f; }
+
 		const Vector2& GetMousePosition() const;
 
 		void    SetCursor(Cursor* cursor);
