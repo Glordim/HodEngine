@@ -37,9 +37,10 @@ namespace hod::inline editor
 			return false;
 		}
 
-		if (std::memcmp(header.magic, MAGIC, sizeof(MAGIC)) != 0)
+		_hasValidMagic = std::memcmp(header.magic, MAGIC, sizeof(MAGIC)) == 0;
+		if (_hasValidMagic == false)
 		{
-			OUTPUT_ERROR("AssetContainer::ReadHeader: invalid magic number");
+			// Not a HodEngine asset file (e.g. .DS_Store, Thumbs.db, ...): not an error, let the caller decide
 			return false;
 		}
 

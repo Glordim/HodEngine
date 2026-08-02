@@ -48,7 +48,10 @@ namespace hod::inline editor
 		AssetContainer assetContainer;
 		if (assetContainer.Load(_path) == false)
 		{
-			OUTPUT_ERROR("Asset::Load: Unable to load AssetContainer from {}", _path);
+			if (assetContainer.HasValidHeaderMagic() == true)
+			{
+				OUTPUT_ERROR("Asset::Load: Unable to load AssetContainer from {}", _path);
+			}
 			return false;
 		}
 
