@@ -143,13 +143,12 @@ namespace hod::inline editor
 				continue;
 			}
 
-			FileSystemMapping* childFileSystemMapping = DefaultAllocator::GetInstance().New<FileSystemMapping>();
-			childFileSystemMapping->_path = path;
-			// childFileSystemMapping->_lastWriteTime = entry.last_write_time();
-			childFileSystemMapping->_parentFolder = fileSystemMapping;
-
 			if (entry.is_directory() == true)
 			{
+				FileSystemMapping* childFileSystemMapping = DefaultAllocator::GetInstance().New<FileSystemMapping>();
+				childFileSystemMapping->_path = path;
+				// childFileSystemMapping->_lastWriteTime = entry.last_write_time();
+				childFileSystemMapping->_parentFolder = fileSystemMapping;
 				childFileSystemMapping->_asset = nullptr;
 				childFileSystemMapping->_type = FileSystemMapping::Type::FolderType;
 				ExploreAndDetectAsset(childFileSystemMapping);
@@ -159,26 +158,29 @@ namespace hod::inline editor
 			}
 			else
 			{
-				std::shared_ptr<Asset> asset = std::make_shared<Asset>(childFileSystemMapping->_path);
+				std::shared_ptr<Asset> asset = std::make_shared<Asset>(path);
+				if (asset->Load() == false)
+				{
+					// Either not a HodEngine asset file (e.g. .DS_Store, Thumbs.db, ...) or a genuinely
+					// corrupted/unsupported one; Asset::Load() already logged in the latter case.
+					continue;
+				}
+
+				for (const AssetContainer::SourceInfo& source : asset->GetSources())
+				{
+					_sourcePathToAssetMap.emplace(source._path, asset);
+				}
+
+				_uidToAssetMap.emplace(asset->GetUid(), asset);
+
+				FileSystemMapping* childFileSystemMapping = DefaultAllocator::GetInstance().New<FileSystemMapping>();
+				childFileSystemMapping->_path = path;
+				childFileSystemMapping->_parentFolder = fileSystemMapping;
 				childFileSystemMapping->_asset = asset;
 				childFileSystemMapping->_type = FileSystemMapping::Type::AssetType;
 
 				// fileSystemMapping->_childrenAsset.PushBack(&childFileSystemMapping->_childrenAsset);
 				fileSystemMapping->_childrenAsset.push_back(childFileSystemMapping);
-
-				if (asset->Load() == false)
-				{
-					OUTPUT_ERROR("Unable to load Asset : {}", childFileSystemMapping->_path);
-				}
-				else
-				{
-					for (const AssetContainer::SourceInfo& source : asset->GetSources())
-					{
-						_sourcePathToAssetMap.emplace(source._path, asset);
-					}
-
-					_uidToAssetMap.emplace(asset->GetUid(), asset);
-				}
 			}
 		}
 	}
@@ -555,18 +557,17 @@ namespace hod::inline editor
 				std::shared_ptr<Asset> asset = std::make_shared<Asset>(path);
 				if (asset->Load() == false)
 				{
-					OUTPUT_ERROR("Unable to load Asset : {}", path);
+					// Either not a HodEngine asset file (e.g. .DS_Store, Thumbs.db, ...) or a genuinely
+					// corrupted/unsupported one; Asset::Load() already logged in the latter case.
 					return;
 				}
-				else
-				{
-					for (const AssetContainer::SourceInfo& source : asset->GetSources())
-					{
-						_sourcePathToAssetMap.emplace(source._path, asset);
-					}
 
-					_uidToAssetMap.emplace(asset->GetUid(), asset);
+				for (const AssetContainer::SourceInfo& source : asset->GetSources())
+				{
+					_sourcePathToAssetMap.emplace(source._path, asset);
 				}
+
+				_uidToAssetMap.emplace(asset->GetUid(), asset);
 
 				FileSystemMapping* node = DefaultAllocator::GetInstance().New<FileSystemMapping>();
 				node->_path = path;

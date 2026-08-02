@@ -48,6 +48,11 @@ namespace hod::inline editor
 		/// @brief Read the whole asset (Header + Sources + Content + Data)
 		bool Load(const Path& path);
 
+		/// @brief True once ReadHeader() has run and found the magic number, even if Load()/LoadHeader()
+		/// then failed for another reason. False magic tells apart unrelated files (.DS_Store, Thumbs.db,
+		/// ...) found in the Asset folder from genuinely corrupted/unsupported HodEngine asset files.
+		bool HasValidHeaderMagic() const { return _hasValidMagic; }
+
 		/// @brief Write the whole asset (Header + Sources + Content + Data)
 		bool Save(const Path& path, const Path& tmpDir = Path());
 
@@ -88,6 +93,8 @@ namespace hod::inline editor
 
 	private:
 		static const uint8_t MAGIC[8];
+
+		bool _hasValidMagic = false;
 
 #pragma pack(push, 1)
 
