@@ -6,16 +6,19 @@ using HANDLE = void*;
 using DWORD = unsigned long;
 struct _OVERLAPPED;
 #elif defined(PLATFORM_MACOS)
-	#include <fcntl.h>
-	#include <sys/event.h>
-	#include <sys/stat.h>
-	#include <sys/time.h>
-	#include <sys/types.h>
-	#include <unistd.h>
+struct __FSEventStream;
+using FSEventStreamRef = struct __FSEventStream*;
+struct dispatch_queue_s;
+using dispatch_queue_t = struct dispatch_queue_s*;
 #endif
 
 #include <functional>
 #include <HodEngine/Core/FileSystem/Path.hpp>
+
+#if defined(PLATFORM_MACOS)
+	#include <mutex>
+	#include <HodEngine/Core/Vector.hpp>
+#endif
 
 namespace hod::inline core
 {
@@ -36,6 +39,12 @@ namespace hod::inline core
 
 		void Update();
 
+#if defined(PLATFORM_MACOS)
+		/// @brief Called back from the FSEventStream C callback trampoline, on the watcher's dispatch queue thread.
+		/// Only buffers the events; they get processed on the calling thread by the next Update().
+		void OnFSEvents(size_t numEvents, char** eventPaths, const uint32_t* eventFlags, const uint64_t* eventIds);
+#endif
+
 	private:
 		bool InternalInit();
 
@@ -49,14 +58,21 @@ namespace hod::inline core
 		std::function<void(const Path&, const Path&)> _onMoveFile;
 		std::function<void()>                         _onOverflow;
 
-		#if defined(PLATFORM_WINDOWS)
+#if defined(PLATFORM_WINDOWS)
 		HANDLE       _hDir = nullptr;
 		_OVERLAPPED* _overlapped = nullptr;
 		alignas(DWORD) uint8_t _changeBuf[64 * 1024];
 #elif defined(PLATFORM_MACOS)
-		int           _fd = -1;
-		int           _kQueue = -1;
-		struct kevent _change;
+		struct FSEventEntry
+		{
+			Path     path;
+			uint32_t flags;
+		};
+
+		FSEventStreamRef     _stream = nullptr;
+		dispatch_queue_t     _dispatchQueue = nullptr;
+		std::mutex           _pendingFSEventsMutex;
+		Vector<FSEventEntry> _pendingFSEvents;
 #endif
 	};
 }

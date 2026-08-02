@@ -1,80 +1,181 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp"
-#include "HodEngine/Core/StringConversion.hpp"
+#include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Core/FileSystem/Path.hpp>
+
+#include <CoreServices/CoreServices.h>
+#include <dispatch/dispatch.h>
 
 namespace hod::inline core
 {
+	namespace
+	{
+		/// @brief Trampoline required by FSEventStreamCreate (plain C function pointer, no captures).
+		void FSEventsCallback(ConstFSEventStreamRef /*streamRef*/, void* clientCallBackInfo, size_t numEvents, void* eventPaths,
+		                      const FSEventStreamEventFlags eventFlags[], const FSEventStreamEventId eventIds[])
+		{
+			FileSystemWatcher* watcher = static_cast<FileSystemWatcher*>(clientCallBackInfo);
+			watcher->OnFSEvents(numEvents, static_cast<char**>(eventPaths), eventFlags, eventIds);
+		}
+	}
+
 	/// @brief
-	/// @param path
 	/// @return
 	bool FileSystemWatcher::InternalInit()
 	{
-		/*
-		_fd = open(_path.string().c_str(), O_RDONLY);
-		if (_fd == -1)
+		CFStringRef watchingPathStr = CFStringCreateWithCString(kCFAllocatorDefault, _watchingPath.CStr(), kCFStringEncodingUTF8);
+		CFArrayRef  pathsToWatch = CFArrayCreate(kCFAllocatorDefault, (const void**)&watchingPathStr, 1, &kCFTypeArrayCallBacks);
+
+		FSEventStreamContext context = { 0, this, nullptr, nullptr, nullptr };
+
+		_stream = FSEventStreamCreate(kCFAllocatorDefault, &FSEventsCallback, &context, pathsToWatch, kFSEventStreamEventIdSinceNow, 0.1,
+		                              kFSEventStreamCreateFlagFileEvents | kFSEventStreamCreateFlagNoDefer);
+
+		CFRelease(pathsToWatch);
+		CFRelease(watchingPathStr);
+
+		if (_stream == nullptr)
 		{
-		    perror("open");
-		    return 1;
+			OUTPUT_ERROR("FileSystemWatcher::InternalInit, FSEventStreamCreate failed for {}", _watchingPath);
+			return false;
 		}
 
-		_kQueue = kqueue();
-		if (_kQueue == -1)
+		_dispatchQueue = dispatch_queue_create("HodEngine.FileSystemWatcher", DISPATCH_QUEUE_SERIAL);
+		FSEventStreamSetDispatchQueue(_stream, _dispatchQueue);
+
+		if (FSEventStreamStart(_stream) == false)
 		{
-		    perror("kqueue");
-		    close(_fd);
-		    return 1;
+			OUTPUT_ERROR("FileSystemWatcher::InternalInit, FSEventStreamStart failed for {}", _watchingPath);
+			FSEventStreamSetDispatchQueue(_stream, nullptr);
+			FSEventStreamRelease(_stream);
+			_stream = nullptr;
+			dispatch_release(_dispatchQueue);
+			_dispatchQueue = nullptr;
+			return false;
 		}
 
-		EV_SET(&_change, _fd, EVFILT_VNODE, EV_ADD | EV_ENABLE | EV_CLEAR, NOTE_WRITE, 0, NULL);
-		*/
 		return true;
 	}
 
 	/// @brief
 	void FileSystemWatcher::Cleanup()
 	{
-		close(_fd);
-		close(_kQueue);
+		if (_stream != nullptr)
+		{
+			FSEventStreamStop(_stream);
+			FSEventStreamSetDispatchQueue(_stream, nullptr);
+			FSEventStreamRelease(_stream);
+			_stream = nullptr;
+		}
+
+		if (_dispatchQueue != nullptr)
+		{
+			dispatch_release(_dispatchQueue);
+			_dispatchQueue = nullptr;
+		}
+
+		_pendingFSEvents.Clear();
+	}
+
+	/// @brief Buffers the raw events; the FSEvents callback runs on the watcher's dispatch queue thread, not the
+	/// caller's, so the user callbacks (which the caller expects to run synchronously from Update()) must not be
+	/// invoked from here directly.
+	void FileSystemWatcher::OnFSEvents(size_t numEvents, char** eventPaths, const uint32_t* eventFlags, const uint64_t* /*eventIds*/)
+	{
+		std::lock_guard<std::mutex> lock(_pendingFSEventsMutex);
+		_pendingFSEvents.Reserve(_pendingFSEvents.Size() + static_cast<uint32_t>(numEvents));
+		for (size_t i = 0; i < numEvents; ++i)
+		{
+			_pendingFSEvents.PushBack({ Path(eventPaths[i]), eventFlags[i] });
+		}
 	}
 
 	/// @brief
 	void FileSystemWatcher::Update()
 	{
-		return;
-
-		struct kevent event;
-		int           nev = kevent(_kQueue, &_change, 1, &event, 1, NULL);
-		if (nev == -1)
+		Vector<FSEventEntry> events;
 		{
-			perror("kevent");
-			return;
+			std::lock_guard<std::mutex> lock(_pendingFSEventsMutex);
+			if (_pendingFSEvents.Empty())
+			{
+				return;
+			}
+			events.Swap(_pendingFSEvents);
 		}
 
-		if (nev > 0)
+		Path oldFilePathToRename;
+
+		for (const FSEventEntry& fsEvent : events)
 		{
-			if (event.fflags & NOTE_WRITE)
+			const Path&    filePath = fsEvent.path;
+			const uint32_t flags = fsEvent.flags;
+
+			if ((flags & (kFSEventStreamEventFlagMustScanSubDirs | kFSEventStreamEventFlagUserDropped | kFSEventStreamEventFlagKernelDropped)) != 0)
 			{
-				if (_onChangeFile != nullptr)
+				if (_onOverflow != nullptr)
 				{
-					//_onChangeFile(filePath);
+					_onOverflow();
 				}
+				else
+				{
+					OUTPUT_ERROR("FileSystemWatcher::Update, notification buffer overflow on {}, some file changes may have been missed", _watchingPath);
+				}
+				continue;
 			}
 
-			if (event.fflags & NOTE_DELETE)
+			if (_isFile == false || (flags & kFSEventStreamEventFlagItemRenamed) != 0 || _path == filePath)
 			{
-				if (_onDeleteFile != nullptr)
+				if ((flags & kFSEventStreamEventFlagItemRenamed) != 0)
 				{
-					//_onDeleteFile(filePath);
+					if (FileSystem::GetInstance()->Exists(filePath) == false)
+					{
+						// Old name of the rename pair, kept until the matching new name event arrives.
+						oldFilePathToRename = filePath;
+					}
+					else if (oldFilePathToRename.Empty() == false)
+					{
+						if (_onMoveFile != nullptr)
+						{
+							_onMoveFile(oldFilePathToRename, filePath);
+						}
+						oldFilePathToRename = Path();
+					}
+					else if (_onCreateFile != nullptr)
+					{
+						// Renamed into the watched scope from outside it: no old name was seen, treat as a creation.
+						_onCreateFile(filePath);
+					}
+				}
+				else if ((flags & kFSEventStreamEventFlagItemCreated) != 0)
+				{
+					if (_onCreateFile != nullptr)
+					{
+						_onCreateFile(filePath);
+					}
+				}
+				else if ((flags & kFSEventStreamEventFlagItemRemoved) != 0)
+				{
+					if (_onDeleteFile != nullptr)
+					{
+						_onDeleteFile(filePath);
+					}
+				}
+				else if ((flags & (kFSEventStreamEventFlagItemModified | kFSEventStreamEventFlagItemInodeMetaMod)) != 0)
+				{
+					if (_onChangeFile != nullptr)
+					{
+						_onChangeFile(filePath);
+					}
 				}
 			}
+		}
 
-			if (event.fflags & NOTE_RENAME)
+		if (oldFilePathToRename.Empty() == false)
+		{
+			// Renamed out of the watched scope: no matching new name event arrived, treat as a deletion.
+			if (_onDeleteFile != nullptr)
 			{
-				if (_onMoveFile != nullptr)
-				{
-					//_onMoveFile(oldFilePathToRename, filePath);
-				}
+				_onDeleteFile(oldFilePathToRename);
 			}
 		}
 	}
