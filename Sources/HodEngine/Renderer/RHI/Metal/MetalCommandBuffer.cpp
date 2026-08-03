@@ -7,6 +7,7 @@
 #include "HodEngine/Renderer/RHI/Metal/MetalPresentationSurface.hpp"
 #include "HodEngine/Renderer/RHI/Metal/RendererMetal.hpp"
 
+#include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Math/Rect.hpp>
 
 #include <Metal/Metal.hpp>
@@ -23,8 +24,19 @@ namespace hod::inline renderer
 	MetalCommandBuffer::MetalCommandBuffer()
 	{
 		RendererMetal* rendererMetal = RendererMetal::GetInstance();
+		MTL::Device*   device = rendererMetal->GetDevice();
 
-		_commandBuffer = rendererMetal->GetCommandQueue()->commandBuffer();
+		_commandBuffer = device->newCommandBuffer();
+		_commandBuffer->beginCommandBuffer(rendererMetal->GetCommandAllocator(Renderer::GetInstance()->GetFrameIndex()));
+
+		MTL4::ArgumentTableDescriptor* argumentTableDescriptor = MTL4::ArgumentTableDescriptor::alloc()->init();
+		argumentTableDescriptor->setMaxBufferBindCount(31);
+		argumentTableDescriptor->setMaxTextureBindCount(31);
+		argumentTableDescriptor->setMaxSamplerStateBindCount(31);
+		NS::Error*                     error = nullptr;
+		_vertexArgumentTable = device->newArgumentTable(argumentTableDescriptor, &error);
+		_fragmentArgumentTable = device->newArgumentTable(argumentTableDescriptor, &error);
+		argumentTableDescriptor->release();
 	}
 
 	/// @brief
@@ -34,6 +46,8 @@ namespace hod::inline renderer
 		{
 			_renderCommandEncoder->release();
 		}
+		_vertexArgumentTable->release();
+		_fragmentArgumentTable->release();
 		_commandBuffer->release();
 	}
 
@@ -48,6 +62,7 @@ namespace hod::inline renderer
 	/// @return
 	bool MetalCommandBuffer::EndRecord()
 	{
+		_commandBuffer->endCommandBuffer();
 		return true;
 	}
 
@@ -61,7 +76,7 @@ namespace hod::inline renderer
 		CA::MetalDrawable*        drawable = metalPresentationSurface->GetCurrentDrawable();
 		MTL::Texture*             drawableTexture = drawable->texture();
 
-		MTL::RenderPassDescriptor* renderPassDescriptor = MTL::RenderPassDescriptor::renderPassDescriptor();
+		MTL4::RenderPassDescriptor* renderPassDescriptor = MTL4::RenderPassDescriptor::alloc()->init();
 		renderPassDescriptor->colorAttachments()->object(0)->setTexture(drawableTexture);
 		renderPassDescriptor->colorAttachments()->object(0)->setLoadAction(MTL::LoadActionClear);
 		renderPassDescriptor->colorAttachments()->object(0)->setStoreAction(MTL::StoreActionStore);
@@ -69,6 +84,9 @@ namespace hod::inline renderer
 
 		_renderCommandEncoder = _commandBuffer->renderCommandEncoder(renderPassDescriptor);
 		renderPassDescriptor->release();
+
+		_renderCommandEncoder->setArgumentTable(_vertexArgumentTable, MTL::RenderStageVertex);
+		_renderCommandEncoder->setArgumentTable(_fragmentArgumentTable, MTL::RenderStageFragment);
 
 		_renderPassWidth = (uint32_t)drawableTexture->width();
 		_renderPassHeight = (uint32_t)drawableTexture->height();
@@ -100,13 +118,14 @@ namespace hod::inline renderer
 		}
 		DeleteAfterRender(constantBuffer);
 
+		MTL::Buffer* nativeBuffer = static_cast<MetalBuffer*>(constantBuffer)->GetNativeBuffer();
 		if (shaderType == Shader::ShaderType::Vertex)
 		{
-			_renderCommandEncoder->setVertexBuffer(static_cast<MetalBuffer*>(constantBuffer)->GetNativeBuffer(), 0, 0);
+			_vertexArgumentTable->setAddress(nativeBuffer->gpuAddress(), 0);
 		}
 		else if (shaderType == Shader::ShaderType::Fragment)
 		{
-			_renderCommandEncoder->setFragmentBuffer(static_cast<MetalBuffer*>(constantBuffer)->GetNativeBuffer(), 0, 0);
+			_fragmentArgumentTable->setAddress(nativeBuffer->gpuAddress(), 0);
 		}
 	}
 
@@ -176,7 +195,7 @@ namespace hod::inline renderer
 		(void)setOffset;
 		(void)setCount;
 		//
-		static_cast<const MetalMaterialInstance*>(materialInstance)->FillCommandEncoder(_renderCommandEncoder);
+		static_cast<const MetalMaterialInstance*>(materialInstance)->FillCommandEncoder(_renderCommandEncoder, _fragmentArgumentTable);
 	}
 
 	/// @brief
@@ -185,16 +204,13 @@ namespace hod::inline renderer
 	/// @param offset
 	void MetalCommandBuffer::SetVertexBuffer(Buffer** vertexBuffer, uint32_t count, uint32_t offset)
 	{
-		MTL::Buffer** mtlBuffers = (MTL::Buffer**)alloca(sizeof(MTL::Buffer*) * count);
-		NS::UInteger* bufferOffsets = (NS::UInteger*)alloca(sizeof(NS::UInteger) * count);
-		NS::Range     range = _material->GetVertexAttributeBufferRange();
+		NS::Range range = _material->GetVertexAttributeBufferRange();
 
 		for (uint32_t index = 0; index < count; ++index)
 		{
-			mtlBuffers[index] = static_cast<MetalBuffer*>(vertexBuffer[index])->GetNativeBuffer();
-			bufferOffsets[index] = offset;
+			MTL::Buffer* mtlBuffer = static_cast<MetalBuffer*>(vertexBuffer[index])->GetNativeBuffer();
+			_vertexArgumentTable->setAddress(mtlBuffer->gpuAddress() + offset, range.location + index);
 		}
-		_renderCommandEncoder->setVertexBuffers(mtlBuffers, bufferOffsets, range);
 	}
 
 	/// @brief
@@ -222,8 +238,10 @@ namespace hod::inline renderer
 	{
 		(void)vertexOffset; // TODO
 		// TODO primitive type from Material ?
-		_renderCommandEncoder->drawIndexedPrimitives(MTL::PrimitiveTypeTriangle, indexCount, MTL::IndexTypeUInt16, _indexBuffer->GetNativeBuffer(),
-														indexOffset * sizeof(uint16_t) + _indexBufferOffset, 1);
+		MTL::GPUAddress indexBufferAddress =
+			_indexBuffer->GetNativeBuffer()->gpuAddress() + indexOffset * sizeof(uint16_t) + _indexBufferOffset;
+		_renderCommandEncoder->drawIndexedPrimitives(MTL::PrimitiveTypeTriangle, indexCount, MTL::IndexTypeUInt16, indexBufferAddress,
+														indexCount * sizeof(uint16_t), 1);
 	}
 
 	/// @brief
@@ -231,12 +249,15 @@ namespace hod::inline renderer
 	void MetalCommandBuffer::Present(PresentationSurface* presentationSurface)
 	{
 		MetalPresentationSurface* metalPresentationSurface = static_cast<MetalPresentationSurface*>(presentationSurface);
-		_commandBuffer->presentDrawable(metalPresentationSurface->GetCurrentDrawable());
+		CA::MetalDrawable*        drawable = metalPresentationSurface->GetCurrentDrawable();
+
+		RendererMetal::GetInstance()->GetCommandQueue()->signalDrawable(drawable);
+		drawable->present();
 	}
 
 	/// @brief
 	/// @return
-	MTL::CommandBuffer* MetalCommandBuffer::GetNativeCommandBuffer() const
+	MTL4::CommandBuffer* MetalCommandBuffer::GetNativeCommandBuffer() const
 	{
 		return _commandBuffer;
 	}

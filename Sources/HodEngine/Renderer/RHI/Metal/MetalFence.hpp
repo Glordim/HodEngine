@@ -7,7 +7,7 @@
 
 namespace hod::inline renderer
 {
-	/// @brief 
+	/// @brief
 	class HOD_RENDERER_API MetalFence : public Fence
 	{
 	public:
@@ -25,10 +25,12 @@ namespace hod::inline renderer
 		bool			Reset() override;
 		bool			Wait() override;
 
-		MTL::Fence*		GetNativeFence() const;
+		MTL::SharedEvent*	GetNativeEvent() const;
+		uint64_t			GetTargetValue() const;
 
 	private:
 
-		MTL::Fence*		_mtlFence = nullptr;
+		MTL::SharedEvent*	_mtlEvent = nullptr;
+		uint64_t			_value = 0;
 	};
 }

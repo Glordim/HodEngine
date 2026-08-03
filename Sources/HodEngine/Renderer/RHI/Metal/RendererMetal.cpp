@@ -27,6 +27,11 @@ namespace hod::inline renderer
 	/// @brief
 	RendererMetal::~RendererMetal()
 	{
+		_residencySet->release();
+		for (MTL4::CommandAllocator* commandAllocator : _commandAllocators)
+		{
+			commandAllocator->release();
+		}
 		_commandQueue->release();
 		_device->release();
 	}
@@ -34,19 +39,34 @@ namespace hod::inline renderer
 	bool RendererMetal::SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore, const Semaphore* waitSemaphore,
 												const Fence* fence)
 	{
-		// TODO
-		(void)signalSemaphore;
-		(void)waitSemaphore;
-		(void)fence;
-
+		MTL4::CommandBuffer** mtlCommandBuffers = (MTL4::CommandBuffer**)alloca(sizeof(MTL4::CommandBuffer*) * commandBufferCount);
 		for (uint32_t commandBufferIndex = 0; commandBufferIndex < commandBufferCount; ++commandBufferIndex)
 		{
 			MetalCommandBuffer* commandBuffer = static_cast<MetalCommandBuffer*>(commandBuffers[commandBufferIndex]);
-			MTL::CommandBuffer* metalCommandBuffer = commandBuffer->GetNativeCommandBuffer();
-			metalCommandBuffer->commit();
-			metalCommandBuffer->waitUntilCompleted();
+			mtlCommandBuffers[commandBufferIndex] = commandBuffer->GetNativeCommandBuffer();
 		}
-		return false;
+
+		if (waitSemaphore != nullptr)
+		{
+			const MetalSemaphore* metalSemaphore = static_cast<const MetalSemaphore*>(waitSemaphore);
+			_commandQueue->wait(metalSemaphore->GetNativeSemaphore(), metalSemaphore->GetTargetValue());
+		}
+
+		_commandQueue->commit(mtlCommandBuffers, commandBufferCount);
+
+		if (signalSemaphore != nullptr)
+		{
+			MetalSemaphore* metalSemaphore = static_cast<MetalSemaphore*>(const_cast<Semaphore*>(signalSemaphore));
+			_commandQueue->signalEvent(metalSemaphore->GetNativeSemaphore(), metalSemaphore->IncrementAndGetTargetValue());
+		}
+
+		if (fence != nullptr)
+		{
+			const MetalFence* metalFence = static_cast<const MetalFence*>(fence);
+			_commandQueue->signalEvent(metalFence->GetNativeEvent(), metalFence->GetTargetValue());
+		}
+
+		return true;
 	}
 
 	CommandBuffer* RendererMetal::CreateCommandBuffer()
@@ -72,7 +92,31 @@ namespace hod::inline renderer
 		(void)physicalDeviceIdentifier; // TODO
 
 		_device = MTL::CreateSystemDefaultDevice();
-		_commandQueue = _device->newCommandQueue();
+
+		if (_device->supportsFamily(MTL::GPUFamilyMetal4) == false)
+		{
+			OUTPUT_ERROR("Metal: This GPU does not support Metal 4");
+			return false;
+		}
+
+		_commandQueue = _device->newMTL4CommandQueue();
+
+		_commandAllocators.Resize(GetFrameInFlightCount());
+		for (MTL4::CommandAllocator*& commandAllocator : _commandAllocators)
+		{
+			commandAllocator = _device->newCommandAllocator();
+		}
+
+		MTL::ResidencySetDescriptor* residencySetDescriptor = MTL::ResidencySetDescriptor::alloc()->init();
+		NS::Error*                   residencySetError = nullptr;
+		_residencySet = _device->newResidencySet(residencySetDescriptor, &residencySetError);
+		residencySetDescriptor->release();
+		if (_residencySet == nullptr)
+		{
+			OUTPUT_ERROR("Metal: Unable to create residency set: {}", residencySetError->localizedDescription()->utf8String());
+			return false;
+		}
+		_commandQueue->addResidencySet(_residencySet);
 
 		_mainPresentationSurface = CreatePresentationSurface(mainWindow);
 
@@ -157,8 +201,24 @@ namespace hod::inline renderer
 		return _device;
 	}
 
-	MTL::CommandQueue* RendererMetal::GetCommandQueue() const
+	MTL4::CommandQueue* RendererMetal::GetCommandQueue() const
 	{
 		return _commandQueue;
+	}
+
+	MTL4::CommandAllocator* RendererMetal::GetCommandAllocator(uint32_t frameIndex) const
+	{
+		return _commandAllocators[frameIndex];
+	}
+
+	void RendererMetal::AddResourceToResidencySet(const MTL::Allocation* allocation)
+	{
+		_residencySet->addAllocation(allocation);
+		_residencySet->commit();
+	}
+
+	void RendererMetal::FlushDeferredDeletions(uint32_t frameIndex)
+	{
+		_commandAllocators[frameIndex]->reset();
 	}
 }
