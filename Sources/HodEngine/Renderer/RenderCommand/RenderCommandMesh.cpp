@@ -74,6 +74,31 @@ namespace hod::inline renderer
 
 		Renderer* renderer = Renderer::GetInstance();
 
+		MaterialInstance* materialInstance = const_cast<MaterialInstance*>(_materialInstance);
+		materialInstance->SetMat4("global.view", commandBuffer->_view);
+		materialInstance->SetMat4("global.proj", commandBuffer->_projection);
+		materialInstance->SetFloat("global.time", (float)SystemTime::ToSeconds(SystemTime::Now()));
+		if (overrideMaterial != nullptr)
+		{
+			Color color = PickingManager::ConvertIdToColor(_pickingId);
+
+			materialInstance = Renderer::GetInstance()->CreateMaterialInstance(&overrideMaterial->GetMaterial());
+			materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
+			commandBuffer->DeleteAfterRender(materialInstance);
+		}
+		else if (_ignoreVisualisationMode == false)
+		{
+			if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::Wireframe)
+			{
+				materialInstance = Renderer::GetInstance()->GetWireframeMaterialInstance();
+			}
+			else if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::NormalWithWireframe)
+			{
+				materialInstance = (Renderer::GetInstance()->GetOverdrawMaterialInstance());
+			}
+		}
+		commandBuffer->SetMaterialInstance(materialInstance, 0);
+
 		std::array<Buffer*, 3> vertexBuffers = {nullptr, nullptr, nullptr};
 		uint32_t               vertexBufferCount = 0;
 
@@ -133,31 +158,6 @@ namespace hod::inline renderer
 		}
 
 		commandBuffer->SetModelMatrix(_modelMatrix);
-
-		MaterialInstance* materialInstance = const_cast<MaterialInstance*>(_materialInstance);
-		materialInstance->SetMat4("global.view", commandBuffer->_view);
-		materialInstance->SetMat4("global.proj", commandBuffer->_projection);
-		materialInstance->SetFloat("global.time", (float)SystemTime::ToSeconds(SystemTime::Now()));
-		if (overrideMaterial != nullptr)
-		{
-			Color color = PickingManager::ConvertIdToColor(_pickingId);
-
-			materialInstance = Renderer::GetInstance()->CreateMaterialInstance(&overrideMaterial->GetMaterial());
-			materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
-			commandBuffer->DeleteAfterRender(materialInstance);
-		}
-		else if (_ignoreVisualisationMode == false)
-		{
-			if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::Wireframe)
-			{
-				materialInstance = Renderer::GetInstance()->GetWireframeMaterialInstance();
-			}
-			else if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::NormalWithWireframe)
-			{
-				materialInstance = (Renderer::GetInstance()->GetOverdrawMaterialInstance());
-			}
-		}
-		commandBuffer->SetMaterialInstance(materialInstance, 0);
 
 		struct Constant
 		{

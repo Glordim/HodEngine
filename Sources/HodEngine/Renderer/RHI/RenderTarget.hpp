@@ -26,8 +26,8 @@ namespace hod::inline renderer
 		Texture* GetColorTexture() const;
 		Texture* GetDepthTexture() const;
 
-		virtual void PrepareForWrite(const CommandBuffer* commandBuffer) = 0;
-		virtual void PrepareForRead(const CommandBuffer* commandBuffer) = 0;
+		virtual void PrepareForWrite(const CommandBuffer* commandBuffer);
+		virtual void PrepareForRead(const CommandBuffer* commandBuffer);
 
 		bool IsValid() const;
 

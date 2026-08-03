@@ -39,9 +39,9 @@ namespace hod::inline renderer
 		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
 		textureDescriptor->setWidth(width);
 		textureDescriptor->setHeight(height);
-		textureDescriptor->setPixelFormat(MTL::PixelFormatDepth24Unorm_Stencil8);
+		textureDescriptor->setPixelFormat(MTL::PixelFormatDepth32Float_Stencil8);
 		textureDescriptor->setTextureType(MTL::TextureType2D);
-		textureDescriptor->setStorageMode(MTL::StorageModeManaged);
+		textureDescriptor->setStorageMode(MTL::StorageModeShared);
 		textureDescriptor->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
 		_texture = RendererMetal::GetInstance()->GetDevice()->newTexture(textureDescriptor);
 		textureDescriptor->release();
@@ -67,7 +67,7 @@ namespace hod::inline renderer
 		textureDescriptor->setHeight(height);
 		textureDescriptor->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
 		textureDescriptor->setTextureType(MTL::TextureType2D);
-		textureDescriptor->setStorageMode(MTL::StorageModeManaged);
+		textureDescriptor->setStorageMode(MTL::StorageModeShared);
 		textureDescriptor->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
 		_texture = RendererMetal::GetInstance()->GetDevice()->newTexture(textureDescriptor);
 		textureDescriptor->release();
@@ -95,12 +95,12 @@ namespace hod::inline renderer
 		textureDescriptor->setHeight(height);
 		textureDescriptor->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
 		textureDescriptor->setTextureType(MTL::TextureType2D);
-		textureDescriptor->setStorageMode(MTL::StorageModeManaged);
+		textureDescriptor->setStorageMode(MTL::StorageModeShared);
 		textureDescriptor->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
 		_texture = RendererMetal::GetInstance()->GetDevice()->newTexture(textureDescriptor);
 		textureDescriptor->release();
 		RendererMetal::GetInstance()->AddResourceToResidencySet(_texture);
-		
+
 		_texture->replaceRegion(MTL::Region( 0, 0, 0, width, height, 1 ), 0, pixels, width * 4);
 		
 		MTL::SamplerDescriptor* samplerDescriptor = MTL::SamplerDescriptor::alloc()->init();
