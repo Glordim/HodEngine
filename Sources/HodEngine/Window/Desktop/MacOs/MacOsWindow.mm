@@ -99,6 +99,40 @@
   hod::MacOsWindowEventCaller::EmitMouseMoved(window, location.x, location.y);
 }
 
+// AppKit only sends mouseMoved: while no button is down; while dragging it
+// sends these instead, so they need the same handling to keep reporting
+// position during a drag.
+- (void)mouseDragged:(NSEvent *)event {
+  [self mouseMoved:event];
+}
+
+- (void)rightMouseDragged:(NSEvent *)event {
+  [self mouseMoved:event];
+}
+
+- (void)otherMouseDragged:(NSEvent *)event {
+  [self mouseMoved:event];
+}
+
+- (void)scrollWheel:(NSEvent *)event {
+  double deltaX = [event scrollingDeltaX];
+  double deltaY = [event scrollingDeltaY];
+  // Trackpads report precise pixel deltas that are an order of magnitude
+  // larger than the "line" deltas from a physical mouse wheel; scale them
+  // down so both devices produce comparable scroll amounts.
+  if ([event hasPreciseScrollingDeltas]) {
+    deltaX *= 0.1;
+    deltaY *= 0.1;
+  }
+
+  if (deltaY != 0.0) {
+    hod::MacOsWindowEventCaller::EmitMouseScroll(window, deltaY);
+  }
+  if (deltaX != 0.0) {
+    hod::MacOsWindowEventCaller::EmitMouseHorizontalScroll(window, deltaX);
+  }
+}
+
 @end
 
 @interface MyWindowDelegate : NSObject <NSWindowDelegate> {

@@ -42,6 +42,16 @@ namespace hod::inline window
         window->EmitMouseMoved(x, y);
     }
 
+    void MacOsWindowEventCaller::EmitMouseScroll(MacOsWindow* window, float scroll)
+    {
+        window->EmitMouseScroll(scroll);
+    }
+
+    void MacOsWindowEventCaller::EmitMouseHorizontalScroll(MacOsWindow* window, float scroll)
+    {
+        window->EmitMouseHorizontalScroll(scroll);
+    }
+
     void MacOsWindowEventCaller::EmitResize(MacOsWindow* window, float x, float y)
     {
         window->ResizeInternal(static_cast<uint16_t>(x), static_cast<uint16_t>(y));
