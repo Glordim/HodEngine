@@ -111,4 +111,16 @@ namespace hod::inline renderer
 	{
 		return _colorTextures.Empty() == false;
 	}
+
+	/// @brief
+	void RenderTarget::PrepareForWrite(const CommandBuffer* commandBuffer)
+	{
+		(void)commandBuffer;
+	}
+
+	/// @brief
+	void RenderTarget::PrepareForRead(const CommandBuffer* commandBuffer)
+	{
+		(void)commandBuffer;
+	}
 }

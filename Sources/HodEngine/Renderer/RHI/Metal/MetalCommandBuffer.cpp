@@ -5,7 +5,9 @@
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterial.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterialInstance.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalPresentationSurface.hpp"
+#include "HodEngine/Renderer/RHI/Metal/MetalTexture.hpp"
 #include "HodEngine/Renderer/RHI/Metal/RendererMetal.hpp"
+#include "HodEngine/Renderer/RHI/RenderTarget.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Math/Rect.hpp>
@@ -70,14 +72,28 @@ namespace hod::inline renderer
 	/// @return
 	bool MetalCommandBuffer::StartRenderPass(RenderTarget* renderTarget, PresentationSurface* presentationSurface, const Color& color)
 	{
-		(void)renderTarget; // TODO
+		MTL::Texture* colorTexture = nullptr;
 
-		MetalPresentationSurface* metalPresentationSurface = static_cast<MetalPresentationSurface*>(presentationSurface);
-		CA::MetalDrawable*        drawable = metalPresentationSurface->GetCurrentDrawable();
-		MTL::Texture*             drawableTexture = drawable->texture();
+		if (renderTarget != nullptr)
+		{
+			colorTexture = static_cast<MetalTexture*>(renderTarget->GetColorTexture())->GetNativeTexture();
+
+			Vector2 resolution = renderTarget->GetResolution();
+			_renderPassWidth = (uint32_t)resolution.GetX();
+			_renderPassHeight = (uint32_t)resolution.GetY();
+		}
+		else
+		{
+			MetalPresentationSurface* metalPresentationSurface = static_cast<MetalPresentationSurface*>(presentationSurface);
+			CA::MetalDrawable*        drawable = metalPresentationSurface->GetCurrentDrawable();
+			colorTexture = drawable->texture();
+
+			_renderPassWidth = (uint32_t)colorTexture->width();
+			_renderPassHeight = (uint32_t)colorTexture->height();
+		}
 
 		MTL4::RenderPassDescriptor* renderPassDescriptor = MTL4::RenderPassDescriptor::alloc()->init();
-		renderPassDescriptor->colorAttachments()->object(0)->setTexture(drawableTexture);
+		renderPassDescriptor->colorAttachments()->object(0)->setTexture(colorTexture);
 		renderPassDescriptor->colorAttachments()->object(0)->setLoadAction(MTL::LoadActionClear);
 		renderPassDescriptor->colorAttachments()->object(0)->setStoreAction(MTL::StoreActionStore);
 		renderPassDescriptor->colorAttachments()->object(0)->setClearColor(MTL::ClearColor(color.r, color.g, color.b, color.a));
@@ -87,9 +103,6 @@ namespace hod::inline renderer
 
 		_renderCommandEncoder->setArgumentTable(_vertexArgumentTable, MTL::RenderStageVertex);
 		_renderCommandEncoder->setArgumentTable(_fragmentArgumentTable, MTL::RenderStageFragment);
-
-		_renderPassWidth = (uint32_t)drawableTexture->width();
-		_renderPassHeight = (uint32_t)drawableTexture->height();
 
 		return true;
 	}
@@ -195,6 +208,7 @@ namespace hod::inline renderer
 		(void)setOffset;
 		(void)setCount;
 		//
+		_material = static_cast<const MetalMaterial*>(&materialInstance->GetMaterial());
 		static_cast<const MetalMaterialInstance*>(materialInstance)->FillCommandEncoder(_renderCommandEncoder, _fragmentArgumentTable);
 	}
 

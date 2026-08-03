@@ -7,6 +7,7 @@
 #include "HodEngine/Renderer/RHI/Metal/MetalCommandBuffer.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalPresentationSurface.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalFence.hpp"
+#include "HodEngine/Renderer/RHI/RenderTarget.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterial.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalMaterialInstance.hpp"
 #include "HodEngine/Renderer/RHI/Metal/MetalSemaphore.hpp"
@@ -81,7 +82,7 @@ namespace hod::inline renderer
 
 	RenderTarget* RendererMetal::CreateRenderTarget()
 	{
-		return nullptr;
+		return DefaultAllocator::GetInstance().New<RenderTarget>();
 	}
 
 	//-----------------------------------------------------------------------------
