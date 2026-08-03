@@ -33,6 +33,8 @@ namespace hod::inline window
         static void EmitMouseButtonReleased(MacOsWindow* window, MouseButton button);
 
         static void EmitMouseMoved(MacOsWindow* window, float x, float y);
+        static void EmitMouseScroll(MacOsWindow* window, float scroll);
+        static void EmitMouseHorizontalScroll(MacOsWindow* window, float scroll);
 
 		static void EmitResize(MacOsWindow* window, float x, float y);
     };
