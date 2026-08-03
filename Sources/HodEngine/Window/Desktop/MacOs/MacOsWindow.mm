@@ -152,7 +152,7 @@ MacOsWindow::MacOsWindow(bool hidden) : DesktopWindow() {
                     defer:NO];
 
   [_window setDelegate:_delegate];
-  [_window setTitle:@"Window"];
+  [_window setTitle:@"Hod Engine"];
   [_window makeKeyAndOrderFront:(nil)];
 
   CustomView *customView = [[CustomView alloc] initWithFrame:frame window:this];
