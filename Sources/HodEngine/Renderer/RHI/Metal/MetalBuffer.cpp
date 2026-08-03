@@ -13,6 +13,7 @@ namespace hod::inline renderer
 	{
 		RendererMetal* rendererMetal = RendererMetal::GetInstance();
 		_nativeBuffer = rendererMetal->GetDevice()->newBuffer(Size, MTL::ResourceStorageModeShared);
+		rendererMetal->AddResourceToResidencySet(_nativeBuffer);
 	}
 
 	MetalBuffer::~MetalBuffer()
@@ -25,6 +26,7 @@ namespace hod::inline renderer
 		_nativeBuffer->release();
 		RendererMetal* rendererMetal = RendererMetal::GetInstance();
 		_nativeBuffer = rendererMetal->GetDevice()->newBuffer(Size, MTL::ResourceStorageModeShared);
+		rendererMetal->AddResourceToResidencySet(_nativeBuffer);
 		_size = Size;
 		return true;
 	}

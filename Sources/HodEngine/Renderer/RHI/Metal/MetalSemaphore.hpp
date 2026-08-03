@@ -24,8 +24,12 @@ namespace hod::inline renderer
 
 		MTL::Event*		GetNativeSemaphore() const;
 
+		uint64_t		IncrementAndGetTargetValue();
+		uint64_t		GetTargetValue() const;
+
 	private:
 
 		MTL::Event*		_mtlEvent = nullptr;
+		uint64_t		_value = 0;
 	};
 }

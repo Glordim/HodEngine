@@ -8,7 +8,14 @@
 namespace MTL
 {
 	class Device;
+	class ResidencySet;
+	class Allocation;
+}
+
+namespace MTL4
+{
 	class CommandQueue;
+	class CommandAllocator;
 }
 
 namespace hod::inline renderer
@@ -50,12 +57,20 @@ namespace hod::inline renderer
 		Semaphore*        CreateSemaphore() override;
 		Fence*            CreateFence() override;
 
-		MTL::Device*       GetDevice() const;
-		MTL::CommandQueue* GetCommandQueue() const;
+		MTL::Device*        GetDevice() const;
+		MTL4::CommandQueue* GetCommandQueue() const;
+		MTL4::CommandAllocator* GetCommandAllocator(uint32_t frameIndex) const;
+
+		void AddResourceToResidencySet(const MTL::Allocation* allocation);
+
+	protected:
+		void FlushDeferredDeletions(uint32_t frameIndex) override;
 
 	private:
-		MTL::Device*       _device = nullptr;
-		MTL::CommandQueue* _commandQueue = nullptr;
+		MTL::Device*                    _device = nullptr;
+		MTL4::CommandQueue*             _commandQueue = nullptr;
+		Vector<MTL4::CommandAllocator*> _commandAllocators;
+		MTL::ResidencySet*              _residencySet = nullptr;
 	};
 }
 

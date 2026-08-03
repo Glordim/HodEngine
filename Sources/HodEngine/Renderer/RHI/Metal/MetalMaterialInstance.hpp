@@ -3,9 +3,10 @@
 
 #include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
 
-namespace MTL
+namespace MTL4
 {
     class RenderCommandEncoder;
+    class ArgumentTable;
 }
 
 namespace hod::inline renderer
@@ -20,7 +21,7 @@ namespace hod::inline renderer
 										MetalMaterialInstance(const Material& material);
 										~MetalMaterialInstance() override;
 		
-		void                            FillCommandEncoder(MTL::RenderCommandEncoder* renderCommandEncoder) const;
+		void                            FillCommandEncoder(MTL4::RenderCommandEncoder* renderCommandEncoder, MTL4::ArgumentTable* fragmentArgumentTable) const;
 
 	protected:
 

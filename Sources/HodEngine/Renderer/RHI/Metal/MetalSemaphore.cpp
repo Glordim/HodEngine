@@ -30,10 +30,24 @@ namespace hod::inline renderer
 		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	MTL::Event* MetalSemaphore::GetNativeSemaphore() const
 	{
 		return _mtlEvent;
+	}
+
+	/// @brief
+	/// @return
+	uint64_t MetalSemaphore::IncrementAndGetTargetValue()
+	{
+		return ++_value;
+	}
+
+	/// @brief
+	/// @return
+	uint64_t MetalSemaphore::GetTargetValue() const
+	{
+		return _value;
 	}
 }

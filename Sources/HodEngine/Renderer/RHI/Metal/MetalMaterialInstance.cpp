@@ -83,7 +83,8 @@ namespace hod::inline renderer
 
 	/// @brief
 	/// @param renderCommandEncoder
-	void MetalMaterialInstance::FillCommandEncoder(MTL::RenderCommandEncoder* renderCommandEncoder) const
+	/// @param fragmentArgumentTable
+	void MetalMaterialInstance::FillCommandEncoder(MTL4::RenderCommandEncoder* renderCommandEncoder, MTL4::ArgumentTable* fragmentArgumentTable) const
 	{
 		const MetalMaterial& material = static_cast<const MetalMaterial&>(GetMaterial());
 		renderCommandEncoder->setRenderPipelineState(material.GetNativeRenderPipeline());
@@ -94,8 +95,8 @@ namespace hod::inline renderer
 			uint32_t index = 0; // material.GetTextureIndex(texturePair.first);
 
 			const MetalTexture* texture = static_cast<const MetalTexture*>(texturePair.second);
-			renderCommandEncoder->setFragmentTexture(texture->GetNativeTexture(), index);
-			renderCommandEncoder->setFragmentSamplerState(texture->GetNativeSampler(), index);
+			fragmentArgumentTable->setTexture(texture->GetNativeTexture()->gpuResourceID(), index);
+			fragmentArgumentTable->setSamplerState(texture->GetNativeSampler()->gpuResourceID(), index);
 		}
 	}
 }

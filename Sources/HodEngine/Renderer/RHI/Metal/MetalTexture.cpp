@@ -45,7 +45,8 @@ namespace hod::inline renderer
 		textureDescriptor->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
 		_texture = RendererMetal::GetInstance()->GetDevice()->newTexture(textureDescriptor);
 		textureDescriptor->release();
-		
+		RendererMetal::GetInstance()->AddResourceToResidencySet(_texture);
+
 		MTL::SamplerDescriptor* samplerDescriptor = MTL::SamplerDescriptor::alloc()->init();
 		_sampler = RendererMetal::GetInstance()->GetDevice()->newSamplerState(samplerDescriptor);
 		samplerDescriptor->release();
@@ -57,7 +58,7 @@ namespace hod::inline renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	bool MetalTexture::BuildColor(uint32_t width, uint32_t height, const CreateInfo& createInfo)
 	{
@@ -70,7 +71,8 @@ namespace hod::inline renderer
 		textureDescriptor->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
 		_texture = RendererMetal::GetInstance()->GetDevice()->newTexture(textureDescriptor);
 		textureDescriptor->release();
-		
+		RendererMetal::GetInstance()->AddResourceToResidencySet(_texture);
+
 		MTL::SamplerDescriptor* samplerDescriptor = MTL::SamplerDescriptor::alloc()->init();
 		samplerDescriptor->setSAddressMode(createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat);
 		samplerDescriptor->setTAddressMode(createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat);
@@ -84,7 +86,7 @@ namespace hod::inline renderer
 	}
 
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	bool MetalTexture::BuildBuffer(uint32_t width, uint32_t height, const uint8_t* pixels, const CreateInfo& createInfo)
 	{
@@ -97,6 +99,7 @@ namespace hod::inline renderer
 		textureDescriptor->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
 		_texture = RendererMetal::GetInstance()->GetDevice()->newTexture(textureDescriptor);
 		textureDescriptor->release();
+		RendererMetal::GetInstance()->AddResourceToResidencySet(_texture);
 		
 		_texture->replaceRegion(MTL::Region( 0, 0, 0, width, height, 1 ), 0, pixels, width * 4);
 		

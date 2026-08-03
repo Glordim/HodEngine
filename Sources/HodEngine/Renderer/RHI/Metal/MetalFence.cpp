@@ -6,48 +6,56 @@
 
 namespace hod::inline renderer
 {
-	/// @brief 
+	/// @brief
 	MetalFence::MetalFence()
 		: Fence()
 	{
 		RendererMetal* metalRenderer = RendererMetal::GetInstance();
 
-		_mtlFence = metalRenderer->GetDevice()->newFence();
+		_mtlEvent = metalRenderer->GetDevice()->newSharedEvent();
 
-		if (_mtlFence == nullptr)
+		if (_mtlEvent == nullptr)
 		{
 			OUTPUT_ERROR("Metal: Unable to create fence!");
 			return;
 		}
 	}
 
-	/// @brief 
+	/// @brief
 	MetalFence::~MetalFence()
 	{
-		if (_mtlFence != nullptr)
+		if (_mtlEvent != nullptr)
 		{
-			_mtlFence->release();
+			_mtlEvent->release();
 		}
 	}
 
-	/// @brief 
-	/// @return 
-	MTL::Fence* MetalFence::GetNativeFence() const
+	/// @brief
+	/// @return
+	MTL::SharedEvent* MetalFence::GetNativeEvent() const
 	{
-		return _mtlFence;
+		return _mtlEvent;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
+	uint64_t MetalFence::GetTargetValue() const
+	{
+		return _value;
+	}
+
+	/// @brief
+	/// @return
 	bool MetalFence::Reset()
 	{
-		return false;
+		++_value;
+		return true;
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	bool MetalFence::Wait()
 	{
-		return false;
+		return _mtlEvent->waitUntilSignaledValue(_value, UINT64_MAX);
 	}
 }

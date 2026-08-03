@@ -6,7 +6,13 @@
 namespace MTL
 {
 	class CommandBuffer;
+}
+
+namespace MTL4
+{
+	class CommandBuffer;
 	class RenderCommandEncoder;
+	class ArgumentTable;
 }
 
 namespace hod::inline renderer
@@ -55,15 +61,17 @@ namespace hod::inline renderer
 
 		void Present(PresentationSurface* presentationSurface) override;
 
-		MTL::CommandBuffer* GetNativeCommandBuffer() const;
+		MTL4::CommandBuffer* GetNativeCommandBuffer() const;
 
 	private:
-		MTL::CommandBuffer*        _commandBuffer = nullptr;
-		MTL::RenderCommandEncoder* _renderCommandEncoder = nullptr;
-		MetalBuffer*               _indexBuffer = nullptr;
-		const MetalMaterial*       _material = nullptr;
-		uint32_t                   _indexBufferOffset = 0;
-		uint32_t                   _renderPassWidth = 0;
-		uint32_t                   _renderPassHeight = 0;
+		MTL4::CommandBuffer*        _commandBuffer = nullptr;
+		MTL4::RenderCommandEncoder* _renderCommandEncoder = nullptr;
+		MTL4::ArgumentTable*        _vertexArgumentTable = nullptr;
+		MTL4::ArgumentTable*        _fragmentArgumentTable = nullptr;
+		MetalBuffer*                _indexBuffer = nullptr;
+		const MetalMaterial*        _material = nullptr;
+		uint32_t                    _indexBufferOffset = 0;
+		uint32_t                    _renderPassWidth = 0;
+		uint32_t                    _renderPassHeight = 0;
 	};
 }
