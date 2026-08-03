@@ -36,7 +36,21 @@ namespace hod::inline core
 			uint32_t bufferSize = sizeof(buffer);
 			if (_NSGetExecutablePath(buffer, &bufferSize) == 0)
 			{
-				FileSystem::_executablePath = buffer;
+				Path path = buffer;
+
+				// When running from an .app bundle, the real executable lives
+				// under <bundle>.app/Contents/MacOS/. The rest of the engine
+				// expects the executable to sit next to its dylibs/Datas/Templates
+				// folders (as it did before bundling), so remap the path to
+				// <folder containing the .app>/<executable name>.
+				uint32_t bundleMarkerPos = path.GetString().Find(".app/Contents/MacOS/");
+				if (bundleMarkerPos != String::Npos)
+				{
+					Path bundleContainingDir = path.GetString().SubStr(0, bundleMarkerPos);
+					path = bundleContainingDir.ParentPath() / path.Filename();
+				}
+
+				FileSystem::_executablePath = path;
 			}
 		}
 		return FileSystem::_executablePath;
