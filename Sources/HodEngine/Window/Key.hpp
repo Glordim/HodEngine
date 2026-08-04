@@ -1,5 +1,6 @@
 #pragma once
 #include "HodEngine/Window/Export.hpp"
+#include "HodEngine/Window/ScanCode.hpp"
 
 #include <cstdint>
 
@@ -154,5 +155,19 @@ namespace hod::inline window
 
 #if defined(PLATFORM_WINDOWS)
 	HOD_WINDOW_API Key WindowsVirtualKeyToKey(uint64_t virtualKey);
+#elif defined(PLATFORM_MACOS)
+	/// @brief Derives the logical Key for a macOS virtual keyCode using the
+	///        active keyboard layout (so e.g. the physical key at the
+	///        QWERTY "W" position reports Key::Z on AZERTY). Falls back to
+	///        ScanCodeToKey() for keys the layout has no character for.
+	HOD_WINDOW_API Key MacOSKeyCodeToKey(uint16_t keyCode);
 #endif
+
+	/// @brief Derives a logical Key from the physical HID ScanCode alone,
+	///        ignoring keyboard layout. Correct for layout-invariant keys
+	///        (editing/navigation/function/modifiers); letters and
+	///        punctuation are reported as their US QWERTY meaning, so
+	///        prefer a platform-specific, layout-aware translation
+	///        (e.g. MacOSKeyCodeToKey()) where one is available.
+	HOD_WINDOW_API Key ScanCodeToKey(ScanCode scanCode);
 }

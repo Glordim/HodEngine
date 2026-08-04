@@ -65,7 +65,8 @@ endif()
 
 if (APPLE)
 	find_library(COCOA_LIBRARY Cocoa)
-	target_link_libraries(Window PRIVATE ${COCOA_LIBRARY})
+	find_library(CARBON_LIBRARY Carbon)
+	target_link_libraries(Window PRIVATE ${COCOA_LIBRARY} ${CARBON_LIBRARY})
 endif()
 
 if(ANDROID)

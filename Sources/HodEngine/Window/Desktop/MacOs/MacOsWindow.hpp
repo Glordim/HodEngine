@@ -26,8 +26,9 @@ namespace hod::inline window
     class MacOsWindowEventCaller
     {
     public:
-        static void EmitKeyPressed(MacOsWindow* window, ScanCode scanCode);
-        static void EmitKeyReleased(MacOsWindow* window, ScanCode scanCode);
+        static void EmitKeyPressed(MacOsWindow* window, uint16_t keyCode);
+        static void EmitKeyReleased(MacOsWindow* window, uint16_t keyCode);
+        static void EmitChar(MacOsWindow* window, char c);
 
         static void EmitMouseButtonPressed(MacOsWindow* window, MouseButton button);
         static void EmitMouseButtonReleased(MacOsWindow* window, MouseButton button);

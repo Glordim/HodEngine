@@ -17,14 +17,19 @@ namespace hod::inline window
 		return _view;
 	}
 
-	void MacOsWindowEventCaller::EmitKeyPressed(MacOsWindow* window, ScanCode scanCode)
+	void MacOsWindowEventCaller::EmitKeyPressed(MacOsWindow* window, uint16_t keyCode)
     {
-        window->EmitKeyPressed(scanCode, Key::None); // toto
+        window->EmitKeyPressed(MacOSKeyCodeToScanCode(keyCode), MacOSKeyCodeToKey(keyCode));
     }
 
-    void MacOsWindowEventCaller::EmitKeyReleased(MacOsWindow* window, ScanCode scanCode)
+    void MacOsWindowEventCaller::EmitKeyReleased(MacOsWindow* window, uint16_t keyCode)
     {
-        window->EmitKeyReleased(scanCode, Key::None); // todo
+        window->EmitKeyReleased(MacOSKeyCodeToScanCode(keyCode), MacOSKeyCodeToKey(keyCode));
+    }
+
+    void MacOsWindowEventCaller::EmitChar(MacOsWindow* window, char c)
+    {
+        window->EmitChar(c);
     }
 
     void MacOsWindowEventCaller::EmitMouseButtonPressed(MacOsWindow* window, MouseButton button)

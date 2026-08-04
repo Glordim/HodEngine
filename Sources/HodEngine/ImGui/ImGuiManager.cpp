@@ -764,6 +764,10 @@ namespace hod::inline imgui
 				{
 					io.AddKeyEvent(ImGuiMod_Alt, true);
 				}
+				else if (imguiKey == ImGuiKey_LeftSuper)
+				{
+					io.AddKeyEvent(ImGuiMod_Super, true);
+				}
 				io.AddKeyEvent(imguiKey, true);
 			}
 			else if (event.type == EventType::KeyReleased)
@@ -780,6 +784,10 @@ namespace hod::inline imgui
 				else if (imguiKey == ImGuiKey_LeftAlt)
 				{
 					io.AddKeyEvent(ImGuiMod_Alt, false);
+				}
+				else if (imguiKey == ImGuiKey_LeftSuper)
+				{
+					io.AddKeyEvent(ImGuiMod_Super, false);
 				}
 				io.AddKeyEvent(imguiKey, false);
 			}
