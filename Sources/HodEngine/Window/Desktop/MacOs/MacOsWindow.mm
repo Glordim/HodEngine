@@ -3,8 +3,12 @@
 
 #include <Cocoa/Cocoa.h>
 
-@interface CustomView : NSView {
+static const NSRange kEmptyRange = {NSNotFound, 0};
+
+@interface CustomView : NSView <NSTextInputClient> {
   hod::MacOsWindow *window;
+  NSMutableAttributedString *markedText;
+  NSEventModifierFlags previousModifierFlags;
 }
 
 - (instancetype)initWithFrame:(NSRect)frameRect
@@ -18,8 +22,14 @@
   self = [super initWithFrame:frameRect];
   if (self) {
     window = cppWindow;
+    markedText = [[NSMutableAttributedString alloc] init];
+    previousModifierFlags = 0;
   }
   return self;
+}
+
+- (BOOL)acceptsFirstResponder {
+  return YES;
 }
 
 - (void)drawRect:(NSRect)dirtyRect {
@@ -55,13 +65,130 @@
 }
 
 - (void)keyDown:(NSEvent *)event {
-  hod::MacOsWindowEventCaller::EmitKeyPressed(
-      window, hod::MacOSKeyCodeToScanCode([event keyCode]));
+  uint16_t keyCode = [event keyCode];
+  hod::MacOsWindowEventCaller::EmitKeyPressed(window, keyCode);
+
+  // AppKit never sends keyUp: for a non-modifier key that was pressed while
+  // Command is held (well-known AppKit quirk: Cmd+key is treated as a
+  // one-shot "key equivalent", not a held key). Left stuck "down", it would
+  // keep re-triggering repeat-eligible actions (e.g. ImGui's Cmd+X cut)
+  // every frame until Command is eventually released. Since no real keyUp:
+  // is coming, synthesize it immediately instead.
+  if (([event modifierFlags] & NSEventModifierFlagCommand) != 0) {
+    hod::MacOsWindowEventCaller::EmitKeyReleased(window, keyCode);
+  }
+
+  // Routes the event through the input method: for a plain keystroke this
+  // calls insertText:replacementRange: synchronously below, but for dead
+  // keys / IME composition (accents, Chinese/Japanese/Korean, ...) it lets
+  // the system's composition session run, only calling insertText: once
+  // the user has actually committed the composed text.
+  [self interpretKeyEvents:@[ event ]];
 }
 
 - (void)keyUp:(NSEvent *)event {
-  hod::MacOsWindowEventCaller::EmitKeyReleased(
-      window, hod::MacOSKeyCodeToScanCode([event keyCode]));
+  hod::MacOsWindowEventCaller::EmitKeyReleased(window, [event keyCode]);
+}
+
+// Modifier keys (Shift/Control/Option/Command) never generate keyDown:/
+// keyUp: on macOS, only flagsChanged:; without this, Key::Ctrl/Shift/Alt/
+// Super are never reported, so Cmd/Ctrl-based shortcuts never see their
+// modifier as held.
+- (void)flagsChanged:(NSEvent *)event {
+  NSEventModifierFlags newFlags = [event modifierFlags];
+  NSEventModifierFlags changed = newFlags ^ previousModifierFlags;
+  previousModifierFlags = newFlags;
+
+  NSEventModifierFlags relevant = changed & (NSEventModifierFlagShift |
+                                              NSEventModifierFlagControl |
+                                              NSEventModifierFlagOption |
+                                              NSEventModifierFlagCommand |
+                                              NSEventModifierFlagCapsLock);
+  if (relevant == 0) {
+    return;
+  }
+
+  BOOL pressed = (newFlags & relevant) != 0;
+
+  if (pressed) {
+    hod::MacOsWindowEventCaller::EmitKeyPressed(window, [event keyCode]);
+  } else {
+    hod::MacOsWindowEventCaller::EmitKeyReleased(window, [event keyCode]);
+  }
+}
+
+- (void)doCommandBySelector:(SEL)selector {
+  // Swallow editing commands (moveLeft:, deleteBackward:, insertNewline:,
+  // ...) that interpretKeyEvents: may synthesize; scan codes already cover
+  // them via EmitKeyPressed, and leaving this unhandled would make AppKit
+  // beep.
+}
+
+#pragma mark - NSTextInputClient
+
+- (void)insertText:(id)string replacementRange:(NSRange)replacementRange {
+  NSString *characters = [string isKindOfClass:[NSAttributedString class]]
+                              ? [(NSAttributedString *)string string]
+                              : (NSString *)string;
+
+  NSUInteger length = [characters length];
+  for (NSUInteger i = 0; i < length; ++i) {
+    unichar c = [characters characterAtIndex:i];
+    if (c >= 0xF700 && c <= 0xF8FF) {
+      continue;
+    }
+    hod::MacOsWindowEventCaller::EmitChar(window, static_cast<char>(c));
+  }
+}
+
+- (BOOL)hasMarkedText {
+  return [markedText length] > 0;
+}
+
+- (NSRange)markedRange {
+  if ([markedText length] > 0) {
+    return NSMakeRange(0, [markedText length]);
+  }
+  return kEmptyRange;
+}
+
+- (NSRange)selectedRange {
+  return kEmptyRange;
+}
+
+- (void)setMarkedText:(id)string
+        selectedRange:(NSRange)selectedRange
+     replacementRange:(NSRange)replacementRange {
+  if ([string isKindOfClass:[NSAttributedString class]]) {
+    markedText = [[NSMutableAttributedString alloc] initWithAttributedString:string];
+  } else {
+    markedText = [[NSMutableAttributedString alloc] initWithString:string];
+  }
+}
+
+- (void)unmarkText {
+  [[markedText mutableString] setString:@""];
+}
+
+- (NSArray<NSAttributedStringKey> *)validAttributesForMarkedText {
+  return @[];
+}
+
+- (NSAttributedString *)attributedSubstringForProposedRange:(NSRange)range
+                                                  actualRange:(NSRangePointer)actualRange {
+  return nil;
+}
+
+- (NSUInteger)characterIndexForPoint:(NSPoint)point {
+  return 0;
+}
+
+- (NSRect)firstRectForCharacterRange:(NSRange)range
+                          actualRange:(NSRangePointer)actualRange {
+  // No inline composition UI: park the candidate window at the view's
+  // origin rather than tracking the caret.
+  NSRect frame = self.frame;
+  return [self.window convertRectToScreen:frame];
 }
 
 - (void)mouseDown:(NSEvent *)event {
@@ -121,8 +248,8 @@
   // larger than the "line" deltas from a physical mouse wheel; scale them
   // down so both devices produce comparable scroll amounts.
   if ([event hasPreciseScrollingDeltas]) {
-    deltaX *= 0.1;
-    deltaY *= 0.1;
+    deltaX *= 0.01;
+    deltaY *= 0.01;
   }
 
   if (deltaY != 0.0) {

@@ -4,7 +4,7 @@
 namespace hod::inline window
 {
 	// Mapping Apple keyCode → ScanCode enum (USB HID)
-	// Source: NSEvent keyCode table / USB HID Usage tables
+	// Source: Carbon HIToolbox/Events.h kVK_* constants
 	ScanCode AppleToHID[128] = {
 		// 0x00 – 0x0F
 		ScanCode::A,               // 00
@@ -17,7 +17,7 @@ namespace hod::inline window
 		ScanCode::X,               // 07
 		ScanCode::C,               // 08
 		ScanCode::V,               // 09
-		ScanCode::None,            // 0A (ANSI_Section §)
+		ScanCode::None,            // 0A (ISO_Section §)
 		ScanCode::B,               // 0B
 		ScanCode::Q,               // 0C
 		ScanCode::W,               // 0D
@@ -64,7 +64,7 @@ namespace hod::inline window
 		ScanCode::Tab,             // 30
 		ScanCode::Space,           // 31
 		ScanCode::Grave,           // 32
-		ScanCode::Backspace,       // 33 (Delete)
+		ScanCode::Backspace,       // 33 (Delete/backward delete)
 		ScanCode::None,            // 34
 		ScanCode::Escape,          // 35
 		ScanCode::RightCommand,    // 36
@@ -76,78 +76,79 @@ namespace hod::inline window
 		ScanCode::RightShift,      // 3C
 		ScanCode::RightAlt,        // 3D
 		ScanCode::RightCtrl,       // 3E
-		ScanCode::None,            // 3F
+		ScanCode::None,            // 3F (Function/Fn, no HID equivalent)
 
 		// 0x40 – 0x4F
-		ScanCode::None,            // 40
-		ScanCode::None,            // 41
+		ScanCode::None,            // 40 (F17, no ScanCode slot)
+		ScanCode::NumPadPeriod,    // 41 (KeypadDecimal)
 		ScanCode::None,            // 42
-		ScanCode::None,            // 43
+		ScanCode::NumPadMultiply,  // 43 (KeypadMultiply)
 		ScanCode::None,            // 44
-		ScanCode::None,            // 45
+		ScanCode::NumPadPlus,      // 45 (KeypadPlus)
 		ScanCode::None,            // 46
-		ScanCode::None,            // 47
-		ScanCode::NumPadDivide,    // 48
-		ScanCode::NumPadMultiply,  // 49
-		ScanCode::NumPadMinus,     // 4A
-		ScanCode::NumPadPlus,      // 4B
-		ScanCode::NumPadEnter,     // 4C
-		ScanCode::NumPad1,         // 4D
-		ScanCode::NumPad2,         // 4E
-		ScanCode::NumPad3,         // 4F
+		ScanCode::NumLock,         // 47 (KeypadClear)
+		ScanCode::None,            // 48 (VolumeUp, no ScanCode slot)
+		ScanCode::None,            // 49 (VolumeDown, no ScanCode slot)
+		ScanCode::None,            // 4A (Mute, no ScanCode slot)
+		ScanCode::NumPadDivide,    // 4B (KeypadDivide)
+		ScanCode::NumPadEnter,     // 4C (KeypadEnter)
+		ScanCode::None,            // 4D
+		ScanCode::NumPadMinus,     // 4E (KeypadMinus)
+		ScanCode::None,            // 4F (F18, no ScanCode slot)
 
 		// 0x50 – 0x5F
-		ScanCode::NumPad4,         // 50
-		ScanCode::NumPad5,         // 51
-		ScanCode::NumPad6,         // 52
-		ScanCode::NumPad7,         // 53
-		ScanCode::None,            // 54
-		ScanCode::NumPad8,         // 55
-		ScanCode::NumPad9,         // 56
-		ScanCode::None,            // 57
-		ScanCode::F5,              // 58
-		ScanCode::F6,              // 59
-		ScanCode::F7,              // 5A
-		ScanCode::F3,              // 5B
-		ScanCode::F8,              // 5C
-		ScanCode::F9,              // 5D
-		ScanCode::None,            // 5E
-		ScanCode::F11,             // 5F
+		ScanCode::None,            // 50 (F19, no ScanCode slot)
+		ScanCode::None,            // 51 (KeypadEquals, no ScanCode slot)
+		ScanCode::NumPad0,         // 52
+		ScanCode::NumPad1,         // 53
+		ScanCode::NumPad2,         // 54
+		ScanCode::NumPad3,         // 55
+		ScanCode::NumPad4,         // 56
+		ScanCode::NumPad5,         // 57
+		ScanCode::NumPad6,         // 58
+		ScanCode::NumPad7,         // 59
+		ScanCode::None,            // 5A (F20, no ScanCode slot)
+		ScanCode::NumPad8,         // 5B
+		ScanCode::NumPad9,         // 5C
+		ScanCode::None,            // 5D (JIS Yen)
+		ScanCode::None,            // 5E (JIS Underscore)
+		ScanCode::None,            // 5F (JIS KeypadComma)
 
 		// 0x60 – 0x6F
-		ScanCode::None,            // 60
-		ScanCode::None,            // 61
-		ScanCode::None,            // 62
-		ScanCode::None,            // 63
-		ScanCode::None,            // 64
-		ScanCode::F10,             // 65
-		ScanCode::None,            // 66
-		ScanCode::F12,             // 67
-		ScanCode::None,            // 68
-		ScanCode::None,            // 69
-		ScanCode::Insert,          // 6A (Help)
-		ScanCode::Home,            // 6B
-		ScanCode::PageUp,          // 6C
-		ScanCode::Delete,          // 6D (Forward delete)
-		ScanCode::F4,              // 6E
-		ScanCode::End,             // 6F
+		ScanCode::F5,              // 60
+		ScanCode::F6,              // 61
+		ScanCode::F7,              // 62
+		ScanCode::F3,              // 63
+		ScanCode::F8,              // 64
+		ScanCode::F9,              // 65
+		ScanCode::None,            // 66 (JIS Eisu)
+		ScanCode::F11,             // 67
+		ScanCode::None,            // 68 (JIS Kana)
+		ScanCode::None,            // 69 (F13, no ScanCode slot)
+		ScanCode::None,            // 6A (F16, no ScanCode slot)
+		ScanCode::None,            // 6B (F14, no ScanCode slot)
+		ScanCode::None,            // 6C
+		ScanCode::F10,             // 6D
+		ScanCode::None,            // 6E
+		ScanCode::F12,             // 6F
 
 		// 0x70 – 0x7F
-		ScanCode::F2,              // 70
-		ScanCode::PageDown,        // 71
-		ScanCode::F1,              // 72
-		ScanCode::Left,            // 73
-		ScanCode::Right,           // 74
-		ScanCode::Down,            // 75
-		ScanCode::Up,              // 76
-		ScanCode::None,            // 77-7F
-		ScanCode::None,
-		ScanCode::None,
-		ScanCode::None,
-		ScanCode::None,
-		ScanCode::None,
-		ScanCode::None,
-		ScanCode::None
+		ScanCode::None,            // 70
+		ScanCode::None,            // 71 (F15, no ScanCode slot)
+		ScanCode::Insert,          // 72 (Help)
+		ScanCode::Home,            // 73
+		ScanCode::PageUp,          // 74
+		ScanCode::Delete,          // 75 (Forward delete)
+		ScanCode::F4,              // 76
+		ScanCode::End,             // 77
+		ScanCode::F2,              // 78
+		ScanCode::PageDown,        // 79
+		ScanCode::F1,              // 7A
+		ScanCode::Left,            // 7B
+		ScanCode::Right,           // 7C
+		ScanCode::Down,            // 7D
+		ScanCode::Up,              // 7E
+		ScanCode::None,            // 7F
 	};
 
 	ScanCode MacOSKeyCodeToScanCode(uint16_t keyCode)
