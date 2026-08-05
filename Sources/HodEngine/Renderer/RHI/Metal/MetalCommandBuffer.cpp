@@ -34,7 +34,7 @@ namespace hod::inline renderer
 		MTL4::ArgumentTableDescriptor* argumentTableDescriptor = MTL4::ArgumentTableDescriptor::alloc()->init();
 		argumentTableDescriptor->setMaxBufferBindCount(31);
 		argumentTableDescriptor->setMaxTextureBindCount(31);
-		argumentTableDescriptor->setMaxSamplerStateBindCount(31);
+		argumentTableDescriptor->setMaxSamplerStateBindCount(16);
 		NS::Error*                     error = nullptr;
 		_vertexArgumentTable = device->newArgumentTable(argumentTableDescriptor, &error);
 		_fragmentArgumentTable = device->newArgumentTable(argumentTableDescriptor, &error);
@@ -250,12 +250,11 @@ namespace hod::inline renderer
 	/// @param vertexOffset
 	void MetalCommandBuffer::DrawIndexed(uint32_t indexCount, uint32_t indexOffset, uint32_t vertexOffset)
 	{
-		(void)vertexOffset; // TODO
 		// TODO primitive type from Material ?
 		MTL::GPUAddress indexBufferAddress =
 			_indexBuffer->GetNativeBuffer()->gpuAddress() + indexOffset * sizeof(uint16_t) + _indexBufferOffset;
 		_renderCommandEncoder->drawIndexedPrimitives(MTL::PrimitiveTypeTriangle, indexCount, MTL::IndexTypeUInt16, indexBufferAddress,
-														indexCount * sizeof(uint16_t), 1);
+														indexCount * sizeof(uint16_t), 1, static_cast<NS::Integer>(vertexOffset), 0);
 	}
 
 	/// @brief
