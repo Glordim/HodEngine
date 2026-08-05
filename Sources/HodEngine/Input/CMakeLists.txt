@@ -39,6 +39,14 @@ target_link_libraries(Input
 	PUBLIC Core Math Window GameSystems
 )
 
+if(APPLE)
+	# Each .mm file auto-links libobjc via an embedded linker directive;
+	# with several .mm files in this target, Xcode's linker sees "-lobjc"
+	# more than once and warns. CMP0156 doesn't cover this (it only
+	# de-duplicates libraries CMake itself puts on the link line).
+	target_link_options(Input PRIVATE "-Wl,-no_warn_duplicate_libraries")
+endif()
+
 target_compile_definitions(Input PUBLIC ${HOD_PLATFORM_DEFINE})
 if(NOT BUILD_SHARED_LIBS)
 	target_compile_definitions(Input PUBLIC HOD_INPUT_STATIC)

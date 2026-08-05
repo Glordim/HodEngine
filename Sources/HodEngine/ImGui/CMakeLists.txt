@@ -7,7 +7,7 @@ else()
 	project(ImGui LANGUAGES CXX)
 endif()
 
-CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES "imgui_impl_.*\\.(cpp|mm)$")
 
 file(GLOB_RECURSE ShaderSources "${PROJECT_SOURCE_DIR}/Shader/*.slang")
 

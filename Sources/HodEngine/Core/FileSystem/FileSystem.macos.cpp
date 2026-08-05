@@ -209,8 +209,8 @@ namespace hod::inline core
 		if (!cleaned.Empty() && cleaned.Back() == '/')
 			cleaned.PopBack();
 
-		size_t pos = cleaned.FindR('/');
-		if (pos != std::string::npos)
+		uint32_t pos = cleaned.FindR('/');
+		if (pos != String::Npos)
 		{
 			String parent = cleaned.SubStr(0, pos);
 			if (!parent.Empty() && !CreateDirectories(parent.CStr()))

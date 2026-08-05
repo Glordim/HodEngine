@@ -904,7 +904,7 @@ namespace hod::inline core
 	template<typename __TYPE__>
 	typename Vector<__TYPE__>::Iterator Vector<__TYPE__>::Insert(ConstIterator iterator, const __TYPE__& value)
 	{
-		uint32_t index = iterator._ptr - _elements;
+		uint32_t index = (uint32_t)(iterator._ptr - _elements);
 		Insert(index, value);
 		return Begin() + index;
 	}

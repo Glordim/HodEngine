@@ -76,6 +76,14 @@ elseif(API STREQUAL D3D12)
 	target_compile_options(Renderer PRIVATE /clang:-Wno-language-extension-token)
 endif()
 
+if(APPLE)
+	# Each .mm file auto-links libobjc via an embedded linker directive;
+	# with several .mm files in this target, Xcode's linker sees "-lobjc"
+	# more than once and warns. CMP0156 doesn't cover this (it only
+	# de-duplicates libraries CMake itself puts on the link line).
+	target_link_options(Renderer PRIVATE "-Wl,-no_warn_duplicate_libraries")
+endif()
+
 if (RENDERER_ENABLE_VALIDATION_LAYER)
 	target_compile_definitions(Renderer PRIVATE RENDERER_ENABLE_VALIDATION_LAYER)
 	if(API STREQUAL Vulkan)

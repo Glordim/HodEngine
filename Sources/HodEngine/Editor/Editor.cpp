@@ -1100,7 +1100,7 @@ namespace hod::inline editor
 		else if (result.size() > 1)
 		{
 			Vector<Path> sourceFilePaths;
-			sourceFilePaths.Reserve(dialog.result().size());
+			sourceFilePaths.Reserve((uint32_t)dialog.result().size());
 			for (const auto& result : dialog.result())
 			{
 				sourceFilePaths.PushBack(result.c_str());

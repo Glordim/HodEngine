@@ -140,7 +140,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetInt8());
 				assert(result.ec == std::errc());
-				stream.Write(buffer, result.ptr - buffer);
+				stream.Write(buffer, (uint32_t)(result.ptr - buffer));
 			}
 			break;
 
@@ -149,7 +149,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetInt16());
 				assert(result.ec == std::errc());
-				stream.Write(buffer, result.ptr - buffer);
+				stream.Write(buffer, (uint32_t)(result.ptr - buffer));
 			}
 			break;
 
@@ -158,7 +158,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetInt32());
 				assert(result.ec == std::errc());
-				stream.Write(buffer, result.ptr - buffer);
+				stream.Write(buffer, (uint32_t)(result.ptr - buffer));
 			}
 			break;
 
@@ -167,7 +167,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetInt64());
 				assert(result.ec == std::errc());
-				stream.Write(buffer, result.ptr - buffer);
+				stream.Write(buffer, (uint32_t)(result.ptr - buffer));
 			}
 			break;
 
@@ -176,7 +176,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetUInt8());
 				assert(result.ec == std::errc());
-				stream.Write(buffer, result.ptr - buffer);
+				stream.Write(buffer, (uint32_t)(result.ptr - buffer));
 			}
 			break;
 
@@ -185,7 +185,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetUInt16());
 				assert(result.ec == std::errc());
-				stream.Write(buffer, result.ptr - buffer);
+				stream.Write(buffer, (uint32_t)(result.ptr - buffer));
 			}
 			break;
 
@@ -194,7 +194,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetUInt32());
 				assert(result.ec == std::errc());
-				stream.Write(buffer, result.ptr - buffer);
+				stream.Write(buffer, (uint32_t)(result.ptr - buffer));
 			}
 			break;
 
@@ -203,7 +203,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetUInt64());
 				assert(result.ec == std::errc());
-				stream.Write(buffer, result.ptr - buffer);
+				stream.Write(buffer, (uint32_t)(result.ptr - buffer));
 			}
 			break;
 
@@ -212,7 +212,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetFloat32(), std::chars_format::scientific);
 				assert(result.ec == std::errc());
-				stream.Write(buffer, result.ptr - buffer);
+				stream.Write(buffer, (uint32_t)(result.ptr - buffer));
 			}
 			break;
 
@@ -221,7 +221,7 @@ namespace hod::inline core
 				char                 buffer[256];
 				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetFloat64(), std::chars_format::scientific);
 				assert(result.ec == std::errc());
-				stream.Write(buffer, result.ptr - buffer);
+				stream.Write(buffer, (uint32_t)(result.ptr - buffer));
 			}
 			break;
 
@@ -249,7 +249,7 @@ namespace hod::inline core
 							default: assert(false); break;
 						}
 						size_t offset = pos - escapedValue.CStr();
-						escapedValue.Insert(offset, "\\");
+						escapedValue.Insert((uint32_t)offset, "\\");
 						pos = std::strpbrk(escapedValue.CStr() + offset + 2, "\t\n\r\f\b\"\\");
 					}
 					stream.Write(escapedValue.CStr(), escapedValue.Size());

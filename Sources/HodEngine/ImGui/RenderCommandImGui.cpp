@@ -49,7 +49,7 @@ namespace hod::inline imgui
 
 		Renderer* renderer = Renderer::GetInstance();
 
-		for (size_t drawListIndex = 0; drawListIndex < _drawLists.Size(); ++drawListIndex)
+		for (uint32_t drawListIndex = 0; drawListIndex < _drawLists.Size(); ++drawListIndex)
 		{
 			DrawList* drawList = _drawLists[drawListIndex];
 
@@ -88,7 +88,7 @@ namespace hod::inline imgui
 			constant._translate.SetY(-1.0f - drawList->_displayPosition.GetY() * constant._scale.GetY());
 			commandBuffer->SetConstant(&constant, sizeof(constant), Shader::ShaderType::Vertex);
 
-			for (size_t commandIndex = 0; commandIndex < drawList->_commands.Size(); ++commandIndex)
+			for (uint32_t commandIndex = 0; commandIndex < drawList->_commands.Size(); ++commandIndex)
 			{
 				Command& command = drawList->_commands[commandIndex];
 
