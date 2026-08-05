@@ -101,7 +101,7 @@ namespace hod::inline editor
 			String content(contentIn);
 
 			constexpr std::string_view projectNameTag = "[[PROJECT_NAME]]";
-			size_t                     replaceIndex = content.Find(projectNameTag);
+			uint32_t                     replaceIndex = content.Find(projectNameTag);
 			while (replaceIndex != String::Npos)
 			{
 				content.Replace(replaceIndex, projectNameTag.size(), projectName);

@@ -1576,7 +1576,8 @@ namespace hod::inline core
 		}
 
 		std::string_view data(*this);
-		return data.find_first_of(string, position);
+		size_t index = data.find_first_of(string, position);
+		return index == std::string_view::npos ? String::Npos : (uint32_t)index;
 	}
 
 	uint32_t String::FindLastOf(const std::string_view& string, uint32_t position) const
@@ -1587,7 +1588,8 @@ namespace hod::inline core
 		}
 
 		std::string_view data(*this);
-		return data.find_last_of(string, position);
+		size_t index = data.find_last_of(string, position);
+		return index == std::string_view::npos ? String::Npos : (uint32_t)index;
 	}
 
 	/// @brief

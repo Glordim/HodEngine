@@ -51,8 +51,8 @@ namespace hod::inline renderer
 
 		GpuDevice* bestDevice = nullptr;
 
-		size_t deviceCount = availableDevices.Size();
-		for (size_t i = 0; i < deviceCount; ++i)
+		uint32_t deviceCount = availableDevices.Size();
+		for (uint32_t i = 0; i < deviceCount; ++i)
 		{
 			GpuDevice* device = availableDevices[i];
 

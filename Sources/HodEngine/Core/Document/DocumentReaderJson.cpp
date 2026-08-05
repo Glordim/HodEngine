@@ -231,10 +231,10 @@ namespace hod::inline core
 			_cursor = valueEnd;
 			++_cursor;
 
-			String value(valueStart, valueEnd - valueStart);
+			String value(valueStart, static_cast<uint32_t>(valueEnd - valueStart));
 
-			std::size_t offset = 0;
-			std::size_t index = value.Find("\\t", offset);
+			uint32_t offset = 0;
+			uint32_t index = value.Find("\\t", offset);
 			while (index != String::Npos)
 			{
 				offset = index + 1;

@@ -242,7 +242,7 @@ namespace hod::inline core
 	{
 		const ReflectionDescriptor* finalReflectionDescriptor = &reflectionDescriptor;
 
-		String propertyPath(path.data(), path.size());
+		String propertyPath(path.data(), (uint32_t)path.size());
 		char*  next = std::strpbrk((char*)propertyPath.CStr(), ".");
 		while (next != nullptr)
 		{

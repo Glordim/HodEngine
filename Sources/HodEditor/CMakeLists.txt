@@ -22,6 +22,7 @@ if (APPLE)
 		MACOSX_BUNDLE_ICON_FILE icon.icns
 		MACOSX_BUNDLE_GUI_IDENTIFIER "com.hodengine.hodeditor"
 		MACOSX_BUNDLE_BUNDLE_NAME "HodEditor"
+		XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.hodengine.hodeditor"
 	)
 endif()
 

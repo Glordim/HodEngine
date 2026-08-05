@@ -155,7 +155,7 @@ namespace hod::inline editor
 		for (uint32_t i = 0; i < dataBlockCount; ++i)
 		{
 			_internalDataBlockStream[i].Open(path);
-			_internalDataBlockStream[i].SetRange(dataBlockLocation[i].position, dataBlockLocation[i].size);
+			_internalDataBlockStream[i].SetRange((uint32_t)dataBlockLocation[i].position, dataBlockLocation[i].size);
 
 			_dataBlocks[i]._hashName = dataBlockLocation[i].hashName;
 			_dataBlocks[i]._compressed = dataBlockLocation[i].compressed;

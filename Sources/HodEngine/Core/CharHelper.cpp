@@ -5,7 +5,7 @@ namespace hod::inline core
 	String GenerateDisplayName(const std::string_view& name)
 	{
 		String displayName;
-		displayName.Reserve(name.size());
+		displayName.Reserve((uint32_t)name.size());
 
 		bool nextWord = true;
 		for (char c : name)

@@ -202,7 +202,7 @@ namespace hod::inline editor
 				*/
 				// bool opened = ImGui::CollapsingHeader(componentLock->GetRttiTypeName(), ImGuiTreeNodeFlags_DefaultOpen);
 
-				ImGui::PushID(component->GetReflectionDescriptorV().GetType());
+				ImGui::PushID((const void*)(uintptr_t)component->GetReflectionDescriptorV().GetType());
 				if (ImGui::BeginChild("Component", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_Borders))
 				{
 					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
