@@ -1,6 +1,6 @@
 #include "CocoaDisplayManager.hpp"
 #include "HodEngine/Window/Pch.hpp"
-
+#include "HodEngine/Window/Window.hpp"
 
 #include <Cocoa/Cocoa.h>
 
@@ -10,20 +10,22 @@ void CocoaDisplayManager::CocoaInit() {
   [NSApp finishLaunching];
 }
 
-bool CocoaDisplayManager::Run() {
+void CocoaDisplayManager::Update()
+{
   @autoreleasepool {
-    while (true) {
       NSEvent *event;
       while ((event = [NSApp nextEventMatchingMask:NSEventMaskAny
-                                         untilDate:[NSDate distantFuture]
+                                         untilDate:[NSDate distantPast]
                                             inMode:NSDefaultRunLoopMode
                                            dequeue:YES])) {
         [NSApp sendEvent:event];
         [NSApp updateWindows];
       }
-    }
   }
 
-  return true;
+  for (Window* window : _windows)
+  {
+    window->Update();
+  }
 }
 }

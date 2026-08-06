@@ -334,10 +334,21 @@ MacOsWindow::MacOsWindow(bool hidden) : DesktopWindow() {
 MacOsWindow::~MacOsWindow() {}
 
 /// @brief
+void MacOsWindow::RunOnMainThread(std::function<void()> codeToRun) {
+  if ([NSThread isMainThread]) {
+    codeToRun();
+  } else {
+    dispatch_async(dispatch_get_main_queue(), ^{
+      codeToRun();
+    });
+  }
+}
+
+/// @brief
 /// @param width
 /// @param height
 void MacOsWindow::SetSize(uint16_t width, uint16_t height) {
-  dispatch_async(dispatch_get_main_queue(), ^{
+  RunOnMainThread([this, width, height]() {
     NSSize newSize = NSMakeSize(width, height);
     [_window setContentSize:newSize];
   });
@@ -345,14 +356,14 @@ void MacOsWindow::SetSize(uint16_t width, uint16_t height) {
 
 /// @brief
 void MacOsWindow::CenterToScreen() {
-  dispatch_async(dispatch_get_main_queue(), ^{
+  RunOnMainThread([this]() {
     [_window center];
   });
 }
 
 /// @brief
 void MacOsWindow::Maximize() {
-  dispatch_async(dispatch_get_main_queue(), ^{
+  RunOnMainThread([this]() {
     NSScreen *screen = [NSScreen mainScreen];
     NSRect screenRect = [screen frame];
     [_window setFrame:screenRect display:YES animate:YES];
@@ -361,11 +372,11 @@ void MacOsWindow::Maximize() {
 
 void MacOsWindow::SetVisible(bool visible) {
   if (visible == false) {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    RunOnMainThread([this]() {
       [_window orderOut:nil];
     });
   } else {
-    dispatch_async(dispatch_get_main_queue(), ^{
+    RunOnMainThread([this]() {
       [_window makeKeyAndOrderFront:nil];
     });
   }
@@ -387,7 +398,7 @@ void MacOsWindow::ResizeContext() {
 /// @param title
 void MacOsWindow::SetTitle(const char* title) {
   NSString *nsTitle = [NSString stringWithUTF8String:title];
-  dispatch_async(dispatch_get_main_queue(), ^{
+  RunOnMainThread([this, nsTitle]() {
     [_window setTitle:nsTitle];
   });
 }
@@ -395,7 +406,7 @@ void MacOsWindow::SetTitle(const char* title) {
 /// @brief
 /// @param decoration
 void MacOsWindow::SetDecoration(bool decoration) {
-  dispatch_async(dispatch_get_main_queue(), ^{
+  RunOnMainThread([this, decoration]() {
     if (decoration == false) {
       [_window setStyleMask:NSWindowStyleMaskBorderless];
     } else {
@@ -407,17 +418,30 @@ void MacOsWindow::SetDecoration(bool decoration) {
 
 /// @brief
 /// @param position
+// position is the content view's top-left, top-left origin, Y growing down
+// (matches the rest of the engine's Window lib, see MacOsWindow.mm:41, and
+// the content-view-local coordinates mouse events are reported in), while
+// AppKit's screen space is bottom-left origin, Y growing up: flip using the
+// primary screen's height (NSScreen.screens[0] is always anchored at (0, 0)).
+// Using the content rect rather than the full frame keeps this consistent
+// with ImGuiManager's mouse-pos-event math (window-local mouse pos + this
+// position), which would otherwise be off by the title bar height on
+// decorated windows.
 void MacOsWindow::SetPosition(const Vector2& position) {
-  NSPoint origin = NSMakePoint(position.GetX(), position.GetY());
-  dispatch_async(dispatch_get_main_queue(), ^{
-    [_window setFrameOrigin:origin];
+  RunOnMainThread([this, position]() {
+    NSRect contentRect = [_window contentRectForFrameRect:[_window frame]];
+    CGFloat screenHeight = [[[NSScreen screens] firstObject] frame].size.height;
+    contentRect.origin = NSMakePoint(position.GetX(), screenHeight - position.GetY() - contentRect.size.height);
+    NSRect newFrame = [_window frameRectForContentRect:contentRect];
+    [_window setFrameOrigin:newFrame.origin];
   });
 }
 
 /// @brief
 void MacOsWindow::UpdatePositionFromNative() {
-  NSRect frame = [_window frame];
-  _position.SetX(static_cast<float>(frame.origin.x));
-  _position.SetY(static_cast<float>(frame.origin.y));
+  NSRect contentRect = [_window contentRectForFrameRect:[_window frame]];
+  CGFloat screenHeight = [[[NSScreen screens] firstObject] frame].size.height;
+  _position.SetX(static_cast<float>(contentRect.origin.x));
+  _position.SetY(static_cast<float>(screenHeight - contentRect.origin.y - contentRect.size.height));
 }
 }

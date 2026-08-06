@@ -19,14 +19,6 @@ namespace hod::inline window
         return true;
     }
 
-    void CocoaDisplayManager::Update()
-    {
-        for (Window* window : _windows)
-		{
-			window->Update();
-		}
-    }
-
     /// @brief 
     void CocoaDisplayManager::Terminate()
     {
