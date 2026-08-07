@@ -9,6 +9,8 @@
 
 #include "HodEngine/Core/String.hpp"
 
+#include <functional>
+
 #ifdef __OBJC__
 @class NSView;
 @class NSWindow;
@@ -69,6 +71,10 @@ namespace hod::inline window
 		void								UpdatePositionFromNative();
 
 	private:
+
+		// Executes codeToRun on the main thread: inline if already on it,
+		// dispatched otherwise (AppKit calls must happen on the main thread).
+		void								RunOnMainThread(std::function<void()> codeToRun);
 
 		NSView*								_view = nullptr;
 		NSWindow*							_window = nullptr;
