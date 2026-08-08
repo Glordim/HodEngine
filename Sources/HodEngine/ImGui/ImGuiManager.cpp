@@ -328,11 +328,11 @@ namespace hod::inline imgui
 	{
 		DestroyAllWindow();
 
-		// ImGui::DestroyContext(); // todo
 		for (Texture* texure : _textures)
 		{
 			DefaultAllocator::GetInstance().Delete(texure);
 		}
+		ImGui::DestroyContext();
 
 		DefaultAllocator::GetInstance().Delete(_material);
 		DefaultAllocator::GetInstance().Delete(_vertexShader);
@@ -466,6 +466,7 @@ namespace hod::inline imgui
 		ImGui::GetIO().ConfigFlags |= ImGuiConfigFlags_DockingEnable | ImGuiConfigFlags_ViewportsEnable;
 
 		ImFontConfig icons_configRoboto;
+		icons_configRoboto.FontDataOwnedByAtlas = false; // Roboto_Regular_ttf is a static array, not heap-allocated, so ImGui must not free it
 		icons_configRoboto.SizePixels = 13.0f;
 		icons_configRoboto.OversampleH = 1;
 		icons_configRoboto.OversampleV = 1;
@@ -478,6 +479,7 @@ namespace hod::inline imgui
 
 		const ImWchar iconsRangesMDI[] = {ICON_MIN_MDI, ICON_MAX_MDI, 0};
 		ImFontConfig  icons_configMDI;
+		icons_configMDI.FontDataOwnedByAtlas = false; // MaterialDesignIcons_ttf is a static array, not heap-allocated, so ImGui must not free it
 		icons_configMDI.MergeMode = true;
 		icons_configMDI.PixelSnapH = true;
 		icons_configMDI.GlyphOffset.y = 2;
