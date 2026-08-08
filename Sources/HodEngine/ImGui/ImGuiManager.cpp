@@ -427,6 +427,19 @@ namespace hod::inline imgui
 	/// @brief
 	/// @param window
 	/// @return
+	namespace
+	{
+		void* ImGuiAlloc(size_t size, void* /*userData*/)
+		{
+			return DefaultAllocator::GetInstance().Allocate(static_cast<uint32_t>(size));
+		}
+
+		void ImGuiFree(void* ptr, void* /*userData*/)
+		{
+			DefaultAllocator::GetInstance().Free(ptr);
+		}
+	}
+
 	bool ImGuiManager::Init(window::Window* window)
 	{
 		if (CreateMaterial() == false)
@@ -435,6 +448,7 @@ namespace hod::inline imgui
 		}
 
 		IMGUI_CHECKVERSION();
+		ImGui::SetAllocatorFunctions(ImGuiAlloc, ImGuiFree);
 		ImGui::CreateContext();
 
 		// ImGui::StyleColorsDark();
