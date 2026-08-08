@@ -62,6 +62,7 @@ namespace hod::inline renderer
 		MTL4::CommandAllocator* GetCommandAllocator(uint32_t frameIndex) const;
 
 		void AddResourceToResidencySet(const MTL::Allocation* allocation);
+		void RemoveResourceFromResidencySet(const MTL::Allocation* allocation);
 
 	protected:
 		void FlushDeferredDeletions(uint32_t frameIndex) override;

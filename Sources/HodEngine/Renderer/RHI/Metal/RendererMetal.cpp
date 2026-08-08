@@ -218,6 +218,12 @@ namespace hod::inline renderer
 		_residencySet->commit();
 	}
 
+	void RendererMetal::RemoveResourceFromResidencySet(const MTL::Allocation* allocation)
+	{
+		_residencySet->removeAllocation(allocation);
+		_residencySet->commit();
+	}
+
 	void RendererMetal::FlushDeferredDeletions(uint32_t frameIndex)
 	{
 		_commandAllocators[frameIndex]->reset();

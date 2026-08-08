@@ -18,13 +18,15 @@ namespace hod::inline renderer
 
 	MetalBuffer::~MetalBuffer()
 	{
+		RendererMetal::GetInstance()->RemoveResourceFromResidencySet(_nativeBuffer);
 		_nativeBuffer->release();
 	}
 
 	bool MetalBuffer::Resize(uint32_t Size)
 	{
-		_nativeBuffer->release();
 		RendererMetal* rendererMetal = RendererMetal::GetInstance();
+		rendererMetal->RemoveResourceFromResidencySet(_nativeBuffer);
+		_nativeBuffer->release();
 		_nativeBuffer = rendererMetal->GetDevice()->newBuffer(Size, MTL::ResourceStorageModeShared);
 		rendererMetal->AddResourceToResidencySet(_nativeBuffer);
 		_size = Size;

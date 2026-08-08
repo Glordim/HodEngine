@@ -20,6 +20,7 @@ namespace hod::inline renderer
 	{
 		if (_texture != nullptr)
 		{
+			RendererMetal::GetInstance()->RemoveResourceFromResidencySet(_texture);
 			_texture->release();
 		}
 		
