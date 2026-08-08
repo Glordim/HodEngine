@@ -35,6 +35,7 @@ namespace hod::inline renderer
 	/// @return
 	bool RenderTarget::Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo) // todo Vector2 Size
 	{
+		Clear();
 		if (width == 0 || height == 0)
 		{
 			return false;
