@@ -24,6 +24,7 @@ if (APPLE)
 		MACOSX_BUNDLE_BUNDLE_NAME "HodEditor"
 		XCODE_ATTRIBUTE_PRODUCT_BUNDLE_IDENTIFIER "com.hodengine.hodeditor"
 	)
+	hod_enable_task_for_pid(HodEditor)
 endif()
 
 target_include_directories(HodEditor

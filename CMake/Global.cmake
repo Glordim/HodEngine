@@ -169,6 +169,23 @@ function(assign_source_group)
 	endforeach()
 endfunction(assign_source_group)
 
+# Ad-hoc code-sign a macOS target with the get-task-allow entitlement so
+# debuggers/profilers (lldb, Instruments) are allowed to attach to it.
+# Do NOT apply this to targets that get notarized/distributed.
+# Skipped under the Xcode generator: Xcode signs bundles itself as a native
+# build step (and already grants get-task-allow for Debug launches from
+# Xcode), and our POST_BUILD codesign would race with / be overwritten by it.
+function(hod_enable_task_for_pid target)
+	if(APPLE AND NOT CMAKE_GENERATOR STREQUAL "Xcode")
+		add_custom_command(TARGET ${target} POST_BUILD
+			COMMAND codesign -s - --entitlements "${CMAKE_SOURCE_DIR}/CMake/entitlements-debug.plist" -f
+				"$<IF:$<BOOL:$<TARGET_PROPERTY:${target},MACOSX_BUNDLE>>,$<TARGET_BUNDLE_DIR:${target}>,$<TARGET_FILE:${target}>>"
+			COMMENT "Ad-hoc signing ${target} with get-task-allow entitlement"
+			VERBATIM
+		)
+	endif()
+endfunction()
+
 function(add_force_load_libs target)
 	if (APPLE)
 		foreach(lib IN LISTS ARGN)
