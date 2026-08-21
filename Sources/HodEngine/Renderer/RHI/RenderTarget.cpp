@@ -44,11 +44,16 @@ namespace hod::inline renderer
 		_resolution.SetX((float)width);
 		_resolution.SetY((float)height);
 
-		uint32_t frameInFlight = Renderer::GetInstance()->GetFrameInFlightCount();
+		// Only textures readable back on the CPU (picking) need one instance per frame-in-flight,
+		// so that AcquireNextFrame's fence wait guarantees a completed, stall-free snapshot to read.
+		// Textures only ever produced and consumed by the GPU within the same frame are safe with a
+		// single instance: the layout transitions in PrepareForWrite/PrepareForRead already provide
+		// the cross-frame GPU synchronization on this render target's own queue.
+		uint32_t instanceCount = createInfo._allowReadWrite ? Renderer::GetInstance()->GetFrameInFlightCount() : 1;
 
-		_colorTextures.Resize(frameInFlight, nullptr);
-		_depthTextures.Resize(frameInFlight, nullptr);
-		for (uint32_t i = 0; i < frameInFlight; ++i)
+		_colorTextures.Resize(instanceCount, nullptr);
+		_depthTextures.Resize(instanceCount, nullptr);
+		for (uint32_t i = 0; i < instanceCount; ++i)
 		{
 			_colorTextures[i] = Renderer::GetInstance()->CreateTexture();
 			if (_colorTextures[i]->BuildColor(width, height, createInfo) == false)
@@ -90,7 +95,7 @@ namespace hod::inline renderer
 	{
 		if (_colorTextures.Empty() == false)
 		{
-			return _colorTextures[Renderer::GetInstance()->GetFrameIndex()];
+			return _colorTextures[Renderer::GetInstance()->GetFrameIndex() % _colorTextures.Size()];
 		}
 		return nullptr;
 	}
@@ -101,7 +106,7 @@ namespace hod::inline renderer
 	{
 		if (_depthTextures.Empty() == false)
 		{
-			return _depthTextures[Renderer::GetInstance()->GetFrameIndex()];
+			return _depthTextures[Renderer::GetInstance()->GetFrameIndex() % _depthTextures.Size()];
 		}
 		return nullptr;
 	}

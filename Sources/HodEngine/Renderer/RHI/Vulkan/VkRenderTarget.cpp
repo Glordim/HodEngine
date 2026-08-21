@@ -112,7 +112,8 @@ namespace hod::inline renderer
 			return false;
 		}
 
-		_frameBuffers.Resize(renderer->GetFrameInFlightCount(), VK_NULL_HANDLE);
+		// Mirrors RenderTarget::Init's instance count: one framebuffer per color/depth texture instance.
+		_frameBuffers.Resize(_colorTextures.Size(), VK_NULL_HANDLE);
 		for (uint32_t i = 0; i < _frameBuffers.Size(); ++i)
 		{
 			VkImageView attachmentImageViews[] = {
@@ -176,7 +177,7 @@ namespace hod::inline renderer
 	{
 		if (_frameBuffers.Empty() == false)
 		{
-			return _frameBuffers[Renderer::GetInstance()->GetFrameIndex()];
+			return _frameBuffers[Renderer::GetInstance()->GetFrameIndex() % _frameBuffers.Size()];
 		}
 		return VK_NULL_HANDLE;
 	}
