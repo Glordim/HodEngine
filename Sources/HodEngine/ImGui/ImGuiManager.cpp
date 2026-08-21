@@ -63,9 +63,13 @@ namespace hod::inline imgui
 
 	void ImGuiManager::PlatformDestroyWindow(ImGuiViewport* vp)
 	{
-		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
-		DesktopDisplayManager::GetInstance()->DestroyWindow(desktopWindow);
+		if (vp->ID != 0x11111111 /*IMGUI_VIEWPORT_DEFAULT_ID*/)
+		{
+			DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
+			DesktopDisplayManager::GetInstance()->DestroyWindow(desktopWindow);
+		}
 		vp->PlatformHandle = nullptr;
+		vp->PlatformUserData = nullptr;
 	}
 
 	void ImGuiManager::PlatformShowWindow(ImGuiViewport* vp)
@@ -151,6 +155,7 @@ namespace hod::inline imgui
 		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
 		(void)desktopWindow;
 		//Renderer::GetInstance()->DestroyPresentationSurface(desktopWindow);
+		vp->RendererUserData = nullptr;
 	}
 
 	void ImGuiManager::RendererSetWindowSize(ImGuiViewport* vp, ImVec2 size)
@@ -332,6 +337,7 @@ namespace hod::inline imgui
 		{
 			DefaultAllocator::GetInstance().Delete(texure);
 		}
+		ImGui::DestroyPlatformWindows();
 		ImGui::DestroyContext();
 
 		DefaultAllocator::GetInstance().Delete(_material);
