@@ -48,12 +48,12 @@ namespace hod::inline core
 
 	public:
 		String ToString() const;
-		bool   IsValid() const;
+		inline bool IsValid() const { return *this != INVALID_UID; }
 
-		bool Compare(const UID& other) const;
+		inline bool Compare(const UID& other) const { return _low == other._low && _high == other._high; }
 
-		uint64_t GetLow() const;
-		uint64_t GetHigh() const;
+		inline uint64_t GetLow() const { return _low; }
+		inline uint64_t GetHigh() const { return _high; }
 
 	public:
 		static UID GenerateUID();
@@ -64,5 +64,3 @@ namespace hod::inline core
 		uint64_t _high = 0;
 	};
 }
-
-#include "UID.inl"

@@ -54,6 +54,60 @@ namespace hod::inline core
 		                            std::string_view                                                                      overrideNodeName = std::string_view());
 		// static bool SerializeDiffObject(const ReflectionPropertyObject* property, const void* reference, const void* instance, DocumentNode& documentNode);
 	};
-}
 
-#include "Serializer.inl"
+	template<typename _InstanceType_>
+	bool Serializer::Serialize(const _InstanceType_& instance, DocumentNode& documentNode,
+	                           const std::function<bool(const void*, const ReflectionDescriptor&, DocumentNode&)>& customSerializationCallback)
+	{
+		if constexpr (std::is_pointer_v<_InstanceType_>)
+		{
+			return Serializer::Serialize(instance->GetReflectionDescriptorV(), static_cast<const void*>(instance), documentNode, customSerializationCallback);
+		}
+		else
+		{
+			return Serializer::Serialize(instance.GetReflectionDescriptorV(), static_cast<const void*>(&instance), documentNode, customSerializationCallback);
+		}
+	}
+
+	/*
+	template<typename _InstanceType_>
+	bool Serializer::SerializeDiff(const _InstanceType_& reference, const _InstanceType_& instance, DocumentNode& documentNode)
+	{
+	    if constexpr (std::is_pointer_v<_InstanceType_>)
+	    {
+	        return Serializer::Serialize(instance->GetReflectionDescriptorV(), static_cast<const void*>(instance), documentNode);
+	    }
+	    else
+	    {
+	        return Serializer::Serialize(instance.GetReflectionDescriptorV(), static_cast<const void*>(&instance), documentNode);
+	    }
+	}
+	*/
+
+	template<typename _InstanceType_>
+	bool Serializer::Deserialize(_InstanceType_& instance, const DocumentNode& documentNode,
+	                             const std::function<bool(void*, const ReflectionDescriptor&, const DocumentNode&)>& customDeserializationCallback)
+	{
+		if constexpr (std::is_pointer_v<_InstanceType_>)
+		{
+			return Serializer::Deserialize(instance->GetReflectionDescriptorV(), static_cast<void*>(instance), documentNode, customDeserializationCallback);
+		}
+		else
+		{
+			return Serializer::Deserialize(instance.GetReflectionDescriptorV(), static_cast<void*>(&instance), documentNode, customDeserializationCallback);
+		}
+	}
+
+	template<typename _InstanceType_>
+	bool Serializer::DeserializeWithPath(const std::string_view& path, _InstanceType_& instance, const DocumentNode& documentNode)
+	{
+		if constexpr (std::is_pointer_v<_InstanceType_>)
+		{
+			return Serializer::DeserializeWithPath(path, instance->GetReflectionDescriptorV(), static_cast<void*>(instance), documentNode);
+		}
+		else
+		{
+			return Serializer::DeserializeWithPath(path, instance.GetReflectionDescriptorV(), static_cast<void*>(&instance), documentNode);
+		}
+	}
+}
