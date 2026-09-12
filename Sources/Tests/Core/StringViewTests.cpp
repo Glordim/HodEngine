@@ -1,8 +1,11 @@
 #include <gtest/gtest.h>
 #include <HodEngine/Core/StringView.hpp>
 
+#include <HodEngine/Core/Hash.hpp>
+#include <HodEngine/Core/String.hpp>
+#include <HodEngine/Core/StringView.Fmt.hpp>
+
 #include <string_view>
-#include <unordered_map>
 
 class StringView : public ::testing::Test
 {
@@ -46,19 +49,15 @@ TEST_F(StringView, ConstructorFromString)
 	EXPECT_EQ(view, "hello");
 }
 
-TEST_F(StringView, ConstructorFromStdStringView)
+TEST_F(StringView, InteropWithStdStringViewIsManual)
 {
+	// No conversion helper on purpose: build a std::string_view yourself at the call site when actually needed.
 	std::string_view stdView("hello");
-	hod::StringView  view(stdView);
-	EXPECT_EQ(view.Size(), 5);
+	hod::StringView  view(stdView.data(), static_cast<uint32_t>(stdView.size()));
 	EXPECT_EQ(view, "hello");
-}
 
-TEST_F(StringView, ConvertsToStdStringView)
-{
-	hod::StringView   view("hello");
-	std::string_view  stdView = view;
-	EXPECT_EQ(stdView, "hello");
+	std::string_view backToStd(view.Data(), view.Size());
+	EXPECT_EQ(backToStd, "hello");
 }
 
 TEST_F(StringView, CopyIsShallow)
@@ -259,7 +258,7 @@ TEST_F(StringView, Contains)
 }
 
 // ============================================================================
-// Comparison operators (also exercise implicit conversion from const char*, String, std::string_view)
+// Comparison operators (also exercise implicit conversion from const char*, String)
 // ============================================================================
 
 TEST_F(StringView, EqualityWithCStr)
@@ -277,13 +276,6 @@ TEST_F(StringView, EqualityWithString)
 	EXPECT_TRUE(view == str);
 }
 
-TEST_F(StringView, EqualityWithStdStringView)
-{
-	hod::StringView   view("hello");
-	std::string_view stdView("hello");
-	EXPECT_TRUE(view == stdView);
-}
-
 TEST_F(StringView, Ordering)
 {
 	EXPECT_LT(hod::StringView("abc"), hod::StringView("abd"));
@@ -296,11 +288,11 @@ TEST_F(StringView, Ordering)
 // Hash / fmt / literal
 // ============================================================================
 
-TEST_F(StringView, Hashable)
+TEST_F(StringView, HashedExplicitlyByCaller)
 {
-	std::unordered_map<hod::StringView, int32_t> map;
-	map[hod::StringView("hello")] = 42;
-	EXPECT_EQ(map[hod::StringView("hello")], 42);
+	// StringView has no hasher of its own: hash it yourself with whatever the call site needs (here, the engine's Hash utility).
+	hod::StringView view("hello");
+	EXPECT_EQ(hod::Hash::ComputeXxh3_64(view.Data(), view.Size()), hod::Hash::ComputeXxh3_64("hello", 5));
 }
 
 TEST_F(StringView, FormatWithFmt)
