@@ -6,7 +6,11 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
+#include <HodEngine/UI2/AnchoredLayoutParams.hpp>
+#include <HodEngine/UI2/LayoutParams.hpp>
 #include <HodEngine/UI2/Node.hpp>
+
+#include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 
 #include <HodEngine/Math/Color.hpp>
 #include <HodEngine/Math/Matrix4.hpp>
@@ -148,19 +152,56 @@ namespace hod::inline editor
 		ImVec2 imagePos = ImGui::GetCursorScreenPos();
 		ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
 
+		// `view` here is the camera's world matrix (RenderView::SetupCamera inverts it internally),
+		// so unprojection is view * inverse(projection), not inverse(projection * view).
+		Matrix4 inverseProjection = Matrix4::Inverse(projection);
+		auto    screenToCanvas = [&](const ImVec2& screenPos) -> Vector2
+		{
+			float   ndcX = (2.0f * (screenPos.x - imagePos.x)) / resolutionWidth - 1.0f;
+			float   ndcY = 1.0f - (2.0f * (screenPos.y - imagePos.y)) / resolutionHeight;
+			Vector4 world = view * inverseProjection * Vector4(ndcX, ndcY, 0.0f, 1.0f);
+			return Vector2(world.GetX() / world.GetW(), world.GetY() / world.GetW());
+		};
+
 		if (hovered && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 		{
 			ImVec2 mouseImagePos = ImGui::GetIO().MousePos - imagePos;
 			if (mouseImagePos.x >= 0.0f && mouseImagePos.x < (float)resolutionWidth && mouseImagePos.y >= 0.0f && mouseImagePos.y < (float)resolutionHeight)
 			{
-				float   ndcX = (2.0f * mouseImagePos.x) / resolutionWidth - 1.0f;
-				float   ndcY = 1.0f - (2.0f * mouseImagePos.y) / resolutionHeight;
-				// `view` here is the camera's world matrix (RenderView::SetupCamera inverts it internally),
-				// so unprojection is view * inverse(projection), not inverse(projection * view).
-				Vector4 mouseWorld = view * Matrix4::Inverse(projection) * Vector4(ndcX, ndcY, 0.0f, 1.0f);
-				Vector2 mouseCanvasPos(mouseWorld.GetX() / mouseWorld.GetW(), mouseWorld.GetY() / mouseWorld.GetW());
-				tab->SetSelectedNode(PickNode(root, mouseCanvasPos));
+				tab->SetSelectedNode(PickNode(root, screenToCanvas(ImGui::GetIO().MousePos)));
 			}
+		}
+
+		if (ImGui::BeginDragDropTarget())
+		{
+			const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("UI2NodeLibraryDescriptor");
+			if (payload != nullptr)
+			{
+				ReflectionDescriptor* nodeDescriptor = *static_cast<ReflectionDescriptor**>(payload->Data);
+
+				ui2::Node* parent = tab->GetSelectedNode();
+				if (parent == nullptr)
+				{
+					parent = root;
+				}
+
+				Vector2 dropCanvasPos = screenToCanvas(ImGui::GetIO().MousePos);
+				Vector2 parentCanvasPos = parent->ComputeCanvasMatrix().GetTranslation();
+				// Parent rotation/scale ignored when converting to a local offset, same simplification as DrawNode/PickNode.
+				Vector2 localOffset = dropCanvasPos - parentCanvasPos;
+
+				ui2::Node*    newNode = nodeDescriptor->CreateInstance<ui2::Node>();
+				LayoutParams* layoutParams = parent->CreateDefaultLayoutParams();
+				if (AnchoredLayoutParams* anchoredLayoutParams = dynamic_cast<AnchoredLayoutParams*>(layoutParams))
+				{
+					anchoredLayoutParams->SetOffset(localOffset);
+				}
+				parent->AddChild(newNode, layoutParams);
+
+				tab->SetSelectedNode(newNode);
+				tab->MarkAsDirty();
+			}
+			ImGui::EndDragDropTarget();
 		}
 	}
 

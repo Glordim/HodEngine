@@ -2,6 +2,7 @@
 #include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
 #include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorHierarchyWindow.hpp"
 #include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorInspectorWindow.hpp"
+#include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorLibraryWindow.hpp"
 #include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorViewportWindow.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
@@ -71,6 +72,7 @@ namespace hod::inline editor
 	void UIPrefabEditorTab::CreateDefaultLayout()
 	{
 		UIPrefabEditorHierarchyWindow* hierarchyWindow = OpenWindow<UIPrefabEditorHierarchyWindow>();
+		UIPrefabEditorLibraryWindow*   libraryWindow = OpenWindow<UIPrefabEditorLibraryWindow>();
 		UIPrefabEditorInspectorWindow* inspectorWindow = OpenWindow<UIPrefabEditorInspectorWindow>();
 		UIPrefabEditorViewportWindow*  viewportWindow = OpenWindow<UIPrefabEditorViewportWindow>();
 
@@ -83,8 +85,10 @@ namespace hod::inline editor
 		ImGuiID opposite = _dockSpaceId;
 		ImGuiID dockLeft = ImGui::DockBuilderSplitNode(_dockSpaceId, ImGuiDir_Left, 0.2f, nullptr, &opposite);
 		ImGuiID dockRight = ImGui::DockBuilderSplitNode(opposite, ImGuiDir_Right, 0.25f, nullptr, &opposite);
+		ImGuiID dockLeftBottom = ImGui::DockBuilderSplitNode(dockLeft, ImGuiDir_Down, 0.35f, nullptr, &dockLeft);
 
 		ImGui::DockBuilderDockWindow(hierarchyWindow->GetIdentifier(), dockLeft);
+		ImGui::DockBuilderDockWindow(libraryWindow->GetIdentifier(), dockLeftBottom);
 		ImGui::DockBuilderDockWindow(inspectorWindow->GetIdentifier(), dockRight);
 		ImGui::DockBuilderDockWindow(viewportWindow->GetIdentifier(), opposite);
 		ImGui::DockBuilderFinish(_dockSpaceId);
