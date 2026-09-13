@@ -5,7 +5,7 @@
 
 namespace hod::inline ui2
 {
-	class Scene;
+	class Canvas;
 }
 
 namespace hod::inline game
@@ -30,7 +30,7 @@ namespace hod::inline game
 
 	private:
 
-		//WeakResource<UISceneResource>	_scene;
-		ui2::Scene* _scene;
+		//WeakResource<UIPrefabResource>	_canvas;
+		ui2::Canvas* _canvas;
 	};
 }

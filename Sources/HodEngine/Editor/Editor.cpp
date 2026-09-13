@@ -104,6 +104,10 @@
 #include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceCooker.hpp"
 #include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
 
+#include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
+#include "HodEngine/Editor/UIPrefabEditor/UIPrefabCooker.hpp"
+#include "HodEngine/UI2/UIPrefabResource.hpp"
+
 #include "HodEngine/Editor/TextureEditor/TextureEditorTab.hpp"
 #include "HodEngine/Editor/TextureEditor/TextureCooker.hpp"
 #include "HodEngine/Editor/TextureEditor/TextureImporter.hpp"
@@ -378,6 +382,10 @@ namespace hod::inline editor
 		AssetDatabase::GetInstance()->RegisterCooker<MaterialInstanceCooker>("MaterialInstance");
 		AssetDatabase::GetInstance()->RegisterResource<MaterialInstanceResource>("MaterialInstance");
 		RegisterEditorTab<MaterialInstanceEditorTab>("MaterialInstance");
+
+		AssetDatabase::GetInstance()->RegisterCooker<UIPrefabCooker>("UIPrefab");
+		AssetDatabase::GetInstance()->RegisterResource<UIPrefabResource>("UIPrefab");
+		RegisterEditorTab<UIPrefabEditorTab>("UIPrefab");
 
 		if (Project::GetInstance()->ReloadProjectModules() == false)
 		{

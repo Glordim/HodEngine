@@ -13,6 +13,9 @@
 
 #include "HodEngine/UI/Builtin.hpp"
 
+#include "HodEngine/UI2/Builtin.hpp"
+#include "HodEngine/UI2/LayoutParamsFactory.hpp"
+
 #include "HodEngine/Physics/Physics.hpp"
 
 #include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
@@ -98,8 +101,10 @@ namespace hod::inline application
 	{
 		ComponentFactory::CreateInstance();
 		DataStructFactory::CreateInstance();
+		ui2::LayoutParamsFactory::CreateInstance();
 		game::RegisterBuiltin();
 		ui::RegisterBuiltin();
+		ui2::RegisterBuiltin();
 		return true;
 	}
 
@@ -152,6 +157,7 @@ namespace hod::inline application
 
 		DataStructFactory::DestroyInstance();
 		ComponentFactory::DestroyInstance();
+		ui2::LayoutParamsFactory::DestroyInstance();
 		return true;
 	}
 

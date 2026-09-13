@@ -1,61 +1,65 @@
 #include "HodEngine/UI2/Pch.hpp"
+#include "HodEngine/Core/Assert.hpp"
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/UI2/Node.hpp"
+#include "HodEngine/UI2/LayoutParams.hpp"
+#include "HodEngine/UI2/AnchoredLayoutParams.hpp"
+#include "HodEngine/UI2/LayoutParamsFactory.hpp"
+
+#include <HodEngine/Core/Document/Document.hpp>
+#include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
+#include <HodEngine/Core/Serialization/Serializer.hpp>
 
 namespace hod::inline ui2
 {
 	DESCRIBE_REFLECTED_CLASS(Node, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &Node::_position, "Position", &Node::SetPosition);
 		AddPropertyT(reflectionDescriptor, &Node::_rotation, "Rotation", &Node::SetRotation);
 		AddPropertyT(reflectionDescriptor, &Node::_scale, "Scale", &Node::SetScale);
+		AddPropertyT(reflectionDescriptor, &Node::_origin, "Origin", &Node::SetOrigin);
 
-		AddPropertyT(reflectionDescriptor, &Node::_anchorMin, "AnchorMin", &Node::SetAnchorMin);
-		AddPropertyT(reflectionDescriptor, &Node::_anchorMax, "AnchorMax", &Node::SetAnchorMax);
-		AddPropertyT(reflectionDescriptor, &Node::_pivot, "Pivot", &Node::SetPivot);
-
-		AddPropertyT(reflectionDescriptor, &Node::_deltaSize, "DeltaSize", &Node::SetDeltaSize);
+		AddPropertyT(reflectionDescriptor, &Node::_desiredSize, "DesiredSize", &Node::SetDesiredSize);
 	}
 
 	Node::~Node()
 	{
 		for (Node* child : _children)
 		{
+			DefaultAllocator::GetInstance().Delete(child->_layoutParams);
 			DefaultAllocator::GetInstance().Delete(child);
 		}
 	}
 
-	void Node::AddChild(Node* node)
+	void Node::AddChild(Node* child)
 	{
-		_children.PushBack(node);
+		AddChild(child, CreateDefaultLayoutParams());
 	}
 
-	void Node::RemoveChild(Node* node)
+	void Node::AddChild(Node* child, LayoutParams* layoutParams)
 	{
-		auto it = std::find(_children.Begin(), _children.End(), node);
+		Assert(child != nullptr);
+		Assert(layoutParams != nullptr);
+
+		child->_parent = this;
+		child->_layoutParams = layoutParams;
+		layoutParams->_node = child;
+
+		_children.PushBack(child);
+
+		child->MarkSizeAsDirty();
+		child->MarkLocalMatrixAsDirty();
+	}
+
+	void Node::RemoveChild(Node* child)
+	{
+		auto it = std::find(_children.Begin(), _children.End(), child);
 		if (it != _children.End())
 		{
+			DefaultAllocator::GetInstance().Delete(child->_layoutParams);
+			child->_layoutParams = nullptr;
+			child->_parent = nullptr;
+
 			_children.Erase(it);
-		}
-	}
-
-	/// @brief
-	/// @return
-	const Vector2& Node::GetPosition() const
-	{
-		return _position;
-	}
-
-	/// @brief
-	/// @param position
-	void Node::SetPosition(const Vector2& position)
-	{
-		if (_position != position)
-		{
-			_position = position;
-			MarkLocalMatrixAsDirty();
-
-			_propertyChangedEvent.Emit();
 		}
 	}
 
@@ -101,19 +105,18 @@ namespace hod::inline ui2
 
 	/// @brief
 	/// @return
-	const Vector2& Node::GetAnchorMin() const
+	const Vector2& Node::GetOrigin() const
 	{
-		return _anchorMin;
+		return _origin;
 	}
 
 	/// @brief
-	/// @param anchorMin
-	void Node::SetAnchorMin(const Vector2& anchorMin)
+	/// @param origin
+	void Node::SetOrigin(const Vector2& origin)
 	{
-		if (_anchorMin != anchorMin)
+		if (_origin != origin)
 		{
-			_anchorMin = anchorMin;
-			MarkSizeAsDirty();
+			_origin = origin;
 			MarkLocalMatrixAsDirty();
 
 			_propertyChangedEvent.Emit();
@@ -122,59 +125,18 @@ namespace hod::inline ui2
 
 	/// @brief
 	/// @return
-	const Vector2& Node::GetAnchorMax() const
+	const Vector2& Node::GetDesiredSize() const
 	{
-		return _anchorMax;
+		return _desiredSize;
 	}
 
 	/// @brief
-	/// @param anchorMax
-	void Node::SetAnchorMax(const Vector2& anchorMax)
+	/// @param desiredSize
+	void Node::SetDesiredSize(const Vector2& desiredSize)
 	{
-		if (_anchorMax != anchorMax)
+		if (_desiredSize != desiredSize)
 		{
-			_anchorMax = anchorMax;
-			MarkSizeAsDirty();
-			MarkLocalMatrixAsDirty();
-
-			_propertyChangedEvent.Emit();
-		}
-	}
-
-	/// @brief
-	/// @return
-	const Vector2& Node::GetPivot() const
-	{
-		return _pivot;
-	}
-
-	/// @brief
-	/// @param pivot
-	void Node::SetPivot(const Vector2& pivot)
-	{
-		if (_pivot != pivot)
-		{
-			_pivot = pivot;
-			MarkLocalMatrixAsDirty();
-
-			_propertyChangedEvent.Emit();
-		}
-	}
-
-	/// @brief
-	/// @return
-	const Vector2& Node::GetDeltaSize() const
-	{
-		return _deltaSize;
-	}
-
-	/// @brief
-	/// @param deltaSize
-	void Node::SetDeltaSize(const Vector2& deltaSize)
-	{
-		if (_deltaSize != deltaSize)
-		{
-			_deltaSize = deltaSize;
+			_desiredSize = desiredSize;
 			MarkSizeAsDirty();
 
 			_propertyChangedEvent.Emit();
@@ -186,18 +148,13 @@ namespace hod::inline ui2
 	{
 		_dirtyFlags |= (uint8_t)DirtyFlag::Size;
 
-		Vector2 half(0.5f, 0.5f);
-
 		for (uint32_t childIndex = 0; childIndex < _children.Size(); ++childIndex)
 		{
 			Node* childNode = _children[childIndex];
-			if (childNode != nullptr)
+			if (childNode != nullptr && childNode->_layoutParams != nullptr && childNode->_layoutParams->DependsOnParentSize())
 			{
-				if (childNode->_anchorMin != half || childNode->_anchorMax != half || childNode->_pivot != half)
-				{
-					childNode->MarkSizeAsDirty();
-					childNode->MarkLocalMatrixAsDirty();
-				}
+				childNode->MarkSizeAsDirty();
+				childNode->MarkLocalMatrixAsDirty();
 			}
 		}
 	}
@@ -248,23 +205,21 @@ namespace hod::inline ui2
 
 	/// @brief
 	/// @return
-	void Node::ComputeSize(Node* pParent, Vector2& rSize)
+	void Node::ComputeSize(Node* parent, Vector2& size) const
 	{
-		Vector2 deltaAnchor = _anchorMax - _anchorMin;
-
-		if (deltaAnchor != Vector2::Zero)
+		if (_layoutParams != nullptr)
 		{
-			Vector2 vParentSize = Vector2::Zero;
-			if (pParent != nullptr)
+			Vector2 parentSize = Vector2::Zero;
+			if (parent != nullptr)
 			{
-				vParentSize = pParent->ComputeSize();
+				parentSize = parent->ComputeSize();
 			}
 
-			rSize = (vParentSize * deltaAnchor) + _deltaSize;
+			size = _layoutParams->ComputeSize(parentSize, _desiredSize);
 		}
 		else
 		{
-			rSize = _deltaSize;
+			size = _desiredSize;
 		}
 	}
 
@@ -285,25 +240,21 @@ namespace hod::inline ui2
 
 	/// @brief
 	/// @return
-	void Node::ComputeLocalMatrix(Node* parent, const Vector2& Size, Matrix4& localMatrix) const
+	void Node::ComputeLocalMatrix(Node* parent, const Vector2& size, Matrix4& localMatrix) const
 	{
-		Vector2 position(0.0f, 0.0f);
-
-		Vector2 parentSize = Vector2::Zero;
-		if (parent != nullptr)
+		Vector2 position = Vector2::Zero;
+		if (_layoutParams != nullptr)
 		{
-			parentSize = parent->ComputeSize();
+			Vector2 parentSize = Vector2::Zero;
+			if (parent != nullptr)
+			{
+				parentSize = parent->ComputeSize();
+			}
+
+			position = _layoutParams->ComputePosition(parentSize, size);
 		}
 
-		const Vector2& anchorSize = _anchorMax - _anchorMin;
-		const Vector2& anchorPos = (_anchorMin + _anchorMax) * 0.5f;
-
-		position += (anchorPos - Vector2(0.5f, 0.5f)) * parentSize;
-		position += (_pivot - Vector2(0.5f, 0.5f)) * parentSize * anchorSize;
-
-		position += GetPosition();
-
-		const Vector2& pixelPivot = (_pivot - Vector2(0.5f, 0.5f)) * Size;
+		const Vector2& pixelPivot = (_origin - Vector2(0.5f, 0.5f)) * size;
 
 		Matrix4 anchor = Matrix4::Translation(pixelPivot);
 		Matrix4 inverseAnchor = Matrix4::Translation(-pixelPivot);
@@ -339,15 +290,9 @@ namespace hod::inline ui2
 
 	Matrix4 Node::ComputeWorldMatrix()
 	{
-		Matrix4 worldMatrix;
-		/* TODO
-		Canvas* canvas = GetOwner()->GetComponentInParent<Canvas>();
-		if (canvas != nullptr)
-		{
-			worldMatrix = canvas->GetRenderModeMatrix() * ComputeCanvasMatrix();
-		}
-		*/
-		return worldMatrix;
+		// Scene has no render-mode/scale-mode concept yet (unlike the old UI::Canvas), so canvas
+		// space is world space for now; revisit once that concept is designed.
+		return ComputeCanvasMatrix();
 	}
 
 	/// @brief
@@ -355,6 +300,21 @@ namespace hod::inline ui2
 	Node* Node::GetParent() const
 	{
 		return _parent;
+	}
+
+	const Vector<Node*>& Node::GetChildren() const
+	{
+		return _children;
+	}
+
+	LayoutParams* Node::GetLayoutParams() const
+	{
+		return _layoutParams;
+	}
+
+	LayoutParams* Node::CreateDefaultLayoutParams() const
+	{
+		return DefaultAllocator::GetInstance().New<AnchoredLayoutParams>();
 	}
 
 	void Node::SetZOrder(int32_t zOrder)
@@ -370,5 +330,89 @@ namespace hod::inline ui2
 	Event<>& Node::GetPropertyChangedEvent()
 	{
 		return _propertyChangedEvent;
+	}
+
+	bool Node::SerializeInDocument(DocumentNode& documentNode)
+	{
+		if (Serializer::Serialize(*this, documentNode) == false)
+		{
+			return false;
+		}
+
+		DocumentNode& childrenNode = documentNode.AddChild("Children");
+		for (Node* child : _children)
+		{
+			DocumentNode& childNode = childrenNode.AddChild("");
+
+			if (child->_layoutParams != nullptr)
+			{
+				DocumentNode& layoutParamsNode = childNode.AddChild("LayoutParams");
+				layoutParamsNode.AddChild("Type").SetUInt64(child->_layoutParams->GetReflectionDescriptorV().GetType());
+				if (Serializer::Serialize(child->_layoutParams, layoutParamsNode) == false)
+				{
+					return false;
+				}
+			}
+
+			if (child->SerializeInDocument(childNode) == false)
+			{
+				return false;
+			}
+		}
+
+		return true;
+	}
+
+	bool Node::DeserializeFromDocument(const DocumentNode& documentNode)
+	{
+		if (Serializer::Deserialize(*this, documentNode) == false)
+		{
+			return false;
+		}
+
+		const DocumentNode* childrenNode = documentNode.GetChild("Children");
+		if (childrenNode == nullptr)
+		{
+			return true;
+		}
+
+		const DocumentNode* childNode = childrenNode->GetFirstChild();
+		while (childNode != nullptr)
+		{
+			Node* child = DefaultAllocator::GetInstance().New<Node>();
+
+			LayoutParams*       layoutParams = nullptr;
+			const DocumentNode* layoutParamsNode = childNode->GetChild("LayoutParams");
+			if (layoutParamsNode != nullptr)
+			{
+				const DocumentNode* typeNode = layoutParamsNode->GetChild("Type");
+				if (typeNode != nullptr)
+				{
+					const std::map<uint64_t, ReflectionDescriptor*>& descriptors = LayoutParamsFactory::GetInstance()->GetAllDescriptors();
+					auto                                              it = descriptors.find(typeNode->GetUInt64());
+					if (it != descriptors.end())
+					{
+						layoutParams = it->second->CreateInstance<LayoutParams>();
+						Serializer::Deserialize(*it->second, layoutParams, *layoutParamsNode);
+					}
+				}
+			}
+
+			if (layoutParams == nullptr)
+			{
+				layoutParams = CreateDefaultLayoutParams();
+			}
+
+			AddChild(child, layoutParams);
+
+			if (child->DeserializeFromDocument(*childNode) == false)
+			{
+				return false;
+			}
+
+			childNode = childNode->GetNextSibling();
+		}
+
+		return true;
 	}
 }

@@ -1,8 +1,8 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/Game/Components/UIComponent.hpp"
-#include <HodEngine/UI2/Scene.hpp>
-#include <HodEngine/UI2/SceneManager.hpp>
+#include <HodEngine/UI2/Canvas.hpp>
+#include <HodEngine/UI2/CanvasManager.hpp>
 
 #include <HodEngine/UI2/Node.hpp>
 
@@ -11,7 +11,7 @@ namespace hod::inline game
 	DESCRIBE_REFLECTED_CLASS(UIComponent, reflectionDescriptor)
 	{
 		(void)reflectionDescriptor;
-		//AddPropertyT(reflectionDescriptor, &UIComponent::_scene, "Scene");
+		//AddPropertyT(reflectionDescriptor, &UIComponent::_canvas, "Canvas");
 	}
 
 	UIComponent::UIComponent()
@@ -26,17 +26,17 @@ namespace hod::inline game
 
 	void UIComponent::OnConstruct()
 	{
-		_scene = DefaultAllocator::GetInstance().New<ui2::Scene>();
+		_canvas = DefaultAllocator::GetInstance().New<ui2::Canvas>();
 
-		_scene->AddChild(DefaultAllocator::GetInstance().New<ui2::Node>());
+		_canvas->AddChild(DefaultAllocator::GetInstance().New<ui2::Node>());
 
-		SceneManager::GetInstance()->AddScene(_scene);
+		CanvasManager::GetInstance()->AddCanvas(_canvas);
 	}
 
 	void UIComponent::OnDestruct()
 	{
-		SceneManager::GetInstance()->RemoveScene(_scene);
-		DefaultAllocator::GetInstance().Delete(_scene);
-		_scene = nullptr;
+		CanvasManager::GetInstance()->RemoveCanvas(_canvas);
+		DefaultAllocator::GetInstance().Delete(_canvas);
+		_canvas = nullptr;
 	}
 }

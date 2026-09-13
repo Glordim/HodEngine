@@ -15,7 +15,7 @@
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include <HodEngine/UI2/SceneManager.hpp>
+#include <HodEngine/UI2/CanvasManager.hpp>
 
 #include <HodEngine/GameSystems/Frame/FrameSequencer.hpp>
 #include <HodEngine/GameSystems/Job/JobScheduler.hpp>
@@ -141,13 +141,13 @@ namespace hod::inline application
 
 	bool GraphicApplication::InitUI()
 	{
-		ui2::SceneManager::CreateInstance();
+		ui2::CanvasManager::CreateInstance();
 		return true;
 	}
 
 	bool GraphicApplication::TerminateUI()
 	{
-		ui2::SceneManager::DestroyInstance();
+		ui2::CanvasManager::DestroyInstance();
 		return true;
 	}
 
