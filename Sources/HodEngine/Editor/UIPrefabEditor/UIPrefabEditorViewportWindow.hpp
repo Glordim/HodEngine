@@ -46,6 +46,7 @@ namespace hod::inline editor
 
 	private:
 
+		void		DrawGrid(const Vector2& viewCenter, float worldHalfWidth, float worldHalfHeight, float scale, RenderView& renderView);
 		void		DrawNode(ui2::Node* node, RenderView& renderView);
 		ui2::Node*	PickNode(ui2::Node* node, const Vector2& canvasPosition);
 
@@ -55,5 +56,6 @@ namespace hod::inline editor
 
 		Vector2 _cameraPosition = Vector2::Zero;
 		float   _zoom = 1.0f;
+		float   _targetZoom = 1.0f;
 	};
 }

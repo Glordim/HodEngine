@@ -24,6 +24,7 @@
 
 #include <algorithm>
 #include <array>
+#include <cmath>
 
 namespace hod::inline editor
 {
@@ -85,8 +86,11 @@ namespace hod::inline editor
 		bool hovered = ImGui::IsWindowHovered();
 		if (hovered && ImGui::GetIO().MouseWheel != 0.0f)
 		{
-			_zoom = std::clamp(_zoom + ImGui::GetIO().MouseWheel * 0.1f * _zoom, 0.05f, 50.0f);
+			_targetZoom = std::clamp(_targetZoom + ImGui::GetIO().MouseWheel * 0.1f * _targetZoom, 0.05f, 50.0f);
 		}
+
+		// Ease towards the target zoom instead of snapping, so each wheel notch feels smooth.
+		_zoom += (_targetZoom - _zoom) * std::min(1.0f, ImGui::GetIO().DeltaTime * 12.0f);
 
 		float scale = baseScale * _zoom;
 
@@ -133,6 +137,8 @@ namespace hod::inline editor
 		renderView->PushRenderCommand(backgroundCommand);
 		renderView->DeleteAfter(backgroundMaterial);
 
+		DrawGrid(_cameraPosition, worldHalfWidth, worldHalfHeight, scale, *renderView);
+
 		Gizmos::Rect(Matrix4::Identity, canvasSize, Color(90.0f / 255.0f, 90.0f / 255.0f, 90.0f / 255.0f, 1.0f), *renderView);
 
 		DrawNode(root, *renderView);
@@ -155,6 +161,78 @@ namespace hod::inline editor
 				Vector2 mouseCanvasPos(mouseWorld.GetX() / mouseWorld.GetW(), mouseWorld.GetY() / mouseWorld.GetW());
 				tab->SetSelectedNode(PickNode(root, mouseCanvasPos));
 			}
+		}
+	}
+
+	/// @brief Draws an infinite-looking grid covering the whole visible area (not just the canvas),
+	/// with a world-space step that adapts to zoom so the on-screen spacing stays readable.
+	///
+	/// The finer subdivision (half the major step) is pre-drawn and progressively faded in as the
+	/// zoom approaches the point where it would become the new major step, instead of the grid
+	/// popping to a denser level all at once.
+	/// @param viewCenter
+	/// @param worldHalfWidth
+	/// @param worldHalfHeight
+	/// @param scale pixels per world/canvas unit
+	/// @param renderView
+	void UIPrefabEditorViewportWindow::DrawGrid(const Vector2& viewCenter, float worldHalfWidth, float worldHalfHeight, float scale, RenderView& renderView)
+	{
+		constexpr float targetScreenSpacing = 64.0f;
+
+		float desiredStep = targetScreenSpacing / scale;
+		float level = std::log2(std::max(desiredStep, 1e-6f));
+		float majorLevel = std::ceil(level);
+		float majorStep = std::pow(2.0f, majorLevel);
+		float minorStep = majorStep * 0.5f;
+
+		// 0 right after a level switch, ramping up to 1 as the minor grid is about to become the new major grid.
+		float minorFade = majorLevel - level;
+
+		// These commands aren't GPU-blended (they overwrite, not blend), so "fading in" the minor grid
+		// is done by lerping its color towards the background instead of lowering its alpha.
+		Color backgroundColor(30.0f / 255.0f, 30.0f / 255.0f, 30.0f / 255.0f, 1.0f);
+		Color gridColor(50.0f / 255.0f, 50.0f / 255.0f, 50.0f / 255.0f, 1.0f);
+		Color minorColor(backgroundColor.r + (gridColor.r - backgroundColor.r) * minorFade, backgroundColor.g + (gridColor.g - backgroundColor.g) * minorFade,
+		                  backgroundColor.b + (gridColor.b - backgroundColor.b) * minorFade, 1.0f);
+
+		float left = viewCenter.GetX() - worldHalfWidth;
+		float right = viewCenter.GetX() + worldHalfWidth;
+		float bottom = viewCenter.GetY() - worldHalfHeight;
+		float top = viewCenter.GetY() + worldHalfHeight;
+
+		// Minor grid first (every half-step, skipping the ones that coincide with a major line), then major on top.
+		int64_t firstMinorX = (int64_t)std::floor(left / minorStep);
+		int64_t lastMinorX = (int64_t)std::ceil(right / minorStep);
+		for (int64_t i = firstMinorX; i <= lastMinorX; ++i)
+		{
+			if (i % 2 != 0)
+			{
+				float x = (float)i * minorStep;
+				Gizmos::Line(Matrix4::Identity, Vector2(x, bottom), Vector2(x, top), minorColor, renderView);
+			}
+		}
+
+		int64_t firstMinorY = (int64_t)std::floor(bottom / minorStep);
+		int64_t lastMinorY = (int64_t)std::ceil(top / minorStep);
+		for (int64_t i = firstMinorY; i <= lastMinorY; ++i)
+		{
+			if (i % 2 != 0)
+			{
+				float y = (float)i * minorStep;
+				Gizmos::Line(Matrix4::Identity, Vector2(left, y), Vector2(right, y), minorColor, renderView);
+			}
+		}
+
+		float firstX = std::floor(left / majorStep) * majorStep;
+		for (float x = firstX; x <= right; x += majorStep)
+		{
+			Gizmos::Line(Matrix4::Identity, Vector2(x, bottom), Vector2(x, top), gridColor, renderView);
+		}
+
+		float firstY = std::floor(bottom / majorStep) * majorStep;
+		for (float y = firstY; y <= top; y += majorStep)
+		{
+			Gizmos::Line(Matrix4::Identity, Vector2(left, y), Vector2(right, y), gridColor, renderView);
 		}
 	}
 
