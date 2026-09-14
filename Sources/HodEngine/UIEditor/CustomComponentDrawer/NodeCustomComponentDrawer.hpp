@@ -35,10 +35,6 @@ namespace hod::inline editor
 
 	private:
 
-		static bool						DrawAnchorPresets(const ImVec2& size, Vector2& anchorMin, Vector2& anchorMax, Vector2& pivot);
-		
-	private:
-
 		Handle							_freeMoveHandle;
 
 		Handle							_topLeftCorner;

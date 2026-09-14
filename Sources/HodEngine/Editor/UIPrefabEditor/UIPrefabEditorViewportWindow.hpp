@@ -50,6 +50,28 @@ namespace hod::inline editor
 		void		DrawNode(ui2::Node* node, RenderView& renderView);
 		ui2::Node*	PickNode(ui2::Node* node, const Vector2& canvasPosition);
 
+		// Manipulation gizmo drawn over the selected node, mirroring UIEditor's
+		// NodeCustomComponentDrawer (move via the node's body, resize via the 4 corners / 4 edges),
+		// but hit-tested on the CPU against canvas-space bounds instead of the RHI picking texture,
+		// since this viewport isn't a ViewportWindow and has no picking render target.
+		enum class GizmoHandle : uint8_t
+		{
+			None,
+			Move,
+			Top,
+			Bottom,
+			Left,
+			Right,
+			TopLeft,
+			TopRight,
+			BottomLeft,
+			BottomRight,
+		};
+
+		void		DrawSelectionGizmo(ui2::Node* node, float scale, RenderView& renderView);
+		GizmoHandle	HitTestGizmoHandle(ui2::Node* node, const Vector2& canvasMousePosition, float scale) const;
+		void		UpdateGizmoDrag(ui2::Node* node, const Vector2& canvasMousePosition, float scale, bool mouseAvailable);
+
 	private:
 
 		RenderTarget* _renderTarget = nullptr;
@@ -57,5 +79,11 @@ namespace hod::inline editor
 		Vector2 _cameraPosition = Vector2::Zero;
 		float   _zoom = 1.0f;
 		float   _targetZoom = 1.0f;
+
+		GizmoHandle _hoveredGizmoHandle = GizmoHandle::None;
+		GizmoHandle _draggedGizmoHandle = GizmoHandle::None;
+		Vector2     _gizmoDragStartMousePosition = Vector2::Zero;
+		Vector2     _gizmoDragStartOffset = Vector2::Zero;
+		Vector2     _gizmoDragStartDesiredSize = Vector2::Zero;
 	};
 }
