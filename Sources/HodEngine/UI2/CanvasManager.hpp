@@ -17,6 +17,8 @@ namespace hod::inline ui2
 		void	AddCanvas(Canvas* canvas);
 		void	RemoveCanvas(Canvas* canvas);
 
+		void	Update();
+
 	private:
 
 		Vector<Canvas*> _canvases;

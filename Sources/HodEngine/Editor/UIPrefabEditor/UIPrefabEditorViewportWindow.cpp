@@ -58,7 +58,8 @@ namespace hod::inline editor
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
 		ui2::Node*         root = tab->GetCanvas().GetRootNode();
 
-		Vector2 canvasSize = root->ComputeSize();
+		tab->GetCanvas().UpdateLayout();
+		Vector2 canvasSize = root->GetSize();
 		ImVec2  available = ImGui::GetContentRegionAvail();
 		if (available.x <= 1.0f || available.y <= 1.0f || canvasSize.GetX() <= 0.0f || canvasSize.GetY() <= 0.0f)
 		{
@@ -196,7 +197,7 @@ namespace hod::inline editor
 
 		DrawNode(root, *renderView);
 
-		if (selectedNode != nullptr && dynamic_cast<AnchoredLayoutParams*>(selectedNode->GetLayoutParams()) != nullptr)
+		if (selectedNode != nullptr && LayoutParams::Cast<AnchoredLayoutParams>(selectedNode->GetLayoutParams()) != nullptr)
 		{
 			DrawSelectionGizmo(selectedNode, scale, *renderView);
 		}
@@ -228,7 +229,7 @@ namespace hod::inline editor
 
 				ui2::Node*    newNode = nodeDescriptor->CreateInstance<ui2::Node>();
 				LayoutParams* layoutParams = parent->CreateDefaultLayoutParams();
-				if (AnchoredLayoutParams* anchoredLayoutParams = dynamic_cast<AnchoredLayoutParams*>(layoutParams))
+				if (AnchoredLayoutParams* anchoredLayoutParams = LayoutParams::Cast<AnchoredLayoutParams>(layoutParams))
 				{
 					anchoredLayoutParams->SetOffset(localOffset);
 				}
@@ -320,7 +321,7 @@ namespace hod::inline editor
 	{
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
 
-		Vector2 size = node->ComputeSize();
+		Vector2 size = node->GetSize();
 		Vector2 canvasPosition = node->ComputeCanvasMatrix().GetTranslation();
 
 		bool  isSelected = (node == tab->GetSelectedNode());
@@ -342,7 +343,7 @@ namespace hod::inline editor
 	{
 		ui2::Node* picked = nullptr;
 
-		Vector2 size = node->ComputeSize();
+		Vector2 size = node->GetSize();
 		Vector2 nodeCanvasPosition = node->ComputeCanvasMatrix().GetTranslation();
 		Vector2 halfExtent = size * 0.5f;
 
@@ -405,7 +406,7 @@ namespace hod::inline editor
 	/// @param renderView
 	void UIPrefabEditorViewportWindow::DrawSelectionGizmo(ui2::Node* node, float scale, RenderView& renderView)
 	{
-		Vector2 size = node->ComputeSize();
+		Vector2 size = node->GetSize();
 		Vector2 canvasPosition = node->ComputeCanvasMatrix().GetTranslation();
 		Vector2 halfSize = size * 0.5f;
 
@@ -455,7 +456,7 @@ namespace hod::inline editor
 	/// @return
 	UIPrefabEditorViewportWindow::GizmoHandle UIPrefabEditorViewportWindow::HitTestGizmoHandle(ui2::Node* node, const Vector2& canvasMousePosition, float scale) const
 	{
-		Vector2 size = node->ComputeSize();
+		Vector2 size = node->GetSize();
 		Vector2 canvasPosition = node->ComputeCanvasMatrix().GetTranslation();
 		Vector2 halfSize = size * 0.5f;
 
@@ -529,7 +530,7 @@ namespace hod::inline editor
 	/// @param mouseAvailable whether the mouse is over this viewport's image and usable for a new hit-test
 	void UIPrefabEditorViewportWindow::UpdateGizmoDrag(ui2::Node* node, const Vector2& canvasMousePosition, float scale, bool mouseAvailable)
 	{
-		AnchoredLayoutParams* layoutParams = dynamic_cast<AnchoredLayoutParams*>(node->GetLayoutParams());
+		AnchoredLayoutParams* layoutParams = LayoutParams::Cast<AnchoredLayoutParams>(node->GetLayoutParams());
 		if (layoutParams == nullptr)
 		{
 			_hoveredGizmoHandle = GizmoHandle::None;

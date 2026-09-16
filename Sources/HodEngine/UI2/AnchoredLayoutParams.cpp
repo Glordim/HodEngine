@@ -1,6 +1,8 @@
 #include "HodEngine/UI2/Pch.hpp"
 #include "HodEngine/UI2/AnchoredLayoutParams.hpp"
 
+#include <HodEngine/Math/Rect.hpp>
+
 namespace hod::inline ui2
 {
 	DESCRIBE_REFLECTED_CLASS(AnchoredLayoutParams, reflectionDescriptor)
@@ -11,21 +13,31 @@ namespace hod::inline ui2
 		AddPropertyT(reflectionDescriptor, &AnchoredLayoutParams::_offset, "Offset", &AnchoredLayoutParams::SetOffset);
 	}
 
-	Vector2 AnchoredLayoutParams::ComputeSize(const Vector2& parentSize, const Vector2& desiredSize) const
+	bool AnchoredLayoutParams::DependsOnParentSize() const
+	{
+		return _anchorMin != _anchorMax;
+	}
+
+	bool AnchoredLayoutParams::TryComputeSize(const Vector2& availableSize, const Vector2& desiredSize, Vector2& outSize) const
 	{
 		Vector2 anchorSize = _anchorMax - _anchorMin;
 		if (anchorSize != Vector2::Zero)
 		{
-			return (parentSize * anchorSize) + desiredSize;
+			outSize = (availableSize * anchorSize) + desiredSize;
+		}
+		else
+		{
+			outSize = desiredSize;
 		}
 
-		return desiredSize;
+		return true;
 	}
 
-	Vector2 AnchoredLayoutParams::ComputePosition(const Vector2& parentSize, const Vector2& size) const
+	bool AnchoredLayoutParams::TryComputePosition(const Rect& parentContentRect, const Vector2& size, Vector2& outPosition) const
 	{
 		(void)size; // this LayoutParams type positions purely from anchors, not from the child's own resolved size
 
+		const Vector2& parentSize = parentContentRect._size;
 		const Vector2& anchorSize = _anchorMax - _anchorMin;
 		const Vector2& anchorPos = (_anchorMin + _anchorMax) * 0.5f;
 
@@ -33,12 +45,8 @@ namespace hod::inline ui2
 		position += (_pivot - Vector2(0.5f, 0.5f)) * parentSize * anchorSize;
 		position += _offset;
 
-		return position;
-	}
-
-	bool AnchoredLayoutParams::DependsOnParentSize() const
-	{
-		return _anchorMin != _anchorMax;
+		outPosition = position;
+		return true;
 	}
 
 	const Vector2& AnchoredLayoutParams::GetAnchorMin() const
@@ -51,8 +59,8 @@ namespace hod::inline ui2
 		if (_anchorMin != anchorMin)
 		{
 			_anchorMin = anchorMin;
-			MarkOwnerSizeAsDirty();
-			MarkOwnerLocalMatrixAsDirty();
+			MarkOwnerMeasureAsDirty();
+			MarkOwnerArrangeAsDirty();
 		}
 	}
 
@@ -66,8 +74,8 @@ namespace hod::inline ui2
 		if (_anchorMax != anchorMax)
 		{
 			_anchorMax = anchorMax;
-			MarkOwnerSizeAsDirty();
-			MarkOwnerLocalMatrixAsDirty();
+			MarkOwnerMeasureAsDirty();
+			MarkOwnerArrangeAsDirty();
 		}
 	}
 
@@ -81,7 +89,7 @@ namespace hod::inline ui2
 		if (_pivot != pivot)
 		{
 			_pivot = pivot;
-			MarkOwnerLocalMatrixAsDirty();
+			MarkOwnerArrangeAsDirty();
 		}
 	}
 
@@ -95,7 +103,7 @@ namespace hod::inline ui2
 		if (_offset != offset)
 		{
 			_offset = offset;
-			MarkOwnerLocalMatrixAsDirty();
+			MarkOwnerArrangeAsDirty();
 		}
 	}
 }

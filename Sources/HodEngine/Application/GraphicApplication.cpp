@@ -173,6 +173,8 @@ namespace hod::inline application
 			JobScheduler::GetInstance()->CleanupCompleted();
 			frameSequencer->EnqueueAndWaitJobs();
 
+			ui2::CanvasManager::GetInstance()->Update();
+
 			Renderer::GetInstance()->Render();
 
 			PROFILER_END_EVENT();

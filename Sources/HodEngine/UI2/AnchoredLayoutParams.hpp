@@ -15,9 +15,9 @@ namespace hod::inline ui2
 
 	public:
 
-		Vector2						ComputeSize(const Vector2& parentSize, const Vector2& desiredSize) const override;
-		Vector2						ComputePosition(const Vector2& parentSize, const Vector2& size) const override;
 		bool						DependsOnParentSize() const override;
+		bool						TryComputeSize(const Vector2& availableSize, const Vector2& desiredSize, Vector2& outSize) const override;
+		bool						TryComputePosition(const Rect& parentContentRect, const Vector2& size, Vector2& outPosition) const override;
 
 		const Vector2&				GetAnchorMin() const;
 		void						SetAnchorMin(const Vector2& anchorMin);

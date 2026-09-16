@@ -3,6 +3,8 @@
 #include "HodEngine/UI2/Canvas.hpp"
 #include "HodEngine/UI2/Node.hpp"
 
+#include <HodEngine/Math/Rect.hpp>
+
 namespace hod::inline ui2
 {
 	Canvas::Canvas()
@@ -44,5 +46,15 @@ namespace hod::inline ui2
 	void Canvas::RemoveChild(Node* node)
 	{
 		_rootNode->RemoveChild(node);
+	}
+
+	void Canvas::UpdateLayout()
+	{
+		_rootNode->Measure(_designResolution);
+
+		Rect finalRect;
+		finalRect._position = _designResolution * -0.5f;
+		finalRect._size = _designResolution;
+		_rootNode->Arrange(finalRect);
 	}
 }

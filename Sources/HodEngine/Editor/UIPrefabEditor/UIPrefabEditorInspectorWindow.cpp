@@ -46,9 +46,10 @@ namespace hod::inline editor
 		ui2::LayoutParams* layoutParams = node->GetLayoutParams();
 		if (layoutParams != nullptr)
 		{
-			ImGui::SeparatorText("Layout");
+			String layoutSectionLabel = String("Layout: ") + layoutParams->GetReflectionDescriptorV().GetDisplayName();
+			ImGui::SeparatorText(layoutSectionLabel.CStr());
 
-			if (ui2::AnchoredLayoutParams* anchoredLayoutParams = dynamic_cast<ui2::AnchoredLayoutParams*>(layoutParams))
+			if (ui2::AnchoredLayoutParams* anchoredLayoutParams = ui2::LayoutParams::Cast<ui2::AnchoredLayoutParams>(layoutParams))
 			{
 				Vector2 anchorMin = anchoredLayoutParams->GetAnchorMin();
 				Vector2 anchorMax = anchoredLayoutParams->GetAnchorMax();

@@ -31,6 +31,10 @@ namespace hod::inline ui2
 
 		Node*	GetRootNode() const;
 
+		// Drives the top-down Measure/Arrange pass over the whole node tree, using _designResolution
+		// as the root's available size. The only place Node::Measure/Node::Arrange are called from.
+		void	UpdateLayout();
+
 		bool	SerializeInDocument(DocumentNode& documentNode);
 		bool	DeserializeFromDocument(const DocumentNode& documentNode);
 

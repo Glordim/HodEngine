@@ -16,6 +16,7 @@ namespace hod::inline math
 		static Vector2 Down;
 		static Vector2 Left;
 		static Vector2 Right;
+		static Vector2 Infinity;
 
 	public:
 		Vector2() = default;
