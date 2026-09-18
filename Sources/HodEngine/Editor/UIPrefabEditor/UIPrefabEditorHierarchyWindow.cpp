@@ -5,6 +5,7 @@
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
+#include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <HodEngine/UI2/Node.hpp>
 #include <HodEngine/Core/Memory/DefaultAllocator.hpp>
 
@@ -51,6 +52,26 @@ namespace hod::inline editor
 		if (ImGui::IsItemClicked() && ImGui::IsItemToggledOpen() == false)
 		{
 			tab->SetSelectedNode(node);
+		}
+
+		// Dropping a node from the Library adds it as a child of the hovered node.
+		if (ImGui::BeginDragDropTarget())
+		{
+			const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("UI2NodeLibraryDescriptor");
+			if (payload != nullptr)
+			{
+				ReflectionDescriptor* nodeDescriptor = *static_cast<ReflectionDescriptor**>(payload->Data);
+
+				ui2::Node* newNode = nodeDescriptor->CreateInstance<ui2::Node>();
+				node->AddChild(newNode);
+
+				// Keep the new child visible: a previously leaf/collapsed target would otherwise hide it.
+				ImGui::GetStateStorage()->SetInt(ImGui::GetItemID(), 1);
+
+				tab->SetSelectedNode(newNode);
+				tab->MarkAsDirty();
+			}
+			ImGui::EndDragDropTarget();
 		}
 
 		bool hovered = ImGui::IsItemHovered();
