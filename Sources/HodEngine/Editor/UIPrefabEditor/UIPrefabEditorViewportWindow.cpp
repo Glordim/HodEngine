@@ -5,6 +5,7 @@
 #include "HodEngine/Editor/Gizmos/Gizmos.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 #include <HodEngine/UI2/AnchoredLayoutParams.hpp>
 #include <HodEngine/UI2/LayoutParams.hpp>
@@ -29,6 +30,7 @@
 #include <algorithm>
 #include <array>
 #include <cmath>
+#include <vector>
 
 namespace hod::inline editor
 {
@@ -57,6 +59,8 @@ namespace hod::inline editor
 	{
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
 		ui2::Node*         root = tab->GetCanvas().GetRootNode();
+
+		DrawToolbar();
 
 		tab->GetCanvas().UpdateLayout();
 		Vector2 canvasSize = root->GetSize();
@@ -173,6 +177,7 @@ namespace hod::inline editor
 			default: break;
 		}
 
+		/*
 		MaterialInstance* backgroundMaterial = Renderer::GetInstance()->CreateMaterialInstance(
 			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 		backgroundMaterial->SetVec4("ubo.color", Vector4(30.0f / 255.0f, 30.0f / 255.0f, 30.0f / 255.0f, 1.0f));
@@ -190,10 +195,17 @@ namespace hod::inline editor
 			Matrix4::Identity, backgroundMaterial, 0);
 		renderView->PushRenderCommand(backgroundCommand);
 		renderView->DeleteAfter(backgroundMaterial);
+*/
+		// The grid and all the guides share the canvas' top-left corner as origin (the canvas rect is
+		// centered on the canvas origin), so a guide's edges always fall on grid lines.
+		Vector2 gridOrigin(-canvasSize.GetX() * 0.5f, canvasSize.GetY() * 0.5f);
+		if (_gridVisible)
+		{
+			DrawGrid(gridOrigin, _cameraPosition, worldHalfWidth, worldHalfHeight, scale, *renderView);
+		}
+		DrawGuides(gridOrigin, *renderView);
 
-		DrawGrid(_cameraPosition, worldHalfWidth, worldHalfHeight, scale, *renderView);
-
-		Gizmos::Rect(Matrix4::Identity, canvasSize, Color(90.0f / 255.0f, 90.0f / 255.0f, 90.0f / 255.0f, 1.0f), *renderView);
+		//Gizmos::Rect(Matrix4::Identity, canvasSize, Color(90.0f / 255.0f, 90.0f / 255.0f, 90.0f / 255.0f, 1.0f), *renderView);
 
 		DrawNode(root, *renderView);
 
@@ -203,6 +215,7 @@ namespace hod::inline editor
 		}
 
 		ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
+		DrawGuideLabels(gridOrigin, imagePos, ImVec2((float)resolutionWidth, (float)resolutionHeight), scale);
 
 		if (hovered && mouseInsideImage && ImGui::IsMouseClicked(ImGuiMouseButton_Left) && _draggedGizmoHandle == GizmoHandle::None)
 		{
@@ -242,25 +255,252 @@ namespace hod::inline editor
 		}
 	}
 
+	namespace
+	{
+		/// @brief Toggle button (highlighted while `toggled`) with a small gear button glued to it.
+		/// @param label toggle button label
+		/// @param itemName what is shown/hidden, used to build the tooltips
+		/// @param settingsPopupId popup opened by the gear button (the caller draws its content)
+		/// @param toggled flipped when the toggle button is pressed
+		void DrawToggleWithSettingsButtons(const char* label, const char* itemName, const char* settingsPopupId, bool& toggled)
+		{
+			bool pushedActiveColor = toggled;
+			if (pushedActiveColor)
+			{
+				ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
+			}
+			if (ImGui::Button(label))
+			{
+				toggled = !toggled;
+			}
+			if (pushedActiveColor)
+			{
+				ImGui::PopStyleColor();
+			}
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+			{
+				ImGui::SetTooltip("%s %s", toggled ? "Hide" : "Show", itemName);
+			}
+
+			// Scoped so the two gear buttons don't share an ID; OpenPopup is called outside that scope
+			// so the popup ID matches the one the caller's BeginPopup(settingsPopupId) computes.
+			ImGui::SameLine(0.0f, 0.0f);
+			ImGui::PushID(settingsPopupId);
+			bool openSettings = ImGui::SmallButton(ICON_MDI_COG);
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+			{
+				ImGui::SetTooltip("Configure %s", itemName);
+			}
+			ImGui::PopID();
+
+			if (openSettings)
+			{
+				ImGui::OpenPopup(settingsPopupId);
+			}
+		}
+	}
+
+	/// @brief Toolbar on top of the viewport: a "Guides" and a "Grid" toggle, each with a small gear
+	/// button glued to it opening its settings.
+	void UIPrefabEditorViewportWindow::DrawToolbar()
+	{
+		DrawToggleWithSettingsButtons(ICON_MDI_RULER_SQUARE " Guides", "guides", "UIPrefabGuides", _guidesVisible);
+		ImGui::SameLine();
+		DrawToggleWithSettingsButtons(ICON_MDI_GRID " Grid", "grid", "UIPrefabGrid", _gridVisible);
+
+		DrawGuidesSettingsPopup();
+		DrawGridSettingsPopup();
+
+		ImGui::Separator();
+	}
+
+	/// @brief Editable list of guides: one row per guide (enabled checkbox, color, name,
+	/// resolution, delete) plus an "Add Guide" button.
+	void UIPrefabEditorViewportWindow::DrawGuidesSettingsPopup()
+	{
+		if (ImGui::BeginPopup("UIPrefabGuides"))
+		{
+			int32_t removeIndex = -1;
+			for (uint32_t i = 0; i < _guides.Size(); ++i)
+			{
+				Guide& guide = _guides[i];
+
+				ImGui::PushID((int)i);
+
+				ImGui::Checkbox("##Enabled", &guide._enabled);
+
+				ImGui::SameLine();
+				float color[3] = {guide._color.r, guide._color.g, guide._color.b};
+				if (ImGui::ColorEdit3("##Color", color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel))
+				{
+					guide._color = Color(color[0], color[1], color[2], 1.0f);
+				}
+
+				ImGui::SameLine();
+				char nameBuffer[128] = {'\0'};
+				std::strncpy(nameBuffer, guide._name.CStr(), sizeof(nameBuffer) - 1);
+				ImGui::SetNextItemWidth(140.0f);
+				if (ImGui::InputText("##Name", nameBuffer, sizeof(nameBuffer)))
+				{
+					guide._name = nameBuffer;
+				}
+
+				ImGui::SameLine();
+				int32_t resolution[2] = {(int32_t)guide._resolution.GetX(), (int32_t)guide._resolution.GetY()};
+				ImGui::SetNextItemWidth(170.0f);
+				if (ImGui::InputInt2("##Resolution", resolution))
+				{
+					guide._resolution = Vector2((float)std::max(resolution[0], 1), (float)std::max(resolution[1], 1));
+				}
+
+				ImGui::SameLine();
+				if (ImGui::Button(ICON_MDI_DELETE))
+				{
+					removeIndex = (int32_t)i;
+				}
+
+				ImGui::PopID();
+			}
+
+			if (removeIndex >= 0)
+			{
+				_guides.Erase((uint32_t)removeIndex);
+			}
+
+			if (_guides.Empty())
+			{
+				ImGui::TextDisabled("No guide");
+			}
+
+			if (ImGui::Button(ICON_MDI_PLUS " Add Guide"))
+			{
+				static const std::array<Color, 5> palette = {
+					Color(1.0f, 0.35f, 0.35f, 1.0f), Color(0.35f, 1.0f, 0.45f, 1.0f), Color(0.35f, 0.65f, 1.0f, 1.0f),
+					Color(1.0f, 0.85f, 0.3f, 1.0f),  Color(0.85f, 0.45f, 1.0f, 1.0f),
+				};
+
+				Guide& guide = _guides.EmplaceBack();
+				guide._name = String("Guide ") + String(std::to_string(_guides.Size()).c_str());
+				guide._color = palette[(_guides.Size() - 1) % palette.size()];
+			}
+
+			ImGui::EndPopup();
+		}
+	}
+
+	/// @brief Grid settings: size of a cell at zoom 1.0 (the grid still coarsens/refines by
+	/// powers of two as the zoom changes, see DrawGrid).
+	void UIPrefabEditorViewportWindow::DrawGridSettingsPopup()
+	{
+		if (ImGui::BeginPopup("UIPrefabGrid"))
+		{
+			ImGui::SetNextItemWidth(120.0f);
+			ImGui::DragFloat("Cell size", &_gridCellSize, 1.0f, 1.0f, 100000.0f, "%.1f", ImGuiSliderFlags_AlwaysClamp);
+			ImGui::EndPopup();
+		}
+	}
+
+	/// @brief Enabled guides (none at all while guides are hidden) ordered from the largest to the smallest area, i.e. the order they
+	/// must be drawn in so that a smaller guide's frame ends up on top of a larger one's and stays
+	/// complete where their edges coincide. The user-facing list order is left untouched.
+	std::vector<const UIPrefabEditorViewportWindow::Guide*> UIPrefabEditorViewportWindow::GetGuidesToDraw() const
+	{
+		std::vector<const Guide*> guides;
+		if (_guidesVisible == false)
+		{
+			return guides;
+		}
+
+		for (const Guide& guide : _guides)
+		{
+			if (guide._enabled)
+			{
+				guides.push_back(&guide);
+			}
+		}
+
+		std::stable_sort(guides.begin(), guides.end(),
+		                 [](const Guide* left, const Guide* right)
+		                 { return left->_resolution.GetX() * left->_resolution.GetY() > right->_resolution.GetX() * right->_resolution.GetY(); });
+		return guides;
+	}
+
+	/// @brief Draws each enabled guide's rect into the render target, all sharing the same top-left
+	/// corner (`origin`) and extending right/down from it, largest first (see GetGuidesToDraw).
+	/// Their labels are drawn afterwards over the blitted image, see DrawGuideLabels.
+	/// @param origin canvas-space position of the guides' shared top-left corner
+	/// @param renderView
+	void UIPrefabEditorViewportWindow::DrawGuides(const Vector2& origin, RenderView& renderView)
+	{
+		for (const Guide* guide : GetGuidesToDraw())
+		{
+			// Gizmos::Rect is centered on its matrix; canvas space is Y-up, so "down" is -Y.
+			Vector2 center(origin.GetX() + guide->_resolution.GetX() * 0.5f, origin.GetY() - guide->_resolution.GetY() * 0.5f);
+			Gizmos::Rect(Matrix4::Translation(center), guide->_resolution, guide->_color, renderView);
+		}
+	}
+
+	/// @brief Draws each enabled guide's name just inside the bottom-right corner of its rect.
+	/// Done with ImGui over the image (the render target can't draw text), hence the manual
+	/// canvas -> screen projection, the inverse of DrawContent's screenToCanvas.
+	/// @param origin canvas-space position of the guides' shared top-left corner, see DrawGuides
+	/// @param imagePos screen position of the image's top-left corner
+	/// @param imageSize
+	/// @param scale pixels per canvas unit
+	void UIPrefabEditorViewportWindow::DrawGuideLabels(const Vector2& origin, const ImVec2& imagePos, const ImVec2& imageSize, float scale)
+	{
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		drawList->PushClipRect(imagePos, imagePos + imageSize, true);
+
+		for (const Guide* guidePtr : GetGuidesToDraw())
+		{
+			const Guide& guide = *guidePtr;
+			if (guide._name.Empty())
+			{
+				continue;
+			}
+
+			// Canvas space is Y-up, screen space Y-down; the canvas point at the view's center is _cameraPosition.
+			float  right = imagePos.x + imageSize.x * 0.5f + (origin.GetX() + guide._resolution.GetX() - _cameraPosition.GetX()) * scale;
+			float  bottom = imagePos.y + imageSize.y * 0.5f - (origin.GetY() - guide._resolution.GetY() - _cameraPosition.GetY()) * scale;
+			ImVec2 textSize = ImGui::CalcTextSize(guide._name.CStr());
+
+			ImU32 color = ImGui::ColorConvertFloat4ToU32(ImVec4(guide._color.r, guide._color.g, guide._color.b, 1.0f));
+			drawList->AddText(ImVec2(right - textSize.x - 4.0f, bottom - textSize.y - 2.0f), color, guide._name.CStr());
+		}
+
+		drawList->PopClipRect();
+	}
+
 	/// @brief Draws an infinite-looking grid covering the whole visible area (not just the canvas),
 	/// with a world-space step that adapts to zoom so the on-screen spacing stays readable.
+	///
+	/// At zoom 1.0 the major step is exactly _gridCellSize; zooming out doubles it each time the zoom
+	/// halves (and zooming in halves it), so the on-screen spacing stays within [1, 2) times its
+	/// zoom-1.0 value. It is additionally kept above a minimum on-screen spacing so a tiny cell
+	/// size can't flood the view with lines.
 	///
 	/// The finer subdivision (half the major step) is pre-drawn and progressively faded in as the
 	/// zoom approaches the point where it would become the new major step, instead of the grid
 	/// popping to a denser level all at once.
+	/// @param origin canvas-space position the grid lines are aligned on (a line always passes through it)
 	/// @param viewCenter
 	/// @param worldHalfWidth
 	/// @param worldHalfHeight
 	/// @param scale pixels per world/canvas unit
 	/// @param renderView
-	void UIPrefabEditorViewportWindow::DrawGrid(const Vector2& viewCenter, float worldHalfWidth, float worldHalfHeight, float scale, RenderView& renderView)
+	void UIPrefabEditorViewportWindow::DrawGrid(const Vector2& origin, const Vector2& viewCenter, float worldHalfWidth, float worldHalfHeight, float scale, RenderView& renderView)
 	{
-		constexpr float targetScreenSpacing = 64.0f;
+		constexpr float minScreenSpacing = 16.0f;
 
-		float desiredStep = targetScreenSpacing / scale;
-		float level = std::log2(std::max(desiredStep, 1e-6f));
+		float cellSize = std::max(_gridCellSize, 1e-3f);
+
+		// Level = number of doublings of the cell size: 0 at zoom 1.0, +1 each time the zoom halves.
+		float zoomLevel = -std::log2(std::max(_zoom, 1e-6f));
+		float minLevel = std::log2(minScreenSpacing / (cellSize * scale));
+		float level = std::max(zoomLevel, minLevel);
 		float majorLevel = std::ceil(level);
-		float majorStep = std::pow(2.0f, majorLevel);
+		float majorStep = cellSize * std::pow(2.0f, majorLevel);
 		float minorStep = majorStep * 0.5f;
 
 		// 0 right after a level switch, ramping up to 1 as the minor grid is about to become the new major grid.
@@ -278,38 +518,49 @@ namespace hod::inline editor
 		float bottom = viewCenter.GetY() - worldHalfHeight;
 		float top = viewCenter.GetY() + worldHalfHeight;
 
+		// Line positions are indexed relative to `origin` (line i sits at origin + i * step), so the
+		// grid is anchored on it rather than on the canvas origin.
+		float relLeft = left - origin.GetX();
+		float relRight = right - origin.GetX();
+		float relBottom = bottom - origin.GetY();
+		float relTop = top - origin.GetY();
+
 		// Minor grid first (every half-step, skipping the ones that coincide with a major line), then major on top.
-		int64_t firstMinorX = (int64_t)std::floor(left / minorStep);
-		int64_t lastMinorX = (int64_t)std::ceil(right / minorStep);
+		int64_t firstMinorX = (int64_t)std::floor(relLeft / minorStep);
+		int64_t lastMinorX = (int64_t)std::ceil(relRight / minorStep);
 		for (int64_t i = firstMinorX; i <= lastMinorX; ++i)
 		{
 			if (i % 2 != 0)
 			{
-				float x = (float)i * minorStep;
+				float x = origin.GetX() + (float)i * minorStep;
 				Gizmos::Line(Matrix4::Identity, Vector2(x, bottom), Vector2(x, top), minorColor, renderView);
 			}
 		}
 
-		int64_t firstMinorY = (int64_t)std::floor(bottom / minorStep);
-		int64_t lastMinorY = (int64_t)std::ceil(top / minorStep);
+		int64_t firstMinorY = (int64_t)std::floor(relBottom / minorStep);
+		int64_t lastMinorY = (int64_t)std::ceil(relTop / minorStep);
 		for (int64_t i = firstMinorY; i <= lastMinorY; ++i)
 		{
 			if (i % 2 != 0)
 			{
-				float y = (float)i * minorStep;
+				float y = origin.GetY() + (float)i * minorStep;
 				Gizmos::Line(Matrix4::Identity, Vector2(left, y), Vector2(right, y), minorColor, renderView);
 			}
 		}
 
-		float firstX = std::floor(left / majorStep) * majorStep;
-		for (float x = firstX; x <= right; x += majorStep)
+		int64_t firstMajorX = (int64_t)std::floor(relLeft / majorStep);
+		int64_t lastMajorX = (int64_t)std::ceil(relRight / majorStep);
+		for (int64_t i = firstMajorX; i <= lastMajorX; ++i)
 		{
+			float x = origin.GetX() + (float)i * majorStep;
 			Gizmos::Line(Matrix4::Identity, Vector2(x, bottom), Vector2(x, top), gridColor, renderView);
 		}
 
-		float firstY = std::floor(bottom / majorStep) * majorStep;
-		for (float y = firstY; y <= top; y += majorStep)
+		int64_t firstMajorY = (int64_t)std::floor(relBottom / majorStep);
+		int64_t lastMajorY = (int64_t)std::ceil(relTop / majorStep);
+		for (int64_t i = firstMajorY; i <= lastMajorY; ++i)
 		{
+			float y = origin.GetY() + (float)i * majorStep;
 			Gizmos::Line(Matrix4::Identity, Vector2(left, y), Vector2(right, y), gridColor, renderView);
 		}
 	}

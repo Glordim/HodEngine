@@ -2,9 +2,12 @@
 #include "HodEngine/Editor/Export.hpp"
 #include "HodEngine/Editor/EditorTabWindow.hpp"
 
+#include <HodEngine/Math/Color.hpp>
 #include <HodEngine/Math/Vector2.hpp>
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
+
+#include <vector>
 
 namespace hod::inline ui2
 {
@@ -27,6 +30,10 @@ namespace hod::inline editor
 	/// ui2::Node has no drawable content yet (no Drawable/Text/Image node types, see
 	/// Docs/Architecture/UI2-Architecture.md), so there is nothing to render beyond node bounds
 	/// regardless of which rendering technology is used.
+	///
+	/// A user-editable list of guides (name + resolution + color, individually toggleable) can be
+	/// overlaid: each is a rect anchored on the canvas' top-left corner (shared by all guides), labeled at
+	/// its bottom-right corner, to check the layout against target resolutions/safe areas. Not persisted yet.
 	/// Known simplifications: rotation is ignored (boxes are drawn axis-aligned), and a node's box
 	/// is centered on its computed canvas-space position, which is only exact for the default
 	/// (centered) Origin.
@@ -46,7 +53,22 @@ namespace hod::inline editor
 
 	private:
 
-		void		DrawGrid(const Vector2& viewCenter, float worldHalfWidth, float worldHalfHeight, float scale, RenderView& renderView);
+		/// @brief A named reference rect (target resolution, safe area...) drawn over the canvas.
+		struct Guide
+		{
+			String  _name;
+			Vector2 _resolution = Vector2(1920.0f, 1080.0f);
+			Color   _color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+			bool    _enabled = true;
+		};
+
+		std::vector<const Guide*>	GetGuidesToDraw() const;
+		void		DrawToolbar();
+		void		DrawGuidesSettingsPopup();
+		void		DrawGridSettingsPopup();
+		void		DrawGuides(const Vector2& origin, RenderView& renderView);
+		void		DrawGuideLabels(const Vector2& origin, const ImVec2& imagePos, const ImVec2& imageSize, float scale);
+		void		DrawGrid(const Vector2& origin, const Vector2& viewCenter, float worldHalfWidth, float worldHalfHeight, float scale, RenderView& renderView);
 		void		DrawNode(ui2::Node* node, RenderView& renderView);
 		ui2::Node*	PickNode(ui2::Node* node, const Vector2& canvasPosition);
 
@@ -75,6 +97,12 @@ namespace hod::inline editor
 	private:
 
 		RenderTarget* _renderTarget = nullptr;
+
+		Vector<Guide> _guides;
+		bool          _guidesVisible = true;
+
+		bool  _gridVisible = true;
+		float _gridCellSize = 100.0f; // canvas units, at zoom 1.0
 
 		Vector2 _cameraPosition = Vector2::Zero;
 		float   _zoom = 1.0f;

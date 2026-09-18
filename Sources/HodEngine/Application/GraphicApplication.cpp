@@ -173,7 +173,7 @@ namespace hod::inline application
 			JobScheduler::GetInstance()->CleanupCompleted();
 			frameSequencer->EnqueueAndWaitJobs();
 
-			ui2::CanvasManager::GetInstance()->Update();
+			ui2::CanvasManager::GetInstance()->Update(); // TODO
 
 			Renderer::GetInstance()->Render();
 
