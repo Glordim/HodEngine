@@ -526,6 +526,11 @@ namespace hod::inline ui2
 
 	void Node::SetLayout(Layout* layout)
 	{
+		if (layout == _layout)
+		{
+			return;
+		}
+
 		if (_layout != nullptr)
 		{
 			DefaultAllocator::GetInstance().Delete(_layout);
@@ -535,6 +540,35 @@ namespace hod::inline ui2
 		if (_layout != nullptr)
 		{
 			_layout->_node = this;
+		}
+
+		// Each child's LayoutParams must be of the type the (new) layout expects (e.g. BoxLayoutParams
+		// under a BoxLayout, AnchoredLayoutParams under none): convert the ones that aren't, carrying
+		// over the common fields every LayoutParams shares (margin, alignment, min/max size).
+		for (Node* child : _children)
+		{
+			LayoutParams* newLayoutParams = CreateDefaultLayoutParams();
+			LayoutParams* oldLayoutParams = child->_layoutParams;
+			if (oldLayoutParams != nullptr && oldLayoutParams->GetReflectionDescriptorV().GetType() == newLayoutParams->GetReflectionDescriptorV().GetType())
+			{
+				DefaultAllocator::GetInstance().Delete(newLayoutParams);
+				continue;
+			}
+
+			if (oldLayoutParams != nullptr)
+			{
+				newLayoutParams->SetMargin(oldLayoutParams->GetMargin());
+				newLayoutParams->SetHAlign(oldLayoutParams->GetHAlign());
+				newLayoutParams->SetVAlign(oldLayoutParams->GetVAlign());
+				newLayoutParams->SetMinSize(oldLayoutParams->GetMinSize());
+				newLayoutParams->SetMaxSize(oldLayoutParams->GetMaxSize());
+				DefaultAllocator::GetInstance().Delete(oldLayoutParams);
+			}
+
+			child->_layoutParams = newLayoutParams;
+			newLayoutParams->_node = child;
+			child->MarkMeasureAsDirty();
+			child->MarkArrangeAsDirty();
 		}
 
 		// Swapping the arrangement algorithm can change both this node's own content-derived size

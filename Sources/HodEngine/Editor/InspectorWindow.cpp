@@ -11,6 +11,7 @@
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 
@@ -202,153 +203,42 @@ namespace hod::inline editor
 				*/
 				// bool opened = ImGui::CollapsingHeader(componentLock->GetRttiTypeName(), ImGuiTreeNodeFlags_DefaultOpen);
 
-				ImGui::PushID((const void*)(uintptr_t)component->GetReflectionDescriptorV().GetType());
-				if (ImGui::BeginChild("Component", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_Borders))
+				bool enabled = component->GetEnabled();
+				bool removeRequested = false;
+				bool opened = DrawHelper::BeginInspectorBlock((const void*)(uintptr_t)component->GetReflectionDescriptorV().GetType(), ICON_MDI_PUZZLE, component->GetReflectionDescriptorV().GetDisplayName().CStr(), &enabled, &removeRequested);
+				if (enabled != component->GetEnabled())
 				{
-					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-					ImGui::SetCursorPosX(0.0f);
-					ImGui::SetCursorPosY(0.0f);
-					ImGui::PopStyleVar(1);
+					component->SetEnabled(enabled);
+				}
+				if (removeRequested)
+				{
+					selection->RemoveComponent(component);
+					GetOwner()->MarkAsDirty();
+					opened = false;
+				}
 
-					ImVec2 min = ImGui::GetCursorScreenPos();
-					ImVec2 max = min;
-					max.x += ImGui::GetWindowWidth();
-					// ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Separator)));
+				if (opened == true)
+				{
+					Component*            sourceComponent = PrefabUtility::GetCorrespondingComponent(component);
+					EditorReflectedObject reflectedObject(component, &component->GetReflectionDescriptorV(), sourceComponent, this);
 
-					ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
-					ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, ImVec2(0.0f, 0.0f));
-					ImGui::SetCursorPosX(0.0f);
-					ImGui::Separator();
-					ImGui::SetCursorPosX(0.0f);
-					ImGui::PopStyleVar(2);
-
-					min = ImGui::GetCursorScreenPos();
-					max = min;
-					max.x += ImGui::GetWindowWidth();
-					max.y += ImGui::GetTextLineHeight() + ImGui::GetStyle().FramePadding.y * 4;
-					ImGui::GetWindowDrawList()->AddRectFilled(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_FrameBg)));
-
-					min.y += ImGui::GetStyle().FramePadding.y;
-					ImGui::SetCursorScreenPos(min);
-
-					ImGui::PushStyleColor(ImGuiCol_Button, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-					ImGui::PushStyleColor(ImGuiCol_ButtonActive, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-					ImGui::PushStyleColor(ImGuiCol_Border, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
-
-					bool collapsed = ImGui::GetCurrentWindow()->DC.StateStorage->GetInt(ImGui::GetID("Collapsed"), false);
-
-					if (ImGui::ArrowButton("CollapseComponent", collapsed == false ? ImGuiDir_Down : ImGuiDir_Right))
+					bool                   changed = false;
+					ReflectionDescriptor&  reflectionDescriptor = component->GetReflectionDescriptorV();
+					CustomComponentDrawer* drawer = CustomComponentDrawerRegistry::Find(reflectionDescriptor);
+					if (drawer != nullptr)
 					{
-						collapsed = !collapsed;
-						ImGui::GetCurrentWindow()->DC.StateStorage->SetInt(ImGui::GetID("Collapsed"), collapsed);
-					}
-					ImGui::PopStyleColor(4);
-
-					ImGui::SameLine();
-					bool enabled = component->GetEnabled();
-					if (ImGui::Checkbox("##Enabled", &enabled))
-					{
-						component->SetEnabled(enabled);
-					}
-
-					ImGui::BeginDisabled(enabled == false);
-
-					bool opened = (collapsed == false);
-					ImGui::SameLine();
-					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(ICON_MDI_PUZZLE);
-					ImGui::SameLine();
-					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(component->GetReflectionDescriptorV().GetDisplayName().CStr());
-
-					ImGui::EndDisabled();
-
-					ImGui::SameLine(ImGui::GetContentRegionAvail().x - CalculateButtonSize(ICON_MDI_CLOSE).x + 10.0f, 0.0f);
-					ImVec2 buttonPos = ImGui::GetCursorScreenPos();
-					ImVec2 mousePos = ImGui::GetMousePos();
-
-					float distance = (float)std::sqrt(std::pow(buttonPos.x - mousePos.x, 2) + std::pow(buttonPos.y - mousePos.y, 2));
-					distance = std::clamp(distance, 15.0f, 40.0f);
-					float alpha = 1.0f - ((distance - 15.0f) / (40.0f - 15.0f));
-
-					ImVec4 textColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
-					textColor.w = alpha;
-
-					ImVec4 buttonColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
-					buttonColor.w = alpha;
-
-					ImVec4 borderColor = ImGui::GetStyleColorVec4(ImGuiCol_Border);
-					borderColor.w = alpha;
-
-					ImGui::PushStyleColor(ImGuiCol_Border, borderColor);
-					ImGui::PushStyleColor(ImGuiCol_Text, textColor);
-					ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
-					ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-					bool mustBeDelete = (ImGui::Button(ICON_MDI_CLOSE));
-					ImGui::PopStyleColor(4);
-					if (mustBeDelete)
-					{
-						selection->RemoveComponent(component);
-						GetOwner()->MarkAsDirty();
-					}
-
-					if (ImGui::IsWindowHovered())
-					{
-					}
-
-					/*
-					if (ImGui::BeginPopupContextItem() == true)
-					{
-					    if (ImGui::Button("Delete") == true)
-					    {
-					        selection->RemoveComponent(componentLock);
-					        GetOwner()->MarkAsDirty();
-					    }
-					    ImGui::EndPopup();
-					}
-					*/
-
-					{
-						min.y = max.y;
-						max.x += ImGui::GetWindowWidth();
-						ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::ColorConvertFloat4ToU32(ImGui::GetStyleColorVec4(ImGuiCol_Separator)));
-					}
-
-					if (opened == true)
-					{
-						ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(0.0f, 2.0f));
-
-						Component*      sourceComponent = PrefabUtility::GetCorrespondingComponent(component);
-						EditorReflectedObject reflectedObject(component, &component->GetReflectionDescriptorV(), sourceComponent, this);
-
-						bool                                  changed = false;
-						ReflectionDescriptor&                 reflectionDescriptor = component->GetReflectionDescriptorV();
-						CustomComponentDrawer* drawer = CustomComponentDrawerRegistry::Find(reflectionDescriptor);
-						if (drawer != nullptr)
-						{
-							changed = drawer->OnDrawInspector(reflectedObject);
-						}
-						else
-						{
-							changed = DrawDefaultInspector(reflectedObject);
-						}
-						if (changed == true)
-						{
-							GetOwner()->MarkAsDirty();
-						}
+						changed = drawer->OnDrawInspector(reflectedObject);
 					}
 					else
 					{
-						ImVec2 pos = ImGui::GetCursorScreenPos();
-						pos.y = max.y;
-						ImGui::SetCursorScreenPos(pos);
+						changed = DrawDefaultInspector(reflectedObject);
+					}
+					if (changed == true)
+					{
+						GetOwner()->MarkAsDirty();
 					}
 				}
-				ImGui::Dummy(ImVec2(0, 0)); // todo
-				ImGui::EndChild();
-
-				ImGui::PopID();
+				DrawHelper::EndInspectorBlock();
 			}
 		}
 
