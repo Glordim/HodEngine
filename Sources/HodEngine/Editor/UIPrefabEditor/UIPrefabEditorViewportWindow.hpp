@@ -1,6 +1,7 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 #include "HodEngine/Editor/EditorTabWindow.hpp"
+#include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorViewportSettings.hpp"
 
 #include <HodEngine/Math/Color.hpp>
 #include <HodEngine/Math/Vector2.hpp>
@@ -33,7 +34,7 @@ namespace hod::inline editor
 	///
 	/// A user-editable list of guides (name + resolution + color, individually toggleable) can be
 	/// overlaid: each is a rect anchored on the canvas' top-left corner (shared by all guides), labeled at
-	/// its bottom-right corner, to check the layout against target resolutions/safe areas. Not persisted yet.
+	/// its bottom-right corner, to check the layout against target resolutions/safe areas. The guides and grid settings are persisted per user.
 	/// Known simplifications: rotation is ignored (boxes are drawn axis-aligned), and a node's box
 	/// is centered on its computed canvas-space position, which is only exact for the default
 	/// (centered) Origin.
@@ -53,14 +54,7 @@ namespace hod::inline editor
 
 	private:
 
-		/// @brief A named reference rect (target resolution, safe area...) drawn over the canvas.
-		struct Guide
-		{
-			String  _name;
-			Vector2 _resolution = Vector2(1920.0f, 1080.0f);
-			Color   _color = Color(1.0f, 1.0f, 1.0f, 1.0f);
-			bool    _enabled = true;
-		};
+		using Guide = UIPrefabEditorViewportSettings::Guide;
 
 		std::vector<const Guide*>	GetGuidesToDraw() const;
 		void		DrawToolbar();
@@ -98,11 +92,9 @@ namespace hod::inline editor
 
 		RenderTarget* _renderTarget = nullptr;
 
-		Vector<Guide> _guides;
-		bool          _guidesVisible = true;
-
-		bool  _gridVisible = true;
-		float _gridCellSize = 100.0f; // canvas units, at zoom 1.0
+		// Guides/grid settings, loaded from and saved to the user settings (see UIPrefabEditorViewportSettings).
+		UIPrefabEditorViewportSettings _settings;
+		bool                           _settingsDirty = false;
 
 		Vector2 _cameraPosition = Vector2::Zero;
 		float   _zoom = 1.0f;

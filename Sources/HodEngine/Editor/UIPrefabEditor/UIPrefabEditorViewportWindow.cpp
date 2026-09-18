@@ -45,12 +45,19 @@ namespace hod::inline editor
 	{
 		SetTitle("Viewport");
 
+		_settings.Load();
+
 		_renderTarget = Renderer::GetInstance()->CreateRenderTarget();
 	}
 
 	/// @brief
 	UIPrefabEditorViewportWindow::~UIPrefabEditorViewportWindow()
 	{
+		if (_settingsDirty)
+		{
+			_settings.Save();
+		}
+
 		DefaultAllocator::GetInstance().Delete(_renderTarget);
 	}
 
@@ -199,7 +206,7 @@ namespace hod::inline editor
 		// The grid and all the guides share the canvas' top-left corner as origin (the canvas rect is
 		// centered on the canvas origin), so a guide's edges always fall on grid lines.
 		Vector2 gridOrigin(-canvasSize.GetX() * 0.5f, canvasSize.GetY() * 0.5f);
-		if (_gridVisible)
+		if (_settings._gridVisible)
 		{
 			DrawGrid(gridOrigin, _cameraPosition, worldHalfWidth, worldHalfHeight, scale, *renderView);
 		}
@@ -304,12 +311,22 @@ namespace hod::inline editor
 	/// button glued to it opening its settings.
 	void UIPrefabEditorViewportWindow::DrawToolbar()
 	{
-		DrawToggleWithSettingsButtons(ICON_MDI_RULER_SQUARE " Guides", "guides", "UIPrefabGuides", _guidesVisible);
+		bool guidesVisible = _settings._guidesVisible;
+		DrawToggleWithSettingsButtons(ICON_MDI_RULER_SQUARE " Guides", "guides", "UIPrefabGuides", _settings._guidesVisible);
 		ImGui::SameLine();
-		DrawToggleWithSettingsButtons(ICON_MDI_GRID " Grid", "grid", "UIPrefabGrid", _gridVisible);
+		bool gridVisible = _settings._gridVisible;
+		DrawToggleWithSettingsButtons(ICON_MDI_GRID " Grid", "grid", "UIPrefabGrid", _settings._gridVisible);
+		_settingsDirty |= (guidesVisible != _settings._guidesVisible) || (gridVisible != _settings._gridVisible);
 
 		DrawGuidesSettingsPopup();
 		DrawGridSettingsPopup();
+
+		// Saved once the user is done editing (not on every keystroke/drag step): as soon as no widget is active anymore.
+		if (_settingsDirty && ImGui::IsAnyItemActive() == false)
+		{
+			_settings.Save();
+			_settingsDirty = false;
+		}
 
 		ImGui::Separator();
 	}
@@ -321,19 +338,20 @@ namespace hod::inline editor
 		if (ImGui::BeginPopup("UIPrefabGuides"))
 		{
 			int32_t removeIndex = -1;
-			for (uint32_t i = 0; i < _guides.Size(); ++i)
+			for (uint32_t i = 0; i < _settings._guides.Size(); ++i)
 			{
-				Guide& guide = _guides[i];
+				Guide& guide = _settings._guides[i];
 
 				ImGui::PushID((int)i);
 
-				ImGui::Checkbox("##Enabled", &guide._enabled);
+				_settingsDirty |= ImGui::Checkbox("##Enabled", &guide._enabled);
 
 				ImGui::SameLine();
 				float color[3] = {guide._color.r, guide._color.g, guide._color.b};
 				if (ImGui::ColorEdit3("##Color", color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel))
 				{
 					guide._color = Color(color[0], color[1], color[2], 1.0f);
+					_settingsDirty = true;
 				}
 
 				ImGui::SameLine();
@@ -343,6 +361,7 @@ namespace hod::inline editor
 				if (ImGui::InputText("##Name", nameBuffer, sizeof(nameBuffer)))
 				{
 					guide._name = nameBuffer;
+					_settingsDirty = true;
 				}
 
 				ImGui::SameLine();
@@ -351,6 +370,7 @@ namespace hod::inline editor
 				if (ImGui::InputInt2("##Resolution", resolution))
 				{
 					guide._resolution = Vector2((float)std::max(resolution[0], 1), (float)std::max(resolution[1], 1));
+					_settingsDirty = true;
 				}
 
 				ImGui::SameLine();
@@ -364,10 +384,11 @@ namespace hod::inline editor
 
 			if (removeIndex >= 0)
 			{
-				_guides.Erase((uint32_t)removeIndex);
+				_settings._guides.Erase((uint32_t)removeIndex);
+				_settingsDirty = true;
 			}
 
-			if (_guides.Empty())
+			if (_settings._guides.Empty())
 			{
 				ImGui::TextDisabled("No guide");
 			}
@@ -379,9 +400,10 @@ namespace hod::inline editor
 					Color(1.0f, 0.85f, 0.3f, 1.0f),  Color(0.85f, 0.45f, 1.0f, 1.0f),
 				};
 
-				Guide& guide = _guides.EmplaceBack();
-				guide._name = String("Guide ") + String(std::to_string(_guides.Size()).c_str());
-				guide._color = palette[(_guides.Size() - 1) % palette.size()];
+				Guide& guide = _settings._guides.EmplaceBack();
+				guide._name = String("Guide ") + String(std::to_string(_settings._guides.Size()).c_str());
+				guide._color = palette[(_settings._guides.Size() - 1) % palette.size()];
+				_settingsDirty = true;
 			}
 
 			ImGui::EndPopup();
@@ -395,7 +417,7 @@ namespace hod::inline editor
 		if (ImGui::BeginPopup("UIPrefabGrid"))
 		{
 			ImGui::SetNextItemWidth(120.0f);
-			ImGui::DragFloat("Cell size", &_gridCellSize, 1.0f, 1.0f, 100000.0f, "%.1f", ImGuiSliderFlags_AlwaysClamp);
+			_settingsDirty |= ImGui::DragFloat("Cell size", &_settings._gridCellSize, 1.0f, 1.0f, 100000.0f, "%.1f", ImGuiSliderFlags_AlwaysClamp);
 			ImGui::EndPopup();
 		}
 	}
@@ -406,12 +428,12 @@ namespace hod::inline editor
 	std::vector<const UIPrefabEditorViewportWindow::Guide*> UIPrefabEditorViewportWindow::GetGuidesToDraw() const
 	{
 		std::vector<const Guide*> guides;
-		if (_guidesVisible == false)
+		if (_settings._guidesVisible == false)
 		{
 			return guides;
 		}
 
-		for (const Guide& guide : _guides)
+		for (const Guide& guide : _settings._guides)
 		{
 			if (guide._enabled)
 			{
@@ -475,7 +497,7 @@ namespace hod::inline editor
 	/// @brief Draws an infinite-looking grid covering the whole visible area (not just the canvas),
 	/// with a world-space step that adapts to zoom so the on-screen spacing stays readable.
 	///
-	/// At zoom 1.0 the major step is exactly _gridCellSize; zooming out doubles it each time the zoom
+	/// At zoom 1.0 the major step is exactly _settings._gridCellSize; zooming out doubles it each time the zoom
 	/// halves (and zooming in halves it), so the on-screen spacing stays within [1, 2) times its
 	/// zoom-1.0 value. It is additionally kept above a minimum on-screen spacing so a tiny cell
 	/// size can't flood the view with lines.
@@ -493,7 +515,7 @@ namespace hod::inline editor
 	{
 		constexpr float minScreenSpacing = 16.0f;
 
-		float cellSize = std::max(_gridCellSize, 1e-3f);
+		float cellSize = std::max(_settings._gridCellSize, 1e-3f);
 
 		// Level = number of doublings of the cell size: 0 at zoom 1.0, +1 each time the zoom halves.
 		float zoomLevel = -std::log2(std::max(_zoom, 1e-6f));
