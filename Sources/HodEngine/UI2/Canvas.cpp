@@ -2,8 +2,11 @@
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/UI2/Canvas.hpp"
 #include "HodEngine/UI2/Node.hpp"
+#include "HodEngine/UI2/DrawContext.hpp"
 
 #include <HodEngine/Math/Rect.hpp>
+
+#include <algorithm>
 
 namespace hod::inline ui2
 {
@@ -56,5 +59,22 @@ namespace hod::inline ui2
 		finalRect._position = _designResolution * -0.5f;
 		finalRect._size = _designResolution;
 		_rootNode->Arrange(finalRect);
+	}
+
+	void Canvas::PushRenderCommand(RenderView& renderView, RenderView::RenderQueueType queueType, const Matrix4& baseMatrix)
+	{
+		DrawContext drawContext(renderView, queueType, baseMatrix);
+		_rootNode->PushRenderCommand(drawContext);
+	}
+
+	Matrix4 Canvas::ComputeFitMatrix(const Vector2& resolution) const
+	{
+		if (_designResolution.GetX() <= 0.0f || _designResolution.GetY() <= 0.0f)
+		{
+			return Matrix4::Identity;
+		}
+
+		float scale = std::min(resolution.GetX() / _designResolution.GetX(), resolution.GetY() / _designResolution.GetY());
+		return Matrix4::Scale(Vector2(scale, scale));
 	}
 }

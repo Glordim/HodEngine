@@ -214,6 +214,10 @@ namespace hod::inline editor
 
 		//Gizmos::Rect(Matrix4::Identity, canvasSize, Color(90.0f / 255.0f, 90.0f / 255.0f, 90.0f / 255.0f, 1.0f), *renderView);
 
+		// The actual content first: the outlines/gizmos below are pushed with a later (or the maximum)
+		// rendering order, so they stay on top of it.
+		tab->GetCanvas().PushRenderCommand(*renderView, RenderView::RenderQueueType::World);
+
 		DrawNode(root, *renderView);
 
 		if (selectedNode != nullptr && LayoutParams::Cast<AnchoredLayoutParams>(selectedNode->GetLayoutParams()) != nullptr)

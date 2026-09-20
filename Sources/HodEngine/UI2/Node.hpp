@@ -20,6 +20,7 @@ namespace hod::inline core
 namespace hod::inline ui2
 {
 	class LayoutParams;
+	class DrawContext;
 
 	/// @brief
 	class HOD_UI2_API Node
@@ -124,8 +125,14 @@ namespace hod::inline ui2
 
 		PropertyChangedEvent&		GetPropertyChangedEvent();
 
+		// Render pass: queues this node's own drawing (DrawSelf) then its children's (DrawChildren),
+		// so the tree is drawn in painter's order — a node over its parent, later siblings over
+		// earlier ones. Reads the cached layout results, so Canvas::UpdateLayout() must have run.
+		void						PushRenderCommand(DrawContext& drawContext);
+
 		// Serializes this node's own scalar properties, its attached Layout (if any, polymorphic),
-		// its LayoutParams (polymorphic, resolved via LayoutParamsFactory), and its children tree,
+		// its LayoutParams (polymorphic, resolved via LayoutParamsFactory), its concrete Node type
+		// (resolved via NodeFactory, so drawing nodes survive a round trip) and its children tree,
 		// recursively.
 		bool						SerializeInDocument(DocumentNode& documentNode);
 		bool						DeserializeFromDocument(const DocumentNode& documentNode);
@@ -140,6 +147,15 @@ namespace hod::inline ui2
 		// cross-axis placement (see BoxLayout).
 		static void					ComputeAlignedExtent(
 										float availableStart, float availableExtent, float desiredExtent, float minExtent, float maxExtent, uint8_t alignIndex, bool startIsIndex0, float& outOffset, float& outExtent);
+
+	protected:
+
+		// What a drawing node overrides (ImageNode, TextNode...). Default: draws nothing.
+		virtual void				DrawSelf(DrawContext& drawContext);
+
+		// Draws the children in order. A node wrapping them in some render state (MaskNode's clip)
+		// overrides this and calls Node::DrawChildren() in between setting and restoring it.
+		virtual void				DrawChildren(DrawContext& drawContext);
 
 	private:
 

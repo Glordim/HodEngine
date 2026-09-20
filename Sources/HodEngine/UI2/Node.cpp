@@ -7,6 +7,8 @@
 #include "HodEngine/UI2/LayoutParamsFactory.hpp"
 #include "HodEngine/UI2/Layout.hpp"
 #include "HodEngine/UI2/LayoutFactory.hpp"
+#include "HodEngine/UI2/NodeFactory.hpp"
+#include "HodEngine/UI2/DrawContext.hpp"
 
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
@@ -597,6 +599,24 @@ namespace hod::inline ui2
 		return _propertyChangedEvent;
 	}
 
+	void Node::PushRenderCommand(DrawContext& drawContext)
+	{
+		DrawSelf(drawContext);
+		DrawChildren(drawContext);
+	}
+
+	void Node::DrawSelf(DrawContext& /*drawContext*/)
+	{
+	}
+
+	void Node::DrawChildren(DrawContext& drawContext)
+	{
+		for (Node* child : _children)
+		{
+			child->PushRenderCommand(drawContext);
+		}
+	}
+
 	bool Node::SerializeInDocument(DocumentNode& documentNode)
 	{
 		if (Serializer::Serialize(*this, documentNode) == false)
@@ -618,6 +638,8 @@ namespace hod::inline ui2
 		for (Node* child : _children)
 		{
 			DocumentNode& childNode = childrenNode.AddChild("");
+
+			childNode.AddChild("Type").SetUInt64(child->GetReflectionDescriptorV().GetType());
 
 			if (child->_layoutParams != nullptr)
 			{
@@ -671,7 +693,23 @@ namespace hod::inline ui2
 		const DocumentNode* childNode = childrenNode->GetFirstChild();
 		while (childNode != nullptr)
 		{
-			Node* child = DefaultAllocator::GetInstance().New<Node>();
+			// A missing or unknown type (document saved before drawing nodes existed, or by a module that
+			// isn't loaded) degrades to a plain Node rather than failing the whole tree.
+			Node*               child = nullptr;
+			const DocumentNode* childTypeNode = childNode->GetChild("Type");
+			if (childTypeNode != nullptr)
+			{
+				const std::map<uint64_t, ReflectionDescriptor*>& descriptors = NodeFactory::GetInstance()->GetAllDescriptors();
+				auto                                              it = descriptors.find(childTypeNode->GetUInt64());
+				if (it != descriptors.end())
+				{
+					child = it->second->CreateInstance<Node>();
+				}
+			}
+			if (child == nullptr)
+			{
+				child = DefaultAllocator::GetInstance().New<Node>();
+			}
 
 			LayoutParams*       layoutParams = nullptr;
 			const DocumentNode* layoutParamsNode = childNode->GetChild("LayoutParams");
