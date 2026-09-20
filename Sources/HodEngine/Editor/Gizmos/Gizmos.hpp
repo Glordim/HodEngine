@@ -43,7 +43,8 @@ namespace hod::inline editor
 		static bool FreeMoveMesh(Handle& handle, const Matrix4& worldMatrix, const Vector2* vertices, uint32_t vertexCount, const Color& color, const Color& highlightColor, ViewportWindow& viewport);
 
 		static void Rect(const Matrix4& worldMatrix, const Vector2& size, const Color& color, RenderView& renderView);
-		static void Line(const Matrix4& worldMatrix, const Vector2& start, const Vector2& end, const Color& color, RenderView& renderView);
+		// order: rendering order, higher is drawn later (on top). The default keeps gizmos over regular content.
+		static void Line(const Matrix4& worldMatrix, const Vector2& start, const Vector2& end, const Color& color, RenderView& renderView, uint32_t order = std::numeric_limits<uint32_t>::max() - 1);
 
 	private:
 

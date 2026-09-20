@@ -515,6 +515,9 @@ namespace hod::inline editor
 	{
 		constexpr float minScreenSpacing = 16.0f;
 
+		// Lowest rendering order: the grid is always behind everything else (the canvas content starts at order 1).
+		constexpr uint32_t gridRenderingOrder = 0;
+
 		float cellSize = std::max(_settings._gridCellSize, 1e-3f);
 
 		// Level = number of doublings of the cell size: 0 at zoom 1.0, +1 each time the zoom halves.
@@ -555,7 +558,7 @@ namespace hod::inline editor
 			if (i % 2 != 0)
 			{
 				float x = origin.GetX() + (float)i * minorStep;
-				Gizmos::Line(Matrix4::Identity, Vector2(x, bottom), Vector2(x, top), minorColor, renderView);
+				Gizmos::Line(Matrix4::Identity, Vector2(x, bottom), Vector2(x, top), minorColor, renderView, gridRenderingOrder);
 			}
 		}
 
@@ -566,7 +569,7 @@ namespace hod::inline editor
 			if (i % 2 != 0)
 			{
 				float y = origin.GetY() + (float)i * minorStep;
-				Gizmos::Line(Matrix4::Identity, Vector2(left, y), Vector2(right, y), minorColor, renderView);
+				Gizmos::Line(Matrix4::Identity, Vector2(left, y), Vector2(right, y), minorColor, renderView, gridRenderingOrder);
 			}
 		}
 
@@ -575,7 +578,7 @@ namespace hod::inline editor
 		for (int64_t i = firstMajorX; i <= lastMajorX; ++i)
 		{
 			float x = origin.GetX() + (float)i * majorStep;
-			Gizmos::Line(Matrix4::Identity, Vector2(x, bottom), Vector2(x, top), gridColor, renderView);
+			Gizmos::Line(Matrix4::Identity, Vector2(x, bottom), Vector2(x, top), gridColor, renderView, gridRenderingOrder);
 		}
 
 		int64_t firstMajorY = (int64_t)std::floor(relBottom / majorStep);
@@ -583,7 +586,7 @@ namespace hod::inline editor
 		for (int64_t i = firstMajorY; i <= lastMajorY; ++i)
 		{
 			float y = origin.GetY() + (float)i * majorStep;
-			Gizmos::Line(Matrix4::Identity, Vector2(left, y), Vector2(right, y), gridColor, renderView);
+			Gizmos::Line(Matrix4::Identity, Vector2(left, y), Vector2(right, y), gridColor, renderView, gridRenderingOrder);
 		}
 	}
 

@@ -163,7 +163,7 @@ namespace hod::inline editor
 		renderView.DeleteAfter(materialInstance);
 	}
 
-	void Gizmos::Line(const Matrix4& worldMatrix, const Vector2& start, const Vector2& end, const Color& color, RenderView& renderView)
+	void Gizmos::Line(const Matrix4& worldMatrix, const Vector2& start, const Vector2& end, const Color& color, RenderView& renderView, uint32_t order)
 	{
 		std::array<Vector2, 2> vertices {start, end};
 
@@ -172,7 +172,7 @@ namespace hod::inline editor
 		materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
 
 		RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-			vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, worldMatrix, materialInstance, std::numeric_limits<uint32_t>::max() - 1);
+			vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, worldMatrix, materialInstance, order);
 		renderView.PushRenderCommand(renderMeshCommand);
 		renderView.DeleteAfter(materialInstance);
 	}
