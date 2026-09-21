@@ -13,6 +13,7 @@ namespace hod::inline ui2
 	Canvas::Canvas()
 	{
 		_rootNode = DefaultAllocator::GetInstance().New<Node>();
+		_rootNode->SetName("Root");
 		_rootNode->SetDesiredSize(_designResolution);
 	}
 

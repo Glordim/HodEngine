@@ -8,6 +8,7 @@
 #include <HodEngine/Math/Matrix4.hpp>
 #include <HodEngine/Math/Rect.hpp>
 #include <HodEngine/Core/Event.hpp>
+#include <HodEngine/Core/String.hpp>
 #include <HodEngine/Core/Memory/DefaultAllocator.hpp>
 
 #include "HodEngine/UI2/Layout.hpp"
@@ -35,6 +36,25 @@ namespace hod::inline ui2
 
 		Node() = default;
 		virtual ~Node();
+
+		// Free-form label, not necessarily unique (siblings may share it): what the editor shows for
+		// the node. Empty for a node saved before names existed.
+		const String&				GetName() const;
+		void						SetName(const String& name);
+
+		// Identity local to the tree (a prefab) this node belongs to: what a serialized reference to
+		// another node of the same tree must point at — unlike the name (editable, duplicable) or the
+		// position in the tree (moves with edits). Same convention as the ECS: 0 means "not assigned
+		// yet", and ids are never reused once given. They are taken from a counter belonging to the
+		// persisted document, i.e. to whoever authors it (the prefab editor) — not to a Canvas, which
+		// is only the runtime container a prefab gets instantiated into.
+		uint64_t					GetLocalId() const;
+
+		// Gives an id, taken from nextLocalId, to this node and its descendants that have none yet.
+		void						AssignLocalIds(uint64_t& nextLocalId);
+
+		// This node or, depth-first, one of its descendants having that local id; nullptr if there is none.
+		Node*						FindByLocalId(uint64_t localId);
 
 		float						GetRotation() const;
 		void						SetRotation(float rotation);
@@ -186,6 +206,9 @@ namespace hod::inline ui2
 		static void					ArrangeChildInRect(Node* child, const Rect& parentContentRect);
 
 	private:
+
+		String						_name;
+		uint64_t					_localId = 0;
 
 		int32_t						_zOrder = std::numeric_limits<int32_t>().lowest();
 		int32_t						_globalZOrder = 0;

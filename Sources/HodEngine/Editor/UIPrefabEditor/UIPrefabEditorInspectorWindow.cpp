@@ -61,6 +61,16 @@ namespace hod::inline editor
 		{
 			EditorReflectedObject nodeObject(node, &node->GetReflectionDescriptorV(), nullptr, this);
 			changed |= PropertyDrawer::DrawDescriptor(nodeObject);
+
+			// Read-only: assigned once, on the first save, and never edited (see Node::GetLocalId).
+			if (node->GetLocalId() != 0)
+			{
+				ImGui::TextDisabled("Local Id: %llu", (unsigned long long)node->GetLocalId());
+			}
+			else
+			{
+				ImGui::TextDisabled("Local Id: assigned on save");
+			}
 		}
 		DrawHelper::EndInspectorBlock();
 

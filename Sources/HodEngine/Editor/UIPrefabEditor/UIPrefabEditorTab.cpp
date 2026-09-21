@@ -38,6 +38,12 @@ namespace hod::inline editor
 				return;
 			}
 
+			const DocumentNode* nextLocalIdNode = document.GetRootNode().GetChild("NextLocalId");
+			if (nextLocalIdNode != nullptr)
+			{
+				_nextLocalId = std::max<uint64_t>(nextLocalIdNode->GetUInt64(), 1);
+			}
+
 			_canvas.DeserializeFromDocument(document.GetRootNode());
 		}
 	}
@@ -110,11 +116,14 @@ namespace hod::inline editor
 	/// @return
 	bool UIPrefabEditorTab::OnSave()
 	{
+		_canvas.GetRootNode()->AssignLocalIds(_nextLocalId);
+
 		Document document;
 		if (_canvas.SerializeInDocument(document.GetRootNode()) == false)
 		{
 			return false;
 		}
+		document.GetRootNode().AddChild("NextLocalId").SetUInt64(_nextLocalId);
 
 		Stream& nodesStream = _assetContainer.AddDataBlock("Nodes", false);
 		DocumentWriterJson documentWriter;

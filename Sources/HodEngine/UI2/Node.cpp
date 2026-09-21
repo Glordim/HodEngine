@@ -12,6 +12,7 @@
 
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 
 #include <algorithm>
@@ -20,6 +21,11 @@ namespace hod::inline ui2
 {
 	DESCRIBE_REFLECTED_CLASS(Node, reflectionDescriptor)
 	{
+		// Serialized like any property, but never edited by hand: hidden from the inspector (same as the ECS' _localId).
+		AddPropertyT(reflectionDescriptor, &Node::_localId, "_localId")->AddTrait<ReflectionTraitHide>();
+
+		AddPropertyT(reflectionDescriptor, &Node::_name, "Name", &Node::SetName);
+
 		AddPropertyT(reflectionDescriptor, &Node::_rotation, "Rotation", &Node::SetRotation);
 		AddPropertyT(reflectionDescriptor, &Node::_scale, "Scale", &Node::SetScale);
 		AddPropertyT(reflectionDescriptor, &Node::_origin, "Origin", &Node::SetOrigin);
@@ -36,6 +42,69 @@ namespace hod::inline ui2
 			DefaultAllocator::GetInstance().Delete(child->_layoutParams);
 			DefaultAllocator::GetInstance().Delete(child);
 		}
+	}
+
+	/// @brief
+	/// @return
+	const String& Node::GetName() const
+	{
+		return _name;
+	}
+
+	/// @brief
+	/// @param name
+	void Node::SetName(const String& name)
+	{
+		if (_name != name)
+		{
+			_name = name;
+			_propertyChangedEvent.Emit();
+		}
+	}
+
+	/// @brief
+	/// @return
+	uint64_t Node::GetLocalId() const
+	{
+		return _localId;
+	}
+
+	/// @brief
+	/// @param nextLocalId
+	void Node::AssignLocalIds(uint64_t& nextLocalId)
+	{
+		if (_localId == 0)
+		{
+			_localId = nextLocalId;
+			++nextLocalId;
+		}
+
+		for (Node* child : _children)
+		{
+			child->AssignLocalIds(nextLocalId);
+		}
+	}
+
+	/// @brief
+	/// @param localId
+	/// @return
+	Node* Node::FindByLocalId(uint64_t localId)
+	{
+		if (localId != 0 && _localId == localId)
+		{
+			return this;
+		}
+
+		for (Node* child : _children)
+		{
+			Node* found = child->FindByLocalId(localId);
+			if (found != nullptr)
+			{
+				return found;
+			}
+		}
+
+		return nullptr;
 	}
 
 	void Node::AddChild(Node* child)

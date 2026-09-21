@@ -10,6 +10,7 @@
 #include <HodEngine/UI2/AnchoredLayoutParams.hpp>
 #include <HodEngine/UI2/LayoutParams.hpp>
 #include <HodEngine/UI2/Node.hpp>
+#include <HodEngine/UI2/NodeFactory.hpp>
 
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 
@@ -251,7 +252,7 @@ namespace hod::inline editor
 				// Parent rotation/scale ignored when converting to a local offset, same simplification as DrawNode/PickNode.
 				Vector2 localOffset = dropCanvasPos - parentCanvasPos;
 
-				ui2::Node*    newNode = nodeDescriptor->CreateInstance<ui2::Node>();
+				ui2::Node*    newNode = ui2::NodeFactory::GetInstance()->CreateNode(*nodeDescriptor);
 				LayoutParams* layoutParams = parent->CreateDefaultLayoutParams();
 				if (AnchoredLayoutParams* anchoredLayoutParams = LayoutParams::Cast<AnchoredLayoutParams>(layoutParams))
 				{

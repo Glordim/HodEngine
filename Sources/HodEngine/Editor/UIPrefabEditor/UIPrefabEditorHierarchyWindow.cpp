@@ -7,6 +7,7 @@
 
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <HodEngine/UI2/Node.hpp>
+#include <HodEngine/UI2/NodeFactory.hpp>
 #include <HodEngine/Core/Memory/DefaultAllocator.hpp>
 
 namespace hod::inline editor
@@ -47,8 +48,12 @@ namespace hod::inline editor
 			treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
 		}
 
+		// A node saved before names existed has none: fall back on its type rather than an empty label.
+		const String& label = node->GetName().Empty() ? node->GetReflectionDescriptorV().GetDisplayName() : node->GetName();
+
+		// Ids identify the node, names may collide between siblings: the ImGui id is the node itself.
 		ImGui::PushID(node);
-		bool opened = ImGui::TreeNodeEx(node->GetParent() == nullptr ? "Root" : "Node", treeNodeFlags);
+		bool opened = ImGui::TreeNodeEx(label.CStr(), treeNodeFlags);
 		if (ImGui::IsItemClicked() && ImGui::IsItemToggledOpen() == false)
 		{
 			tab->SetSelectedNode(node);
@@ -62,7 +67,7 @@ namespace hod::inline editor
 			{
 				ReflectionDescriptor* nodeDescriptor = *static_cast<ReflectionDescriptor**>(payload->Data);
 
-				ui2::Node* newNode = nodeDescriptor->CreateInstance<ui2::Node>();
+				ui2::Node* newNode = ui2::NodeFactory::GetInstance()->CreateNode(*nodeDescriptor);
 				node->AddChild(newNode);
 
 				// Keep the new child visible: a previously leaf/collapsed target would otherwise hide it.
@@ -86,7 +91,7 @@ namespace hod::inline editor
 		{
 			if (ImGui::MenuItem(ICON_MDI_PLUS_BOX " Add Child"))
 			{
-				node->AddChild(DefaultAllocator::GetInstance().New<ui2::Node>());
+				node->AddChild(ui2::NodeFactory::GetInstance()->CreateNode(ui2::Node::GetReflectionDescriptor()));
 				tab->MarkAsDirty();
 			}
 			if (node->GetParent() != nullptr && ImGui::MenuItem(ICON_MDI_DELETE " Delete"))

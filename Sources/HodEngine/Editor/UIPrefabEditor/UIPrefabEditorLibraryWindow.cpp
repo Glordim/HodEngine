@@ -51,7 +51,7 @@ namespace hod::inline editor
 					parent = tab->GetCanvas().GetRootNode();
 				}
 
-				parent->AddChild(nodeDescriptor.CreateInstance<ui2::Node>());
+				parent->AddChild(NodeFactory::GetInstance()->CreateNode(nodeDescriptor));
 				tab->MarkAsDirty();
 			}
 		}

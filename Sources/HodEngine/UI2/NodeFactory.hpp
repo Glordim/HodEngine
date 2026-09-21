@@ -31,6 +31,10 @@ namespace hod::inline ui2
 
 		const std::map<uint64_t, ReflectionDescriptor*>& GetAllDescriptors() const { return _typeToDescriptors; }
 
+		// Instantiates the node type `descriptor` describes (one of GetAllDescriptors()), named after that
+		// type. What editor tooling should use to create a node, rather than descriptor.CreateInstance().
+		Node* CreateNode(const ReflectionDescriptor& descriptor) const;
+
 	protected:
 
 		~NodeFactory() = default;
