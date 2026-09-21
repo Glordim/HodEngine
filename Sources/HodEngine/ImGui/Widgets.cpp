@@ -8,7 +8,7 @@ namespace hod::inline imgui
 	{
 		ImGuiContext& g = *GImGui;
 		ImGuiWindow*  window = g.CurrentWindow;
-		window->DrawList->AddRectFilled(p_min, p_max, fill_col, rounding);
+		window->DrawList->AddRectFilled(p_min, p_max, fill_col, rounding, drawFlags);
 		const float border_size = g.Style.FrameBorderSize;
 		if (border && border_size > 0.0f)
 		{
@@ -46,6 +46,42 @@ namespace hod::inline imgui
 		{
 			ImGui::RenderText(ImVec2(bb.Min.x + style.ItemInnerSpacing.x, bb.Min.y + style.FramePadding.y), label);
 		}
+	}
+
+	bool FramedButton(const char* label, bool active, ImDrawFlags drawFlags)
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems)
+		{
+			return false;
+		}
+
+		ImGuiContext&     g = *GImGui;
+		const ImGuiStyle& style = g.Style;
+		const ImGuiID     id = window->GetID(label);
+		const ImVec2      label_size = ImGui::CalcTextSize(label, NULL, true);
+
+		ImVec2 pos = window->DC.CursorPos;
+		ImVec2 Size = ImGui::CalcItemSize(ImVec2(0, 0), label_size.x + style.FramePadding.x * 2.0f, label_size.y + style.FramePadding.y * 2.0f);
+
+		const ImRect bb(pos, pos + Size);
+		ImGui::ItemSize(Size, style.FramePadding.y);
+		if (!ImGui::ItemAdd(bb, id))
+		{
+			return false;
+		}
+
+		bool hovered = false;
+		bool held = false;
+		bool pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held);
+
+		const ImU32 col = ImGui::GetColorU32((held && hovered) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : active ? ImGuiCol_ButtonActive : ImGuiCol_Button);
+		ImGui::RenderNavCursor(bb, id);
+		RenderFrame(bb.Min, bb.Max, col, true, style.FrameRounding, drawFlags);
+		ImGui::RenderTextClipped(bb.Min + style.FramePadding, bb.Max - style.FramePadding, label, NULL, &label_size, style.ButtonTextAlign, &bb);
+
+		IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags);
+		return pressed;
 	}
 
 	// Note: p_data, p_min and p_max are _pointers_ to a memory address holding the data. For a Drag widget, p_min and p_max are optional.

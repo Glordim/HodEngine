@@ -124,6 +124,60 @@ namespace hod::inline editor
 		return changed;
 	}
 
+	bool DrawHelper::DrawToggleWithSettings(const char* label, const char* itemName, const char* settingsPopupId, bool& toggled)
+	{
+		bool changed = false;
+
+		// Queried/opened outside of the PushID scope below so the popup ID matches the one the caller's BeginPopup(settingsPopupId) computes.
+		bool settingsOpened = ImGui::IsPopupOpen(settingsPopupId);
+
+		ImGui::PushID(settingsPopupId);
+
+		// Remembered for BeginSettingsPopup, refreshed every frame so the popup follows the widget (scroll, docking, resize...).
+		ImVec2 anchor = ImGui::GetCursorScreenPos();
+		anchor.y += ImGui::GetFrameHeight();
+		ImGui::GetStateStorage()->SetFloat(ImGui::GetID("AnchorX"), anchor.x);
+		ImGui::GetStateStorage()->SetFloat(ImGui::GetID("AnchorY"), anchor.y);
+
+		if (FramedButton(label, toggled, ImDrawFlags_RoundCornersLeft))
+		{
+			toggled = !toggled;
+			changed = true;
+		}
+		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+		{
+			ImGui::SetTooltip("%s %s", toggled ? "Hide" : "Show", itemName);
+		}
+
+		ImGui::SameLine(0.0f, 0.0f);
+		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
+		bool openSettings = FramedButton(ICON_MDI_MENU_DOWN "##Settings", settingsOpened, ImDrawFlags_RoundCornersRight);
+		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && settingsOpened == false)
+		{
+			ImGui::SetTooltip("Configure %s", itemName);
+		}
+
+		ImGui::PopID();
+
+		if (openSettings)
+		{
+			ImGui::OpenPopup(settingsPopupId);
+		}
+
+		return changed;
+	}
+
+	bool DrawHelper::BeginSettingsPopup(const char* settingsPopupId)
+	{
+		// Same ID scope as DrawToggleWithSettings' write; BeginPopup itself stays outside of it so its ID matches the one OpenPopup used.
+		ImGui::PushID(settingsPopupId);
+		ImVec2 anchor(ImGui::GetStateStorage()->GetFloat(ImGui::GetID("AnchorX")), ImGui::GetStateStorage()->GetFloat(ImGui::GetID("AnchorY")));
+		ImGui::PopID();
+
+		ImGui::SetNextWindowPos(anchor, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
+		return ImGui::BeginPopup(settingsPopupId);
+	}
+
 	bool DrawHelper::BeginInspectorBlock(const void* id, const char* icon, const char* title, bool* enabled, bool* removeRequested)
 	{
 		ImGui::PushID(id);

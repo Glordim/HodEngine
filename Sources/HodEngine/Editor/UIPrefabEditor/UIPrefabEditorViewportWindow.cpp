@@ -2,6 +2,7 @@
 #include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorViewportWindow.hpp"
 #include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
 
+#include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/Gizmos/Gizmos.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -267,61 +268,13 @@ namespace hod::inline editor
 		}
 	}
 
-	namespace
-	{
-		/// @brief Toggle button (highlighted while `toggled`) with a small gear button glued to it.
-		/// @param label toggle button label
-		/// @param itemName what is shown/hidden, used to build the tooltips
-		/// @param settingsPopupId popup opened by the gear button (the caller draws its content)
-		/// @param toggled flipped when the toggle button is pressed
-		void DrawToggleWithSettingsButtons(const char* label, const char* itemName, const char* settingsPopupId, bool& toggled)
-		{
-			bool pushedActiveColor = toggled;
-			if (pushedActiveColor)
-			{
-				ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive));
-			}
-			if (ImGui::Button(label))
-			{
-				toggled = !toggled;
-			}
-			if (pushedActiveColor)
-			{
-				ImGui::PopStyleColor();
-			}
-			if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
-			{
-				ImGui::SetTooltip("%s %s", toggled ? "Hide" : "Show", itemName);
-			}
-
-			// Scoped so the two gear buttons don't share an ID; OpenPopup is called outside that scope
-			// so the popup ID matches the one the caller's BeginPopup(settingsPopupId) computes.
-			ImGui::SameLine(0.0f, 0.0f);
-			ImGui::PushID(settingsPopupId);
-			bool openSettings = ImGui::SmallButton(ICON_MDI_COG);
-			if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
-			{
-				ImGui::SetTooltip("Configure %s", itemName);
-			}
-			ImGui::PopID();
-
-			if (openSettings)
-			{
-				ImGui::OpenPopup(settingsPopupId);
-			}
-		}
-	}
-
-	/// @brief Toolbar on top of the viewport: a "Guides" and a "Grid" toggle, each with a small gear
-	/// button glued to it opening its settings.
+	/// @brief Toolbar on top of the viewport: a "Guides" and a "Grid" toggle, each glued to a small
+	/// arrow button opening its settings (see DrawHelper::DrawToggleWithSettings).
 	void UIPrefabEditorViewportWindow::DrawToolbar()
 	{
-		bool guidesVisible = _settings._guidesVisible;
-		DrawToggleWithSettingsButtons(ICON_MDI_RULER_SQUARE " Guides", "guides", "UIPrefabGuides", _settings._guidesVisible);
+		_settingsDirty |= DrawHelper::DrawToggleWithSettings(ICON_MDI_RULER_SQUARE " Guides", "guides", "UIPrefabGuides", _settings._guidesVisible);
 		ImGui::SameLine();
-		bool gridVisible = _settings._gridVisible;
-		DrawToggleWithSettingsButtons(ICON_MDI_GRID " Grid", "grid", "UIPrefabGrid", _settings._gridVisible);
-		_settingsDirty |= (guidesVisible != _settings._guidesVisible) || (gridVisible != _settings._gridVisible);
+		_settingsDirty |= DrawHelper::DrawToggleWithSettings(ICON_MDI_GRID " Grid", "grid", "UIPrefabGrid", _settings._gridVisible);
 
 		DrawGuidesSettingsPopup();
 		DrawGridSettingsPopup();
@@ -340,7 +293,7 @@ namespace hod::inline editor
 	/// resolution, delete) plus an "Add Guide" button.
 	void UIPrefabEditorViewportWindow::DrawGuidesSettingsPopup()
 	{
-		if (ImGui::BeginPopup("UIPrefabGuides"))
+		if (DrawHelper::BeginSettingsPopup("UIPrefabGuides"))
 		{
 			int32_t removeIndex = -1;
 			for (uint32_t i = 0; i < _settings._guides.Size(); ++i)
@@ -419,10 +372,13 @@ namespace hod::inline editor
 	/// powers of two as the zoom changes, see DrawGrid).
 	void UIPrefabEditorViewportWindow::DrawGridSettingsPopup()
 	{
-		if (ImGui::BeginPopup("UIPrefabGrid"))
+		if (DrawHelper::BeginSettingsPopup("UIPrefabGrid"))
 		{
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted("Cell size");
+			ImGui::SameLine();
 			ImGui::SetNextItemWidth(120.0f);
-			_settingsDirty |= ImGui::DragFloat("Cell size", &_settings._gridCellSize, 1.0f, 1.0f, 100000.0f, "%.1f", ImGuiSliderFlags_AlwaysClamp);
+			_settingsDirty |= ImGui::DragFloat("##CellSize", &_settings._gridCellSize, 1.0f, 1.0f, 100000.0f, "%.1f", ImGuiSliderFlags_AlwaysClamp);
 			ImGui::EndPopup();
 		}
 	}
