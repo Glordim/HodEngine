@@ -220,7 +220,8 @@ namespace hod::inline editor
 		// rendering order, so they stay on top of it.
 		tab->GetCanvas().PushRenderCommand(*renderView, RenderView::RenderQueueType::World);
 
-		DrawNode(root, *renderView);
+		// Only the prefab root's subtree: `root` is the hidden container, whose rect is the design resolution, not part of the prefab.
+		DrawNode(tab->GetPrefabRoot(), *renderView);
 
 		if (selectedNode != nullptr && LayoutParams::Cast<AnchoredLayoutParams>(selectedNode->GetLayoutParams()) != nullptr)
 		{
@@ -232,7 +233,7 @@ namespace hod::inline editor
 
 		if (hovered && mouseInsideImage && ImGui::IsMouseClicked(ImGuiMouseButton_Left) && _draggedGizmoHandle == GizmoHandle::None)
 		{
-			tab->SetSelectedNode(PickNode(root, mouseCanvasPos));
+			tab->SetSelectedNode(PickNode(tab->GetPrefabRoot(), mouseCanvasPos));
 		}
 
 		if (ImGui::BeginDragDropTarget())
@@ -245,7 +246,7 @@ namespace hod::inline editor
 				ui2::Node* parent = tab->GetSelectedNode();
 				if (parent == nullptr)
 				{
-					parent = root;
+					parent = tab->GetPrefabRoot();
 				}
 
 				Vector2 dropCanvasPos = screenToCanvas(ImGui::GetIO().MousePos);

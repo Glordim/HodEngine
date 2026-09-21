@@ -28,7 +28,23 @@ namespace hod::inline editor
 	void UIPrefabEditorHierarchyWindow::DrawContent()
 	{
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
-		DrawNode(tab->GetCanvas().GetRootNode());
+		// A newly selected node may sit under collapsed parents (picked in the viewport): for that one
+		// frame the ancestors are forced open and the node scrolled into view. Only on a change, so the
+		// user stays free to collapse them again afterwards.
+		ui2::Node* selection = tab->GetSelectedNode();
+		_revealSelection = (selection != nullptr && selection != _lastSelectedNode);
+		_lastSelectedNode = selection;
+
+		// The canvas' own root node is only the hidden container of the prefab root, not part of the prefab.
+		DrawNode(tab->GetPrefabRoot());
+
+		if (_pendingReparentNode != nullptr)
+		{
+			_pendingReparentNode->GetParent()->ReparentChild(_pendingReparentNode, _pendingReparentParent);
+			_pendingReparentNode = nullptr;
+			_pendingReparentParent = nullptr;
+			tab->MarkAsDirty();
+		}
 	}
 
 	/// @brief
@@ -53,10 +69,34 @@ namespace hod::inline editor
 
 		// Ids identify the node, names may collide between siblings: the ImGui id is the node itself.
 		ImGui::PushID(node);
+		if (_revealSelection)
+		{
+			for (ui2::Node* ancestor = selection->GetParent(); ancestor != nullptr; ancestor = ancestor->GetParent())
+			{
+				if (ancestor == node)
+				{
+					ImGui::SetNextItemOpen(true);
+					break;
+				}
+			}
+		}
 		bool opened = ImGui::TreeNodeEx(label.CStr(), treeNodeFlags);
+		if (_revealSelection && node == selection)
+		{
+			ImGui::SetScrollHereY();
+		}
 		if (ImGui::IsItemClicked() && ImGui::IsItemToggledOpen() == false)
 		{
 			tab->SetSelectedNode(node);
+		}
+
+		// Any node can be dragged onto another to become its child, except the prefab root: it has no
+		// place to go, being the one and only child of the hidden container.
+		if (node != tab->GetPrefabRoot() && ImGui::BeginDragDropSource())
+		{
+			ImGui::SetDragDropPayload("UI2Node", &node, sizeof(ui2::Node*));
+			ImGui::TextUnformatted(label.CStr());
+			ImGui::EndDragDropSource();
 		}
 
 		// Dropping a node from the Library adds it as a child of the hovered node.
@@ -76,6 +116,26 @@ namespace hod::inline editor
 				tab->SetSelectedNode(newNode);
 				tab->MarkAsDirty();
 			}
+
+			// Only offered (highlighted, then accepted) when the move makes sense: not onto itself, onto
+			// one of its own descendants, or onto the parent it already has.
+			const ImGuiPayload* peekedPayload = ImGui::GetDragDropPayload();
+			if (peekedPayload != nullptr && peekedPayload->IsDataType("UI2Node"))
+			{
+				ui2::Node* draggedNode = *static_cast<ui2::Node**>(peekedPayload->Data);
+				if (draggedNode != node && node->IsDescendantOf(draggedNode) == false && draggedNode->GetParent() != node)
+				{
+					payload = ImGui::AcceptDragDropPayload("UI2Node");
+					if (payload != nullptr)
+					{
+						_pendingReparentNode = draggedNode;
+						_pendingReparentParent = node;
+
+						// Keep the moved node visible: a previously leaf/collapsed target would otherwise hide it.
+						ImGui::GetStateStorage()->SetInt(ImGui::GetItemID(), 1);
+					}
+				}
+			}
 			ImGui::EndDragDropTarget();
 		}
 
@@ -94,7 +154,7 @@ namespace hod::inline editor
 				node->AddChild(ui2::NodeFactory::GetInstance()->CreateNode(ui2::Node::GetReflectionDescriptor()));
 				tab->MarkAsDirty();
 			}
-			if (node->GetParent() != nullptr && ImGui::MenuItem(ICON_MDI_DELETE " Delete"))
+			if (node != tab->GetPrefabRoot() && ImGui::MenuItem(ICON_MDI_DELETE " Delete"))
 			{
 				ui2::Node* parent = node->GetParent();
 				if (tab->GetSelectedNode() == node)

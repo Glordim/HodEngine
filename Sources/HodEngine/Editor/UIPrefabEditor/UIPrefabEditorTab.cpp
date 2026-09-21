@@ -11,7 +11,10 @@
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
+#include <HodEngine/UI2/AnchoredLayoutParams.hpp>
 #include <HodEngine/UI2/Node.hpp>
+
+#include <HodEngine/Core/Memory/DefaultAllocator.hpp>
 
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
@@ -25,32 +28,78 @@ namespace hod::inline editor
 	{
 		if (asset != nullptr)
 		{
-			const AssetContainer::DataBlockInfo* nodesDataBlock = _assetContainer.FindDataBlock("Nodes");
-			if (nodesDataBlock == nullptr)
-			{
-				return;
-			}
-
-			Document           document;
-			DocumentReaderJson documentReader;
-			if (documentReader.Read(document, *nodesDataBlock->_stream) == false)
-			{
-				return;
-			}
-
-			const DocumentNode* nextLocalIdNode = document.GetRootNode().GetChild("NextLocalId");
-			if (nextLocalIdNode != nullptr)
-			{
-				_nextLocalId = std::max<uint64_t>(nextLocalIdNode->GetUInt64(), 1);
-			}
-
-			_canvas.DeserializeFromDocument(document.GetRootNode());
+			LoadNodes();
 		}
+		EnsurePrefabRoot();
 	}
 
 	/// @brief
 	UIPrefabEditorTab::~UIPrefabEditorTab()
 	{
+	}
+
+	/// @brief
+	void UIPrefabEditorTab::LoadNodes()
+	{
+		const AssetContainer::DataBlockInfo* nodesDataBlock = _assetContainer.FindDataBlock("Nodes");
+		if (nodesDataBlock == nullptr)
+		{
+			return;
+		}
+
+		Document           document;
+		DocumentReaderJson documentReader;
+		if (documentReader.Read(document, *nodesDataBlock->_stream) == false)
+		{
+			return;
+		}
+
+		const DocumentNode* nextLocalIdNode = document.GetRootNode().GetChild("NextLocalId");
+		if (nextLocalIdNode != nullptr)
+		{
+			_nextLocalId = std::max<uint64_t>(nextLocalIdNode->GetUInt64(), 1);
+		}
+
+		_canvas.DeserializeFromDocument(document.GetRootNode());
+	}
+
+	/// @brief
+	void UIPrefabEditorTab::EnsurePrefabRoot()
+	{
+		ui2::Node* container = _canvas.GetRootNode();
+		if (container->GetChildren().Size() == 1)
+		{
+			return;
+		}
+
+		ui2::Node* prefabRoot = DefaultAllocator::GetInstance().New<ui2::Node>();
+		prefabRoot->SetName("Root");
+
+		if (container->GetChildren().Empty())
+		{
+			container->AddChild(prefabRoot);
+			return;
+		}
+
+		// Legacy prefab: stretched over the container with a zero size delta, the wrapper is exactly
+		// the rect its children used to be placed in.
+		ui2::AnchoredLayoutParams* layoutParams = DefaultAllocator::GetInstance().New<ui2::AnchoredLayoutParams>();
+		layoutParams->SetAnchorMin(Vector2::Zero);
+		layoutParams->SetAnchorMax(Vector2::One);
+		prefabRoot->SetDesiredSize(Vector2::Zero);
+		container->AddChild(prefabRoot, layoutParams);
+
+		while (container->GetChildren().Size() > 1)
+		{
+			container->ReparentChild(container->GetChildren()[0], prefabRoot);
+		}
+	}
+
+	/// @brief
+	/// @return
+	ui2::Node* UIPrefabEditorTab::GetPrefabRoot() const
+	{
+		return _canvas.GetRootNode()->GetChildren()[0];
 	}
 
 	/// @brief

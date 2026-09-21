@@ -33,6 +33,33 @@ namespace hod::inline ui2
 		AddPropertyT(reflectionDescriptor, &Node::_desiredSize, "DesiredSize", &Node::SetDesiredSize);
 	}
 
+	namespace
+	{
+		/// @brief Which LayoutParams a child must end up with, given the one it has (may be null) and a freshly
+		/// created default one of the type its (new) parent expects: the current one if it already is of that
+		/// type, otherwise the fresh one, carrying over the common fields every LayoutParams shares (margin,
+		/// alignment, min/max size). Destroys whichever of the two is not returned.
+		LayoutParams* AdaptLayoutParams(LayoutParams* current, LayoutParams* freshDefault)
+		{
+			if (current != nullptr && current->GetReflectionDescriptorV().GetType() == freshDefault->GetReflectionDescriptorV().GetType())
+			{
+				DefaultAllocator::GetInstance().Delete(freshDefault);
+				return current;
+			}
+
+			if (current != nullptr)
+			{
+				freshDefault->SetMargin(current->GetMargin());
+				freshDefault->SetHAlign(current->GetHAlign());
+				freshDefault->SetVAlign(current->GetVAlign());
+				freshDefault->SetMinSize(current->GetMinSize());
+				freshDefault->SetMaxSize(current->GetMaxSize());
+				DefaultAllocator::GetInstance().Delete(current);
+			}
+			return freshDefault;
+		}
+	}
+
 	Node::~Node()
 	{
 		DefaultAllocator::GetInstance().Delete(_layout);
@@ -145,6 +172,41 @@ namespace hod::inline ui2
 
 			MarkMeasureAsDirty();
 		}
+	}
+
+	void Node::ReparentChild(Node* child, Node* newParent)
+	{
+		Assert(newParent != nullptr);
+		Assert(newParent != this);
+		Assert(newParent != child && newParent->IsDescendantOf(child) == false);
+
+		auto it = std::find(_children.Begin(), _children.End(), child);
+		if (it == _children.End())
+		{
+			return;
+		}
+
+		// The new parent may expect another LayoutParams type than this one does (e.g. a BoxLayout).
+		LayoutParams* layoutParams = AdaptLayoutParams(child->_layoutParams, newParent->CreateDefaultLayoutParams());
+		child->_layoutParams = nullptr;
+		child->_parent = nullptr;
+
+		_children.Erase(it);
+		MarkMeasureAsDirty();
+
+		newParent->AddChild(child, layoutParams);
+	}
+
+	bool Node::IsDescendantOf(const Node* ancestor) const
+	{
+		for (const Node* node = _parent; node != nullptr; node = node->_parent)
+		{
+			if (node == ancestor)
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/// @brief
@@ -618,22 +680,11 @@ namespace hod::inline ui2
 		// over the common fields every LayoutParams shares (margin, alignment, min/max size).
 		for (Node* child : _children)
 		{
-			LayoutParams* newLayoutParams = CreateDefaultLayoutParams();
 			LayoutParams* oldLayoutParams = child->_layoutParams;
-			if (oldLayoutParams != nullptr && oldLayoutParams->GetReflectionDescriptorV().GetType() == newLayoutParams->GetReflectionDescriptorV().GetType())
+			LayoutParams* newLayoutParams = AdaptLayoutParams(oldLayoutParams, CreateDefaultLayoutParams());
+			if (newLayoutParams == oldLayoutParams)
 			{
-				DefaultAllocator::GetInstance().Delete(newLayoutParams);
 				continue;
-			}
-
-			if (oldLayoutParams != nullptr)
-			{
-				newLayoutParams->SetMargin(oldLayoutParams->GetMargin());
-				newLayoutParams->SetHAlign(oldLayoutParams->GetHAlign());
-				newLayoutParams->SetVAlign(oldLayoutParams->GetVAlign());
-				newLayoutParams->SetMinSize(oldLayoutParams->GetMinSize());
-				newLayoutParams->SetMaxSize(oldLayoutParams->GetMaxSize());
-				DefaultAllocator::GetInstance().Delete(oldLayoutParams);
 			}
 
 			child->_layoutParams = newLayoutParams;

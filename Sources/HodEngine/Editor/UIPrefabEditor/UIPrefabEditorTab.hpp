@@ -22,6 +22,11 @@ namespace hod::inline editor
 
 		ui2::Canvas&	GetCanvas();
 
+		// The prefab's actual root: the single child of the canvas' own root node, which is only the
+		// hidden container (design resolution sized) playing the parent that arranges it. Never null,
+		// see EnsurePrefabRoot().
+		ui2::Node*		GetPrefabRoot() const;
+
 		ui2::Node*		GetSelectedNode() const;
 		void			SetSelectedNode(ui2::Node* node);
 
@@ -31,6 +36,16 @@ namespace hod::inline editor
 		bool	DrawContent() override;
 		void	DrawMenuBar() override;
 		bool	OnSave() override;
+
+	private:
+
+		void	LoadNodes();
+
+		// Guarantees the canvas' root node holds exactly one child (the prefab root): creates it for an
+		// empty prefab, or, for one saved when the canvas' root node itself was the prefab root (possibly
+		// with several children), wraps those children in a stretched prefab root so they keep their
+		// placement.
+		void	EnsurePrefabRoot();
 
 	private:
 

@@ -48,7 +48,7 @@ namespace hod::inline editor
 				ui2::Node* parent = tab->GetSelectedNode();
 				if (parent == nullptr)
 				{
-					parent = tab->GetCanvas().GetRootNode();
+					parent = tab->GetPrefabRoot();
 				}
 
 				parent->AddChild(NodeFactory::GetInstance()->CreateNode(nodeDescriptor));

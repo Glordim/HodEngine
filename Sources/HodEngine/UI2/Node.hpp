@@ -122,6 +122,14 @@ namespace hod::inline ui2
 		// allocated for this placement (ownership transfers to this Node, see _layoutParams).
 		void						AddChild(Node* child, LayoutParams* layoutParams);
 		void						RemoveChild(Node* child);
+
+		// Moves child (which must be one of this node's children) under newParent, which must not be
+		// child itself nor one of its descendants. Its LayoutParams are kept (unlike RemoveChild +
+		// AddChild, which would destroy them), converted if newParent expects another type.
+		void						ReparentChild(Node* child, Node* newParent);
+
+		// Whether ancestor is this node's parent, or the parent of its parent, and so on.
+		bool						IsDescendantOf(const Node* ancestor) const;
 		Node*						GetParent() const;
 		const Vector<Node*>&		GetChildren() const;
 
