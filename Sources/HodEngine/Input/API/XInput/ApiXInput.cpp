@@ -53,8 +53,20 @@ namespace hod::inline input
 			}
 		}
 
+#if defined(__clang__)
+	#pragma clang diagnostic push
+	#if __has_warning("-Wcast-function-type-mismatch")
+		#pragma clang diagnostic ignored "-Wcast-function-type-mismatch"
+	#endif
+	#if __has_warning("-Wcast-function-type-strict")
+		#pragma clang diagnostic ignored "-Wcast-function-type-strict"
+	#endif
+#endif
 		_getStateProc = (XInputGetStateProc)GetProcAddress(_hInstance, "XInputGetState");
 		_setStateProc = (XInputSetStateProc)GetProcAddress(_hInstance, "XInputSetState");
+#if defined(__clang__)
+	#pragma clang diagnostic pop
+#endif
 
 		for (uint32_t padIndex = 0; padIndex < MaxPad; ++padIndex)
 		{
