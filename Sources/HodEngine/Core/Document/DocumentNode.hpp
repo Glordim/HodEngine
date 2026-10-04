@@ -1,9 +1,9 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
+#include "HodEngine/Core/ArrayView.hpp"
 #include "HodEngine/Core/String.hpp"
 #include <cstdint>
-#include <span>
 #include <string_view>
 
 namespace hod::inline core
@@ -55,8 +55,8 @@ namespace hod::inline core
 		bool IsObject() const;
 		bool IsArray() const;
 
-		template<typename T, size_t Size>
-		void SetValues(const std::span<T, Size>& values);
+		template<typename T>
+		void SetValues(ArrayView<T> values);
 
 		template<typename T>
 		void SetValue(const T& value);
@@ -135,8 +135,8 @@ namespace hod::inline core
 		Value  _value;
 	};
 
-	template<typename T, size_t Size>
-	void DocumentNode::SetValues(const std::span<T, Size>& values)
+	template<typename T>
+	void DocumentNode::SetValues(ArrayView<T> values)
 	{
 		// TODO ensure no child
 		_type = Type::Array;

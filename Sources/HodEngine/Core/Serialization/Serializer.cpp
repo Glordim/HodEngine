@@ -368,18 +368,18 @@ namespace hod::inline core
 
 		switch (property->GetType())
 		{
-			// case ReflectionPropertyVariable::Type::Bool: arrayNode.SetValues(std::span<const bool>(*reinterpret_cast<const Vector<bool>*>(arrayAddress))); break;
-			case ReflectionPropertyVariable::Type::Int8: arrayNode.SetValues(std::span<const int8_t>(*reinterpret_cast<const Vector<int8_t>*>(arrayAddress))); break;
-			case ReflectionPropertyVariable::Type::Int16: arrayNode.SetValues(std::span<const int16_t>(*reinterpret_cast<const Vector<int16_t>*>(arrayAddress))); break;
-			case ReflectionPropertyVariable::Type::Int32: arrayNode.SetValues(std::span<const int32_t>(*reinterpret_cast<const Vector<int32_t>*>(arrayAddress))); break;
-			case ReflectionPropertyVariable::Type::Int64: arrayNode.SetValues(std::span<const int64_t>(*reinterpret_cast<const Vector<int64_t>*>(arrayAddress))); break;
-			case ReflectionPropertyVariable::Type::UInt8: arrayNode.SetValues(std::span<const uint8_t>(*reinterpret_cast<const Vector<uint8_t>*>(arrayAddress))); break;
-			case ReflectionPropertyVariable::Type::UInt16: arrayNode.SetValues(std::span<const uint16_t>(*reinterpret_cast<const Vector<uint16_t>*>(arrayAddress))); break;
-			case ReflectionPropertyVariable::Type::UInt32: arrayNode.SetValues(std::span<const uint32_t>(*reinterpret_cast<const Vector<uint32_t>*>(arrayAddress))); break;
-			case ReflectionPropertyVariable::Type::UInt64: arrayNode.SetValues(std::span<const uint64_t>(*reinterpret_cast<const Vector<uint64_t>*>(arrayAddress))); break;
-			case ReflectionPropertyVariable::Type::Float32: arrayNode.SetValues(std::span<const float>(*reinterpret_cast<const Vector<float>*>(arrayAddress))); break;
-			case ReflectionPropertyVariable::Type::Float64: arrayNode.SetValues(std::span<const double>(*reinterpret_cast<const Vector<double>*>(arrayAddress))); break;
-			case ReflectionPropertyVariable::Type::String: arrayNode.SetValues(std::span<const String>(*reinterpret_cast<const Vector<String>*>(arrayAddress))); break;
+			// case ReflectionPropertyVariable::Type::Bool: arrayNode.SetValues(ArrayView<bool>(*reinterpret_cast<const Vector<bool>*>(arrayAddress))); break;
+			case ReflectionPropertyVariable::Type::Int8: arrayNode.SetValues(ArrayView<int8_t>(*reinterpret_cast<const Vector<int8_t>*>(arrayAddress))); break;
+			case ReflectionPropertyVariable::Type::Int16: arrayNode.SetValues(ArrayView<int16_t>(*reinterpret_cast<const Vector<int16_t>*>(arrayAddress))); break;
+			case ReflectionPropertyVariable::Type::Int32: arrayNode.SetValues(ArrayView<int32_t>(*reinterpret_cast<const Vector<int32_t>*>(arrayAddress))); break;
+			case ReflectionPropertyVariable::Type::Int64: arrayNode.SetValues(ArrayView<int64_t>(*reinterpret_cast<const Vector<int64_t>*>(arrayAddress))); break;
+			case ReflectionPropertyVariable::Type::UInt8: arrayNode.SetValues(ArrayView<uint8_t>(*reinterpret_cast<const Vector<uint8_t>*>(arrayAddress))); break;
+			case ReflectionPropertyVariable::Type::UInt16: arrayNode.SetValues(ArrayView<uint16_t>(*reinterpret_cast<const Vector<uint16_t>*>(arrayAddress))); break;
+			case ReflectionPropertyVariable::Type::UInt32: arrayNode.SetValues(ArrayView<uint32_t>(*reinterpret_cast<const Vector<uint32_t>*>(arrayAddress))); break;
+			case ReflectionPropertyVariable::Type::UInt64: arrayNode.SetValues(ArrayView<uint64_t>(*reinterpret_cast<const Vector<uint64_t>*>(arrayAddress))); break;
+			case ReflectionPropertyVariable::Type::Float32: arrayNode.SetValues(ArrayView<float>(*reinterpret_cast<const Vector<float>*>(arrayAddress))); break;
+			case ReflectionPropertyVariable::Type::Float64: arrayNode.SetValues(ArrayView<double>(*reinterpret_cast<const Vector<double>*>(arrayAddress))); break;
+			case ReflectionPropertyVariable::Type::String: arrayNode.SetValues(ArrayView<String>(*reinterpret_cast<const Vector<String>*>(arrayAddress))); break;
 			case ReflectionPropertyVariable::Type::Object:
 			{
 				uint32_t elementCount = property->GetElementCount(instance);

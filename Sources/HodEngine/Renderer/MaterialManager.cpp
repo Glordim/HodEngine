@@ -18,7 +18,6 @@
 
 #include "HodEngine/Core/Vector.hpp"
 #include <cstring>
-#include <span>
 
 namespace hod::inline renderer
 {

@@ -145,7 +145,7 @@ namespace hod::inline game
 				overrideTargetNode.AddChild("Type").SetInt64(static_cast<int64_t>(PrefabUtility::PrefabOverride::Type::Component));
 			}
 
-			overrideTargetNode.AddChild("LocalIds").SetValues(std::span(override._target));
+			overrideTargetNode.AddChild("LocalIds").SetValues(ArrayView(override._target));
 
 			// TODO can be an array of modifcations to mutalize target description
 			DocumentNode& overrideModificationNode = overrideNode.AddChild("Modification");
