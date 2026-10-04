@@ -87,6 +87,7 @@ namespace hod::inline core
 		void     ShrinkToFit();
 
 		const char* CStr() const& { return GetBuffer(); }
+		const char* Data() const& { return GetBuffer(); }
 		char*       Data() &      { return GetBuffer(); }
 
 		// range-based for

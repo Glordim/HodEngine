@@ -79,6 +79,15 @@ TEST_F(ArrayView, ConstructorFromVectorOfNonTrivialType)
 	EXPECT_EQ(view[1], "world");
 }
 
+TEST_F(ArrayView, ConstructorFromString)
+{
+	hod::String          string("hello");
+	hod::ArrayView<char> view(string);
+	EXPECT_EQ(view.Size(), 5);
+	EXPECT_EQ(view.Data(), string.CStr());
+	EXPECT_EQ(view.Back(), 'o');
+}
+
 TEST_F(ArrayView, ImplicitConversionAsFunctionArgument)
 {
 	hod::Vector<int> vector = {1, 2, 3};
