@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
+
+  <Type Name="hod::StaticArray&lt;*,*&gt;">
+    <DisplayString>{{ size={$T2} }}</DisplayString>
+    <Expand>
+      <Item Name="[size]">$T2</Item>
+      <ArrayItems>
+        <Size>$T2</Size>
+        <ValuePointer>_elements</ValuePointer>
+      </ArrayItems>
+    </Expand>
+  </Type>
+
+</AutoVisualizer>
