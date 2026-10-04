@@ -48,7 +48,7 @@ namespace hod::inline core
 		}
 
 		AllocationHeader* allocationHeader = static_cast<AllocationHeader*>(allocation);
-		allocationHeader->_callstackSize = Debug::GetCallstack(allocationHeader->_callstack.data(), (uint32_t)allocationHeader->_callstack.size());
+		allocationHeader->_callstackSize = Debug::GetCallstack(allocationHeader->_callstack.Data(), (uint32_t)allocationHeader->_callstack.Size());
 		allocationHeader->_size = Size;
 		allocationHeader->_next = nullptr;
 		if (_stopAllocationCollect == false)

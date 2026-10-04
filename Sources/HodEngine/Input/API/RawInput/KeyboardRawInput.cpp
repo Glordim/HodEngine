@@ -1,4 +1,4 @@
-#include <array>
+#include "HodEngine/Core/StaticArray.hpp"
 #include <limits>
 
 #include "HodEngine/Input/Pch.hpp"
@@ -202,14 +202,14 @@ namespace hod::inline input
 	/// @return
 	WINDOWS_SCAN_CODE ConvertInputIdToWindowsScanCode(InputId inputId)
 	{
-		static std::array<WINDOWS_SCAN_CODE, std::to_underlying(InputId::KeyboardEnumCount)> inputIdToWindowsScanCode;
+		static StaticArray<WINDOWS_SCAN_CODE, std::to_underlying(InputId::KeyboardEnumCount)> inputIdToWindowsScanCode;
 
 		static bool mapped = false;
 		if (mapped == false)
 		{
 			mapped = true;
 
-			inputIdToWindowsScanCode.fill(WINDOWS_SCAN_CODE::SC_NONE);
+			inputIdToWindowsScanCode.Fill(WINDOWS_SCAN_CODE::SC_NONE);
 
 			inputIdToWindowsScanCode[InputIdLocalIndex(InputId::KeyEscape)] = WINDOWS_SCAN_CODE::SC_ESCAPE;
 			inputIdToWindowsScanCode[InputIdLocalIndex(InputId::Key1)] = WINDOWS_SCAN_CODE::SC_1;
@@ -389,14 +389,14 @@ namespace hod::inline input
 	/// @return
 	InputId ConvertWindowsScanCodeToInputId(WINDOWS_SCAN_CODE scanCode)
 	{
-		static std::array<InputId, std::numeric_limits<std::underlying_type_t<WINDOWS_SCAN_CODE>>().max()> windowsScanCodeToInputId;
+		static StaticArray<InputId, std::numeric_limits<std::underlying_type_t<WINDOWS_SCAN_CODE>>().max()> windowsScanCodeToInputId;
 
 		static bool mapped = false;
 		if (mapped == false)
 		{
 			mapped = true;
 
-			windowsScanCodeToInputId.fill(InputId::Unknown);
+			windowsScanCodeToInputId.Fill(InputId::Unknown);
 
 			windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_ESCAPE)] = InputId::KeyEscape;
 			windowsScanCodeToInputId[std::to_underlying(WINDOWS_SCAN_CODE::SC_1)] = InputId::Key1;

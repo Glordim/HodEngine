@@ -23,7 +23,6 @@
 #undef min
 #undef max
 
-#include <array>
 
 #if defined(PLATFORM_WINDOWS)
 	#include <HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp>

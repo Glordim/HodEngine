@@ -1,13 +1,10 @@
-#include <array>
 #include <limits>
-
 
 #include "HodEngine/Core/TypeTrait.hpp"
 #include "HodEngine/Input/API/GameController/GamepadGameController.hpp"
 #include "HodEngine/Input/Api.hpp"
 #include "HodEngine/Input/InputIdHelper.hpp"
 #include "HodEngine/Input/Pch.hpp"
-
 
 #import <GameController/GameController.h>
 
@@ -43,4 +40,4 @@ void GamepadGameController::WriteNextState() {
   if (_extendedGamepad.rightThumbstickButton.pressed)
     EditNextState<PadGameControllerState>()->_buttons[0] |= (1 << 3);
 }
-}
+} // namespace hod::inline input

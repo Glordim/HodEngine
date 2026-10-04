@@ -30,7 +30,7 @@
 #include <HodEngine/Renderer/RHI/Texture.hpp>
 
 #include <algorithm>
-#include <array>
+#include "HodEngine/Core/StaticArray.hpp"
 #include <cmath>
 #include <vector>
 
@@ -191,16 +191,16 @@ namespace hod::inline editor
 			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 		backgroundMaterial->SetVec4("ubo.color", Vector4(30.0f / 255.0f, 30.0f / 255.0f, 30.0f / 255.0f, 1.0f));
 
-		std::array<Vector2, 4> backgroundVertices = {
+		StaticArray<Vector2, 4> backgroundVertices = {
 			Vector2(-canvasSize.GetX() * 0.5f, canvasSize.GetY() * 0.5f),
 			Vector2(canvasSize.GetX() * 0.5f, canvasSize.GetY() * 0.5f),
 			Vector2(canvasSize.GetX() * 0.5f, -canvasSize.GetY() * 0.5f),
 			Vector2(-canvasSize.GetX() * 0.5f, -canvasSize.GetY() * 0.5f),
 		};
-		std::array<uint16_t, 6> backgroundIndices = {0, 1, 2, 0, 2, 3};
+		StaticArray<uint16_t, 6> backgroundIndices = {0, 1, 2, 0, 2, 3};
 
 		RenderCommandMesh* backgroundCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-			backgroundVertices.data(), nullptr, nullptr, (uint32_t)backgroundVertices.size(), backgroundIndices.data(), (uint32_t)backgroundIndices.size(),
+			backgroundVertices.Data(), nullptr, nullptr, (uint32_t)backgroundVertices.Size(), backgroundIndices.Data(), (uint32_t)backgroundIndices.Size(),
 			Matrix4::Identity, backgroundMaterial, 0);
 		renderView->PushRenderCommand(backgroundCommand);
 		renderView->DeleteAfter(backgroundMaterial);
@@ -354,14 +354,14 @@ namespace hod::inline editor
 
 			if (ImGui::Button(ICON_MDI_PLUS " Add Guide"))
 			{
-				static const std::array<Color, 5> palette = {
+				static const StaticArray<Color, 5> palette = {
 					Color(1.0f, 0.35f, 0.35f, 1.0f), Color(0.35f, 1.0f, 0.45f, 1.0f), Color(0.35f, 0.65f, 1.0f, 1.0f),
 					Color(1.0f, 0.85f, 0.3f, 1.0f),  Color(0.85f, 0.45f, 1.0f, 1.0f),
 				};
 
 				Guide& guide = _settings._guides.EmplaceBack();
 				guide._name = String("Guide ") + String(std::to_string(_settings._guides.Size()).c_str());
-				guide._color = palette[(_settings._guides.Size() - 1) % palette.size()];
+				guide._color = palette[(_settings._guides.Size() - 1) % palette.Size()];
 				_settingsDirty = true;
 			}
 
@@ -613,20 +613,20 @@ namespace hod::inline editor
 		void DrawFilledQuad(const Vector2& center, const Vector2& size, const Color& color, RenderView& renderView)
 		{
 			Vector2                halfSize = size * 0.5f;
-			std::array<Vector2, 4> vertices = {
+			StaticArray<Vector2, 4> vertices = {
 				center + Vector2(-halfSize.GetX(), halfSize.GetY()),
 				center + Vector2(halfSize.GetX(), halfSize.GetY()),
 				center + Vector2(halfSize.GetX(), -halfSize.GetY()),
 				center + Vector2(-halfSize.GetX(), -halfSize.GetY()),
 			};
-			std::array<uint16_t, 6> indices = {0, 1, 2, 0, 2, 3};
+			StaticArray<uint16_t, 6> indices = {0, 1, 2, 0, 2, 3};
 
 			MaterialInstance* materialInstance = Renderer::GetInstance()->CreateMaterialInstance(
 				MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 			materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
 
 			RenderCommandMesh* command = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-				vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, materialInstance,
+				vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), indices.Data(), (uint32_t)indices.Size(), Matrix4::Identity, materialInstance,
 				std::numeric_limits<uint32_t>::max());
 			renderView.PushRenderCommand(command);
 			renderView.DeleteAfter(materialInstance);

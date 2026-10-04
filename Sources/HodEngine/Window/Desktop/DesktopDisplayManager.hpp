@@ -5,7 +5,7 @@
 
 #undef CreateWindow
 
-#include <array>
+#include "HodEngine/Core/StaticArray.hpp"
 
 namespace hod::inline window
 {
@@ -45,6 +45,6 @@ namespace hod::inline window
 		virtual Cursor* CreateBuiltinCursor(BuiltinCursor builtinCursor) = 0;
 
 	private:
-		std::array<Cursor*, static_cast<uint32_t>(BuiltinCursor::Count)> _builtinCursors = {nullptr};
+		StaticArray<Cursor*, static_cast<uint32_t>(BuiltinCursor::Count)> _builtinCursors = {nullptr};
 	};
 }

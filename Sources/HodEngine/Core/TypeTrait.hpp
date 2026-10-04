@@ -1,7 +1,7 @@
 #pragma once
 
 #include "HodEngine/Core/Vector.hpp"
-#include <array>
+#include "HodEngine/Core/StaticArray.hpp"
 #include <type_traits>
 
 namespace std
@@ -23,8 +23,8 @@ namespace hod::inline core
 	{
 	};
 
-	template<typename T, size_t size>
-	struct IsArray<std::array<T, size>> : std::true_type
+	template<typename T, uint32_t size>
+	struct IsArray<StaticArray<T, size>> : std::true_type
 	{
 	};
 

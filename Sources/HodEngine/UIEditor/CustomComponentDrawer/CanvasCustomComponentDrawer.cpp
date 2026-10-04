@@ -19,6 +19,7 @@
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
+#include "HodEngine/Core/StaticArray.hpp"
 
 #undef max
 
@@ -74,7 +75,7 @@ namespace hod::inline editor
 		{
 			Vector2 Size = node->ComputeSize();
 
-			std::array<Vector2, 5> vertices = {
+			StaticArray<Vector2, 5> vertices = {
 				Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f),  Vector2(Size.GetX() * 0.5f, Size.GetY() * 0.5f),  Vector2(Size.GetX() * 0.5f, -Size.GetY() * 0.5f),
 				Vector2(-Size.GetX() * 0.5f, -Size.GetY() * 0.5f), Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f),
 			};
@@ -85,7 +86,7 @@ namespace hod::inline editor
 			_materialInstance->SetVec4("ubo.color", selected ? selectedColor : normalColor);
 
 			RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-				vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node->ComputeWorldMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
+				vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), nullptr, 0, node->ComputeWorldMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
 			viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 		}
 		return false;

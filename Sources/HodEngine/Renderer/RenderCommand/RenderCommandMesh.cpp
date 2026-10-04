@@ -9,6 +9,7 @@
 #include "HodEngine/Renderer/Renderer.hpp"
 
 #include <HodEngine/Core/Time/SystemTime.hpp>
+#include <HodEngine/Core/StaticArray.hpp>
 
 #include <cassert>
 #include <cstring>
@@ -99,7 +100,7 @@ namespace hod::inline renderer
 		}
 		commandBuffer->SetMaterialInstance(materialInstance, 0);
 
-		std::array<Buffer*, 3> vertexBuffers = {nullptr, nullptr, nullptr};
+		StaticArray<Buffer*, 3> vertexBuffers = {nullptr, nullptr, nullptr};
 		uint32_t               vertexBufferCount = 0;
 
 		Buffer* positionsBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex, (uint32_t)_positions.Size() * sizeof(Vector2));
@@ -141,7 +142,7 @@ namespace hod::inline renderer
 			++vertexBufferCount;
 		}
 
-		commandBuffer->SetVertexBuffer(vertexBuffers.data(), vertexBufferCount);
+		commandBuffer->SetVertexBuffer(vertexBuffers.Data(), vertexBufferCount);
 
 		if (_indices.Empty() == false)
 		{

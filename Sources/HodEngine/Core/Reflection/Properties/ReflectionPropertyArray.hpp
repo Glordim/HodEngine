@@ -38,13 +38,13 @@ namespace hod::inline core
 			_getElementCountFunction = [](const void* instance) -> uint32_t
 			{
 				const _array_* array = static_cast<const _array_*>(instance);
-				return array->size();
+				return array->Size();
 			};
 
 			_getElementAddressFunction = [](const void* instance, uint32_t index) -> void*
 			{
 				const _array_* array = static_cast<const _array_*>(instance);
-				return (void*)(array->data() + index);
+				return (void*)(array->Data() + index);
 			};
 
 			_insertElementFunction = nullptr;

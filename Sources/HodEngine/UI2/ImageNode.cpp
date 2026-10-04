@@ -8,7 +8,7 @@
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 
-#include <array>
+#include "HodEngine/Core/StaticArray.hpp"
 
 namespace hod::inline ui2
 {
@@ -65,19 +65,19 @@ namespace hod::inline ui2
 
 		const Vector2& size = GetSize();
 
-		const std::array<Vector2, 4> vertices = {
+		const StaticArray<Vector2, 4> vertices = {
 			Vector2(-0.5f * size.GetX(), 0.5f * size.GetY()),
 			Vector2(0.5f * size.GetX(), 0.5f * size.GetY()),
 			Vector2(0.5f * size.GetX(), -0.5f * size.GetY()),
 			Vector2(-0.5f * size.GetX(), -0.5f * size.GetY()),
 		};
-		static const std::array<Vector2, 4> uvs = {
+		static const StaticArray<Vector2, 4> uvs = {
 			Vector2(0.0f, 0.0f),
 			Vector2(1.0f, 0.0f),
 			Vector2(1.0f, 1.0f),
 			Vector2(0.0f, 1.0f),
 		};
-		static const std::array<uint16_t, 6> indices = {0, 1, 2, 0, 2, 3};
+		static const StaticArray<uint16_t, 6> indices = {0, 1, 2, 0, 2, 3};
 
 		MaterialManager::BuiltinMaterial builtinMaterial =
 			texture != nullptr ? MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color : MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle;
@@ -89,7 +89,7 @@ namespace hod::inline ui2
 		}
 		materialInstance->SetVec4("ubo.color", Vector4(_color.r, _color.g, _color.b, _color.a));
 
-		drawContext.PushMesh(vertices.data(), texture != nullptr ? uvs.data() : nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), ComputeCanvasMatrix(),
+		drawContext.PushMesh(vertices.Data(), texture != nullptr ? uvs.Data() : nullptr, (uint32_t)vertices.Size(), indices.Data(), (uint32_t)indices.Size(), ComputeCanvasMatrix(),
 		                     materialInstance);
 	}
 }

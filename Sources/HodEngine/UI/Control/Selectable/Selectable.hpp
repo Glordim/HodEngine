@@ -13,7 +13,7 @@
 #include <HodEngine/Core/Reflection/EnumTrait.hpp>
 #include <HodEngine/Core/Weakable/WeakPtr.hpp>
 #include <HodEngine/Core/Event.hpp>
-#include <array>
+#include "HodEngine/Core/StaticArray.hpp"
 #include <cstdint>
 
 namespace hod::inline ui
@@ -110,7 +110,7 @@ namespace hod::inline ui
 
 	private:
 
-		std::array<WeakPtr<Selectable>, static_cast<uint32_t>(NavigationDirection::Count)>	_navigation;
+		StaticArray<WeakPtr<Selectable>, static_cast<uint32_t>(NavigationDirection::Count)>	_navigation;
 
 		bool					_disabled = false;
 		bool					_rejectFocus = false;

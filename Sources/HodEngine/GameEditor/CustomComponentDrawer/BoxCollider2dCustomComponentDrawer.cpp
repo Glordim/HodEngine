@@ -13,6 +13,7 @@
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 #include <HodEngine/Game/Components/Physics/2d/BoxCollider2dComponent.hpp>
 #include <HodEngine/Game/Entity.hpp>
+#include <HodEngine/Core/StaticArray.hpp>
 
 #undef max
 
@@ -51,7 +52,7 @@ namespace hod::inline editor
 			Node2dComponent* node2D = boxCollider2d->GetOwner()->GetComponent<Node2dComponent>();
 			if (node2D != nullptr)
 			{
-				std::array<Vector2, 5> vertices = {
+				StaticArray<Vector2, 5> vertices = {
 					Vector2(-boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetSize().GetY() * 0.5f),
 					Vector2(boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetSize().GetY() * 0.5f),
 					Vector2(boxCollider2d->GetSize().GetX() * 0.5f, -boxCollider2d->GetSize().GetY() * 0.5f),
@@ -62,7 +63,7 @@ namespace hod::inline editor
 				Matrix4 localMatrix = Matrix4::Translation(boxCollider2d->GetOffset()) * Matrix4::Rotation(boxCollider2d->GetRotation());
 
 				RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-					vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix() * localMatrix, _materialInstance,
+					vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), nullptr, 0, node2D->GetWorldMatrix() * localMatrix, _materialInstance,
 					std::numeric_limits<uint32_t>::max() - 1);
 				viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 			}

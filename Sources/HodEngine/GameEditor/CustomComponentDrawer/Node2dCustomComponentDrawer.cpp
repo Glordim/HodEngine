@@ -13,6 +13,7 @@
 #include <HodEngine/Renderer/RHI/RenderTarget.hpp>
 
 #include "HodEngine/Editor/ViewportWindow.hpp"
+#include "HodEngine/Core/StaticArray.hpp"
 
 #undef max
 
@@ -57,7 +58,7 @@ namespace hod::inline editor
 		constexpr float squareSize = 0.25f;
 		constexpr float squareOffset = 0.5f;
 
-		std::array<Vector2, 12> verticesX = {
+		StaticArray<Vector2, 12> verticesX = {
 			Vector2(-thickness * 0.5f, -thickness * 0.5f),
 			Vector2(thickness * 0.5f, thickness * 0.5f),
 			Vector2(thickness * 0.5f, -thickness * 0.5f),
@@ -75,7 +76,7 @@ namespace hod::inline editor
 			Vector2(length, 0.0f),
 		};
 
-		std::array<Vector2, 12> verticesY = {
+		StaticArray<Vector2, 12> verticesY = {
 			Vector2(-thickness * 0.5f, -thickness * 0.5f),
 			Vector2(-thickness * 0.5f, thickness * 0.5f),
 			Vector2(thickness * 0.5f, thickness * 0.5f),
@@ -101,9 +102,9 @@ namespace hod::inline editor
 		interacted |= Gizmos::FreeMoveRect(_freeMoveHandle, worldMatrix, Vector2::One * squareOffset, Vector2::One * squareSize, Color(0.0f, 0.0f, 1.0f, 1.0f),
 		                                   Color(0.5f, 0.5f, 1.0f, 1.0f), viewport);
 		interacted |=
-			Gizmos::FreeMoveMesh(_XAxisHandle, worldMatrix, verticesX.data(), (uint32_t)verticesX.size(), Color(1.0f, 0.0f, 0.0f, 1.0f), Color(1.0f, 0.5f, 0.5f, 1.0f), viewport);
+			Gizmos::FreeMoveMesh(_XAxisHandle, worldMatrix, verticesX.Data(), (uint32_t)verticesX.Size(), Color(1.0f, 0.0f, 0.0f, 1.0f), Color(1.0f, 0.5f, 0.5f, 1.0f), viewport);
 		interacted |=
-			Gizmos::FreeMoveMesh(_YAxisHandle, worldMatrix, verticesY.data(), (uint32_t)verticesY.size(), Color(0.0f, 1.0f, 0.0f, 1.0f), Color(0.5f, 1.0f, 0.5f, 1.0f), viewport);
+			Gizmos::FreeMoveMesh(_YAxisHandle, worldMatrix, verticesY.Data(), (uint32_t)verticesY.Size(), Color(0.0f, 1.0f, 0.0f, 1.0f), Color(0.5f, 1.0f, 0.5f, 1.0f), viewport);
 		if (interacted)
 		{
 			if (_freeMoveHandle._justPressed || _XAxisHandle._justPressed || _YAxisHandle._justPressed)

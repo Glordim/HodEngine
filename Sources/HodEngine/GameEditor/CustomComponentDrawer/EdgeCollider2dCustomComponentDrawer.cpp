@@ -14,6 +14,7 @@
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 #include <HodEngine/Game/Components/Physics/2d/EdgeCollider2dComponent.hpp>
 #include <HodEngine/Game/Entity.hpp>
+#include <HodEngine/Core/StaticArray.hpp>
 
 #undef max
 
@@ -52,13 +53,13 @@ namespace hod::inline editor
 			Node2dComponent* node2D = edgeCollider2d->GetOwner()->GetComponent<Node2dComponent>();
 			if (node2D != nullptr)
 			{
-				std::array<Vector2, 2> vertices = {
+				StaticArray<Vector2, 2> vertices = {
 					edgeCollider2d->GetStart(),
 					edgeCollider2d->GetEnd(),
 				};
 
 				RenderCommandMesh* renderMeshCommand =
-					DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0,
+					DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), nullptr, 0,
 				                                                                     node2D->GetWorldMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
 				viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 			}

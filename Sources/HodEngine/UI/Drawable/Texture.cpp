@@ -8,6 +8,7 @@
 #include "HodEngine/Renderer/RenderView.hpp"
 
 #include <HodEngine/Game/Entity.hpp>
+#include <HodEngine/Core/StaticArray.hpp>
 
 namespace hod::inline ui
 {
@@ -29,21 +30,21 @@ namespace hod::inline ui
 			Vector2 Size = _node->ComputeSize();
 			Matrix4 worldMatrix = _node->ComputeWorldMatrix();
 
-			std::array<Vector2, 4> vertices = {
+			StaticArray<Vector2, 4> vertices = {
 				Vector2(-0.5f * Size.GetX(), 0.5f * Size.GetY()),
 				Vector2(0.5f * Size.GetX(), 0.5f * Size.GetY()),
 				Vector2(0.5f * Size.GetX(), -0.5f * Size.GetY()),
 				Vector2(-0.5f * Size.GetX(), -0.5f * Size.GetY()),
 			};
 
-			static std::array<Vector2, 4> uvs = {
+			static StaticArray<Vector2, 4> uvs = {
 				Vector2(0, 0),
 				Vector2(1, 0),
 				Vector2(1, 1),
 				Vector2(0, 1),
 			};
 
-			static std::array<uint16_t, 3 * 2> indices = {
+			static StaticArray<uint16_t, 3 * 2> indices = {
 				0, 1, 2, 0, 2, 3,
 			};
 
@@ -64,8 +65,8 @@ namespace hod::inline ui
 			vec4Color.SetZ(_color.b);
 			vec4Color.SetW(_color.a);
 			_materialInstance->SetVec4("ubo.color", vec4Color);
-			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(),
-			                                                                                              indices.data(), (uint32_t)indices.size(), worldMatrix, _materialInstance,
+			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.Data(), uvs.Data(), nullptr, (uint32_t)vertices.Size(),
+			                                                                                              indices.Data(), (uint32_t)indices.Size(), worldMatrix, _materialInstance,
 			                                                                                              0, 0),
 			                             renderQueueType);
 		}

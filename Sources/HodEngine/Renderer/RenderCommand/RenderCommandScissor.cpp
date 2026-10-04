@@ -6,7 +6,7 @@
 #include <HodEngine/Math/Vector4.hpp>
 
 #include <algorithm>
-#include <array>
+#include "HodEngine/Core/StaticArray.hpp"
 #include <cmath>
 #include <limits>
 
@@ -45,7 +45,7 @@ namespace hod::inline renderer
 			float regionMaxX = std::numeric_limits<float>::lowest();
 			float regionMaxY = std::numeric_limits<float>::lowest();
 
-			const std::array<Vector2, 4> corners = {
+			const StaticArray<Vector2, 4> corners = {
 				Vector2(-halfSize.GetX(), halfSize.GetY()),
 				Vector2(halfSize.GetX(), halfSize.GetY()),
 				Vector2(halfSize.GetX(), -halfSize.GetY()),

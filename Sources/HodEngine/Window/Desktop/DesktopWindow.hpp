@@ -9,7 +9,6 @@
 
 #include <HodEngine/Math/Vector2.hpp>
 
-#include <array>
 #include <string_view>
 
 namespace hod::inline window

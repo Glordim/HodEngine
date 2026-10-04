@@ -8,7 +8,7 @@
 #include <HodEngine/Core/Debug.hpp>
 #include <HodEngine/Core/OS.hpp>
 
-#include <array>
+#include "HodEngine/Core/StaticArray.hpp"
 
 #if defined(RENDERER_ENABLE_VALIDATION_LAYER)
 namespace hod::inline renderer
@@ -42,7 +42,7 @@ namespace hod::inline renderer
 		OS::SetEnv("VK_LAYER_PATH", (FileSystem::GetExecutablePath().ParentPath() / "ValidationLayers").GetString().CStr());
 #endif
 
-		std::array<const char*, 1> validationLayers {"VK_LAYER_KHRONOS_validation"};
+		StaticArray<const char*, 1> validationLayers {"VK_LAYER_KHRONOS_validation"};
 
 		uint32_t availableValidationLayerCount = 0;
 		vkEnumerateInstanceLayerProperties(&availableValidationLayerCount, nullptr);
@@ -57,7 +57,7 @@ namespace hod::inline renderer
 		}
 
 		_enableValidationLayers = true;
-		for (size_t i = 0; i < validationLayers.size(); ++i)
+		for (size_t i = 0; i < validationLayers.Size(); ++i)
 		{
 			const char* validationLayerName = validationLayers[i];
 

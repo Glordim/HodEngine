@@ -14,6 +14,7 @@
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 #include <HodEngine/Game/Components/Physics/2d/MultiShapeCollider2dComponent.hpp>
 #include <HodEngine/Game/Entity.hpp>
+#include <HodEngine/Core/StaticArray.hpp>
 
 #undef max
 
@@ -56,7 +57,7 @@ namespace hod::inline editor
 
 				for (const MultiShapeCollider2dComponent::BoxShape& boxShape : multiShapeCollider2d->GetBoxShapes())
 				{
-					std::array<Vector2, 5> vertices = {
+					StaticArray<Vector2, 5> vertices = {
 						Vector2(-boxShape._size.GetX() * 0.5f, boxShape._size.GetY() * 0.5f), Vector2(boxShape._size.GetX() * 0.5f, boxShape._size.GetY() * 0.5f),
 						Vector2(boxShape._size.GetX() * 0.5f, -boxShape._size.GetY() * 0.5f), Vector2(-boxShape._size.GetX() * 0.5f, -boxShape._size.GetY() * 0.5f),
 						Vector2(-boxShape._size.GetX() * 0.5f, boxShape._size.GetY() * 0.5f),
@@ -65,18 +66,18 @@ namespace hod::inline editor
 					Matrix4 localMatrix = Matrix4::Translation(boxShape._origin) * Matrix4::Rotation(boxShape._angle);
 
 					RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-						vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0, node2D->GetWorldMatrix() * localMatrix, _materialInstance,
+						vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), nullptr, 0, node2D->GetWorldMatrix() * localMatrix, _materialInstance,
 						std::numeric_limits<uint32_t>::max() - 1);
 					viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 				}
 
 				for (const MultiShapeCollider2dComponent::CircleShape& circleShape : multiShapeCollider2d->GetCircleShapes())
 				{
-					std::array<Vector2, 65> vertices;
+					StaticArray<Vector2, 65> vertices;
 					GeometryGenerator::CircleShape<64>(vertices, circleShape._origin * scale, circleShape._radius * std::max(scale.GetX(), scale.GetY()));
 
 					RenderCommandMesh* renderMeshCommand =
-						DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0,
+						DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), nullptr, 0,
 					                                                                     node2D->GetWorldMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
 					viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 				}

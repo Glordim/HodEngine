@@ -13,6 +13,7 @@
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 #include <HodEngine/Game/Components/TextureRendererComponent.hpp>
 #include <HodEngine/Game/Entity.hpp>
+#include <HodEngine/Core/StaticArray.hpp>
 
 #undef max
 
@@ -53,14 +54,14 @@ namespace hod::inline editor
 			{
 				Rect bb = textureRenderer->GetBoundingBox();
 
-				std::array<Vector2, 5> vertices = {
+				StaticArray<Vector2, 5> vertices = {
 					Vector2(-bb._size.GetX() * 0.5f, bb._size.GetY() * 0.5f), Vector2(bb._size.GetX() * 0.5f, bb._size.GetY() * 0.5f),
 					Vector2(bb._size.GetX() * 0.5f, -bb._size.GetY() * 0.5f), Vector2(-bb._size.GetX() * 0.5f, -bb._size.GetY() * 0.5f),
 					Vector2(-bb._size.GetX() * 0.5f, bb._size.GetY() * 0.5f),
 				};
 
 				RenderCommandMesh* renderMeshCommand =
-					DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0,
+					DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), nullptr, 0,
 				                                                                     node2D->GetWorldMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
 				viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 			}

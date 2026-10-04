@@ -38,6 +38,7 @@
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
 #include <HodEngine/Renderer/PickingManager.hpp>
+#include <HodEngine/Core/StaticArray.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -324,17 +325,17 @@ namespace hod::inline editor
 
 				if (_drawGrid)
 				{
-					std::array<Vector2, 4> positions = {
+					StaticArray<Vector2, 4> positions = {
 						Vector2(-0.5f, 0.5f),
 						Vector2(0.5f, 0.5f),
 						Vector2(-0.5f, -0.5f),
 						Vector2(0.5f, -0.5f),
 					};
 
-					std::array<uint16_t, 6> indices = {0, 1, 2, 2, 1, 3};
+					StaticArray<uint16_t, 6> indices = {0, 1, 2, 2, 1, 3};
 
 					renderView->PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-						positions.data(), nullptr, nullptr, (uint32_t)positions.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, nullptr, 0, 0, true));
+						positions.Data(), nullptr, nullptr, (uint32_t)positions.Size(), indices.Data(), (uint32_t)indices.Size(), Matrix4::Identity, nullptr, 0, 0, true));
 				}
 			}
 			else

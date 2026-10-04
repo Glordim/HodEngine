@@ -14,6 +14,7 @@
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 #include <HodEngine/Renderer/Sprite.hpp>
 #include <HodEngine/Renderer/SpriteAtlas.hpp>
+#include <HodEngine/Core/StaticArray.hpp>
 
 namespace hod::inline game
 {
@@ -104,21 +105,21 @@ namespace hod::inline game
 			{
 				Rect bb = GetBoundingBox();
 
-				std::array<Vector2, 4> vertices = {
+				StaticArray<Vector2, 4> vertices = {
 					Vector2(-0.5f * bb._size.GetX(), 0.5f * bb._size.GetY()),
 					Vector2(0.5f * bb._size.GetX(), 0.5f * bb._size.GetY()),
 					Vector2(0.5f * bb._size.GetX(), -0.5f * bb._size.GetY()),
 					Vector2(-0.5f * bb._size.GetX(), -0.5f * bb._size.GetY()),
 				};
 
-				static std::array<Vector2, 4> uvs = {
+				static StaticArray<Vector2, 4> uvs = {
 					Vector2(0, 0),
 					Vector2(1, 0),
 					Vector2(1, 1),
 					Vector2(0, 1),
 				};
 
-				static std::array<uint16_t, 3 * 2> indices = {
+				static StaticArray<uint16_t, 3 * 2> indices = {
 					0, 1, 2, 0, 2, 3,
 				};
 
@@ -132,7 +133,7 @@ namespace hod::inline game
 				}
 
 				renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-					vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance,
+					vertices.Data(), uvs.Data(), nullptr, (uint32_t)vertices.Size(), indices.Data(), (uint32_t)indices.Size(), node2dComponent->GetWorldMatrix(), _materialInstance,
 					node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
 			}
 		}

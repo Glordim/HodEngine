@@ -4,6 +4,7 @@
 #include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Core/StaticArray.hpp>
 
 #include <utility>
 
@@ -33,9 +34,9 @@ namespace hod::inline game
 		auto itEnd = _lines.End();
 		while (it != itEnd)
 		{
-			std::array<Vector2, 2> vertices = {it->_start, it->_end};
-			std::array<Color, 2>   colors = {it->_color, it->_color};
-			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.data(), nullptr, colors.data(), (uint32_t)vertices.size(),
+			StaticArray<Vector2, 2> vertices = {it->_start, it->_end};
+			StaticArray<Color, 2>   colors = {it->_color, it->_color};
+			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.Data(), nullptr, colors.Data(), (uint32_t)vertices.Size(),
 			                                                                                              nullptr, 0, Matrix4::Identity, _lineMaterial, 0));
 
 			it->_duration -= 0.016f; // todo

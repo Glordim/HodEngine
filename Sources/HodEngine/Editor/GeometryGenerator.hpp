@@ -2,7 +2,7 @@
 #include "HodEngine/Editor/Export.hpp"
 #include <HodEngine/Math/Vector2.hpp>
 
-#include <array>
+#include "HodEngine/Core/StaticArray.hpp"
 
 namespace hod::inline editor
 {
@@ -12,13 +12,13 @@ namespace hod::inline editor
 	public:
 
 		template<uint32_t SegmentCount_>
-		static void CircleShape(std::array<Vector2, SegmentCount_ + 1>& vertices, const Vector2& center, float radius);
+		static void CircleShape(StaticArray<Vector2, SegmentCount_ + 1>& vertices, const Vector2& center, float radius);
 
 		template<uint32_t SegmentCount_>
-		static void CircleShapeFillNoFan(std::array<Vector2, (SegmentCount_) * 3>& vertices, const Vector2& center, float radius);
+		static void CircleShapeFillNoFan(StaticArray<Vector2, (SegmentCount_) * 3>& vertices, const Vector2& center, float radius);
 
 		template<uint32_t SegmentCount_>
-		static void CapsuleShape(std::array<Vector2, SegmentCount_ + 1>& vertices, const Vector2& center, float height, float radius);
+		static void CapsuleShape(StaticArray<Vector2, SegmentCount_ + 1>& vertices, const Vector2& center, float height, float radius);
 	};
 }
 

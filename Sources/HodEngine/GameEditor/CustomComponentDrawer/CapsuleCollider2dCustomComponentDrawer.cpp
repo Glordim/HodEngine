@@ -14,6 +14,7 @@
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 #include <HodEngine/Game/Components/Physics/2d/CapsuleCollider2dComponent.hpp>
 #include <HodEngine/Game/Entity.hpp>
+#include <HodEngine/Core/StaticArray.hpp>
 
 #undef max
 
@@ -54,7 +55,7 @@ namespace hod::inline editor
 			{
 				Vector2 scale = node2D->GetScale();
 
-				std::array<Vector2, 65> vertices;
+				StaticArray<Vector2, 65> vertices;
 				GeometryGenerator::CapsuleShape<64>(vertices, Vector2::Zero, capsuleCollider2d->GetHeight() * scale.GetY(), capsuleCollider2d->GetRadius() * scale.GetX());
 
 				Matrix4 worldMatrix = node2D->GetWorldMatrix();
@@ -63,7 +64,7 @@ namespace hod::inline editor
 				Matrix4 localMatrix = Matrix4::Translation(capsuleCollider2d->GetOffset() * scale) * Matrix4::Rotation(capsuleCollider2d->GetRotation());
 
 				RenderCommandMesh* renderMeshCommand =
-					DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.data(), nullptr, nullptr, (uint32_t)vertices.size(), nullptr, 0,
+					DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), nullptr, 0,
 				                                                                     worldMatrix * localMatrix, _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
 				viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
 			}

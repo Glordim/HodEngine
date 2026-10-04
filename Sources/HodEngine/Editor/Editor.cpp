@@ -112,6 +112,7 @@
 #include "HodEngine/Editor/TextureEditor/TextureCooker.hpp"
 #include "HodEngine/Editor/TextureEditor/TextureImporter.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
+#include "HodEngine/Core/StaticArray.hpp"
 
 #include <utility>
 
@@ -274,7 +275,7 @@ namespace hod::inline editor
 	/// @return
 	bool Editor::LoadEditorModules()
 	{
-		std::array<const char*, 5> editorModules = {"CoreEditor", "InputEditor", "GameEditor", "UIEditor", "UI2Editor"};
+		StaticArray<const char*, 5> editorModules = {"CoreEditor", "InputEditor", "GameEditor", "UIEditor", "UI2Editor"};
 
 		for (const char* moduleName : editorModules)
 		{

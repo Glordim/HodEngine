@@ -8,7 +8,7 @@
 	#include "HodEngine/Core/Memory/Allocator.hpp"
 	#include "HodEngine/Core/Memory/MallocAllocator.hpp"
 
-	#include <array>
+	#include "HodEngine/Core/StaticArray.hpp"
 	#include <cstdint>
 
 namespace hod::inline core
@@ -22,7 +22,7 @@ namespace hod::inline core
 			AllocationHeader* _prev = nullptr;
 			uint32_t          _size = 0;
 
-			std::array<void*, 64> _callstack;
+			StaticArray<void*, 64> _callstack;
 			uint32_t              _callstackSize = 0;
 		};
 

@@ -18,7 +18,7 @@
 #include <HodEngine/Renderer/RHI/Material.hpp>
 #include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
 
-#include <array>
+#include "HodEngine/Core/StaticArray.hpp"
 
 namespace hod::inline game
 {
@@ -27,21 +27,21 @@ namespace hod::inline game
 	// |_____|
 	// 1     2
 
-	static std::array<Vector2, 4> _positions = {
+	static StaticArray<Vector2, 4> _positions = {
 		Vector2(-0.5f, 0.5f),
 		Vector2(-0.5f, -0.5f),
 		Vector2(0.5f, -0.5f),
 		Vector2(0.5f, 0.5f),
 	};
 
-	static std::array<Vector2, 4> _uvs = {
+	static StaticArray<Vector2, 4> _uvs = {
 		Vector2(0, 0),
 		Vector2(0, 1),
 		Vector2(1, 1),
 		Vector2(1, 0),
 	};
 
-	static std::array<uint16_t, 6> _indices = {
+	static StaticArray<uint16_t, 6> _indices = {
 		0, 1, 3, 3, 1, 2,
 	};
 
@@ -100,7 +100,7 @@ namespace hod::inline game
 			if (node2dComponent != nullptr)
 			{
 				renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-					_positions.data(), _uvs.data(), nullptr, 4, _indices.data(), (uint32_t)_indices.size(), node2dComponent->GetWorldMatrix(), _materialInstance,
+					_positions.Data(), _uvs.Data(), nullptr, 4, _indices.Data(), (uint32_t)_indices.Size(), node2dComponent->GetWorldMatrix(), _materialInstance,
 					node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
 			}
 		}

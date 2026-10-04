@@ -35,6 +35,7 @@
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/RHI/RenderTarget.hpp>
+#include <HodEngine/Core/StaticArray.hpp>
 
 #include <algorithm>
 #include <cmath>
@@ -123,26 +124,26 @@ namespace hod::inline editor
 
 					Vector2 previewSize = Vector2::One * 3;
 
-					std::array<Vector2, 4> vertices = {
+					StaticArray<Vector2, 4> vertices = {
 						Vector2(-0.5f * previewSize.GetX(), 0.5f * previewSize.GetY()),
 						Vector2(0.5f * previewSize.GetX(), 0.5f * previewSize.GetY()),
 						Vector2(0.5f * previewSize.GetX(), -0.5f * previewSize.GetY()),
 						Vector2(-0.5f * previewSize.GetX(), -0.5f * previewSize.GetY()),
 					};
 
-					static std::array<Vector2, 4> uvs = {
+					static StaticArray<Vector2, 4> uvs = {
 						Vector2(0, 0),
 						Vector2(1, 0),
 						Vector2(1, 1),
 						Vector2(0, 1),
 					};
 
-					static std::array<uint16_t, 3 * 2> indices = {
+					static StaticArray<uint16_t, 3 * 2> indices = {
 						0, 1, 2, 0, 2, 3,
 					};
 
 					RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-						vertices.data(), uvs.data(), nullptr, (uint32_t)vertices.size(), indices.data(), (uint32_t)indices.size(), Matrix4::Identity, materialInstance, 0);
+						vertices.Data(), uvs.Data(), nullptr, (uint32_t)vertices.Size(), indices.Data(), (uint32_t)indices.Size(), Matrix4::Identity, materialInstance, 0);
 					renderView->PushRenderCommand(renderMeshCommand);
 				}
 

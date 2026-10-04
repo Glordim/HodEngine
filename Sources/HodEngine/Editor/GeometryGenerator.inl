@@ -10,7 +10,7 @@ namespace hod::inline editor
 	/// @param center 
 	/// @param radius 
 	template<uint32_t SegmentCount_>
-	void GeometryGenerator::CircleShape(std::array<Vector2, SegmentCount_ + 1>& vertices, const Vector2& center, float radius)
+	void GeometryGenerator::CircleShape(StaticArray<Vector2, SegmentCount_ + 1>& vertices, const Vector2& center, float radius)
 	{
 		const float angleStep = 360.0f / SegmentCount_;
 
@@ -27,7 +27,7 @@ namespace hod::inline editor
 	}
 
 	template<uint32_t SegmentCount_>
-	void GeometryGenerator::CircleShapeFillNoFan(std::array<Vector2, (SegmentCount_) * 3>& vertices, const Vector2& center, float radius)
+	void GeometryGenerator::CircleShapeFillNoFan(StaticArray<Vector2, (SegmentCount_) * 3>& vertices, const Vector2& center, float radius)
 	{
 		const float angleStep = 360.0f / SegmentCount_;
 
@@ -57,7 +57,7 @@ namespace hod::inline editor
 	/// @param height 
 	/// @param radius 
 	template<uint32_t SegmentCount_>
-	void GeometryGenerator::CapsuleShape(std::array<Vector2, SegmentCount_ + 1>& vertices, const Vector2& center, float height, float radius)
+	void GeometryGenerator::CapsuleShape(StaticArray<Vector2, SegmentCount_ + 1>& vertices, const Vector2& center, float height, float radius)
 	{
 		const float angleStep = 360.0f / SegmentCount_;
 

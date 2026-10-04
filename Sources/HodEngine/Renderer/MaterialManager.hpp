@@ -8,6 +8,7 @@
 #include <HodEngine/Core/UID.hpp>
 
 #include "HodEngine/Renderer/RHI/Material.hpp"
+#include "HodEngine/Core/StaticArray.hpp"
 
 #include <utility>
 
@@ -48,8 +49,8 @@ namespace hod::inline renderer
 		                   bool useDepth = true);
 
 	private:
-		std::array<Material*, static_cast<uint32_t>(BuiltinMaterial::Count)> _builtinMaterials = {nullptr}; // c++23 std::to_underlying
-		std::array<Shader*, static_cast<uint32_t>(BuiltinMaterial::Count)>   _builtinVertexShaders = {nullptr};
-		std::array<Shader*, static_cast<uint32_t>(BuiltinMaterial::Count)>   _builtinFragmentShaders = {nullptr};
+		StaticArray<Material*, static_cast<uint32_t>(BuiltinMaterial::Count)> _builtinMaterials = {nullptr}; // c++23 std::to_underlying
+		StaticArray<Shader*, static_cast<uint32_t>(BuiltinMaterial::Count)>   _builtinVertexShaders = {nullptr};
+		StaticArray<Shader*, static_cast<uint32_t>(BuiltinMaterial::Count)>   _builtinFragmentShaders = {nullptr};
 	};
 }

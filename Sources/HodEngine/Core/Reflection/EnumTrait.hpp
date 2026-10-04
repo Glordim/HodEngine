@@ -2,7 +2,7 @@
 
 #include <string_view>
 #include <type_traits>
-#include <array>
+#include "HodEngine/Core/StaticArray.hpp"
 #include <limits>
 
 #undef max
@@ -56,6 +56,6 @@ namespace hod::inline core
 	template<typename Enum, std::underlying_type_t<Enum> Min, std::underlying_type_t<Enum> Max, std::size_t... Indices>
 	[[nodiscard]] static consteval auto GetEnumNamesImpl(std::index_sequence<Indices...>) noexcept
 	{
-		return std::array<std::string_view, sizeof...(Indices)> {ToString<static_cast<Enum>(Min + Indices)>()...};
+		return StaticArray<std::string_view, static_cast<uint32_t>(sizeof...(Indices))> {ToString<static_cast<Enum>(Min + Indices)>()...};
 	}
 }
