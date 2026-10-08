@@ -4,7 +4,7 @@
 #include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawer.hpp"
 #include <HodEngine/Math/Vector2.hpp>
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
 	class MaterialInstance;
 }

@@ -16,7 +16,7 @@
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
 #include "HodEngine/Core/Document/Document.hpp"
-#include "HodEngine/Renderer/RHI/Material.hpp"
+#include "HodEngine/RHI/Material.hpp"
 
 namespace hod::inline renderer
 {

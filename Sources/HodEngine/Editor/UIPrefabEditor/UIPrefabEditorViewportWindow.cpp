@@ -24,10 +24,11 @@
 #include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
-#include <HodEngine/Renderer/RHI/RenderTarget.hpp>
-#include <HodEngine/Renderer/RHI/Texture.hpp>
+#include <HodEngine/RHI/MaterialInstance.hpp>
+#include <HodEngine/RHI/RenderTarget.hpp>
+#include <HodEngine/RHI/Texture.hpp>
 
 #include <algorithm>
 #include "HodEngine/Core/StaticArray.hpp"
@@ -49,7 +50,7 @@ namespace hod::inline editor
 
 		_settings.Load();
 
-		_renderTarget = Renderer::GetInstance()->CreateRenderTarget();
+		_renderTarget = RhiDevice::GetInstance()->CreateRenderTarget();
 	}
 
 	/// @brief
@@ -187,7 +188,7 @@ namespace hod::inline editor
 		}
 
 		/*
-		MaterialInstance* backgroundMaterial = Renderer::GetInstance()->CreateMaterialInstance(
+		MaterialInstance* backgroundMaterial = RhiDevice::GetInstance()->CreateMaterialInstance(
 			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 		backgroundMaterial->SetVec4("ubo.color", Vector4(30.0f / 255.0f, 30.0f / 255.0f, 30.0f / 255.0f, 1.0f));
 
@@ -621,7 +622,7 @@ namespace hod::inline editor
 			};
 			StaticArray<uint16_t, 6> indices = {0, 1, 2, 0, 2, 3};
 
-			MaterialInstance* materialInstance = Renderer::GetInstance()->CreateMaterialInstance(
+			MaterialInstance* materialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(
 				MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 			materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
 

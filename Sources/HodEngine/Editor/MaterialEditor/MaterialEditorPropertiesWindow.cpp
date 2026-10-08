@@ -28,8 +28,8 @@
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include <HodEngine/Renderer/Resource/MaterialResource.hpp>
-#include <HodEngine/Renderer/RHI/Material.hpp>
-#include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
+#include <HodEngine/RHI/Material.hpp>
+#include <HodEngine/RHI/MaterialInstance.hpp>
 
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 

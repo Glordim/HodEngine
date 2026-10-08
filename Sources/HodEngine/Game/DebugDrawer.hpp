@@ -6,10 +6,14 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
+namespace hod::inline rhi
+{
+	class MaterialInstance;
+}
+
 namespace hod::inline renderer
 {
 	class RenderView;
-	class MaterialInstance;
 }
 
 namespace hod::inline game

@@ -2,15 +2,15 @@
 #include "HodEngine/ImGui/ImGuiManager.hpp"
 #include "HodEngine/ImGui/RenderCommandImGui.hpp"
 
-#include "HodEngine/Renderer/RHI/Buffer.hpp"
-#include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
+#include "HodEngine/RHI/Buffer.hpp"
+#include "HodEngine/RHI/CommandBuffer.hpp"
 
-#include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/RHI/RhiDevice.hpp"
 
 #include <cstring>
 
-#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
-#include "HodEngine/Renderer/RHI/VertexInput.hpp"
+#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/RHI/VertexInput.hpp"
 
 #include "HodEngine/Math/Rect.hpp"
 
@@ -47,14 +47,14 @@ namespace hod::inline imgui
 		commandBuffer->SetMaterial(ImGuiManager::GetInstance()->GetMaterial());
 		commandBuffer->SetViewport(_viewport);
 
-		Renderer* renderer = Renderer::GetInstance();
+		RhiDevice* rhiDevice = RhiDevice::GetInstance();
 
 		for (uint32_t drawListIndex = 0; drawListIndex < _drawLists.Size(); ++drawListIndex)
 		{
 			DrawList* drawList = _drawLists[drawListIndex];
 
 			uint32_t          vertexBufferSize = static_cast<uint32_t>(drawList->_vertices.Size() * sizeof(Vertex));
-			Buffer* vertexBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex, vertexBufferSize);
+			Buffer* vertexBuffer = rhiDevice->CreateBuffer(Buffer::Usage::Vertex, vertexBufferSize);
 			void*             vertexBufferData = vertexBuffer->Lock();
 			if (vertexBufferData != nullptr)
 			{
@@ -65,7 +65,7 @@ namespace hod::inline imgui
 			commandBuffer->SetVertexBuffer(&vertexBuffer, 1);
 
 			uint32_t          indexBufferSize = static_cast<uint32_t>(drawList->_indices.Size() * sizeof(uint16_t));
-			Buffer* indexBuffer = renderer->CreateBuffer(Buffer::Usage::Index, indexBufferSize);
+			Buffer* indexBuffer = rhiDevice->CreateBuffer(Buffer::Usage::Index, indexBufferSize);
 			void*             indexBufferData = indexBuffer->Lock();
 			if (indexBufferData != nullptr)
 			{
@@ -92,7 +92,7 @@ namespace hod::inline imgui
 			{
 				Command& command = drawList->_commands[commandIndex];
 
-				MaterialInstance* materialInstance = renderer->CreateMaterialInstance(ImGuiManager::GetInstance()->GetMaterial());
+				MaterialInstance* materialInstance = rhiDevice->CreateMaterialInstance(ImGuiManager::GetInstance()->GetMaterial());
 
 				materialInstance->SetTexture("image", command._texture);
 				commandBuffer->SetMaterialInstance(materialInstance, 0);

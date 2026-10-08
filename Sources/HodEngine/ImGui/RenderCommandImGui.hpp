@@ -8,7 +8,7 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
 	class Texture;
 	class Material;

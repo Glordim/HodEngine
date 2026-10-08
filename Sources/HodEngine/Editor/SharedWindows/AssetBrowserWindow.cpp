@@ -27,7 +27,7 @@
 
 #include <HodEngine/Core/Document/DocumentWriterJson.hpp>
 
-#include "HodEngine/Renderer/RHI/Texture.hpp"
+#include "HodEngine/RHI/Texture.hpp"
 
 #include <HodEngine/Window/Dialog/PlatformDialog.hpp>
 

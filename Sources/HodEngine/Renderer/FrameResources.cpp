@@ -1,13 +1,13 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/FrameResources.hpp"
 
-#include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/RHI/RhiDevice.hpp"
 #include "HodEngine/Renderer/RenderView.hpp"
-#include "HodEngine/Renderer/RHI/Buffer.hpp"
-#include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
-#include "HodEngine/Renderer/RHI/Fence.hpp"
-#include "HodEngine/Renderer/RHI/PresentationSurface.hpp"
-#include "HodEngine/Renderer/RHI/Semaphore.hpp"
+#include "HodEngine/RHI/Buffer.hpp"
+#include "HodEngine/RHI/CommandBuffer.hpp"
+#include "HodEngine/RHI/Fence.hpp"
+#include "HodEngine/RHI/PresentationSurface.hpp"
+#include "HodEngine/RHI/Semaphore.hpp"
 
 #include <HodEngine/Core/Assert.hpp>
 #include <HodEngine/Window/Event.hpp>
@@ -62,28 +62,28 @@ namespace hod::inline renderer
 
 	CommandBuffer* FrameResources::CreateCommandBuffer()
 	{
-		CommandBuffer* commandBuffer = Renderer::GetInstance()->CreateCommandBuffer();
+		CommandBuffer* commandBuffer = RhiDevice::GetInstance()->CreateCommandBuffer();
 		_commandBuffers.PushBack(commandBuffer);
 		return commandBuffer;
 	}
 
 	Buffer* FrameResources::CreateBuffer(Buffer::Usage usage, uint32_t size)
 	{
-		Buffer* buffer = Renderer::GetInstance()->CreateBuffer(usage, size);
+		Buffer* buffer = RhiDevice::GetInstance()->CreateBuffer(usage, size);
 		_buffers.PushBack(buffer);
 		return buffer;
 	}
 
 	Semaphore* FrameResources::CreateSemaphore()
 	{
-		Semaphore* semaphore = Renderer::GetInstance()->CreateSemaphore();
+		Semaphore* semaphore = RhiDevice::GetInstance()->CreateSemaphore();
 		_semaphores.PushBack(semaphore);
 		return semaphore;
 	}
 
 	Fence* FrameResources::CreateFence()
 	{
-		Fence* fence = Renderer::GetInstance()->CreateFence();
+		Fence* fence = RhiDevice::GetInstance()->CreateFence();
 		_fences.PushBack(fence);
 		return fence;
 	}

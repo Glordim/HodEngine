@@ -3,8 +3,8 @@
 
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/Renderer/RHI/Material.hpp>
-#include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
+#include <HodEngine/RHI/Material.hpp>
+#include <HodEngine/RHI/MaterialInstance.hpp>
 #include <HodEngine/Renderer/Sprite.hpp>
 #include <HodEngine/Renderer/SpriteAtlas.hpp>
 

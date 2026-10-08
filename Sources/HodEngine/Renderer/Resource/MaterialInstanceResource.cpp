@@ -1,8 +1,8 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
-#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
-#include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/RHI/RhiDevice.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
 #include "HodEngine/Core/Document/Document.hpp"
@@ -68,7 +68,7 @@ namespace hod::inline renderer
 			return false;
 		}
 
-		_materialInstance = Renderer::GetInstance()->CreateMaterialInstance(material);
+		_materialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(material);
 		if (_materialInstance == nullptr)
 		{
 			OUTPUT_ERROR("MaterialInstanceResource::Initialize: Unable to CreateMaterialInstance");

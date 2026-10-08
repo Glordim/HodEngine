@@ -120,7 +120,7 @@
 //---- ...Or use Dear ImGui's own very basic math operators.
 #define IMGUI_DEFINE_MATH_OPERATORS
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
         class Texture;
 }

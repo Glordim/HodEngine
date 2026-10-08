@@ -3,8 +3,8 @@
 #include "HodEngine/Renderer/Font/FontManager.hpp"
 #include "HodEngine/Renderer/Font/FontManagerImpl.hpp"
 
-#include "HodEngine/Renderer/Renderer.hpp"
-#include "HodEngine/Renderer/RHI/Texture.hpp"
+#include "HodEngine/RHI/RhiDevice.hpp"
+#include "HodEngine/RHI/Texture.hpp"
 
 #include <cmath>
 
@@ -216,7 +216,7 @@ namespace hod::inline renderer
 		}
 
 		Texture::CreateInfo createInfo;
-		texture = Renderer::GetInstance()->CreateTexture();
+		texture = RhiDevice::GetInstance()->CreateTexture();
 		if (texture->BuildBuffer(atlasWidth, atlasWidth, (unsigned char*)atlas, createInfo) == false) // todo BuildBuffer doesn't take void* ?
 		{
 			DefaultAllocator::GetInstance().Free(atlas);

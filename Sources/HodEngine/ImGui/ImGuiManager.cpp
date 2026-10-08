@@ -21,9 +21,10 @@
 
 #include <HodEngine/Renderer/FrameResources.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/Renderer/RHI/PresentationSurface.hpp>
-#include <HodEngine/Renderer/RHI/Texture.hpp>
+#include <HodEngine/RHI/PresentationSurface.hpp>
+#include <HodEngine/RHI/Texture.hpp>
 
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/GameSystems/Frame/FrameSequencer.hpp>
@@ -37,7 +38,7 @@
 #include "Shader/ImGui_Fragment.hpp"
 #include "Shader/ImGui_Vertex.hpp"
 
-#include <HodEngine/Renderer/RHI/VertexInput.hpp>
+#include <HodEngine/RHI/VertexInput.hpp>
 
 #include <cstring>
 #include <HodEngine/Core/FileSystem/Path.hpp>
@@ -147,14 +148,14 @@ namespace hod::inline imgui
 	void ImGuiManager::RendererCreateWindow(ImGuiViewport* vp)
 	{
 		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
-		Renderer::GetInstance()->CreatePresentationSurface(desktopWindow);
+		RhiDevice::GetInstance()->CreatePresentationSurface(desktopWindow);
 	}
 
 	void ImGuiManager::RendererDestroyWindow(ImGuiViewport* vp)
 	{
 		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
 		(void)desktopWindow;
-		//Renderer::GetInstance()->DestroyPresentationSurface(desktopWindow);
+		//RhiDevice::GetInstance()->DestroyPresentationSurface(desktopWindow);
 		vp->RendererUserData = nullptr;
 	}
 
@@ -164,7 +165,7 @@ namespace hod::inline imgui
 		(void)size;
 		/*
 		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
-		Renderer::PresentationSurface* presentationSurface = Renderer::GetInstance()->FindPresentationSurface(desktopWindow);
+		Renderer::PresentationSurface* presentationSurface = RhiDevice::GetInstance()->FindPresentationSurface(desktopWindow);
 		presentationSurface->
 		*/
 	}
@@ -845,7 +846,7 @@ namespace hod::inline imgui
 
 					case ImTextureStatus_WantCreate:
 					{
-						Texture*                 texture = Renderer::GetInstance()->CreateTexture();
+						Texture*                 texture = RhiDevice::GetInstance()->CreateTexture();
 						hod::Texture::CreateInfo createInfo;
 						createInfo._allowReadWrite = false;
 						createInfo._filterMode = FilterMode::Linear;
@@ -876,7 +877,7 @@ namespace hod::inline imgui
 						textureData->SetTexID(nullptr);
 						textureData->SetStatus(ImTextureStatus_Destroyed);
 
-						Texture*                 texture = Renderer::GetInstance()->CreateTexture();
+						Texture*                 texture = RhiDevice::GetInstance()->CreateTexture();
 						hod::Texture::CreateInfo createInfo;
 						createInfo._allowReadWrite = false;
 						createInfo._filterMode = FilterMode::Linear;
@@ -995,7 +996,7 @@ namespace hod::inline imgui
 	{
 		if (_material == nullptr)
 		{
-			Renderer* renderer = Renderer::GetInstance();
+			RhiDevice* rhiDevice = RhiDevice::GetInstance();
 
 			VertexInput vertexInput[3] = {
 				{0, 0, VertexInput::Format::R32G32_SFloat},
@@ -1003,14 +1004,14 @@ namespace hod::inline imgui
 				{0, 16, VertexInput::Format::R8G8B8A8_UNorm},
 			};
 
-			_vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
+			_vertexShader = rhiDevice->CreateShader(Shader::ShaderType::Vertex);
 			if (_vertexShader->LoadFromIR(ImGui_Vertex, ImGui_Vertex_size, ImGui_Vertex_reflection, ImGui_Vertex_reflection_size) == false)
 			{
 				DefaultAllocator::GetInstance().Delete(_vertexShader);
 				return false;
 			}
 
-			_fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
+			_fragmentShader = rhiDevice->CreateShader(Shader::ShaderType::Fragment);
 			if (_fragmentShader->LoadFromIR(ImGui_Fragment, ImGui_Fragment_size, ImGui_Fragment_reflection, ImGui_Fragment_reflection_size) == false)
 			{
 				DefaultAllocator::GetInstance().Delete(_vertexShader);
@@ -1018,7 +1019,7 @@ namespace hod::inline imgui
 				return false;
 			}
 
-			_material = renderer->CreateMaterial(vertexInput, 3, _vertexShader, _fragmentShader);
+			_material = rhiDevice->CreateMaterial(vertexInput, 3, _vertexShader, _fragmentShader);
 			if (_material == nullptr)
 			{
 				DefaultAllocator::GetInstance().Delete(_material);

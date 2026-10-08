@@ -2,11 +2,11 @@
 #include "HodEngine/Renderer/RenderQueue/RenderQueue.hpp"
 
 #include "HodEngine/Renderer/RenderCommand/RenderCommand.hpp"
-#include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
-#include "HodEngine/Renderer/RHI/Fence.hpp"
-#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
-#include "HodEngine/Renderer/RHI/RenderTarget.hpp"
-#include "HodEngine/Renderer/RHI/Semaphore.hpp"
+#include "HodEngine/RHI/CommandBuffer.hpp"
+#include "HodEngine/RHI/Fence.hpp"
+#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/RHI/RenderTarget.hpp"
+#include "HodEngine/RHI/Semaphore.hpp"
 
 #include "HodEngine/Renderer/MaterialManager.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"

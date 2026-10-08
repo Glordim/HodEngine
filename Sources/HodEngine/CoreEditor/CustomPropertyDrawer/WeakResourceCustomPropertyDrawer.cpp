@@ -18,7 +18,7 @@
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 
-#include "HodEngine/Renderer/RHI/Texture.hpp"
+#include "HodEngine/RHI/Texture.hpp"
 
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"

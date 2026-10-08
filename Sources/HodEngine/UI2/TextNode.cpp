@@ -6,8 +6,8 @@
 #include <HodEngine/Math/Vector4.hpp>
 #include <HodEngine/Renderer/Font/Font.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
-#include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
-#include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/RHI/MaterialInstance.hpp>
+#include <HodEngine/RHI/RhiDevice.hpp>
 
 namespace hod::inline ui2
 {
@@ -195,7 +195,7 @@ namespace hod::inline ui2
 		}
 
 		MaterialInstance* materialInstance =
-			Renderer::GetInstance()->CreateMaterialInstance(MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color));
+			RhiDevice::GetInstance()->CreateMaterialInstance(MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color));
 		materialInstance->SetTexture("image", font->GetTexture());
 		materialInstance->SetVec4("ubo.color", Vector4(_color.r, _color.g, _color.b, _color.a));
 

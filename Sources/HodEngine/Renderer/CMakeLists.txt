@@ -1,30 +1,11 @@
 include(EmbedInSource)
 include(EmbedShader)
 
-if(APPLE)
-	project(Renderer LANGUAGES CXX OBJCXX)
-else()
-	project(Renderer LANGUAGES CXX)
-endif()
+project(Renderer LANGUAGES CXX)
 
-set(ExcludeDirs D3d12 Metal Vulkan)
-if(NOT APPLE)
-	if(WIN32)
-		#set(API D3D12)
-		#set(RENDERER_DEFINE "RENDERER_D3D12")
-		set(API Vulkan)
-		set(RENDERER_DEFINE "RENDERER_VULKAN")
-	else()
-		set(API Vulkan)
-		set(RENDERER_DEFINE "RENDERER_VULKAN")
-	endif()
-else()
-	set(API Metal)
-	set(RENDERER_DEFINE "RENDERER_METAL")
-endif()
-list(REMOVE_ITEM ExcludeDirs ${API})
+get_target_property(API RHI HOD_RHI_BACKEND)
 
-CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES ${ExcludeDirs})
+CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes)
 
 file(GLOB_RECURSE ShaderSources "${PROJECT_SOURCE_DIR}/Shader/*.slang")
 
@@ -42,7 +23,6 @@ list(APPEND Srcs ${GENERATED_SHADER_CPPS})
 list(APPEND Includes ${GENERATED_SHADER_HPPS})
 
 assign_source_group(${Srcs})
-set_source_files_properties(RHI/Metal/MetalCpp.cpp StbImplementation.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON) #Build SingleFileHeader lib with Implementation define separatly
 
 add_library(Renderer ${LIB_TYPE} ${Srcs} ${Includes})
 add_library(HodEngine::Renderer ALIAS Renderer)
@@ -58,69 +38,17 @@ target_include_directories(Renderer PUBLIC
 target_precompile_headers(Renderer PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 target_link_libraries(Renderer
-	PUBLIC Core Math Window GameSystems
-	PRIVATE Freetype::Freetype Stb::Stb
+	PUBLIC Core Math Window GameSystems RHI
+	PRIVATE Freetype::Freetype
 )
 
-if(API STREQUAL Vulkan)
-	target_link_libraries(Renderer PRIVATE Vulkan::Vulkan GPUOpen::VulkanMemoryAllocator)
-	target_compile_definitions(Renderer PRIVATE VMA_VULKAN_VERSION=1001000)
-elseif(API STREQUAL Metal)
+if(APPLE)
 	find_package(BZip2 REQUIRED)
 	find_package(ZLIB REQUIRED)
-	find_library(QUARTZCORE_LIBRARY QuartzCore)
-	find_library(METAL_LIBRARY Metal)
-	target_link_libraries(Renderer PRIVATE MetalCpp::MetalCpp ${QUARTZCORE_LIBRARY} ${METAL_LIBRARY} ${BZIP2_LIBRARIES} ${ZLIB_LIBRARIES})
-elseif(API STREQUAL D3D12)
-	target_link_libraries(Renderer PRIVATE "d3d12.lib" "DXGI.lib")
-	target_compile_options(Renderer PRIVATE /clang:-Wno-language-extension-token)
+	target_link_libraries(Renderer PRIVATE ${BZIP2_LIBRARIES} ${ZLIB_LIBRARIES})
 endif()
 
-if(APPLE)
-	# Each .mm file auto-links libobjc via an embedded linker directive;
-	# with several .mm files in this target, Xcode's linker sees "-lobjc"
-	# more than once and warns. CMP0156 doesn't cover this (it only
-	# de-duplicates libraries CMake itself puts on the link line).
-	target_link_options(Renderer PRIVATE "-Wl,-no_warn_duplicate_libraries")
-endif()
-
-if (RENDERER_ENABLE_VALIDATION_LAYER)
-	target_compile_definitions(Renderer PRIVATE RENDERER_ENABLE_VALIDATION_LAYER)
-	if(API STREQUAL Vulkan)
-		cmake_path(GET VULKAN_KHRONOS_VALIDATION_LAYER_LIB FILENAME VULKAN_KHRONOS_VALIDATION_LAYER_LIB_FILE_NAME)
-		add_custom_command(
-			TARGET Renderer POST_BUILD
-			COMMAND ${CMAKE_COMMAND} -E copy_if_different
-				${VULKAN_KHRONOS_VALIDATION_LAYER_LIB}
-				$<TARGET_FILE_DIR:Renderer>/ValidationLayers/${VULKAN_KHRONOS_VALIDATION_LAYER_LIB_FILE_NAME}
-			COMMENT "Copying validation layer (lib) to output directory"
-		)
-		if (ANDROID)
-			install(FILES ${VULKAN_KHRONOS_VALIDATION_LAYER_LIB}
-				DESTINATION "platforms/${HOD_PLATFORM_NAME}/jniLibs/${HOD_ABI_NAME}"
-			)
-		else()
-			install(FILES ${VULKAN_KHRONOS_VALIDATION_LAYER_LIB}
-				DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/ValidationLayers"
-			)
-		endif()
-		if (NOT ANDROID)
-			cmake_path(GET VULKAN_KHRONOS_VALIDATION_LAYER_JSON FILENAME VULKAN_KHRONOS_VALIDATION_LAYER_JSON_FILE_NAME)
-			add_custom_command(
-				TARGET Renderer POST_BUILD
-				COMMAND ${CMAKE_COMMAND} -E copy_if_different
-					${VULKAN_KHRONOS_VALIDATION_LAYER_JSON}
-					$<TARGET_FILE_DIR:Renderer>/ValidationLayers/${VULKAN_KHRONOS_VALIDATION_LAYER_JSON_FILE_NAME}
-				COMMENT "Copying validation layer (json) to output directory"
-			)
-			install(FILES ${VULKAN_KHRONOS_VALIDATION_LAYER_JSON}
-				DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/ValidationLayers"
-			)
-		endif()
-	endif()
-endif()
-
-target_compile_definitions(Renderer PUBLIC ${HOD_PLATFORM_DEFINE} PRIVATE ${RENDERER_DEFINE})
+target_compile_definitions(Renderer PUBLIC ${HOD_PLATFORM_DEFINE})
 if(NOT BUILD_SHARED_LIBS)
 	target_compile_definitions(Renderer PUBLIC HOD_RENDERER_STATIC)
 else()

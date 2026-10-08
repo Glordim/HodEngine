@@ -1,12 +1,13 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
 
-#include "HodEngine/Renderer/RHI/Buffer.hpp"
-#include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
-#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
+#include "HodEngine/RHI/Buffer.hpp"
+#include "HodEngine/RHI/CommandBuffer.hpp"
+#include "HodEngine/RHI/MaterialInstance.hpp"
 
 #include "HodEngine/Renderer/PickingManager.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/RHI/RhiDevice.hpp"
 
 #include <HodEngine/Core/Time/SystemTime.hpp>
 #include <HodEngine/Core/StaticArray.hpp>
@@ -83,7 +84,7 @@ namespace hod::inline renderer
 		{
 			Color color = PickingManager::ConvertIdToColor(_pickingId);
 
-			materialInstance = Renderer::GetInstance()->CreateMaterialInstance(&overrideMaterial->GetMaterial());
+			materialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(&overrideMaterial->GetMaterial());
 			materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
 			commandBuffer->DeleteAfterRender(materialInstance);
 		}
@@ -103,7 +104,7 @@ namespace hod::inline renderer
 		StaticArray<Buffer*, 3> vertexBuffers = {nullptr, nullptr, nullptr};
 		uint32_t               vertexBufferCount = 0;
 
-		Buffer* positionsBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex, (uint32_t)_positions.Size() * sizeof(Vector2));
+		Buffer* positionsBuffer = RhiDevice::GetInstance()->CreateBuffer(Buffer::Usage::Vertex, (uint32_t)_positions.Size() * sizeof(Vector2));
 		void*   positionsBufferData = positionsBuffer->Lock();
 		if (positionsBufferData != nullptr)
 		{
@@ -116,7 +117,7 @@ namespace hod::inline renderer
 
 		if (_uvs.Empty() == false)
 		{
-			Buffer* uvsBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex, (uint32_t)_uvs.Size() * sizeof(Vector2));
+			Buffer* uvsBuffer = RhiDevice::GetInstance()->CreateBuffer(Buffer::Usage::Vertex, (uint32_t)_uvs.Size() * sizeof(Vector2));
 			void*   uvsBufferData = uvsBuffer->Lock();
 			if (uvsBufferData != nullptr)
 			{
@@ -130,7 +131,7 @@ namespace hod::inline renderer
 
 		if (_colors.Empty() == false)
 		{
-			Buffer* colorsBuffer = renderer->CreateBuffer(Buffer::Usage::Vertex, (uint32_t)_colors.Size() * sizeof(Color));
+			Buffer* colorsBuffer = RhiDevice::GetInstance()->CreateBuffer(Buffer::Usage::Vertex, (uint32_t)_colors.Size() * sizeof(Color));
 			void*   colorsBufferData = colorsBuffer->Lock();
 			if (colorsBufferData != nullptr)
 			{
@@ -147,7 +148,7 @@ namespace hod::inline renderer
 		if (_indices.Empty() == false)
 		{
 			uint32_t indexBufferSize = static_cast<uint32_t>(_indices.Size() * sizeof(uint16_t));
-			Buffer*  indexBuffer = renderer->CreateBuffer(Buffer::Usage::Index, indexBufferSize);
+			Buffer*  indexBuffer = RhiDevice::GetInstance()->CreateBuffer(Buffer::Usage::Index, indexBufferSize);
 			void*    indexBufferData = indexBuffer->Lock();
 			if (indexBufferData != nullptr)
 			{

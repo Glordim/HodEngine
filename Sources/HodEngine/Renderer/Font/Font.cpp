@@ -1,7 +1,7 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/Font/Font.hpp"
 #include "HodEngine/Renderer/Font/FontImpl.hpp"
-#include "HodEngine/Renderer/RHI/Texture.hpp"
+#include "HodEngine/RHI/Texture.hpp"
 
 namespace hod::inline renderer
 {

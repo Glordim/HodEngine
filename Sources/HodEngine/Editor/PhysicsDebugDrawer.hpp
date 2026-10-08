@@ -3,10 +3,14 @@
 #include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
 #include "HodEngine/Math/Vector4.hpp"
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
 	class Material;
 	class MaterialInstance;
+}
+
+namespace hod::inline renderer
+{
 	class RenderView;
 }
 

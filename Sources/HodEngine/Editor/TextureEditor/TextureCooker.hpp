@@ -3,7 +3,7 @@
 
 #include "HodEngine/Editor/Cooker/Cooker.hpp"
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
-#include "HodEngine/Renderer/Enums.hpp"
+#include "HodEngine/RHI/Enums.hpp"
 
 namespace hod::inline editor
 {

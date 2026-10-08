@@ -6,10 +6,13 @@
 
 #include "HodEngine/Renderer/Sprite.hpp"
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
 	class Texture;
+}
 
+namespace hod::inline renderer
+{
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------

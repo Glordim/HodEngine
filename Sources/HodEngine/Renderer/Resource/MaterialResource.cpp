@@ -1,9 +1,9 @@
 #include "HodEngine/Renderer/Pch.hpp"
-#include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/RHI/RhiDevice.hpp"
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
-#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
-#include "HodEngine/Renderer/RHI/VertexInput.hpp"
+#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/RHI/VertexInput.hpp"
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
@@ -61,7 +61,7 @@ namespace hod::inline renderer
 			return false;
 		}
 
-		_vertexShader = Renderer::GetInstance()->CreateShader(Shader::ShaderType::Vertex);
+		_vertexShader = RhiDevice::GetInstance()->CreateShader(Shader::ShaderType::Vertex);
 		if (_vertexShader->LoadFromIR(vertexData.Data(), vertexData.Size(), reinterpret_cast<const char*>(vertexReflectionData.Data()), vertexReflectionData.Size()) == false)
 		{
 			OUTPUT_ERROR("MaterialResource::Initialize: load vertex shader failed");
@@ -77,7 +77,7 @@ namespace hod::inline renderer
 			return false;
 		}
 
-		_fragmentShader = Renderer::GetInstance()->CreateShader(Shader::ShaderType::Fragment);
+		_fragmentShader = RhiDevice::GetInstance()->CreateShader(Shader::ShaderType::Fragment);
 		if (_fragmentShader->LoadFromIR(fragmentData.Data(), fragmentData.Size(), reinterpret_cast<const char*>(fragmentReflectionData.Data()), fragmentReflectionData.Size()) == false)
 		{
 			OUTPUT_ERROR("MaterialResource::Initialize: load fragment shader failed");
@@ -90,7 +90,7 @@ namespace hod::inline renderer
 		vertexInputs.PushBack(VertexInput(0, 0, VertexInput::Format::R32G32_SFloat));
 		vertexInputs.PushBack(VertexInput(1, 8, VertexInput::Format::R32G32_SFloat));
 
-		_material = Renderer::GetInstance()->CreateMaterial(vertexInputs.Data(), (uint32_t)vertexInputs.Size(), _vertexShader, _fragmentShader, _polygonMode, _topololy, false);
+		_material = RhiDevice::GetInstance()->CreateMaterial(vertexInputs.Data(), (uint32_t)vertexInputs.Size(), _vertexShader, _fragmentShader, _polygonMode, _topololy, false);
 		if (_material == nullptr)
 		{
 			OUTPUT_ERROR("MaterialResource::Initialize: load material failed");

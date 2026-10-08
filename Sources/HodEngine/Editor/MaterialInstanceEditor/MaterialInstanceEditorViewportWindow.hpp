@@ -13,7 +13,7 @@ namespace hod::inline core
 	class ReflectionDescriptor;
 }
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
 	class RenderTarget;
 }

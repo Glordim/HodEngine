@@ -9,10 +9,10 @@
 			}
 		},
 		{
-			"name": "opt-renderer-validation-layers",
+			"name": "opt-rhi-validation-layers",
 			"hidden": true,
 			"cacheVariables": {
-				"RENDERER_ENABLE_VALIDATION_LAYER": "ON"
+				"RHI_ENABLE_VALIDATION_LAYER": "ON"
 			}
 		}
 	]

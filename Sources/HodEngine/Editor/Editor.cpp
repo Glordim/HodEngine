@@ -47,8 +47,8 @@
 #include "HodEngine/Editor/ViewportWindow.hpp"
 #include "HodEngine/ImGui/ImGuiManager.hpp"
 
-#include "HodEngine/Renderer/Renderer.hpp"
-#include "HodEngine/Renderer/RHI/Texture.hpp"
+#include "HodEngine/RHI/RhiDevice.hpp"
+#include "HodEngine/RHI/Texture.hpp"
 #include <fmt/format.h>
 #include <stb_image.h>
 
@@ -188,52 +188,52 @@ namespace hod::inline editor
 		textureCreateInfo._wrapMode = WrapMode::Clamp;
 
 		pixels = stbi_load_from_memory(HodIcon_png, HodIcon_png_size, &x, &y, &component, 0);
-		_hodTexture = Renderer::GetInstance()->CreateTexture();
+		_hodTexture = RhiDevice::GetInstance()->CreateTexture();
 		_hodTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 		stbi_image_free(pixels);
 
 		pixels = stbi_load_from_memory(folder_png, folder_png_size, &x, &y, &component, 0);
-		_folderTexture = Renderer::GetInstance()->CreateTexture();
+		_folderTexture = RhiDevice::GetInstance()->CreateTexture();
 		_folderTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 		stbi_image_free(pixels);
 
 		pixels = stbi_load_from_memory(folder_open_png, folder_open_png_size, &x, &y, &component, 0);
-		_folderOpenTexture = Renderer::GetInstance()->CreateTexture();
+		_folderOpenTexture = RhiDevice::GetInstance()->CreateTexture();
 		_folderOpenTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 		stbi_image_free(pixels);
 
 		pixels = stbi_load_from_memory(landscape_png, landscape_png_size, &x, &y, &component, 0);
-		_sceneTexture = Renderer::GetInstance()->CreateTexture();
+		_sceneTexture = RhiDevice::GetInstance()->CreateTexture();
 		_sceneTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 		stbi_image_free(pixels);
 
 		pixels = stbi_load_from_memory(prefab_png, prefab_png_size, &x, &y, &component, 0);
-		_prefabTexture = Renderer::GetInstance()->CreateTexture();
+		_prefabTexture = RhiDevice::GetInstance()->CreateTexture();
 		_prefabTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 		stbi_image_free(pixels);
 
 		pixels = stbi_load_from_memory(Material_png, Material_png_size, &x, &y, &component, 0);
-		_materialTexture = Renderer::GetInstance()->CreateTexture();
+		_materialTexture = RhiDevice::GetInstance()->CreateTexture();
 		_materialTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 		stbi_image_free(pixels);
 
 		pixels = stbi_load_from_memory(Font_png, Font_png_size, &x, &y, &component, 0);
-		_fontTexture = Renderer::GetInstance()->CreateTexture();
+		_fontTexture = RhiDevice::GetInstance()->CreateTexture();
 		_fontTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 		stbi_image_free(pixels);
 
 		pixels = stbi_load_from_memory(Audio_png, Audio_png_size, &x, &y, &component, 0);
-		_audioTexture = Renderer::GetInstance()->CreateTexture();
+		_audioTexture = RhiDevice::GetInstance()->CreateTexture();
 		_audioTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 		stbi_image_free(pixels);
 
 		pixels = stbi_load_from_memory(DataItem_png, DataItem_png_size, &x, &y, &component, 0);
-		_dataItemTexture = Renderer::GetInstance()->CreateTexture();
+		_dataItemTexture = RhiDevice::GetInstance()->CreateTexture();
 		_dataItemTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 		stbi_image_free(pixels);
 
 		pixels = stbi_load_from_memory(DataTable_png, DataTable_png_size, &x, &y, &component, 0);
-		_dataTableTexture = Renderer::GetInstance()->CreateTexture();
+		_dataTableTexture = RhiDevice::GetInstance()->CreateTexture();
 		_dataTableTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 		stbi_image_free(pixels);
 
@@ -246,7 +246,7 @@ namespace hod::inline editor
 
 		textureCreateInfo._filterMode = FilterMode::Nearest;
 		textureCreateInfo._wrapMode = WrapMode::Repeat;
-		_checkerTexture = Renderer::GetInstance()->CreateTexture();
+		_checkerTexture = RhiDevice::GetInstance()->CreateTexture();
 		_checkerTexture->BuildBuffer(2, 2, checkerBuffer, textureCreateInfo);
 
 		_floatingAssetBrowserWindow = DefaultAllocator::GetInstance().New<AssetBrowserWindow>();

@@ -7,7 +7,7 @@
 #include <HodEngine/Core/Singleton.hpp>
 #include <HodEngine/Core/UID.hpp>
 
-#include "HodEngine/Renderer/RHI/Material.hpp"
+#include "HodEngine/RHI/Material.hpp"
 #include "HodEngine/Core/StaticArray.hpp"
 
 #include <utility>

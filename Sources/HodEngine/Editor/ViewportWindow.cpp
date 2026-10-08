@@ -17,9 +17,10 @@
 #include <HodEngine/Renderer/FrameResources.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/Renderer/RHI/RenderTarget.hpp>
-#include <HodEngine/Renderer/RHI/Texture.hpp>
+#include <HodEngine/RHI/RenderTarget.hpp>
+#include <HodEngine/RHI/Texture.hpp>
 
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 #include "HodEngine/Game/Prefab.hpp"
@@ -57,8 +58,8 @@ namespace hod::inline editor
 	{
 		SetFlags(ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar);
 
-		_renderTarget = Renderer::GetInstance()->CreateRenderTarget();
-		_pickingRenderTarget = Renderer::GetInstance()->CreateRenderTarget();
+		_renderTarget = RhiDevice::GetInstance()->CreateRenderTarget();
+		_pickingRenderTarget = RhiDevice::GetInstance()->CreateRenderTarget();
 	}
 
 	/// @brief

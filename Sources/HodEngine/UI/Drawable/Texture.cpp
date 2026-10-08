@@ -4,7 +4,7 @@
 
 #include "HodEngine/Renderer/MaterialManager.hpp"
 #include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
-#include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/RHI/RhiDevice.hpp"
 #include "HodEngine/Renderer/RenderView.hpp"
 
 #include <HodEngine/Game/Entity.hpp>
@@ -52,7 +52,7 @@ namespace hod::inline ui
 			{
 				const Material* material =
 					MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
-				_materialInstance = Renderer::GetInstance()->CreateMaterialInstance(material);
+				_materialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(material);
 			}
 
 			if (_texture.Lock())

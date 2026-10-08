@@ -4,12 +4,16 @@
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
 #include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 
-#include "HodEngine/Renderer/RHI/Material.hpp"
+#include "HodEngine/RHI/Material.hpp"
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"
+
+namespace hod::inline rhi
+{
+	class MaterialInstance;
+}
 
 namespace hod::inline renderer
 {
-	class MaterialInstance;
 	class TextureResource;
 	
 	class HOD_RENDERER_API MaterialInstanceResource : public Resource

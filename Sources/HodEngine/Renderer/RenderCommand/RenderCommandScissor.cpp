@@ -1,7 +1,7 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/RenderCommand/RenderCommandScissor.hpp"
 
-#include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
+#include "HodEngine/RHI/CommandBuffer.hpp"
 
 #include <HodEngine/Math/Vector4.hpp>
 

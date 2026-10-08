@@ -3,33 +3,23 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
-#include "HodEngine/Renderer/RHI/Buffer.hpp"
-#include "HodEngine/Renderer/RHI/Material.hpp"
-#include "HodEngine/Renderer/RHI/Shader.hpp"
-
 #include <HodEngine/Core/Singleton.hpp>
-
-#undef CreateSemaphore
 
 namespace hod::inline window
 {
 	class Window;
 }
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
-	struct GpuDevice;
-	class RenderView;
-	class Buffer;
-	class CommandBuffer;
 	class Material;
 	class MaterialInstance;
-	class Texture;
-	class PresentationSurface;
-	class VertexInput;
-	class RenderTarget;
-	class Semaphore;
-	class Fence;
+	class Shader;
+}
+
+namespace hod::inline renderer
+{
+	class RenderView;
 	class FrameResources;
 
 	//-----------------------------------------------------------------------------
@@ -37,7 +27,7 @@ namespace hod::inline renderer
 	//-----------------------------------------------------------------------------
 	class HOD_RENDERER_API Renderer
 	{
-		_SingletonAbstract(Renderer)
+		_Singleton(Renderer)
 
 	public:
 		enum VisualizationMode
@@ -50,29 +40,10 @@ namespace hod::inline renderer
 		};
 
 	public:
-		virtual ~Renderer();
+		~Renderer();
 
-		virtual bool Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) = 0;
-		virtual void WaitIdle() {}
-		virtual void Clear();
-
-		virtual bool GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) = 0;
-
-		virtual bool SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore = nullptr,
-		                                  const Semaphore* waitSemaphore = nullptr, const Fence* fence = nullptr) = 0;
-
-		virtual CommandBuffer* CreateCommandBuffer() = 0;
-		virtual Buffer*        CreateBuffer(Buffer::Usage usage, uint32_t size) = 0;
-		virtual Semaphore*     CreateSemaphore() = 0;
-		virtual Fence*         CreateFence() = 0;
-
-		virtual Shader*           CreateShader(Shader::ShaderType type) = 0;
-		virtual Material*         CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
-		                                         Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE,
-		                                         bool useDepth = true) = 0;
-		virtual MaterialInstance* CreateMaterialInstance(const Material* material) = 0;
-		virtual Texture*          CreateTexture() = 0;
-		virtual RenderTarget*     CreateRenderTarget() = 0;
+		bool Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier = 0);
+		void Clear();
 
 		FrameResources& GetCurrentFrameResources();
 
@@ -84,13 +55,6 @@ namespace hod::inline renderer
 
 		bool AcquireNextFrame();
 
-		virtual PresentationSurface* CreatePresentationSurface(window::Window* window) = 0;
-		void DestroyPresentationSurface(window::Window* window);
-		PresentationSurface* FindPresentationSurface(window::Window* window) const;
-
-		uint32_t GetFrameIndex() const;
-		uint32_t GetFrameInFlightCount() const;
-
 		// Debug
 	public:
 		VisualizationMode GetVisualizationMode() const;
@@ -100,12 +64,7 @@ namespace hod::inline renderer
 		MaterialInstance* GetOverdrawMaterialInstance();
 		MaterialInstance* GetWireframeMaterialInstance();
 
-		Texture* GetDefaultWhiteTexture();
-
-	protected:
-		virtual void FlushDeferredDeletions(uint32_t) {}
-
-	protected:
+	private:
 		Material*         _overdrawnMaterial = nullptr;
 		MaterialInstance* _overdrawnMaterialInstance = nullptr;
 
@@ -117,9 +76,7 @@ namespace hod::inline renderer
 		Shader*           _defaultVertexShader = nullptr;
 		Shader*           _defaultFragmentShader = nullptr;
 
-		Vector<RenderView*>          _renderViews;
-		Vector<PresentationSurface*> _presentationSurfaces;
-		PresentationSurface*         _mainPresentationSurface = nullptr;
+		Vector<RenderView*> _renderViews;
 
 		/*
 		Material* _unlitVertexColorMaterial = nullptr;
@@ -133,13 +90,6 @@ namespace hod::inline renderer
 
 		VisualizationMode _visualizationMode = VisualizationMode::Normal;
 
-		Texture* _defaultWhiteTexture = nullptr;
-
-		// FIF
-		uint32_t               _frameCount = 0;
-		uint32_t               _frameIndex = 0;
-		const uint32_t         _frameInFlight = 2;
 		Vector<FrameResources> _frameResources;
-		//
 	};
 }

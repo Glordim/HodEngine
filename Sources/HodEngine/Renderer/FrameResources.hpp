@@ -1,18 +1,22 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
-#include "HodEngine/Renderer/RHI/Buffer.hpp"
+#include "HodEngine/RHI/Buffer.hpp"
 
 #include <HodEngine/Core/Vector.hpp>
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
 	class CommandBuffer;
 	class Buffer;
 	class Semaphore;
 	class Fence;
-	class RenderView;
 	class PresentationSurface;
+}
+
+namespace hod::inline renderer
+{
+	class RenderView;
 
 	class HOD_RENDERER_API FrameResources
 	{

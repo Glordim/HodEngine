@@ -20,7 +20,7 @@
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 #include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 
-#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
+#include "HodEngine/RHI/MaterialInstance.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"

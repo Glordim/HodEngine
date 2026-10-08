@@ -3,11 +3,14 @@
 
 #include <cstdint>
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
 	class CommandBuffer;
 	class MaterialInstance;
+}
 
+namespace hod::inline renderer
+{
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------

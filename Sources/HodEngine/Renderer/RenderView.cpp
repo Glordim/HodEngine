@@ -3,15 +3,16 @@
 
 #include "HodEngine/Renderer/FrameResources.hpp"
 #include "HodEngine/Renderer/RenderCommand/RenderCommand.hpp"
-#include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
-#include "HodEngine/Renderer/RHI/Fence.hpp"
-#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
-#include "HodEngine/Renderer/RHI/PresentationSurface.hpp"
-#include "HodEngine/Renderer/RHI/RenderTarget.hpp"
-#include "HodEngine/Renderer/RHI/Semaphore.hpp"
+#include "HodEngine/RHI/CommandBuffer.hpp"
+#include "HodEngine/RHI/Fence.hpp"
+#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/RHI/PresentationSurface.hpp"
+#include "HodEngine/RHI/RenderTarget.hpp"
+#include "HodEngine/RHI/Semaphore.hpp"
 
 #include "HodEngine/Renderer/MaterialManager.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/RHI/RhiDevice.hpp"
 
 namespace hod::inline renderer
 {
@@ -19,10 +20,10 @@ namespace hod::inline renderer
 	void RenderView::Init()
 	{
 		_pickingMaterialInstance =
-			Renderer::GetInstance()->CreateMaterialInstance(MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+			RhiDevice::GetInstance()->CreateMaterialInstance(MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 
-		_renderFinishedSemaphore = Renderer::GetInstance()->CreateSemaphore();
-		_renderFinishedFence = Renderer::GetInstance()->CreateFence();
+		_renderFinishedSemaphore = RhiDevice::GetInstance()->CreateSemaphore();
+		_renderFinishedFence = RhiDevice::GetInstance()->CreateFence();
 	}
 
 	/// @brief
@@ -60,7 +61,7 @@ namespace hod::inline renderer
 
 	bool RenderView::Prepare(Window* window)
 	{
-		return Prepare(Renderer::GetInstance()->FindPresentationSurface(window));
+		return Prepare(RhiDevice::GetInstance()->FindPresentationSurface(window));
 	}
 
 	void RenderView::Prepare(RenderTarget* renderTarget, RenderTarget* pickingRenderTarget)
@@ -110,14 +111,14 @@ namespace hod::inline renderer
 	/// @brief
 	void RenderView::Execute(Semaphore* previousSemaphore)
 	{
-		Renderer* renderer = Renderer::GetInstance();
+		RhiDevice* rhiDevice = RhiDevice::GetInstance();
 
 		_worldRenderQueue.Prepare(*this);
 		_uiRenderQueue.Prepare(*this);
 
 		if (_pickingRenderTarget != nullptr)
 		{
-			CommandBuffer* commandBuffer = renderer->CreateCommandBuffer();
+			CommandBuffer* commandBuffer = rhiDevice->CreateCommandBuffer();
 
 			if (commandBuffer->StartRecord() == true)
 			{
@@ -140,7 +141,7 @@ namespace hod::inline renderer
 			_commandBuffers.push_back(commandBuffer);
 		}
 
-		CommandBuffer* commandBuffer = renderer->CreateCommandBuffer();
+		CommandBuffer* commandBuffer = rhiDevice->CreateCommandBuffer();
 
 		if (commandBuffer->StartRecord() == true)
 		{
@@ -175,11 +176,11 @@ namespace hod::inline renderer
 
 		if (_presentationSurface != nullptr)
 		{
-			renderer->SubmitCommandBuffers(_commandBuffers.Data(), (uint32_t)_commandBuffers.Size(), _renderFinishedSemaphore, previousSemaphore, _renderFinishedFence);
+			rhiDevice->SubmitCommandBuffers(_commandBuffers.Data(), (uint32_t)_commandBuffers.Size(), _renderFinishedSemaphore, previousSemaphore, _renderFinishedFence);
 		}
 		else
 		{
-			renderer->SubmitCommandBuffers(_commandBuffers.Data(), (uint32_t)_commandBuffers.Size(), nullptr, previousSemaphore, _renderFinishedFence);
+			rhiDevice->SubmitCommandBuffers(_commandBuffers.Data(), (uint32_t)_commandBuffers.Size(), nullptr, previousSemaphore, _renderFinishedFence);
 		}
 	}
 

@@ -5,7 +5,7 @@
 #include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 #include "HodEngine/Renderer/Sprite.hpp"
 
-namespace hod::inline renderer { class MaterialInstance; }
+namespace hod::inline rhi { class MaterialInstance; }
 
 namespace hod::inline game
 {

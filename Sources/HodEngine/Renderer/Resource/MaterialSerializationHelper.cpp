@@ -1,14 +1,14 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
-#include "HodEngine/Renderer/RHI/Material.hpp"
-#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
+#include "HodEngine/RHI/Material.hpp"
+#include "HodEngine/RHI/MaterialInstance.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/GameSystems/Resource/WeakResource.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 
-#include "HodEngine/Renderer/RHI/ShaderSetDescriptor.hpp"
+#include "HodEngine/RHI/ShaderSetDescriptor.hpp"
 
 namespace hod::inline renderer
 {

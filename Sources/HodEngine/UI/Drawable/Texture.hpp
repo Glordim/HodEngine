@@ -3,7 +3,7 @@
 #include "HodEngine/UI/Drawable/Drawable.hpp"
 #include <HodEngine/GameSystems/Resource/WeakResource.hpp>
 #include <HodEngine/Renderer/Resource/TextureResource.hpp>
-#include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
+#include <HodEngine/RHI/MaterialInstance.hpp>
 
 namespace hod::inline ui
 {

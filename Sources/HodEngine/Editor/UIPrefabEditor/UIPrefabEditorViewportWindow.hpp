@@ -15,9 +15,13 @@ namespace hod::inline ui2
 	class Node;
 }
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
 	class RenderTarget;
+}
+
+namespace hod::inline renderer
+{
 	class RenderView;
 }
 

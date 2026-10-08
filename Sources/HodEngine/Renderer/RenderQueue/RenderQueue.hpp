@@ -6,12 +6,16 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
+namespace hod::inline rhi
+{
+	class CommandBuffer;
+	class MaterialInstance;
+}
+
 namespace hod::inline renderer
 {
 	class RenderCommand;
 	class RenderView;
-	class CommandBuffer;
-	class MaterialInstance;
 
 	/// @brief 
 	class HOD_RENDERER_API RenderQueue

@@ -3,9 +3,13 @@
 
 #include <HodEngine/Math/Vector2.hpp>
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
 	class Texture;
+}
+
+namespace hod::inline renderer
+{
 	class FontImpl;
 
 	class HOD_RENDERER_API Font final

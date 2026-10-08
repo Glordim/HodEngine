@@ -8,7 +8,7 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
 	class MaterialInstance;
 }

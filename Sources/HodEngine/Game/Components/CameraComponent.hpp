@@ -8,10 +8,14 @@
 
 #include "../Scene.hpp"
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
 	class MaterialInstance;
 	class Texture;
+}
+
+namespace hod::inline renderer
+{
 	class RenderQueue;
 }
 

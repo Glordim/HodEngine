@@ -9,10 +9,10 @@
 #include <HodEngine/Renderer/P2fC4f.hpp>
 #include <HodEngine/Renderer/P2fT2f.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
-#include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/Renderer/RHI/Material.hpp>
-#include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
+#include <HodEngine/RHI/Material.hpp>
+#include <HodEngine/RHI/MaterialInstance.hpp>
 #include <HodEngine/Renderer/Sprite.hpp>
 #include <HodEngine/Renderer/SpriteAtlas.hpp>
 
@@ -30,7 +30,7 @@ namespace hod::inline game
 	TextRendererComponent::TextRendererComponent()
 	{
 		const Material* material = MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
-		_materialInstance = Renderer::GetInstance()->CreateMaterialInstance(material);
+		_materialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(material);
 	}
 
 	/// @brief

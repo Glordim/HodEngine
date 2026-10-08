@@ -4,7 +4,7 @@
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
 #include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 
-#include "HodEngine/Renderer/RHI/Material.hpp"
+#include "HodEngine/RHI/Material.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
 namespace hod::inline renderer

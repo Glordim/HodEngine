@@ -26,7 +26,7 @@ namespace hod::inline game
 	class Entity;
 }
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
 	class Texture;
 }

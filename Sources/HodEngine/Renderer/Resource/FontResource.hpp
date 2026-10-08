@@ -4,7 +4,7 @@
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
-#include "HodEngine/Renderer/RHI/Texture.hpp"
+#include "HodEngine/RHI/Texture.hpp"
 #include "HodEngine/Core/Vector.hpp"
 
 struct FT_FaceRec_;

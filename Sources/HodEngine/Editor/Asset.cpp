@@ -14,8 +14,8 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
-#include "HodEngine/Renderer/Renderer.hpp"
-#include "HodEngine/Renderer/RHI/Texture.hpp"
+#include "HodEngine/RHI/RhiDevice.hpp"
+#include "HodEngine/RHI/Texture.hpp"
 
 namespace hod::inline editor
 {
@@ -107,7 +107,7 @@ namespace hod::inline editor
 			_thumbnail = nullptr;
 		}
 
-		_thumbnail = Renderer::GetInstance()->CreateTexture();
+		_thumbnail = RhiDevice::GetInstance()->CreateTexture();
 		if (_thumbnail->LoadFromPath(thumbnailFilePath.GetString().CStr()) == false)
 		{
 			DefaultAllocator::GetInstance().Delete(_thumbnail);

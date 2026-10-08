@@ -26,7 +26,7 @@ namespace hod::inline window
 	class Window;
 }
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
 	class Shader;
 	class Material;

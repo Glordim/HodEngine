@@ -7,9 +7,9 @@
 
 #include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
-#include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
+#include <HodEngine/RHI/MaterialInstance.hpp>
 
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 #include <HodEngine/Game/Components/Physics/2d/EdgeCollider2dComponent.hpp>
@@ -23,7 +23,7 @@ namespace hod::inline editor
 	/// @brief
 	EdgeCollider2dCustomComponentDrawer::EdgeCollider2dCustomComponentDrawer()
 	{
-		_materialInstance = Renderer::GetInstance()->CreateMaterialInstance(
+		_materialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(
 			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
 		_materialInstance->SetVec4("ubo.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
 	}

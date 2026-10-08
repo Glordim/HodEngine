@@ -3,7 +3,7 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
-#include "HodEngine/Renderer/RHI/GpuDevice.hpp"
+#include "HodEngine/RHI/GpuDevice.hpp"
 
 namespace hod::inline renderer
 {

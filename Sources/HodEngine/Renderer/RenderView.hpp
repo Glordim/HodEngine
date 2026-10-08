@@ -14,15 +14,19 @@ namespace hod::inline window
 	class Window;
 }
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
-	class RenderCommand;
 	class RenderTarget;
 	class PresentationSurface;
 	class MaterialInstance;
 	class Semaphore;
 	class Fence;
 	class CommandBuffer;
+}
+
+namespace hod::inline renderer
+{
+	class RenderCommand;
 
 	/// @brief
 	class HOD_RENDERER_API RenderView

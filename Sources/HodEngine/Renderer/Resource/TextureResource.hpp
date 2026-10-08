@@ -3,7 +3,7 @@
 
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
 
-#include "HodEngine/Renderer/RHI/Texture.hpp"
+#include "HodEngine/RHI/Texture.hpp"
 
 namespace hod::inline renderer
 {	
@@ -25,7 +25,7 @@ namespace hod::inline renderer
 
 		bool				Initialize(const ResourceContainer& resourceContainer) override;
 
-		Texture*			GetTexture() const;
+		rhi::Texture*		GetTexture() const;
 
 	public:
 
@@ -35,6 +35,6 @@ namespace hod::inline renderer
 		FilterMode					_filterMode = FilterMode::Nearest;
 		WrapMode					_wrapMode = WrapMode::Clamp;
 
-		Texture*					_texture = nullptr;
+		rhi::Texture*				_texture = nullptr;
 	};
 }

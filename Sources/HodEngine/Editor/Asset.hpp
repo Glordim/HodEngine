@@ -12,7 +12,7 @@
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/UID.hpp>
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
 	class Texture;
 }

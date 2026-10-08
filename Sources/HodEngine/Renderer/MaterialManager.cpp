@@ -1,11 +1,11 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/MaterialManager.hpp"
 
-#include "HodEngine/Renderer/RHI/Material.hpp"
-#include "HodEngine/Renderer/RHI/Shader.hpp"
+#include "HodEngine/RHI/Material.hpp"
+#include "HodEngine/RHI/Shader.hpp"
 
-#include "HodEngine/Renderer/Renderer.hpp"
-#include "HodEngine/Renderer/RHI/VertexInput.hpp"
+#include "HodEngine/RHI/RhiDevice.hpp"
+#include "HodEngine/RHI/VertexInput.hpp"
 
 #include "Shader/P2fT2f_Texture_Unlit_Fragment.hpp"
 #include "Shader/P2fT2f_Texture_Unlit_Vertex.hpp"
@@ -167,11 +167,11 @@ namespace hod::inline renderer
 		Material* material = _builtinMaterials[static_cast<uint32_t>(buildMaterial)]; // c++23 std::to_underlying
 		if (material == nullptr)
 		{
-			Renderer* renderer = Renderer::GetInstance();
+			RhiDevice* rhiDevice = RhiDevice::GetInstance();
 
 			const BuiltinMaterialSource& builtinMaterialSource = GetBuiltinMaterialSource(buildMaterial);
 
-			Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
+			Shader* vertexShader = rhiDevice->CreateShader(Shader::ShaderType::Vertex);
 			if (vertexShader->LoadFromIR(builtinMaterialSource._vertexShaderBytecode, builtinMaterialSource._vertexShaderBytecodeSize,
 			                             builtinMaterialSource._vertexShaderReflection, builtinMaterialSource._vertexShaderReflectionSize) == false)
 			{
@@ -179,7 +179,7 @@ namespace hod::inline renderer
 				return nullptr;
 			}
 
-			Shader* fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
+			Shader* fragmentShader = rhiDevice->CreateShader(Shader::ShaderType::Fragment);
 			if (fragmentShader->LoadFromIR(builtinMaterialSource._fragmentShaderBytecode, builtinMaterialSource._fragmentShaderBytecodeSize,
 			                               builtinMaterialSource._fragmentShaderReflection, builtinMaterialSource._fragmentShaderReflectionSize) == false)
 			{
@@ -188,7 +188,7 @@ namespace hod::inline renderer
 				return nullptr;
 			}
 
-			material = renderer->CreateMaterial(builtinMaterialSource._vertexInputs.Data(), (uint32_t)builtinMaterialSource._vertexInputs.Size(), vertexShader, fragmentShader,
+			material = rhiDevice->CreateMaterial(builtinMaterialSource._vertexInputs.Data(), (uint32_t)builtinMaterialSource._vertexInputs.Size(), vertexShader, fragmentShader,
 			                                    builtinMaterialSource._polygonMode, builtinMaterialSource._topology, true);
 
 			if (material == nullptr)
@@ -219,16 +219,16 @@ namespace hod::inline renderer
 		return UID::INVALID_UID; // TODO ?
 
 		/*
-		Renderer* renderer = Renderer::GetInstance();
+		RhiDevice* rhiDevice = RhiDevice::GetInstance();
 
-		Shader* vertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
+		Shader* vertexShader = rhiDevice->CreateShader(Shader::ShaderType::Vertex);
 		if (vertexShader->LoadFromFile("Shader/" + shaderName + ".vert.spirv") == false)
 		{
 		    DefaultAllocator::GetInstance().Delete(vertexShader);
 		    return UID::INVALID_UID;
 		}
 
-		Shader* fragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
+		Shader* fragmentShader = rhiDevice->CreateShader(Shader::ShaderType::Fragment);
 		if (fragmentShader->LoadFromFile("Shader/" + shaderName + ".frag.spirv") == false)
 		{
 		    DefaultAllocator::GetInstance().Delete(vertexShader);
@@ -236,7 +236,7 @@ namespace hod::inline renderer
 		    return UID::INVALID_UID;
 		}
 
-		Material* material = renderer->CreateMaterial(nullptr, 0, vertexShader, fragmentShader, polygonMode, topololy, useDepth);
+		Material* material = rhiDevice->CreateMaterial(nullptr, 0, vertexShader, fragmentShader, polygonMode, topololy, useDepth);
 		if (material == nullptr)
 		{
 		    DefaultAllocator::GetInstance().Delete(vertexShader);

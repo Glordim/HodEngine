@@ -13,10 +13,14 @@ namespace hod::inline core
 	class ReflectionDescriptor;
 }
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
 	class Material;
 	class MaterialInstance;
+}
+
+namespace hod::inline renderer
+{
 	class TextureResource;
 
 	struct ShaderParameter

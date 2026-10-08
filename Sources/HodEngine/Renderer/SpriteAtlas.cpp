@@ -1,8 +1,8 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/SpriteAtlas.hpp"
 
-#include "HodEngine/Renderer/Renderer.hpp"
-#include "HodEngine/Renderer/RHI/Texture.hpp"
+#include "HodEngine/RHI/RhiDevice.hpp"
+#include "HodEngine/RHI/Texture.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
@@ -49,7 +49,7 @@ namespace hod::inline renderer
 		size_t lastSlash = texturePath.find_last_of('/');
 		texturePath = texturePath.substr(0, lastSlash + 1) + metaElement["image"].GetString();
 
-		_texture = Renderer::GetInstance()->CreateTexture();
+		_texture = RhiDevice::GetInstance()->CreateTexture();
 		_texture->LoadFromPath(texturePath.Data());
 
 		auto frameArray = documentJson["frames"].GetArray();

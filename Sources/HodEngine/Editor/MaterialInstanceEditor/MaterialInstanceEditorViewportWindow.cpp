@@ -33,8 +33,9 @@
 #include <HodEngine/Renderer/FrameResources.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/Renderer/RHI/RenderTarget.hpp>
+#include <HodEngine/RHI/RenderTarget.hpp>
 #include <HodEngine/Core/StaticArray.hpp>
 
 #include <algorithm>
@@ -55,7 +56,7 @@ namespace hod::inline editor
 		SetFlags(ImGuiWindowFlags_NoScrollbar);
 		SetTitle("Viewport");
 
-		_renderTarget = Renderer::GetInstance()->CreateRenderTarget();
+		_renderTarget = RhiDevice::GetInstance()->CreateRenderTarget();
 	}
 
 	/// @brief

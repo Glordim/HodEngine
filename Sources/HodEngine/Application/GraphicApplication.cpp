@@ -3,8 +3,8 @@
 #include "HodEngine/Application/InitGuard.hpp"
 
 #include <HodEngine/GameSystems/Frame/FrameSequencer.hpp>
-#include <HodEngine/Renderer/PlatformRenderer.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/RHI/RhiDevice.hpp>
 
 #include <HodEngine/Window/PlatformDisplayManager.hpp>
 #include <HodEngine/Window/PlatformWindow.hpp>
@@ -109,7 +109,7 @@ namespace hod::inline application
 
 	bool GraphicApplication::InitRenderer()
 	{
-		CreatePlatformRenderer();
+		Renderer::CreateInstance();
 		if (Renderer::GetInstance()->Init(_window) == false)
 		{
 			return false;
@@ -180,7 +180,7 @@ namespace hod::inline application
 			PROFILER_END_EVENT();
 		}
 
-		Renderer::GetInstance()->WaitIdle();
+		RhiDevice::GetInstance()->WaitIdle();
 
 		return true;
 	}

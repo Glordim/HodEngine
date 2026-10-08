@@ -1,7 +1,7 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/Components/Light/DirLightComponent.hpp"
 
-#include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
+#include <HodEngine/RHI/MaterialInstance.hpp>
 
 namespace hod::inline game
 {

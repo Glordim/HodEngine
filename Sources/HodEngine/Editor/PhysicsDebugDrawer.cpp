@@ -4,12 +4,12 @@
 #include "HodEngine/Renderer/P2fC4f.hpp"
 
 #include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
-#include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/RHI/RhiDevice.hpp"
 #include "HodEngine/Renderer/RenderView.hpp"
-#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
+#include "HodEngine/RHI/MaterialInstance.hpp"
 
 #include "HodEngine/Renderer/MaterialManager.hpp"
-#include "HodEngine/Renderer/RHI/CommandBuffer.hpp"
+#include "HodEngine/RHI/CommandBuffer.hpp"
 
 #include "HodEngine/Math/Math.hpp"
 #include "HodEngine/Math/Matrix4.hpp"
@@ -26,13 +26,13 @@ namespace hod::inline editor
 		MaterialManager* materialManager = MaterialManager::GetInstance();
 
 		const Material* material = materialManager->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_TriangleFan);
-		_solidPolygonMaterialInstance = Renderer::GetInstance()->CreateMaterialInstance(material);
+		_solidPolygonMaterialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(material);
 
 		material = materialManager->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line_TriangleFan);
-		_wireframePolygonMaterialInstance = Renderer::GetInstance()->CreateMaterialInstance(material);
+		_wireframePolygonMaterialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(material);
 
 		material = materialManager->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line);
-		_lineMaterialInstance = Renderer::GetInstance()->CreateMaterialInstance(material);
+		_lineMaterialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(material);
 	}
 
 	/// @brief
@@ -97,7 +97,7 @@ namespace hod::inline editor
 			return;
 		}
 
-		_materialInstance = Renderer::GetInstance()->CreateMaterialInstance(&_material);
+		_materialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(&_material);
 		const_cast<MaterialInstance*>(_materialInstance)->SetVec4("ubo.color", _color);
 		RenderCommandMesh::Execute(commandBuffer, overrideMaterial);
 		commandBuffer->DeleteAfterRender(const_cast<MaterialInstance*>(_materialInstance));

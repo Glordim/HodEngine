@@ -1,7 +1,7 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/GpuDeviceHelper.hpp"
 
-#include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/RHI/RhiDevice.hpp"
 
 namespace hod::inline renderer
 {
@@ -15,14 +15,14 @@ namespace hod::inline renderer
 			return false;
 		}
 
-		Renderer* renderer = Renderer::GetInstance();
+		RhiDevice* rhiDevice = RhiDevice::GetInstance();
 
-		if (renderer == nullptr)
+		if (rhiDevice == nullptr)
 		{
 			return false;
 		}
 
-		return renderer->GetAvailableGpuDevices(availableDevices);
+		return rhiDevice->GetAvailableGpuDevices(availableDevices);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -35,16 +35,16 @@ namespace hod::inline renderer
 			return false;
 		}
 
-		Renderer* renderer = Renderer::GetInstance();
+		RhiDevice* rhiDevice = RhiDevice::GetInstance();
 
-		if (renderer == nullptr)
+		if (rhiDevice == nullptr)
 		{
 			return false;
 		}
 
 		Vector<GpuDevice*> availableDevices;
 
-		if (renderer->GetAvailableGpuDevices(&availableDevices) == false)
+		if (rhiDevice->GetAvailableGpuDevices(&availableDevices) == false)
 		{
 			return false;
 		}

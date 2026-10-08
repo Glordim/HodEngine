@@ -6,15 +6,17 @@
 #include "HodEngine/Renderer/MaterialManager.hpp"
 #include "HodEngine/Renderer/PickingManager.hpp"
 #include "HodEngine/Renderer/RenderView.hpp"
-#include "HodEngine/Renderer/RHI/Material.hpp"
-#include "HodEngine/Renderer/RHI/MaterialInstance.hpp"
-#include "HodEngine/Renderer/RHI/PresentationSurface.hpp"
-#include "HodEngine/Renderer/RHI/Texture.hpp"
+#include "HodEngine/RHI/Material.hpp"
+#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/RHI/PlatformRhiDevice.hpp"
+#include "HodEngine/RHI/PresentationSurface.hpp"
+#include "HodEngine/RHI/RhiDevice.hpp"
+#include "HodEngine/RHI/Shader.hpp"
 
 #include "Shader/P2f_Unlit_Fragment.hpp"
 #include "Shader/P2f_Unlit_Vertex.hpp"
 
-#include "HodEngine/Renderer/RHI/VertexInput.hpp"
+#include "HodEngine/RHI/VertexInput.hpp"
 
 #include "HodEngine/Renderer/FrameResources.hpp"
 
@@ -26,12 +28,14 @@ namespace hod::inline renderer
 	/// @brief
 	_SingletonConstructor(Renderer)
 	{
+		CreatePlatformRhiDevice();
+
 		MaterialManager::CreateInstance();
 		PickingManager::CreateInstance();
 		FontManager::CreateInstance();
 		FontManager::GetInstance()->Init(); // todo catch error ?
 
-		_frameResources.Resize(_frameInFlight);
+		_frameResources.Resize(RhiDevice::GetInstance()->GetFrameInFlightCount());
 	}
 
 	//-----------------------------------------------------------------------------
@@ -42,6 +46,17 @@ namespace hod::inline renderer
 		FontManager::DestroyInstance();
 		PickingManager::DestroyInstance();
 		MaterialManager::DestroyInstance();
+
+		RhiDevice::DestroyInstance();
+	}
+
+	/// @brief
+	/// @param mainWindow
+	/// @param physicalDeviceIdentifier
+	/// @return
+	bool Renderer::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
+	{
+		return RhiDevice::GetInstance()->Init(mainWindow, physicalDeviceIdentifier);
 	}
 
 	/// @brief
@@ -68,20 +83,13 @@ namespace hod::inline renderer
 		DefaultAllocator::GetInstance().Delete(_defaultFragmentShader);
 		_defaultFragmentShader = nullptr;
 
-		DefaultAllocator::GetInstance().Delete(_defaultWhiteTexture);
-		_defaultWhiteTexture = nullptr;
-
-		for (uint32_t i = 0; i < _frameInFlight; ++i)
+		for (FrameResources& frameResources : _frameResources)
 		{
-			_frameResources[i].Wait();
-			_frameResources[i].DestroyAll();
+			frameResources.Wait();
+			frameResources.DestroyAll();
 		}
 
-		for (PresentationSurface* presentationSurface : _presentationSurfaces)
-		{
-			DefaultAllocator::GetInstance().Delete(presentationSurface);
-		}
-		_presentationSurfaces.Clear();
+		RhiDevice::GetInstance()->Clear();
 	}
 
 	/*
@@ -132,7 +140,7 @@ namespace hod::inline renderer
 		{
 			if (_defaultMaterial == nullptr)
 			{
-				Renderer* renderer = Renderer::GetInstance();
+				RhiDevice* rhiDevice = RhiDevice::GetInstance();
 
 				VertexInput vertexInput[1] = {
 					{0, 0, VertexInput::Format::R32G32_SFloat},
@@ -140,7 +148,7 @@ namespace hod::inline renderer
 					//{ 16, VertexInput::Format::A8B8G8R8_UNorm_Pack32 },
 				};
 
-				_defaultVertexShader = renderer->CreateShader(Shader::ShaderType::Vertex);
+				_defaultVertexShader = rhiDevice->CreateShader(Shader::ShaderType::Vertex);
 				if (_defaultVertexShader->LoadFromIR(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Vertex_reflection, P2f_Unlit_Vertex_reflection_size) == false)
 				{
 					DefaultAllocator::GetInstance().Delete(_defaultVertexShader);
@@ -148,7 +156,7 @@ namespace hod::inline renderer
 					return nullptr;
 				}
 
-				_defaultFragmentShader = renderer->CreateShader(Shader::ShaderType::Fragment);
+				_defaultFragmentShader = rhiDevice->CreateShader(Shader::ShaderType::Fragment);
 				if (_defaultFragmentShader->LoadFromIR(P2f_Unlit_Fragment, P2f_Unlit_Fragment_size, P2f_Unlit_Fragment_reflection, P2f_Unlit_Fragment_reflection_size) == false)
 				{
 					DefaultAllocator::GetInstance().Delete(_defaultVertexShader);
@@ -158,7 +166,7 @@ namespace hod::inline renderer
 					return nullptr;
 				}
 
-				_defaultMaterial = renderer->CreateMaterial(vertexInput, 1, _defaultVertexShader, _defaultFragmentShader);
+				_defaultMaterial = rhiDevice->CreateMaterial(vertexInput, 1, _defaultVertexShader, _defaultFragmentShader);
 				if (_defaultMaterial == nullptr)
 				{
 					DefaultAllocator::GetInstance().Delete(_defaultVertexShader);
@@ -169,7 +177,7 @@ namespace hod::inline renderer
 				}
 			}
 
-			_defaultMaterialInstance = CreateMaterialInstance(_defaultMaterial);
+			_defaultMaterialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(_defaultMaterial);
 		}
 
 		return _defaultMaterialInstance;
@@ -187,7 +195,7 @@ namespace hod::inline renderer
 				//_overdrawnMaterial = MaterialManager::GetInstance()->CreateMaterial("SpriteOverdraw"); // TODO
 			}
 
-			_overdrawnMaterialInstance = CreateMaterialInstance(_overdrawnMaterial);
+			_overdrawnMaterialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(_overdrawnMaterial);
 		}
 
 		return _overdrawnMaterialInstance;
@@ -207,24 +215,10 @@ namespace hod::inline renderer
 				//	MaterialManager::GetInstance()->CreateMaterial("SpriteWireframe", Material::PolygonMode::Line, Material::Topololy::TRIANGLE));
 			}
 
-			_wireframeMaterialInstance = CreateMaterialInstance(_wireframeMaterial);
+			_wireframeMaterialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(_wireframeMaterial);
 		}
 
 		return _wireframeMaterialInstance;
-	}
-
-	/// @brief
-	/// @return
-	Texture* Renderer::GetDefaultWhiteTexture()
-	{
-		if (_defaultWhiteTexture == nullptr)
-		{
-			uint8_t pixels[4 * 2 * 2] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
-
-			_defaultWhiteTexture = CreateTexture();
-			_defaultWhiteTexture->BuildBuffer(2, 2, pixels, Texture::CreateInfo());
-		}
-		return _defaultWhiteTexture;
 	}
 
 	/*
@@ -283,13 +277,12 @@ namespace hod::inline renderer
 		FrameResources& frameResources = GetCurrentFrameResources();
 		frameResources.Submit();
 
-		++_frameCount;
-		_frameIndex = _frameCount % _frameInFlight;
+		RhiDevice::GetInstance()->EndFrame();
 	}
 
 	FrameResources& Renderer::GetCurrentFrameResources()
 	{
-		return _frameResources[_frameIndex];
+		return _frameResources[RhiDevice::GetInstance()->GetFrameIndex()];
 	}
 
 	bool Renderer::AcquireNextFrame()
@@ -307,50 +300,15 @@ namespace hod::inline renderer
 		frameResources.Wait();
 		frameResources.DestroyAll();
 
-		FlushDeferredDeletions(_frameIndex);
+		RhiDevice* rhiDevice = RhiDevice::GetInstance();
+		rhiDevice->BeginFrame();
 
-		if (_mainPresentationSurface != nullptr)
+		PresentationSurface* mainPresentationSurface = rhiDevice->GetMainPresentationSurface();
+		if (mainPresentationSurface != nullptr)
 		{
-			frameResources.AcquireSurface(_mainPresentationSurface);
+			frameResources.AcquireSurface(mainPresentationSurface);
 		}
 
 		return true;
-	}
-
-	void Renderer::DestroyPresentationSurface(window::Window* window)
-	{
-		for (auto it = _presentationSurfaces.Begin(); it != _presentationSurfaces.End(); ++it)
-		{
-			if ((*it)->GetWindow() == window)
-			{
-				WaitIdle();
-				PresentationSurface* presentationSurface = *it;
-				_presentationSurfaces.Erase(it);
-				DefaultAllocator::GetInstance().Delete(presentationSurface);
-				return;
-			}
-		}
-	}
-
-	PresentationSurface* Renderer::FindPresentationSurface(Window* window) const
-	{
-		for (PresentationSurface* presentationSurface : _presentationSurfaces)
-		{
-			if (presentationSurface->GetWindow() == window)
-			{
-				return presentationSurface;
-			}
-		}
-		return nullptr;
-	}
-
-	uint32_t Renderer::GetFrameIndex() const
-	{
-		return _frameIndex;
-	}
-
-	uint32_t Renderer::GetFrameInFlightCount() const
-	{
-		return _frameInFlight;
 	}
 }

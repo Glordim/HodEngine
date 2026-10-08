@@ -10,10 +10,13 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
-namespace hod::inline renderer
+namespace hod::inline rhi
 {
 	class MaterialInstance;
+}
 
+namespace hod::inline renderer
+{
 	/// @brief 
 	class HOD_RENDERER_API RenderCommandMesh : public RenderCommand
 	{

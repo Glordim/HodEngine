@@ -6,9 +6,9 @@
 
 #include <HodEngine/Renderer/MaterialManager.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
-#include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/Renderer/RHI/MaterialInstance.hpp>
+#include <HodEngine/RHI/MaterialInstance.hpp>
 
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 #include <HodEngine/Game/Components/TextureRendererComponent.hpp>
@@ -22,7 +22,7 @@ namespace hod::inline editor
 	/// @brief
 	TextureRendererCustomComponentDrawer::TextureRendererCustomComponentDrawer()
 	{
-		_materialInstance = Renderer::GetInstance()->CreateMaterialInstance(
+		_materialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(
 			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
 		_materialInstance->SetVec4("ubo.color", Vector4(0.75f, 0.75f, 0.75f, 1.0f));
 	}

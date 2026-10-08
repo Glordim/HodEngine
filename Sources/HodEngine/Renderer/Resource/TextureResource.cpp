@@ -1,7 +1,7 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
-#include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/RHI/RhiDevice.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
 #include "HodEngine/GameSystems/Resource/ResourceContainer.hpp"
@@ -63,7 +63,7 @@ namespace hod::inline renderer
 		createInfo._wrapMode = _wrapMode;
 		createInfo._filterMode = _filterMode;
 
-		_texture = Renderer::GetInstance()->CreateTexture();
+		_texture = RhiDevice::GetInstance()->CreateTexture();
 		if (_texture->BuildBuffer(_width, _height, pixels, createInfo) == false)
 		{
 			OUTPUT_ERROR("TextureResource::Initialize: load texture failed");
