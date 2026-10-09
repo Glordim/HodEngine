@@ -1,0 +1,753 @@
+#include "HodEngine/RHI/Pch.hpp"
+#include "HodEngine/RHI/Vulkan/VulkanRhiDevice.hpp"
+#include "HodEngine/RHI/Vulkan/VulkanSemaphore.hpp"
+#include "HodEngine/RHI/Vulkan/VulkanPresentationSurface.hpp"
+
+#include "HodEngine/RHI/Vulkan/ExtensionCollector/DeviceExtensionCollector.hpp"
+#include "HodEngine/RHI/Vulkan/ExtensionCollector/InstanceExtensionCollector.hpp"
+
+#include <HodEngine/Core/Assert.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
+
+#include <algorithm>
+#include <limits>
+
+#undef min
+
+#if defined(PLATFORM_WINDOWS)
+	#include <HodEngine/Window/Desktop/Windows/Win32/Win32Window.hpp>
+	#include <vulkan/vulkan_win32.h>
+#elif defined(PLATFORM_LINUX)
+	#include <HodEngine/Window/Desktop/Linux/Wayland/WaylandDisplayManager.hpp>
+	#include <HodEngine/Window/Desktop/Linux/Wayland/WaylandWindow.hpp>
+	#include <vulkan/vulkan_wayland.h>
+#elif defined(PLATFORM_ANDROID)
+	#include <HodEngine/Window/Android/AndroidWindow.hpp>
+	#include <vulkan/vulkan_android.h>
+#endif
+
+// VK_EXT_surface_maintenance1 / VK_EXT_swapchain_maintenance1 were promoted to KHR in Vulkan 1.4.
+// Older headers (Android NDK) only expose EXT — define KHR as aliases when missing.
+#ifndef VK_KHR_SURFACE_MAINTENANCE_1_EXTENSION_NAME
+	#define VK_KHR_SURFACE_MAINTENANCE_1_EXTENSION_NAME VK_EXT_SURFACE_MAINTENANCE_1_EXTENSION_NAME
+	#define VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_KHR VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_EXT
+	#define VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_KHR VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_EXT
+	using VkSurfacePresentScalingCapabilitiesKHR = VkSurfacePresentScalingCapabilitiesEXT;
+	using VkSurfacePresentModeKHR = VkSurfacePresentModeEXT;
+#endif
+#ifndef VK_KHR_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME
+	#define VK_KHR_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME                          VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME
+	#define VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_KHR VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_EXT
+	#define VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_KHR            VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_EXT
+	#define VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_KHR                 VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_EXT
+	#define VK_PRESENT_GRAVITY_MIN_BIT_KHR                                         VK_PRESENT_GRAVITY_MIN_BIT_EXT
+	#define VK_PRESENT_SCALING_ONE_TO_ONE_BIT_KHR                                  VK_PRESENT_SCALING_ONE_TO_ONE_BIT_EXT
+	using VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR = VkPhysicalDeviceSwapchainMaintenance1FeaturesEXT;
+	using VkSwapchainPresentScalingCreateInfoKHR = VkSwapchainPresentScalingCreateInfoEXT;
+#endif
+
+namespace hod::inline rhi
+{
+	bool VulkanPresentationSurface::_hasSurfaceMaintenance1 = false;
+	bool VulkanPresentationSurface::_hasSwapchainMaintenance1 = false;
+
+	bool VulkanPresentationSurface::CollectInstanceExtensionRequirements(InstanceExtensionCollector& instanceExtensionCollector)
+	{
+		if (instanceExtensionCollector.AddRequiredExtension(VK_KHR_SURFACE_EXTENSION_NAME) == false)
+		{
+			return false;
+		}
+
+#if defined(PLATFORM_WINDOWS)
+		if (instanceExtensionCollector.AddRequiredExtension(VK_KHR_WIN32_SURFACE_EXTENSION_NAME) == false)
+#elif defined(PLATFORM_LINUX)
+		if (instanceExtensionCollector.AddRequiredExtension(VK_KHR_WAYLAND_SURFACE_EXTENSION_NAME) == false)
+#elif defined(PLATFORM_ANDROID)
+		if (instanceExtensionCollector.AddRequiredExtension(VK_KHR_ANDROID_SURFACE_EXTENSION_NAME) == false)
+#else
+	#error
+#endif
+		{
+			return false;
+		}
+
+		if (instanceExtensionCollector.AddOptionalExtension(VK_KHR_GET_SURFACE_CAPABILITIES_2_EXTENSION_NAME) &&
+		   (instanceExtensionCollector.AddOptionalExtension(VK_KHR_SURFACE_MAINTENANCE_1_EXTENSION_NAME) ||
+		    instanceExtensionCollector.AddOptionalExtension(VK_EXT_SURFACE_MAINTENANCE_1_EXTENSION_NAME)))
+		{
+			_hasSurfaceMaintenance1 = true;
+		}
+
+		return true;
+	}
+
+	bool VulkanPresentationSurface::CollectDeviceExtensionRequirements(DeviceExtensionCollector& deviceExtensionCollector)
+	{
+		if (deviceExtensionCollector.AddRequiredExtension(VK_KHR_SWAPCHAIN_EXTENSION_NAME) == false)
+		{
+			return false;
+		}
+
+		if (deviceExtensionCollector.AddOptionalExtension(VK_KHR_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME) ||
+			deviceExtensionCollector.AddOptionalExtension(VK_EXT_SWAPCHAIN_MAINTENANCE_1_EXTENSION_NAME))
+		{
+			_hasSwapchainMaintenance1 = true;
+
+			VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR& feature = deviceExtensionCollector.AddFeature<VkPhysicalDeviceSwapchainMaintenance1FeaturesKHR>();
+			feature.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SWAPCHAIN_MAINTENANCE_1_FEATURES_KHR;
+			feature.pNext = nullptr;
+			feature.swapchainMaintenance1 = VK_TRUE;
+		}
+
+		return true;
+	}
+
+	/// @brief
+	VulkanPresentationSurface::VulkanPresentationSurface(Window* window)
+	: PresentationSurface(window)
+	{
+		CreateSurface(window);
+		CreateSwapChain(800, 600);
+	}
+
+	/// @brief
+	VulkanPresentationSurface::~VulkanPresentationSurface()
+	{
+		VulkanRhiDevice* rhiDevice = (VulkanRhiDevice*)RhiDevice::GetInstance();
+
+		DestroySwapChain();
+
+		VkDevice device = rhiDevice->GetVkDevice();
+		while (_semaphoreDeletionQueue.empty() == false)
+		{
+			vkDestroySemaphore(device, _semaphoreDeletionQueue.front().semaphore, nullptr);
+			_semaphoreDeletionQueue.pop_front();
+		}
+
+		if (_surface != VK_NULL_HANDLE)
+		{
+			vkDestroySurfaceKHR(rhiDevice->GetVkInstance(), _surface, nullptr);
+		}
+	}
+
+	bool VulkanPresentationSurface::CreateSurface(Window* window)
+	{
+#if defined(PLATFORM_WINDOWS)
+		Win32Window* win32Window = static_cast<Win32Window*>(window);
+
+		VkWin32SurfaceCreateInfoKHR createInfo;
+		createInfo.sType = VK_STRUCTURE_TYPE_WIN32_SURFACE_CREATE_INFO_KHR;
+		createInfo.flags = 0;
+		createInfo.hwnd = win32Window->GetWindowHandle();
+		createInfo.hinstance = win32Window->GetInstanceHandle();
+		createInfo.pNext = nullptr;
+
+		if (vkCreateWin32SurfaceKHR(VulkanRhiDevice::GetInstance()->GetVkInstance(), &createInfo, nullptr, &_surface) != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to create Win32 Surface !");
+			return false;
+		}
+#elif defined(PLATFORM_LINUX)
+		WaylandWindow*         waylandWindow = static_cast<WaylandWindow*>(window);
+		WaylandDisplayManager* waylandDisplayManager = WaylandDisplayManager::GetInstance();
+
+		VkWaylandSurfaceCreateInfoKHR createInfo;
+		createInfo.sType = VK_STRUCTURE_TYPE_WAYLAND_SURFACE_CREATE_INFO_KHR;
+		createInfo.flags = 0;
+		createInfo.display = waylandDisplayManager->GetDisplay();
+		createInfo.surface = waylandWindow->GetWaylandSurface();
+		createInfo.pNext = nullptr;
+
+		if (vkCreateWaylandSurfaceKHR(VulkanRhiDevice::GetInstance()->GetVkInstance(), &createInfo, nullptr, &_surface) != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to create Wayland Surface !");
+			return false;
+		}
+#elif defined(PLATFORM_ANDROID)
+		AndroidWindow* androidWindow = static_cast<AndroidWindow*>(window);
+
+		VkAndroidSurfaceCreateInfoKHR createInfo;
+		createInfo.sType = VK_STRUCTURE_TYPE_ANDROID_SURFACE_CREATE_INFO_KHR;
+		createInfo.flags = 0;
+		createInfo.window = androidWindow->GetNativeWindow();
+		createInfo.pNext = nullptr;
+
+		if (vkCreateAndroidSurfaceKHR(VulkanRhiDevice::GetInstance()->GetVkInstance(), &createInfo, nullptr, &_surface) != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to create Android Surface !");
+			return false;
+		}
+#else
+	#error
+#endif
+		return true;
+	}
+
+	/// @brief
+	/// @param width
+	/// @param height
+	void VulkanPresentationSurface::Resize(uint32_t width, uint32_t height)
+	{
+		CreateSwapChain(width, height);
+	}
+
+	/// @brief
+	/// @return
+	Vector2 VulkanPresentationSurface::GetResolution() const
+	{
+		return Vector2((float)_swapChainExtent.width, (float)_swapChainExtent.height);
+	}
+
+	/// @brief
+	/// @return
+	bool VulkanPresentationSurface::CreateSwapChain(uint32_t width, uint32_t height)
+	{
+		VkDevice device = VulkanRhiDevice::GetInstance()->GetVkDevice();
+		Assert(device != nullptr);
+
+		const VulkanGpuDevice* selectedGpuDevice = VulkanRhiDevice::GetInstance()->GetVkGpuDevice();
+
+		//static_cast<Win32Window*>(_window)->LockSize();
+
+		VkSurfaceCapabilitiesKHR capabilities;
+		if (vkGetPhysicalDeviceSurfaceCapabilitiesKHR(selectedGpuDevice->physicalDevice, _surface, &capabilities) != VK_SUCCESS)
+		{
+			//static_cast<Win32Window*>(_window)->UnlockSize();
+			return false;
+		}
+
+		Vector<VkSurfaceFormatKHR> formats;
+		uint32_t                   formatCount;
+		if (vkGetPhysicalDeviceSurfaceFormatsKHR(selectedGpuDevice->physicalDevice, _surface, &formatCount, nullptr) != VK_SUCCESS)
+		{
+			//static_cast<Win32Window*>(_window)->UnlockSize();
+			return false;
+		}
+
+		if (formatCount != 0)
+		{
+			formats.Resize(formatCount);
+			if (vkGetPhysicalDeviceSurfaceFormatsKHR(selectedGpuDevice->physicalDevice, _surface, &formatCount, formats.Data()) != VK_SUCCESS)
+			{
+				//static_cast<Win32Window*>(_window)->UnlockSize();
+				return false;
+			}
+		}
+
+		Vector<VkPresentModeKHR> presentModes;
+		uint32_t                 presentModeCount;
+		if (vkGetPhysicalDeviceSurfacePresentModesKHR(selectedGpuDevice->physicalDevice, _surface, &presentModeCount, nullptr) != VK_SUCCESS)
+		{
+			//static_cast<Win32Window*>(_window)->UnlockSize();
+			return false;
+		}
+
+		if (presentModeCount != 0)
+		{
+			presentModes.Resize(presentModeCount);
+			if (vkGetPhysicalDeviceSurfacePresentModesKHR(selectedGpuDevice->physicalDevice, _surface, &presentModeCount, presentModes.Data()) != VK_SUCCESS)
+			{
+				//static_cast<Win32Window*>(_window)->UnlockSize();
+				return false;
+			}
+		}
+
+		if (capabilities.currentExtent.width == 0)
+		{
+			//static_cast<Win32Window*>(_window)->UnlockSize();
+			return false;
+		}
+
+		VkExtent2D extent;
+
+		if (capabilities.currentExtent.width != std::numeric_limits<uint32_t>::max() && capabilities.currentExtent.height != std::numeric_limits<uint32_t>::max())
+		{
+			extent = capabilities.currentExtent;
+		}
+		else
+		{
+			extent.width = width;
+			extent.height = height;
+
+			// TODO Replace by clamp
+			if (extent.width > capabilities.maxImageExtent.width)
+			{
+				extent.width = capabilities.maxImageExtent.width;
+			}
+			else if (extent.width < capabilities.minImageExtent.width)
+			{
+				extent.width = capabilities.minImageExtent.width;
+			}
+
+			// TODO Replace by clamp
+			if (extent.height > capabilities.maxImageExtent.height)
+			{
+				extent.height = capabilities.maxImageExtent.height;
+			}
+			else if (extent.height < capabilities.minImageExtent.height)
+			{
+				extent.height = capabilities.minImageExtent.height;
+			}
+		}
+
+		if (_hasSurfaceMaintenance1)
+		{
+			/*
+			VkSurfacePresentScalingCapabilitiesKHR scalingCaps = {};
+			scalingCaps.sType = VK_STRUCTURE_TYPE_SURFACE_PRESENT_SCALING_CAPABILITIES_KHR;
+
+			VkSurfaceCapabilities2KHR caps2 = {};
+			caps2.sType = VK_STRUCTURE_TYPE_SURFACE_CAPABILITIES_2_KHR;
+			caps2.pNext = &scalingCaps;
+
+			VkSurfacePresentModeKHR surfacePresentMode = {};
+			surfacePresentMode.sType = VK_STRUCTURE_TYPE_SURFACE_PRESENT_MODE_KHR;
+
+			VkPhysicalDeviceSurfaceInfo2KHR surfaceInfo = {};
+			surfaceInfo.sType = VK_STRUCTURE_TYPE_PHYSICAL_DEVICE_SURFACE_INFO_2_KHR;
+			surfaceInfo.surface = _surface;
+			surfaceInfo.pNext = &surfacePresentMode;
+
+			vkGetPhysicalDeviceSurfaceCapabilities2KHR(selectedGpuDevice->physicalDevice, &surfaceInfo, &caps2);
+
+			// Break();
+
+			extent.width = std::clamp(extent.width, scalingCaps.minScaledImageExtent.width, scalingCaps.maxScaledImageExtent.width);
+			extent.height = std::clamp(extent.height, scalingCaps.minScaledImageExtent.height, scalingCaps.maxScaledImageExtent.height);
+			*/
+		}
+
+		_swapChainExtent = extent;
+
+		uint32_t imageCount = std::max(capabilities.minImageCount, RhiDevice::GetInstance()->GetFrameInFlightCount() + 1);
+		if (capabilities.maxImageCount > 0 && capabilities.maxImageCount < imageCount)
+		{
+			//static_cast<Win32Window*>(_window)->UnlockSize();
+			OUTPUT_ERROR("Create VkSwapchain: Hardware limits maxImageCount to {}, but FIF+1 requires {}.", capabilities.maxImageCount, imageCount);
+			return false;
+		}
+
+		VkSwapchainCreateInfoKHR createInfo = {};
+		createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+		createInfo.flags = _hasSwapchainMaintenance1 ? VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_KHR : 0;
+		createInfo.surface = _surface;
+		createInfo.minImageCount = imageCount;
+		createInfo.imageFormat = VK_FORMAT_R8G8B8A8_UNORM;
+		createInfo.imageColorSpace = VK_COLOR_SPACE_SRGB_NONLINEAR_KHR;
+		createInfo.imageExtent = _swapChainExtent;
+		createInfo.imageArrayLayers = 1;
+		createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT;
+		createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE; // Present and graphics queue have the same queue family
+		createInfo.queueFamilyIndexCount = 0;                    // Optional
+		createInfo.pQueueFamilyIndices = nullptr;                // Optional
+		createInfo.preTransform = capabilities.currentTransform;
+#if defined(PLATFORM_ANDROID)
+		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_INHERIT_BIT_KHR;
+#else
+		createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+#endif
+		createInfo.presentMode = VK_PRESENT_MODE_FIFO_KHR; // Todo support VSync
+		createInfo.clipped = VK_TRUE;
+		createInfo.oldSwapchain = _swapchain;
+
+		// Destroy immediatly (really faster)
+		{
+			vkDeviceWaitIdle(device);
+
+			size_t swapChainFramebufferCount = _swapchainFramebuffers.Size();
+			for (size_t i = 0; i < swapChainFramebufferCount; ++i)
+			{
+				vkDestroyFramebuffer(device, _swapchainFramebuffers[i], nullptr);
+			}
+			_swapchainFramebuffers.Clear();
+
+			size_t swapChainImageViewCount = _swapchainImageViews.Size();
+			for (size_t i = 0; i < swapChainImageViewCount; ++i)
+			{
+				vkDestroyImageView(device, _swapchainImageViews[i], nullptr);
+			}
+			_swapchainImageViews.Clear();
+
+			if (_swapchain != VK_NULL_HANDLE)
+			{
+				vkDestroySwapchainKHR(device, _swapchain, nullptr);
+				_swapchain = VK_NULL_HANDLE;
+			}
+
+			createInfo.oldSwapchain = VK_NULL_HANDLE;
+		}
+
+		VkSwapchainPresentScalingCreateInfoKHR swapchainPresentScalingInfo;
+#if !defined(PLATFORM_ANDROID)
+		if (_hasSwapchainMaintenance1)
+#else
+		if (false)
+#endif
+		{
+			swapchainPresentScalingInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_PRESENT_SCALING_CREATE_INFO_KHR;
+			swapchainPresentScalingInfo.pNext = nullptr;
+			swapchainPresentScalingInfo.presentGravityX = VK_PRESENT_GRAVITY_MIN_BIT_KHR;
+			swapchainPresentScalingInfo.presentGravityY = VK_PRESENT_GRAVITY_MIN_BIT_KHR;
+			swapchainPresentScalingInfo.scalingBehavior = VK_PRESENT_SCALING_ONE_TO_ONE_BIT_KHR;
+			createInfo.pNext = &swapchainPresentScalingInfo;
+		}
+		else
+		{
+			createInfo.pNext = nullptr;
+		}
+
+		VkSwapchainKHR newSwapchain = VK_NULL_HANDLE;
+		VkResult       result = vkCreateSwapchainKHR(device, &createInfo, nullptr, &newSwapchain);
+		if (result != VK_SUCCESS)
+		{
+			//static_cast<Win32Window*>(_window)->UnlockSize();
+			OUTPUT_ERROR("Vulkan: Unable to create SwapChain !");
+			return false;
+		}
+
+		//static_cast<Win32Window*>(_window)->UnlockSize();
+
+		if (createInfo.oldSwapchain != VK_NULL_HANDLE)
+		{
+			RetiredSwapchain retiredSwapchain;
+			retiredSwapchain._presentCountForRemoval = _presentCount + _swapchainImageViews.Size() + 1;
+			retiredSwapchain.swapchain = createInfo.oldSwapchain;
+			retiredSwapchain.imageViews = std::move(_swapchainImageViews);
+			retiredSwapchain.framebuffers = std::move(_swapchainFramebuffers);
+			_swapchainImageViews.Clear();
+			_swapchainFramebuffers.Clear();
+
+			_deletionQueue.push_back(retiredSwapchain);
+		}
+		_swapchain = newSwapchain;
+		_currentImageIndex = 0;
+
+		vkGetSwapchainImagesKHR(device, _swapchain, &imageCount, nullptr);
+		_swapchainImages.Resize(imageCount, VK_NULL_HANDLE);
+		_swapchainImageViews.Resize(imageCount, VK_NULL_HANDLE);
+		_swapchainFramebuffers.Resize(imageCount, VK_NULL_HANDLE);
+		vkGetSwapchainImagesKHR(device, _swapchain, &imageCount, _swapchainImages.Data());
+
+		if (_renderPass == VK_NULL_HANDLE)
+		{
+			// Render pass
+			VkAttachmentDescription colorAttachment = {};
+			colorAttachment.format = VK_FORMAT_R8G8B8A8_UNORM;
+			colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+			colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+			colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+			colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+			colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
+
+			VkAttachmentReference colorAttachmentRef = {};
+			colorAttachmentRef.attachment = 0;
+			colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+
+			/*
+			VkAttachmentDescription depthAttachment = {};
+			depthAttachment.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
+			depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+			depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+			depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+			depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+			VkAttachmentReference depthAttachmentRef = {};
+			depthAttachmentRef.attachment = 1;
+			depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			*/
+
+			VkSubpassDescription subpass = {};
+			subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+			subpass.colorAttachmentCount = 1;
+			subpass.pColorAttachments = &colorAttachmentRef;
+			subpass.pDepthStencilAttachment = nullptr; // &depthAttachmentRef;
+
+			VkAttachmentDescription attachments[] = {colorAttachment}; // , depthAttachment };
+
+			VkSubpassDependency dependency {};
+			dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
+			dependency.dstSubpass = 0;
+			dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			dependency.srcAccessMask = 0;
+			dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+
+			VkRenderPassCreateInfo renderPassInfo = {};
+			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+			renderPassInfo.attachmentCount = 1;
+			renderPassInfo.pAttachments = attachments;
+			renderPassInfo.subpassCount = 1;
+			renderPassInfo.pSubpasses = &subpass;
+			renderPassInfo.dependencyCount = 1;
+			renderPassInfo.pDependencies = &dependency;
+
+			if (vkCreateRenderPass(device, &renderPassInfo, nullptr, &_renderPass) != VK_SUCCESS)
+			{
+				OUTPUT_ERROR("Vulkan: Unable to create render pass!");
+				return false;
+			}
+		}
+
+		if ((createInfo.flags & VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_KHR) != VK_SWAPCHAIN_CREATE_DEFERRED_MEMORY_ALLOCATION_BIT_KHR)
+		{
+			// Image views
+			for (size_t i = 0; i < imageCount; ++i)
+			{
+				// TODO use CreateImageView here ?
+
+				VkImageViewCreateInfo imageCreateInfo = {};
+				imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+				imageCreateInfo.image = _swapchainImages[i];
+				imageCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+				imageCreateInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+				imageCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+				imageCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+				imageCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+				imageCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+				imageCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				imageCreateInfo.subresourceRange.baseMipLevel = 0;
+				imageCreateInfo.subresourceRange.levelCount = 1;
+				imageCreateInfo.subresourceRange.baseArrayLayer = 0;
+				imageCreateInfo.subresourceRange.layerCount = 1;
+
+				if (vkCreateImageView(device, &imageCreateInfo, nullptr, &_swapchainImageViews[i]) != VK_SUCCESS)
+				{
+					OUTPUT_ERROR("Vulkan: Unable to create Image Views !");
+					return false;
+				}
+
+				VkImageView attachments[] = {
+					_swapchainImageViews[i],
+					//_depthTexture.GetTextureImageView()
+				};
+
+				VkFramebufferCreateInfo framebufferInfo = {};
+				framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+				framebufferInfo.renderPass = _renderPass;
+				framebufferInfo.attachmentCount = 1;
+				framebufferInfo.pAttachments = attachments;
+				framebufferInfo.width = _swapChainExtent.width;
+				framebufferInfo.height = _swapChainExtent.height;
+				framebufferInfo.layers = 1;
+
+				if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &_swapchainFramebuffers[i]) != VK_SUCCESS)
+				{
+					OUTPUT_ERROR("Vulkan: Unable to create Framebuffer !");
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/// @brief
+	void VulkanPresentationSurface::DestroySwapChain()
+	{
+		VkDevice device = VulkanRhiDevice::GetInstance()->GetVkDevice();
+
+		size_t swapChainFramebufferCount = _swapchainFramebuffers.Size();
+		for (size_t i = 0; i < swapChainFramebufferCount; ++i)
+		{
+			vkDestroyFramebuffer(device, _swapchainFramebuffers[i], nullptr);
+		}
+		_swapchainFramebuffers.Clear();
+
+		size_t swapChainImageViewCount = _swapchainImageViews.Size();
+		for (size_t i = 0; i < swapChainImageViewCount; ++i)
+		{
+			vkDestroyImageView(device, _swapchainImageViews[i], nullptr);
+		}
+		_swapchainImageViews.Clear();
+
+		if (_renderPass != VK_NULL_HANDLE)
+		{
+			vkDestroyRenderPass(device, _renderPass, nullptr);
+			_renderPass = VK_NULL_HANDLE;
+		}
+
+		if (_swapchain != VK_NULL_HANDLE)
+		{
+			vkDestroySwapchainKHR(device, _swapchain, nullptr);
+			_swapchain = VK_NULL_HANDLE;
+		}
+	}
+
+	/// @brief
+	/// @return
+	VkSurfaceKHR VulkanPresentationSurface::GetSurface() const
+	{
+		return _surface;
+	}
+
+	/// @brief
+	/// @return
+	VkRenderPass VulkanPresentationSurface::GetRenderPass() const
+	{
+		return _renderPass;
+	}
+
+	/// @brief
+	/// @return
+	VkExtent2D VulkanPresentationSurface::GetSwapChainExtent() const
+	{
+		return _swapChainExtent;
+	}
+
+	/// @brief
+	/// @return
+	VkFramebuffer VulkanPresentationSurface::GetSwapChainCurrentFrameBuffer() const
+	{
+		return _swapchainFramebuffers[_currentImageIndex];
+	}
+
+	/// @brief
+	/// @return
+	bool VulkanPresentationSurface::AcquireNextImageIndex(Semaphore* imageAvailableSemaphore)
+	{
+		VkDevice device = VulkanRhiDevice::GetInstance()->GetVkDevice();
+
+		if (_swapchain == nullptr) // For exemple if the window is hidden the Size will be 0 and not swap chain are created
+		{
+			return false;
+		}
+
+		VkResult result = vkAcquireNextImageKHR(device, _swapchain, std::numeric_limits<uint64_t>::max(),
+		                                        static_cast<const VulkanSemaphore*>(imageAvailableSemaphore)->GetVkSemaphore(), VK_NULL_HANDLE, &_currentImageIndex);
+		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to acquire next image!");
+			return false;
+		}
+
+		if (_hasSwapchainMaintenance1)
+		{
+			if (_swapchainImageViews[_currentImageIndex] == VK_NULL_HANDLE)
+			{
+				VkImageViewCreateInfo imageCreateInfo = {};
+				imageCreateInfo.sType = VK_STRUCTURE_TYPE_IMAGE_VIEW_CREATE_INFO;
+				imageCreateInfo.image = _swapchainImages[_currentImageIndex];
+				imageCreateInfo.viewType = VK_IMAGE_VIEW_TYPE_2D;
+				imageCreateInfo.format = VK_FORMAT_R8G8B8A8_UNORM;
+				imageCreateInfo.components.r = VK_COMPONENT_SWIZZLE_IDENTITY;
+				imageCreateInfo.components.g = VK_COMPONENT_SWIZZLE_IDENTITY;
+				imageCreateInfo.components.b = VK_COMPONENT_SWIZZLE_IDENTITY;
+				imageCreateInfo.components.a = VK_COMPONENT_SWIZZLE_IDENTITY;
+				imageCreateInfo.subresourceRange.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+				imageCreateInfo.subresourceRange.baseMipLevel = 0;
+				imageCreateInfo.subresourceRange.levelCount = 1;
+				imageCreateInfo.subresourceRange.baseArrayLayer = 0;
+				imageCreateInfo.subresourceRange.layerCount = 1;
+
+				if (vkCreateImageView(device, &imageCreateInfo, nullptr, &_swapchainImageViews[_currentImageIndex]) != VK_SUCCESS)
+				{
+					OUTPUT_ERROR("Vulkan: Unable to create Image Views !");
+					return false;
+				}
+			}
+
+			if (_swapchainFramebuffers[_currentImageIndex] == VK_NULL_HANDLE)
+			{
+				VkImageView attachments[] = {
+					_swapchainImageViews[_currentImageIndex],
+					//_depthTexture.GetTextureImageView()
+				};
+
+				VkFramebufferCreateInfo framebufferInfo = {};
+				framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+				framebufferInfo.renderPass = _renderPass;
+				framebufferInfo.attachmentCount = 1;
+				framebufferInfo.pAttachments = attachments;
+				framebufferInfo.width = _swapChainExtent.width;
+				framebufferInfo.height = _swapChainExtent.height;
+				framebufferInfo.layers = 1;
+
+				if (vkCreateFramebuffer(device, &framebufferInfo, nullptr, &_swapchainFramebuffers[_currentImageIndex]) != VK_SUCCESS)
+				{
+					OUTPUT_ERROR("Vulkan: Unable to create Framebuffer !");
+					return false;
+				}
+			}
+		}
+
+		return true;
+	}
+
+	/// @brief
+	/// @return
+	bool VulkanPresentationSurface::SwapBuffer()
+	{
+		if (_swapchain == nullptr) // For exemple if the window is hidden the Size will be 0 and not swap chain are created
+		{
+			return false;
+		}
+
+		Vector<VkSemaphore> waitSemaphores(_semaphoresToSwapBuffer.Size());
+		for (uint32_t i = 0; i < _semaphoresToSwapBuffer.Size(); ++i)
+		{
+			waitSemaphores[i] = static_cast<VulkanSemaphore*>(_semaphoresToSwapBuffer[i])->TakeVkSemaphore();
+		}
+		_semaphoresToSwapBuffer.Clear();
+
+		VkPresentInfoKHR presentInfo = {};
+		presentInfo.sType = VK_STRUCTURE_TYPE_PRESENT_INFO_KHR;
+		presentInfo.waitSemaphoreCount = waitSemaphores.Size();
+		presentInfo.pWaitSemaphores = waitSemaphores.Data();
+		presentInfo.swapchainCount = 1;
+		presentInfo.pSwapchains = &_swapchain;
+		presentInfo.pImageIndices = &_currentImageIndex;
+		presentInfo.pResults = nullptr;
+
+		VkQueue  presentQueue = VulkanRhiDevice::GetInstance()->GetPresentQueue();
+		VkResult result = vkQueuePresentKHR(presentQueue, &presentInfo);
+		if (result != VK_SUCCESS && result != VK_SUBOPTIMAL_KHR)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to present frame!");
+			return false;
+		}
+
+		for (VkSemaphore semaphore : waitSemaphores)
+		{
+			_semaphoreDeletionQueue.push_back({ semaphore, _presentCount + static_cast<uint32_t>(_swapchainImageViews.Size()) + 1 });
+		}
+
+		VkDevice device = VulkanRhiDevice::GetInstance()->GetVkDevice();
+
+		while (_semaphoreDeletionQueue.empty() == false && _semaphoreDeletionQueue.front()._presentCountForRemoval <= _presentCount)
+		{
+			vkDestroySemaphore(device, _semaphoreDeletionQueue.front().semaphore, nullptr);
+			_semaphoreDeletionQueue.pop_front();
+		}
+
+		if (_deletionQueue.empty() == false)
+		{
+			RetiredSwapchain& retiredSwapchain = _deletionQueue.front();
+			if (retiredSwapchain._presentCountForRemoval <= _presentCount)
+			{
+				size_t swapChainFramebufferCount = retiredSwapchain.framebuffers.Size();
+				for (size_t i = 0; i < swapChainFramebufferCount; ++i)
+				{
+					vkDestroyFramebuffer(device, retiredSwapchain.framebuffers[i], nullptr);
+				}
+
+				size_t swapChainImageViewCount = retiredSwapchain.imageViews.Size();
+				for (size_t i = 0; i < swapChainImageViewCount; ++i)
+				{
+					vkDestroyImageView(device, retiredSwapchain.imageViews[i], nullptr);
+				}
+
+				vkDestroySwapchainKHR(device, retiredSwapchain.swapchain, nullptr);
+
+				_deletionQueue.pop_front();
+			}
+		}
+
+		++_presentCount;
+		return true;
+	}
+}

@@ -2,10 +2,10 @@
 #include "HodEngine/RHI/Metal/MetalBuffer.hpp"
 #include "HodEngine/RHI/Metal/MetalCommandBuffer.hpp"
 
-#include "HodEngine/RHI/Metal/GraphicsPipelineMetal.hpp"
+#include "HodEngine/RHI/Metal/MetalGraphicsPipeline.hpp"
 #include "HodEngine/RHI/Metal/MetalPresentationSurface.hpp"
 #include "HodEngine/RHI/Metal/MetalTexture.hpp"
-#include "HodEngine/RHI/Metal/RhiDeviceMetal.hpp"
+#include "HodEngine/RHI/Metal/MetalRhiDevice.hpp"
 #include "HodEngine/RHI/RenderTarget.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
@@ -24,11 +24,11 @@ namespace hod::inline rhi
 	/// @brief
 	MetalCommandBuffer::MetalCommandBuffer()
 	{
-		RhiDeviceMetal* rhiDeviceMetal = RhiDeviceMetal::GetInstance();
-		MTL::Device*   device = rhiDeviceMetal->GetDevice();
+		MetalRhiDevice* metalRhiDevice = MetalRhiDevice::GetInstance();
+		MTL::Device*   device = metalRhiDevice->GetDevice();
 
 		_commandBuffer = device->newCommandBuffer();
-		_commandBuffer->beginCommandBuffer(rhiDeviceMetal->GetCommandAllocator(RhiDevice::GetInstance()->GetFrameIndex()));
+		_commandBuffer->beginCommandBuffer(metalRhiDevice->GetCommandAllocator(RhiDevice::GetInstance()->GetFrameIndex()));
 
 		MTL4::ArgumentTableDescriptor* argumentTableDescriptor = MTL4::ArgumentTableDescriptor::alloc()->init();
 		argumentTableDescriptor->setMaxBufferBindCount(31);
@@ -121,7 +121,7 @@ namespace hod::inline rhi
 	/// @param shaderType
 	void MetalCommandBuffer::SetConstant(void* constant, uint32_t Size, Shader::ShaderType shaderType)
 	{
-		Buffer* constantBuffer = RhiDeviceMetal::GetInstance()->CreateBuffer(Buffer::Usage::Vertex, Size);
+		Buffer* constantBuffer = MetalRhiDevice::GetInstance()->CreateBuffer(Buffer::Usage::Vertex, Size);
 		void*   constantBufferData = constantBuffer->Lock();
 		if (constantBufferData != nullptr)
 		{
@@ -193,7 +193,7 @@ namespace hod::inline rhi
 
 	void MetalCommandBuffer::SetGraphicsPipeline(const GraphicsPipeline* graphicsPipeline)
 	{
-		_graphicsPipeline = static_cast<const GraphicsPipelineMetal*>(graphicsPipeline);
+		_graphicsPipeline = static_cast<const MetalGraphicsPipeline*>(graphicsPipeline);
 		_renderCommandEncoder->setRenderPipelineState(_graphicsPipeline->GetNativeRenderPipeline());
 	}
 
@@ -259,7 +259,7 @@ namespace hod::inline rhi
 		MetalPresentationSurface* metalPresentationSurface = static_cast<MetalPresentationSurface*>(presentationSurface);
 		CA::MetalDrawable*        drawable = metalPresentationSurface->GetCurrentDrawable();
 
-		RhiDeviceMetal::GetInstance()->GetCommandQueue()->signalDrawable(drawable);
+		MetalRhiDevice::GetInstance()->GetCommandQueue()->signalDrawable(drawable);
 		drawable->present();
 	}
 

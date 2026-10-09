@@ -1,6 +1,6 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/Metal/MetalShader.hpp"
-#include "HodEngine/RHI/Metal/RhiDeviceMetal.hpp"
+#include "HodEngine/RHI/Metal/MetalRhiDevice.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
@@ -36,7 +36,7 @@ namespace hod::inline rhi
 	/// @return
 	bool MetalShader::LoadFromIR(const void* data, uint32_t size, const char* /*reflection*/, uint32_t /*reflectionSize*/)
 	{
-		RhiDeviceMetal* metalRenderer = RhiDeviceMetal::GetInstance();
+		MetalRhiDevice* metalRenderer = MetalRhiDevice::GetInstance();
 
 		NS::Error* error = nullptr;
 		_library = metalRenderer->GetDevice()->newLibrary(dispatch_data_create(data, size, nullptr, DISPATCH_DATA_DESTRUCTOR_DEFAULT), &error);

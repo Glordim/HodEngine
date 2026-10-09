@@ -1,6 +1,6 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/Metal/MetalBuffer.hpp"
-#include "HodEngine/RHI/Metal/RhiDeviceMetal.hpp"
+#include "HodEngine/RHI/Metal/MetalRhiDevice.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
@@ -11,24 +11,24 @@ namespace hod::inline rhi
 	MetalBuffer::MetalBuffer(Usage usage, uint32_t Size)
 	: Buffer(usage, Size)
 	{
-		RhiDeviceMetal* rhiDeviceMetal = RhiDeviceMetal::GetInstance();
-		_nativeBuffer = rhiDeviceMetal->GetDevice()->newBuffer(Size, MTL::ResourceStorageModeShared);
-		rhiDeviceMetal->AddResourceToResidencySet(_nativeBuffer);
+		MetalRhiDevice* metalRhiDevice = MetalRhiDevice::GetInstance();
+		_nativeBuffer = metalRhiDevice->GetDevice()->newBuffer(Size, MTL::ResourceStorageModeShared);
+		metalRhiDevice->AddResourceToResidencySet(_nativeBuffer);
 	}
 
 	MetalBuffer::~MetalBuffer()
 	{
-		RhiDeviceMetal::GetInstance()->RemoveResourceFromResidencySet(_nativeBuffer);
+		MetalRhiDevice::GetInstance()->RemoveResourceFromResidencySet(_nativeBuffer);
 		_nativeBuffer->release();
 	}
 
 	bool MetalBuffer::Resize(uint32_t Size)
 	{
-		RhiDeviceMetal* rhiDeviceMetal = RhiDeviceMetal::GetInstance();
-		rhiDeviceMetal->RemoveResourceFromResidencySet(_nativeBuffer);
+		MetalRhiDevice* metalRhiDevice = MetalRhiDevice::GetInstance();
+		metalRhiDevice->RemoveResourceFromResidencySet(_nativeBuffer);
 		_nativeBuffer->release();
-		_nativeBuffer = rhiDeviceMetal->GetDevice()->newBuffer(Size, MTL::ResourceStorageModeShared);
-		rhiDeviceMetal->AddResourceToResidencySet(_nativeBuffer);
+		_nativeBuffer = metalRhiDevice->GetDevice()->newBuffer(Size, MTL::ResourceStorageModeShared);
+		metalRhiDevice->AddResourceToResidencySet(_nativeBuffer);
 		_size = Size;
 		return true;
 	}

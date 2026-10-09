@@ -1,6 +1,6 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/Metal/MetalSemaphore.hpp"
-#include "HodEngine/RHI/Metal/RhiDeviceMetal.hpp"
+#include "HodEngine/RHI/Metal/MetalRhiDevice.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
@@ -10,7 +10,7 @@ namespace hod::inline rhi
 	MetalSemaphore::MetalSemaphore()
 		: Semaphore()
 	{
-		RhiDeviceMetal* metalRenderer = RhiDeviceMetal::GetInstance();
+		MetalRhiDevice* metalRenderer = MetalRhiDevice::GetInstance();
 
 		_mtlEvent = metalRenderer->GetDevice()->newEvent();
 

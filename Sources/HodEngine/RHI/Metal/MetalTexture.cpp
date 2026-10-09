@@ -1,6 +1,6 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/Metal/MetalTexture.hpp"
-#include "HodEngine/RHI/Metal/RhiDeviceMetal.hpp"
+#include "HodEngine/RHI/Metal/MetalRhiDevice.hpp"
 
 #include <Metal/Metal.hpp>
 
@@ -20,7 +20,7 @@ namespace hod::inline rhi
 	{
 		if (_texture != nullptr)
 		{
-			RhiDeviceMetal::GetInstance()->RemoveResourceFromResidencySet(_texture);
+			MetalRhiDevice::GetInstance()->RemoveResourceFromResidencySet(_texture);
 			_texture->release();
 		}
 		
@@ -44,12 +44,12 @@ namespace hod::inline rhi
 		textureDescriptor->setTextureType(MTL::TextureType2D);
 		textureDescriptor->setStorageMode(MTL::StorageModeShared);
 		textureDescriptor->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
-		_texture = RhiDeviceMetal::GetInstance()->GetDevice()->newTexture(textureDescriptor);
+		_texture = MetalRhiDevice::GetInstance()->GetDevice()->newTexture(textureDescriptor);
 		textureDescriptor->release();
-		RhiDeviceMetal::GetInstance()->AddResourceToResidencySet(_texture);
+		MetalRhiDevice::GetInstance()->AddResourceToResidencySet(_texture);
 
 		MTL::SamplerDescriptor* samplerDescriptor = MTL::SamplerDescriptor::alloc()->init();
-		_sampler = RhiDeviceMetal::GetInstance()->GetDevice()->newSamplerState(samplerDescriptor);
+		_sampler = MetalRhiDevice::GetInstance()->GetDevice()->newSamplerState(samplerDescriptor);
 		samplerDescriptor->release();
 
 		_width = width;
@@ -70,14 +70,14 @@ namespace hod::inline rhi
 		textureDescriptor->setTextureType(MTL::TextureType2D);
 		textureDescriptor->setStorageMode(MTL::StorageModeShared);
 		textureDescriptor->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
-		_texture = RhiDeviceMetal::GetInstance()->GetDevice()->newTexture(textureDescriptor);
+		_texture = MetalRhiDevice::GetInstance()->GetDevice()->newTexture(textureDescriptor);
 		textureDescriptor->release();
-		RhiDeviceMetal::GetInstance()->AddResourceToResidencySet(_texture);
+		MetalRhiDevice::GetInstance()->AddResourceToResidencySet(_texture);
 
 		MTL::SamplerDescriptor* samplerDescriptor = MTL::SamplerDescriptor::alloc()->init();
 		samplerDescriptor->setSAddressMode(createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat);
 		samplerDescriptor->setTAddressMode(createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat);
-		_sampler = RhiDeviceMetal::GetInstance()->GetDevice()->newSamplerState(samplerDescriptor);
+		_sampler = MetalRhiDevice::GetInstance()->GetDevice()->newSamplerState(samplerDescriptor);
 		samplerDescriptor->release();
 
 		_width = width;
@@ -98,16 +98,16 @@ namespace hod::inline rhi
 		textureDescriptor->setTextureType(MTL::TextureType2D);
 		textureDescriptor->setStorageMode(MTL::StorageModeShared);
 		textureDescriptor->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
-		_texture = RhiDeviceMetal::GetInstance()->GetDevice()->newTexture(textureDescriptor);
+		_texture = MetalRhiDevice::GetInstance()->GetDevice()->newTexture(textureDescriptor);
 		textureDescriptor->release();
-		RhiDeviceMetal::GetInstance()->AddResourceToResidencySet(_texture);
+		MetalRhiDevice::GetInstance()->AddResourceToResidencySet(_texture);
 
 		_texture->replaceRegion(MTL::Region( 0, 0, 0, width, height, 1 ), 0, pixels, width * 4);
 		
 		MTL::SamplerDescriptor* samplerDescriptor = MTL::SamplerDescriptor::alloc()->init();
 		samplerDescriptor->setSAddressMode(createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat);
 		samplerDescriptor->setTAddressMode(createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat);
-		_sampler = RhiDeviceMetal::GetInstance()->GetDevice()->newSamplerState(samplerDescriptor);
+		_sampler = MetalRhiDevice::GetInstance()->GetDevice()->newSamplerState(samplerDescriptor);
 		samplerDescriptor->release();
 
 		_width = width;

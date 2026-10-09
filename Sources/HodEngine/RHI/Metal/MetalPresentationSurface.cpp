@@ -1,6 +1,6 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/Metal/MetalPresentationSurface.hpp"
-#include "HodEngine/RHI/Metal/RhiDeviceMetal.hpp"
+#include "HodEngine/RHI/Metal/MetalRhiDevice.hpp"
 
 #include "HodEngine/Core/Output/OutputService.hpp"
 
@@ -18,10 +18,10 @@ namespace hod::inline rhi
 	MetalPresentationSurface::MetalPresentationSurface(MacOsWindow* window)
 	: PresentationSurface(window)
 	{
-		RhiDeviceMetal* rhiDeviceMetal = RhiDeviceMetal::GetInstance();
+		MetalRhiDevice* metalRhiDevice = MetalRhiDevice::GetInstance();
 
 		_layer = CA::MetalLayer::layer();
-		_layer->setDevice(rhiDeviceMetal->GetDevice());
+		_layer->setDevice(metalRhiDevice->GetDevice());
 		_layer->setPixelFormat(MTL::PixelFormatBGRA8Unorm);
 		_layer->setFramebufferOnly(true);
 

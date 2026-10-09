@@ -1,6 +1,6 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/Vulkan/ExtensionCollector/DeviceExtensionCollector.hpp"
-#include "HodEngine/RHI/Vulkan/RhiDeviceVulkan.hpp"
+#include "HodEngine/RHI/Vulkan/VulkanRhiDevice.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 

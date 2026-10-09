@@ -18,7 +18,7 @@ namespace MTL4
 namespace hod::inline rhi
 {
 	class MetalBuffer;
-	class GraphicsPipelineMetal;
+	class MetalGraphicsPipeline;
 
 	//-----------------------------------------------------------------------------
 	//! @brief
@@ -69,7 +69,7 @@ namespace hod::inline rhi
 		MTL4::ArgumentTable*        _vertexArgumentTable = nullptr;
 		MTL4::ArgumentTable*        _fragmentArgumentTable = nullptr;
 		MetalBuffer*                _indexBuffer = nullptr;
-		const GraphicsPipelineMetal*        _graphicsPipeline = nullptr;
+		const MetalGraphicsPipeline*        _graphicsPipeline = nullptr;
 		uint32_t                    _indexBufferOffset = 0;
 		uint32_t                    _renderPassWidth = 0;
 		uint32_t                    _renderPassHeight = 0;

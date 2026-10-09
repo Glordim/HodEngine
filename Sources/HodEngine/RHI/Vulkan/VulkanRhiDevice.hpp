@@ -1,0 +1,173 @@
+#pragma once
+#include "HodEngine/RHI/Export.hpp"
+
+#include <vulkan/vulkan.h>
+
+#include "HodEngine/RHI/RhiDevice.hpp"
+
+#include "HodEngine/RHI/Vulkan/VulkanGpuDevice.hpp"
+
+#include "HodEngine/RHI/Enums.hpp"
+#include "HodEngine/RHI/Vulkan/VulkanTexture.hpp"
+
+#include <vk_mem_alloc.h>
+
+#if defined(RHI_ENABLE_VALIDATION_LAYER)
+	#include "HodEngine/RHI/Vulkan/VulkanValidationLayer.hpp"
+#endif
+
+#if defined(PLATFORM_WINDOWS)
+	#define WIN32_LEAN_AND_MEAN
+	#include <Windows.h>
+	#undef max
+	#undef CreateSemaphore
+#endif
+
+namespace hod::inline rhi
+{
+
+	struct SamplerCreateInfo
+	{
+		FilterMode _filterMode = FilterMode::Linear;
+		WrapMode   _wrapMode = WrapMode::Clamp;
+	};
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	class HOD_RHI_API VulkanRhiDevice : public RhiDevice
+	{
+		_SingletonOverride(VulkanRhiDevice)
+
+	protected:
+		~VulkanRhiDevice() override;
+
+	public:
+		void WaitIdle() override;
+
+		bool GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) override;
+
+		PresentationSurface* CreatePresentationSurface(window::Window* window) override;
+
+		bool CreateDevice();
+		bool CreateCommandPool();
+
+		bool SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore = nullptr, const Semaphore* waitSemaphore = nullptr,
+		                          const Fence* fence = nullptr) override;
+
+		CommandBuffer*    CreateCommandBuffer() override;
+		Buffer*           CreateBuffer(Buffer::Usage usage, uint32_t size) override;
+		Shader*           CreateShader(Shader::ShaderType type) override;
+		GraphicsPipeline*         CreateGraphicsPipeline(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
+		                                 GraphicsPipeline::PolygonMode polygonMode = GraphicsPipeline::PolygonMode::Fill, GraphicsPipeline::Topololy topololy = GraphicsPipeline::Topololy::TRIANGLE,
+		                                 bool useDepth = true) override;
+		Texture*          CreateTexture() override;
+		RenderTarget*     CreateRenderTarget() override;
+		Semaphore*        CreateSemaphore() override;
+		Fence*            CreateFence() override;
+		BindGroup*        CreateBindGroup(const GraphicsPipeline* graphicsPipeline, uint32_t set, Buffer* const* uniformBuffers, uint32_t uniformBufferCount,
+		                                  const Texture* const* textures, uint32_t textureCount) override;
+		uint32_t          GetUniformBufferOffsetAlignment() const override;
+
+		VkInstance         GetVkInstance() const;
+		VkDevice           GetVkDevice() const;
+		const VulkanGpuDevice* GetVkGpuDevice() const;
+		VkDescriptorPool   GetDescriptorPool() const;
+		VkCommandPool      GetCommandPool() const;
+		VkRenderPass       GetDummyRenderPass() const;
+
+		VkQueue GetPresentQueue() const
+		{
+			return _presentQueue;
+		}
+
+		VmaAllocator GetVmaAllocator() const
+		{
+			return _vmaAllocator;
+		}
+
+		// GraphicsPipeline* GetSharedMinimalMaterial() const;
+
+		bool CreateBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags memoryProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
+		bool CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image,
+		                 VmaAllocation* imageMemory);
+		bool CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView);
+		bool CreateSampler(VkSampler* sampler, const SamplerCreateInfo& createInfo);
+
+		bool BeginSingleTimeCommands(VkCommandBuffer* commandBuffer);
+		bool EndSingleTimeCommands(VkCommandBuffer commandBuffer);
+
+		bool CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
+
+		bool TransitionImageLayoutImmediate(VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout);
+		bool TransitionImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout);
+		bool CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
+		void CopyImageToBuffer(VkCommandBuffer commandBuffer, VkImage image, VkBuffer buffer, uint32_t width, uint32_t height);
+
+		bool FindMemoryTypeIndex(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryProperties, uint32_t* memoryTypeIndex);
+
+		void DeferDestroy(VkFramebuffer framebuffer);
+		void DeferDestroy(VkRenderPass renderPass);
+		void DeferDestroy(VkSemaphore semaphore);
+		void DeferDestroy(VkSampler sampler);
+		void DeferDestroy(VkImageView imageView);
+		void DeferDestroy(VkImage image, VmaAllocation allocation);
+		void DeferDestroy(VkBuffer buffer, VmaAllocation allocation);
+		void DeferDestroy(VkDescriptorSet descriptorSet);
+		void DeferDestroy(VkPipeline pipeline);
+		void DeferDestroy(VkPipelineLayout pipelineLayout);
+
+	protected:
+		bool InitDevice(uint32_t physicalDeviceIdentifier) override;
+		void FlushDeferredDeletions(uint32_t frameIndex) override;
+
+	private:
+		bool CreateVkIntance();
+
+		void EnumeratePhysicalDevice();
+		void FillPhysicalDeviceInfo(VkPhysicalDevice physicalDevice, VulkanGpuDevice& gpuDevice);
+		bool SelectPhysicalDevice(uint32_t physicalDeviceIdentifier);
+
+	private:
+#if defined(RHI_ENABLE_VALIDATION_LAYER)
+		VulkanValidationLayer _validationLayer;
+#endif
+
+		VkInstance       _vkInstance = VK_NULL_HANDLE;
+		VkDevice         _device = VK_NULL_HANDLE;
+		VkQueue          _graphicsQueue = VK_NULL_HANDLE;
+		VkQueue          _presentQueue = VK_NULL_HANDLE;
+		VkCommandPool    _commandPool = VK_NULL_HANDLE;
+		VkDescriptorPool _descriptorPool = VK_NULL_HANDLE;
+		VkRenderPass     _dummyRenderPass = VK_NULL_HANDLE;
+
+		const VulkanGpuDevice*  _selectedGpu = nullptr;
+		const VulkanGpuDevice*  _recommandedGpu = nullptr;
+		Vector<VulkanGpuDevice> _availableGpu;
+
+		VmaAllocator _vmaAllocator = VK_NULL_HANDLE;
+
+		struct DeferredImage
+		{
+			VkImage       image      = VK_NULL_HANDLE;
+			VmaAllocation allocation = VK_NULL_HANDLE;
+		};
+
+		struct DeferredBuffer
+		{
+			VkBuffer      buffer     = VK_NULL_HANDLE;
+			VmaAllocation allocation = VK_NULL_HANDLE;
+		};
+
+		Vector<Vector<VkFramebuffer>>    _framebuffersToDestroy;
+		Vector<Vector<VkRenderPass>>     _renderPassesToDestroy;
+		Vector<Vector<VkSemaphore>>      _vkSemaphoresToDestroy;
+		Vector<Vector<VkSampler>>        _samplersToDestroy;
+		Vector<Vector<VkImageView>>      _imageViewsToDestroy;
+		Vector<Vector<DeferredImage>>    _imagesToDestroy;
+		Vector<Vector<DeferredBuffer>>   _buffersToDestroy;
+		Vector<Vector<VkDescriptorSet>>  _descriptorSetsToDestroy;
+		Vector<Vector<VkPipeline>>       _pipelinesToDestroy;
+		Vector<Vector<VkPipelineLayout>> _pipelineLayoutsToDestroy;
+	};
+}
