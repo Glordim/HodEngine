@@ -315,7 +315,7 @@ namespace hod::inline rhi
 
 	/// @brief
 	/// @return
-	bool RhiDeviceVulkan::Init(Window* mainWindow, uint32_t physicalDeviceIdentifier)
+	bool RhiDeviceVulkan::InitDevice(Window* mainWindow, uint32_t physicalDeviceIdentifier)
 	{
 		_framebuffersToDestroy.Resize(GetFrameInFlightCount());
 		_renderPassesToDestroy.Resize(GetFrameInFlightCount());

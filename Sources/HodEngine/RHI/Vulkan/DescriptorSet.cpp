@@ -57,7 +57,7 @@ namespace hod::inline rhi
 
 		_perFrameData.Resize(frameInFlight);
 
-		const VkTexture* defaultTexture = static_cast<const VkTexture*>(RhiDevice::GetInstance()->GetDefaultWhiteTexture());
+		const VkTexture* fallbackTexture = static_cast<const VkTexture*>(RhiDevice::GetInstance()->GetFallbackTexture());
 
 		const Vector<ShaderSetDescriptorVk::BlockUbo>&     ubos         = _descriptorSetLayout->GetUboBlocks();
 		const Vector<ShaderSetDescriptorVk::BlockTexture>& textures     = _descriptorSetLayout->GetTextureBlocks();
@@ -72,7 +72,7 @@ namespace hod::inline rhi
 			_uboData[i].Resize(size, 0);
 		}
 
-		_currentTextures.Resize(textureCount, defaultTexture);
+		_currentTextures.Resize(textureCount, fallbackTexture);
 
 		for (uint32_t frameIndex = 0; frameIndex < frameInFlight; ++frameIndex)
 		{
@@ -134,18 +134,18 @@ namespace hod::inline rhi
 				VkDescriptorImageInfo imageInfo = {};
 				if (texture._type == ShaderSetDescriptorVk::BlockTexture::Type::Sampler)
 				{
-					imageInfo.sampler = defaultTexture->GetTextureSampler();
+					imageInfo.sampler = fallbackTexture->GetTextureSampler();
 				}
 				else if (texture._type == ShaderSetDescriptorVk::BlockTexture::Type::Texture)
 				{
 					imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-					imageInfo.imageView   = defaultTexture->GetTextureImageView();
+					imageInfo.imageView   = fallbackTexture->GetTextureImageView();
 				}
 				else
 				{
 					imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
-					imageInfo.imageView   = defaultTexture->GetTextureImageView();
-					imageInfo.sampler     = defaultTexture->GetTextureSampler();
+					imageInfo.imageView   = fallbackTexture->GetTextureImageView();
+					imageInfo.sampler     = fallbackTexture->GetTextureSampler();
 				}
 
 				VkWriteDescriptorSet descriptorWrite = {};

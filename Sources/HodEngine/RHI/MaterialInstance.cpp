@@ -1,7 +1,9 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/RhiDevice.hpp"
+#include "HodEngine/RHI/Material.hpp"
 #include "HodEngine/RHI/MaterialInstance.hpp"
 #include "HodEngine/RHI/Shader.hpp"
+#include "HodEngine/RHI/ShaderSetDescriptor.hpp"
 #include "HodEngine/RHI/Texture.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
@@ -87,7 +89,7 @@ namespace hod::inline rhi
 		}
 		else
 		{
-			ApplyTexture(memberName, *RhiDevice::GetInstance()->GetDefaultWhiteTexture());
+			ApplyTexture(memberName, *RhiDevice::GetInstance()->GetFallbackTexture());
 		}
 	}
 
@@ -137,6 +139,35 @@ namespace hod::inline rhi
 	const Texture* MaterialInstance::GetTexture(const String& memberName)
 	{
 		return _textureMap[memberName];
+	}
+
+	/// @brief Called by the backends when binding the sets [setOffset, setOffset + setCount) for a draw.
+	/// Those slots still sample the fallback texture, the report only makes the omission visible.
+	/// @param setOffset
+	/// @param setCount
+	void MaterialInstance::ReportUnsetTextures(uint32_t setOffset, uint32_t setCount) const
+	{
+		if (_material.HasReportedUnsetTexture())
+		{
+			return;
+		}
+
+		for (const auto& pair : _material.GetSetDescriptors())
+		{
+			if (pair.first < setOffset || pair.first - setOffset >= setCount)
+			{
+				continue;
+			}
+
+			for (const ShaderSetDescriptor::BlockTexture& texture : pair.second->GetTextureBlocks())
+			{
+				if (texture._type != ShaderSetDescriptor::BlockTexture::Sampler && _textureMap.find(texture._name) == _textureMap.end())
+				{
+					_material.ReportUnsetTexture(texture._name);
+					return;
+				}
+			}
+		}
 	}
 
 	const std::map<String, int>& MaterialInstance::GetIntMap() const

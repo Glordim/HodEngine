@@ -88,7 +88,7 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool RhiDeviceMetal::Init(Window* mainWindow, uint32_t physicalDeviceIdentifier)
+	bool RhiDeviceMetal::InitDevice(Window* mainWindow, uint32_t physicalDeviceIdentifier)
 	{
 		(void)physicalDeviceIdentifier; // TODO
 

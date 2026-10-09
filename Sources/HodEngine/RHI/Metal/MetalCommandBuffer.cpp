@@ -209,6 +209,7 @@ namespace hod::inline rhi
 		(void)setCount;
 		//
 		_material = static_cast<const MetalMaterial*>(&materialInstance->GetMaterial());
+		materialInstance->ReportUnsetTextures(setOffset, setCount);
 		static_cast<const MetalMaterialInstance*>(materialInstance)->FillCommandEncoder(_renderCommandEncoder, _fragmentArgumentTable);
 	}
 

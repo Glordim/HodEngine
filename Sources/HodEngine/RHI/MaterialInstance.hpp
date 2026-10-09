@@ -35,6 +35,7 @@ namespace hod::inline rhi
 		void SetVec2(const String& memberName, const Vector2& value);
 		void SetVec4(const String& memberName, const Vector4& value);
 		void SetMat4(const String& memberName, const Matrix4& value);
+		// A null (or not yet built) texture explicitly selects RhiDevice::GetFallbackTexture().
 		void SetTexture(const String& memberName, const Texture* value);
 
 		int            GetInt(const String& memberName);
@@ -43,6 +44,8 @@ namespace hod::inline rhi
 		const Vector4& GetVec4(const String& memberName);
 		const Matrix4& GetMat4(const String& memberName);
 		const Texture* GetTexture(const String& memberName);
+
+		void ReportUnsetTextures(uint32_t setOffset, uint32_t setCount) const;
 
 	protected:
 		virtual void ApplyInt(const String& memberName, int value) = 0;

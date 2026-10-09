@@ -15,10 +15,33 @@ namespace hod::inline rhi
 	RhiDevice::~RhiDevice() {}
 
 	/// @brief
+	/// @param mainWindow
+	/// @param physicalDeviceIdentifier
+	/// @return
+	bool RhiDevice::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
+	{
+		if (InitDevice(mainWindow, physicalDeviceIdentifier) == false)
+		{
+			return false;
+		}
+
+		uint8_t pixels[4 * 2 * 2] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
+
+		_fallbackTexture = CreateTexture();
+		if (_fallbackTexture == nullptr || _fallbackTexture->BuildBuffer(2, 2, pixels, Texture::CreateInfo()) == false)
+		{
+			OUTPUT_ERROR("RhiDevice: Unable to create the fallback texture!");
+			return false;
+		}
+
+		return true;
+	}
+
+	/// @brief
 	void RhiDevice::Clear()
 	{
-		DefaultAllocator::GetInstance().Delete(_defaultWhiteTexture);
-		_defaultWhiteTexture = nullptr;
+		DefaultAllocator::GetInstance().Delete(_fallbackTexture);
+		_fallbackTexture = nullptr;
 
 		for (PresentationSurface* presentationSurface : _presentationSurfaces)
 		{
@@ -30,16 +53,9 @@ namespace hod::inline rhi
 
 	/// @brief
 	/// @return
-	Texture* RhiDevice::GetDefaultWhiteTexture()
+	Texture* RhiDevice::GetFallbackTexture() const
 	{
-		if (_defaultWhiteTexture == nullptr)
-		{
-			uint8_t pixels[4 * 2 * 2] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
-
-			_defaultWhiteTexture = CreateTexture();
-			_defaultWhiteTexture->BuildBuffer(2, 2, pixels, Texture::CreateInfo());
-		}
-		return _defaultWhiteTexture;
+		return _fallbackTexture;
 	}
 
 	void RhiDevice::DestroyPresentationSurface(window::Window* window)

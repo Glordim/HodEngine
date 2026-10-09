@@ -267,6 +267,8 @@ namespace hod::inline rhi
 			vkCmdBindPipeline(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, const_cast<VkMaterial*>(_material)->GetGraphicsPipeline(_currentRenderPass));
 		}
 
+		materialInstance->ReportUnsetTextures(setOffset, setCount);
+
 		Vector<VkDescriptorSet> descriptorSets = vkMaterialInstance->GetDescriptorSets(setOffset, setCount);
 
 		if (descriptorSets.Empty() == false)

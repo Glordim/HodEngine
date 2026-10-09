@@ -44,7 +44,6 @@ namespace hod::inline rhi
 		~RhiDeviceVulkan() override;
 
 	public:
-		bool Init(Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) override;
 		void WaitIdle() override;
 
 		bool GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) override;
@@ -118,6 +117,7 @@ namespace hod::inline rhi
 		void DeferDestroy(VkPipelineLayout pipelineLayout);
 
 	protected:
+		bool InitDevice(Window* mainWindow, uint32_t physicalDeviceIdentifier) override;
 		void FlushDeferredDeletions(uint32_t frameIndex) override;
 
 	private:

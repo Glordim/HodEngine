@@ -27,8 +27,6 @@ namespace hod::inline rhi
 		~RhiDeviceDirectX12() override;
 
 	public:
-		bool Init(Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) override;
-
 		bool GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) override;
 
 		bool SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore = nullptr, const Semaphore* waitSemaphore = nullptr,
@@ -49,6 +47,9 @@ namespace hod::inline rhi
 		ComPtr<ID3D12Device5> GetDevice();
 
 		void OutputErrors();
+
+	protected:
+		bool InitDevice(Window* mainWindow, uint32_t physicalDeviceIdentifier) override;
 
 	private:
 		Vector<D3d12GpuDevice> _availableGpu;

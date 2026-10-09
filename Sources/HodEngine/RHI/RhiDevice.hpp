@@ -40,7 +40,7 @@ namespace hod::inline rhi
 	public:
 		virtual ~RhiDevice();
 
-		virtual bool Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) = 0;
+		bool         Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier = 0);
 		virtual void WaitIdle() {}
 		virtual void Clear();
 
@@ -67,7 +67,8 @@ namespace hod::inline rhi
 		PresentationSurface*         FindPresentationSurface(window::Window* window) const;
 		PresentationSurface*         GetMainPresentationSurface() const;
 
-		Texture* GetDefaultWhiteTexture();
+		// Valid texture bound to every texture slot the caller left unset, so that a shader never samples an unbound slot.
+		Texture* GetFallbackTexture() const;
 
 		void BeginFrame();
 		void EndFrame();
@@ -76,13 +77,14 @@ namespace hod::inline rhi
 		uint32_t GetFrameInFlightCount() const;
 
 	protected:
+		virtual bool InitDevice(window::Window* mainWindow, uint32_t physicalDeviceIdentifier) = 0;
 		virtual void FlushDeferredDeletions(uint32_t) {}
 
 	protected:
 		Vector<PresentationSurface*> _presentationSurfaces;
 		PresentationSurface*         _mainPresentationSurface = nullptr;
 
-		Texture* _defaultWhiteTexture = nullptr;
+		Texture* _fallbackTexture = nullptr;
 
 		// FIF
 		uint32_t       _frameCount = 0;

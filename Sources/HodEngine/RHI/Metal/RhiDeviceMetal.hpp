@@ -34,8 +34,6 @@ namespace hod::inline rhi
 		~RhiDeviceMetal() override;
 
 	public:
-		bool Init(Window* mainWindow, uint32_t physicalDeviceIdentifier = 0) override;
-
 		bool CreateContext(Window* window); // TODO virtual in Renderer ?
 
 		bool GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) override;
@@ -65,6 +63,7 @@ namespace hod::inline rhi
 		void RemoveResourceFromResidencySet(const MTL::Allocation* allocation);
 
 	protected:
+		bool InitDevice(Window* mainWindow, uint32_t physicalDeviceIdentifier) override;
 		void FlushDeferredDeletions(uint32_t frameIndex) override;
 
 	private:

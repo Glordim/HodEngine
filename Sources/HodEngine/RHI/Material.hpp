@@ -58,11 +58,16 @@ namespace hod::inline rhi
 
 		const std::unordered_map<uint32_t, ShaderSetDescriptor*>& GetSetDescriptors() const;
 
+		bool HasReportedUnsetTexture() const;
+		void ReportUnsetTexture(const String& name) const;
+
 	protected:
 		std::unordered_map<uint32_t, ShaderSetDescriptor*> _setDescriptors;
 
 	private:
 		MaterialInstance* _defaultInstance = nullptr;
+
+		mutable bool _unsetTextureReported = false; // reported once per material, not once per draw
 
 		// uint32_t				getLocationFromName(const String& name);
 	};
