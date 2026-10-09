@@ -222,6 +222,26 @@ namespace hod::inline rhi
 		_residencySet->commit();
 	}
 
+	/// @brief
+	BindGroup* RhiDeviceMetal::CreateBindGroup(const GraphicsPipeline* graphicsPipeline, uint32_t set, Buffer* const* uniformBuffers, uint32_t uniformBufferCount,
+	                                           const Texture* const* textures, uint32_t textureCount)
+	{
+		// TODO
+		(void)graphicsPipeline;
+		(void)set;
+		(void)uniformBuffers;
+		(void)uniformBufferCount;
+		(void)textures;
+		(void)textureCount;
+		return nullptr;
+	}
+
+	/// @brief
+	uint32_t RhiDeviceMetal::GetUniformBufferOffsetAlignment() const
+	{
+		return 256; // TODO
+	}
+
 	void RhiDeviceMetal::FlushDeferredDeletions(uint32_t frameIndex)
 	{
 		_commandAllocators[frameIndex]->reset();

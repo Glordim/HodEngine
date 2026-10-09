@@ -1,14 +1,18 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/Vulkan/CommandBufferVk.hpp"
 
+#include "HodEngine/RHI/Vulkan/BindGroupVulkan.hpp"
 #include "HodEngine/RHI/Vulkan/BufferVk.hpp"
 #include "HodEngine/RHI/Vulkan/GraphicsPipelineVulkan.hpp"
 #include "HodEngine/RHI/Vulkan/VkMaterialInstance.hpp"
+
+#include "HodEngine/RHI/ShaderSetDescriptor.hpp"
 
 #include "HodEngine/RHI/Vulkan/RhiDeviceVulkan.hpp"
 #include "HodEngine/RHI/Vulkan/VkPresentationSurface.hpp"
 #include "HodEngine/RHI/Vulkan/VkRenderTarget.hpp"
 
+#include <HodEngine/Core/Assert.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Math/Rect.hpp>
 #include <stdlib.h>
@@ -273,9 +277,44 @@ namespace hod::inline rhi
 
 		if (descriptorSets.Empty() == false)
 		{
+			// One offset per uniform buffer of the bound sets: each set of a MaterialInstance has its own buffers, used from their start
+			Vector<uint32_t> dynamicOffsets;
+			for (const auto& pair : _graphicsPipeline->GetSetDescriptors())
+			{
+				if (pair.first >= setOffset && pair.first - setOffset < descriptorSets.Size())
+				{
+					dynamicOffsets.Resize(dynamicOffsets.Size() + pair.second->GetUboBlocks().Size(), 0);
+				}
+			}
+
 			vkCmdBindDescriptorSets(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeline->GetPipelineLayout(), setOffset, (uint32_t)descriptorSets.Size(),
-									descriptorSets.Data(), 0, nullptr);
+									descriptorSets.Data(), (uint32_t)dynamicOffsets.Size(), dynamicOffsets.Data());
 		}
+	}
+
+	/// @brief
+	/// @param set
+	/// @param bindGroup
+	/// @param uniformBufferOffsets
+	/// @param uniformBufferOffsetCount
+	void CommandBufferVk::SetBindGroup(uint32_t set, const BindGroup* bindGroup, const uint32_t* uniformBufferOffsets, uint32_t uniformBufferOffsetCount)
+	{
+		Assert(_graphicsPipeline != nullptr); // the set is bound against the layout of the current pipeline
+
+		const BindGroupVulkan*  bindGroupVulkan = static_cast<const BindGroupVulkan*>(bindGroup);
+		const Vector<uint32_t>& uniformBufferOrder = bindGroupVulkan->GetUniformBufferOrder();
+		Assert(uniformBufferOffsetCount == uniformBufferOrder.Size());
+
+		uint32_t  dynamicOffsetCount = (uint32_t)uniformBufferOrder.Size();
+		uint32_t* dynamicOffsets = (uint32_t*)alloca(sizeof(uint32_t) * (dynamicOffsetCount + 1));
+		for (uint32_t index = 0; index < dynamicOffsetCount; ++index)
+		{
+			dynamicOffsets[index] = uniformBufferOffsets[uniformBufferOrder[index]];
+		}
+
+		VkDescriptorSet descriptorSet = bindGroupVulkan->GetDescriptorSet();
+		vkCmdBindDescriptorSets(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeline->GetPipelineLayout(), set, 1, &descriptorSet, dynamicOffsetCount,
+		                        dynamicOffsets);
 	}
 
 	//-----------------------------------------------------------------------------

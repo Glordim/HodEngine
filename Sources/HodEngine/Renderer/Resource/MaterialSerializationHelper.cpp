@@ -17,7 +17,7 @@ namespace hod::inline renderer
 	/// @param params
 	void MaterialSerializationHelper::GenerateParameters(const GraphicsPipeline& material, Vector<ShaderParameter>& params)
 	{
-		const std::unordered_map<uint32_t, ShaderSetDescriptor*>& setDescriptors = material.GetSetDescriptors();
+		const std::map<uint32_t, ShaderSetDescriptor*>& setDescriptors = material.GetSetDescriptors();
 
 		for (const auto& pair : setDescriptors)
 		{

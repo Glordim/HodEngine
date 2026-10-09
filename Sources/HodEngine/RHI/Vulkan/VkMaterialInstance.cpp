@@ -1,5 +1,5 @@
 #include "HodEngine/RHI/Pch.hpp"
-#include "HodEngine/RHI/Vulkan/ShaderSetDescriptorVk.hpp"
+#include "HodEngine/RHI/ShaderSetDescriptor.hpp"
 #include "HodEngine/RHI/Vulkan/GraphicsPipelineVulkan.hpp"
 #include "HodEngine/RHI/Vulkan/VkMaterialInstance.hpp"
 #include "HodEngine/RHI/Vulkan/VkShader.hpp"
@@ -14,24 +14,14 @@ namespace hod::inline rhi
 	: MaterialInstance(graphicsPipeline)
 	{
 		const GraphicsPipelineVulkan*                                         graphicsPipelineVulkan = static_cast<const GraphicsPipelineVulkan*>(&graphicsPipeline);
-		const std::unordered_map<uint32_t, ShaderSetDescriptor*>& descriptorSetLayoutMap = graphicsPipelineVulkan->GetSetDescriptors();
+		const std::map<uint32_t, ShaderSetDescriptor*>& descriptorSetLayoutMap = graphicsPipelineVulkan->GetSetDescriptors();
 
-		size_t descriptorSetLayoutCount = descriptorSetLayoutMap.size();
+		// The sets of a pipeline are contiguous from 0, so _descriptorSets is indexed by set
+		_descriptorSets.Resize(descriptorSetLayoutMap.size());
 
-		_descriptorSets.Resize(descriptorSetLayoutCount);
-
-		auto it = descriptorSetLayoutMap.cbegin();
-		auto itEnd = descriptorSetLayoutMap.cend();
-		int  i = 0;
-
-		while (it != itEnd)
+		for (const auto& pair : descriptorSetLayoutMap)
 		{
-			DescriptorSet& descriptorSet = _descriptorSets[i];
-
-			descriptorSet.SetLayout(static_cast<ShaderSetDescriptorVk*>(it->second));
-
-			++i;
-			++it;
+			_descriptorSets[pair.first].SetLayout(pair.second, graphicsPipelineVulkan->GetDescriptorSetLayout(pair.first));
 		}
 	}
 

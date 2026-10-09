@@ -1,6 +1,7 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/Vulkan/RhiDeviceVulkan.hpp"
 
+#include "HodEngine/RHI/Vulkan/BindGroupVulkan.hpp"
 #include "HodEngine/RHI/Vulkan/BufferVk.hpp"
 #include "HodEngine/RHI/Vulkan/CommandBufferVk.hpp"
 #include "HodEngine/RHI/Vulkan/FenceVk.hpp"
@@ -759,7 +760,7 @@ namespace hod::inline rhi
 
 		VkDescriptorPoolSize poolSizes[4];
 
-		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 		poolSizes[0].descriptorCount = 150000; // TODO
 
 		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
@@ -1418,5 +1419,33 @@ namespace hod::inline rhi
 	Fence* RhiDeviceVulkan::CreateFence()
 	{
 		return DefaultAllocator::GetInstance().New<FenceVk>();
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	BindGroup* RhiDeviceVulkan::CreateBindGroup(const GraphicsPipeline* graphicsPipeline, uint32_t set, Buffer* const* uniformBuffers, uint32_t uniformBufferCount,
+	                                            const Texture* const* textures, uint32_t textureCount)
+	{
+		if (graphicsPipeline == nullptr)
+		{
+			return nullptr;
+		}
+
+		BindGroupVulkan* bindGroup = DefaultAllocator::GetInstance().New<BindGroupVulkan>();
+		if (bindGroup->Build(*static_cast<const GraphicsPipelineVulkan*>(graphicsPipeline), set, uniformBuffers, uniformBufferCount, textures, textureCount) == false)
+		{
+			DefaultAllocator::GetInstance().Delete(bindGroup);
+			return nullptr;
+		}
+		return bindGroup;
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	uint32_t RhiDeviceVulkan::GetUniformBufferOffsetAlignment() const
+	{
+		return (uint32_t)_selectedGpu->deviceProperties.limits.minUniformBufferOffsetAlignment;
 	}
 }

@@ -19,6 +19,7 @@ namespace hod::inline window
 namespace hod::inline rhi
 {
 	struct GpuDevice;
+	class BindGroup;
 	class Buffer;
 	class CommandBuffer;
 	class GraphicsPipeline;
@@ -61,6 +62,14 @@ namespace hod::inline rhi
 		virtual MaterialInstance* CreateMaterialInstance(const GraphicsPipeline* graphicsPipeline) = 0;
 		virtual Texture*          CreateTexture() = 0;
 		virtual RenderTarget*     CreateRenderTarget() = 0;
+
+		// uniformBuffers: one per uniform block of the set. textures: one per texture block of the set, null for the fallback texture.
+		// Both in the order of the pipeline's ShaderSetDescriptor for that set.
+		virtual BindGroup* CreateBindGroup(const GraphicsPipeline* graphicsPipeline, uint32_t set, Buffer* const* uniformBuffers, uint32_t uniformBufferCount,
+		                                   const Texture* const* textures, uint32_t textureCount) = 0;
+
+		// The offsets given to CommandBuffer::SetBindGroup must be multiples of this
+		virtual uint32_t GetUniformBufferOffsetAlignment() const = 0;
 
 		virtual PresentationSurface* CreatePresentationSurface(window::Window* window) = 0;
 		void                         DestroyPresentationSurface(window::Window* window);

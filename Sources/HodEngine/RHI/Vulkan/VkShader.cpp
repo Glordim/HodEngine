@@ -6,14 +6,8 @@
 #include <string_view>
 
 #include "HodEngine/RHI/Vulkan/RhiDeviceVulkan.hpp"
-#include "HodEngine/RHI/Vulkan/ShaderConstantDescriptorVk.hpp"
-#include "HodEngine/RHI/Vulkan/ShaderSetDescriptorVk.hpp"
 
-#include <HodEngine/Core/Assert.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
-
-#include <HodEngine/Core/Document/Document.hpp>
-#include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 
 #undef min
 #undef max
@@ -79,110 +73,5 @@ namespace hod::inline rhi
 	VkShaderModule VkShader::GetShaderModule() const
 	{
 		return _shaderModule;
-	}
-
-	/// @brief
-	/// @param set
-	/// @return
-	ShaderSetDescriptorVk* VkShader::GetOrCreateSetDescriptor(uint32_t set)
-	{
-		ShaderSetDescriptorVk* setDescriptor = nullptr;
-
-		auto it = _setDescriptors.find(set);
-		if (it != _setDescriptors.end())
-		{
-			setDescriptor = (ShaderSetDescriptorVk*)it->second;
-		}
-		else
-		{
-			setDescriptor = DefaultAllocator::GetInstance().New<ShaderSetDescriptorVk>();
-			_setDescriptors.emplace(set, setDescriptor);
-		}
-
-		return setDescriptor;
-	}
-
-	/// @brief
-	/// @return
-	bool VkShader::GenerateDescriptors(const char* reflection, uint32_t reflectionSize)
-	{
-		Document           reflectionDocument;
-		DocumentReaderJson documentReader;
-		if (documentReader.Read(reflectionDocument, reflection, reflectionSize) == false)
-		{
-			return false;
-		}
-
-		const DocumentNode* parametersNode = reflectionDocument.GetRootNode().GetChild("parameters");
-		if (parametersNode)
-		{
-			const DocumentNode* parameterNode = parametersNode->GetFirstChild();
-			while (parameterNode != nullptr)
-			{
-				const DocumentNode* nameNode = parameterNode->GetChild("name");
-				const DocumentNode* bindingNode = parameterNode->GetChild("binding");
-				const DocumentNode* typeNode = parameterNode->GetChild("type");
-				Assert(nameNode);
-				Assert(bindingNode);
-				Assert(typeNode);
-
-				const DocumentNode* kindNode = bindingNode->GetChild("kind");
-				const DocumentNode* indexNode = bindingNode->GetChild("index");
-				Assert(kindNode);
-				Assert(indexNode);
-
-				const String& kind = kindNode->GetString();
-				if (kind == "pushConstantBuffer")
-				{
-					const DocumentNode* elementVarLayoutNode = typeNode->GetChild("elementVarLayout");
-					Assert(elementVarLayoutNode);
-					bindingNode = elementVarLayoutNode->GetChild("binding");
-					Assert(bindingNode);
-					const DocumentNode* sizeNode = bindingNode->GetChild("size");
-					Assert(sizeNode);
-					_constantDescriptor = DefaultAllocator::GetInstance().New<ShaderConstantDescriptorVk>(0, sizeNode->GetUInt32(), GetShaderType());
-				}
-				else if (kind == "descriptorTableSlot")
-				{
-					uint32_t              set = 0;
-					const DocumentNode* spaceNode = bindingNode->GetChild("space");
-					if (spaceNode != nullptr)
-					{
-						set = spaceNode->GetUInt32();
-					}
-					ShaderSetDescriptorVk* setDescriptor = GetOrCreateSetDescriptor(set);
-
-					kindNode = typeNode->GetChild("kind");
-					const String& kind = kindNode->GetString();
-					if (kind == "constantBuffer")
-					{
-						setDescriptor->ExtractBlockUbo(*parameterNode);
-					}
-					else if (kind == "resource")
-					{
-						const DocumentNode* baseShapeNode = typeNode->GetChild("baseShape");
-						Assert(baseShapeNode);
-						Assert(baseShapeNode->GetString() == "texture2D");
-						setDescriptor->ExtractBlockTexture(*parameterNode);
-					}
-					else if (kind == "samplerState")
-					{
-						setDescriptor->ExtractBlockSampler(*parameterNode);
-					}
-					else
-					{
-						Assert(false);
-					}
-				}
-				else
-				{
-					Assert(false);
-				}
-
-				parameterNode = parameterNode->GetNextSibling();
-			}
-		}
-
-		return true;
 	}
 }

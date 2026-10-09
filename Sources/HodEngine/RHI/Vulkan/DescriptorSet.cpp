@@ -1,6 +1,5 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/Vulkan/DescriptorSet.hpp"
-#include "HodEngine/RHI/Vulkan/ShaderSetDescriptorVk.hpp"
 
 #include "HodEngine/RHI/Vulkan/BufferVk.hpp"
 #include "HodEngine/RHI/Vulkan/VkTexture.hpp"
@@ -14,6 +13,23 @@
 
 namespace hod::inline rhi
 {
+	/// @brief
+	/// @param type
+	/// @return
+	VkDescriptorType DescriptorSet::TextureTypeToVkDescriptorType(ShaderSetDescriptor::BlockTexture::Type type)
+	{
+		switch (type)
+		{
+			case ShaderSetDescriptor::BlockTexture::Type::Sampler: return VK_DESCRIPTOR_TYPE_SAMPLER;
+
+			case ShaderSetDescriptor::BlockTexture::Type::Texture: return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+
+			case ShaderSetDescriptor::BlockTexture::Type::Combined: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+
+			default: return VK_DESCRIPTOR_TYPE_MAX_ENUM;
+		}
+	}
+
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
@@ -47,11 +63,11 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool DescriptorSet::SetLayout(const ShaderSetDescriptorVk* layout)
+	bool DescriptorSet::SetLayout(const ShaderSetDescriptor* setDescriptor, VkDescriptorSetLayout descriptorSetLayout)
 	{
-		_descriptorSetLayout = layout;
+		_setDescriptor = setDescriptor;
 
-		VkDescriptorSetLayout vkLayout      = _descriptorSetLayout->GetDescriptorSetLayout();
+		VkDescriptorSetLayout vkLayout      = descriptorSetLayout;
 		RhiDeviceVulkan*       rhiDevice      = (RhiDeviceVulkan*)RhiDevice::GetInstance();
 		uint32_t              frameInFlight = RhiDevice::GetInstance()->GetFrameInFlightCount();
 
@@ -59,15 +75,15 @@ namespace hod::inline rhi
 
 		const VkTexture* fallbackTexture = static_cast<const VkTexture*>(RhiDevice::GetInstance()->GetFallbackTexture());
 
-		const Vector<ShaderSetDescriptorVk::BlockUbo>&     ubos         = _descriptorSetLayout->GetUboBlocks();
-		const Vector<ShaderSetDescriptorVk::BlockTexture>& textures     = _descriptorSetLayout->GetTextureBlocks();
+		const Vector<ShaderSetDescriptor::BlockUbo>&     ubos         = _setDescriptor->GetUboBlocks();
+		const Vector<ShaderSetDescriptor::BlockTexture>& textures     = _setDescriptor->GetTextureBlocks();
 		size_t                                              uboCount     = ubos.Size();
 		size_t                                              textureCount = textures.Size();
 
 		_uboData.Resize(uboCount);
 		for (size_t i = 0; i < uboCount; ++i)
 		{
-			const ShaderSetDescriptorVk::BlockUbo& ubo  = ubos[i];
+			const ShaderSetDescriptor::BlockUbo& ubo  = ubos[i];
 			size_t                                  size = ubo._rootMember._size * ubo._rootMember._count;
 			_uboData[i].Resize(size, 0);
 		}
@@ -94,7 +110,7 @@ namespace hod::inline rhi
 
 			for (size_t i = 0; i < uboCount; ++i)
 			{
-				const ShaderSetDescriptorVk::BlockUbo& ubo  = ubos[i];
+				const ShaderSetDescriptor::BlockUbo& ubo  = ubos[i];
 				uint32_t                               size = static_cast<uint32_t>(ubo._rootMember._size * ubo._rootMember._count);
 
 				frameData.uboBuffers[i] = static_cast<BufferVk*>(RhiDevice::GetInstance()->CreateBuffer(Buffer::Usage::Uniform, size));
@@ -120,7 +136,7 @@ namespace hod::inline rhi
 				descriptorWrite.dstSet          = frameData.descriptorSet;
 				descriptorWrite.dstBinding      = ubo._binding;
 				descriptorWrite.dstArrayElement = 0;
-				descriptorWrite.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER;
+				descriptorWrite.descriptorType  = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
 				descriptorWrite.descriptorCount = 1;
 				descriptorWrite.pBufferInfo     = &bufferInfo;
 
@@ -129,14 +145,14 @@ namespace hod::inline rhi
 
 			for (size_t i = 0; i < textureCount; ++i)
 			{
-				const ShaderSetDescriptorVk::BlockTexture& texture = textures[i];
+				const ShaderSetDescriptor::BlockTexture& texture = textures[i];
 
 				VkDescriptorImageInfo imageInfo = {};
-				if (texture._type == ShaderSetDescriptorVk::BlockTexture::Type::Sampler)
+				if (texture._type == ShaderSetDescriptor::BlockTexture::Type::Sampler)
 				{
 					imageInfo.sampler = fallbackTexture->GetTextureSampler();
 				}
-				else if (texture._type == ShaderSetDescriptorVk::BlockTexture::Type::Texture)
+				else if (texture._type == ShaderSetDescriptor::BlockTexture::Type::Texture)
 				{
 					imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 					imageInfo.imageView   = fallbackTexture->GetTextureImageView();
@@ -153,7 +169,7 @@ namespace hod::inline rhi
 				descriptorWrite.dstSet          = frameData.descriptorSet;
 				descriptorWrite.dstBinding      = texture._binding;
 				descriptorWrite.dstArrayElement = 0;
-				descriptorWrite.descriptorType  = ShaderSetDescriptorVk::TextureTypeToVkDescriptorType(texture._type);
+				descriptorWrite.descriptorType  = DescriptorSet::TextureTypeToVkDescriptorType(texture._type);
 				descriptorWrite.descriptorCount = 1;
 				descriptorWrite.pImageInfo      = &imageInfo;
 
@@ -213,20 +229,20 @@ namespace hod::inline rhi
 		RhiDeviceVulkan* rhiDevice = (RhiDeviceVulkan*)RhiDevice::GetInstance();
 		PerFrameData&   frameData = _perFrameData[frameIndex];
 
-		const Vector<ShaderSetDescriptorVk::BlockTexture>& textures     = _descriptorSetLayout->GetTextureBlocks();
+		const Vector<ShaderSetDescriptor::BlockTexture>& textures     = _setDescriptor->GetTextureBlocks();
 		size_t                                              textureCount = textures.Size();
 
 		for (size_t i = 0; i < textureCount; ++i)
 		{
-			const ShaderSetDescriptorVk::BlockTexture& texture   = textures[i];
+			const ShaderSetDescriptor::BlockTexture& texture   = textures[i];
 			const VkTexture*                           vkTexture = _currentTextures[i];
 
 			VkDescriptorImageInfo imageInfo = {};
-			if (texture._type == ShaderSetDescriptorVk::BlockTexture::Type::Sampler)
+			if (texture._type == ShaderSetDescriptor::BlockTexture::Type::Sampler)
 			{
 				imageInfo.sampler = vkTexture->GetTextureSampler();
 			}
-			else if (texture._type == ShaderSetDescriptorVk::BlockTexture::Type::Texture)
+			else if (texture._type == ShaderSetDescriptor::BlockTexture::Type::Texture)
 			{
 				imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 				imageInfo.imageView   = vkTexture->GetTextureImageView();
@@ -243,7 +259,7 @@ namespace hod::inline rhi
 			descriptorWrite.dstSet          = frameData.descriptorSet;
 			descriptorWrite.dstBinding      = texture._binding;
 			descriptorWrite.dstArrayElement = 0;
-			descriptorWrite.descriptorType  = ShaderSetDescriptorVk::TextureTypeToVkDescriptorType(texture._type);
+			descriptorWrite.descriptorType  = DescriptorSet::TextureTypeToVkDescriptorType(texture._type);
 			descriptorWrite.descriptorCount = 1;
 			descriptorWrite.pImageInfo      = &imageInfo;
 
@@ -273,12 +289,12 @@ namespace hod::inline rhi
 			varIdentifier = memberName.SubStr(len);
 		}
 
-		const Vector<ShaderSetDescriptorVk::BlockUbo>& ubos     = _descriptorSetLayout->GetUboBlocks();
+		const Vector<ShaderSetDescriptor::BlockUbo>& ubos     = _setDescriptor->GetUboBlocks();
 		size_t                                          uboCount = ubos.Size();
 
 		for (size_t i = 0; i < uboCount; ++i)
 		{
-			const ShaderSetDescriptorVk::BlockUbo& ubo = ubos[i];
+			const ShaderSetDescriptor::BlockUbo& ubo = ubos[i];
 
 			if (ubo._name != target)
 			{
@@ -286,7 +302,7 @@ namespace hod::inline rhi
 			}
 
 			size_t                                         offset = 0;
-			const ShaderSetDescriptorVk::BlockUbo::Member* member = &ubo._rootMember;
+			const ShaderSetDescriptor::BlockUbo::Member* member = &ubo._rootMember;
 
 			String remaining = varIdentifier;
 			while (remaining.Empty() == false)
@@ -348,7 +364,7 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	void DescriptorSet::SetTexture(const String& name, const VkTexture* textureSampler)
 	{
-		const Vector<ShaderSetDescriptorVk::BlockTexture>& textures     = _descriptorSetLayout->GetTextureBlocks();
+		const Vector<ShaderSetDescriptor::BlockTexture>& textures     = _setDescriptor->GetTextureBlocks();
 		size_t                                              textureCount = textures.Size();
 
 		bool found = false;

@@ -54,6 +54,9 @@ namespace hod::inline rhi
 		RenderTarget*     CreateRenderTarget() override;
 		Semaphore*        CreateSemaphore() override;
 		Fence*            CreateFence() override;
+		BindGroup*        CreateBindGroup(const GraphicsPipeline* graphicsPipeline, uint32_t set, Buffer* const* uniformBuffers, uint32_t uniformBufferCount,
+		                                  const Texture* const* textures, uint32_t textureCount) override;
+		uint32_t          GetUniformBufferOffsetAlignment() const override;
 
 		MTL::Device*        GetDevice() const;
 		MTL4::CommandQueue* GetCommandQueue() const;

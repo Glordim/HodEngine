@@ -1,11 +1,8 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/GraphicsPipeline.hpp"
 #include "HodEngine/RHI/Shader.hpp"
-#include "HodEngine/RHI/Texture.hpp"
 
 #include "HodEngine/RHI/ShaderSetDescriptor.hpp"
-
-#include "HodEngine/Core/Vector.hpp"
 
 namespace hod::inline rhi
 {
@@ -29,33 +26,56 @@ namespace hod::inline rhi
 		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topololy::TRIANGLE_FAN, "TriangleFan");
 	}
 
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
 	GraphicsPipeline::GraphicsPipeline() {}
 
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
 	GraphicsPipeline::~GraphicsPipeline()
 	{
-		/*
-
-		if (_programId != 0)
-		{
-			glDeleteProgram(this->programId);
-		}
-
-		*/
 		for (const auto& pair : _setDescriptors)
 		{
 			DefaultAllocator::GetInstance().Delete(pair.second);
 		}
 	}
 
+	/// @brief Builds the sets of the pipeline from the ones each of its shaders declares.
+	/// Sets no shader declares are added empty, so that the sets of a pipeline always go from 0 to GetSetDescriptors().size() - 1.
+	/// @param vertexShader
+	/// @param fragmentShader
+	void GraphicsPipeline::MergeSetDescriptors(const Shader& vertexShader, const Shader& fragmentShader)
+	{
+		for (const Shader* shader : {&vertexShader, &fragmentShader})
+		{
+			for (const auto& pair : shader->GetSetDescriptors())
+			{
+				auto it = _setDescriptors.find(pair.first);
+				if (it == _setDescriptors.end())
+				{
+					ShaderSetDescriptor* setDescriptor = DefaultAllocator::GetInstance().New<ShaderSetDescriptor>();
+					setDescriptor->Merge(*pair.second);
+					_setDescriptors[pair.first] = setDescriptor;
+				}
+				else
+				{
+					it->second->Merge(*pair.second);
+				}
+			}
+		}
+
+		if (_setDescriptors.empty() == false)
+		{
+			uint32_t lastSet = _setDescriptors.rbegin()->first;
+			for (uint32_t set = 0; set < lastSet; ++set)
+			{
+				if (_setDescriptors.find(set) == _setDescriptors.end())
+				{
+					_setDescriptors[set] = DefaultAllocator::GetInstance().New<ShaderSetDescriptor>();
+				}
+			}
+		}
+	}
+
 	/// @brief
 	/// @return
-	const std::unordered_map<uint32_t, ShaderSetDescriptor*>& GraphicsPipeline::GetSetDescriptors() const
+	const std::map<uint32_t, ShaderSetDescriptor*>& GraphicsPipeline::GetSetDescriptors() const
 	{
 		return _setDescriptors;
 	}
@@ -77,97 +97,4 @@ namespace hod::inline rhi
 			OUTPUT_WARNING("Material: drawn with texture \"{}\" never set, the fallback texture is used instead", name);
 		}
 	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	/*
-	bool GraphicsPipeline::link(Shader* vertexShader, Shader* fragmentShader)
-	{
-
-		programId = glCreateProgram();
-		// glAttachShader(this->programId, vertexShader.getShaderId());
-		//glAttachShader(this->programId, fragmentShader.getShaderId());
-		glLinkProgram(this->programId);
-
-		GLint isLinked = 0;
-		glGetProgramiv(this->programId, GL_LINK_STATUS, &isLinked);
-		if (isLinked == GL_FALSE)
-		{
-			GLint maxLength = 0;
-			glGetProgramiv(this->programId, GL_INFO_LOG_LENGTH, &maxLength);
-
-			// The maxLength includes the NULL character
-			Vector<GLchar> errorLog(maxLength);
-			glGetProgramInfoLog(this->programId, maxLength, &maxLength, &errorLog[0]);
-
-			std::cerr << String("Material : Failed to link Shaders") << std::endl;
-			std::cerr << String(&errorLog[0]) << std::endl;
-
-			glDeleteProgram(this->programId);
-			this->programId = 0;
-
-			return false;
-		}
-
-
-		return true;
-	}
-	*/
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	/*
-	void GraphicsPipeline::use()
-	{
-
-		glUseProgram(this->programId);
-
-		// Rebind texture
-
-		int offset = 0;
-
-		auto it = this->locationToTextureId.begin();
-		auto itEnd = this->locationToTextureId.end();
-
-		while (it != itEnd)
-		{
-			glUniform1i(it->first, offset);
-
-			glActiveTexture(GL_TEXTURE0 + offset);
-			glBindTexture(GL_TEXTURE_2D, it->second);
-
-			++offset;
-			++it;
-		}
-
-	}
-	*/
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	/*
-	uint32_t GraphicsPipeline::getLocationFromName(const String& name)
-	{
-
-		auto it = this->nameToLocationMap.find(name);
-		if (it == this->nameToLocationMap.end())
-		{
-			GLint location = glGetUniformLocation(this->programId, name.c_str());
-
-			this->nameToLocationMap.emplace(name, location);
-
-			return location;
-		}
-		else
-		{
-			return it->second;
-		}
-
-
-		return 0;
-	}
-	*/
 }

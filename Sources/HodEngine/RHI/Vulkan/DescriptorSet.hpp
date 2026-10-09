@@ -5,10 +5,10 @@
 
 #include "HodEngine/Core/String.hpp"
 #include "HodEngine/Core/Vector.hpp"
+#include "HodEngine/RHI/ShaderSetDescriptor.hpp"
 
 namespace hod::inline rhi
 {
-	class ShaderSetDescriptorVk;
 	class VkTexture;
 	class BufferVk;
 
@@ -16,10 +16,13 @@ namespace hod::inline rhi
 	class HOD_RHI_API DescriptorSet
 	{
 	public:
+		static VkDescriptorType TextureTypeToVkDescriptorType(ShaderSetDescriptor::BlockTexture::Type type);
+
+	public:
 		DescriptorSet();
 		virtual ~DescriptorSet();
 
-		bool SetLayout(const ShaderSetDescriptorVk* layout);
+		bool SetLayout(const ShaderSetDescriptor* setDescriptor, VkDescriptorSetLayout descriptorSetLayout);
 
 		VkDescriptorSet GetDescriptorSet();
 
@@ -30,7 +33,7 @@ namespace hod::inline rhi
 		void FlushUboUpdates(uint32_t frameIndex);
 		void FlushTextureUpdates(uint32_t frameIndex);
 
-		const ShaderSetDescriptorVk* _descriptorSetLayout = nullptr;
+		const ShaderSetDescriptor* _setDescriptor = nullptr;
 
 		struct PerFrameData
 		{

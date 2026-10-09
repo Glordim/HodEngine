@@ -8,8 +8,6 @@
 
 namespace hod::inline rhi
 {
-	class ShaderSetDescriptorVk;
-
 	/// @brief
 	class HOD_RHI_API VkShader : public Shader
 	{
@@ -21,10 +19,6 @@ namespace hod::inline rhi
 
 	protected:
 		bool LoadFromIR(const void* bytecode, uint32_t bytecodeSize, const char* reflection, uint32_t reflectionSize) override;
-
-	private:
-		bool                   GenerateDescriptors(const char* reflection, uint32_t reflectionSize);
-		ShaderSetDescriptorVk* GetOrCreateSetDescriptor(uint32_t set);
 
 	private:
 		VkShaderModule _shaderModule = VK_NULL_HANDLE;

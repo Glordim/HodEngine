@@ -5,7 +5,7 @@
 #include "HodEngine/Core/Vector.hpp"
 #include <cstdint>
 
-#include <unordered_map>
+#include <map>
 
 namespace hod::inline rhi
 {
@@ -35,12 +35,18 @@ namespace hod::inline rhi
 		virtual bool LoadFromIR(const void* bytecode, uint32_t bytecodeSize, const char* reflection, uint32_t reflectionSize) = 0;
 
 		const ShaderConstantDescriptor*                           GetConstantDescriptor() const;
-		const std::unordered_map<uint32_t, ShaderSetDescriptor*>& GetSetDescriptors() const;
+		const std::map<uint32_t, ShaderSetDescriptor*>& GetSetDescriptors() const;
+
+	protected:
+		bool GenerateDescriptors(const char* reflection, uint32_t reflectionSize);
+
+	private:
+		ShaderSetDescriptor* GetOrCreateSetDescriptor(uint32_t set);
 
 	protected:
 		Vector<uint8_t>                                    _buffer;
 		ShaderConstantDescriptor*                          _constantDescriptor;
-		std::unordered_map<uint32_t, ShaderSetDescriptor*> _setDescriptors;
+		std::map<uint32_t, ShaderSetDescriptor*> _setDescriptors;
 
 	private:
 		ShaderType _type;

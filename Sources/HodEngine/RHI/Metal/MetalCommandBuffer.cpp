@@ -214,6 +214,16 @@ namespace hod::inline rhi
 	}
 
 	/// @brief
+	void MetalCommandBuffer::SetBindGroup(uint32_t set, const BindGroup* bindGroup, const uint32_t* uniformBufferOffsets, uint32_t uniformBufferOffsetCount)
+	{
+		// TODO
+		(void)set;
+		(void)bindGroup;
+		(void)uniformBufferOffsets;
+		(void)uniformBufferOffsetCount;
+	}
+
+	/// @brief
 	/// @param vertexBuffer
 	/// @param count
 	/// @param offset

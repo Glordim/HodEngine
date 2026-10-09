@@ -1,13 +1,14 @@
 #pragma once
 #include "HodEngine/RHI/Export.hpp"
 
+#include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/String.hpp"
 #include "HodEngine/Core/Vector.hpp"
 #include <unordered_map>
 
 namespace hod::inline rhi
 {
-	/// @brief
+	/// @brief Content of one descriptor set of a shader, built from its reflection
 	class HOD_RHI_API ShaderSetDescriptor
 	{
 	public:
@@ -65,14 +66,21 @@ namespace hod::inline rhi
 	public:
 		ShaderSetDescriptor() = default;
 		ShaderSetDescriptor(const ShaderSetDescriptor& other) = default;
-		virtual ~ShaderSetDescriptor() = default;
+		~ShaderSetDescriptor() = default;
 
 		void Merge(const ShaderSetDescriptor& other);
+
+		void ExtractBlockUbo(const DocumentNode& parameterNode);
+		void ExtractBlockTexture(const DocumentNode& parameterNode);
+		void ExtractBlockSampler(const DocumentNode& parameterNode);
 
 		const Vector<BlockUbo>&     GetUboBlocks() const;
 		const Vector<BlockTexture>& GetTextureBlocks() const;
 
-	protected:
+	private:
+		void ExtractUboSubMembers(const DocumentNode& fieldNode, BlockUbo::Member& structMember);
+
+	private:
 		Vector<BlockUbo>     _uboBlockVector;
 		Vector<BlockTexture> _textureBlockVector;
 	};

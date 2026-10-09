@@ -4,9 +4,7 @@
 #include "HodEngine/Core/String.hpp"
 #include <cstdint>
 #include <map>
-#include <unordered_map>
 
-#include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
 namespace hod::inline rhi
@@ -48,20 +46,18 @@ namespace hod::inline rhi
 		virtual bool Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
 							PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) = 0;
 
-		// bool					link(Shader* vertexShader, Shader* fragmentShader);
-		// void					use();
-
-		const std::unordered_map<uint32_t, ShaderSetDescriptor*>& GetSetDescriptors() const;
+		const std::map<uint32_t, ShaderSetDescriptor*>& GetSetDescriptors() const;
 
 		bool HasReportedUnsetTexture() const;
 		void ReportUnsetTexture(const String& name) const;
 
 	protected:
-		std::unordered_map<uint32_t, ShaderSetDescriptor*> _setDescriptors;
+		void MergeSetDescriptors(const Shader& vertexShader, const Shader& fragmentShader);
+
+	protected:
+		std::map<uint32_t, ShaderSetDescriptor*> _setDescriptors;
 
 	private:
 		mutable bool _unsetTextureReported = false; // reported once per pipeline, not once per draw
-
-		// uint32_t				getLocationFromName(const String& name);
 	};
 }

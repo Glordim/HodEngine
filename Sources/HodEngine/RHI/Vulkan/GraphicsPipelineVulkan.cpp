@@ -1,6 +1,7 @@
 #include "HodEngine/RHI/Pch.hpp"
-#include "HodEngine/RHI/Vulkan/ShaderConstantDescriptorVk.hpp"
-#include "HodEngine/RHI/Vulkan/ShaderSetDescriptorVk.hpp"
+#include "HodEngine/RHI/ShaderConstantDescriptor.hpp"
+#include "HodEngine/RHI/ShaderSetDescriptor.hpp"
+#include "HodEngine/RHI/Vulkan/DescriptorSet.hpp"
 #include "HodEngine/RHI/Vulkan/GraphicsPipelineVulkan.hpp"
 #include "HodEngine/RHI/Vulkan/VkShader.hpp"
 
@@ -10,6 +11,8 @@
 #undef max
 
 #include <HodEngine/Core/Output/OutputService.hpp>
+
+#include <cassert>
 
 
 #include "HodEngine/RHI/VertexInput.hpp"
@@ -29,6 +32,22 @@ namespace hod::inline rhi
 		4 * sizeof(float),
 		1 * sizeof(uint32_t),
 	};
+
+	namespace
+	{
+		VkShaderStageFlags ShaderTypeToVkShaderStage(Shader::ShaderType shaderType)
+		{
+			switch (shaderType)
+			{
+				case Shader::ShaderType::Vertex: return VK_SHADER_STAGE_VERTEX_BIT;
+				case Shader::ShaderType::Fragment: return VK_SHADER_STAGE_FRAGMENT_BIT;
+				default:
+					// Todo
+					assert(false);
+					return 0;
+			}
+		}
+	}
 
 	/// @brief
 	GraphicsPipelineVulkan::GraphicsPipelineVulkan()
@@ -51,6 +70,11 @@ namespace hod::inline rhi
 		{
 			rhiDevice->DeferDestroy(_pipelineLayout);
 		}
+
+		for (VkDescriptorSetLayout descriptorSetLayout : _descriptorSetLayouts)
+		{
+			vkDestroyDescriptorSetLayout(rhiDevice->GetVkDevice(), descriptorSetLayout, nullptr);
+		}
 	}
 
 	/// @brief
@@ -72,57 +96,38 @@ namespace hod::inline rhi
 
 		RhiDeviceVulkan* rhiDevice = (RhiDeviceVulkan*)RhiDevice::GetInstance();
 
-		for (const auto& pair : vertexShader->GetSetDescriptors())
-		{
-			auto it = _setDescriptors.find(pair.first);
-			if (it == _setDescriptors.end())
-			{
-				ShaderSetDescriptorVk* shaderSetDescriptorVk = DefaultAllocator::GetInstance().New<ShaderSetDescriptorVk>();
-				shaderSetDescriptorVk->Merge(*pair.second);
-				_setDescriptors[pair.first] = shaderSetDescriptorVk;
-			}
-			else
-			{
-				it->second->Merge(*pair.second);
-			}
-		}
-		for (const auto& pair : fragmentShader->GetSetDescriptors())
-		{
-			auto it = _setDescriptors.find(pair.first);
-			if (it == _setDescriptors.end())
-			{
-				ShaderSetDescriptorVk* shaderSetDescriptorVk = DefaultAllocator::GetInstance().New<ShaderSetDescriptorVk>();
-				shaderSetDescriptorVk->Merge(*pair.second);
-				_setDescriptors[pair.first] = shaderSetDescriptorVk;
-			}
-			else
-			{
-				it->second->Merge(*pair.second);
-			}
-		}
+		MergeSetDescriptors(*vertexShader, *fragmentShader);
 
-		Vector<VkDescriptorSetLayout> layouts;
+		// _setDescriptors is ordered and contiguous: its entries are the sets 0, 1, 2...
 		for (const auto& pair : _setDescriptors)
 		{
-			static_cast<ShaderSetDescriptorVk*>(pair.second)->BuildDescriptorSetLayout();
-			layouts.push_back(static_cast<const ShaderSetDescriptorVk*>(pair.second)->GetDescriptorSetLayout());
+			VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
+			if (BuildDescriptorSetLayout(*pair.second, &descriptorSetLayout) == false)
+			{
+				return false;
+			}
+			_descriptorSetLayouts.PushBack(descriptorSetLayout);
 		}
 
 		Vector<VkPushConstantRange> constants;
-		if (vertexShader->GetConstantDescriptor() != nullptr)
+		for (const Shader* shader : {vertexShader, fragmentShader})
 		{
-			constants.push_back(static_cast<const ShaderConstantDescriptorVk*>(vertexShader->GetConstantDescriptor())->GetPushConstantRange());
-		}
-		if (fragmentShader->GetConstantDescriptor() != nullptr)
-		{
-			constants.push_back(static_cast<const ShaderConstantDescriptorVk*>(fragmentShader->GetConstantDescriptor())->GetPushConstantRange());
+			const ShaderConstantDescriptor* constantDescriptor = shader->GetConstantDescriptor();
+			if (constantDescriptor != nullptr)
+			{
+				VkPushConstantRange pushConstantRange = {};
+				pushConstantRange.stageFlags = ShaderTypeToVkShaderStage(constantDescriptor->GetShaderType());
+				pushConstantRange.offset = constantDescriptor->GetOffset();
+				pushConstantRange.size = constantDescriptor->GetSize();
+				constants.push_back(pushConstantRange);
+			}
 		}
 
 		// Pipeline layout
 		VkPipelineLayoutCreateInfo pipelineLayoutInfo = {};
 		pipelineLayoutInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_LAYOUT_CREATE_INFO;
-		pipelineLayoutInfo.setLayoutCount = (uint32_t)layouts.Size();
-		pipelineLayoutInfo.pSetLayouts = layouts.Data();
+		pipelineLayoutInfo.setLayoutCount = (uint32_t)_descriptorSetLayouts.Size();
+		pipelineLayoutInfo.pSetLayouts = _descriptorSetLayouts.Data();
 		pipelineLayoutInfo.pushConstantRangeCount = (uint32_t)constants.Size();
 		pipelineLayoutInfo.pPushConstantRanges = constants.Data();
 
@@ -462,6 +467,75 @@ namespace hod::inline rhi
 			}
 		}
 		return CreatePipeline(renderPass, false);
+	}
+
+	/// @brief
+	/// @param setDescriptor
+	/// @param descriptorSetLayout
+	/// @return
+	bool GraphicsPipelineVulkan::BuildDescriptorSetLayout(const ShaderSetDescriptor& setDescriptor, VkDescriptorSetLayout* descriptorSetLayout)
+	{
+		const Vector<ShaderSetDescriptor::BlockUbo>&     uboBlocks = setDescriptor.GetUboBlocks();
+		const Vector<ShaderSetDescriptor::BlockTexture>& textureBlocks = setDescriptor.GetTextureBlocks();
+
+		Vector<VkDescriptorSetLayoutBinding> descriptors;
+
+		size_t uboCount = uboBlocks.Size();
+		for (size_t i = 0; i < uboCount; ++i)
+		{
+			const ShaderSetDescriptor::BlockUbo& ubo = uboBlocks[i];
+
+			VkDescriptorSetLayoutBinding uboLayoutBinding = {};
+			uboLayoutBinding.binding = ubo._binding;
+			uboLayoutBinding.descriptorType = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC; // offset given when the set is bound
+			uboLayoutBinding.descriptorCount = 1;
+			uboLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+			uboLayoutBinding.pImmutableSamplers = nullptr;
+
+			descriptors.PushBack(std::move(uboLayoutBinding));
+		}
+
+		size_t textureCount = textureBlocks.Size();
+		for (size_t i = 0; i < textureCount; ++i)
+		{
+			const ShaderSetDescriptor::BlockTexture& texture = textureBlocks[i];
+
+			VkDescriptorSetLayoutBinding textureLayoutBinding = {};
+			textureLayoutBinding.binding = texture._binding;
+			textureLayoutBinding.descriptorType = DescriptorSet::TextureTypeToVkDescriptorType(texture._type);
+			textureLayoutBinding.descriptorCount = 1;
+			textureLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
+			textureLayoutBinding.pImmutableSamplers = nullptr;
+
+			descriptors.PushBack(std::move(textureLayoutBinding));
+		}
+
+		VkDescriptorSetLayoutCreateInfo layoutInfo = {};
+		layoutInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_LAYOUT_CREATE_INFO;
+		layoutInfo.bindingCount = (uint32_t)descriptors.Size();
+		layoutInfo.pBindings = descriptors.Data();
+
+		RhiDeviceVulkan* rhiDevice = (RhiDeviceVulkan*)RhiDevice::GetInstance();
+
+		if (vkCreateDescriptorSetLayout(rhiDevice->GetVkDevice(), &layoutInfo, nullptr, descriptorSetLayout) != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: to create descriptor set layout!");
+			return false;
+		}
+
+		return true;
+	}
+
+	/// @brief
+	/// @param set
+	/// @return
+	VkDescriptorSetLayout GraphicsPipelineVulkan::GetDescriptorSetLayout(uint32_t set) const
+	{
+		if (set >= _descriptorSetLayouts.Size())
+		{
+			return VK_NULL_HANDLE;
+		}
+		return _descriptorSetLayouts[set];
 	}
 
 	/// @brief

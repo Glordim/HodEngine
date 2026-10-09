@@ -16,6 +16,7 @@ namespace hod::inline math
 
 namespace hod::inline rhi
 {
+	class BindGroup;
 	class GraphicsPipeline;
 	class MaterialInstance;
 	class Buffer;
@@ -57,6 +58,9 @@ namespace hod::inline rhi
 
 		virtual void SetGraphicsPipeline(const GraphicsPipeline* graphicsPipeline) = 0;
 		virtual void SetMaterialInstance(const MaterialInstance* materialInstance, uint32_t setOffset = 2, uint32_t setCount = UINT32_MAX) = 0;
+		// Binds a BindGroup to a set of the current GraphicsPipeline.
+		// uniformBufferOffsets: where each uniform buffer of the BindGroup is read for the next draws, one per uniform block of the set.
+		virtual void SetBindGroup(uint32_t set, const BindGroup* bindGroup, const uint32_t* uniformBufferOffsets, uint32_t uniformBufferOffsetCount) = 0;
 		virtual void SetVertexBuffer(Buffer** vertexBuffer, uint32_t count, uint32_t offset = 0) = 0;
 		virtual void SetIndexBuffer(Buffer* indexBuffer, uint32_t offset = 0) = 0;
 

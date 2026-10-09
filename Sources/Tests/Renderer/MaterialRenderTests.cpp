@@ -1,10 +1,9 @@
 #include <gtest/gtest.h>
 
+#include "RenderTestHelpers.hpp"
 #include "VisualMode.hpp"
 
 #include <HodEngine/Core/Memory/DefaultAllocator.hpp>
-#include <HodEngine/Core/Output/OutputBucket.hpp>
-#include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/StaticArray.hpp>
 #include <HodEngine/Core/Vector.hpp>
 
@@ -36,49 +35,18 @@
 
 using namespace hod;
 
-namespace
-{
-	constexpr uint32_t DefaultTargetSize = 64;
-	constexpr float    Tolerance = 2.0f / 255.0f;
-
-	// Clear color of CommandBuffer::StartRenderPass
-	const Color Background(0.1f, 0.1f, 0.1f, 1.0f);
-
-	const Color Red(1.0f, 0.0f, 0.0f, 1.0f);
-	const Color Green(0.0f, 1.0f, 0.0f, 1.0f);
-	const Color Blue(0.0f, 0.0f, 1.0f, 1.0f);
-	const Color Yellow(1.0f, 1.0f, 0.0f, 1.0f);
-	const Color White(1.0f, 1.0f, 1.0f, 1.0f);
-
-	Vector4 ToVector4(const Color& color)
-	{
-		return Vector4(color.r, color.g, color.b, color.a);
-	}
-
-	::testing::AssertionResult ColorNear(const Color& actual, const Color& expected)
-	{
-		if (std::abs(actual.r - expected.r) <= Tolerance && std::abs(actual.g - expected.g) <= Tolerance && std::abs(actual.b - expected.b) <= Tolerance &&
-		    std::abs(actual.a - expected.a) <= Tolerance)
-		{
-			return ::testing::AssertionSuccess();
-		}
-		return ::testing::AssertionFailure() << "got (" << actual.r << ", " << actual.g << ", " << actual.b << ", " << actual.a << "), expected (" << expected.r << ", "
-											 << expected.g << ", " << expected.b << ", " << expected.a << ")";
-	}
-}
-
 // ============================================================================
 // Renders through the regular path (FrameResources -> RenderView -> RenderCommandMesh)
 // into a CPU readable RenderTarget, then checks pixels.
 // The camera maps [-1, 1] on both axes to the whole target.
 // ============================================================================
 
-class MaterialRender : public ::testing::Test
+class MaterialRender : public OutputCheckedTest
 {
 protected:
 	void SetUp() override
 	{
-		OutputService::PushBucket(_outputs);
+		OutputCheckedTest::SetUp();
 
 		_renderTarget = RhiDevice::GetInstance()->CreateRenderTarget();
 		InitRenderTarget(DefaultTargetSize);
@@ -113,10 +81,7 @@ protected:
 		}
 		DefaultAllocator::GetInstance().Delete(_renderTarget);
 
-		OutputService::PopBucket();
-
-		EXPECT_EQ(CountOutputs(Output::Type::Error), 0u) << FirstOutput(Output::Type::Error);
-		EXPECT_EQ(CountOutputs(Output::Type::Warning), _expectedWarningCount) << FirstOutput(Output::Type::Warning);
+		OutputCheckedTest::TearDown();
 	}
 
 	MaterialInstance* CreateMaterialInstance(MaterialManager::BuiltinMaterial builtinMaterial)
@@ -261,35 +226,7 @@ protected:
 		return _frameTexture->ReadPixel(Vector2(pixelX, pixelY));
 	}
 
-	uint32_t CountOutputs(Output::Type type) const
-	{
-		uint32_t count = 0;
-		for (const Output& output : _outputs.GetOutputs())
-		{
-			if (output.GetType() == type)
-			{
-				++count;
-			}
-		}
-		return count;
-	}
-
-	std::string FirstOutput(Output::Type type) const
-	{
-		for (const Output& output : _outputs.GetOutputs())
-		{
-			if (output.GetType() == type)
-			{
-				return output.GetContent().CStr();
-			}
-		}
-		return "";
-	}
-
 protected:
-	OutputBucket _outputs;
-	uint32_t     _expectedWarningCount = 0;
-
 	RenderTarget* _renderTarget = nullptr;
 	uint32_t      _targetSize = 0;
 	RenderView*   _renderView = nullptr;
@@ -417,7 +354,7 @@ TEST_F(MaterialRender, TextureIsModulatedByTheUniformColor)
 	RenderFrame([&]() { DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f, materialInstance); });
 
 	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, -0.5f), Red));                         // Red * Red
-	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, -0.5f), Color(0.0f, 0.0f, 0.0f, 1.0f))); // Green * Red
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, -0.5f), Black)); // Green * Red
 	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.5f), Red));                           // Yellow * Red
 }
 
