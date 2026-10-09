@@ -8,7 +8,6 @@
 namespace hod::inline rhi
 {
 	class GraphicsPipelineVulkan;
-	class VkMaterialInstance;
 
 	/// @brief
 	class HOD_RHI_API CommandBufferVk : public CommandBuffer
@@ -41,7 +40,6 @@ namespace hod::inline rhi
 		void SetScissor(const Rect& scissor) override;
 
 		void SetGraphicsPipeline(const GraphicsPipeline* graphicsPipeline) override;
-		void SetLegacyMaterialInstance(const LegacyMaterialInstance* materialInstance, uint32_t setOffset = 2, uint32_t setCount = UINT32_MAX) override;
 		void SetBindGroup(uint32_t set, const BindGroup* bindGroup, const uint32_t* uniformBufferOffsets, uint32_t uniformBufferOffsetCount) override;
 		void SetVertexBuffer(Buffer** vertexBuffer, uint32_t count, uint32_t offset = 0) override;
 		void SetIndexBuffer(Buffer* indexBuffer, uint32_t offset = 0) override;
@@ -61,6 +59,5 @@ namespace hod::inline rhi
 
 		VkRenderPass _currentRenderPass = VK_NULL_HANDLE;
 
-		// VkMaterialInstance* _sharedMinimalMaterialInstance = nullptr;
 	};
 }

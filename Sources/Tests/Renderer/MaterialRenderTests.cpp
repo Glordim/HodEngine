@@ -428,12 +428,11 @@ TEST_F(MaterialRender, NeverSetTextureFallsBackAndIsReported)
 {
 	// The report is emitted once per material: use a material no other test leaves a texture unset on
 	MaterialInstance* materialInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
-	materialInstance->SetVec4("ubo.color", ToVector4(Green));
+	materialInstance->SetVec4("ubo.color", ToVector4(White));
 
 	RenderFrame([&]() { DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f, materialInstance); });
 
-	// Fallback texture is white for now
-	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Green));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), FallbackColor));
 
 	_expectedWarningCount = 1;
 }

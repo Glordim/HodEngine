@@ -4,9 +4,6 @@
 #include "HodEngine/RHI/Vulkan/BindGroupVulkan.hpp"
 #include "HodEngine/RHI/Vulkan/BufferVk.hpp"
 #include "HodEngine/RHI/Vulkan/GraphicsPipelineVulkan.hpp"
-#include "HodEngine/RHI/Vulkan/VkMaterialInstance.hpp"
-
-#include "HodEngine/RHI/ShaderSetDescriptor.hpp"
 
 #include "HodEngine/RHI/Vulkan/RhiDeviceVulkan.hpp"
 #include "HodEngine/RHI/Vulkan/VkPresentationSurface.hpp"
@@ -54,9 +51,6 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	void CommandBufferVk::Release()
 	{
-		// DefaultAllocator::GetInstance().Delete(_sharedMinimalMaterialInstance);
-		//_sharedMinimalMaterialInstance = nullptr;
-
 		RhiDeviceVulkan* rhiDevice = (RhiDeviceVulkan*)RhiDevice::GetInstance();
 
 		vkFreeCommandBuffers(rhiDevice->GetVkDevice(), rhiDevice->GetCommandPool(), 1, &_vkCommandBuffer);
@@ -185,10 +179,6 @@ namespace hod::inline rhi
 	void CommandBufferVk::SetProjectionMatrix(const Matrix4& projectionMatrix)
 	{
 		_projection = projectionMatrix;
-		//_sharedMinimalMaterialInstance->SetMat4("viewUbo.proj", projectionMatrix);
-		//_sharedMinimalMaterialInstance->SetMat4("viewUbo.vp", projectionMatrix * _sharedMinimalMaterialInstance->GetMat4("viewUbo.view"));
-
-		// SetLegacyMaterialInstance(_sharedMinimalMaterialInstance, 0, 1);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -197,12 +187,6 @@ namespace hod::inline rhi
 	void CommandBufferVk::SetViewMatrix(const Matrix4& viewMatrix)
 	{
 		_view = viewMatrix;
-		/*
-		_sharedMinimalMaterialInstance->SetMat4("viewUbo.view", viewMatrix);
-		_sharedMinimalMaterialInstance->SetMat4("viewUbo.vp", _sharedMinimalMaterialInstance->GetMat4("viewUbo.proj") * viewMatrix);
-
-		SetLegacyMaterialInstance(_sharedMinimalMaterialInstance, 0, 1);
-		*/
 	}
 
 	//-----------------------------------------------------------------------------
@@ -210,13 +194,6 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	void CommandBufferVk::SetModelMatrix(const Matrix4& /*modelMatrix*/)
 	{
-		/*
-		LegacyMaterialInstance* modelMaterialInstance = RhiDevice::GetInstance()->CreateLegacyMaterialInstance(&_sharedMinimalMaterialInstance->GetGraphicsPipeline());
-		modelMaterialInstance->SetMat4("modelUbo.model", modelMatrix);
-		modelMaterialInstance->SetMat4("modelUbo.mvp", _sharedMinimalMaterialInstance->GetMat4("viewUbo.vp") * modelMatrix);
-
-		SetLegacyMaterialInstance(modelMaterialInstance, 1, 1);
-		*/
 	}
 
 	/// @brief
@@ -254,41 +231,6 @@ namespace hod::inline rhi
 		{
 			_graphicsPipeline = graphicsPipelineVulkan;
 			vkCmdBindPipeline(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, const_cast<GraphicsPipelineVulkan*>(_graphicsPipeline)->GetVkPipeline(_currentRenderPass));
-		}
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	void CommandBufferVk::SetLegacyMaterialInstance(const LegacyMaterialInstance* materialInstance, uint32_t setOffset, uint32_t setCount)
-	{
-		VkMaterialInstance* vkMaterialInstance = static_cast<VkMaterialInstance*>(const_cast<LegacyMaterialInstance*>(materialInstance));
-
-		const GraphicsPipelineVulkan* graphicsPipeline = static_cast<const GraphicsPipelineVulkan*>(&vkMaterialInstance->GetGraphicsPipeline());
-		if (_graphicsPipeline != graphicsPipeline)
-		{
-			_graphicsPipeline = graphicsPipeline;
-			vkCmdBindPipeline(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, const_cast<GraphicsPipelineVulkan*>(_graphicsPipeline)->GetVkPipeline(_currentRenderPass));
-		}
-
-		materialInstance->ReportUnsetTextures(setOffset, setCount);
-
-		Vector<VkDescriptorSet> descriptorSets = vkMaterialInstance->GetDescriptorSets(setOffset, setCount);
-
-		if (descriptorSets.Empty() == false)
-		{
-			// One offset per uniform buffer of the bound sets: each set of a LegacyMaterialInstance has its own buffers, used from their start
-			Vector<uint32_t> dynamicOffsets;
-			for (const auto& pair : _graphicsPipeline->GetSetDescriptors())
-			{
-				if (pair.first >= setOffset && pair.first - setOffset < descriptorSets.Size())
-				{
-					dynamicOffsets.Resize(dynamicOffsets.Size() + pair.second->GetUboBlocks().Size(), 0);
-				}
-			}
-
-			vkCmdBindDescriptorSets(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeline->GetPipelineLayout(), setOffset, (uint32_t)descriptorSets.Size(),
-									descriptorSets.Data(), (uint32_t)dynamicOffsets.Size(), dynamicOffsets.Data());
 		}
 	}
 

@@ -1,7 +1,7 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/ShaderConstantDescriptor.hpp"
 #include "HodEngine/RHI/ShaderSetDescriptor.hpp"
-#include "HodEngine/RHI/Vulkan/DescriptorSet.hpp"
+#include "HodEngine/RHI/Vulkan/BindGroupVulkan.hpp"
 #include "HodEngine/RHI/Vulkan/GraphicsPipelineVulkan.hpp"
 #include "HodEngine/RHI/Vulkan/VkShader.hpp"
 
@@ -502,7 +502,7 @@ namespace hod::inline rhi
 
 			VkDescriptorSetLayoutBinding textureLayoutBinding = {};
 			textureLayoutBinding.binding = texture._binding;
-			textureLayoutBinding.descriptorType = DescriptorSet::TextureTypeToVkDescriptorType(texture._type);
+			textureLayoutBinding.descriptorType = BindGroupVulkan::TextureTypeToVkDescriptorType(texture._type);
 			textureLayoutBinding.descriptorCount = 1;
 			textureLayoutBinding.stageFlags = VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT;
 			textureLayoutBinding.pImmutableSamplers = nullptr;

@@ -7,7 +7,6 @@
 #include "HodEngine/RHI/Vulkan/FenceVk.hpp"
 #include "HodEngine/RHI/Vulkan/SemaphoreVk.hpp"
 #include "HodEngine/RHI/Vulkan/GraphicsPipelineVulkan.hpp"
-#include "HodEngine/RHI/Vulkan/VkMaterialInstance.hpp"
 #include "HodEngine/RHI/Vulkan/VkPresentationSurface.hpp"
 #include "HodEngine/RHI/Vulkan/VkRenderTarget.hpp"
 #include "HodEngine/RHI/Vulkan/VkShader.hpp"
@@ -426,27 +425,6 @@ namespace hod::inline rhi
 			}
 		}
 		//
-
-		/*
-		_unlitVertexColorMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", GraphicsPipeline::PolygonMode::Fill,
-		GraphicsPipeline::Topololy::TRIANGLE)); if (_unlitVertexColorMaterial == nullptr)
-		{
-		    return false;
-		}
-		_unlitVertexColorLineMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", GraphicsPipeline::PolygonMode::Line,
-		GraphicsPipeline::Topololy::LINE)); if (_unlitVertexColorLineMaterial == nullptr)
-		{
-		    return false;
-		}
-		_sharedMinimalMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", GraphicsPipeline::PolygonMode::Fill,
-		GraphicsPipeline::Topololy::TRIANGLE, false)); if (_sharedMinimalMaterial == nullptr)
-		{
-		    return false;
-		}
-
-		_unlitVertexColorMaterialInstance = CreateLegacyMaterialInstance(_unlitVertexColorMaterial);
-		_unlitVertexColorLineMaterialInstance = CreateLegacyMaterialInstance(_unlitVertexColorLineMaterial);
-		*/
 
 		return true;
 	}
@@ -1359,20 +1337,6 @@ namespace hod::inline rhi
 		}
 
 		return mat;
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	LegacyMaterialInstance* RhiDeviceVulkan::CreateLegacyMaterialInstance(const GraphicsPipeline* graphicsPipeline)
-	{
-		if (graphicsPipeline == nullptr)
-		{
-			// todo message, why not use ref ?
-			return nullptr;
-		}
-
-		return DefaultAllocator::GetInstance().New<VkMaterialInstance>(*graphicsPipeline);
 	}
 
 	//-----------------------------------------------------------------------------

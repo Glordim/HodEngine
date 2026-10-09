@@ -479,23 +479,6 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	LegacyMaterialInstance* RhiDeviceDirectX12::CreateLegacyMaterialInstance(const GraphicsPipeline* /*graphicsPipeline*/)
-	{
-		return nullptr;
-		/*
-		if (graphicsPipeline == nullptr)
-		{
-		    // todo message, why not use ref ?
-		    return nullptr;
-		}
-
-		return DefaultAllocator::GetInstance().New<VkMaterialInstance>(*graphicsPipeline);
-		*/
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
 	CommandBuffer* RhiDeviceDirectX12::CreateCommandBuffer()
 	{
 		return nullptr; // return DefaultAllocator::GetInstance().New<CommandBufferVk>();

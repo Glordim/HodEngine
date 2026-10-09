@@ -79,5 +79,7 @@ namespace hod::inline renderer
 		// Every path without array index, resolved once: read only after Build, hence safe to read from several threads
 		std::unordered_map<String, UniformLocation> _uniformLocations;
 		std::unordered_map<String, TextureLocation> _textureLocations;
+
+		mutable bool _unsetTextureReported = false; // reported once per material, not once per draw
 	};
 }

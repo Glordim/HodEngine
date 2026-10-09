@@ -3,7 +3,6 @@
 #include "HodEngine/RHI/Metal/MetalCommandBuffer.hpp"
 
 #include "HodEngine/RHI/Metal/GraphicsPipelineMetal.hpp"
-#include "HodEngine/RHI/Metal/MetalMaterialInstance.hpp"
 #include "HodEngine/RHI/Metal/MetalPresentationSurface.hpp"
 #include "HodEngine/RHI/Metal/MetalTexture.hpp"
 #include "HodEngine/RHI/Metal/RhiDeviceMetal.hpp"
@@ -196,21 +195,6 @@ namespace hod::inline rhi
 	{
 		_graphicsPipeline = static_cast<const GraphicsPipelineMetal*>(graphicsPipeline);
 		_renderCommandEncoder->setRenderPipelineState(_graphicsPipeline->GetNativeRenderPipeline());
-	}
-
-	/// @brief
-	/// @param materialInstance
-	/// @param setOffset
-	/// @param setCount
-	void MetalCommandBuffer::SetLegacyMaterialInstance(const LegacyMaterialInstance* materialInstance, uint32_t setOffset, uint32_t setCount)
-	{
-		// TODO
-		(void)setOffset;
-		(void)setCount;
-		//
-		_graphicsPipeline = static_cast<const GraphicsPipelineMetal*>(&materialInstance->GetGraphicsPipeline());
-		materialInstance->ReportUnsetTextures(setOffset, setCount);
-		static_cast<const MetalMaterialInstance*>(materialInstance)->FillCommandEncoder(_renderCommandEncoder, _fragmentArgumentTable);
 	}
 
 	/// @brief

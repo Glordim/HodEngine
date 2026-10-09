@@ -2,6 +2,7 @@
 #include "HodEngine/RHI/Export.hpp"
 
 #include "HodEngine/RHI/BindGroup.hpp"
+#include "HodEngine/RHI/ShaderSetDescriptor.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
 
@@ -16,6 +17,9 @@ namespace hod::inline rhi
 	/// @brief
 	class HOD_RHI_API BindGroupVulkan : public BindGroup
 	{
+	public:
+		static VkDescriptorType TextureTypeToVkDescriptorType(ShaderSetDescriptor::BlockTexture::Type type);
+
 	public:
 		BindGroupVulkan() = default;
 		~BindGroupVulkan() override;

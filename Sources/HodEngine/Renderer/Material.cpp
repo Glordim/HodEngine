@@ -222,9 +222,10 @@ namespace hod::inline renderer
 	/// @param name
 	void Material::ReportUnsetTexture(const String& name) const
 	{
-		if (_graphicsPipeline->HasReportedUnsetTexture() == false)
+		if (_unsetTextureReported == false)
 		{
-			_graphicsPipeline->ReportUnsetTexture(name);
+			_unsetTextureReported = true;
+			OUTPUT_WARNING("Material: drawn with texture \"{}\" never set, the fallback texture is used instead", name);
 		}
 	}
 }

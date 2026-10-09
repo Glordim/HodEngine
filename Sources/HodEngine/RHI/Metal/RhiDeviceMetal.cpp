@@ -9,7 +9,6 @@
 #include "HodEngine/RHI/Metal/MetalFence.hpp"
 #include "HodEngine/RHI/RenderTarget.hpp"
 #include "HodEngine/RHI/Metal/GraphicsPipelineMetal.hpp"
-#include "HodEngine/RHI/Metal/MetalMaterialInstance.hpp"
 #include "HodEngine/RHI/Metal/MetalSemaphore.hpp"
 #include "HodEngine/RHI/Metal/MetalShader.hpp"
 #include "HodEngine/RHI/Metal/MetalTexture.hpp"
@@ -163,14 +162,6 @@ namespace hod::inline rhi
 			return nullptr;
 		}
 		return graphicsPipeline;
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	LegacyMaterialInstance* RhiDeviceMetal::CreateLegacyMaterialInstance(const GraphicsPipeline* graphicsPipeline)
-	{
-		return DefaultAllocator::GetInstance().New<MetalMaterialInstance>(*graphicsPipeline);
 	}
 
 	/// @brief

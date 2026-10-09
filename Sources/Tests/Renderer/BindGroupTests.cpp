@@ -20,7 +20,6 @@
 #include <HodEngine/RHI/CommandBuffer.hpp>
 #include <HodEngine/RHI/Fence.hpp>
 #include <HodEngine/RHI/GraphicsPipeline.hpp>
-#include <HodEngine/RHI/LegacyMaterialInstance.hpp>
 #include <HodEngine/RHI/RenderTarget.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/RHI/Shader.hpp>
@@ -146,7 +145,7 @@ protected:
 		return bindGroup;
 	}
 
-	// The texture gives both the image and its sampler; null for the fallback texture
+	// The texture gives both the image and its sampler; null leaves both to the fallback of the RHI
 	BindGroup* CreateMaterialBindGroup(Buffer* colors, const Texture* texture)
 	{
 		StaticArray<const Texture*, 2> textures = {texture, texture}; // "image", "imageSampler"
@@ -155,6 +154,16 @@ protected:
 		EXPECT_NE(bindGroup, nullptr);
 		_bindGroups.PushBack(bindGroup);
 		return bindGroup;
+	}
+
+	Texture* CreateWhiteTexture()
+	{
+		const uint8_t pixels[4 * 2 * 2] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
+
+		Texture* texture = RhiDevice::GetInstance()->CreateTexture();
+		EXPECT_TRUE(texture->BuildBuffer(2, 2, pixels, Texture::CreateInfo()));
+		_textures.PushBack(texture);
+		return texture;
 	}
 
 	// 2x2 texture, row by row from the first texel: Red, Green / Blue, Yellow
@@ -275,7 +284,7 @@ protected:
 TEST_F(BindGroupRender, UniformBufferOffsetSelectsTheBlockOfEachDraw)
 {
 	BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White}));
-	BindGroup* material = CreateMaterialBindGroup(CreateColorBlocks({Red, Green, Blue}), nullptr);
+	BindGroup* material = CreateMaterialBindGroup(CreateColorBlocks({Red, Green, Blue}), CreateWhiteTexture());
 
 	RenderFrame([&]() {
 		SetBindGroup(0, global, 0);
@@ -300,7 +309,7 @@ TEST_F(BindGroupRender, UniformBufferOffsetSelectsTheBlockOfEachDraw)
 TEST_F(BindGroupRender, SetsAreBoundIndependently)
 {
 	BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White, Red}));
-	BindGroup* material = CreateMaterialBindGroup(CreateColorBlocks({Yellow, White}), nullptr);
+	BindGroup* material = CreateMaterialBindGroup(CreateColorBlocks({Yellow, White}), CreateWhiteTexture());
 
 	RenderFrame([&]() {
 		// Yellow * White
@@ -340,7 +349,8 @@ TEST_F(BindGroupRender, TexturesAreGivenPerBlock)
 	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.5f), Yellow));
 }
 
-// Two BindGroups of the same set, differing by their texture, used in the same frame
+// Two BindGroups of the same set, differing by their texture, used in the same frame.
+// The one given no texture gets the fallback of the RHI.
 TEST_F(BindGroupRender, BindGroupsOfTheSameSetCoexist)
 {
 	Buffer* colors = CreateColorBlocks({White});
@@ -360,7 +370,7 @@ TEST_F(BindGroupRender, BindGroupsOfTheSameSetCoexist)
 	});
 
 	EXPECT_TRUE(ColorNear(ReadPixel(-0.75f, -0.5f), Red));
-	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.0f), White)); // the fallback texture is white for now
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.0f), FallbackColor));
 }
 
 // A BindGroup is immutable, what a later frame sees is whatever its buffers hold then
@@ -369,7 +379,7 @@ TEST_F(BindGroupRender, BufferContentCanChangeBetweenFrames)
 	Buffer* colors = CreateColorBlocks({Red});
 
 	BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White}));
-	BindGroup* material = CreateMaterialBindGroup(colors, nullptr);
+	BindGroup* material = CreateMaterialBindGroup(colors, CreateWhiteTexture());
 
 	auto draw = [&]() {
 		SetBindGroup(0, global, 0);
@@ -388,26 +398,6 @@ TEST_F(BindGroupRender, BufferContentCanChangeBetweenFrames)
 
 	RenderFrame(draw);
 	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Green));
-}
-
-// The LegacyMaterialInstance path on a pipeline with several sets: each value must land in the set declaring it
-TEST_F(BindGroupRender, MaterialInstanceSpansTheSetsOfThePipeline)
-{
-	LegacyMaterialInstance* materialInstance = RhiDevice::GetInstance()->CreateLegacyMaterialInstance(_graphicsPipeline);
-	ASSERT_NE(materialInstance, nullptr);
-	materialInstance->SetVec4("global.tint", ToVector4(Yellow));
-	materialInstance->SetVec4("ubo.color", ToVector4(Red));
-	materialInstance->SetTexture("image", nullptr);
-
-	RenderFrame([&]() {
-		_commandBuffer->SetLegacyMaterialInstance(materialInstance, 0);
-		DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f);
-	});
-
-	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Red)); // Red * Yellow
-
-	RhiDevice::GetInstance()->WaitIdle();
-	DefaultAllocator::GetInstance().Delete(materialInstance);
 }
 
 TEST_F(BindGroupRender, CreationFailsWhenTheResourcesDoNotMatchTheSet)

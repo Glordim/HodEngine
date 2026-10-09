@@ -79,22 +79,4 @@ namespace hod::inline rhi
 	{
 		return _setDescriptors;
 	}
-
-	/// @brief
-	/// @return
-	bool GraphicsPipeline::HasReportedUnsetTexture() const
-	{
-		return _unsetTextureReported;
-	}
-
-	/// @brief
-	/// @param name
-	void GraphicsPipeline::ReportUnsetTexture(const String& name) const
-	{
-		if (_unsetTextureReported == false)
-		{
-			_unsetTextureReported = true;
-			OUTPUT_WARNING("Material: drawn with texture \"{}\" never set, the fallback texture is used instead", name);
-		}
-	}
 }

@@ -25,7 +25,6 @@
 
 namespace hod::inline rhi
 {
-	class DescriptorSet;
 
 	struct SamplerCreateInfo
 	{
@@ -62,7 +61,6 @@ namespace hod::inline rhi
 		GraphicsPipeline*         CreateGraphicsPipeline(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
 		                                 GraphicsPipeline::PolygonMode polygonMode = GraphicsPipeline::PolygonMode::Fill, GraphicsPipeline::Topololy topololy = GraphicsPipeline::Topololy::TRIANGLE,
 		                                 bool useDepth = true) override;
-		LegacyMaterialInstance* CreateLegacyMaterialInstance(const GraphicsPipeline* graphicsPipeline) override;
 		Texture*          CreateTexture() override;
 		RenderTarget*     CreateRenderTarget() override;
 		Semaphore*        CreateSemaphore() override;

@@ -3,7 +3,6 @@
 
 #include "HodEngine/RHI/ShaderSetDescriptor.hpp"
 #include "HodEngine/RHI/Vulkan/BufferVk.hpp"
-#include "HodEngine/RHI/Vulkan/DescriptorSet.hpp"
 #include "HodEngine/RHI/Vulkan/GraphicsPipelineVulkan.hpp"
 #include "HodEngine/RHI/Vulkan/RhiDeviceVulkan.hpp"
 #include "HodEngine/RHI/Vulkan/VkTexture.hpp"
@@ -14,6 +13,23 @@
 
 namespace hod::inline rhi
 {
+	/// @brief
+	/// @param type
+	/// @return
+	VkDescriptorType BindGroupVulkan::TextureTypeToVkDescriptorType(ShaderSetDescriptor::BlockTexture::Type type)
+	{
+		switch (type)
+		{
+			case ShaderSetDescriptor::BlockTexture::Type::Sampler: return VK_DESCRIPTOR_TYPE_SAMPLER;
+
+			case ShaderSetDescriptor::BlockTexture::Type::Texture: return VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+
+			case ShaderSetDescriptor::BlockTexture::Type::Combined: return VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+
+			default: return VK_DESCRIPTOR_TYPE_MAX_ENUM;
+		}
+	}
+
 	/// @brief
 	BindGroupVulkan::~BindGroupVulkan()
 	{
@@ -122,7 +138,7 @@ namespace hod::inline rhi
 			descriptorWrite.dstSet = _descriptorSet;
 			descriptorWrite.dstBinding = textureBlock._binding;
 			descriptorWrite.dstArrayElement = 0;
-			descriptorWrite.descriptorType = DescriptorSet::TextureTypeToVkDescriptorType(textureBlock._type);
+			descriptorWrite.descriptorType = TextureTypeToVkDescriptorType(textureBlock._type);
 			descriptorWrite.descriptorCount = 1;
 			descriptorWrite.pImageInfo = &imageInfo;
 

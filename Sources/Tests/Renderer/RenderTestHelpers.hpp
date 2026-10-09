@@ -24,6 +24,9 @@ inline const hod::Color Yellow(1.0f, 1.0f, 0.0f, 1.0f);
 inline const hod::Color White(1.0f, 1.0f, 1.0f, 1.0f);
 inline const hod::Color Black(0.0f, 0.0f, 0.0f, 1.0f);
 
+// What the RHI draws for a texture slot left without a texture
+inline const hod::Color FallbackColor(1.0f, 0.0f, 1.0f, 1.0f);
+
 inline hod::Vector4 ToVector4(const hod::Color& color)
 {
 	return hod::Vector4(color.r, color.g, color.b, color.a);

@@ -48,16 +48,10 @@ namespace hod::inline rhi
 
 		const std::map<uint32_t, ShaderSetDescriptor*>& GetSetDescriptors() const;
 
-		bool HasReportedUnsetTexture() const;
-		void ReportUnsetTexture(const String& name) const;
-
 	protected:
 		void MergeSetDescriptors(const Shader& vertexShader, const Shader& fragmentShader);
 
 	protected:
 		std::map<uint32_t, ShaderSetDescriptor*> _setDescriptors;
-
-	private:
-		mutable bool _unsetTextureReported = false; // reported once per pipeline, not once per draw
 	};
 }

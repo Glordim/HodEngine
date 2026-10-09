@@ -24,7 +24,8 @@ namespace hod::inline rhi
 			return false;
 		}
 
-		uint8_t pixels[4 * 2 * 2] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
+		// Magenta: a texture slot nobody set is an omission, it has to stand out
+		uint8_t pixels[4 * 2 * 2] = {255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255};
 
 		_fallbackTexture = CreateTexture();
 		if (_fallbackTexture == nullptr || _fallbackTexture->BuildBuffer(2, 2, pixels, Texture::CreateInfo()) == false)
