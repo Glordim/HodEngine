@@ -2,7 +2,7 @@
 #include "HodEngine/Physics/Physics.hpp"
 #include "HodEngine/Physics/World.hpp"
 
-#include "HodEngine/Physics/Box2d/PhysicsBox2d.hpp"
+#include "HodEngine/Physics/Box2d/Box2dPhysics.hpp"
 
 namespace hod::inline physics
 {
@@ -10,13 +10,13 @@ namespace hod::inline physics
 	/// @return
 	Physics* Physics::CreatePhysicsInstance()
 	{
-		return PhysicsBox2d::CreateInstance();
+		return Box2dPhysics::CreateInstance();
 	}
 
 	/// @brief
 	void Physics::DestroyPhysicsInstance()
 	{
-		PhysicsBox2d::DestroyInstance();
+		Box2dPhysics::DestroyInstance();
 	}
 
 	/// @brief

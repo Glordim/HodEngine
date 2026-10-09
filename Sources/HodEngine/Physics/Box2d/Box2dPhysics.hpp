@@ -12,16 +12,16 @@
 
 namespace hod::inline physics
 {
-	class BodyBox2d;
+	class Box2dBody;
 	class DebugDrawer;
-	class ColliderBox2d;
+	class Box2dCollider;
 
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	class HOD_PHYSICS_API PhysicsBox2d : public Physics
+	class HOD_PHYSICS_API Box2dPhysics : public Physics
 	{
-		_SingletonOverride(PhysicsBox2d)
+		_SingletonOverride(Box2dPhysics)
 
 	public:
 
@@ -36,7 +36,7 @@ namespace hod::inline physics
 
 	protected:
 
-							~PhysicsBox2d();
+							~Box2dPhysics();
 
 	public:
 

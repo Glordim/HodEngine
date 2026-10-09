@@ -14,11 +14,11 @@ namespace hod::inline math
 namespace hod::inline physics
 {
 	/// @brief 
-	class HOD_PHYSICS_API DebugDrawerBox2d : public DebugDrawer
+	class HOD_PHYSICS_API Box2dDebugDrawer : public DebugDrawer
 	{
 	public:
-					DebugDrawerBox2d();
-					~DebugDrawerBox2d() override = default;
+					Box2dDebugDrawer();
+					~Box2dDebugDrawer() override = default;
 
 	public:
 

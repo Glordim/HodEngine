@@ -9,14 +9,14 @@
 
 namespace hod::inline physics
 {
-	class ColliderBox2d;
+	class Box2dCollider;
 	
 	/// @brief 
-	class HOD_PHYSICS_API WorldBox2d : public World
+	class HOD_PHYSICS_API Box2dWorld : public World
 	{
 	public:
-				WorldBox2d();
-				~WorldBox2d() override;
+				Box2dWorld();
+				~Box2dWorld() override;
 
 	public:
 
@@ -27,7 +27,7 @@ namespace hod::inline physics
 
 		bool				Raycast(const Vector2& origin, const Vector2& dir, float distance, RaycastResult& result) override;
 
-		ColliderBox2d*		FindColliderByB2ShapeId(b2ShapeId shapeId) const;
+		Box2dCollider*		FindColliderByB2ShapeId(b2ShapeId shapeId) const;
 
 		b2WorldId			GetWorldId() const;
 

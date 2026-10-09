@@ -1,7 +1,7 @@
 #include "HodEngine/Physics/Pch.hpp"
-#include "HodEngine/Physics/Box2d/DebugDrawerBox2d.hpp"
-#include "HodEngine/Physics/Box2d/PhysicsBox2d.hpp"
-#include "HodEngine/Physics/Box2d/WorldBox2d.hpp"
+#include "HodEngine/Physics/Box2d/Box2dDebugDrawer.hpp"
+#include "HodEngine/Physics/Box2d/Box2dPhysics.hpp"
+#include "HodEngine/Physics/Box2d/Box2dWorld.hpp"
 
 #include "HodEngine/Math/Math.hpp"
 #include "HodEngine/Math/Matrix4.hpp"
@@ -13,7 +13,7 @@
 namespace hod::inline physics
 {
 	/// @brief
-	DebugDrawerBox2d::DebugDrawerBox2d()
+	Box2dDebugDrawer::Box2dDebugDrawer()
 	{
 		_debugDraw.drawingBounds = {};
 		_debugDraw.useDrawingBounds = false;
@@ -32,20 +32,20 @@ namespace hod::inline physics
 
 		_debugDraw.context = this;
 
-		_debugDraw.DrawPolygon = &DebugDrawerBox2d::DrawPolygon;
-		_debugDraw.DrawSolidPolygon = &DebugDrawerBox2d::DrawSolidPolygon;
-		_debugDraw.DrawCircle = &DebugDrawerBox2d::DrawCircle;
-		_debugDraw.DrawSolidCircle = &DebugDrawerBox2d::DrawSolidCircle;
-		_debugDraw.DrawSolidCapsule = &DebugDrawerBox2d::DrawSolidCapsule;
-		_debugDraw.DrawSegment = &DebugDrawerBox2d::DrawSegment;
-		_debugDraw.DrawTransform = &DebugDrawerBox2d::DrawTransform;
-		_debugDraw.DrawPoint = &DebugDrawerBox2d::DrawPoint;
-		_debugDraw.DrawString = &DebugDrawerBox2d::DrawString;
+		_debugDraw.DrawPolygon = &Box2dDebugDrawer::DrawPolygon;
+		_debugDraw.DrawSolidPolygon = &Box2dDebugDrawer::DrawSolidPolygon;
+		_debugDraw.DrawCircle = &Box2dDebugDrawer::DrawCircle;
+		_debugDraw.DrawSolidCircle = &Box2dDebugDrawer::DrawSolidCircle;
+		_debugDraw.DrawSolidCapsule = &Box2dDebugDrawer::DrawSolidCapsule;
+		_debugDraw.DrawSegment = &Box2dDebugDrawer::DrawSegment;
+		_debugDraw.DrawTransform = &Box2dDebugDrawer::DrawTransform;
+		_debugDraw.DrawPoint = &Box2dDebugDrawer::DrawPoint;
+		_debugDraw.DrawString = &Box2dDebugDrawer::DrawString;
 	}
 
 	/// @brief
 	/// @return
-	const Vector<DebugDrawer::Flag>& DebugDrawerBox2d::GetAvailableFlags() const
+	const Vector<DebugDrawer::Flag>& Box2dDebugDrawer::GetAvailableFlags() const
 	{
 		static Vector<Flag> flags = {
 			Flag("Shapes", 1 << 0),   Flag("Joints", 1 << 1),      Flag("JointExtras", 1 << 2),    Flag("AABBs", 1 << 3),           Flag("Mass", 1 << 4),
@@ -57,7 +57,7 @@ namespace hod::inline physics
 
 	/// @brief
 	/// @param flags
-	void DebugDrawerBox2d::SetFlags(uint32_t flags)
+	void Box2dDebugDrawer::SetFlags(uint32_t flags)
 	{
 		_flags = flags;
 
@@ -75,17 +75,17 @@ namespace hod::inline physics
 
 	/// @brief
 	/// @return
-	uint32_t DebugDrawerBox2d::GetFlags() const
+	uint32_t Box2dDebugDrawer::GetFlags() const
 	{
 		return _flags;
 	}
 
 	/// @brief
-	void DebugDrawerBox2d::Update(World* world)
+	void Box2dDebugDrawer::Update(World* world)
 	{
 		_renderCommands.Clear();
 
-		b2World_Draw(static_cast<WorldBox2d*>(world)->GetWorldId(), &_debugDraw);
+		b2World_Draw(static_cast<Box2dWorld*>(world)->GetWorldId(), &_debugDraw);
 	}
 
 	/// @brief
@@ -93,9 +93,9 @@ namespace hod::inline physics
 	/// @param vertexCount
 	/// @param color
 	/// @param context
-	void DebugDrawerBox2d::DrawPolygon(const b2Vec2* vertices, int vertexCount, b2HexColor color, void* context)
+	void Box2dDebugDrawer::DrawPolygon(const b2Vec2* vertices, int vertexCount, b2HexColor color, void* context)
 	{
-		DebugDrawerBox2d* thiz = static_cast<DebugDrawerBox2d*>(context);
+		Box2dDebugDrawer* thiz = static_cast<Box2dDebugDrawer*>(context);
 
 		RenderCommand renderCommand;
 		renderCommand._type = RenderCommand::Type::WireframePolygon;
@@ -114,11 +114,11 @@ namespace hod::inline physics
 	/// @param radius
 	/// @param color
 	/// @param context
-	void DebugDrawerBox2d::DrawSolidPolygon(b2Transform transform, const b2Vec2* vertices, int vertexCount, float radius, b2HexColor color, void* context)
+	void Box2dDebugDrawer::DrawSolidPolygon(b2Transform transform, const b2Vec2* vertices, int vertexCount, float radius, b2HexColor color, void* context)
 	{
 		(void)radius; // TODO
 
-		DebugDrawerBox2d* thiz = static_cast<DebugDrawerBox2d*>(context);
+		Box2dDebugDrawer* thiz = static_cast<Box2dDebugDrawer*>(context);
 
 		RenderCommand renderCommand;
 		renderCommand._type = RenderCommand::Type::FillPolygon;
@@ -141,9 +141,9 @@ namespace hod::inline physics
 	/// @param radius
 	/// @param color
 	/// @param context
-	void DebugDrawerBox2d::DrawCircle(b2Vec2 center, float radius, b2HexColor color, void* context)
+	void Box2dDebugDrawer::DrawCircle(b2Vec2 center, float radius, b2HexColor color, void* context)
 	{
-		DebugDrawerBox2d* thiz = static_cast<DebugDrawerBox2d*>(context);
+		Box2dDebugDrawer* thiz = static_cast<Box2dDebugDrawer*>(context);
 
 		RenderCommand renderCommand;
 		renderCommand._type = RenderCommand::Type::WireframePolygon;
@@ -161,9 +161,9 @@ namespace hod::inline physics
 	/// @param radius
 	/// @param color
 	/// @param context
-	void DebugDrawerBox2d::DrawSolidCircle(b2Transform transform, float radius, b2HexColor color, void* context)
+	void Box2dDebugDrawer::DrawSolidCircle(b2Transform transform, float radius, b2HexColor color, void* context)
 	{
-		DebugDrawerBox2d* thiz = static_cast<DebugDrawerBox2d*>(context);
+		Box2dDebugDrawer* thiz = static_cast<Box2dDebugDrawer*>(context);
 
 		RenderCommand renderCommand;
 		renderCommand._type = RenderCommand::Type::FillPolygon;
@@ -181,7 +181,7 @@ namespace hod::inline physics
 	/// @param transform
 	/// @param radius
 	/// @param segmentCount
-	void DebugDrawerBox2d::BuildCircleVertices(Vector2* vertices, const b2Vec2& center, float radius, uint32_t segmentCount)
+	void Box2dDebugDrawer::BuildCircleVertices(Vector2* vertices, const b2Vec2& center, float radius, uint32_t segmentCount)
 	{
 		const float angleStep = 360.0f / segmentCount;
 
@@ -212,9 +212,9 @@ namespace hod::inline physics
 	/// @param radius
 	/// @param color
 	/// @param context
-	void DebugDrawerBox2d::DrawCapsule(b2Vec2 p1, b2Vec2 p2, float radius, b2HexColor color, void* context)
+	void Box2dDebugDrawer::DrawCapsule(b2Vec2 p1, b2Vec2 p2, float radius, b2HexColor color, void* context)
 	{
-		DebugDrawerBox2d* thiz = static_cast<DebugDrawerBox2d*>(context);
+		Box2dDebugDrawer* thiz = static_cast<Box2dDebugDrawer*>(context);
 
 		RenderCommand renderCommand;
 		renderCommand._type = RenderCommand::Type::FillPolygon;
@@ -242,9 +242,9 @@ namespace hod::inline physics
 	/// @param radius
 	/// @param color
 	/// @param context
-	void DebugDrawerBox2d::DrawSolidCapsule(b2Vec2 p1, b2Vec2 p2, float radius, b2HexColor color, void* context)
+	void Box2dDebugDrawer::DrawSolidCapsule(b2Vec2 p1, b2Vec2 p2, float radius, b2HexColor color, void* context)
 	{
-		DebugDrawerBox2d* thiz = static_cast<DebugDrawerBox2d*>(context);
+		Box2dDebugDrawer* thiz = static_cast<Box2dDebugDrawer*>(context);
 
 		RenderCommand renderCommand;
 		renderCommand._type = RenderCommand::Type::FillPolygon;
@@ -271,9 +271,9 @@ namespace hod::inline physics
 	/// @param p2
 	/// @param color
 	/// @param context
-	void DebugDrawerBox2d::DrawSegment(b2Vec2 p1, b2Vec2 p2, b2HexColor color, void* context)
+	void Box2dDebugDrawer::DrawSegment(b2Vec2 p1, b2Vec2 p2, b2HexColor color, void* context)
 	{
-		DebugDrawerBox2d* thiz = static_cast<DebugDrawerBox2d*>(context);
+		Box2dDebugDrawer* thiz = static_cast<Box2dDebugDrawer*>(context);
 
 		RenderCommand renderCommand;
 		renderCommand._type = RenderCommand::Type::Line;
@@ -288,7 +288,7 @@ namespace hod::inline physics
 	/// @brief
 	/// @param transform
 	/// @param context
-	void DebugDrawerBox2d::DrawTransform(b2Transform transform, void* context)
+	void Box2dDebugDrawer::DrawTransform(b2Transform transform, void* context)
 	{
 		// TODO
 		(void)transform;
@@ -300,9 +300,9 @@ namespace hod::inline physics
 	/// @param Size
 	/// @param color
 	/// @param context
-	void DebugDrawerBox2d::DrawPoint(b2Vec2 p, float Size, b2HexColor color, void* context)
+	void Box2dDebugDrawer::DrawPoint(b2Vec2 p, float Size, b2HexColor color, void* context)
 	{
-		DebugDrawerBox2d* thiz = static_cast<DebugDrawerBox2d*>(context);
+		Box2dDebugDrawer* thiz = static_cast<Box2dDebugDrawer*>(context);
 
 		RenderCommand renderCommand;
 		renderCommand._type = RenderCommand::Type::Point;
@@ -320,7 +320,7 @@ namespace hod::inline physics
 	/// @param p
 	/// @param s
 	/// @param context
-	void DebugDrawerBox2d::DrawString(b2Vec2 p, const char* s, b2HexColor color, void* context)
+	void Box2dDebugDrawer::DrawString(b2Vec2 p, const char* s, b2HexColor color, void* context)
 	{
 		// TODO
 		(void)p;

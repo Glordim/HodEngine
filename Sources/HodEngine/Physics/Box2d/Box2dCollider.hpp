@@ -12,11 +12,11 @@ namespace hod::inline physics
 	class Body;
 
 	/// @brief 
-	class HOD_PHYSICS_API ColliderBox2d : public Collider
+	class HOD_PHYSICS_API Box2dCollider : public Collider
 	{
 	public:
-				ColliderBox2d(Body* body, bool isTrigger);
-				~ColliderBox2d() override;
+				Box2dCollider(Body* body, bool isTrigger);
+				~Box2dCollider() override;
 
 	public:
 

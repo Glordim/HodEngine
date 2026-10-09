@@ -1,6 +1,6 @@
 #include "HodEngine/Physics/Pch.hpp"
-#include "HodEngine/Physics/Box2d/BodyBox2d.hpp"
-#include "HodEngine/Physics/Box2d/ColliderBox2d.hpp"
+#include "HodEngine/Physics/Box2d/Box2dBody.hpp"
+#include "HodEngine/Physics/Box2d/Box2dCollider.hpp"
 
 #include <box2d/box2d.h>
 
@@ -8,7 +8,7 @@ namespace hod::inline physics
 {
 	/// @brief
 	/// @param body
-	ColliderBox2d::ColliderBox2d(Body* body, bool isTrigger)
+	Box2dCollider::Box2dCollider(Body* body, bool isTrigger)
 	: Collider(body)
 	{
 		/*
@@ -24,19 +24,19 @@ namespace hod::inline physics
 		shapeDef.enableHitEvents = true;
 		// shapeDef.density = 1.0f;
 		// shapeDef.friction = 0.0f;
-		//_shape = b2CreateSegmentShape(static_cast<BodyBox2d*>(body)->GetB2Actor(), &shapeDef, &segment);
+		//_shape = b2CreateSegmentShape(static_cast<Box2dBody*>(body)->GetB2Actor(), &shapeDef, &segment);
 
 		b2Circle circle;
 		circle.center = {0.0f, 0.0f};
 		circle.radius = 0.5f;
 
-		_shape = b2CreateCircleShape(static_cast<BodyBox2d*>(body)->GetB2Actor(), &shapeDef, &circle);
+		_shape = b2CreateCircleShape(static_cast<Box2dBody*>(body)->GetB2Actor(), &shapeDef, &circle);
 
 		b2Shape_SetUserData(_shape, this);
 	}
 
 	/// @brief
-	ColliderBox2d::~ColliderBox2d()
+	Box2dCollider::~Box2dCollider()
 	{
 		b2BodyId body = b2Shape_GetBody(_shape);
 		if (b2Body_IsValid(body))
@@ -48,7 +48,7 @@ namespace hod::inline physics
 	/// @brief
 	/// @param startPosition
 	/// @param endPosition
-	void ColliderBox2d::SetAsEdge(const Vector2& startPosition, const Vector2& endPosition)
+	void Box2dCollider::SetAsEdge(const Vector2& startPosition, const Vector2& endPosition)
 	{
 		b2Segment segment;
 		segment.point1 = {startPosition.GetX(), startPosition.GetY()};
@@ -60,7 +60,7 @@ namespace hod::inline physics
 	/// @brief
 	/// @param position
 	/// @param radius
-	void ColliderBox2d::SetAsCircleShape(const Vector2& position, float radius)
+	void Box2dCollider::SetAsCircleShape(const Vector2& position, float radius)
 	{
 		b2Circle circle;
 		circle.center = {position.GetX(), position.GetY()};
@@ -74,7 +74,7 @@ namespace hod::inline physics
 	/// @param Size
 	/// @param angle
 	/// @param density
-	void ColliderBox2d::SetAsBoxShape(const Vector2& position, const Vector2& Size, float angle)
+	void Box2dCollider::SetAsBoxShape(const Vector2& position, const Vector2& Size, float angle)
 	{
 		b2Polygon polygon = b2MakeOffsetBox(Size.GetX() * 0.5f, Size.GetY() * 0.5f, {position.GetX(), position.GetY()}, b2MakeRot(angle));
 		b2Shape_SetPolygon(_shape, &polygon);
@@ -85,7 +85,7 @@ namespace hod::inline physics
 	/// @param Size
 	/// @param angle
 	/// @param density
-	void ColliderBox2d::SetAsCapsuleShape(const Vector2& position, float height, float radius, float angle)
+	void Box2dCollider::SetAsCapsuleShape(const Vector2& position, float height, float radius, float angle)
 	{
 		b2Capsule capsule;
 		capsule.center1 = {position.GetX(), position.GetY() + (height * 0.5f) - radius};
@@ -98,7 +98,7 @@ namespace hod::inline physics
 
 	/// @brief
 	/// @param vertices
-	void ColliderBox2d::SetAsConvexShape(const Vector<Vector2>& vertices)
+	void Box2dCollider::SetAsConvexShape(const Vector<Vector2>& vertices)
 	{
 		/*
 		b2Polygon polygon = b2MakeBox(Size.GetX(), Size.GetY());
@@ -112,12 +112,12 @@ namespace hod::inline physics
 
 	/// @brief
 	/// @param bounciness
-	void ColliderBox2d::SetBounciness(float bounciness)
+	void Box2dCollider::SetBounciness(float bounciness)
 	{
 		b2Shape_SetRestitution(_shape, bounciness);
 	}
 
-	b2ShapeId ColliderBox2d::GetShapeId() const
+	b2ShapeId Box2dCollider::GetShapeId() const
 	{
 		return _shape;
 	}

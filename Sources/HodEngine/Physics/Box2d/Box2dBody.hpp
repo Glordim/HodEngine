@@ -9,14 +9,14 @@
 
 namespace hod::inline physics
 {
-	class ColliderBox2d;
+	class Box2dCollider;
 
 	/// @brief 
-	class HOD_PHYSICS_API BodyBox2d : public Body
+	class HOD_PHYSICS_API Box2dBody : public Body
 	{
 	public:
-							BodyBox2d(b2BodyId b2BodyId);
-							~BodyBox2d() override = default;
+							Box2dBody(b2BodyId b2BodyId);
+							~Box2dBody() override = default;
 
 	public:
 
@@ -48,7 +48,7 @@ namespace hod::inline physics
 		void				AddImpulse(const Vector2& impulse) override;
 
 		b2BodyId			GetB2Actor() const;
-		ColliderBox2d*		FindColliderByB2ShapeId(b2ShapeId shapeId) const;
+		Box2dCollider*		FindColliderByB2ShapeId(b2ShapeId shapeId) const;
 
 	private:
 
