@@ -49,7 +49,7 @@ namespace hod::inline rhi
 		void OutputErrors();
 
 	protected:
-		bool InitDevice(Window* mainWindow, uint32_t physicalDeviceIdentifier) override;
+		bool InitDevice(uint32_t physicalDeviceIdentifier) override;
 
 	private:
 		Vector<D3d12GpuDevice> _availableGpu;

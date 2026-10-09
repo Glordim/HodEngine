@@ -315,7 +315,7 @@ namespace hod::inline rhi
 
 	/// @brief
 	/// @return
-	bool RhiDeviceVulkan::InitDevice(Window* mainWindow, uint32_t physicalDeviceIdentifier)
+	bool RhiDeviceVulkan::InitDevice(uint32_t physicalDeviceIdentifier)
 	{
 		_framebuffersToDestroy.Resize(GetFrameInFlightCount());
 		_renderPassesToDestroy.Resize(GetFrameInFlightCount());
@@ -359,8 +359,6 @@ namespace hod::inline rhi
 		{
 			return false;
 		}
-
-		_mainPresentationSurface = CreatePresentationSurface(mainWindow);
 
 		// TODO
 		{

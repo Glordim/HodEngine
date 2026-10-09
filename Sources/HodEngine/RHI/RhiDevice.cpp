@@ -14,13 +14,12 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	RhiDevice::~RhiDevice() {}
 
-	/// @brief
-	/// @param mainWindow
+	/// @brief The device does not need a window: presentation surfaces are created afterwards with CreatePresentationSurface
 	/// @param physicalDeviceIdentifier
 	/// @return
-	bool RhiDevice::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
+	bool RhiDevice::Init(uint32_t physicalDeviceIdentifier)
 	{
-		if (InitDevice(mainWindow, physicalDeviceIdentifier) == false)
+		if (InitDevice(physicalDeviceIdentifier) == false)
 		{
 			return false;
 		}
@@ -48,7 +47,6 @@ namespace hod::inline rhi
 			DefaultAllocator::GetInstance().Delete(presentationSurface);
 		}
 		_presentationSurfaces.Clear();
-		_mainPresentationSurface = nullptr;
 	}
 
 	/// @brief
@@ -67,10 +65,6 @@ namespace hod::inline rhi
 				WaitIdle();
 				PresentationSurface* presentationSurface = *it;
 				_presentationSurfaces.Erase(it);
-				if (_mainPresentationSurface == presentationSurface)
-				{
-					_mainPresentationSurface = nullptr;
-				}
 				DefaultAllocator::GetInstance().Delete(presentationSurface);
 				return;
 			}
@@ -87,11 +81,6 @@ namespace hod::inline rhi
 			}
 		}
 		return nullptr;
-	}
-
-	PresentationSurface* RhiDevice::GetMainPresentationSurface() const
-	{
-		return _mainPresentationSurface;
 	}
 
 	/// @brief Releases what was deferred the last time this frame slot was used; the caller must have waited for that frame's GPU work to complete.

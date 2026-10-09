@@ -5,15 +5,11 @@
 
 #include <HodEngine/Core/Singleton.hpp>
 
-namespace hod::inline window
-{
-	class Window;
-}
-
 namespace hod::inline rhi
 {
 	class Material;
 	class MaterialInstance;
+	class PresentationSurface;
 	class Shader;
 }
 
@@ -42,7 +38,7 @@ namespace hod::inline renderer
 	public:
 		~Renderer();
 
-		bool Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier = 0);
+		bool Init(uint32_t physicalDeviceIdentifier = 0);
 		void Clear();
 
 		FrameResources& GetCurrentFrameResources();
@@ -54,6 +50,11 @@ namespace hod::inline renderer
 		void Render();
 
 		bool AcquireNextFrame();
+
+		// Surface acquired at the very start of each frame, which paces the frame on its vsync. None by default.
+		// Must be reset before that surface is destroyed.
+		void                 SetMainPresentationSurface(PresentationSurface* presentationSurface);
+		PresentationSurface* GetMainPresentationSurface() const;
 
 		// Debug
 	public:
@@ -91,5 +92,7 @@ namespace hod::inline renderer
 		VisualizationMode _visualizationMode = VisualizationMode::Normal;
 
 		Vector<FrameResources> _frameResources;
+
+		PresentationSurface* _mainPresentationSurface = nullptr;
 	};
 }

@@ -162,6 +162,7 @@ namespace hod::inline renderer
 			if (_renderTarget != nullptr)
 			{
 				//_renderTarget->PrepareForRead(commandBuffer);
+				_renderTarget->GetColorTexture()->CaptureReadback(commandBuffer); // no-op unless the target was built readable
 			}
 			commandBuffer->EndRecord();
 		}

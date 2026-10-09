@@ -110,10 +110,17 @@ namespace hod::inline application
 	bool GraphicApplication::InitRenderer()
 	{
 		Renderer::CreateInstance();
-		if (Renderer::GetInstance()->Init(_window) == false)
+		if (Renderer::GetInstance()->Init() == false)
 		{
 			return false;
 		}
+
+		PresentationSurface* presentationSurface = RhiDevice::GetInstance()->CreatePresentationSurface(_window);
+		if (presentationSurface == nullptr)
+		{
+			return false;
+		}
+		Renderer::GetInstance()->SetMainPresentationSurface(presentationSurface);
 		return true;
 	}
 

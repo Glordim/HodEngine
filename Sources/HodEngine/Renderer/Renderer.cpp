@@ -51,12 +51,11 @@ namespace hod::inline renderer
 	}
 
 	/// @brief
-	/// @param mainWindow
 	/// @param physicalDeviceIdentifier
 	/// @return
-	bool Renderer::Init(window::Window* mainWindow, uint32_t physicalDeviceIdentifier)
+	bool Renderer::Init(uint32_t physicalDeviceIdentifier)
 	{
-		return RhiDevice::GetInstance()->Init(mainWindow, physicalDeviceIdentifier);
+		return RhiDevice::GetInstance()->Init(physicalDeviceIdentifier);
 	}
 
 	/// @brief
@@ -89,6 +88,7 @@ namespace hod::inline renderer
 			frameResources.DestroyAll();
 		}
 
+		_mainPresentationSurface = nullptr; // released with the others by the device
 		RhiDevice::GetInstance()->Clear();
 	}
 
@@ -300,15 +300,23 @@ namespace hod::inline renderer
 		frameResources.Wait();
 		frameResources.DestroyAll();
 
-		RhiDevice* rhiDevice = RhiDevice::GetInstance();
-		rhiDevice->BeginFrame();
+		RhiDevice::GetInstance()->BeginFrame();
 
-		PresentationSurface* mainPresentationSurface = rhiDevice->GetMainPresentationSurface();
-		if (mainPresentationSurface != nullptr)
+		if (_mainPresentationSurface != nullptr)
 		{
-			frameResources.AcquireSurface(mainPresentationSurface);
+			frameResources.AcquireSurface(_mainPresentationSurface);
 		}
 
 		return true;
+	}
+
+	void Renderer::SetMainPresentationSurface(PresentationSurface* presentationSurface)
+	{
+		_mainPresentationSurface = presentationSurface;
+	}
+
+	PresentationSurface* Renderer::GetMainPresentationSurface() const
+	{
+		return _mainPresentationSurface;
 	}
 }

@@ -17,7 +17,7 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool RhiDeviceDirectX12::InitDevice(Window* /*mainWindow*/, uint32_t /*physicalDeviceIdentifier*/)
+	bool RhiDeviceDirectX12::InitDevice(uint32_t /*physicalDeviceIdentifier*/)
 	{
 		bool enableValidationLayers = true;
 		if (enableValidationLayers == true)

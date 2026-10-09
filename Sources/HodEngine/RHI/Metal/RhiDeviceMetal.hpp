@@ -63,7 +63,7 @@ namespace hod::inline rhi
 		void RemoveResourceFromResidencySet(const MTL::Allocation* allocation);
 
 	protected:
-		bool InitDevice(Window* mainWindow, uint32_t physicalDeviceIdentifier) override;
+		bool InitDevice(uint32_t physicalDeviceIdentifier) override;
 		void FlushDeferredDeletions(uint32_t frameIndex) override;
 
 	private:

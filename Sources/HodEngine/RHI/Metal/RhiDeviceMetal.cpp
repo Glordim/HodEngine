@@ -88,7 +88,7 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool RhiDeviceMetal::InitDevice(Window* mainWindow, uint32_t physicalDeviceIdentifier)
+	bool RhiDeviceMetal::InitDevice(uint32_t physicalDeviceIdentifier)
 	{
 		(void)physicalDeviceIdentifier; // TODO
 
@@ -118,8 +118,6 @@ namespace hod::inline rhi
 			return false;
 		}
 		_commandQueue->addResidencySet(_residencySet);
-
-		_mainPresentationSurface = CreatePresentationSurface(mainWindow);
 
 		return true;
 	}
