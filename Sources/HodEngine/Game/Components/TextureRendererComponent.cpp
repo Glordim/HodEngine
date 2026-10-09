@@ -10,7 +10,7 @@
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/RHI/Material.hpp>
+#include <HodEngine/RHI/GraphicsPipeline.hpp>
 #include <HodEngine/RHI/MaterialInstance.hpp>
 #include <HodEngine/Renderer/Sprite.hpp>
 #include <HodEngine/Renderer/SpriteAtlas.hpp>
@@ -125,7 +125,7 @@ namespace hod::inline game
 
 				if (_materialInstance == nullptr)
 				{
-					const Material* material =
+					const GraphicsPipeline* material =
 						MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
 					_builtinMaterialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(material);
 					_materialInstance = _builtinMaterialInstance;

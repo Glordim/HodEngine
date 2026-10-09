@@ -8,7 +8,7 @@
 #include "HodEngine/RHI/Metal/MetalPresentationSurface.hpp"
 #include "HodEngine/RHI/Metal/MetalFence.hpp"
 #include "HodEngine/RHI/RenderTarget.hpp"
-#include "HodEngine/RHI/Metal/MetalMaterial.hpp"
+#include "HodEngine/RHI/Metal/GraphicsPipelineMetal.hpp"
 #include "HodEngine/RHI/Metal/MetalMaterialInstance.hpp"
 #include "HodEngine/RHI/Metal/MetalSemaphore.hpp"
 #include "HodEngine/RHI/Metal/MetalShader.hpp"
@@ -153,24 +153,24 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	Material* RhiDeviceMetal::CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
-											Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
+	GraphicsPipeline* RhiDeviceMetal::CreateGraphicsPipeline(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
+											GraphicsPipeline::PolygonMode polygonMode, GraphicsPipeline::Topololy topololy, bool useDepth)
 	{
-		MetalMaterial* material = DefaultAllocator::GetInstance().New<MetalMaterial>();
-		if (material->Build(vertexInputs, vertexInputCount, vertexShader, fragmentShader, polygonMode, topololy, useDepth) == false)
+		GraphicsPipelineMetal* graphicsPipeline = DefaultAllocator::GetInstance().New<GraphicsPipelineMetal>();
+		if (graphicsPipeline->Build(vertexInputs, vertexInputCount, vertexShader, fragmentShader, polygonMode, topololy, useDepth) == false)
 		{
-			DefaultAllocator::GetInstance().Delete(material);
+			DefaultAllocator::GetInstance().Delete(graphicsPipeline);
 			return nullptr;
 		}
-		return material;
+		return graphicsPipeline;
 	}
 
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	MaterialInstance* RhiDeviceMetal::CreateMaterialInstance(const Material* material)
+	MaterialInstance* RhiDeviceMetal::CreateMaterialInstance(const GraphicsPipeline* graphicsPipeline)
 	{
-		return DefaultAllocator::GetInstance().New<MetalMaterialInstance>(*material);
+		return DefaultAllocator::GetInstance().New<MetalMaterialInstance>(*graphicsPipeline);
 	}
 
 	/// @brief

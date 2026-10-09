@@ -61,7 +61,7 @@ namespace hod::inline renderer
 			OUTPUT_ERROR("MaterialInstanceResource::Initialize: MaterialResource is nullptr");
 			return false;
 		}
-		Material* material = materialResource->GetMaterial();
+		GraphicsPipeline* material = materialResource->GetMaterial();
 		if (material == nullptr)
 		{
 			OUTPUT_ERROR("MaterialInstanceResource::Initialize: Material is nullptr");

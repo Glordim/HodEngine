@@ -28,7 +28,7 @@
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include <HodEngine/Renderer/Resource/MaterialResource.hpp>
-#include <HodEngine/RHI/Material.hpp>
+#include <HodEngine/RHI/GraphicsPipeline.hpp>
 #include <HodEngine/RHI/MaterialInstance.hpp>
 
 #include <HodEngine/Core/Serialization/Serializer.hpp>
@@ -82,7 +82,7 @@ namespace hod::inline editor
 						EditorReflectedProperty    editorProperty(&scalarParameter._value.floatValue, nullptr, &reflectionPropertyVariable, nullptr);
 						if (PropertyDrawer::DrawProperty(editorProperty))
 						{
-							GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->EditDefaultInstance()->SetFloat("ubo." + scalarParameter._name,
+							GetOwner<MaterialEditorTab>()->GetMaterial()->EditDefaultInstance()->SetFloat("ubo." + scalarParameter._name,
 							                                                                                             scalarParameter._value.floatValue);
 							changed = true;
 						}
@@ -106,7 +106,7 @@ namespace hod::inline editor
 				EditorReflectedObject editorObject(&vec2Parameter._value, &Vector2::GetReflectionDescriptor(), nullptr, nullptr);
 				if (PropertyDrawer::DrawDescriptor(editorObject))
 				{
-					GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->EditDefaultInstance()->SetVec2("ubo." + vec2Parameter._name, vec2Parameter._value);
+					GetOwner<MaterialEditorTab>()->GetMaterial()->EditDefaultInstance()->SetVec2("ubo." + vec2Parameter._name, vec2Parameter._value);
 					changed = true;
 				}
 				ImGui::PopID();
@@ -120,7 +120,7 @@ namespace hod::inline editor
 				EditorReflectedObject editorObject(&vec4Parameter._value, &Vector4::GetReflectionDescriptor(), nullptr, nullptr);
 				if (PropertyDrawer::DrawDescriptor(editorObject))
 				{
-					GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->EditDefaultInstance()->SetVec4("ubo." + vec4Parameter._name, vec4Parameter._value);
+					GetOwner<MaterialEditorTab>()->GetMaterial()->EditDefaultInstance()->SetVec4("ubo." + vec4Parameter._name, vec4Parameter._value);
 					changed = true;
 				}
 				ImGui::PopID();
@@ -137,7 +137,7 @@ namespace hod::inline editor
 					std::shared_ptr<hod::TextureResource> textureResource = textureParameter._value.Lock();
 					if (textureResource != nullptr)
 					{
-						GetOwner<MaterialEditorTab>()->GetMaterial()->GetMaterial()->EditDefaultInstance()->SetTexture(textureParameter._name, textureResource->GetTexture());
+						GetOwner<MaterialEditorTab>()->GetMaterial()->EditDefaultInstance()->SetTexture(textureParameter._name, textureResource->GetTexture());
 					}
 					changed = true;
 				}

@@ -4,7 +4,7 @@
 #include "HodEngine/Core/Vector.hpp"
 
 #include "HodEngine/RHI/Buffer.hpp"
-#include "HodEngine/RHI/Material.hpp"
+#include "HodEngine/RHI/GraphicsPipeline.hpp"
 #include "HodEngine/RHI/Shader.hpp"
 
 #include <HodEngine/Core/Singleton.hpp>
@@ -21,7 +21,7 @@ namespace hod::inline rhi
 	struct GpuDevice;
 	class Buffer;
 	class CommandBuffer;
-	class Material;
+	class GraphicsPipeline;
 	class MaterialInstance;
 	class Texture;
 	class PresentationSurface;
@@ -55,10 +55,10 @@ namespace hod::inline rhi
 		virtual Fence*         CreateFence() = 0;
 
 		virtual Shader*           CreateShader(Shader::ShaderType type) = 0;
-		virtual Material*         CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
-		                                         Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE,
+		virtual GraphicsPipeline*         CreateGraphicsPipeline(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
+		                                         GraphicsPipeline::PolygonMode polygonMode = GraphicsPipeline::PolygonMode::Fill, GraphicsPipeline::Topololy topololy = GraphicsPipeline::Topololy::TRIANGLE,
 		                                         bool useDepth = true) = 0;
-		virtual MaterialInstance* CreateMaterialInstance(const Material* material) = 0;
+		virtual MaterialInstance* CreateMaterialInstance(const GraphicsPipeline* graphicsPipeline) = 0;
 		virtual Texture*          CreateTexture() = 0;
 		virtual RenderTarget*     CreateRenderTarget() = 0;
 

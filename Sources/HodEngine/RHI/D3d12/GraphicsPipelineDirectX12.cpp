@@ -1,5 +1,5 @@
 #include "HodEngine/RHI/Pch.hpp"
-#include "HodEngine/RHI/D3d12/D3d12Material.hpp"
+#include "HodEngine/RHI/D3d12/GraphicsPipelineDirectX12.hpp"
 #include "HodEngine/RHI/D3d12/D3d12Shader.hpp"
 #include "HodEngine/RHI/D3d12/RhiDeviceDirectX12.hpp"
 #include "HodEngine/RHI/VertexInput.hpp"
@@ -14,13 +14,13 @@ namespace hod::inline rhi
 {
 	/// @brief
 	/// @param type
-	D3d12Material::D3d12Material()
-	: Material()
+	GraphicsPipelineDirectX12::GraphicsPipelineDirectX12()
+	: GraphicsPipeline()
 	{
 	}
 
 	/// @brief
-	D3d12Material::~D3d12Material() {}
+	GraphicsPipelineDirectX12::~GraphicsPipelineDirectX12() {}
 
 	DXGI_FORMAT FormatToD3d12Format[VertexInput::Format::Count] = {
 		DXGI_FORMAT_R32_FLOAT,
@@ -79,7 +79,7 @@ namespace hod::inline rhi
 		}
 	}
 
-	bool D3d12Material::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode /*polygonMode*/,
+	bool GraphicsPipelineDirectX12::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode /*polygonMode*/,
 	                          Topololy topololy, bool /*useDepth*/)
 	{
 		ComPtr<ID3D12Device5> device = RhiDeviceDirectX12::GetInstance()->GetDevice();

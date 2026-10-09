@@ -4,8 +4,13 @@
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
 #include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 
-#include "HodEngine/RHI/Material.hpp"
+#include "HodEngine/RHI/GraphicsPipeline.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
+
+namespace hod::inline rhi
+{
+	class MaterialInstance;
+}
 
 namespace hod::inline renderer
 {
@@ -29,17 +34,21 @@ namespace hod::inline renderer
 
 		bool				Initialize(const ResourceContainer& resourceContainer) override;
 
-		Material*			GetMaterial() const;
+		GraphicsPipeline*			GetMaterial() const;
+
+		const MaterialInstance*	GetDefaultInstance() const;
+		MaterialInstance*		EditDefaultInstance();
 
 	private:
 
-		Material*			_material = nullptr;
+		GraphicsPipeline*			_material = nullptr;
+		MaterialInstance*	_defaultInstance = nullptr;
 
 		Shader*				_vertexShader = nullptr;
 		Shader*				_fragmentShader = nullptr;
 
-		Material::PolygonMode	_polygonMode = Material::PolygonMode::Fill;
-		Material::Topololy		_topololy = Material::Topololy::TRIANGLE;
+		GraphicsPipeline::PolygonMode	_polygonMode = GraphicsPipeline::PolygonMode::Fill;
+		GraphicsPipeline::Topololy		_topololy = GraphicsPipeline::Topololy::TRIANGLE;
 
 		Document									_defaultInstanceParams;
 		Vector<WeakResource<TextureResource>>	_textureResources;

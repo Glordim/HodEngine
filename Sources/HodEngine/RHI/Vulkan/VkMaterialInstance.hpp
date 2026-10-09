@@ -8,14 +8,14 @@
 
 namespace hod::inline rhi
 {
-	class VkMaterial;
+	class GraphicsPipelineVulkan;
 
 	/// @brief 
 	class HOD_RHI_API VkMaterialInstance : public MaterialInstance
 	{
 	public:
 
-										VkMaterialInstance(const Material& material);
+										VkMaterialInstance(const GraphicsPipeline& graphicsPipeline);
 										~VkMaterialInstance() override;
 
 		Vector<VkDescriptorSet>	GetDescriptorSets(uint32_t setOffset, uint32_t setCount);

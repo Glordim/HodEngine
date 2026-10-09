@@ -5,7 +5,7 @@
 #include "HodEngine/RHI/Vulkan/CommandBufferVk.hpp"
 #include "HodEngine/RHI/Vulkan/FenceVk.hpp"
 #include "HodEngine/RHI/Vulkan/SemaphoreVk.hpp"
-#include "HodEngine/RHI/Vulkan/VkMaterial.hpp"
+#include "HodEngine/RHI/Vulkan/GraphicsPipelineVulkan.hpp"
 #include "HodEngine/RHI/Vulkan/VkMaterialInstance.hpp"
 #include "HodEngine/RHI/Vulkan/VkPresentationSurface.hpp"
 #include "HodEngine/RHI/Vulkan/VkRenderTarget.hpp"
@@ -174,7 +174,7 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	Material* RhiDeviceVulkan::GetSharedMinimalMaterial() const
+	GraphicsPipeline* RhiDeviceVulkan::GetSharedMinimalMaterial() const
 	{
 	    return _sharedMinimalMaterial;
 	}
@@ -427,18 +427,18 @@ namespace hod::inline rhi
 		//
 
 		/*
-		_unlitVertexColorMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill,
-		Material::Topololy::TRIANGLE)); if (_unlitVertexColorMaterial == nullptr)
+		_unlitVertexColorMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", GraphicsPipeline::PolygonMode::Fill,
+		GraphicsPipeline::Topololy::TRIANGLE)); if (_unlitVertexColorMaterial == nullptr)
 		{
 		    return false;
 		}
-		_unlitVertexColorLineMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Line,
-		Material::Topololy::LINE)); if (_unlitVertexColorLineMaterial == nullptr)
+		_unlitVertexColorLineMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", GraphicsPipeline::PolygonMode::Line,
+		GraphicsPipeline::Topololy::LINE)); if (_unlitVertexColorLineMaterial == nullptr)
 		{
 		    return false;
 		}
-		_sharedMinimalMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", Material::PolygonMode::Fill,
-		Material::Topololy::TRIANGLE, false)); if (_sharedMinimalMaterial == nullptr)
+		_sharedMinimalMaterial = MaterialManager::GetInstance()->GetData(MaterialManager::GetInstance()->CreateMaterial("SpriteUnlitColor", GraphicsPipeline::PolygonMode::Fill,
+		GraphicsPipeline::Topololy::TRIANGLE, false)); if (_sharedMinimalMaterial == nullptr)
 		{
 		    return false;
 		}
@@ -1346,10 +1346,10 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	Material* RhiDeviceVulkan::CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
-	                                         Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
+	GraphicsPipeline* RhiDeviceVulkan::CreateGraphicsPipeline(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
+	                                         GraphicsPipeline::PolygonMode polygonMode, GraphicsPipeline::Topololy topololy, bool useDepth)
 	{
-		VkMaterial* mat = DefaultAllocator::GetInstance().New<VkMaterial>();
+		GraphicsPipelineVulkan* mat = DefaultAllocator::GetInstance().New<GraphicsPipelineVulkan>();
 
 		if (mat->Build(vertexInputs, vertexInputCount, vertexShader, fragmentShader, polygonMode, topololy, useDepth) == false)
 		{
@@ -1363,15 +1363,15 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	MaterialInstance* RhiDeviceVulkan::CreateMaterialInstance(const Material* material)
+	MaterialInstance* RhiDeviceVulkan::CreateMaterialInstance(const GraphicsPipeline* graphicsPipeline)
 	{
-		if (material == nullptr)
+		if (graphicsPipeline == nullptr)
 		{
 			// todo message, why not use ref ?
 			return nullptr;
 		}
 
-		return DefaultAllocator::GetInstance().New<VkMaterialInstance>(*material);
+		return DefaultAllocator::GetInstance().New<VkMaterialInstance>(*graphicsPipeline);
 	}
 
 	//-----------------------------------------------------------------------------

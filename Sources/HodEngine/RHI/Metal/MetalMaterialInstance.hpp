@@ -18,7 +18,7 @@ namespace hod::inline rhi
 	{
 	public:
 
-										MetalMaterialInstance(const Material& material);
+										MetalMaterialInstance(const GraphicsPipeline& graphicsPipeline);
 										~MetalMaterialInstance() override;
 		
 		void                            FillCommandEncoder(MTL4::RenderCommandEncoder* renderCommandEncoder, MTL4::ArgumentTable* fragmentArgumentTable) const;

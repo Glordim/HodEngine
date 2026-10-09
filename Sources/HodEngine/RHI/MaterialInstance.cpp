@@ -1,6 +1,6 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/RhiDevice.hpp"
-#include "HodEngine/RHI/Material.hpp"
+#include "HodEngine/RHI/GraphicsPipeline.hpp"
 #include "HodEngine/RHI/MaterialInstance.hpp"
 #include "HodEngine/RHI/Shader.hpp"
 #include "HodEngine/RHI/ShaderSetDescriptor.hpp"
@@ -13,8 +13,8 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	MaterialInstance::MaterialInstance(const Material& material)
-	: _material(material)
+	MaterialInstance::MaterialInstance(const GraphicsPipeline& graphicsPipeline)
+	: _graphicsPipeline(graphicsPipeline)
 	{
 	}
 
@@ -26,9 +26,9 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	const Material& MaterialInstance::GetMaterial() const
+	const GraphicsPipeline& MaterialInstance::GetGraphicsPipeline() const
 	{
-		return _material;
+		return _graphicsPipeline;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -147,12 +147,12 @@ namespace hod::inline rhi
 	/// @param setCount
 	void MaterialInstance::ReportUnsetTextures(uint32_t setOffset, uint32_t setCount) const
 	{
-		if (_material.HasReportedUnsetTexture())
+		if (_graphicsPipeline.HasReportedUnsetTexture())
 		{
 			return;
 		}
 
-		for (const auto& pair : _material.GetSetDescriptors())
+		for (const auto& pair : _graphicsPipeline.GetSetDescriptors())
 		{
 			if (pair.first < setOffset || pair.first - setOffset >= setCount)
 			{
@@ -163,7 +163,7 @@ namespace hod::inline rhi
 			{
 				if (texture._type != ShaderSetDescriptor::BlockTexture::Sampler && _textureMap.find(texture._name) == _textureMap.end())
 				{
-					_material.ReportUnsetTexture(texture._name);
+					_graphicsPipeline.ReportUnsetTexture(texture._name);
 					return;
 				}
 			}

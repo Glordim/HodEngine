@@ -84,7 +84,7 @@ namespace hod::inline renderer
 		{
 			Color color = PickingManager::ConvertIdToColor(_pickingId);
 
-			materialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(&overrideMaterial->GetMaterial());
+			materialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(&overrideMaterial->GetGraphicsPipeline());
 			materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
 			commandBuffer->DeleteAfterRender(materialInstance);
 		}

@@ -44,7 +44,7 @@ namespace hod::inline imgui
 			return;
 		}
 
-		commandBuffer->SetMaterial(ImGuiManager::GetInstance()->GetMaterial());
+		commandBuffer->SetGraphicsPipeline(ImGuiManager::GetInstance()->GetMaterial());
 		commandBuffer->SetViewport(_viewport);
 
 		RhiDevice* rhiDevice = RhiDevice::GetInstance();

@@ -1,7 +1,7 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/Vulkan/ShaderConstantDescriptorVk.hpp"
 #include "HodEngine/RHI/Vulkan/ShaderSetDescriptorVk.hpp"
-#include "HodEngine/RHI/Vulkan/VkMaterial.hpp"
+#include "HodEngine/RHI/Vulkan/GraphicsPipelineVulkan.hpp"
 #include "HodEngine/RHI/Vulkan/VkShader.hpp"
 
 #include "HodEngine/RHI/Vulkan/RhiDeviceVulkan.hpp"
@@ -31,14 +31,14 @@ namespace hod::inline rhi
 	};
 
 	/// @brief
-	VkMaterial::VkMaterial()
-	: Material()
+	GraphicsPipelineVulkan::GraphicsPipelineVulkan()
+	: GraphicsPipeline()
 	{
 		_pipelineLayout = VK_NULL_HANDLE;
 	}
 
 	/// @brief
-	VkMaterial::~VkMaterial()
+	GraphicsPipelineVulkan::~GraphicsPipelineVulkan()
 	{
 		RhiDeviceVulkan* rhiDevice = (RhiDeviceVulkan*)RhiDevice::GetInstance();
 
@@ -62,10 +62,10 @@ namespace hod::inline rhi
 	/// @param topololy
 	/// @param useDepth
 	/// @return
-	bool VkMaterial::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode,
-	                       Material::Topololy topololy, bool useDepth)
+	bool GraphicsPipelineVulkan::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode,
+	                       GraphicsPipeline::Topololy topololy, bool useDepth)
 	{
-		if (VkMaterial::FillCreateInfo(_createInfo, vertexInputs, vertexInputCount, vertexShader, fragmentShader, polygonMode, topololy, useDepth) == false)
+		if (GraphicsPipelineVulkan::FillCreateInfo(_createInfo, vertexInputs, vertexInputCount, vertexShader, fragmentShader, polygonMode, topololy, useDepth) == false)
 		{
 			return false;
 		}
@@ -140,7 +140,7 @@ namespace hod::inline rhi
 		return CreatePipeline(rhiDevice->GetDummyRenderPass(), true);
 	}
 
-	bool VkMaterial::FillCreateInfo(CreateInfo& createInfo, const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
+	bool GraphicsPipelineVulkan::FillCreateInfo(CreateInfo& createInfo, const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
 	                                PolygonMode polygonMode, Topololy topololy, bool useDepth)
 	{
 		// Shader stages
@@ -402,7 +402,7 @@ namespace hod::inline rhi
 		return true;
 	}
 
-	VkPipeline VkMaterial::CreatePipeline(VkRenderPass renderPass, bool parent)
+	VkPipeline GraphicsPipelineVulkan::CreatePipeline(VkRenderPass renderPass, bool parent)
 	{
 		RhiDeviceVulkan* rhiDevice = (RhiDeviceVulkan*)RhiDevice::GetInstance();
 
@@ -452,7 +452,7 @@ namespace hod::inline rhi
 
 	/// @brief
 	/// @return
-	VkPipeline VkMaterial::GetGraphicsPipeline(VkRenderPass renderPass)
+	VkPipeline GraphicsPipelineVulkan::GetVkPipeline(VkRenderPass renderPass)
 	{
 		for (const auto& pair : _pipelines)
 		{
@@ -466,12 +466,12 @@ namespace hod::inline rhi
 
 	/// @brief
 	/// @return
-	VkPipelineLayout VkMaterial::GetPipelineLayout() const
+	VkPipelineLayout GraphicsPipelineVulkan::GetPipelineLayout() const
 	{
 		return _pipelineLayout;
 	}
 
-	uint32_t VkMaterial::GetPushConstantSize() const
+	uint32_t GraphicsPipelineVulkan::GetPushConstantSize() const
 	{
 		return _pushConstantSize;
 	}

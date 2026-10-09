@@ -26,6 +26,7 @@ namespace hod::inline renderer
 	/// @return
 	MaterialResource::~MaterialResource()
 	{
+		DefaultAllocator::GetInstance().Delete(_defaultInstance);
 		DefaultAllocator::GetInstance().Delete(_material);
 		DefaultAllocator::GetInstance().Delete(_vertexShader);
 		DefaultAllocator::GetInstance().Delete(_fragmentShader);
@@ -90,24 +91,37 @@ namespace hod::inline renderer
 		vertexInputs.PushBack(VertexInput(0, 0, VertexInput::Format::R32G32_SFloat));
 		vertexInputs.PushBack(VertexInput(1, 8, VertexInput::Format::R32G32_SFloat));
 
-		_material = RhiDevice::GetInstance()->CreateMaterial(vertexInputs.Data(), (uint32_t)vertexInputs.Size(), _vertexShader, _fragmentShader, _polygonMode, _topololy, false);
+		_material = RhiDevice::GetInstance()->CreateGraphicsPipeline(vertexInputs.Data(), (uint32_t)vertexInputs.Size(), _vertexShader, _fragmentShader, _polygonMode, _topololy, false);
 		if (_material == nullptr)
 		{
 			OUTPUT_ERROR("MaterialResource::Initialize: load material failed");
 			return false;
 		}
 
-		_material->CreateDefaultInstance();
-		MaterialSerializationHelper::ApplyParamsFromDocument(*const_cast<MaterialInstance*>(_material->GetDefaultInstance()), _defaultInstanceParams.GetRootNode(),
-		                                                     _textureResources);
+		_defaultInstance = RhiDevice::GetInstance()->CreateMaterialInstance(_material);
+		MaterialSerializationHelper::ApplyParamsFromDocument(*_defaultInstance, _defaultInstanceParams.GetRootNode(), _textureResources);
 
 		return true;
 	}
 
 	/// @brief
 	/// @return
-	Material* MaterialResource::GetMaterial() const
+	GraphicsPipeline* MaterialResource::GetMaterial() const
 	{
 		return _material;
+	}
+
+	/// @brief
+	/// @return
+	const MaterialInstance* MaterialResource::GetDefaultInstance() const
+	{
+		return _defaultInstance;
+	}
+
+	/// @brief
+	/// @return
+	MaterialInstance* MaterialResource::EditDefaultInstance()
+	{
+		return _defaultInstance;
 	}
 }

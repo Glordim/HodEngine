@@ -5,7 +5,7 @@
 
 namespace hod::inline rhi
 {
-	class Material;
+	class GraphicsPipeline;
 	class MaterialInstance;
 }
 
@@ -46,7 +46,7 @@ namespace hod::inline editor
 	{
 	public:
 
-								RenderCommandPhysicsDrawer(const physics::RenderCommand& renderCommand, const Material& material);
+								RenderCommandPhysicsDrawer(const physics::RenderCommand& renderCommand, const GraphicsPipeline& material);
 								RenderCommandPhysicsDrawer(const RenderCommandPhysicsDrawer&) = delete;
 								RenderCommandPhysicsDrawer(RenderCommandPhysicsDrawer&&) = delete;
 								~RenderCommandPhysicsDrawer() override = default;
@@ -60,7 +60,7 @@ namespace hod::inline editor
 
 	private:
 
-		const Material&	_material;
+		const GraphicsPipeline&	_material;
 		Vector4						_color;
 	};
 }

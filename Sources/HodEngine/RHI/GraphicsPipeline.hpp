@@ -14,13 +14,12 @@ namespace hod::inline rhi
 	class Shader;
 	class Texture;
 	class VertexInput;
-	class MaterialInstance;
 	class ShaderSetDescriptor;
 
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	class HOD_RHI_API Material
+	class HOD_RHI_API GraphicsPipeline
 	{
 	public:
 		enum PolygonMode
@@ -43,18 +42,14 @@ namespace hod::inline rhi
 
 		REFLECTED_ENUM(HOD_RHI_API, Topololy);
 
-		Material();
-		virtual ~Material();
+		GraphicsPipeline();
+		virtual ~GraphicsPipeline();
 
 		virtual bool Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
 							PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) = 0;
 
 		// bool					link(Shader* vertexShader, Shader* fragmentShader);
 		// void					use();
-
-		void                    CreateDefaultInstance();
-		const MaterialInstance* GetDefaultInstance() const;
-		MaterialInstance*       EditDefaultInstance();
 
 		const std::unordered_map<uint32_t, ShaderSetDescriptor*>& GetSetDescriptors() const;
 
@@ -65,9 +60,7 @@ namespace hod::inline rhi
 		std::unordered_map<uint32_t, ShaderSetDescriptor*> _setDescriptors;
 
 	private:
-		MaterialInstance* _defaultInstance = nullptr;
-
-		mutable bool _unsetTextureReported = false; // reported once per material, not once per draw
+		mutable bool _unsetTextureReported = false; // reported once per pipeline, not once per draw
 
 		// uint32_t				getLocationFromName(const String& name);
 	};

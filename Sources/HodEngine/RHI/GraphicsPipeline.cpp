@@ -1,7 +1,5 @@
 #include "HodEngine/RHI/Pch.hpp"
-#include "HodEngine/RHI/RhiDevice.hpp"
-#include "HodEngine/RHI/Material.hpp"
-#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/RHI/GraphicsPipeline.hpp"
 #include "HodEngine/RHI/Shader.hpp"
 #include "HodEngine/RHI/Texture.hpp"
 
@@ -9,39 +7,37 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
-#include <cassert>
-
 namespace hod::inline rhi
 {
-	DESCRIBE_REFLECTED_ENUM(Material::PolygonMode, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(GraphicsPipeline::PolygonMode, reflectionDescriptor)
 	{
 		// constexpr auto names = EnumTrait::GetEnumNames<Entity::InternalState, 0, 1>();
 
-		reflectionDescriptor.AddEnumValue(Material::PolygonMode::Fill, "Fill");
-		reflectionDescriptor.AddEnumValue(Material::PolygonMode::Line, "Line");
-		reflectionDescriptor.AddEnumValue(Material::PolygonMode::Point, "Point");
+		reflectionDescriptor.AddEnumValue(GraphicsPipeline::PolygonMode::Fill, "Fill");
+		reflectionDescriptor.AddEnumValue(GraphicsPipeline::PolygonMode::Line, "Line");
+		reflectionDescriptor.AddEnumValue(GraphicsPipeline::PolygonMode::Point, "Point");
 	}
 
-	DESCRIBE_REFLECTED_ENUM(Material::Topololy, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(GraphicsPipeline::Topololy, reflectionDescriptor)
 	{
 		// constexpr auto names = EnumTrait::GetEnumNames<Entity::InternalState, 0, 1>();
 
-		reflectionDescriptor.AddEnumValue(Material::Topololy::POINT, "Point");
-		reflectionDescriptor.AddEnumValue(Material::Topololy::LINE, "Line");
-		reflectionDescriptor.AddEnumValue(Material::Topololy::LINE_STRIP, "LineStrip");
-		reflectionDescriptor.AddEnumValue(Material::Topololy::TRIANGLE, "Triangle");
-		reflectionDescriptor.AddEnumValue(Material::Topololy::TRIANGLE_FAN, "TriangleFan");
+		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topololy::POINT, "Point");
+		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topololy::LINE, "Line");
+		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topololy::LINE_STRIP, "LineStrip");
+		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topololy::TRIANGLE, "Triangle");
+		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topololy::TRIANGLE_FAN, "TriangleFan");
 	}
 
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	Material::Material() {}
+	GraphicsPipeline::GraphicsPipeline() {}
 
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	Material::~Material()
+	GraphicsPipeline::~GraphicsPipeline()
 	{
 		/*
 
@@ -51,8 +47,6 @@ namespace hod::inline rhi
 		}
 
 		*/
-		DefaultAllocator::GetInstance().Delete(_defaultInstance);
-
 		for (const auto& pair : _setDescriptors)
 		{
 			DefaultAllocator::GetInstance().Delete(pair.second);
@@ -60,43 +54,22 @@ namespace hod::inline rhi
 	}
 
 	/// @brief
-	void Material::CreateDefaultInstance()
-	{
-		assert(_defaultInstance == nullptr);
-		_defaultInstance = RhiDevice::GetInstance()->CreateMaterialInstance(this);
-	}
-
-	/// @brief
 	/// @return
-	const MaterialInstance* Material::GetDefaultInstance() const
-	{
-		return _defaultInstance;
-	}
-
-	/// @brief
-	/// @return
-	MaterialInstance* Material::EditDefaultInstance()
-	{
-		return _defaultInstance;
-	}
-
-	/// @brief
-	/// @return
-	const std::unordered_map<uint32_t, ShaderSetDescriptor*>& Material::GetSetDescriptors() const
+	const std::unordered_map<uint32_t, ShaderSetDescriptor*>& GraphicsPipeline::GetSetDescriptors() const
 	{
 		return _setDescriptors;
 	}
 
 	/// @brief
 	/// @return
-	bool Material::HasReportedUnsetTexture() const
+	bool GraphicsPipeline::HasReportedUnsetTexture() const
 	{
 		return _unsetTextureReported;
 	}
 
 	/// @brief
 	/// @param name
-	void Material::ReportUnsetTexture(const String& name) const
+	void GraphicsPipeline::ReportUnsetTexture(const String& name) const
 	{
 		if (_unsetTextureReported == false)
 		{
@@ -109,7 +82,7 @@ namespace hod::inline rhi
 	//! @brief
 	//-----------------------------------------------------------------------------
 	/*
-	bool Material::link(Shader* vertexShader, Shader* fragmentShader)
+	bool GraphicsPipeline::link(Shader* vertexShader, Shader* fragmentShader)
 	{
 
 		programId = glCreateProgram();
@@ -146,7 +119,7 @@ namespace hod::inline rhi
 	//! @brief
 	//-----------------------------------------------------------------------------
 	/*
-	void Material::use()
+	void GraphicsPipeline::use()
 	{
 
 		glUseProgram(this->programId);
@@ -176,7 +149,7 @@ namespace hod::inline rhi
 	//! @brief
 	//-----------------------------------------------------------------------------
 	/*
-	uint32_t Material::getLocationFromName(const String& name)
+	uint32_t GraphicsPipeline::getLocationFromName(const String& name)
 	{
 
 		auto it = this->nameToLocationMap.find(name);

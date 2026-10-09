@@ -57,7 +57,7 @@ namespace hod::inline editor
 				MaterialInstance* materialInstance = _materialInstance->GetMaterialInstance();
 				if (materialInstance != nullptr)
 				{
-					const Material& material = materialInstance->GetMaterial();
+					const GraphicsPipeline& material = materialInstance->GetGraphicsPipeline();
 
 					MaterialSerializationHelper::GenerateParameters(material, _parameters);
 					for (const ShaderParameter& param : _parameters)

@@ -87,7 +87,7 @@ namespace hod::inline editor
 		std::shared_ptr<hod::MaterialResource> materialResource = GetOwner<MaterialEditorTab>()->GetMaterial();
 		if (materialResource != nullptr)
 		{
-			Material* material = materialResource->GetMaterial();
+			GraphicsPipeline* material = materialResource->GetMaterial();
 			if (material != nullptr)
 			{
 				uint32_t resolutionWidth = (uint32_t)ImGui::GetContentRegionAvail().x;
@@ -145,7 +145,7 @@ namespace hod::inline editor
 
 					RenderCommandMesh* renderMeshCommand =
 						DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.Data(), uvs.Data(), nullptr, (uint32_t)vertices.Size(), indices.Data(),
-					                                                                     (uint32_t)indices.Size(), Matrix4::Identity, material->GetDefaultInstance(), 0);
+					                                                                     (uint32_t)indices.Size(), Matrix4::Identity, materialResource->GetDefaultInstance(), 0);
 					renderView->PushRenderCommand(renderMeshCommand);
 
 					ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - resolutionWidth) * 0.5f);

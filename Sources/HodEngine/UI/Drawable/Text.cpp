@@ -115,7 +115,7 @@ namespace hod::inline ui
 			{
 				if (_materialInstance == nullptr)
 				{
-					const Material* material =
+					const GraphicsPipeline* material =
 						MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
 					_materialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(material);
 				}

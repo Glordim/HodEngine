@@ -6,7 +6,7 @@
 #include "HodEngine/Renderer/MaterialManager.hpp"
 #include "HodEngine/Renderer/PickingManager.hpp"
 #include "HodEngine/Renderer/RenderView.hpp"
-#include "HodEngine/RHI/Material.hpp"
+#include "HodEngine/RHI/GraphicsPipeline.hpp"
 #include "HodEngine/RHI/MaterialInstance.hpp"
 #include "HodEngine/RHI/PlatformRhiDevice.hpp"
 #include "HodEngine/RHI/PresentationSurface.hpp"
@@ -166,7 +166,7 @@ namespace hod::inline renderer
 					return nullptr;
 				}
 
-				_defaultMaterial = rhiDevice->CreateMaterial(vertexInput, 1, _defaultVertexShader, _defaultFragmentShader);
+				_defaultMaterial = rhiDevice->CreateGraphicsPipeline(vertexInput, 1, _defaultVertexShader, _defaultFragmentShader);
 				if (_defaultMaterial == nullptr)
 				{
 					DefaultAllocator::GetInstance().Delete(_defaultVertexShader);
@@ -212,7 +212,7 @@ namespace hod::inline renderer
 			{
 				// TODO
 				//_wireframeMaterial = MaterialManager::GetInstance()->GetData(
-				//	MaterialManager::GetInstance()->CreateMaterial("SpriteWireframe", Material::PolygonMode::Line, Material::Topololy::TRIANGLE));
+				//	MaterialManager::GetInstance()->CreateMaterial("SpriteWireframe", GraphicsPipeline::PolygonMode::Line, GraphicsPipeline::Topololy::TRIANGLE));
 			}
 
 			_wireframeMaterialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(_wireframeMaterial);

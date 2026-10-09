@@ -1,5 +1,5 @@
 #include "HodEngine/RHI/Pch.hpp"
-#include "HodEngine/RHI/D3d12/D3d12Material.hpp"
+#include "HodEngine/RHI/D3d12/GraphicsPipelineDirectX12.hpp"
 #include "HodEngine/RHI/D3d12/D3d12Shader.hpp"
 #include "HodEngine/RHI/D3d12/RhiDeviceDirectX12.hpp"
 
@@ -462,10 +462,10 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	Material* RhiDeviceDirectX12::CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
-	                                            Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
+	GraphicsPipeline* RhiDeviceDirectX12::CreateGraphicsPipeline(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
+	                                            GraphicsPipeline::PolygonMode polygonMode, GraphicsPipeline::Topololy topololy, bool useDepth)
 	{
-		D3d12Material* mat = DefaultAllocator::GetInstance().New<D3d12Material>();
+		GraphicsPipelineDirectX12* mat = DefaultAllocator::GetInstance().New<GraphicsPipelineDirectX12>();
 
 		if (mat->Build(vertexInputs, vertexInputCount, vertexShader, fragmentShader, polygonMode, topololy, useDepth) == false)
 		{
@@ -479,17 +479,17 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	MaterialInstance* RhiDeviceDirectX12::CreateMaterialInstance(const Material* /*material*/)
+	MaterialInstance* RhiDeviceDirectX12::CreateMaterialInstance(const GraphicsPipeline* /*graphicsPipeline*/)
 	{
 		return nullptr;
 		/*
-		if (material == nullptr)
+		if (graphicsPipeline == nullptr)
 		{
 		    // todo message, why not use ref ?
 		    return nullptr;
 		}
 
-		return DefaultAllocator::GetInstance().New<VkMaterialInstance>(*material);
+		return DefaultAllocator::GetInstance().New<VkMaterialInstance>(*graphicsPipeline);
 		*/
 	}
 

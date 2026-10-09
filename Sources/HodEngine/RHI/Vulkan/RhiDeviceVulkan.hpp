@@ -59,10 +59,10 @@ namespace hod::inline rhi
 		CommandBuffer*    CreateCommandBuffer() override;
 		Buffer*           CreateBuffer(Buffer::Usage usage, uint32_t size) override;
 		Shader*           CreateShader(Shader::ShaderType type) override;
-		Material*         CreateMaterial(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
-		                                 Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE,
+		GraphicsPipeline*         CreateGraphicsPipeline(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
+		                                 GraphicsPipeline::PolygonMode polygonMode = GraphicsPipeline::PolygonMode::Fill, GraphicsPipeline::Topololy topololy = GraphicsPipeline::Topololy::TRIANGLE,
 		                                 bool useDepth = true) override;
-		MaterialInstance* CreateMaterialInstance(const Material* material) override;
+		MaterialInstance* CreateMaterialInstance(const GraphicsPipeline* graphicsPipeline) override;
 		Texture*          CreateTexture() override;
 		RenderTarget*     CreateRenderTarget() override;
 		Semaphore*        CreateSemaphore() override;
@@ -85,7 +85,7 @@ namespace hod::inline rhi
 			return _vmaAllocator;
 		}
 
-		// Material* GetSharedMinimalMaterial() const;
+		// GraphicsPipeline* GetSharedMinimalMaterial() const;
 
 		bool CreateBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags memoryProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
 		bool CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image,

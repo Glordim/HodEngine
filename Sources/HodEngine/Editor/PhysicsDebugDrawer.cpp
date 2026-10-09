@@ -25,7 +25,7 @@ namespace hod::inline editor
 	{
 		MaterialManager* materialManager = MaterialManager::GetInstance();
 
-		const Material* material = materialManager->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_TriangleFan);
+		const GraphicsPipeline* material = materialManager->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_TriangleFan);
 		_solidPolygonMaterialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(material);
 
 		material = materialManager->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line_TriangleFan);
@@ -76,12 +76,12 @@ namespace hod::inline editor
 				materialInstance = PhysicsDebugDrawer::_solidPolygonMaterialInstance;
 			}
 
-			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandPhysicsDrawer>(renderCommand, materialInstance->GetMaterial()));
+			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandPhysicsDrawer>(renderCommand, materialInstance->GetGraphicsPipeline()));
 		}
 	}
 
 	/// @brief
-	RenderCommandPhysicsDrawer::RenderCommandPhysicsDrawer(const physics::RenderCommand& renderCommand, const Material& material)
+	RenderCommandPhysicsDrawer::RenderCommandPhysicsDrawer(const physics::RenderCommand& renderCommand, const GraphicsPipeline& material)
 	: RenderCommandMesh(renderCommand._vertices.Data(), nullptr, nullptr, (uint32_t)renderCommand._vertices.Size(), nullptr, 0, Matrix4::Identity, nullptr, true)
 	, _material(material)
 	, _color(renderCommand._color.r, renderCommand._color.g, renderCommand._color.b, renderCommand._color.a)

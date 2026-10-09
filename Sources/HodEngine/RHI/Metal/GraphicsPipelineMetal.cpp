@@ -1,6 +1,6 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
-#include "HodEngine/RHI/Metal/MetalMaterial.hpp"
+#include "HodEngine/RHI/Metal/GraphicsPipelineMetal.hpp"
 #include "HodEngine/RHI/Metal/MetalShader.hpp"
 #include "HodEngine/RHI/Metal/RhiDeviceMetal.hpp"
 #include "HodEngine/RHI/VertexInput.hpp"
@@ -27,8 +27,8 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	MetalMaterial::MetalMaterial()
-	: Material()
+	GraphicsPipelineMetal::GraphicsPipelineMetal()
+	: GraphicsPipeline()
 	, _vertexAttributeBufferRange(0, 0)
 	{
 	}
@@ -36,7 +36,7 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	MetalMaterial::~MetalMaterial()
+	GraphicsPipelineMetal::~GraphicsPipelineMetal()
 	{
 		_renderPipelineState->release();
 	}
@@ -44,8 +44,8 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool MetalMaterial::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode,
-								Material::Topololy topololy, bool useDepth)
+	bool GraphicsPipelineMetal::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode,
+								GraphicsPipeline::Topololy topololy, bool useDepth)
 	{
 		// TODDO
 		(void)topololy;
@@ -161,12 +161,12 @@ namespace hod::inline rhi
 		return true;
 	}
 
-	MTL::RenderPipelineState* MetalMaterial::GetNativeRenderPipeline() const
+	MTL::RenderPipelineState* GraphicsPipelineMetal::GetNativeRenderPipeline() const
 	{
 		return _renderPipelineState;
 	}
 
-	NS::Range MetalMaterial::GetVertexAttributeBufferRange() const
+	NS::Range GraphicsPipelineMetal::GetVertexAttributeBufferRange() const
 	{
 		return _vertexAttributeBufferRange;
 	}

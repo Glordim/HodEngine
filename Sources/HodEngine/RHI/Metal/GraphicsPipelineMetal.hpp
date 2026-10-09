@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/RHI/Export.hpp"
 
-#include "HodEngine/RHI/Material.hpp"
+#include "HodEngine/RHI/GraphicsPipeline.hpp"
 
 #include <Foundation/NSRange.hpp>
 
@@ -15,12 +15,12 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	class HOD_RHI_API MetalMaterial : public Material
+	class HOD_RHI_API GraphicsPipelineMetal : public GraphicsPipeline
 	{
 	public:
 
-								MetalMaterial();
-								~MetalMaterial() override;
+								GraphicsPipelineMetal();
+								~GraphicsPipelineMetal() override;
 
 		bool			        Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) override;
 		

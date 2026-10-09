@@ -1,23 +1,23 @@
 #pragma once
 #include "HodEngine/RHI/Export.hpp"
 
-#include "HodEngine/RHI/Material.hpp"
+#include "HodEngine/RHI/GraphicsPipeline.hpp"
 
 #include <vulkan/vulkan.h>
 
 namespace hod::inline rhi
 {
 	/// @brief
-	class HOD_RHI_API VkMaterial : public Material
+	class HOD_RHI_API GraphicsPipelineVulkan : public GraphicsPipeline
 	{
 	public:
-		VkMaterial();
-		virtual ~VkMaterial();
+		GraphicsPipelineVulkan();
+		virtual ~GraphicsPipelineVulkan();
 
 		virtual bool Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode = PolygonMode::Fill,
 		                   Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) override;
 
-		VkPipeline       GetGraphicsPipeline(VkRenderPass renderPass);
+		VkPipeline       GetVkPipeline(VkRenderPass renderPass);
 		VkPipelineLayout GetPipelineLayout() const;
 		uint32_t         GetPushConstantSize() const;
 
@@ -55,5 +55,5 @@ namespace hod::inline rhi
 		Vector<std::pair<VkRenderPass, VkPipeline>> _pipelines;
 	};
 
-	constexpr size_t toto = sizeof(VkMaterial);
+	constexpr size_t toto = sizeof(GraphicsPipelineVulkan);
 }

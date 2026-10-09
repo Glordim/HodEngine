@@ -1,5 +1,5 @@
 #include "HodEngine/RHI/Pch.hpp"
-#include "HodEngine/RHI/Metal/MetalMaterial.hpp"
+#include "HodEngine/RHI/Metal/GraphicsPipelineMetal.hpp"
 #include "HodEngine/RHI/Metal/MetalMaterialInstance.hpp"
 #include "HodEngine/RHI/Metal/MetalTexture.hpp"
 
@@ -8,12 +8,12 @@
 namespace hod::inline rhi
 {
 	/// @brief
-	/// @param material
-	MetalMaterialInstance::MetalMaterialInstance(const Material& material)
-	: MaterialInstance(material)
+	/// @param graphicsPipeline
+	MetalMaterialInstance::MetalMaterialInstance(const GraphicsPipeline& graphicsPipeline)
+	: MaterialInstance(graphicsPipeline)
 	{
 		/*
-		static_cast<MetalMaterial*>(material);
+		static_cast<GraphicsPipelineMetal*>(graphicsPipeline);
 		MTL::RenderPipelineState* pipelineState =
 			*/
 	}
@@ -86,13 +86,13 @@ namespace hod::inline rhi
 	/// @param fragmentArgumentTable
 	void MetalMaterialInstance::FillCommandEncoder(MTL4::RenderCommandEncoder* renderCommandEncoder, MTL4::ArgumentTable* fragmentArgumentTable) const
 	{
-		const MetalMaterial& material = static_cast<const MetalMaterial&>(GetMaterial());
-		renderCommandEncoder->setRenderPipelineState(material.GetNativeRenderPipeline());
+		const GraphicsPipelineMetal& graphicsPipeline = static_cast<const GraphicsPipelineMetal&>(GetGraphicsPipeline());
+		renderCommandEncoder->setRenderPipelineState(graphicsPipeline.GetNativeRenderPipeline());
 
 		const std::map<String, const Texture*>& textureMap = GetTextureMap();
 		for (const auto& texturePair : textureMap)
 		{
-			uint32_t index = 0; // material.GetTextureIndex(texturePair.first);
+			uint32_t index = 0; // graphicsPipeline.GetTextureIndex(texturePair.first);
 
 			const MetalTexture* texture = static_cast<const MetalTexture*>(texturePair.second);
 			fragmentArgumentTable->setTexture(texture->GetNativeTexture()->gpuResourceID(), index);

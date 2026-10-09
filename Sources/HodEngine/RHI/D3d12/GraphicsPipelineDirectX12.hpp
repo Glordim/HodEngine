@@ -1,17 +1,17 @@
 #pragma once
 #include "HodEngine/RHI/Export.hpp"
-#include "HodEngine/RHI/Material.hpp"
+#include "HodEngine/RHI/GraphicsPipeline.hpp"
 
 #include "d3d12.h"
 #include <wrl/client.h>
 
 namespace hod::inline rhi
 {
-	class HOD_RHI_API D3d12Material : public Material
+	class HOD_RHI_API GraphicsPipelineDirectX12 : public GraphicsPipeline
 	{
 	public:
-		D3d12Material();
-		~D3d12Material() override;
+		GraphicsPipelineDirectX12();
+		~GraphicsPipelineDirectX12() override;
 
 		bool Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode = PolygonMode::Fill,
 		           Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) override;

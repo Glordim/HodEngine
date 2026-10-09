@@ -7,7 +7,7 @@
 
 namespace hod::inline rhi
 {
-	class VkMaterial;
+	class GraphicsPipelineVulkan;
 	class VkMaterialInstance;
 
 	/// @brief
@@ -40,7 +40,7 @@ namespace hod::inline rhi
 		void SetViewport(const Rect& viewport) override;
 		void SetScissor(const Rect& scissor) override;
 
-		void SetMaterial(const Material* material) override;
+		void SetGraphicsPipeline(const GraphicsPipeline* graphicsPipeline) override;
 		void SetMaterialInstance(const MaterialInstance* materialInstance, uint32_t setOffset = 2, uint32_t setCount = UINT32_MAX) override;
 		void SetVertexBuffer(Buffer** vertexBuffer, uint32_t count, uint32_t offset = 0) override;
 		void SetIndexBuffer(Buffer* indexBuffer, uint32_t offset = 0) override;
@@ -54,7 +54,7 @@ namespace hod::inline rhi
 		void Release();
 
 	private:
-		const VkMaterial* _material = nullptr;
+		const GraphicsPipelineVulkan* _graphicsPipeline = nullptr;
 
 		VkCommandBuffer _vkCommandBuffer = VK_NULL_HANDLE;
 

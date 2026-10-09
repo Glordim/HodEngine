@@ -58,7 +58,7 @@ namespace hod::inline editor
 			_material = ResourceManager::GetInstance()->GetResource<MaterialResource>(asset->GetUid());
 			if (_material != nullptr)
 			{
-				Material* material = _material->GetMaterial();
+				GraphicsPipeline* material = _material->GetMaterial();
 				if (material != nullptr)
 				{
 					MaterialSerializationHelper::GenerateParameters(*material, _parameters);
@@ -152,7 +152,7 @@ namespace hod::inline editor
 					paramNode = paramNode->GetNextSibling();
 				}
 
-				MaterialInstance* defaultInstance = material->EditDefaultInstance();
+				MaterialInstance* defaultInstance = _material->EditDefaultInstance();
 				for (const ShaderParamScalar& param : _scalarParameters)
 				{
 					defaultInstance->SetFloat("ubo." + param._name, param._value.floatValue);

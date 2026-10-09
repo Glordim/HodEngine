@@ -15,7 +15,7 @@ namespace hod::inline core
 
 namespace hod::inline rhi
 {
-	class Material;
+	class GraphicsPipeline;
 	class MaterialInstance;
 }
 
@@ -44,7 +44,7 @@ namespace hod::inline renderer
 	class HOD_RENDERER_API MaterialSerializationHelper
 	{
 	public:
-		static void GenerateParameters(const Material& material, Vector<ShaderParameter>& params);
+		static void GenerateParameters(const GraphicsPipeline& material, Vector<ShaderParameter>& params);
 
 		static void ApplyParamsFromDocument(MaterialInstance& materialInstance, const DocumentNode& paramsNode, Vector<WeakResource<TextureResource>>& textureResources);
 		static void ApplyReflectedParams(MaterialInstance& materialInstance, const ReflectionDescriptor& reflectionDescriptor, void* instance, String path,

@@ -985,7 +985,7 @@ namespace hod::inline imgui
 
 	/// @brief
 	/// @return
-	Material* ImGuiManager::GetMaterial() const
+	GraphicsPipeline* ImGuiManager::GetMaterial() const
 	{
 		return _material;
 	}
@@ -1019,7 +1019,7 @@ namespace hod::inline imgui
 				return false;
 			}
 
-			_material = rhiDevice->CreateMaterial(vertexInput, 3, _vertexShader, _fragmentShader);
+			_material = rhiDevice->CreateGraphicsPipeline(vertexInput, 3, _vertexShader, _fragmentShader);
 			if (_material == nullptr)
 			{
 				DefaultAllocator::GetInstance().Delete(_material);

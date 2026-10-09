@@ -11,7 +11,7 @@
 namespace hod::inline rhi
 {
 	class Texture;
-	class Material;
+	class GraphicsPipeline;
 
 	//-----------------------------------------------------------------------------
 	//! @brief
@@ -19,7 +19,7 @@ namespace hod::inline rhi
 	class HOD_RHI_API MaterialInstance
 	{
 	public:
-		MaterialInstance(const Material& material);
+		MaterialInstance(const GraphicsPipeline& graphicsPipeline);
 		MaterialInstance(const MaterialInstance&) = delete;
 		MaterialInstance(MaterialInstance&&) = delete;
 		virtual ~MaterialInstance();
@@ -28,7 +28,7 @@ namespace hod::inline rhi
 		void operator=(MaterialInstance&&) = delete;
 
 	public:
-		const Material& GetMaterial() const;
+		const GraphicsPipeline& GetGraphicsPipeline() const;
 
 		void SetInt(const String& memberName, int value);
 		void SetFloat(const String& memberName, float value);
@@ -70,6 +70,6 @@ namespace hod::inline rhi
 		std::map<String, Matrix4>        _mat4Map;
 		std::map<String, const Texture*> _textureMap;
 
-		const Material& _material;
+		const GraphicsPipeline& _graphicsPipeline;
 	};
 }

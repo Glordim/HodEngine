@@ -1,6 +1,6 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/Vulkan/ShaderSetDescriptorVk.hpp"
-#include "HodEngine/RHI/Vulkan/VkMaterial.hpp"
+#include "HodEngine/RHI/Vulkan/GraphicsPipelineVulkan.hpp"
 #include "HodEngine/RHI/Vulkan/VkMaterialInstance.hpp"
 #include "HodEngine/RHI/Vulkan/VkShader.hpp"
 
@@ -9,12 +9,12 @@
 namespace hod::inline rhi
 {
 	/// @brief
-	/// @param material
-	VkMaterialInstance::VkMaterialInstance(const Material& material)
-	: MaterialInstance(material)
+	/// @param graphicsPipeline
+	VkMaterialInstance::VkMaterialInstance(const GraphicsPipeline& graphicsPipeline)
+	: MaterialInstance(graphicsPipeline)
 	{
-		const VkMaterial*                                         vkMaterial = static_cast<const VkMaterial*>(&material);
-		const std::unordered_map<uint32_t, ShaderSetDescriptor*>& descriptorSetLayoutMap = vkMaterial->GetSetDescriptors();
+		const GraphicsPipelineVulkan*                                         graphicsPipelineVulkan = static_cast<const GraphicsPipelineVulkan*>(&graphicsPipeline);
+		const std::unordered_map<uint32_t, ShaderSetDescriptor*>& descriptorSetLayoutMap = graphicsPipelineVulkan->GetSetDescriptors();
 
 		size_t descriptorSetLayoutCount = descriptorSetLayoutMap.size();
 

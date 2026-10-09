@@ -2,7 +2,7 @@
 #include "HodEngine/RHI/Metal/MetalBuffer.hpp"
 #include "HodEngine/RHI/Metal/MetalCommandBuffer.hpp"
 
-#include "HodEngine/RHI/Metal/MetalMaterial.hpp"
+#include "HodEngine/RHI/Metal/GraphicsPipelineMetal.hpp"
 #include "HodEngine/RHI/Metal/MetalMaterialInstance.hpp"
 #include "HodEngine/RHI/Metal/MetalPresentationSurface.hpp"
 #include "HodEngine/RHI/Metal/MetalTexture.hpp"
@@ -192,10 +192,10 @@ namespace hod::inline rhi
 		_renderCommandEncoder->setScissorRect(scissorRect);
 	}
 
-	void MetalCommandBuffer::SetMaterial(const Material* material)
+	void MetalCommandBuffer::SetGraphicsPipeline(const GraphicsPipeline* graphicsPipeline)
 	{
-		_material = static_cast<const MetalMaterial*>(material);
-		_renderCommandEncoder->setRenderPipelineState(_material->GetNativeRenderPipeline());
+		_graphicsPipeline = static_cast<const GraphicsPipelineMetal*>(graphicsPipeline);
+		_renderCommandEncoder->setRenderPipelineState(_graphicsPipeline->GetNativeRenderPipeline());
 	}
 
 	/// @brief
@@ -208,7 +208,7 @@ namespace hod::inline rhi
 		(void)setOffset;
 		(void)setCount;
 		//
-		_material = static_cast<const MetalMaterial*>(&materialInstance->GetMaterial());
+		_graphicsPipeline = static_cast<const GraphicsPipelineMetal*>(&materialInstance->GetGraphicsPipeline());
 		materialInstance->ReportUnsetTextures(setOffset, setCount);
 		static_cast<const MetalMaterialInstance*>(materialInstance)->FillCommandEncoder(_renderCommandEncoder, _fragmentArgumentTable);
 	}
@@ -219,7 +219,7 @@ namespace hod::inline rhi
 	/// @param offset
 	void MetalCommandBuffer::SetVertexBuffer(Buffer** vertexBuffer, uint32_t count, uint32_t offset)
 	{
-		NS::Range range = _material->GetVertexAttributeBufferRange();
+		NS::Range range = _graphicsPipeline->GetVertexAttributeBufferRange();
 
 		for (uint32_t index = 0; index < count; ++index)
 		{
@@ -241,7 +241,7 @@ namespace hod::inline rhi
 	/// @param vertexCount
 	void MetalCommandBuffer::Draw(uint32_t vertexCount)
 	{
-		// TODO primitive type from Material ?
+		// TODO primitive type from GraphicsPipeline ?
 		_renderCommandEncoder->drawPrimitives(MTL::PrimitiveTypeTriangle, 0, vertexCount, 1);
 	}
 
@@ -251,7 +251,7 @@ namespace hod::inline rhi
 	/// @param vertexOffset
 	void MetalCommandBuffer::DrawIndexed(uint32_t indexCount, uint32_t indexOffset, uint32_t vertexOffset)
 	{
-		// TODO primitive type from Material ?
+		// TODO primitive type from GraphicsPipeline ?
 		MTL::GPUAddress indexBufferAddress =
 			_indexBuffer->GetNativeBuffer()->gpuAddress() + indexOffset * sizeof(uint16_t) + _indexBufferOffset;
 		_renderCommandEncoder->drawIndexedPrimitives(MTL::PrimitiveTypeTriangle, indexCount, MTL::IndexTypeUInt16, indexBufferAddress,

@@ -13,7 +13,7 @@ namespace hod::inline game
 	/// @brief
 	DebugDrawer::DebugDrawer()
 	{
-		_lineMaterial = MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2fC4f_Unlit_Line_Line)->GetDefaultInstance();
+		_lineMaterial = MaterialManager::GetInstance()->GetBuiltinMaterialDefaultInstance(MaterialManager::BuiltinMaterial::P2fC4f_Unlit_Line_Line);
 	}
 
 	/// @brief

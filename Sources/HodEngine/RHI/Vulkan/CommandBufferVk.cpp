@@ -2,7 +2,7 @@
 #include "HodEngine/RHI/Vulkan/CommandBufferVk.hpp"
 
 #include "HodEngine/RHI/Vulkan/BufferVk.hpp"
-#include "HodEngine/RHI/Vulkan/VkMaterial.hpp"
+#include "HodEngine/RHI/Vulkan/GraphicsPipelineVulkan.hpp"
 #include "HodEngine/RHI/Vulkan/VkMaterialInstance.hpp"
 
 #include "HodEngine/RHI/Vulkan/RhiDeviceVulkan.hpp"
@@ -170,9 +170,9 @@ namespace hod::inline rhi
 	/// @param shaderType
 	void CommandBufferVk::SetConstant(void* constant, uint32_t size, Shader::ShaderType /*shaderType*/)
 	{
-		size = std::min(size, _material->GetPushConstantSize());
+		size = std::min(size, _graphicsPipeline->GetPushConstantSize());
 
-		vkCmdPushConstants(_vkCommandBuffer, _material->GetPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, size, constant);
+		vkCmdPushConstants(_vkCommandBuffer, _graphicsPipeline->GetPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, size, constant);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -207,7 +207,7 @@ namespace hod::inline rhi
 	void CommandBufferVk::SetModelMatrix(const Matrix4& /*modelMatrix*/)
 	{
 		/*
-		MaterialInstance* modelMaterialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(&_sharedMinimalMaterialInstance->GetMaterial());
+		MaterialInstance* modelMaterialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(&_sharedMinimalMaterialInstance->GetGraphicsPipeline());
 		modelMaterialInstance->SetMat4("modelUbo.model", modelMatrix);
 		modelMaterialInstance->SetMat4("modelUbo.mvp", _sharedMinimalMaterialInstance->GetMat4("viewUbo.vp") * modelMatrix);
 
@@ -242,14 +242,14 @@ namespace hod::inline rhi
 	}
 
 	/// @brief
-	/// @param material
-	void CommandBufferVk::SetMaterial(const Material* material)
+	/// @param graphicsPipeline
+	void CommandBufferVk::SetGraphicsPipeline(const GraphicsPipeline* graphicsPipeline)
 	{
-		const VkMaterial* vkMaterial = static_cast<const VkMaterial*>(material);
-		if (_material != vkMaterial)
+		const GraphicsPipelineVulkan* graphicsPipelineVulkan = static_cast<const GraphicsPipelineVulkan*>(graphicsPipeline);
+		if (_graphicsPipeline != graphicsPipelineVulkan)
 		{
-			_material = vkMaterial;
-			vkCmdBindPipeline(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, const_cast<VkMaterial*>(_material)->GetGraphicsPipeline(_currentRenderPass));
+			_graphicsPipeline = graphicsPipelineVulkan;
+			vkCmdBindPipeline(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, const_cast<GraphicsPipelineVulkan*>(_graphicsPipeline)->GetVkPipeline(_currentRenderPass));
 		}
 	}
 
@@ -260,11 +260,11 @@ namespace hod::inline rhi
 	{
 		VkMaterialInstance* vkMaterialInstance = static_cast<VkMaterialInstance*>(const_cast<MaterialInstance*>(materialInstance));
 
-		const VkMaterial* material = static_cast<const VkMaterial*>(&vkMaterialInstance->GetMaterial());
-		if (_material != material)
+		const GraphicsPipelineVulkan* graphicsPipeline = static_cast<const GraphicsPipelineVulkan*>(&vkMaterialInstance->GetGraphicsPipeline());
+		if (_graphicsPipeline != graphicsPipeline)
 		{
-			_material = material;
-			vkCmdBindPipeline(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, const_cast<VkMaterial*>(_material)->GetGraphicsPipeline(_currentRenderPass));
+			_graphicsPipeline = graphicsPipeline;
+			vkCmdBindPipeline(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, const_cast<GraphicsPipelineVulkan*>(_graphicsPipeline)->GetVkPipeline(_currentRenderPass));
 		}
 
 		materialInstance->ReportUnsetTextures(setOffset, setCount);
@@ -273,7 +273,7 @@ namespace hod::inline rhi
 
 		if (descriptorSets.Empty() == false)
 		{
-			vkCmdBindDescriptorSets(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _material->GetPipelineLayout(), setOffset, (uint32_t)descriptorSets.Size(),
+			vkCmdBindDescriptorSets(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeline->GetPipelineLayout(), setOffset, (uint32_t)descriptorSets.Size(),
 									descriptorSets.Data(), 0, nullptr);
 		}
 	}

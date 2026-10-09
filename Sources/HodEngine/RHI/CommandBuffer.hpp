@@ -16,7 +16,7 @@ namespace hod::inline math
 
 namespace hod::inline rhi
 {
-	class Material;
+	class GraphicsPipeline;
 	class MaterialInstance;
 	class Buffer;
 	class PresentationSurface;
@@ -55,7 +55,7 @@ namespace hod::inline rhi
 		virtual void SetViewport(const Rect& viewport) = 0;
 		virtual void SetScissor(const Rect& scissor) = 0;
 
-		virtual void SetMaterial(const Material* material) = 0;
+		virtual void SetGraphicsPipeline(const GraphicsPipeline* graphicsPipeline) = 0;
 		virtual void SetMaterialInstance(const MaterialInstance* materialInstance, uint32_t setOffset = 2, uint32_t setCount = UINT32_MAX) = 0;
 		virtual void SetVertexBuffer(Buffer** vertexBuffer, uint32_t count, uint32_t offset = 0) = 0;
 		virtual void SetIndexBuffer(Buffer* indexBuffer, uint32_t offset = 0) = 0;
