@@ -3,7 +3,7 @@
 #include "HodEngine/Input/Pch.hpp"
 #include "HodEngine/Core/TypeTrait.hpp"
 #include "HodEngine/Input/Api.hpp"
-#include "HodEngine/Input/API/WindowLib/MouseWindowLib.hpp"
+#include "HodEngine/Input/API/WindowLib/WindowLibMouse.hpp"
 #include "HodEngine/Input/InputIdHelper.hpp"
 
 #undef max
@@ -17,29 +17,29 @@ namespace hod::inline input
 		uint8_t _buttons;
 	};
 
-	MouseWindowLib::MouseWindowLib()
+	WindowLibMouse::WindowLibMouse()
 	: Mouse(UID::INVALID_UID, "Mouse", Product::UNKNOWN)
 	{
 	}
 
-	bool MouseWindowLib::ApplyFeedback(Feedback& feedback)
+	bool WindowLibMouse::ApplyFeedback(Feedback& feedback)
 	{
 		(void)feedback;
 		return false;
 	}
 
-	void MouseWindowLib::OnButtonPressed(MouseButton button)
+	void WindowLibMouse::OnButtonPressed(MouseButton button)
 	{
 		EditNextState<MouseState>()->_buttons |= (1 << std::to_underlying(button));
 		MarkForCurrent();
 	}
 
-	void MouseWindowLib::OnButtonReleased(MouseButton button)
+	void WindowLibMouse::OnButtonReleased(MouseButton button)
 	{
 		EditNextState<MouseState>()->_buttons &= ~(1 << std::to_underlying(button));
 	}
 
-	void MouseWindowLib::OnButtonMoved(int x, int y)
+	void WindowLibMouse::OnButtonMoved(int x, int y)
 	{
 		EditNextState<MouseState>()->_delta[0] += (_lastPosX - x);
 		EditNextState<MouseState>()->_delta[1] += (_lastPosY - y);
@@ -48,12 +48,12 @@ namespace hod::inline input
 		_lastPosY = y;
 	}
 
-	void MouseWindowLib::OnButtonScroll(int scroll)
+	void WindowLibMouse::OnButtonScroll(int scroll)
 	{
 		EditNextState<MouseState>()->_wheel += scroll;
 	}
 
-	void MouseWindowLib::ResetNextState()
+	void WindowLibMouse::ResetNextState()
 	{
 		EditNextState<MouseState>()->_delta[0] = 0;
 		EditNextState<MouseState>()->_delta[1] = 0;

@@ -24,20 +24,20 @@ namespace hod::inline window
 
 namespace hod::inline input
 {
-	class MouseRawInput;
-	class KeyboardRawInput;
+	class RawInputMouse;
+	class RawInputKeyboard;
 
 	/// @brief
-	class HOD_INPUT_API ApiRawInput : public Api
+	class HOD_INPUT_API RawInputApi : public Api
 	{
 	public:
-		ApiRawInput();
-		ApiRawInput(const ApiRawInput&) = delete;
-		ApiRawInput(ApiRawInput&&) = delete;
-		~ApiRawInput() override;
+		RawInputApi();
+		RawInputApi(const RawInputApi&) = delete;
+		RawInputApi(RawInputApi&&) = delete;
+		~RawInputApi() override;
 
-		ApiRawInput& operator=(const ApiRawInput&) = delete;
-		ApiRawInput& operator=(ApiRawInput&&) = delete;
+		RawInputApi& operator=(const RawInputApi&) = delete;
+		RawInputApi& operator=(RawInputApi&&) = delete;
 
 	public:
 		bool Initialize() override;
@@ -71,22 +71,22 @@ namespace hod::inline input
 		void PullDeviceChangeMessages();
 		void PullCharacterMessages();
 
-		MouseRawInput*    FindMouse(HANDLE hDevice) const;
-		KeyboardRawInput* FindKeyboard(HANDLE hDevice) const;
+		RawInputMouse*    FindMouse(HANDLE hDevice) const;
+		RawInputKeyboard* FindKeyboard(HANDLE hDevice) const;
 
 		void OnWinProc(HWND, UINT, WPARAM, LPARAM);
 
 	private:
 		Event<HWND, UINT, WPARAM, LPARAM>::Slot _onWinProcSlot;
 
-		Vector<MouseRawInput*>    _pendingArrivalMice;
-		Vector<KeyboardRawInput*> _pendingArrivalKeyboards;
+		Vector<RawInputMouse*>    _pendingArrivalMice;
+		Vector<RawInputKeyboard*> _pendingArrivalKeyboards;
 
 		Vector<HANDLE> _pendingRemoveMice;
 		Vector<HANDLE> _pendingRemoveKeyboards;
 
-		Vector<MouseRawInput*>    _mice;
-		Vector<KeyboardRawInput*> _keyboards;
+		Vector<RawInputMouse*>    _mice;
+		Vector<RawInputKeyboard*> _keyboards;
 
 		std::mutex                  _deviceChangeslock;
 		Vector<DeviceChangeMessage> _vDeviceChangeMessages;

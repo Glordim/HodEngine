@@ -1,5 +1,5 @@
 #include "HodEngine/Input/Pch.hpp"
-#include "HodEngine/Input/API/WindowLib/ApiWindowLib.hpp"
+#include "HodEngine/Input/API/WindowLib/WindowLibApi.hpp"
 
 #include "HodEngine/Input/InputManager.hpp"
 
@@ -11,14 +11,14 @@
 namespace hod::inline input
 {
 	/// @brief
-	ApiWindowLib::ApiWindowLib()
+	WindowLibApi::WindowLibApi()
 	: Api("WindowLib")
 	{
 	}
 
 	/// @brief
 	/// @return
-	bool ApiWindowLib::Initialize()
+	bool WindowLibApi::Initialize()
 	{
 		AddDevice(&_mouse);
 		AddDevice(&_keyboard);
@@ -27,10 +27,10 @@ namespace hod::inline input
 	}
 
 	/// @brief
-	ApiWindowLib::~ApiWindowLib() {}
+	WindowLibApi::~WindowLibApi() {}
 
 	/// @brief
-	void ApiWindowLib::UpdateDeviceValues()
+	void WindowLibApi::UpdateDeviceValues()
 	{
 		DesktopWindow* window = static_cast<DesktopWindow*>(DisplayManager::GetInstance()->GetMainWindow());
 

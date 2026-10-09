@@ -13,19 +13,19 @@ using DWORD = unsigned long;
 namespace hod::inline input
 {
 	/// @brief
-	class HOD_INPUT_API GamepadXInput : public Gamepad
+	class HOD_INPUT_API XInputGamepad : public Gamepad
 	{
 	private:
 		static constexpr short DeadZone = 3500;
 
 	public:
-		GamepadXInput(uint32_t padIndex);
-		GamepadXInput(const GamepadXInput&) = delete;
-		GamepadXInput(GamepadXInput&&) = delete;
-		~GamepadXInput() override = default;
+		XInputGamepad(uint32_t padIndex);
+		XInputGamepad(const XInputGamepad&) = delete;
+		XInputGamepad(XInputGamepad&&) = delete;
+		~XInputGamepad() override = default;
 
-		GamepadXInput& operator=(const GamepadXInput&) = delete;
-		GamepadXInput& operator=(GamepadXInput&&) = delete;
+		XInputGamepad& operator=(const XInputGamepad&) = delete;
+		XInputGamepad& operator=(XInputGamepad&&) = delete;
 
 		bool ApplyFeedback(Feedback& feedback) override;
 

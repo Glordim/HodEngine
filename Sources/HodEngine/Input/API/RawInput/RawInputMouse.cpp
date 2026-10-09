@@ -1,6 +1,6 @@
 #include "HodEngine/Input/Pch.hpp"
 #include "HodEngine/Input/Api.hpp"
-#include "HodEngine/Input/API/RawInput/MouseRawInput.hpp"
+#include "HodEngine/Input/API/RawInput/RawInputMouse.hpp"
 
 #include <Windows.h>
 #include <WinUser.h>
@@ -24,7 +24,7 @@ namespace hod::inline input
 	/// @param handle
 	/// @param name
 	/// @param
-	MouseRawInput::MouseRawInput(HANDLE handle, const std::string_view& name, const tagRID_DEVICE_INFO_MOUSE&)
+	RawInputMouse::RawInputMouse(HANDLE handle, const std::string_view& name, const tagRID_DEVICE_INFO_MOUSE&)
 	: Mouse(ComputeDeviceUID(handle), name, Product::UNKNOWN)
 	, _handle(handle)
 	{
@@ -45,7 +45,7 @@ namespace hod::inline input
 	/// @brief
 	/// @param feedback
 	/// @return
-	bool MouseRawInput::ApplyFeedback(Feedback& /*feedback*/)
+	bool RawInputMouse::ApplyFeedback(Feedback& /*feedback*/)
 	{
 		return false;
 	}
@@ -53,12 +53,12 @@ namespace hod::inline input
 	/// @brief
 	/// @param cusorPositionX
 	/// @param cursorPositionY
-	void MouseRawInput::ResyncLastCusorPosition()
+	void RawInputMouse::ResyncLastCusorPosition()
 	{
 		_lastAbsoluteDirty = true;
 	}
 
-	void MouseRawInput::ResetNextState()
+	void RawInputMouse::ResetNextState()
 	{
 		EditNextState<MouseState>()->_delta[0] = 0;
 		EditNextState<MouseState>()->_delta[1] = 0;
@@ -67,7 +67,7 @@ namespace hod::inline input
 
 	/// @brief
 	/// @param rawMouse
-	void MouseRawInput::ReadRawInput(const tagRAWMOUSE& rawMouse)
+	void RawInputMouse::ReadRawInput(const tagRAWMOUSE& rawMouse)
 	{
 		if ((rawMouse.usFlags & MOUSE_MOVE_ABSOLUTE) != 0)
 		{
@@ -167,7 +167,7 @@ namespace hod::inline input
 
 	/// @brief
 	/// @return
-	HANDLE MouseRawInput::GetHandle() const
+	HANDLE RawInputMouse::GetHandle() const
 	{
 		return _handle;
 	}
@@ -175,7 +175,7 @@ namespace hod::inline input
 	/// @brief
 	/// @param hDevice
 	/// @return
-	UID MouseRawInput::ComputeDeviceUID(HANDLE hDevice)
+	UID RawInputMouse::ComputeDeviceUID(HANDLE hDevice)
 	{
 		return UID(Api::DeviceUidOffset::RAW_INPUT, reinterpret_cast<uint64_t>(hDevice));
 	}

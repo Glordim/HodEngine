@@ -1,6 +1,6 @@
 #include "HodEngine/Input/Pch.hpp"
-#include "HodEngine/Input/API/XInput/ApiXInput.hpp"
-#include "HodEngine/Input/API/XInput/GamepadXInput.hpp"
+#include "HodEngine/Input/API/XInput/XInputApi.hpp"
+#include "HodEngine/Input/API/XInput/XInputGamepad.hpp"
 
 #include <Windows.h>
 #include <Xinput.h>
@@ -8,15 +8,15 @@
 namespace hod::inline input
 {
 	/// @brief
-	ApiXInput::ApiXInput()
+	XInputApi::XInputApi()
 	: Api("XInput")
 	{
 	}
 
 	/// @brief
-	ApiXInput::~ApiXInput()
+	XInputApi::~XInputApi()
 	{
-		for (GamepadXInput* device : _pads)
+		for (XInputGamepad* device : _pads)
 		{
 			if (device != nullptr)
 			{
@@ -37,7 +37,7 @@ namespace hod::inline input
 
 	/// @brief
 	/// @return
-	bool ApiXInput::Initialize()
+	bool XInputApi::Initialize()
 	{
 		_hInstance = LoadLibrary(TEXT("xinput1_4.dll"));
 		if (_hInstance == nullptr)
@@ -70,7 +70,7 @@ namespace hod::inline input
 
 		for (uint32_t padIndex = 0; padIndex < MaxPad; ++padIndex)
 		{
-			GamepadXInput* device = DefaultAllocator::GetInstance().New<GamepadXInput>(padIndex);
+			XInputGamepad* device = DefaultAllocator::GetInstance().New<XInputGamepad>(padIndex);
 
 			_pads[padIndex] = device;
 
@@ -82,9 +82,9 @@ namespace hod::inline input
 	}
 
 	/// @brief
-	void ApiXInput::UpdateDeviceValues()
+	void XInputApi::UpdateDeviceValues()
 	{
-		for (GamepadXInput* xboxPad : _pads)
+		for (XInputGamepad* xboxPad : _pads)
 		{
 			XINPUT_STATE state;
 			std::memset(&state, 0, sizeof(XINPUT_STATE));
@@ -115,7 +115,7 @@ namespace hod::inline input
 	/// @param padIndex
 	/// @param state
 	/// @return
-	bool ApiXInput::GetPadState(uint32_t padIndex, XINPUT_STATE* state) const
+	bool XInputApi::GetPadState(uint32_t padIndex, XINPUT_STATE* state) const
 	{
 		return _getStateProc(padIndex, state) == ERROR_SUCCESS;
 	}
@@ -124,7 +124,7 @@ namespace hod::inline input
 	/// @param padIndex
 	/// @param vibration
 	/// @return
-	bool ApiXInput::SetPadState(uint32_t padIndex, XINPUT_VIBRATION* vibration) const
+	bool XInputApi::SetPadState(uint32_t padIndex, XINPUT_VIBRATION* vibration) const
 	{
 		return _setStateProc(padIndex, vibration) == ERROR_SUCCESS;
 	}

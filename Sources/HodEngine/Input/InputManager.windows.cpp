@@ -1,8 +1,8 @@
 #include "HodEngine/Input/Pch.hpp"
 #include "HodEngine/Input/InputManager.hpp"
-// #include "HodEngine/Input/API/RawInput/ApiRawInput.hpp"
-#include "HodEngine/Input/API/WindowLib/ApiWindowLib.hpp"
-#include "HodEngine/Input/API/XInput/ApiXInput.hpp"
+// #include "HodEngine/Input/API/RawInput/RawInputApi.hpp"
+#include "HodEngine/Input/API/WindowLib/WindowLibApi.hpp"
+#include "HodEngine/Input/API/XInput/XInputApi.hpp"
 
 namespace hod::inline input
 {
@@ -10,11 +10,11 @@ namespace hod::inline input
 	/// @return
 	bool InputManager::InitializeApis()
 	{
-		if (CreateApi<ApiWindowLib>() == false)
+		if (CreateApi<WindowLibApi>() == false)
 		{
 			return false;
 		}
-		if (CreateApi<ApiXInput>() == false)
+		if (CreateApi<XInputApi>() == false)
 		{
 			return false;
 		}

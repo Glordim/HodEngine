@@ -1,5 +1,5 @@
-#include "HodEngine/Input/API/GameController/ApiGameController.hpp"
-#include "HodEngine/Input/API/GameController/GamepadGameController.hpp"
+#include "HodEngine/Input/API/GameController/GameControllerApi.hpp"
+#include "HodEngine/Input/API/GameController/GameControllerGamepad.hpp"
 #include "HodEngine/Input/Pch.hpp"
 
 
@@ -12,11 +12,11 @@
 
 namespace hod::inline input {
 /// @brief
-ApiGameController::ApiGameController() : Api("GameController") {}
+GameControllerApi::GameControllerApi() : Api("GameController") {}
 
 /// @brief
 /// @return
-bool ApiGameController::Initialize() {
+bool GameControllerApi::Initialize() {
   _connectObserver =
       (__bridge_retained void *)[[NSNotificationCenter defaultCenter]
           addObserverForName:GCControllerDidConnectNotification
@@ -49,7 +49,7 @@ bool ApiGameController::Initialize() {
 }
 
 /// @brief
-ApiGameController::~ApiGameController() {
+GameControllerApi::~GameControllerApi() {
   if (_connectObserver != nil) {
     [[NSNotificationCenter defaultCenter]
         removeObserver:(__bridge id)_connectObserver];
@@ -60,18 +60,18 @@ ApiGameController::~ApiGameController() {
   }
 }
 
-void ApiGameController::AddPadDevice(GCExtendedGamepad *extendedGamepad) {
-  GamepadGameController *pad =
-      DefaultAllocator::GetInstance().New<GamepadGameController>(
+void GameControllerApi::AddPadDevice(GCExtendedGamepad *extendedGamepad) {
+  GameControllerGamepad *pad =
+      DefaultAllocator::GetInstance().New<GameControllerGamepad>(
           extendedGamepad);
 
   _pads.push_back(pad);
 }
 
-void ApiGameController::RemovePadDevice(GCExtendedGamepad *extendedGamepad) {
+void GameControllerApi::RemovePadDevice(GCExtendedGamepad *extendedGamepad) {
   auto it =
       std::find_if(_pads.Begin(), _pads.End(),
-                   [extendedGamepad](GamepadGameController *pad) {
+                   [extendedGamepad](GameControllerGamepad *pad) {
                      return (pad->GetInternalExtendedPad() == extendedGamepad);
                    });
   if (it != _pads.End()) {
@@ -81,8 +81,8 @@ void ApiGameController::RemovePadDevice(GCExtendedGamepad *extendedGamepad) {
 }
 
 /// @brief
-void ApiGameController::UpdateDeviceValues() {
-  for (GamepadGameController *pad : _pads) {
+void GameControllerApi::UpdateDeviceValues() {
+  for (GameControllerGamepad *pad : _pads) {
     pad->WriteNextState();
     pad->UpdateState();
   }

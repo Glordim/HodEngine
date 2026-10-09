@@ -12,13 +12,13 @@ using DWORD = unsigned long;
 
 namespace hod::inline input
 {
-	class GamepadXInput;
+	class XInputGamepad;
 
 	/// @brief
-	class HOD_INPUT_API ApiXInput : public Api
+	class HOD_INPUT_API XInputApi : public Api
 	{
 	private:
-		friend class GamepadXInput;
+		friend class XInputGamepad;
 
 		using XInputGetStateProc = DWORD (*)(DWORD userIndex, _XINPUT_STATE* state);
 		using XInputSetStateProc = DWORD (*)(DWORD userIndex, _XINPUT_VIBRATION* vibration);
@@ -26,13 +26,13 @@ namespace hod::inline input
 		static constexpr uint32_t MaxPad = XUSER_MAX_COUNT;
 
 	public:
-		ApiXInput();
-		ApiXInput(const ApiXInput&) = delete;
-		ApiXInput(ApiXInput&&) = delete;
-		~ApiXInput() override;
+		XInputApi();
+		XInputApi(const XInputApi&) = delete;
+		XInputApi(XInputApi&&) = delete;
+		~XInputApi() override;
 
-		ApiXInput& operator=(const ApiXInput&) = delete;
-		ApiXInput& operator=(ApiXInput&&) = delete;
+		XInputApi& operator=(const XInputApi&) = delete;
+		XInputApi& operator=(XInputApi&&) = delete;
 
 	public:
 		bool Initialize() override;
@@ -49,6 +49,6 @@ namespace hod::inline input
 		XInputGetStateProc _getStateProc = nullptr;
 		XInputSetStateProc _setStateProc = nullptr;
 
-		GamepadXInput* _pads[MaxPad] = {nullptr};
+		XInputGamepad* _pads[MaxPad] = {nullptr};
 	};
 }

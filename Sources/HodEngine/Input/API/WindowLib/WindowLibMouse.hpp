@@ -8,16 +8,16 @@
 namespace hod::inline input
 {
 	/// @brief
-	class HOD_INPUT_API MouseWindowLib : public Mouse
+	class HOD_INPUT_API WindowLibMouse : public Mouse
 	{
 	public:
-		MouseWindowLib();
-		MouseWindowLib(const MouseWindowLib&) = delete;
-		MouseWindowLib(MouseWindowLib&&) = delete;
-		~MouseWindowLib() override = default;
+		WindowLibMouse();
+		WindowLibMouse(const WindowLibMouse&) = delete;
+		WindowLibMouse(WindowLibMouse&&) = delete;
+		~WindowLibMouse() override = default;
 
-		MouseWindowLib& operator=(const MouseWindowLib&) = delete;
-		MouseWindowLib& operator=(MouseWindowLib&&) = delete;
+		WindowLibMouse& operator=(const WindowLibMouse&) = delete;
+		WindowLibMouse& operator=(WindowLibMouse&&) = delete;
 
 		void OnButtonPressed(MouseButton button);
 		void OnButtonReleased(MouseButton button);

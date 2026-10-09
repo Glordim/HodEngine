@@ -14,16 +14,16 @@ class GCExtendedGamepad;
 namespace hod::inline input
 {
 	/// @brief 
-	class HOD_INPUT_API GamepadGameController : public Gamepad
+	class HOD_INPUT_API GameControllerGamepad : public Gamepad
 	{
 	public:
-											GamepadGameController(GCExtendedGamepad* extendedGamepad);
-											GamepadGameController(const GamepadGameController&) = delete;
-											GamepadGameController(GamepadGameController&&) = delete;
-											~GamepadGameController() override = default;
+											GameControllerGamepad(GCExtendedGamepad* extendedGamepad);
+											GameControllerGamepad(const GameControllerGamepad&) = delete;
+											GameControllerGamepad(GameControllerGamepad&&) = delete;
+											~GameControllerGamepad() override = default;
 
-		GamepadGameController&				operator = (const GamepadGameController&) = delete;
-		GamepadGameController&				operator = (GamepadGameController&&) = delete;
+		GameControllerGamepad&				operator = (const GameControllerGamepad&) = delete;
+		GameControllerGamepad&				operator = (GameControllerGamepad&&) = delete;
 
 		GCExtendedGamepad*					GetInternalExtendedPad() const;
 

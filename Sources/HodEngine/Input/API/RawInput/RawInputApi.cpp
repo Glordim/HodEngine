@@ -1,8 +1,8 @@
 #include "HodEngine/Input/Pch.hpp"
-#include "HodEngine/Input/API/RawInput/ApiRawInput.hpp"
+#include "HodEngine/Input/API/RawInput/RawInputApi.hpp"
 
-#include "HodEngine/Input/API/RawInput/KeyboardRawInput.hpp"
-#include "HodEngine/Input/API/RawInput/MouseRawInput.hpp"
+#include "HodEngine/Input/API/RawInput/RawInputKeyboard.hpp"
+#include "HodEngine/Input/API/RawInput/RawInputMouse.hpp"
 #include "HodEngine/Input/InputManager.hpp"
 
 #include <hidusage.h>
@@ -19,16 +19,16 @@ using namespace hod::window;
 namespace hod::inline input
 {
 	/// @brief
-	ApiRawInput::ApiRawInput()
+	RawInputApi::RawInputApi()
 	: Api("RawInput")
-	, _onWinProcSlot(std::bind(&ApiRawInput::OnWinProc, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
-	, _onFocusChangeSlot(std::bind(&ApiRawInput::OnFocusChange, this, std::placeholders::_1))
+	, _onWinProcSlot(std::bind(&RawInputApi::OnWinProc, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
+	, _onFocusChangeSlot(std::bind(&RawInputApi::OnFocusChange, this, std::placeholders::_1))
 	{
 	}
 
 	/// @brief
 	/// @return
-	bool ApiRawInput::Initialize()
+	bool RawInputApi::Initialize()
 	{
 		_window = static_cast<Win32Window*>(Win32DisplayManager::GetInstance()->GetMainWindow());
 
@@ -63,13 +63,13 @@ namespace hod::inline input
 		return true;
 	}
 
-	void ApiRawInput::OnWinProc(HWND, UINT uiMsg, WPARAM wParam, LPARAM lParam)
+	void RawInputApi::OnWinProc(HWND, UINT uiMsg, WPARAM wParam, LPARAM lParam)
 	{
 		ProcessWindowMessage(uiMsg, wParam, lParam);
 	}
 
 	/// @brief
-	void ApiRawInput::FetchConnectedDevices()
+	void RawInputApi::FetchConnectedDevices()
 	{
 		UINT                deviceCount = 0;
 		PRAWINPUTDEVICELIST pRawInputDeviceList = nullptr;
@@ -95,14 +95,14 @@ namespace hod::inline input
 			if (device.dwType == RIM_TYPEMOUSE)
 			{
 				RID_DEVICE_INFO_MOUSE info = {}; // TODO useless ?
-				MouseRawInput*        mouse = DefaultAllocator::GetInstance().New<MouseRawInput>(device.hDevice, "Mouse", info);
+				RawInputMouse*        mouse = DefaultAllocator::GetInstance().New<RawInputMouse>(device.hDevice, "Mouse", info);
 				_mice.PushBack(mouse);
 				AddDevice(mouse);
 			}
 			else if (device.dwType == RIM_TYPEKEYBOARD)
 			{
 				RID_DEVICE_INFO_KEYBOARD info = {}; // TODO useless ?
-				KeyboardRawInput*        keyboard = DefaultAllocator::GetInstance().New<KeyboardRawInput>(device.hDevice, "Keyboard", info);
+				RawInputKeyboard*        keyboard = DefaultAllocator::GetInstance().New<RawInputKeyboard>(device.hDevice, "Keyboard", info);
 				_keyboards.PushBack(keyboard);
 				AddDevice(keyboard);
 			}
@@ -116,15 +116,15 @@ namespace hod::inline input
 	/// @param sName
 	/// @param info
 	/// @return
-	Device* ApiRawInput::GetOrAddDevice(HANDLE hDevice, const std::string_view& name, const RID_DEVICE_INFO& info)
+	Device* RawInputApi::GetOrAddDevice(HANDLE hDevice, const std::string_view& name, const RID_DEVICE_INFO& info)
 	{
 		if (info.dwType == RIM_TYPEMOUSE)
 		{
-			MouseRawInput* mouse = FindMouse(hDevice);
+			RawInputMouse* mouse = FindMouse(hDevice);
 
 			if (mouse == nullptr)
 			{
-				mouse = DefaultAllocator::GetInstance().New<MouseRawInput>(hDevice, name, info.mouse);
+				mouse = DefaultAllocator::GetInstance().New<RawInputMouse>(hDevice, name, info.mouse);
 
 				_mice.push_back(mouse);
 
@@ -135,11 +135,11 @@ namespace hod::inline input
 		}
 		else if (info.dwType == RIM_TYPEKEYBOARD)
 		{
-			KeyboardRawInput* keyboard = FindKeyboard(hDevice);
+			RawInputKeyboard* keyboard = FindKeyboard(hDevice);
 
 			if (keyboard == nullptr)
 			{
-				keyboard = DefaultAllocator::GetInstance().New<KeyboardRawInput>(hDevice, name, info.keyboard);
+				keyboard = DefaultAllocator::GetInstance().New<RawInputKeyboard>(hDevice, name, info.keyboard);
 
 				_keyboards.push_back(keyboard);
 
@@ -153,9 +153,9 @@ namespace hod::inline input
 	}
 
 	/// @brief
-	ApiRawInput::~ApiRawInput()
+	RawInputApi::~RawInputApi()
 	{
-		for (MouseRawInput* mouse : _mice)
+		for (RawInputMouse* mouse : _mice)
 		{
 			if (mouse->IsConnected() == true)
 			{
@@ -164,7 +164,7 @@ namespace hod::inline input
 			DefaultAllocator::GetInstance().Delete(mouse);
 		}
 
-		for (KeyboardRawInput* keyboard : _keyboards)
+		for (RawInputKeyboard* keyboard : _keyboards)
 		{
 			if (keyboard->IsConnected() == true)
 			{
@@ -178,7 +178,7 @@ namespace hod::inline input
 	/// @param uiMsg
 	/// @param wParam
 	/// @param lParam
-	void ApiRawInput::ProcessWindowMessage(UINT uiMsg, WPARAM wParam, LPARAM lParam)
+	void RawInputApi::ProcessWindowMessage(UINT uiMsg, WPARAM wParam, LPARAM lParam)
 	{
 		if (uiMsg == WM_INPUT_DEVICE_CHANGE)
 		{
@@ -197,12 +197,12 @@ namespace hod::inline input
 			{
 				if (deviceInfo.dwType == RIM_TYPEMOUSE)
 				{
-					MouseRawInput* mouse = DefaultAllocator::GetInstance().New<MouseRawInput>(handle, "Mouse", deviceInfo.mouse);
+					RawInputMouse* mouse = DefaultAllocator::GetInstance().New<RawInputMouse>(handle, "Mouse", deviceInfo.mouse);
 					_pendingArrivalMice.PushBack(mouse);
 				}
 				else if (deviceInfo.dwType == RIM_TYPEKEYBOARD)
 				{
-					KeyboardRawInput* keyboard = DefaultAllocator::GetInstance().New<KeyboardRawInput>(handle, "Keyboard", deviceInfo.keyboard);
+					RawInputKeyboard* keyboard = DefaultAllocator::GetInstance().New<RawInputKeyboard>(handle, "Keyboard", deviceInfo.keyboard);
 					_pendingArrivalKeyboards.PushBack(keyboard);
 				}
 			}
@@ -234,7 +234,7 @@ namespace hod::inline input
 
 	/// @brief
 	/// @param bFocus
-	void ApiRawInput::OnFocusChange(bool bFocus)
+	void RawInputApi::OnFocusChange(bool bFocus)
 	{
 		if (bFocus == false)
 		{
@@ -248,7 +248,7 @@ namespace hod::inline input
 	/// @brief
 	/// @param hDevice
 	/// @param uiChangeFlag
-	void ApiRawInput::PushDeviceChangeMessage(HANDLE hDevice, uint8_t changeFlag)
+	void RawInputApi::PushDeviceChangeMessage(HANDLE hDevice, uint8_t changeFlag)
 	{
 		DeviceChangeMessage deviceChangeMessage;
 		deviceChangeMessage._hDevice = hDevice;
@@ -281,7 +281,7 @@ namespace hod::inline input
 
 	/// @brief
 	/// @param hRawInput
-	void ApiRawInput::PushRawInputMessage(HRAWINPUT hRawInput)
+	void RawInputApi::PushRawInputMessage(HRAWINPUT hRawInput)
 	{
 		UINT uiSize = 0;
 		if (GetRawInputData(hRawInput, RID_INPUT, nullptr, &uiSize, sizeof(RAWINPUTHEADER)) != 0)
@@ -306,7 +306,7 @@ namespace hod::inline input
 
 		if (rawInputData.header.dwType == RIM_TYPEMOUSE)
 		{
-			MouseRawInput* mouse = FindMouse(hDevice);
+			RawInputMouse* mouse = FindMouse(hDevice);
 
 			if (mouse != nullptr)
 			{
@@ -315,7 +315,7 @@ namespace hod::inline input
 		}
 		else if (rawInputData.header.dwType == RIM_TYPEKEYBOARD)
 		{
-			KeyboardRawInput* keyboard = FindKeyboard(hDevice);
+			RawInputKeyboard* keyboard = FindKeyboard(hDevice);
 
 			if (keyboard != nullptr)
 			{
@@ -326,7 +326,7 @@ namespace hod::inline input
 
 	/// @brief
 	/// @param cCharacter
-	void ApiRawInput::PushCharacterMessage(char cCharacter)
+	void RawInputApi::PushCharacterMessage(char cCharacter)
 	{
 		_characterLock.lock();
 		_vCharacterMessages.push_back(cCharacter);
@@ -334,26 +334,26 @@ namespace hod::inline input
 	}
 
 	/// @brief
-	void ApiRawInput::UpdateDeviceValues()
+	void RawInputApi::UpdateDeviceValues()
 	{
 		if (_bJustGainFocus == true)
 		{
 			_bJustGainFocus = false;
 
-			for (MouseRawInput* mouse : _mice)
+			for (RawInputMouse* mouse : _mice)
 			{
 				mouse->ResyncLastCusorPosition();
 			}
 		}
 
-		for (MouseRawInput* arrivalMouse : _pendingArrivalMice)
+		for (RawInputMouse* arrivalMouse : _pendingArrivalMice)
 		{
 			_mice.PushBack(arrivalMouse);
 			AddDevice(arrivalMouse);
 		}
 		_pendingArrivalMice.Clear();
 
-		for (KeyboardRawInput* arrivalKeyboard : _pendingArrivalKeyboards)
+		for (RawInputKeyboard* arrivalKeyboard : _pendingArrivalKeyboards)
 		{
 			_keyboards.PushBack(arrivalKeyboard);
 			AddDevice(arrivalKeyboard);
@@ -362,7 +362,7 @@ namespace hod::inline input
 
 		for (HANDLE removeMouseHandle : _pendingRemoveMice)
 		{
-			auto it = std::find_if(_mice.Begin(), _mice.End(), [removeMouseHandle](const MouseRawInput* mouse) { return mouse->GetHandle() == removeMouseHandle; });
+			auto it = std::find_if(_mice.Begin(), _mice.End(), [removeMouseHandle](const RawInputMouse* mouse) { return mouse->GetHandle() == removeMouseHandle; });
 			if (it != _mice.End())
 			{
 				_mice.Erase(it);
@@ -373,7 +373,7 @@ namespace hod::inline input
 		for (HANDLE removeKeyboardHandle : _pendingRemoveKeyboards)
 		{
 			auto it = std::find_if(_keyboards.Begin(), _keyboards.End(),
-			                       [removeKeyboardHandle](const KeyboardRawInput* keyboard) { return keyboard->GetHandle() == removeKeyboardHandle; });
+			                       [removeKeyboardHandle](const RawInputKeyboard* keyboard) { return keyboard->GetHandle() == removeKeyboardHandle; });
 			if (it != _keyboards.End())
 			{
 				_keyboards.Erase(it);
@@ -381,13 +381,13 @@ namespace hod::inline input
 		}
 		_pendingRemoveKeyboards.Clear();
 
-		for (MouseRawInput* arrivalMouse : _pendingArrivalMice)
+		for (RawInputMouse* arrivalMouse : _pendingArrivalMice)
 		{
 			_mice.PushBack(arrivalMouse);
 		}
 		_pendingArrivalMice.Clear();
 
-		for (KeyboardRawInput* keyboard : _keyboards)
+		for (RawInputKeyboard* keyboard : _keyboards)
 		{
 			keyboard->ClearBufferedTextIfNeeded();
 		}
@@ -395,19 +395,19 @@ namespace hod::inline input
 		PullDeviceChangeMessages();
 		PullCharacterMessages();
 
-		for (MouseRawInput* mouse : _mice)
+		for (RawInputMouse* mouse : _mice)
 		{
 			mouse->UpdateState();
 		}
 
-		for (KeyboardRawInput* keyboard : _keyboards)
+		for (RawInputKeyboard* keyboard : _keyboards)
 		{
 			keyboard->UpdateState();
 		}
 	}
 
 	/// @brief
-	void ApiRawInput::PullDeviceChangeMessages()
+	void RawInputApi::PullDeviceChangeMessages()
 	{
 		_deviceChangeslock.lock();
 
@@ -435,7 +435,7 @@ namespace hod::inline input
 	}
 
 	/// @brief
-	void ApiRawInput::PullCharacterMessages()
+	void RawInputApi::PullCharacterMessages()
 	{
 		_characterLock.lock();
 
@@ -457,9 +457,9 @@ namespace hod::inline input
 	/// @brief
 	/// @param hDevice
 	/// @return
-	MouseRawInput* ApiRawInput::FindMouse(HANDLE hDevice) const
+	RawInputMouse* RawInputApi::FindMouse(HANDLE hDevice) const
 	{
-		for (MouseRawInput* mouse : _mice)
+		for (RawInputMouse* mouse : _mice)
 		{
 			if (mouse->GetHandle() == hDevice)
 			{
@@ -480,9 +480,9 @@ namespace hod::inline input
 	/// @brief
 	/// @param hDevice
 	/// @return
-	KeyboardRawInput* ApiRawInput::FindKeyboard(HANDLE hDevice) const
+	RawInputKeyboard* RawInputApi::FindKeyboard(HANDLE hDevice) const
 	{
-		for (KeyboardRawInput* keyboard : _keyboards)
+		for (RawInputKeyboard* keyboard : _keyboards)
 		{
 			if (keyboard->GetHandle() == hDevice)
 			{

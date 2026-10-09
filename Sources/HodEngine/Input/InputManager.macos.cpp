@@ -1,7 +1,7 @@
 #include "HodEngine/Input/Pch.hpp"
 #include "HodEngine/Input/InputManager.hpp"
-#include "HodEngine/Input/API/WindowLib/ApiWindowLib.hpp"
-#include "HodEngine/Input/API/GameController/ApiGameController.hpp"
+#include "HodEngine/Input/API/WindowLib/WindowLibApi.hpp"
+#include "HodEngine/Input/API/GameController/GameControllerApi.hpp"
 
 namespace hod::inline input
 {
@@ -9,12 +9,12 @@ namespace hod::inline input
 	/// @return 
 	bool InputManager::InitializeApis()
 	{
-		if (CreateApi<ApiWindowLib>() == false)
+		if (CreateApi<WindowLibApi>() == false)
 		{
 			return false;
 		}
 
-		if (CreateApi<ApiGameController>() == false)
+		if (CreateApi<GameControllerApi>() == false)
 		{
 			return false;
 		}

@@ -14,20 +14,20 @@ class GCExtendedGamepad;
 
 namespace hod::inline input
 {
-	class GamepadGameController;
+	class GameControllerGamepad;
 
 	/// @brief 
-	class HOD_INPUT_API ApiGameController : public Api
+	class HOD_INPUT_API GameControllerApi : public Api
 	{
 	public:
 
-											ApiGameController();
-											ApiGameController(const ApiGameController&) = delete;
-											ApiGameController(ApiGameController&&) = delete;
-											~ApiGameController() override;
+											GameControllerApi();
+											GameControllerApi(const GameControllerApi&) = delete;
+											GameControllerApi(GameControllerApi&&) = delete;
+											~GameControllerApi() override;
 
-		ApiGameController&					operator=(const ApiGameController&) = delete;
-		ApiGameController&					operator=(ApiGameController&&) = delete;
+		GameControllerApi&					operator=(const GameControllerApi&) = delete;
+		GameControllerApi&					operator=(GameControllerApi&&) = delete;
 
 	public:
 
@@ -44,7 +44,7 @@ namespace hod::inline input
 
 	private:
 
-		Vector<GamepadGameController*>		_pads;
+		Vector<GameControllerGamepad*>		_pads;
 
 		void*								_connectObserver = nullptr;
 		void*								_disconnectObserver = nullptr;

@@ -11,16 +11,16 @@ using HANDLE = void*;
 namespace hod::inline input
 {
 	/// @brief
-	class HOD_INPUT_API KeyboardRawInput : public Keyboard
+	class HOD_INPUT_API RawInputKeyboard : public Keyboard
 	{
 	public:
-		KeyboardRawInput(HANDLE handle, const std::string_view& sName, const tagRID_DEVICE_INFO_KEYBOARD& info);
-		KeyboardRawInput(const KeyboardRawInput&) = delete;
-		KeyboardRawInput(KeyboardRawInput&&) = delete;
-		~KeyboardRawInput() override = default;
+		RawInputKeyboard(HANDLE handle, const std::string_view& sName, const tagRID_DEVICE_INFO_KEYBOARD& info);
+		RawInputKeyboard(const RawInputKeyboard&) = delete;
+		RawInputKeyboard(RawInputKeyboard&&) = delete;
+		~RawInputKeyboard() override = default;
 
-		KeyboardRawInput& operator=(const KeyboardRawInput&) = delete;
-		KeyboardRawInput& operator=(KeyboardRawInput&&) = delete;
+		RawInputKeyboard& operator=(const RawInputKeyboard&) = delete;
+		RawInputKeyboard& operator=(RawInputKeyboard&&) = delete;
 
 	public:
 		HANDLE GetHandle() const;

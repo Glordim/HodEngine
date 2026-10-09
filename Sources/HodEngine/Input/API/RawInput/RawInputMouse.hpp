@@ -11,16 +11,16 @@ struct tagRAWMOUSE;
 namespace hod::inline input
 {
 	/// @brief
-	class HOD_INPUT_API MouseRawInput : public Mouse
+	class HOD_INPUT_API RawInputMouse : public Mouse
 	{
 	public:
-		MouseRawInput(HANDLE handle, const std::string_view& name, const tagRID_DEVICE_INFO_MOUSE& info);
-		MouseRawInput(const MouseRawInput&) = delete;
-		MouseRawInput(MouseRawInput&&) = delete;
-		~MouseRawInput() override = default;
+		RawInputMouse(HANDLE handle, const std::string_view& name, const tagRID_DEVICE_INFO_MOUSE& info);
+		RawInputMouse(const RawInputMouse&) = delete;
+		RawInputMouse(RawInputMouse&&) = delete;
+		~RawInputMouse() override = default;
 
-		MouseRawInput& operator=(const MouseRawInput&) = delete;
-		MouseRawInput& operator=(MouseRawInput&&) = delete;
+		RawInputMouse& operator=(const RawInputMouse&) = delete;
+		RawInputMouse& operator=(RawInputMouse&&) = delete;
 
 	public:
 		HANDLE GetHandle() const;
