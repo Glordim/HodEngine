@@ -29,8 +29,12 @@ namespace hod::inline window
 namespace hod::inline rhi
 {
 	class Shader;
-	class GraphicsPipeline;
 	class Texture;
+}
+
+namespace hod::inline renderer
+{
+	class Material;
 }
 
 namespace hod::inline imgui
@@ -67,7 +71,7 @@ namespace hod::inline imgui
 		void CloseAllWindow();
 		void DestroyAllWindow();
 
-		GraphicsPipeline* GetMaterial() const;
+		Material* GetMaterial() const;
 
 		ImGuiID GetCentralDockSpace() const;
 
@@ -114,7 +118,7 @@ namespace hod::inline imgui
 
 		Vector<Texture*> _textures;
 
-		GraphicsPipeline* _material = nullptr;
+		Material* _material = nullptr;
 		Shader*   _vertexShader = nullptr;
 		Shader*   _fragmentShader = nullptr;
 

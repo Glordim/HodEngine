@@ -1,8 +1,8 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
-#include "HodEngine/RHI/GraphicsPipeline.hpp"
-#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/Material.hpp"
+#include "HodEngine/Renderer/MaterialInstance.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/GameSystems/Resource/WeakResource.hpp>
@@ -15,7 +15,7 @@ namespace hod::inline renderer
 	/// @brief
 	/// @param material
 	/// @param params
-	void MaterialSerializationHelper::GenerateParameters(const GraphicsPipeline& material, Vector<ShaderParameter>& params)
+	void MaterialSerializationHelper::GenerateParameters(const Material& material, Vector<ShaderParameter>& params)
 	{
 		const std::map<uint32_t, ShaderSetDescriptor*>& setDescriptors = material.GetSetDescriptors();
 
@@ -105,7 +105,7 @@ namespace hod::inline renderer
 		}
 
 		/*
-		const ReflectionDescriptor& reflectionDescriptor = const_cast<GraphicsPipeline&>(materialInstance.GetGraphicsPipeline()).GetReflectionDescriptorForParameters();
+		const ReflectionDescriptor& reflectionDescriptor = const_cast<Material&>(materialInstance.GetMaterial()).GetReflectionDescriptorForParameters();
 
 		char paramsBuffer[4096];
 		Serializer::Deserialize(reflectionDescriptor, static_cast<void*>(paramsBuffer), paramsNode);

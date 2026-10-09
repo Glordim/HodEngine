@@ -10,7 +10,7 @@ namespace hod::inline rhi
 	/// @brief
 	/// @param graphicsPipeline
 	MetalMaterialInstance::MetalMaterialInstance(const GraphicsPipeline& graphicsPipeline)
-	: MaterialInstance(graphicsPipeline)
+	: LegacyMaterialInstance(graphicsPipeline)
 	{
 		/*
 		static_cast<GraphicsPipelineMetal*>(graphicsPipeline);

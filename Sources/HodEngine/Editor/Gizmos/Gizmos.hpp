@@ -7,7 +7,7 @@
 
 #undef max
 
-namespace hod::inline rhi
+namespace hod::inline renderer
 {
 	class MaterialInstance;
 }

@@ -7,10 +7,15 @@
 
 namespace hod::inline rhi
 {
-	class GraphicsPipeline;
-	class MaterialInstance;
 	class PresentationSurface;
 	class Shader;
+	class Texture;
+}
+
+namespace hod::inline renderer
+{
+	class Material;
+	class MaterialInstance;
 }
 
 namespace hod::inline renderer
@@ -65,14 +70,17 @@ namespace hod::inline renderer
 		MaterialInstance* GetOverdrawMaterialInstance();
 		MaterialInstance* GetWireframeMaterialInstance();
 
+		// What a MaterialInstance draws for a texture set to null
+		Texture* GetWhiteTexture();
+
 	private:
-		GraphicsPipeline*         _overdrawnMaterial = nullptr;
+		Material*         _overdrawnMaterial = nullptr;
 		MaterialInstance* _overdrawnMaterialInstance = nullptr;
 
-		GraphicsPipeline*         _wireframeMaterial = nullptr;
+		Material*         _wireframeMaterial = nullptr;
 		MaterialInstance* _wireframeMaterialInstance = nullptr;
 
-		GraphicsPipeline*         _defaultMaterial = nullptr;
+		Material*         _defaultMaterial = nullptr;
 		MaterialInstance* _defaultMaterialInstance = nullptr;
 		Shader*           _defaultVertexShader = nullptr;
 		Shader*           _defaultFragmentShader = nullptr;
@@ -80,16 +88,18 @@ namespace hod::inline renderer
 		Vector<RenderView*> _renderViews;
 
 		/*
-		GraphicsPipeline* _unlitVertexColorMaterial = nullptr;
+		Material* _unlitVertexColorMaterial = nullptr;
 		MaterialInstance* _unlitVertexColorMaterialInstance = nullptr;
 
-		GraphicsPipeline* _unlitVertexColorLineMaterial = nullptr;
+		Material* _unlitVertexColorLineMaterial = nullptr;
 		MaterialInstance* _unlitVertexColorLineMaterialInstance = nullptr;
 
-		GraphicsPipeline* _sharedMinimalMaterial = nullptr;
+		Material* _sharedMinimalMaterial = nullptr;
 		*/
 
 		VisualizationMode _visualizationMode = VisualizationMode::Normal;
+
+		Texture* _whiteTexture = nullptr;
 
 		Vector<FrameResources> _frameResources;
 

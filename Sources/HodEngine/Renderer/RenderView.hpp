@@ -18,10 +18,14 @@ namespace hod::inline rhi
 {
 	class RenderTarget;
 	class PresentationSurface;
-	class MaterialInstance;
 	class Semaphore;
 	class Fence;
 	class CommandBuffer;
+}
+
+namespace hod::inline renderer
+{
+	class MaterialInstance;
 }
 
 namespace hod::inline renderer

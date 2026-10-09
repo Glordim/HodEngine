@@ -6,12 +6,13 @@
 #include "HodEngine/Renderer/MaterialManager.hpp"
 #include "HodEngine/Renderer/PickingManager.hpp"
 #include "HodEngine/Renderer/RenderView.hpp"
-#include "HodEngine/RHI/GraphicsPipeline.hpp"
-#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/Material.hpp"
+#include "HodEngine/Renderer/MaterialInstance.hpp"
 #include "HodEngine/RHI/PlatformRhiDevice.hpp"
 #include "HodEngine/RHI/PresentationSurface.hpp"
 #include "HodEngine/RHI/RhiDevice.hpp"
 #include "HodEngine/RHI/Shader.hpp"
+#include "HodEngine/RHI/Texture.hpp"
 
 #include "Shader/P2f_Unlit_Fragment.hpp"
 #include "Shader/P2f_Unlit_Vertex.hpp"
@@ -85,8 +86,11 @@ namespace hod::inline renderer
 		for (FrameResources& frameResources : _frameResources)
 		{
 			frameResources.Wait();
-			frameResources.DestroyAll();
+			frameResources.Clear();
 		}
+
+		DefaultAllocator::GetInstance().Delete(_whiteTexture);
+		_whiteTexture = nullptr;
 
 		_mainPresentationSurface = nullptr; // released with the others by the device
 		RhiDevice::GetInstance()->Clear();
@@ -166,7 +170,7 @@ namespace hod::inline renderer
 					return nullptr;
 				}
 
-				_defaultMaterial = rhiDevice->CreateGraphicsPipeline(vertexInput, 1, _defaultVertexShader, _defaultFragmentShader);
+				_defaultMaterial = Material::Create(vertexInput, 1, _defaultVertexShader, _defaultFragmentShader);
 				if (_defaultMaterial == nullptr)
 				{
 					DefaultAllocator::GetInstance().Delete(_defaultVertexShader);
@@ -177,7 +181,7 @@ namespace hod::inline renderer
 				}
 			}
 
-			_defaultMaterialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(_defaultMaterial);
+			_defaultMaterialInstance = MaterialInstance::Create(_defaultMaterial);
 		}
 
 		return _defaultMaterialInstance;
@@ -195,7 +199,7 @@ namespace hod::inline renderer
 				//_overdrawnMaterial = MaterialManager::GetInstance()->CreateMaterial("SpriteOverdraw"); // TODO
 			}
 
-			_overdrawnMaterialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(_overdrawnMaterial);
+			_overdrawnMaterialInstance = MaterialInstance::Create(_overdrawnMaterial);
 		}
 
 		return _overdrawnMaterialInstance;
@@ -212,13 +216,27 @@ namespace hod::inline renderer
 			{
 				// TODO
 				//_wireframeMaterial = MaterialManager::GetInstance()->GetData(
-				//	MaterialManager::GetInstance()->CreateMaterial("SpriteWireframe", GraphicsPipeline::PolygonMode::Line, GraphicsPipeline::Topololy::TRIANGLE));
+				//	MaterialManager::GetInstance()->CreateMaterial("SpriteWireframe", Material::PolygonMode::Line, Material::Topololy::TRIANGLE));
 			}
 
-			_wireframeMaterialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(_wireframeMaterial);
+			_wireframeMaterialInstance = MaterialInstance::Create(_wireframeMaterial);
 		}
 
 		return _wireframeMaterialInstance;
+	}
+
+	/// @brief
+	/// @return
+	Texture* Renderer::GetWhiteTexture()
+	{
+		if (_whiteTexture == nullptr)
+		{
+			uint8_t pixels[4 * 2 * 2] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
+
+			_whiteTexture = RhiDevice::GetInstance()->CreateTexture();
+			_whiteTexture->BuildBuffer(2, 2, pixels, Texture::CreateInfo());
+		}
+		return _whiteTexture;
 	}
 
 	/*

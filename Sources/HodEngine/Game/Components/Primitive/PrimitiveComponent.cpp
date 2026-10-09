@@ -1,9 +1,9 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/Components/Primitive/PrimitiveComponent.hpp"
 
-#include <HodEngine/RHI/GraphicsPipeline.hpp>
+#include <HodEngine/Renderer/Material.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
-#include <HodEngine/RHI/MaterialInstance.hpp>
+#include <HodEngine/Renderer/MaterialInstance.hpp>
 #include <HodEngine/Renderer/Sprite.hpp>
 #include <HodEngine/Renderer/SpriteAtlas.hpp>
 

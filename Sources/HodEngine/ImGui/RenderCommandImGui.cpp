@@ -9,7 +9,10 @@
 
 #include <cstring>
 
-#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/FrameResources.hpp"
+#include "HodEngine/Renderer/Material.hpp"
+#include "HodEngine/Renderer/MaterialInstance.hpp"
+#include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/RHI/VertexInput.hpp"
 
 #include "HodEngine/Math/Rect.hpp"
@@ -44,7 +47,7 @@ namespace hod::inline imgui
 			return;
 		}
 
-		commandBuffer->SetGraphicsPipeline(ImGuiManager::GetInstance()->GetMaterial());
+		commandBuffer->SetGraphicsPipeline(ImGuiManager::GetInstance()->GetMaterial()->GetGraphicsPipeline());
 		commandBuffer->SetViewport(_viewport);
 
 		RhiDevice* rhiDevice = RhiDevice::GetInstance();
@@ -92,11 +95,11 @@ namespace hod::inline imgui
 			{
 				Command& command = drawList->_commands[commandIndex];
 
-				MaterialInstance* materialInstance = rhiDevice->CreateMaterialInstance(ImGuiManager::GetInstance()->GetMaterial());
+				MaterialInstance* materialInstance = MaterialInstance::Create(ImGuiManager::GetInstance()->GetMaterial());
 
 				materialInstance->SetTexture("image", command._texture);
-				commandBuffer->SetMaterialInstance(materialInstance, 0);
-				commandBuffer->DeleteAfterRender(materialInstance);
+				materialInstance->Bind(*commandBuffer);
+				Renderer::GetInstance()->GetCurrentFrameResources().DeleteAfter(materialInstance);
 
 				commandBuffer->SetScissor(command._clipRect);
 				commandBuffer->DrawIndexed(command._elementCount, command._indexOffset, command._vertexOffset);

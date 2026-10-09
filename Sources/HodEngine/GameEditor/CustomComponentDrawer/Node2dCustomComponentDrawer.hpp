@@ -6,7 +6,7 @@
 
 #include "HodEngine/Editor/Gizmos/Gizmos.hpp"
 
-namespace hod::inline rhi
+namespace hod::inline renderer
 {
 	class MaterialInstance;
 }

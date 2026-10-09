@@ -3,8 +3,9 @@
 
 #include "HodEngine/RHI/Buffer.hpp"
 #include "HodEngine/RHI/CommandBuffer.hpp"
-#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/MaterialInstance.hpp"
 
+#include "HodEngine/Renderer/FrameResources.hpp"
 #include "HodEngine/Renderer/PickingManager.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/RHI/RhiDevice.hpp"
@@ -84,9 +85,9 @@ namespace hod::inline renderer
 		{
 			Color color = PickingManager::ConvertIdToColor(_pickingId);
 
-			materialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(&overrideMaterial->GetGraphicsPipeline());
+			materialInstance = MaterialInstance::Create(&overrideMaterial->GetMaterial());
 			materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
-			commandBuffer->DeleteAfterRender(materialInstance);
+			Renderer::GetInstance()->GetCurrentFrameResources().DeleteAfter(materialInstance);
 		}
 		else if (_ignoreVisualisationMode == false)
 		{
@@ -99,7 +100,7 @@ namespace hod::inline renderer
 				materialInstance = (Renderer::GetInstance()->GetOverdrawMaterialInstance());
 			}
 		}
-		commandBuffer->SetMaterialInstance(materialInstance, 0);
+		materialInstance->Bind(*commandBuffer);
 
 		StaticArray<Buffer*, 3> vertexBuffers = {nullptr, nullptr, nullptr};
 		uint32_t               vertexBufferCount = 0;
@@ -185,7 +186,7 @@ namespace hod::inline renderer
 		{
 			if (renderer->GetVisualizationMode() == Renderer::VisualizationMode::NormalWithWireframe)
 			{
-				commandBuffer->SetMaterialInstance(Renderer::GetInstance()->GetWireframeMaterialInstance());
+				Renderer::GetInstance()->GetWireframeMaterialInstance()->Bind(*commandBuffer);
 				commandBuffer->DrawIndexed((uint32_t)_indices.Size(), 0, 0);
 			}
 		}

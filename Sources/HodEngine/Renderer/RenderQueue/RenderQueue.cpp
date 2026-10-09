@@ -4,7 +4,7 @@
 #include "HodEngine/Renderer/RenderCommand/RenderCommand.hpp"
 #include "HodEngine/RHI/CommandBuffer.hpp"
 #include "HodEngine/RHI/Fence.hpp"
-#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/MaterialInstance.hpp"
 #include "HodEngine/RHI/RenderTarget.hpp"
 #include "HodEngine/RHI/Semaphore.hpp"
 

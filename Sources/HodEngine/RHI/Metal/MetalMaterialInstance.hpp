@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/RHI/Export.hpp"
 
-#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/RHI/LegacyMaterialInstance.hpp"
 
 namespace MTL4
 {
@@ -14,7 +14,7 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	class HOD_RHI_API MetalMaterialInstance : public MaterialInstance
+	class HOD_RHI_API MetalMaterialInstance : public LegacyMaterialInstance
 	{
 	public:
 

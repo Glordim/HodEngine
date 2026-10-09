@@ -1,7 +1,7 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
-#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/MaterialInstance.hpp"
 #include "HodEngine/RHI/RhiDevice.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
@@ -61,14 +61,14 @@ namespace hod::inline renderer
 			OUTPUT_ERROR("MaterialInstanceResource::Initialize: MaterialResource is nullptr");
 			return false;
 		}
-		GraphicsPipeline* material = materialResource->GetMaterial();
+		Material* material = materialResource->GetMaterial();
 		if (material == nullptr)
 		{
 			OUTPUT_ERROR("MaterialInstanceResource::Initialize: Material is nullptr");
 			return false;
 		}
 
-		_materialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(material);
+		_materialInstance = MaterialInstance::Create(material);
 		if (_materialInstance == nullptr)
 		{
 			OUTPUT_ERROR("MaterialInstanceResource::Initialize: Unable to CreateMaterialInstance");

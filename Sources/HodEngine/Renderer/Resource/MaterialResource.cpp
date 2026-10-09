@@ -2,7 +2,7 @@
 #include "HodEngine/RHI/RhiDevice.hpp"
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
-#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/MaterialInstance.hpp"
 #include "HodEngine/RHI/VertexInput.hpp"
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
@@ -91,14 +91,14 @@ namespace hod::inline renderer
 		vertexInputs.PushBack(VertexInput(0, 0, VertexInput::Format::R32G32_SFloat));
 		vertexInputs.PushBack(VertexInput(1, 8, VertexInput::Format::R32G32_SFloat));
 
-		_material = RhiDevice::GetInstance()->CreateGraphicsPipeline(vertexInputs.Data(), (uint32_t)vertexInputs.Size(), _vertexShader, _fragmentShader, _polygonMode, _topololy, false);
+		_material = Material::Create(vertexInputs.Data(), (uint32_t)vertexInputs.Size(), _vertexShader, _fragmentShader, _polygonMode, _topololy, false);
 		if (_material == nullptr)
 		{
 			OUTPUT_ERROR("MaterialResource::Initialize: load material failed");
 			return false;
 		}
 
-		_defaultInstance = RhiDevice::GetInstance()->CreateMaterialInstance(_material);
+		_defaultInstance = MaterialInstance::Create(_material);
 		MaterialSerializationHelper::ApplyParamsFromDocument(*_defaultInstance, _defaultInstanceParams.GetRootNode(), _textureResources);
 
 		return true;
@@ -106,7 +106,7 @@ namespace hod::inline renderer
 
 	/// @brief
 	/// @return
-	GraphicsPipeline* MaterialResource::GetMaterial() const
+	Material* MaterialResource::GetMaterial() const
 	{
 		return _material;
 	}

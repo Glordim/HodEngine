@@ -3,7 +3,7 @@
 
 #include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawer.hpp"
 
-namespace hod::inline rhi
+namespace hod::inline renderer
 {
 	class MaterialInstance;
 }

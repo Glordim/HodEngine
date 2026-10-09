@@ -11,7 +11,7 @@ namespace hod::inline rhi
 	/// @brief
 	/// @param graphicsPipeline
 	VkMaterialInstance::VkMaterialInstance(const GraphicsPipeline& graphicsPipeline)
-	: MaterialInstance(graphicsPipeline)
+	: LegacyMaterialInstance(graphicsPipeline)
 	{
 		const GraphicsPipelineVulkan*                                         graphicsPipelineVulkan = static_cast<const GraphicsPipelineVulkan*>(&graphicsPipeline);
 		const std::map<uint32_t, ShaderSetDescriptor*>& descriptorSetLayoutMap = graphicsPipelineVulkan->GetSetDescriptors();

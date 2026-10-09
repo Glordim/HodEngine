@@ -11,8 +11,8 @@
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/RHI/GraphicsPipeline.hpp>
-#include <HodEngine/RHI/MaterialInstance.hpp>
+#include <HodEngine/Renderer/Material.hpp>
+#include <HodEngine/Renderer/MaterialInstance.hpp>
 #include <HodEngine/Renderer/Sprite.hpp>
 #include <HodEngine/Renderer/SpriteAtlas.hpp>
 
@@ -29,8 +29,8 @@ namespace hod::inline game
 	/// @brief
 	TextRendererComponent::TextRendererComponent()
 	{
-		const GraphicsPipeline* material = MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
-		_materialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(material);
+		const Material* material = MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+		_materialInstance = MaterialInstance::Create(material);
 	}
 
 	/// @brief

@@ -188,7 +188,7 @@ namespace hod::inline rhi
 		//_sharedMinimalMaterialInstance->SetMat4("viewUbo.proj", projectionMatrix);
 		//_sharedMinimalMaterialInstance->SetMat4("viewUbo.vp", projectionMatrix * _sharedMinimalMaterialInstance->GetMat4("viewUbo.view"));
 
-		// SetMaterialInstance(_sharedMinimalMaterialInstance, 0, 1);
+		// SetLegacyMaterialInstance(_sharedMinimalMaterialInstance, 0, 1);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -201,7 +201,7 @@ namespace hod::inline rhi
 		_sharedMinimalMaterialInstance->SetMat4("viewUbo.view", viewMatrix);
 		_sharedMinimalMaterialInstance->SetMat4("viewUbo.vp", _sharedMinimalMaterialInstance->GetMat4("viewUbo.proj") * viewMatrix);
 
-		SetMaterialInstance(_sharedMinimalMaterialInstance, 0, 1);
+		SetLegacyMaterialInstance(_sharedMinimalMaterialInstance, 0, 1);
 		*/
 	}
 
@@ -211,11 +211,11 @@ namespace hod::inline rhi
 	void CommandBufferVk::SetModelMatrix(const Matrix4& /*modelMatrix*/)
 	{
 		/*
-		MaterialInstance* modelMaterialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(&_sharedMinimalMaterialInstance->GetGraphicsPipeline());
+		LegacyMaterialInstance* modelMaterialInstance = RhiDevice::GetInstance()->CreateLegacyMaterialInstance(&_sharedMinimalMaterialInstance->GetGraphicsPipeline());
 		modelMaterialInstance->SetMat4("modelUbo.model", modelMatrix);
 		modelMaterialInstance->SetMat4("modelUbo.mvp", _sharedMinimalMaterialInstance->GetMat4("viewUbo.vp") * modelMatrix);
 
-		SetMaterialInstance(modelMaterialInstance, 1, 1);
+		SetLegacyMaterialInstance(modelMaterialInstance, 1, 1);
 		*/
 	}
 
@@ -260,9 +260,9 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	void CommandBufferVk::SetMaterialInstance(const MaterialInstance* materialInstance, uint32_t setOffset, uint32_t setCount)
+	void CommandBufferVk::SetLegacyMaterialInstance(const LegacyMaterialInstance* materialInstance, uint32_t setOffset, uint32_t setCount)
 	{
-		VkMaterialInstance* vkMaterialInstance = static_cast<VkMaterialInstance*>(const_cast<MaterialInstance*>(materialInstance));
+		VkMaterialInstance* vkMaterialInstance = static_cast<VkMaterialInstance*>(const_cast<LegacyMaterialInstance*>(materialInstance));
 
 		const GraphicsPipelineVulkan* graphicsPipeline = static_cast<const GraphicsPipelineVulkan*>(&vkMaterialInstance->GetGraphicsPipeline());
 		if (_graphicsPipeline != graphicsPipeline)
@@ -277,7 +277,7 @@ namespace hod::inline rhi
 
 		if (descriptorSets.Empty() == false)
 		{
-			// One offset per uniform buffer of the bound sets: each set of a MaterialInstance has its own buffers, used from their start
+			// One offset per uniform buffer of the bound sets: each set of a LegacyMaterialInstance has its own buffers, used from their start
 			Vector<uint32_t> dynamicOffsets;
 			for (const auto& pair : _graphicsPipeline->GetSetDescriptors())
 			{

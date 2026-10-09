@@ -2,7 +2,7 @@
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/RHI/Buffer.hpp"
 #include "HodEngine/RHI/CommandBuffer.hpp"
-#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/RHI/LegacyMaterialInstance.hpp"
 
 namespace hod::inline rhi
 {
@@ -17,7 +17,7 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	void CommandBuffer::DeleteAfterRender(MaterialInstance* materialInstance)
+	void CommandBuffer::DeleteAfterRender(LegacyMaterialInstance* materialInstance)
 	{
 		_materialInstanceToDelete.push_back(materialInstance);
 	}
@@ -35,7 +35,7 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	void CommandBuffer::PurgePointerToDelete()
 	{
-		for (MaterialInstance* materialInstance : _materialInstanceToDelete)
+		for (LegacyMaterialInstance* materialInstance : _materialInstanceToDelete)
 		{
 			DefaultAllocator::GetInstance().Delete(materialInstance);
 		}

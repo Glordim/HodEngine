@@ -24,7 +24,7 @@
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
-#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/MaterialInstance.hpp"
 
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
 
@@ -58,7 +58,7 @@ namespace hod::inline editor
 			_material = ResourceManager::GetInstance()->GetResource<MaterialResource>(asset->GetUid());
 			if (_material != nullptr)
 			{
-				GraphicsPipeline* material = _material->GetMaterial();
+				Material* material = _material->GetMaterial();
 				if (material != nullptr)
 				{
 					MaterialSerializationHelper::GenerateParameters(*material, _parameters);

@@ -8,7 +8,7 @@
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/RHI/MaterialInstance.hpp>
+#include <HodEngine/Renderer/MaterialInstance.hpp>
 
 #include <HodEngine/Game/Components/CameraComponent.hpp>
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
@@ -22,7 +22,7 @@ namespace hod::inline editor
 	/// @brief
 	CameraCustomComponentDrawer::CameraCustomComponentDrawer()
 	{
-		_materialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(
+		_materialInstance = MaterialInstance::Create(
 			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
 		_materialInstance->SetVec4("ubo.color", Vector4(0.8f, 0.8f, 0.8f, 1.0f));
 	}

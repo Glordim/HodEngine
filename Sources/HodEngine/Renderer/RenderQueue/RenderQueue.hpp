@@ -9,6 +9,10 @@
 namespace hod::inline rhi
 {
 	class CommandBuffer;
+}
+
+namespace hod::inline renderer
+{
 	class MaterialInstance;
 }
 

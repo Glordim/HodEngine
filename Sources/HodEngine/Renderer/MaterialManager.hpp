@@ -7,12 +7,12 @@
 #include <HodEngine/Core/Singleton.hpp>
 #include <HodEngine/Core/UID.hpp>
 
-#include "HodEngine/RHI/GraphicsPipeline.hpp"
+#include "HodEngine/Renderer/Material.hpp"
 #include "HodEngine/Core/StaticArray.hpp"
 
 #include <utility>
 
-namespace hod::inline rhi
+namespace hod::inline renderer
 {
 	class MaterialInstance;
 }
@@ -48,14 +48,14 @@ namespace hod::inline renderer
 		~MaterialManager();
 		void Clear();
 
-		const GraphicsPipeline* GetBuiltinMaterial(BuiltinMaterial buildMaterial);
+		const Material* GetBuiltinMaterial(BuiltinMaterial buildMaterial);
 		const MaterialInstance* GetBuiltinMaterialDefaultInstance(BuiltinMaterial buildMaterial);
 
-		UID CreateMaterial(const String& shaderName, GraphicsPipeline::PolygonMode polygonMode = GraphicsPipeline::PolygonMode::Fill, GraphicsPipeline::Topololy topololy = GraphicsPipeline::Topololy::TRIANGLE,
+		UID CreateMaterial(const String& shaderName, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE,
 		                   bool useDepth = true);
 
 	private:
-		StaticArray<GraphicsPipeline*, static_cast<uint32_t>(BuiltinMaterial::Count)> _builtinMaterials = {nullptr}; // c++23 std::to_underlying
+		StaticArray<Material*, static_cast<uint32_t>(BuiltinMaterial::Count)> _builtinMaterials = {nullptr}; // c++23 std::to_underlying
 		StaticArray<MaterialInstance*, static_cast<uint32_t>(BuiltinMaterial::Count)> _builtinDefaultInstances = {nullptr};
 		StaticArray<Shader*, static_cast<uint32_t>(BuiltinMaterial::Count)>   _builtinVertexShaders = {nullptr};
 		StaticArray<Shader*, static_cast<uint32_t>(BuiltinMaterial::Count)>   _builtinFragmentShaders = {nullptr};

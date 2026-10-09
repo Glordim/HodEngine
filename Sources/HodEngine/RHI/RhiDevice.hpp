@@ -23,7 +23,7 @@ namespace hod::inline rhi
 	class Buffer;
 	class CommandBuffer;
 	class GraphicsPipeline;
-	class MaterialInstance;
+	class LegacyMaterialInstance;
 	class Texture;
 	class PresentationSurface;
 	class VertexInput;
@@ -59,7 +59,7 @@ namespace hod::inline rhi
 		virtual GraphicsPipeline*         CreateGraphicsPipeline(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
 		                                         GraphicsPipeline::PolygonMode polygonMode = GraphicsPipeline::PolygonMode::Fill, GraphicsPipeline::Topololy topololy = GraphicsPipeline::Topololy::TRIANGLE,
 		                                         bool useDepth = true) = 0;
-		virtual MaterialInstance* CreateMaterialInstance(const GraphicsPipeline* graphicsPipeline) = 0;
+		virtual LegacyMaterialInstance* CreateLegacyMaterialInstance(const GraphicsPipeline* graphicsPipeline) = 0;
 		virtual Texture*          CreateTexture() = 0;
 		virtual RenderTarget*     CreateRenderTarget() = 0;
 

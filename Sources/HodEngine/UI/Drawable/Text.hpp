@@ -4,7 +4,7 @@
 #include <HodEngine/Core/Event.hpp>
 #include <HodEngine/GameSystems/Resource/WeakResource.hpp>
 #include <HodEngine/Renderer/Resource/FontResource.hpp>
-#include <HodEngine/RHI/MaterialInstance.hpp>
+#include <HodEngine/Renderer/MaterialInstance.hpp>
 
 namespace hod::inline ui
 {

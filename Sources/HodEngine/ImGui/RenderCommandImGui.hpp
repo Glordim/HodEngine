@@ -11,7 +11,11 @@
 namespace hod::inline rhi
 {
 	class Texture;
-	class GraphicsPipeline;
+}
+
+namespace hod::inline renderer
+{
+	class Material;
 	class MaterialInstance;
 }
 

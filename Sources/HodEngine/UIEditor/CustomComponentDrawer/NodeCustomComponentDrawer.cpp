@@ -12,7 +12,7 @@
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/RHI/MaterialInstance.hpp>
+#include <HodEngine/Renderer/MaterialInstance.hpp>
 #include <HodEngine/RHI/RenderTarget.hpp>
 
 #include "HodEngine/Editor/EditorReflectedObject.hpp"

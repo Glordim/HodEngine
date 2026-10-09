@@ -479,7 +479,7 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	MaterialInstance* RhiDeviceDirectX12::CreateMaterialInstance(const GraphicsPipeline* /*graphicsPipeline*/)
+	LegacyMaterialInstance* RhiDeviceDirectX12::CreateLegacyMaterialInstance(const GraphicsPipeline* /*graphicsPipeline*/)
 	{
 		return nullptr;
 		/*

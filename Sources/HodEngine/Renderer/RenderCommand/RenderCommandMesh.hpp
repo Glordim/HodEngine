@@ -10,7 +10,7 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
-namespace hod::inline rhi
+namespace hod::inline renderer
 {
 	class MaterialInstance;
 }

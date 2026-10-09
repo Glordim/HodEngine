@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/RHI/Export.hpp"
 
-#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/RHI/LegacyMaterialInstance.hpp"
 
 #include "HodEngine/RHI/Vulkan/DescriptorSet.hpp"
 #include <vulkan/vulkan.h>
@@ -11,7 +11,7 @@ namespace hod::inline rhi
 	class GraphicsPipelineVulkan;
 
 	/// @brief 
-	class HOD_RHI_API VkMaterialInstance : public MaterialInstance
+	class HOD_RHI_API VkMaterialInstance : public LegacyMaterialInstance
 	{
 	public:
 

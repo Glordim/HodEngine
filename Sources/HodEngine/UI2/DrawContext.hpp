@@ -7,7 +7,7 @@
 #include <HodEngine/Renderer/RenderCommand/RenderCommandScissor.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
 
-namespace hod::inline rhi
+namespace hod::inline renderer
 {
 	class MaterialInstance;
 }

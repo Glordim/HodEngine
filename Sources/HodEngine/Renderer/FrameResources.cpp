@@ -1,5 +1,6 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/FrameResources.hpp"
+#include "HodEngine/Renderer/MaterialInstance.hpp"
 
 #include "HodEngine/RHI/RhiDevice.hpp"
 #include "HodEngine/Renderer/RenderView.hpp"
@@ -22,6 +23,7 @@ namespace hod::inline renderer
 		Assert(_semaphores.Empty());
 		Assert(_fences.Empty());
 		Assert(_renderViews.Empty());
+		Assert(_materialInstances.Empty());
 		Assert(_imageAvalaibleSemaphores.Empty());
 	}
 
@@ -57,7 +59,31 @@ namespace hod::inline renderer
 		}
 		_renderViews.Clear();
 
+		for (MaterialInstance* materialInstance : _materialInstances)
+		{
+			DefaultAllocator::GetInstance().Delete(materialInstance);
+		}
+		_materialInstances.Clear();
+
+		_uniformAllocator.Reset();
+
 		_imageAvalaibleSemaphores.Clear();
+	}
+
+	void FrameResources::Clear()
+	{
+		DestroyAll();
+		_uniformAllocator.Clear();
+	}
+
+	UniformAllocator& FrameResources::GetUniformAllocator()
+	{
+		return _uniformAllocator;
+	}
+
+	void FrameResources::DeleteAfter(MaterialInstance* materialInstance)
+	{
+		_materialInstances.PushBack(materialInstance);
 	}
 
 	CommandBuffer* FrameResources::CreateCommandBuffer()

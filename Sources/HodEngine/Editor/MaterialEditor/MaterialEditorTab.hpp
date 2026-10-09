@@ -16,7 +16,7 @@
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
 #include "HodEngine/Core/Document/Document.hpp"
-#include "HodEngine/RHI/GraphicsPipeline.hpp"
+#include "HodEngine/Renderer/Material.hpp"
 
 namespace hod::inline renderer
 {
@@ -29,8 +29,8 @@ namespace hod::inline editor
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(MaterialSettings)
 
-		GraphicsPipeline::PolygonMode		_polygonMode = GraphicsPipeline::PolygonMode::Fill;
-		GraphicsPipeline::Topololy			_topololy = GraphicsPipeline::Topololy::TRIANGLE;
+		Material::PolygonMode		_polygonMode = Material::PolygonMode::Fill;
+		Material::Topololy			_topololy = Material::Topololy::TRIANGLE;
 
 		Document					_defaultInstanceParams;
 	};

@@ -18,7 +18,7 @@ namespace hod::inline rhi
 {
 	class BindGroup;
 	class GraphicsPipeline;
-	class MaterialInstance;
+	class LegacyMaterialInstance;
 	class Buffer;
 	class PresentationSurface;
 	class RenderTarget;
@@ -37,7 +37,7 @@ namespace hod::inline rhi
 
 	public:
 		void PurgePointerToDelete();
-		void DeleteAfterRender(MaterialInstance* materialInstance);
+		void DeleteAfterRender(LegacyMaterialInstance* materialInstance);
 		void DeleteAfterRender(Buffer* buffer);
 
 		virtual bool StartRecord() = 0;
@@ -57,7 +57,7 @@ namespace hod::inline rhi
 		virtual void SetScissor(const Rect& scissor) = 0;
 
 		virtual void SetGraphicsPipeline(const GraphicsPipeline* graphicsPipeline) = 0;
-		virtual void SetMaterialInstance(const MaterialInstance* materialInstance, uint32_t setOffset = 2, uint32_t setCount = UINT32_MAX) = 0;
+		virtual void SetLegacyMaterialInstance(const LegacyMaterialInstance* materialInstance, uint32_t setOffset = 2, uint32_t setCount = UINT32_MAX) = 0;
 		// Binds a BindGroup to a set of the current GraphicsPipeline.
 		// uniformBufferOffsets: where each uniform buffer of the BindGroup is read for the next draws, one per uniform block of the set.
 		virtual void SetBindGroup(uint32_t set, const BindGroup* bindGroup, const uint32_t* uniformBufferOffsets, uint32_t uniformBufferOffsetCount) = 0;
@@ -74,7 +74,7 @@ namespace hod::inline rhi
 		Matrix4 _view;
 
 	private:
-		Vector<MaterialInstance*> _materialInstanceToDelete;
+		Vector<LegacyMaterialInstance*> _materialInstanceToDelete;
 		Vector<Buffer*>           _bufferToDelete;
 	};
 }

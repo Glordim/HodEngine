@@ -444,8 +444,8 @@ namespace hod::inline rhi
 		    return false;
 		}
 
-		_unlitVertexColorMaterialInstance = CreateMaterialInstance(_unlitVertexColorMaterial);
-		_unlitVertexColorLineMaterialInstance = CreateMaterialInstance(_unlitVertexColorLineMaterial);
+		_unlitVertexColorMaterialInstance = CreateLegacyMaterialInstance(_unlitVertexColorMaterial);
+		_unlitVertexColorLineMaterialInstance = CreateLegacyMaterialInstance(_unlitVertexColorLineMaterial);
 		*/
 
 		return true;
@@ -1364,7 +1364,7 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	MaterialInstance* RhiDeviceVulkan::CreateMaterialInstance(const GraphicsPipeline* graphicsPipeline)
+	LegacyMaterialInstance* RhiDeviceVulkan::CreateLegacyMaterialInstance(const GraphicsPipeline* graphicsPipeline)
 	{
 		if (graphicsPipeline == nullptr)
 		{

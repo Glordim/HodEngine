@@ -3,9 +3,9 @@
 #include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
 #include "HodEngine/Math/Vector4.hpp"
 
-namespace hod::inline rhi
+namespace hod::inline renderer
 {
-	class GraphicsPipeline;
+	class Material;
 	class MaterialInstance;
 }
 
@@ -46,7 +46,7 @@ namespace hod::inline editor
 	{
 	public:
 
-								RenderCommandPhysicsDrawer(const physics::RenderCommand& renderCommand, const GraphicsPipeline& material);
+								RenderCommandPhysicsDrawer(const physics::RenderCommand& renderCommand, const Material& material);
 								RenderCommandPhysicsDrawer(const RenderCommandPhysicsDrawer&) = delete;
 								RenderCommandPhysicsDrawer(RenderCommandPhysicsDrawer&&) = delete;
 								~RenderCommandPhysicsDrawer() override = default;
@@ -60,7 +60,7 @@ namespace hod::inline editor
 
 	private:
 
-		const GraphicsPipeline&	_material;
+		const Material&	_material;
 		Vector4						_color;
 	};
 }

@@ -20,6 +20,7 @@
 #include "HodEngine/ImGui/Window/Window.hpp"
 
 #include <HodEngine/Renderer/FrameResources.hpp>
+#include <HodEngine/Renderer/Material.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
@@ -985,7 +986,7 @@ namespace hod::inline imgui
 
 	/// @brief
 	/// @return
-	GraphicsPipeline* ImGuiManager::GetMaterial() const
+	Material* ImGuiManager::GetMaterial() const
 	{
 		return _material;
 	}
@@ -1019,7 +1020,7 @@ namespace hod::inline imgui
 				return false;
 			}
 
-			_material = rhiDevice->CreateGraphicsPipeline(vertexInput, 3, _vertexShader, _fragmentShader);
+			_material = Material::Create(vertexInput, 3, _vertexShader, _fragmentShader);
 			if (_material == nullptr)
 			{
 				DefaultAllocator::GetInstance().Delete(_material);

@@ -168,7 +168,7 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	MaterialInstance* RhiDeviceMetal::CreateMaterialInstance(const GraphicsPipeline* graphicsPipeline)
+	LegacyMaterialInstance* RhiDeviceMetal::CreateLegacyMaterialInstance(const GraphicsPipeline* graphicsPipeline)
 	{
 		return DefaultAllocator::GetInstance().New<MetalMaterialInstance>(*graphicsPipeline);
 	}

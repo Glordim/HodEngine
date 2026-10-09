@@ -202,7 +202,7 @@ namespace hod::inline rhi
 	/// @param materialInstance
 	/// @param setOffset
 	/// @param setCount
-	void MetalCommandBuffer::SetMaterialInstance(const MaterialInstance* materialInstance, uint32_t setOffset, uint32_t setCount)
+	void MetalCommandBuffer::SetLegacyMaterialInstance(const LegacyMaterialInstance* materialInstance, uint32_t setOffset, uint32_t setCount)
 	{
 		// TODO
 		(void)setOffset;

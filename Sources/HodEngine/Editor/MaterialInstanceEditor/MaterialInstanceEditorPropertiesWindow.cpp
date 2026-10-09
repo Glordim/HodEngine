@@ -27,8 +27,8 @@
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include <HodEngine/Renderer/Resource/MaterialInstanceResource.hpp>
-#include <HodEngine/RHI/GraphicsPipeline.hpp>
-#include <HodEngine/RHI/MaterialInstance.hpp>
+#include <HodEngine/Renderer/Material.hpp>
+#include <HodEngine/Renderer/MaterialInstance.hpp>
 
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 

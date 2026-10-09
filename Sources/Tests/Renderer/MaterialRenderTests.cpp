@@ -19,7 +19,7 @@
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
 
-#include <HodEngine/RHI/MaterialInstance.hpp>
+#include <HodEngine/Renderer/MaterialInstance.hpp>
 #include <HodEngine/RHI/RenderTarget.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/RHI/PresentationSurface.hpp>
@@ -86,7 +86,7 @@ protected:
 
 	MaterialInstance* CreateMaterialInstance(MaterialManager::BuiltinMaterial builtinMaterial)
 	{
-		MaterialInstance* materialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(MaterialManager::GetInstance()->GetBuiltinMaterial(builtinMaterial));
+		MaterialInstance* materialInstance = MaterialInstance::Create(MaterialManager::GetInstance()->GetBuiltinMaterial(builtinMaterial));
 		_materialInstances.PushBack(materialInstance);
 		return materialInstance;
 	}

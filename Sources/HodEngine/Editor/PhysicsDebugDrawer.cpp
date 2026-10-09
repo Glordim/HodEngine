@@ -6,7 +6,10 @@
 #include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
 #include "HodEngine/RHI/RhiDevice.hpp"
 #include "HodEngine/Renderer/RenderView.hpp"
-#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/FrameResources.hpp"
+#include "HodEngine/Renderer/Material.hpp"
+#include "HodEngine/Renderer/MaterialInstance.hpp"
+#include "HodEngine/Renderer/Renderer.hpp"
 
 #include "HodEngine/Renderer/MaterialManager.hpp"
 #include "HodEngine/RHI/CommandBuffer.hpp"
@@ -25,14 +28,14 @@ namespace hod::inline editor
 	{
 		MaterialManager* materialManager = MaterialManager::GetInstance();
 
-		const GraphicsPipeline* material = materialManager->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_TriangleFan);
-		_solidPolygonMaterialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(material);
+		const Material* material = materialManager->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_TriangleFan);
+		_solidPolygonMaterialInstance = MaterialInstance::Create(material);
 
 		material = materialManager->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line_TriangleFan);
-		_wireframePolygonMaterialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(material);
+		_wireframePolygonMaterialInstance = MaterialInstance::Create(material);
 
 		material = materialManager->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line);
-		_lineMaterialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(material);
+		_lineMaterialInstance = MaterialInstance::Create(material);
 	}
 
 	/// @brief
@@ -76,12 +79,12 @@ namespace hod::inline editor
 				materialInstance = PhysicsDebugDrawer::_solidPolygonMaterialInstance;
 			}
 
-			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandPhysicsDrawer>(renderCommand, materialInstance->GetGraphicsPipeline()));
+			renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandPhysicsDrawer>(renderCommand, materialInstance->GetMaterial()));
 		}
 	}
 
 	/// @brief
-	RenderCommandPhysicsDrawer::RenderCommandPhysicsDrawer(const physics::RenderCommand& renderCommand, const GraphicsPipeline& material)
+	RenderCommandPhysicsDrawer::RenderCommandPhysicsDrawer(const physics::RenderCommand& renderCommand, const Material& material)
 	: RenderCommandMesh(renderCommand._vertices.Data(), nullptr, nullptr, (uint32_t)renderCommand._vertices.Size(), nullptr, 0, Matrix4::Identity, nullptr, true)
 	, _material(material)
 	, _color(renderCommand._color.r, renderCommand._color.g, renderCommand._color.b, renderCommand._color.a)
@@ -97,9 +100,9 @@ namespace hod::inline editor
 			return;
 		}
 
-		_materialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(&_material);
+		_materialInstance = MaterialInstance::Create(&_material);
 		const_cast<MaterialInstance*>(_materialInstance)->SetVec4("ubo.color", _color);
 		RenderCommandMesh::Execute(commandBuffer, overrideMaterial);
-		commandBuffer->DeleteAfterRender(const_cast<MaterialInstance*>(_materialInstance));
+		Renderer::GetInstance()->GetCurrentFrameResources().DeleteAfter(const_cast<MaterialInstance*>(_materialInstance));
 	}
 }

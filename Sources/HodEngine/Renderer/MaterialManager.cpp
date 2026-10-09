@@ -1,8 +1,8 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/MaterialManager.hpp"
 
-#include "HodEngine/RHI/GraphicsPipeline.hpp"
-#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/Material.hpp"
+#include "HodEngine/Renderer/MaterialInstance.hpp"
 #include "HodEngine/RHI/Shader.hpp"
 
 #include "HodEngine/RHI/RhiDevice.hpp"
@@ -55,7 +55,7 @@ namespace hod::inline renderer
 		BuiltinMaterialSource(const uint8_t* vertexShaderBytecode, const uint32_t vertexShaderBytecodeSize, const char* vertexShaderReflection,
 		                      const uint32_t vertexShaderReflectionSize, const uint8_t* fragmentShaderBytecode, const uint32_t fragmentShaderBytecodeSize,
 		                      const char* fragmentShaderReflection, const uint32_t fragmentShaderReflectionSize, const Vector<VertexInput>& vertexInputs,
-		                      GraphicsPipeline::PolygonMode polygonMode, GraphicsPipeline::Topololy topology)
+		                      Material::PolygonMode polygonMode, Material::Topololy topology)
 		: _vertexShaderBytecode(vertexShaderBytecode)
 		, _vertexShaderBytecodeSize(vertexShaderBytecodeSize)
 		, _vertexShaderReflection(vertexShaderReflection)
@@ -86,8 +86,8 @@ namespace hod::inline renderer
 
 		Vector<VertexInput> _vertexInputs;
 
-		GraphicsPipeline::PolygonMode _polygonMode;
-		GraphicsPipeline::Topololy    _topology;
+		Material::PolygonMode _polygonMode;
+		Material::Topololy    _topology;
 	};
 
 	/// @brief
@@ -97,60 +97,60 @@ namespace hod::inline renderer
 	{
 		static BuiltinMaterialSource P2f_Unlit_Line(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Vertex_reflection, P2f_Unlit_Vertex_reflection_size, P2f_Unlit_Fragment,
 		                                            P2f_Unlit_Fragment_size, P2f_Unlit_Fragment_reflection, P2f_Unlit_Fragment_reflection_size,
-		                                            {VertexInput(0, 0, VertexInput::Format::R32G32_SFloat)}, GraphicsPipeline::PolygonMode::Fill, GraphicsPipeline::Topololy::LINE);
+		                                            {VertexInput(0, 0, VertexInput::Format::R32G32_SFloat)}, Material::PolygonMode::Fill, Material::Topololy::LINE);
 
 		static BuiltinMaterialSource P2f_Unlit_Triangle(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Vertex_reflection, P2f_Unlit_Vertex_reflection_size, P2f_Unlit_Fragment,
 		                                                P2f_Unlit_Fragment_size, P2f_Unlit_Fragment_reflection, P2f_Unlit_Fragment_reflection_size,
-		                                                {VertexInput(0, 0, VertexInput::Format::R32G32_SFloat)}, GraphicsPipeline::PolygonMode::Fill, GraphicsPipeline::Topololy::TRIANGLE);
+		                                                {VertexInput(0, 0, VertexInput::Format::R32G32_SFloat)}, Material::PolygonMode::Fill, Material::Topololy::TRIANGLE);
 
 		static BuiltinMaterialSource P2f_Unlit_TriangleFan(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Vertex_reflection, P2f_Unlit_Vertex_reflection_size,
 		                                                   P2f_Unlit_Fragment, P2f_Unlit_Fragment_size, P2f_Unlit_Fragment_reflection, P2f_Unlit_Fragment_reflection_size,
-		                                                   {VertexInput(0, 0, VertexInput::Format::R32G32_SFloat)}, GraphicsPipeline::PolygonMode::Fill, GraphicsPipeline::Topololy::TRIANGLE_FAN);
+		                                                   {VertexInput(0, 0, VertexInput::Format::R32G32_SFloat)}, Material::PolygonMode::Fill, Material::Topololy::TRIANGLE_FAN);
 
 		static BuiltinMaterialSource P2f_Unlit_Line_TriangleFan(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Vertex_reflection, P2f_Unlit_Vertex_reflection_size,
 		                                                        P2f_Unlit_Fragment, P2f_Unlit_Fragment_size, P2f_Unlit_Fragment_reflection, P2f_Unlit_Fragment_reflection_size,
-		                                                        {VertexInput(0, 0, VertexInput::Format::R32G32_SFloat)}, GraphicsPipeline::PolygonMode::Line,
-		                                                        GraphicsPipeline::Topololy::TRIANGLE_FAN);
+		                                                        {VertexInput(0, 0, VertexInput::Format::R32G32_SFloat)}, Material::PolygonMode::Line,
+		                                                        Material::Topololy::TRIANGLE_FAN);
 
 		static BuiltinMaterialSource P2f_Unlit_Line_LineStrip(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Vertex_reflection, P2f_Unlit_Vertex_reflection_size,
 		                                                      P2f_Unlit_Fragment, P2f_Unlit_Fragment_size, P2f_Unlit_Fragment_reflection, P2f_Unlit_Fragment_reflection_size,
-		                                                      {VertexInput(0, 0, VertexInput::Format::R32G32_SFloat)}, GraphicsPipeline::PolygonMode::Line, GraphicsPipeline::Topololy::LINE_STRIP);
+		                                                      {VertexInput(0, 0, VertexInput::Format::R32G32_SFloat)}, Material::PolygonMode::Line, Material::Topololy::LINE_STRIP);
 
 		static BuiltinMaterialSource P2fT2f_Texture_Unlit(P2fT2f_Texture_Unlit_Vertex, P2fT2f_Texture_Unlit_Vertex_size, P2fT2f_Texture_Unlit_Vertex_reflection,
 		                                                  P2fT2f_Texture_Unlit_Vertex_reflection_size, P2fT2f_Texture_Unlit_Fragment, P2fT2f_Texture_Unlit_Fragment_size,
 		                                                  P2fT2f_Texture_Unlit_Fragment_reflection, P2fT2f_Texture_Unlit_Fragment_reflection_size,
 		                                                  {VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32_SFloat)},
-		                                                  GraphicsPipeline::PolygonMode::Fill, GraphicsPipeline::Topololy::TRIANGLE);
+		                                                  Material::PolygonMode::Fill, Material::Topololy::TRIANGLE);
 
 		static BuiltinMaterialSource P2fT2f_Texture_Unlit_Color(P2fT2f_Texture_Unlit_Vertex, P2fT2f_Texture_Unlit_Vertex_size, P2fT2f_Texture_Unlit_Vertex_reflection,
 		                                                        P2fT2f_Texture_Unlit_Vertex_reflection_size, P2fT2f_Texture_Unlit_Fragment, P2fT2f_Texture_Unlit_Fragment_size,
 		                                                        P2fT2f_Texture_Unlit_Fragment_reflection, P2fT2f_Texture_Unlit_Fragment_reflection_size,
 		                                                        {VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32_SFloat)},
-		                                                        GraphicsPipeline::PolygonMode::Fill, GraphicsPipeline::Topololy::TRIANGLE);
+		                                                        Material::PolygonMode::Fill, Material::Topololy::TRIANGLE);
 
 		static BuiltinMaterialSource P2fC4f_Unlit_Fill_Triangle(
 			P2fC4f_Unlit_Vertex, P2fC4f_Unlit_Vertex_size, P2fC4f_Unlit_Vertex_reflection, P2fC4f_Unlit_Vertex_reflection_size, P2fC4f_Unlit_Fragment, P2fC4f_Unlit_Fragment_size,
 			P2fC4f_Unlit_Fragment_reflection, P2fC4f_Unlit_Fragment_reflection_size,
-			{VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32B32A32_SFloat)}, GraphicsPipeline::PolygonMode::Fill,
-			GraphicsPipeline::Topololy::TRIANGLE);
+			{VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32B32A32_SFloat)}, Material::PolygonMode::Fill,
+			Material::Topololy::TRIANGLE);
 
 		static BuiltinMaterialSource P2fC4f_Unlit_Fill_TriangleFan(
 			P2fC4f_Unlit_Vertex, P2fC4f_Unlit_Vertex_size, P2fC4f_Unlit_Vertex_reflection, P2fC4f_Unlit_Vertex_reflection_size, P2fC4f_Unlit_Fragment, P2fC4f_Unlit_Fragment_size,
 			P2fC4f_Unlit_Fragment_reflection, P2fC4f_Unlit_Fragment_reflection_size,
-			{VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32B32A32_SFloat)}, GraphicsPipeline::PolygonMode::Fill,
-			GraphicsPipeline::Topololy::TRIANGLE_FAN);
+			{VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32B32A32_SFloat)}, Material::PolygonMode::Fill,
+			Material::Topololy::TRIANGLE_FAN);
 
 		static BuiltinMaterialSource P2fC4f_Unlit_Line_TriangleFan(
 			P2fC4f_Unlit_Vertex, P2fC4f_Unlit_Vertex_size, P2fC4f_Unlit_Vertex_reflection, P2fC4f_Unlit_Vertex_reflection_size, P2fC4f_Unlit_Fragment, P2fC4f_Unlit_Fragment_size,
 			P2fC4f_Unlit_Fragment_reflection, P2fC4f_Unlit_Fragment_reflection_size,
-			{VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32B32A32_SFloat)}, GraphicsPipeline::PolygonMode::Line,
-			GraphicsPipeline::Topololy::TRIANGLE_FAN);
+			{VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32B32A32_SFloat)}, Material::PolygonMode::Line,
+			Material::Topololy::TRIANGLE_FAN);
 
 		static BuiltinMaterialSource P2fC4f_Unlit_Line_Line(P2fC4f_Unlit_Vertex, P2fC4f_Unlit_Vertex_size, P2fC4f_Unlit_Vertex_reflection, P2fC4f_Unlit_Vertex_reflection_size,
 		                                                    P2fC4f_Unlit_Fragment, P2fC4f_Unlit_Fragment_size, P2fC4f_Unlit_Fragment_reflection,
 		                                                    P2fC4f_Unlit_Fragment_reflection_size,
 		                                                    {VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32B32A32_SFloat)},
-		                                                    GraphicsPipeline::PolygonMode::Line, GraphicsPipeline::Topololy::LINE);
+		                                                    Material::PolygonMode::Line, Material::Topololy::LINE);
 
 		static StaticArray<const BuiltinMaterialSource*, std::to_underlying(MaterialManager::BuiltinMaterial::Count)> _builtinMaterialSources = {
 			&P2f_Unlit_Line,         &P2f_Unlit_Triangle,         &P2f_Unlit_TriangleFan,      &P2f_Unlit_Line_TriangleFan,    &P2f_Unlit_Line_LineStrip,
@@ -164,11 +164,11 @@ namespace hod::inline renderer
 	/// @brief
 	/// @param buildMaterial
 	/// @return
-	const GraphicsPipeline* MaterialManager::GetBuiltinMaterial(BuiltinMaterial buildMaterial)
+	const Material* MaterialManager::GetBuiltinMaterial(BuiltinMaterial buildMaterial)
 	{
 		assert(buildMaterial != BuiltinMaterial::Count);
 
-		GraphicsPipeline* material = _builtinMaterials[static_cast<uint32_t>(buildMaterial)]; // c++23 std::to_underlying
+		Material* material = _builtinMaterials[static_cast<uint32_t>(buildMaterial)]; // c++23 std::to_underlying
 		if (material == nullptr)
 		{
 			RhiDevice* rhiDevice = RhiDevice::GetInstance();
@@ -192,7 +192,7 @@ namespace hod::inline renderer
 				return nullptr;
 			}
 
-			material = rhiDevice->CreateGraphicsPipeline(builtinMaterialSource._vertexInputs.Data(), (uint32_t)builtinMaterialSource._vertexInputs.Size(), vertexShader, fragmentShader,
+			material = Material::Create(builtinMaterialSource._vertexInputs.Data(), (uint32_t)builtinMaterialSource._vertexInputs.Size(), vertexShader, fragmentShader,
 			                                    builtinMaterialSource._polygonMode, builtinMaterialSource._topology, true);
 
 			if (material == nullptr)
@@ -205,7 +205,7 @@ namespace hod::inline renderer
 			_builtinMaterials[static_cast<uint32_t>(buildMaterial)] = material; // c++23 std::to_underlying
 			_builtinVertexShaders[static_cast<uint32_t>(buildMaterial)] = vertexShader;
 			_builtinFragmentShaders[static_cast<uint32_t>(buildMaterial)] = fragmentShader;
-			_builtinDefaultInstances[static_cast<uint32_t>(buildMaterial)] = rhiDevice->CreateMaterialInstance(material);
+			_builtinDefaultInstances[static_cast<uint32_t>(buildMaterial)] = MaterialInstance::Create(material);
 		}
 		return material;
 	}
@@ -225,7 +225,7 @@ namespace hod::inline renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	UID MaterialManager::CreateMaterial(const String& shaderName, GraphicsPipeline::PolygonMode polygonMode, GraphicsPipeline::Topololy topololy, bool useDepth)
+	UID MaterialManager::CreateMaterial(const String& shaderName, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
 	{
 		(void)shaderName;
 		(void)polygonMode;
@@ -251,7 +251,7 @@ namespace hod::inline renderer
 		    return UID::INVALID_UID;
 		}
 
-		GraphicsPipeline* material = rhiDevice->CreateGraphicsPipeline(nullptr, 0, vertexShader, fragmentShader, polygonMode, topololy, useDepth);
+		Material* material = Material::Create(nullptr, 0, vertexShader, fragmentShader, polygonMode, topololy, useDepth);
 		if (material == nullptr)
 		{
 		    DefaultAllocator::GetInstance().Delete(vertexShader);

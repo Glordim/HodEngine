@@ -4,10 +4,10 @@
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
 #include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 
-#include "HodEngine/RHI/GraphicsPipeline.hpp"
+#include "HodEngine/Renderer/Material.hpp"
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"
 
-namespace hod::inline rhi
+namespace hod::inline renderer
 {
 	class MaterialInstance;
 }

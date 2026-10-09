@@ -87,7 +87,7 @@ namespace hod::inline editor
 		std::shared_ptr<hod::MaterialResource> materialResource = GetOwner<MaterialEditorTab>()->GetMaterial();
 		if (materialResource != nullptr)
 		{
-			GraphicsPipeline* material = materialResource->GetMaterial();
+			Material* material = materialResource->GetMaterial();
 			if (material != nullptr)
 			{
 				uint32_t resolutionWidth = (uint32_t)ImGui::GetContentRegionAvail().x;

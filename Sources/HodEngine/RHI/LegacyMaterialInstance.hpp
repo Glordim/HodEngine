@@ -16,16 +16,16 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	class HOD_RHI_API MaterialInstance
+	class HOD_RHI_API LegacyMaterialInstance
 	{
 	public:
-		MaterialInstance(const GraphicsPipeline& graphicsPipeline);
-		MaterialInstance(const MaterialInstance&) = delete;
-		MaterialInstance(MaterialInstance&&) = delete;
-		virtual ~MaterialInstance();
+		LegacyMaterialInstance(const GraphicsPipeline& graphicsPipeline);
+		LegacyMaterialInstance(const LegacyMaterialInstance&) = delete;
+		LegacyMaterialInstance(LegacyMaterialInstance&&) = delete;
+		virtual ~LegacyMaterialInstance();
 
-		void operator=(const MaterialInstance&) = delete;
-		void operator=(MaterialInstance&&) = delete;
+		void operator=(const LegacyMaterialInstance&) = delete;
+		void operator=(LegacyMaterialInstance&&) = delete;
 
 	public:
 		const GraphicsPipeline& GetGraphicsPipeline() const;

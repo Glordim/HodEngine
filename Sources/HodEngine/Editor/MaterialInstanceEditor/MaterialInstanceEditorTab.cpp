@@ -20,7 +20,7 @@
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 #include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 
-#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/MaterialInstance.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
@@ -57,7 +57,7 @@ namespace hod::inline editor
 				MaterialInstance* materialInstance = _materialInstance->GetMaterialInstance();
 				if (materialInstance != nullptr)
 				{
-					const GraphicsPipeline& material = materialInstance->GetGraphicsPipeline();
+					const Material& material = materialInstance->GetMaterial();
 
 					MaterialSerializationHelper::GenerateParameters(material, _parameters);
 					for (const ShaderParameter& param : _parameters)

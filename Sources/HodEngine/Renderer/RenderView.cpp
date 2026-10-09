@@ -5,7 +5,7 @@
 #include "HodEngine/Renderer/RenderCommand/RenderCommand.hpp"
 #include "HodEngine/RHI/CommandBuffer.hpp"
 #include "HodEngine/RHI/Fence.hpp"
-#include "HodEngine/RHI/MaterialInstance.hpp"
+#include "HodEngine/Renderer/MaterialInstance.hpp"
 #include "HodEngine/RHI/PresentationSurface.hpp"
 #include "HodEngine/RHI/RenderTarget.hpp"
 #include "HodEngine/RHI/Semaphore.hpp"
@@ -20,7 +20,7 @@ namespace hod::inline renderer
 	void RenderView::Init()
 	{
 		_pickingMaterialInstance =
-			RhiDevice::GetInstance()->CreateMaterialInstance(MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+			MaterialInstance::Create(MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 
 		_renderFinishedSemaphore = RhiDevice::GetInstance()->CreateSemaphore();
 		_renderFinishedFence = RhiDevice::GetInstance()->CreateFence();

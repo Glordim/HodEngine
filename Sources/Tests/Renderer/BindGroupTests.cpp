@@ -20,7 +20,7 @@
 #include <HodEngine/RHI/CommandBuffer.hpp>
 #include <HodEngine/RHI/Fence.hpp>
 #include <HodEngine/RHI/GraphicsPipeline.hpp>
-#include <HodEngine/RHI/MaterialInstance.hpp>
+#include <HodEngine/RHI/LegacyMaterialInstance.hpp>
 #include <HodEngine/RHI/RenderTarget.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/RHI/Shader.hpp>
@@ -390,17 +390,17 @@ TEST_F(BindGroupRender, BufferContentCanChangeBetweenFrames)
 	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Green));
 }
 
-// The MaterialInstance path on a pipeline with several sets: each value must land in the set declaring it
+// The LegacyMaterialInstance path on a pipeline with several sets: each value must land in the set declaring it
 TEST_F(BindGroupRender, MaterialInstanceSpansTheSetsOfThePipeline)
 {
-	MaterialInstance* materialInstance = RhiDevice::GetInstance()->CreateMaterialInstance(_graphicsPipeline);
+	LegacyMaterialInstance* materialInstance = RhiDevice::GetInstance()->CreateLegacyMaterialInstance(_graphicsPipeline);
 	ASSERT_NE(materialInstance, nullptr);
 	materialInstance->SetVec4("global.tint", ToVector4(Yellow));
 	materialInstance->SetVec4("ubo.color", ToVector4(Red));
 	materialInstance->SetTexture("image", nullptr);
 
 	RenderFrame([&]() {
-		_commandBuffer->SetMaterialInstance(materialInstance, 0);
+		_commandBuffer->SetLegacyMaterialInstance(materialInstance, 0);
 		DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f);
 	});
 
