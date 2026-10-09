@@ -73,8 +73,10 @@ if (BUILD_UNIT_TESTS AND NOT ANDROID)
 	include(CTest)
 	enable_testing()
 	add_subdirectory("Sources/Tests/Core")
+	add_subdirectory("Sources/Tests/Renderer")
 
 	set_target_properties(TestsCore PROPERTIES FOLDER "Test/")
+	set_target_properties(TestsRenderer PROPERTIES FOLDER "Test/")
 endif()
 
 install(EXPORT HodEngineTargets
