@@ -26,14 +26,12 @@ namespace hod::inline rhi
 
 		VkImage     GetTextureImage() const;
 		VkImageView GetTextureImageView() const;
-		VkSampler   GetTextureSampler() const;
 
 	private:
 		VkImage       _textureImage;
 		VmaAllocation _textureImageMemory;
 
 		VkImageView _textureImageView;
-		VkSampler   _textureSampler;
 
 		// CPU-visible copy of the texture content, kept up to date once per frame by CaptureReadback,
 		// so ReadPixel() can be a plain memory read instead of an immediate, blocking GPU round-trip.

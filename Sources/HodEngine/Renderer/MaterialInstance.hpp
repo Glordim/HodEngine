@@ -15,6 +15,7 @@ namespace hod::inline rhi
 	class BindGroup;
 	class Buffer;
 	class CommandBuffer;
+	class Sampler;
 	class Texture;
 }
 
@@ -51,8 +52,11 @@ namespace hod::inline renderer
 		void SetMat4(const String& memberName, const Matrix4& value);
 
 		// A null (or not yet built) texture draws as a white one.
-		// The sampler declared as "<memberName>Sampler", if any, follows the texture.
+		// The sampler declared as "<memberName>Sampler", if any, is set to the one of the texture.
 		void SetTexture(const String& memberName, const rhi::Texture* value);
+
+		// memberName: a sampler of the material, like "imageSampler". Call it after SetTexture, which sets that sampler too.
+		void SetSampler(const String& memberName, const Sampler* value);
 
 		// Binds the pipeline of the material and the sets [setOffset, setOffset + setCount) with the current values
 		void Bind(CommandBuffer& commandBuffer, uint32_t setOffset = 0, uint32_t setCount = UINT32_MAX) const;
@@ -63,7 +67,8 @@ namespace hod::inline renderer
 		struct TextureSlot
 		{
 			const rhi::Texture* _texture = nullptr;
-			bool           _set = false; // SetTexture was called for it
+			const Sampler*      _sampler = nullptr;
+			bool                _set = false; // SetTexture or SetSampler was called for it
 		};
 
 		// The BindGroup made for a given list of uniform buffers: one per uniform buffer page the set was uploaded to
@@ -83,7 +88,7 @@ namespace hod::inline renderer
 
 	private:
 		void SetUniform(const String& path, const void* value, uint32_t size);
-		void SetTextureSlot(const String& name, const rhi::Texture* texture);
+		void SetTextureSlot(const String& name, const rhi::Texture* texture, const Sampler* sampler);
 
 		BindGroup* GetBindGroup(uint32_t setIndex, Buffer* const* uniformBuffers, uint32_t uniformBufferCount) const;
 		void       ReleaseBindGroups(Set& set);

@@ -3,8 +3,10 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
+#include "HodEngine/RHI/BindGroup.hpp"
 #include "HodEngine/RHI/Buffer.hpp"
 #include "HodEngine/RHI/GraphicsPipeline.hpp"
+#include "HodEngine/RHI/Sampler.hpp"
 #include "HodEngine/RHI/Shader.hpp"
 
 #include <HodEngine/Core/Singleton.hpp>
@@ -61,10 +63,13 @@ namespace hod::inline rhi
 		virtual Texture*          CreateTexture() = 0;
 		virtual RenderTarget*     CreateRenderTarget() = 0;
 
-		// uniformBuffers: one per uniform block of the set. textures: one per texture block of the set, null for the fallback texture.
+		// uniformBuffers: one per uniform block of the set. textureBindings: one per texture block of the set.
 		// Both in the order of the pipeline's ShaderSetDescriptor for that set.
 		virtual BindGroup* CreateBindGroup(const GraphicsPipeline* graphicsPipeline, uint32_t set, Buffer* const* uniformBuffers, uint32_t uniformBufferCount,
-		                                   const Texture* const* textures, uint32_t textureCount) = 0;
+		                                   const BindGroup::TextureBinding* textureBindings, uint32_t textureBindingCount) = 0;
+
+		// Samplers are shared: the same settings always give the same Sampler, which stays owned by the device
+		const Sampler* GetSampler(const Sampler::CreateInfo& createInfo);
 
 		// The offsets given to CommandBuffer::SetBindGroup must be multiples of this
 		virtual uint32_t GetUniformBufferOffsetAlignment() const = 0;
@@ -84,12 +89,15 @@ namespace hod::inline rhi
 
 	protected:
 		virtual bool InitDevice(uint32_t physicalDeviceIdentifier) = 0;
+		virtual Sampler* CreateSampler(const Sampler::CreateInfo& createInfo) = 0;
 		virtual void FlushDeferredDeletions(uint32_t) {}
 
 	protected:
 		Vector<PresentationSurface*> _presentationSurfaces;
 
 		Texture* _fallbackTexture = nullptr;
+
+		Vector<Sampler*> _samplers;
 
 		// FIF
 		uint32_t       _frameCount = 0;

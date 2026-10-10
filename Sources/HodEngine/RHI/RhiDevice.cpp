@@ -48,6 +48,33 @@ namespace hod::inline rhi
 			DefaultAllocator::GetInstance().Delete(presentationSurface);
 		}
 		_presentationSurfaces.Clear();
+
+		for (Sampler* sampler : _samplers)
+		{
+			DefaultAllocator::GetInstance().Delete(sampler);
+		}
+		_samplers.Clear();
+	}
+
+	/// @brief
+	/// @param createInfo
+	/// @return
+	const Sampler* RhiDevice::GetSampler(const Sampler::CreateInfo& createInfo)
+	{
+		for (const Sampler* sampler : _samplers)
+		{
+			if (sampler->GetCreateInfo() == createInfo)
+			{
+				return sampler;
+			}
+		}
+
+		Sampler* sampler = CreateSampler(createInfo);
+		if (sampler != nullptr)
+		{
+			_samplers.PushBack(sampler);
+		}
+		return sampler;
 	}
 
 	/// @brief

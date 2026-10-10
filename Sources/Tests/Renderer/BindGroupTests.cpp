@@ -22,6 +22,7 @@
 #include <HodEngine/RHI/GraphicsPipeline.hpp>
 #include <HodEngine/RHI/RenderTarget.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
+#include <HodEngine/RHI/Sampler.hpp>
 #include <HodEngine/RHI/Shader.hpp>
 #include <HodEngine/RHI/Texture.hpp>
 #include <HodEngine/RHI/VertexInput.hpp>
@@ -145,12 +146,16 @@ protected:
 		return bindGroup;
 	}
 
-	// The texture gives both the image and its sampler; null leaves both to the fallback of the RHI
-	BindGroup* CreateMaterialBindGroup(Buffer* colors, const Texture* texture)
+	// A null texture leaves the image to the fallback of the RHI, a null sampler means the one of the texture
+	BindGroup* CreateMaterialBindGroup(Buffer* colors, const Texture* texture, const Sampler* sampler = nullptr)
 	{
-		StaticArray<const Texture*, 2> textures = {texture, texture}; // "image", "imageSampler"
+		StaticArray<BindGroup::TextureBinding, 2> textureBindings;
+		textureBindings[0]._texture = texture; // "image"
+		textureBindings[1]._texture = texture; // "imageSampler"
+		textureBindings[1]._sampler = sampler;
 
-		BindGroup* bindGroup = RhiDevice::GetInstance()->CreateBindGroup(_graphicsPipeline, 1, &colors, 1, textures.Data(), (uint32_t)textures.Size());
+		BindGroup* bindGroup =
+			RhiDevice::GetInstance()->CreateBindGroup(_graphicsPipeline, 1, &colors, 1, textureBindings.Data(), (uint32_t)textureBindings.Size());
 		EXPECT_NE(bindGroup, nullptr);
 		_bindGroups.PushBack(bindGroup);
 		return bindGroup;
@@ -398,6 +403,52 @@ TEST_F(BindGroupRender, BufferContentCanChangeBetweenFrames)
 
 	RenderFrame(draw);
 	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Green));
+}
+
+// The same texture read through two samplers: the texels of the four colors texture, or a blend of them
+TEST_F(BindGroupRender, SamplerIsGivenApartFromTheTexture)
+{
+	Sampler::CreateInfo linear;
+	linear._filterMode = FilterMode::Linear;
+
+	Buffer*  colors = CreateColorBlocks({White});
+	Texture* texture = CreateFourColorsTexture(); // built with a nearest filter
+
+	BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White}));
+	BindGroup* withItsSampler = CreateMaterialBindGroup(colors, texture);
+	BindGroup* withLinearSampler = CreateMaterialBindGroup(colors, texture, RhiDevice::GetInstance()->GetSampler(linear));
+
+	RenderFrame([&]() {
+		SetBindGroup(0, global, 0);
+
+		SetBindGroup(1, withItsSampler, 0);
+		DrawQuad(-1.0f, -1.0f, 0.0f, 1.0f);
+
+		SetBindGroup(1, withLinearSampler, 0);
+		DrawQuad(0.0f, -1.0f, 1.0f, 1.0f);
+	});
+
+	// Just past the center of each quad, towards its (right, top) texel
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.47f, 0.06f), Yellow));
+	EXPECT_TRUE(IsBlended(ReadPixel(0.53f, 0.06f)));
+}
+
+TEST_F(BindGroupRender, SamplersAreSharedByTheirSettings)
+{
+	Sampler::CreateInfo nearest;
+	nearest._filterMode = FilterMode::Nearest;
+
+	Sampler::CreateInfo nearestRepeat = nearest;
+	nearestRepeat._wrapMode = WrapMode::Repeat;
+
+	const Sampler* sampler = RhiDevice::GetInstance()->GetSampler(nearest);
+	ASSERT_NE(sampler, nullptr);
+
+	EXPECT_EQ(RhiDevice::GetInstance()->GetSampler(nearest), sampler);
+	EXPECT_NE(RhiDevice::GetInstance()->GetSampler(nearestRepeat), sampler);
+
+	// A texture designates the sampler of the settings it was built with
+	EXPECT_EQ(CreateFourColorsTexture()->GetSampler(), sampler);
 }
 
 TEST_F(BindGroupRender, CreationFailsWhenTheResourcesDoNotMatchTheSet)

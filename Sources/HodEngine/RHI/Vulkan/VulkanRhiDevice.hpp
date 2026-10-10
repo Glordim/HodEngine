@@ -26,12 +26,6 @@
 namespace hod::inline rhi
 {
 
-	struct SamplerCreateInfo
-	{
-		FilterMode _filterMode = FilterMode::Linear;
-		WrapMode   _wrapMode = WrapMode::Clamp;
-	};
-
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
@@ -66,7 +60,7 @@ namespace hod::inline rhi
 		Semaphore*        CreateSemaphore() override;
 		Fence*            CreateFence() override;
 		BindGroup*        CreateBindGroup(const GraphicsPipeline* graphicsPipeline, uint32_t set, Buffer* const* uniformBuffers, uint32_t uniformBufferCount,
-		                                  const Texture* const* textures, uint32_t textureCount) override;
+		                                  const BindGroup::TextureBinding* textureBindings, uint32_t textureBindingCount) override;
 		uint32_t          GetUniformBufferOffsetAlignment() const override;
 
 		VkInstance         GetVkInstance() const;
@@ -92,7 +86,6 @@ namespace hod::inline rhi
 		bool CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image,
 		                 VmaAllocation* imageMemory);
 		bool CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView);
-		bool CreateSampler(VkSampler* sampler, const SamplerCreateInfo& createInfo);
 
 		bool BeginSingleTimeCommands(VkCommandBuffer* commandBuffer);
 		bool EndSingleTimeCommands(VkCommandBuffer commandBuffer);
@@ -118,7 +111,8 @@ namespace hod::inline rhi
 		void DeferDestroy(VkPipelineLayout pipelineLayout);
 
 	protected:
-		bool InitDevice(uint32_t physicalDeviceIdentifier) override;
+		bool     InitDevice(uint32_t physicalDeviceIdentifier) override;
+		Sampler* CreateSampler(const Sampler::CreateInfo& createInfo) override;
 		void FlushDeferredDeletions(uint32_t frameIndex) override;
 
 	private:

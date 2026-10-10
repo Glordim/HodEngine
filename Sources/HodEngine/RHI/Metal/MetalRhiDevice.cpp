@@ -215,15 +215,23 @@ namespace hod::inline rhi
 
 	/// @brief
 	BindGroup* MetalRhiDevice::CreateBindGroup(const GraphicsPipeline* graphicsPipeline, uint32_t set, Buffer* const* uniformBuffers, uint32_t uniformBufferCount,
-	                                           const Texture* const* textures, uint32_t textureCount)
+	                                           const BindGroup::TextureBinding* textureBindings, uint32_t textureBindingCount)
 	{
 		// TODO
 		(void)graphicsPipeline;
 		(void)set;
 		(void)uniformBuffers;
 		(void)uniformBufferCount;
-		(void)textures;
-		(void)textureCount;
+		(void)textureBindings;
+		(void)textureBindingCount;
+		return nullptr;
+	}
+
+	/// @brief
+	Sampler* MetalRhiDevice::CreateSampler(const Sampler::CreateInfo& createInfo)
+	{
+		// TODO
+		(void)createInfo;
 		return nullptr;
 	}
 

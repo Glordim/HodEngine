@@ -27,6 +27,12 @@ inline const hod::Color Black(0.0f, 0.0f, 0.0f, 1.0f);
 // What the RHI draws for a texture slot left without a texture
 inline const hod::Color FallbackColor(1.0f, 0.0f, 1.0f, 1.0f);
 
+// True for a color that is none of the four of the test texture, as a linear filter gives between its texels
+inline bool IsBlended(const hod::Color& color)
+{
+	return color.r > 0.1f && color.r < 0.9f && color.g > 0.1f && color.g < 0.9f && color.b > 0.1f && color.b < 0.9f;
+}
+
 inline hod::Vector4 ToVector4(const hod::Color& color)
 {
 	return hod::Vector4(color.r, color.g, color.b, color.a);

@@ -134,14 +134,29 @@ namespace hod::inline renderer
 			value = Renderer::GetInstance()->GetWhiteTexture();
 		}
 
-		SetTextureSlot(memberName, value);
-		SetTextureSlot(memberName + "Sampler", value);
+		SetTextureSlot(memberName, value, value->GetSampler());
+		SetTextureSlot(memberName + "Sampler", value, value->GetSampler());
+	}
+
+	/// @brief
+	/// @param memberName
+	/// @param value
+	void MaterialInstance::SetSampler(const String& memberName, const Sampler* value)
+	{
+		Material::TextureLocation location;
+		if (_material.FindTexture(memberName, location) == false)
+		{
+			return;
+		}
+
+		SetTextureSlot(memberName, _sets[location._set]._textures[location._block]._texture, value);
 	}
 
 	/// @brief
 	/// @param name
 	/// @param texture
-	void MaterialInstance::SetTextureSlot(const String& name, const Texture* texture)
+	/// @param sampler
+	void MaterialInstance::SetTextureSlot(const String& name, const Texture* texture, const Sampler* sampler)
 	{
 		Material::TextureLocation location;
 		if (_material.FindTexture(name, location) == false)
@@ -151,12 +166,13 @@ namespace hod::inline renderer
 
 		Set&         set = _sets[location._set];
 		TextureSlot& slot = set._textures[location._block];
-		if (slot._set == false || slot._texture != texture)
+		if (slot._set == false || slot._texture != texture || slot._sampler != sampler)
 		{
 			slot._texture = texture;
+			slot._sampler = sampler;
 			slot._set = true;
 
-			// A BindGroup is immutable: the ones made with the previous texture are of no use anymore
+			// A BindGroup is immutable: the ones made with the previous texture or sampler are of no use anymore
 			ReleaseBindGroups(set);
 		}
 	}
@@ -227,14 +243,15 @@ namespace hod::inline renderer
 		// The textures nobody set are left to the fallback of the RHI, which is not meant to be seen: tell about it
 		const Vector<ShaderSetDescriptor::BlockTexture>& textureBlocks = _material.GetSetDescriptors().find(setIndex)->second->GetTextureBlocks();
 
-		Vector<const Texture*> textures;
-		textures.Resize(set._textures.Size(), nullptr);
+		Vector<BindGroup::TextureBinding> textureBindings;
+		textureBindings.Resize(set._textures.Size());
 		for (uint32_t blockIndex = 0; blockIndex < set._textures.Size(); ++blockIndex)
 		{
 			const TextureSlot& slot = set._textures[blockIndex];
 			if (slot._set)
 			{
-				textures[blockIndex] = slot._texture;
+				textureBindings[blockIndex]._texture = slot._texture;
+				textureBindings[blockIndex]._sampler = slot._sampler;
 			}
 			else if (textureBlocks[blockIndex]._type != ShaderSetDescriptor::BlockTexture::Sampler)
 			{
@@ -243,8 +260,8 @@ namespace hod::inline renderer
 		}
 
 		BoundGroup boundGroup;
-		boundGroup._bindGroup = RhiDevice::GetInstance()->CreateBindGroup(_material.GetGraphicsPipeline(), setIndex, uniformBuffers, uniformBufferCount, textures.Data(),
-		                                                                  (uint32_t)textures.Size());
+		boundGroup._bindGroup = RhiDevice::GetInstance()->CreateBindGroup(_material.GetGraphicsPipeline(), setIndex, uniformBuffers, uniformBufferCount, textureBindings.Data(),
+		                                                                  (uint32_t)textureBindings.Size());
 		if (boundGroup._bindGroup == nullptr)
 		{
 			return nullptr;

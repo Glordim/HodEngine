@@ -24,8 +24,8 @@ namespace hod::inline rhi
 		VulkanBindGroup() = default;
 		~VulkanBindGroup() override;
 
-		bool Build(const VulkanGraphicsPipeline& graphicsPipeline, uint32_t set, Buffer* const* uniformBuffers, uint32_t uniformBufferCount, const Texture* const* textures,
-		           uint32_t textureCount);
+		bool Build(const VulkanGraphicsPipeline& graphicsPipeline, uint32_t set, Buffer* const* uniformBuffers, uint32_t uniformBufferCount,
+		           const TextureBinding* textureBindings, uint32_t textureBindingCount);
 
 		VkDescriptorSet GetDescriptorSet() const;
 

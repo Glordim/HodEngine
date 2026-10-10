@@ -9,6 +9,7 @@
 #include "HodEngine/RHI/Vulkan/VulkanGraphicsPipeline.hpp"
 #include "HodEngine/RHI/Vulkan/VulkanPresentationSurface.hpp"
 #include "HodEngine/RHI/Vulkan/VulkanRenderTarget.hpp"
+#include "HodEngine/RHI/Vulkan/VulkanSampler.hpp"
 #include "HodEngine/RHI/Vulkan/VulkanShader.hpp"
 #include "HodEngine/RHI/Vulkan/VulkanTexture.hpp"
 
@@ -914,44 +915,6 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool VulkanRhiDevice::CreateSampler(VkSampler* sampler, const SamplerCreateInfo& createInfo)
-	{
-		*sampler = VK_NULL_HANDLE;
-
-		VkSamplerAddressMode addressMode = createInfo._wrapMode == WrapMode::Clamp ? VK_SAMPLER_ADDRESS_MODE_CLAMP_TO_EDGE : VK_SAMPLER_ADDRESS_MODE_REPEAT;
-		VkFilter             filter = createInfo._filterMode == FilterMode::Linear ? VK_FILTER_LINEAR : VK_FILTER_NEAREST;
-		VkSamplerMipmapMode  mipmapMode = createInfo._filterMode == FilterMode::Linear ? VK_SAMPLER_MIPMAP_MODE_LINEAR : VK_SAMPLER_MIPMAP_MODE_NEAREST;
-
-		VkSamplerCreateInfo samplerInfo = {};
-		samplerInfo.sType = VK_STRUCTURE_TYPE_SAMPLER_CREATE_INFO;
-		samplerInfo.magFilter = filter;
-		samplerInfo.minFilter = filter;
-		samplerInfo.addressModeU = addressMode;
-		samplerInfo.addressModeV = addressMode;
-		samplerInfo.addressModeW = addressMode;
-		samplerInfo.anisotropyEnable = VK_FALSE;
-		samplerInfo.maxAnisotropy = 16;
-		samplerInfo.borderColor = VK_BORDER_COLOR_INT_OPAQUE_BLACK;
-		samplerInfo.unnormalizedCoordinates = VK_FALSE;
-		samplerInfo.compareEnable = VK_FALSE;
-		samplerInfo.compareOp = VK_COMPARE_OP_ALWAYS;
-		samplerInfo.mipmapMode = mipmapMode;
-		samplerInfo.mipLodBias = 0.0f;
-		samplerInfo.minLod = 0.0f;
-		samplerInfo.maxLod = 0.0f;
-
-		if (vkCreateSampler(_device, &samplerInfo, nullptr, sampler) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Failed to create texture sampler!");
-			return false;
-		}
-
-		return true;
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
 	bool VulkanRhiDevice::BeginSingleTimeCommands(VkCommandBuffer* commandBuffer)
 	{
 		*commandBuffer = VK_NULL_HANDLE;
@@ -1389,7 +1352,7 @@ namespace hod::inline rhi
 	//! @brief
 	//-----------------------------------------------------------------------------
 	BindGroup* VulkanRhiDevice::CreateBindGroup(const GraphicsPipeline* graphicsPipeline, uint32_t set, Buffer* const* uniformBuffers, uint32_t uniformBufferCount,
-	                                            const Texture* const* textures, uint32_t textureCount)
+	                                            const BindGroup::TextureBinding* textureBindings, uint32_t textureBindingCount)
 	{
 		if (graphicsPipeline == nullptr)
 		{
@@ -1397,12 +1360,27 @@ namespace hod::inline rhi
 		}
 
 		VulkanBindGroup* bindGroup = DefaultAllocator::GetInstance().New<VulkanBindGroup>();
-		if (bindGroup->Build(*static_cast<const VulkanGraphicsPipeline*>(graphicsPipeline), set, uniformBuffers, uniformBufferCount, textures, textureCount) == false)
+		if (bindGroup->Build(*static_cast<const VulkanGraphicsPipeline*>(graphicsPipeline), set, uniformBuffers, uniformBufferCount, textureBindings, textureBindingCount) ==
+		    false)
 		{
 			DefaultAllocator::GetInstance().Delete(bindGroup);
 			return nullptr;
 		}
 		return bindGroup;
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	Sampler* VulkanRhiDevice::CreateSampler(const Sampler::CreateInfo& createInfo)
+	{
+		VulkanSampler* sampler = DefaultAllocator::GetInstance().New<VulkanSampler>(createInfo);
+		if (sampler->Build() == false)
+		{
+			DefaultAllocator::GetInstance().Delete(sampler);
+			return nullptr;
+		}
+		return sampler;
 	}
 
 	//-----------------------------------------------------------------------------

@@ -11,6 +11,7 @@
 namespace hod::inline rhi
 {
 	class CommandBuffer;
+	class Sampler;
 
 	//-----------------------------------------------------------------------------
 	//! @brief
@@ -34,6 +35,9 @@ namespace hod::inline rhi
 		uint32_t	GetWidth() const;
 		uint32_t	GetHeight() const;
 
+		// The sampler matching the CreateInfo the texture was built with: the one to read it with when nothing asks for another
+		const Sampler*	GetSampler() const;
+
 		virtual bool BuildColor(uint32_t width, uint32_t height, const CreateInfo& createInfo) = 0;
 		virtual bool BuildDepth(uint32_t width, uint32_t height, const CreateInfo& createInfo) = 0;
 		virtual bool BuildBuffer(uint32_t width, uint32_t height, const uint8_t* buffer, const CreateInfo& createInfo) = 0;
@@ -49,5 +53,7 @@ namespace hod::inline rhi
 
 		uint32_t	_width = 0;
 		uint32_t	_height = 0;
+
+		const Sampler*	_sampler = nullptr;
 	};
 }

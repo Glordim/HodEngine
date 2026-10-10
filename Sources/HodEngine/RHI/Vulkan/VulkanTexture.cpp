@@ -24,7 +24,6 @@ namespace hod::inline rhi
 		_textureImageMemory = VK_NULL_HANDLE;
 
 		_textureImageView = VK_NULL_HANDLE;
-		_textureSampler = VK_NULL_HANDLE;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -33,11 +32,6 @@ namespace hod::inline rhi
 	VulkanTexture::~VulkanTexture()
 	{
 		VulkanRhiDevice* rhiDevice = (VulkanRhiDevice*)RhiDevice::GetInstance();
-
-		if (_textureSampler != VK_NULL_HANDLE)
-		{
-			rhiDevice->DeferDestroy(_textureSampler);
-		}
 
 		if (_textureImageView != VK_NULL_HANDLE)
 		{
@@ -70,14 +64,6 @@ namespace hod::inline rhi
 	VkImageView VulkanTexture::GetTextureImageView() const
 	{
 		return _textureImageView;
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	VkSampler VulkanTexture::GetTextureSampler() const
-	{
-		return _textureSampler;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -118,12 +104,6 @@ namespace hod::inline rhi
 
 		if (ret == false)
 		{
-			if (_textureSampler != VK_NULL_HANDLE)
-			{
-				vkDestroySampler(rhiDevice->GetVkDevice(), _textureSampler, nullptr);
-				_textureSampler = VK_NULL_HANDLE;
-			}
-
 			if (_textureImageView != VK_NULL_HANDLE)
 			{
 				vkDestroyImageView(rhiDevice->GetVkDevice(), _textureImageView, nullptr);
@@ -174,9 +154,10 @@ namespace hod::inline rhi
 			imageUseFlags |= VK_IMAGE_USAGE_TRANSFER_SRC_BIT;
 		}
 
-		SamplerCreateInfo samplerCreateInfo;
+		Sampler::CreateInfo samplerCreateInfo;
 		samplerCreateInfo._wrapMode = createInfo._wrapMode;
 		samplerCreateInfo._filterMode = createInfo._filterMode;
+		_sampler = rhiDevice->GetSampler(samplerCreateInfo);
 
 		if (rhiDevice->CreateImage(width, height, VK_FORMAT_R8G8B8A8_UNORM, imageTiling, imageUseFlags, memoryPropertyFlags, &_textureImage, &_textureImageMemory) == false)
 		{
@@ -191,11 +172,6 @@ namespace hod::inline rhi
 		*/
 
 		if (rhiDevice->CreateImageView(_textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, &_textureImageView) == false)
-		{
-			goto exit;
-		}
-
-		if (rhiDevice->CreateSampler(&_textureSampler, samplerCreateInfo) == false)
 		{
 			goto exit;
 		}
@@ -250,12 +226,6 @@ namespace hod::inline rhi
 				_readbackBufferMemory = VK_NULL_HANDLE;
 			}
 
-			if (_textureSampler != VK_NULL_HANDLE)
-			{
-				vkDestroySampler(rhiDevice->GetVkDevice(), _textureSampler, nullptr);
-				_textureSampler = VK_NULL_HANDLE;
-			}
-
 			if (_textureImageView != VK_NULL_HANDLE)
 			{
 				vkDestroyImageView(rhiDevice->GetVkDevice(), _textureImageView, nullptr);
@@ -301,9 +271,10 @@ namespace hod::inline rhi
 			createInfo._allowReadWrite ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 		VkImageTiling imageTiling = createInfo._allowReadWrite ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
 
-		SamplerCreateInfo samplerCreateInfo;
+		Sampler::CreateInfo samplerCreateInfo;
 		samplerCreateInfo._wrapMode = createInfo._wrapMode;
 		samplerCreateInfo._filterMode = createInfo._filterMode;
+		_sampler = rhiDevice->GetSampler(samplerCreateInfo);
 
 		if (rhiDevice->CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &buffer,
 									&bufferMemory) == false)
@@ -349,11 +320,6 @@ namespace hod::inline rhi
 			goto exit;
 		}
 
-		if (rhiDevice->CreateSampler(&_textureSampler, samplerCreateInfo) == false)
-		{
-			goto exit;
-		}
-
 		ret = true;
 
 	exit:
@@ -368,12 +334,6 @@ namespace hod::inline rhi
 
 		if (ret == false)
 		{
-			if (_textureSampler != VK_NULL_HANDLE)
-			{
-				vkDestroySampler(rhiDevice->GetVkDevice(), _textureSampler, nullptr);
-				_textureSampler = VK_NULL_HANDLE;
-			}
-
 			if (_textureImageView != VK_NULL_HANDLE)
 			{
 				vkDestroyImageView(rhiDevice->GetVkDevice(), _textureImageView, nullptr);

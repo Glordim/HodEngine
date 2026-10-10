@@ -5,6 +5,7 @@
 #include "HodEngine/RHI/Vulkan/VulkanBuffer.hpp"
 #include "HodEngine/RHI/Vulkan/VulkanGraphicsPipeline.hpp"
 #include "HodEngine/RHI/Vulkan/VulkanRhiDevice.hpp"
+#include "HodEngine/RHI/Vulkan/VulkanSampler.hpp"
 #include "HodEngine/RHI/Vulkan/VulkanTexture.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
@@ -45,11 +46,11 @@ namespace hod::inline rhi
 	/// @param set
 	/// @param uniformBuffers one per uniform block of the set
 	/// @param uniformBufferCount
-	/// @param textures one per texture block of the set, null for the fallback texture
-	/// @param textureCount
+	/// @param textureBindings one per texture block of the set
+	/// @param textureBindingCount
 	/// @return
 	bool VulkanBindGroup::Build(const VulkanGraphicsPipeline& graphicsPipeline, uint32_t set, Buffer* const* uniformBuffers, uint32_t uniformBufferCount,
-	                            const Texture* const* textures, uint32_t textureCount)
+	                            const TextureBinding* textureBindings, uint32_t textureBindingCount)
 	{
 		const std::map<uint32_t, ShaderSetDescriptor*>& setDescriptors = graphicsPipeline.GetSetDescriptors();
 		auto                                            it = setDescriptors.find(set);
@@ -61,10 +62,10 @@ namespace hod::inline rhi
 
 		const Vector<ShaderSetDescriptor::BlockUbo>&     uboBlocks = it->second->GetUboBlocks();
 		const Vector<ShaderSetDescriptor::BlockTexture>& textureBlocks = it->second->GetTextureBlocks();
-		if (uniformBufferCount != uboBlocks.Size() || textureCount != textureBlocks.Size())
+		if (uniformBufferCount != uboBlocks.Size() || textureBindingCount != textureBlocks.Size())
 		{
 			OUTPUT_ERROR("Vulkan: BindGroup, set {} expects {} uniform buffers and {} textures, got {} and {}", set, uboBlocks.Size(), textureBlocks.Size(), uniformBufferCount,
-			             textureCount);
+			             textureBindingCount);
 			return false;
 		}
 
@@ -111,15 +112,24 @@ namespace hod::inline rhi
 		}
 
 		const VulkanTexture* fallbackTexture = static_cast<const VulkanTexture*>(rhiDevice->GetFallbackTexture());
-		for (uint32_t i = 0; i < textureCount; ++i)
+		for (uint32_t i = 0; i < textureBindingCount; ++i)
 		{
 			const ShaderSetDescriptor::BlockTexture& textureBlock = textureBlocks[i];
-			const VulkanTexture*                         texture = textures[i] != nullptr ? static_cast<const VulkanTexture*>(textures[i]) : fallbackTexture;
+			const TextureBinding&                    textureBinding = textureBindings[i];
+
+			const VulkanTexture* texture = textureBinding._texture != nullptr ? static_cast<const VulkanTexture*>(textureBinding._texture) : fallbackTexture;
+
+			const Sampler* sampler = textureBinding._sampler != nullptr ? textureBinding._sampler : texture->GetSampler();
+			if (sampler == nullptr) // a texture that is not meant to be sampled, like a depth one
+			{
+				sampler = rhiDevice->GetSampler(Sampler::CreateInfo());
+			}
+			VkSampler vkSampler = static_cast<const VulkanSampler*>(sampler)->GetVkSampler();
 
 			VkDescriptorImageInfo imageInfo = {};
 			if (textureBlock._type == ShaderSetDescriptor::BlockTexture::Type::Sampler)
 			{
-				imageInfo.sampler = texture->GetTextureSampler();
+				imageInfo.sampler = vkSampler;
 			}
 			else if (textureBlock._type == ShaderSetDescriptor::BlockTexture::Type::Texture)
 			{
@@ -130,7 +140,7 @@ namespace hod::inline rhi
 			{
 				imageInfo.imageLayout = VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL;
 				imageInfo.imageView = texture->GetTextureImageView();
-				imageInfo.sampler = texture->GetTextureSampler();
+				imageInfo.sampler = vkSampler;
 			}
 
 			VkWriteDescriptorSet descriptorWrite = {};

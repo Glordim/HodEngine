@@ -22,6 +22,7 @@
 #include <HodEngine/Renderer/MaterialInstance.hpp>
 #include <HodEngine/RHI/RenderTarget.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
+#include <HodEngine/RHI/Sampler.hpp>
 #include <HodEngine/RHI/PresentationSurface.hpp>
 #include <HodEngine/RHI/Texture.hpp>
 
@@ -403,6 +404,33 @@ TEST_F(MaterialRender, TwoInstancesKeepTheirOwnTexture)
 
 	EXPECT_TRUE(ColorNear(ReadPixel(-0.75f, -0.5f), Red));
 	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.0f), Blue));
+}
+
+// SetTexture gives the texture its own sampler, SetSampler replaces it
+TEST_F(MaterialRender, SamplerCanBeSetApartFromTheTexture)
+{
+	Sampler::CreateInfo linear;
+	linear._filterMode = FilterMode::Linear;
+
+	Texture* texture = CreateFourColorsTexture(); // built with a nearest filter
+
+	MaterialInstance* nearestInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+	nearestInstance->SetVec4("ubo.color", ToVector4(White));
+	nearestInstance->SetTexture("image", texture);
+
+	MaterialInstance* linearInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+	linearInstance->SetVec4("ubo.color", ToVector4(White));
+	linearInstance->SetTexture("image", texture);
+	linearInstance->SetSampler("imageSampler", RhiDevice::GetInstance()->GetSampler(linear));
+
+	RenderFrame([&]() {
+		DrawQuad(-1.0f, -1.0f, 0.0f, 1.0f, nearestInstance);
+		DrawQuad(0.0f, -1.0f, 1.0f, 1.0f, linearInstance);
+	});
+
+	// Just past the center of each quad, towards its (right, top) texel
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.47f, 0.06f), Yellow));
+	EXPECT_TRUE(IsBlended(ReadPixel(0.53f, 0.06f)));
 }
 
 TEST_F(MaterialRender, TextureChangedBetweenFramesIsSeenByTheNextFrame)

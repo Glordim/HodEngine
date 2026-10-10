@@ -54,7 +54,7 @@ namespace hod::inline rhi
 		Semaphore*        CreateSemaphore() override;
 		Fence*            CreateFence() override;
 		BindGroup*        CreateBindGroup(const GraphicsPipeline* graphicsPipeline, uint32_t set, Buffer* const* uniformBuffers, uint32_t uniformBufferCount,
-		                                  const Texture* const* textures, uint32_t textureCount) override;
+		                                  const BindGroup::TextureBinding* textureBindings, uint32_t textureBindingCount) override;
 		uint32_t          GetUniformBufferOffsetAlignment() const override;
 
 		MTL::Device*        GetDevice() const;
@@ -65,7 +65,8 @@ namespace hod::inline rhi
 		void RemoveResourceFromResidencySet(const MTL::Allocation* allocation);
 
 	protected:
-		bool InitDevice(uint32_t physicalDeviceIdentifier) override;
+		bool     InitDevice(uint32_t physicalDeviceIdentifier) override;
+		Sampler* CreateSampler(const Sampler::CreateInfo& createInfo) override;
 		void FlushDeferredDeletions(uint32_t frameIndex) override;
 
 	private:
