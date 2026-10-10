@@ -24,7 +24,7 @@ list(REMOVE_ITEM ExcludeDirs ${API})
 CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES ${ExcludeDirs})
 
 assign_source_group(${Srcs})
-set_source_files_properties(Metal/MetalCpp.cpp StbImplementation.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON) #Build SingleFileHeader lib with Implementation define separatly
+set_source_files_properties(Metal/MetalCpp.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON) #Build SingleFileHeader lib with Implementation define separatly
 
 add_library(RHI ${LIB_TYPE} ${Srcs} ${Includes})
 add_library(HodEngine::RHI ALIAS RHI)
@@ -41,7 +41,6 @@ target_precompile_headers(RHI PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT
 
 target_link_libraries(RHI
 	PUBLIC Core Math Window
-	PRIVATE Stb::Stb
 )
 
 if(API STREQUAL Vulkan)

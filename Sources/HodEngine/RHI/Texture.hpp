@@ -31,8 +31,6 @@ namespace hod::inline rhi
 		Texture();
 		virtual ~Texture();
 
-		bool LoadFromPath(const char* path);
-
 		uint32_t	GetWidth() const;
 		uint32_t	GetHeight() const;
 
