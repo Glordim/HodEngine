@@ -32,10 +32,6 @@ namespace hod::inline rhi
 
 		void SetConstant(void* constant, uint32_t size, Shader::ShaderType shaderType) override;
 
-		void SetProjectionMatrix(const Matrix4& projectionMatrix) override;
-		void SetViewMatrix(const Matrix4& viewMatrix) override;
-		void SetModelMatrix(const Matrix4& modelMatrix) override;
-
 		void SetViewport(const Rect& viewport) override;
 		void SetScissor(const Rect& scissor) override;
 

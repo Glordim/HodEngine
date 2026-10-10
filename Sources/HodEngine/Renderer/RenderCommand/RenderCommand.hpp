@@ -1,6 +1,8 @@
 #pragma once
 #include "HodEngine/Renderer/Export.hpp"
 
+#include "HodEngine/Math/Matrix4.hpp"
+
 #include <cstdint>
 
 namespace hod::inline rhi
@@ -32,7 +34,8 @@ namespace hod::inline renderer
 
 	public:
 
-		virtual void		Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial = nullptr) = 0;
+		// projection, view: the camera of the RenderView the command is drawn in
+		virtual void		Execute(CommandBuffer* commandBuffer, const Matrix4& projection, const Matrix4& view, MaterialInstance* overrideMaterial = nullptr) = 0;
 		virtual uint32_t	GetRenderingOrder() const = 0;
 	};
 }

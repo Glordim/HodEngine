@@ -26,7 +26,7 @@ namespace hod::inline renderer
 
 	/// @brief
 	/// @param commandBuffer
-	void RenderCommandScissor::Execute(CommandBuffer* commandBuffer, MaterialInstance* /*overrideMaterial*/)
+	void RenderCommandScissor::Execute(CommandBuffer* commandBuffer, const Matrix4& projection, const Matrix4& view, MaterialInstance* /*overrideMaterial*/)
 	{
 		// Applied even during the picking pass (overrideMaterial != nullptr): the clip stack must stay balanced.
 		float minX = _viewport._position.GetX();
@@ -34,7 +34,7 @@ namespace hod::inline renderer
 		float maxX = minX + _viewport._size.GetX();
 		float maxY = minY + _viewport._size.GetY();
 
-		Matrix4 viewProjection = commandBuffer->_projection * commandBuffer->_view;
+		Matrix4 viewProjection = projection * view;
 		for (const Region& region : _regions)
 		{
 			Matrix4 mvp = viewProjection * region._modelMatrix;

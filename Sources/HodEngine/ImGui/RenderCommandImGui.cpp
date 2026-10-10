@@ -40,7 +40,7 @@ namespace hod::inline imgui
 
 	/// @brief
 	/// @param commandBuffer
-	void RenderCommandImGui::Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial)
+	void RenderCommandImGui::Execute(CommandBuffer* commandBuffer, const Matrix4& /*projection*/, const Matrix4& /*view*/, MaterialInstance* overrideMaterial)
 	{
 		if (overrideMaterial != nullptr)
 		{

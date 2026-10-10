@@ -68,7 +68,7 @@ namespace hod::inline renderer
 
 	/// @brief
 	/// @param commandBuffer
-	void RenderCommandMesh::Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial)
+	void RenderCommandMesh::Execute(CommandBuffer* commandBuffer, const Matrix4& projection, const Matrix4& view, MaterialInstance* overrideMaterial)
 	{
 		if (overrideMaterial != nullptr && _pickingId == PickingManager::InvalidId)
 		{
@@ -78,8 +78,8 @@ namespace hod::inline renderer
 		Renderer* renderer = Renderer::GetInstance();
 
 		MaterialInstance* materialInstance = const_cast<MaterialInstance*>(_materialInstance);
-		materialInstance->SetMat4("global.view", commandBuffer->_view);
-		materialInstance->SetMat4("global.proj", commandBuffer->_projection);
+		materialInstance->SetMat4("global.view", view);
+		materialInstance->SetMat4("global.proj", projection);
 		materialInstance->SetFloat("global.time", (float)SystemTime::ToSeconds(SystemTime::Now()));
 		if (overrideMaterial != nullptr)
 		{
@@ -160,8 +160,6 @@ namespace hod::inline renderer
 			commandBuffer->DeleteAfterRender(indexBuffer);
 		}
 
-		commandBuffer->SetModelMatrix(_modelMatrix);
-
 		struct Constant
 		{
 			Matrix4 _mvp;
@@ -169,7 +167,7 @@ namespace hod::inline renderer
 		};
 
 		Constant constant;
-		constant._mvp = (commandBuffer->_projection * commandBuffer->_view * _modelMatrix).Transpose();
+		constant._mvp = (projection * view * _modelMatrix).Transpose();
 		constant._model = _modelMatrix.Transpose();
 		commandBuffer->SetConstant(&constant, sizeof(constant), Shader::ShaderType::Vertex);
 

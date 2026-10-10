@@ -125,8 +125,6 @@ namespace hod::inline renderer
 				//_pickingRenderTarget->PrepareForWrite(commandBuffer);
 				commandBuffer->StartRenderPass(_pickingRenderTarget, nullptr, Color(0.0f, 0.0f, 0.0f, 0.0f));
 
-				commandBuffer->SetProjectionMatrix(_projection);
-				commandBuffer->SetViewMatrix(_view);
 				commandBuffer->SetViewport(_viewport);
 
 				_worldRenderQueue.Execute(commandBuffer, _pickingMaterialInstance);
@@ -151,8 +149,6 @@ namespace hod::inline renderer
 			}
 			commandBuffer->StartRenderPass(_renderTarget, _presentationSurface);
 
-			commandBuffer->SetProjectionMatrix(_projection);
-			commandBuffer->SetViewMatrix(_view);
 			commandBuffer->SetViewport(_viewport);
 
 			_worldRenderQueue.Execute(commandBuffer);

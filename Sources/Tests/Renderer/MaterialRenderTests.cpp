@@ -116,7 +116,7 @@ protected:
 		Rect viewport;
 		viewport._position = Vector2(0.0f, 0.0f);
 		viewport._size = Vector2((float)_targetSize, (float)_targetSize);
-		_renderView->SetupCamera(Matrix4::OrthogonalProjection(-1.0f, 1.0f, -1.0f, 1.0f, -1024.0f, 1024.0f), Matrix4::Identity, viewport);
+		_renderView->SetupCamera(_projection, _cameraTransform, viewport);
 
 		// One texture per frame in flight: keep the one this frame renders to
 		_frameTexture = _renderTarget->GetColorTexture();
@@ -227,6 +227,10 @@ protected:
 	}
 
 protected:
+	// By default the camera sits at the origin and sees [-1, 1] on both axes
+	Matrix4 _projection = Matrix4::OrthogonalProjection(-1.0f, 1.0f, -1.0f, 1.0f, -1024.0f, 1024.0f);
+	Matrix4 _cameraTransform = Matrix4::Identity;
+
 	RenderTarget* _renderTarget = nullptr;
 	uint32_t      _targetSize = 0;
 	RenderView*   _renderView = nullptr;
@@ -259,6 +263,24 @@ TEST_F(MaterialRender, UniformColor)
 	EXPECT_TRUE(ColorNear(ReadPixel(0.75f, 0.0f), Background));
 	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, -0.75f), Background));
 	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.75f), Background));
+}
+
+// The default camera maps world coordinates straight to the target, which would hide a camera that is not applied
+TEST_F(MaterialRender, CameraPlacesTheGeometry)
+{
+	MaterialInstance* materialInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle);
+	materialInstance->SetVec4("ubo.color", ToVector4(Red));
+
+	// Sees [-2, 2] on both axes, from one unit to the right: the target spans the world from x = -1 to x = 3
+	_projection = Matrix4::OrthogonalProjection(-2.0f, 2.0f, -2.0f, 2.0f, -1024.0f, 1024.0f);
+	_cameraTransform = Matrix4::Translation(Vector2(1.0f, 0.0f));
+
+	// World x in [1, 2] lands on the third quarter of the target
+	RenderFrame([&]() { DrawQuad(1.0f, -2.0f, 2.0f, 2.0f, materialInstance); });
+
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.25f, 0.0f), Background));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.25f, 0.0f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.75f, 0.0f), Background));
 }
 
 TEST_F(MaterialRender, TwoInstancesOfTheSameMaterialKeepTheirOwnValues)

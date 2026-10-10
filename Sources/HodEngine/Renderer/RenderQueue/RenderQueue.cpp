@@ -35,13 +35,11 @@ namespace hod::inline renderer
 	/// @brief
 	void RenderQueue::Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial)
 	{
-		commandBuffer->SetProjectionMatrix(_projection);
-		commandBuffer->SetViewMatrix(_view);
 		commandBuffer->SetViewport(_viewport);
 
 		for (RenderCommand* renderCommand : _renderCommands)
 		{
-			renderCommand->Execute(commandBuffer, overrideMaterial);
+			renderCommand->Execute(commandBuffer, _projection, _view, overrideMaterial);
 		}
 	}
 

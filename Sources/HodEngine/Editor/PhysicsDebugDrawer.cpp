@@ -93,7 +93,7 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param commandBuffer
-	void RenderCommandPhysicsDrawer::Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial)
+	void RenderCommandPhysicsDrawer::Execute(CommandBuffer* commandBuffer, const Matrix4& projection, const Matrix4& view, MaterialInstance* overrideMaterial)
 	{
 		if (overrideMaterial != nullptr)
 		{
@@ -102,7 +102,7 @@ namespace hod::inline editor
 
 		_materialInstance = MaterialInstance::Create(&_material);
 		const_cast<MaterialInstance*>(_materialInstance)->SetVec4("ubo.color", _color);
-		RenderCommandMesh::Execute(commandBuffer, overrideMaterial);
+		RenderCommandMesh::Execute(commandBuffer, projection, view, overrideMaterial);
 		Renderer::GetInstance()->GetCurrentFrameResources().DeleteAfter(const_cast<MaterialInstance*>(_materialInstance));
 	}
 }

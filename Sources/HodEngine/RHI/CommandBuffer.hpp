@@ -6,7 +6,6 @@
 #include "HodEngine/Core/Vector.hpp"
 
 #include "HodEngine/Math/Color.hpp"
-#include "HodEngine/Math/Matrix4.hpp"
 #include "HodEngine/RHI/Shader.hpp"
 
 namespace hod::inline math
@@ -47,10 +46,6 @@ namespace hod::inline rhi
 
 		virtual void SetConstant(void* constant, uint32_t size, Shader::ShaderType shaderType) = 0;
 
-		virtual void SetProjectionMatrix(const Matrix4& projectionMatrix) = 0;
-		virtual void SetViewMatrix(const Matrix4& viewMatrix) = 0;
-		virtual void SetModelMatrix(const Matrix4& modelMatrix) = 0;
-
 		virtual void SetViewport(const Rect& viewport) = 0;
 		virtual void SetScissor(const Rect& scissor) = 0;
 
@@ -65,10 +60,6 @@ namespace hod::inline rhi
 		virtual void DrawIndexed(uint32_t indexCount, uint32_t indexOffset, uint32_t vertexOffset) = 0;
 
 		virtual void Present(PresentationSurface* presentationSurface) = 0;
-
-		// TODO
-		Matrix4 _projection;
-		Matrix4 _view;
 
 	private:
 		Vector<Buffer*>           _bufferToDelete;

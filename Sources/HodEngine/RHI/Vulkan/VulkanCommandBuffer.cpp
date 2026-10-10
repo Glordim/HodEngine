@@ -173,29 +173,6 @@ namespace hod::inline rhi
 		vkCmdPushConstants(_vkCommandBuffer, _graphicsPipeline->GetPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, size, constant);
 	}
 
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	void VulkanCommandBuffer::SetProjectionMatrix(const Matrix4& projectionMatrix)
-	{
-		_projection = projectionMatrix;
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	void VulkanCommandBuffer::SetViewMatrix(const Matrix4& viewMatrix)
-	{
-		_view = viewMatrix;
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	void VulkanCommandBuffer::SetModelMatrix(const Matrix4& /*modelMatrix*/)
-	{
-	}
-
 	/// @brief
 	/// @param viewport
 	void VulkanCommandBuffer::SetViewport(const Rect& viewport)

@@ -56,7 +56,7 @@ namespace hod::inline editor
 
 	public:
 
-		void					Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial) override;
+		void					Execute(CommandBuffer* commandBuffer, const Matrix4& projection, const Matrix4& view, MaterialInstance* overrideMaterial) override;
 
 	private:
 

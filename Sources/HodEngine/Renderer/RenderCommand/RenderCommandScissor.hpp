@@ -40,7 +40,7 @@ namespace hod::inline renderer
 		void operator=(RenderCommandScissor&&) = delete;
 
 	public:
-		void     Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial = nullptr) override;
+		void     Execute(CommandBuffer* commandBuffer, const Matrix4& projection, const Matrix4& view, MaterialInstance* overrideMaterial = nullptr) override;
 		uint32_t GetRenderingOrder() const override;
 
 	private:

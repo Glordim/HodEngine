@@ -32,7 +32,7 @@ namespace hod::inline renderer
 
 	public:
 
-		void					Execute(CommandBuffer* commandBuffer, MaterialInstance* overrideMaterial) override;
+		void					Execute(CommandBuffer* commandBuffer, const Matrix4& projection, const Matrix4& view, MaterialInstance* overrideMaterial) override;
 		uint32_t				GetRenderingOrder() const override;
 
 	protected:

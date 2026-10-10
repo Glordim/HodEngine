@@ -142,30 +142,6 @@ namespace hod::inline rhi
 	}
 
 	/// @brief
-	/// @param projectionMatrix
-	void MetalCommandBuffer::SetProjectionMatrix(const Matrix4& projectionMatrix)
-	{
-		// todo
-		(void)projectionMatrix;
-	}
-
-	/// @brief
-	/// @param viewMatrix
-	void MetalCommandBuffer::SetViewMatrix(const Matrix4& viewMatrix)
-	{
-		// todo
-		(void)viewMatrix;
-	}
-
-	/// @brief
-	/// @param modelMatrix
-	void MetalCommandBuffer::SetModelMatrix(const Matrix4& modelMatrix)
-	{
-		// todo
-		(void)modelMatrix;
-	}
-
-	/// @brief
 	/// @param viewport
 	void MetalCommandBuffer::SetViewport(const Rect& viewport)
 	{
