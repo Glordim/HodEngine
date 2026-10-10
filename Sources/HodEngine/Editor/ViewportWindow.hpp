@@ -15,6 +15,7 @@ namespace hod::inline rhi
 
 namespace hod::inline renderer
 {
+	class ReadbackRenderTarget;
 	class RenderView;
 }
 
@@ -37,7 +38,7 @@ namespace hod::inline editor
 		void DrawContent() override;
 
 		RenderView*   GetRenderView();
-		RenderTarget* GetPickingRenderTarget() const;
+		ReadbackRenderTarget* GetPickingRenderTarget() const;
 		const Matrix4&          GetProjectionMatrix() const;
 		const Matrix4&          GetViewMatrix() const;
 		float                   GetCameraSize() const;
@@ -50,7 +51,7 @@ namespace hod::inline editor
 
 		RenderView*   _renderView = nullptr;
 		RenderTarget* _renderTarget = nullptr;
-		RenderTarget* _pickingRenderTarget = nullptr;
+		ReadbackRenderTarget* _pickingRenderTarget = nullptr;
 
 		Matrix4 _projection;
 		Matrix4 _view;

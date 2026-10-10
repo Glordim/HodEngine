@@ -15,6 +15,7 @@
 
 #include <HodEngine/Renderer/FrameResources.hpp>
 #include <HodEngine/Renderer/MaterialManager.hpp>
+#include <HodEngine/Renderer/ReadbackRenderTarget.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
@@ -38,7 +39,7 @@ using namespace hod;
 
 // ============================================================================
 // Renders through the regular path (FrameResources -> RenderView -> RenderCommandMesh)
-// into a CPU readable RenderTarget, then checks pixels.
+// into a ReadbackRenderTarget, then checks pixels.
 // The camera maps [-1, 1] on both axes to the whole target.
 // ============================================================================
 
@@ -49,17 +50,8 @@ protected:
 	{
 		OutputCheckedTest::SetUp();
 
-		_renderTarget = RhiDevice::GetInstance()->CreateRenderTarget();
-		InitRenderTarget(DefaultTargetSize);
-	}
-
-	void InitRenderTarget(uint32_t size)
-	{
-		Texture::CreateInfo createInfo;
-		createInfo._allowReadWrite = true;
-
-		_targetSize = size;
-		ASSERT_TRUE(_renderTarget->Init(_targetSize, _targetSize, createInfo));
+		_targetSize = DefaultTargetSize;
+		ASSERT_TRUE(_renderTarget.Init(_targetSize, _targetSize));
 	}
 
 	void TearDown() override
@@ -80,7 +72,7 @@ protected:
 		{
 			DefaultAllocator::GetInstance().Delete(texture);
 		}
-		DefaultAllocator::GetInstance().Delete(_renderTarget);
+		_renderTarget.Clear();
 
 		OutputCheckedTest::TearDown();
 	}
@@ -113,15 +105,15 @@ protected:
 
 		_renderView = Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
 		_renderView->Init();
-		_renderView->Prepare(_renderTarget, nullptr);
+		_renderView->Prepare(_renderTarget.GetRenderTarget(), nullptr);
 
 		Rect viewport;
 		viewport._position = Vector2(0.0f, 0.0f);
 		viewport._size = Vector2((float)_targetSize, (float)_targetSize);
 		_renderView->SetupCamera(_projection, _cameraTransform, viewport);
 
-		// One texture per frame in flight: keep the one this frame renders to
-		_frameTexture = _renderTarget->GetColorTexture();
+		// One target per frame in flight: keep the texture this frame renders to
+		_frameTexture = _renderTarget.GetColorTexture();
 	}
 
 	void EndFrame()
@@ -233,10 +225,10 @@ protected:
 	Matrix4 _projection = Matrix4::OrthogonalProjection(-1.0f, 1.0f, -1.0f, 1.0f, -1024.0f, 1024.0f);
 	Matrix4 _cameraTransform = Matrix4::Identity;
 
-	RenderTarget* _renderTarget = nullptr;
-	uint32_t      _targetSize = 0;
-	RenderView*   _renderView = nullptr;
-	Texture*      _frameTexture = nullptr;
+	ReadbackRenderTarget _renderTarget;
+	uint32_t             _targetSize = 0;
+	RenderView*          _renderView = nullptr;
+	Texture*             _frameTexture = nullptr;
 
 	Vector<MaterialInstance*> _materialInstances;
 	Vector<Texture*>          _textures;
@@ -321,7 +313,7 @@ TEST_F(MaterialRender, UniformChangedBetweenFramesIsSeenByTheNextFrame)
 
 // Frames are submitted back to back, without waiting for the GPU: the value written for frame N + 1
 // must not replace what frame N, possibly still in flight, reads.
-// Frame N is read back once its frame slot comes around again, the way picking does.
+// Frame N is read back once its frame slot comes around again, which is what a ReadbackRenderTarget is for.
 // This is a race between the GPU executing frame N and the CPU recording frame N + 1, so each frame is
 // kept as cheap as possible for the CPU and many of them are submitted: a broken versioning then fails
 // the test nearly every run, but not provably every run.
@@ -340,7 +332,8 @@ TEST_F(MaterialRender, FramesInFlightKeepTheValueTheyWereSubmittedWith)
 		if (frame >= frameInFlightCount)
 		{
 			uint32_t renderedFrame = frame - frameInFlightCount;
-			EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), colors[renderedFrame % colors.Size()])) << "frame " << renderedFrame;
+			float    center = (float)_targetSize * 0.5f;
+			EXPECT_TRUE(ColorNear(_renderTarget.ReadPixel(Vector2(center, center)), colors[renderedFrame % colors.Size()])) << "frame " << renderedFrame;
 		}
 
 		materialInstance->SetVec4("ubo.color", ToVector4(colors[frame % colors.Size()]));

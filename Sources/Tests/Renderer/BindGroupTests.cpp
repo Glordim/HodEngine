@@ -193,7 +193,6 @@ protected:
 
 		Renderer::GetInstance()->AcquireNextFrame();
 
-		// One texture per frame in flight: keep the one this frame renders to
 		_frameTexture = _renderTarget->GetColorTexture();
 
 		Rect viewport;
@@ -285,6 +284,27 @@ protected:
 	Vector<Buffer*>    _buffers;
 	Vector<Texture*>   _textures;
 };
+
+// A RenderTarget is the same texture frame after frame: what a frame draws replaces what the previous one drew
+TEST_F(BindGroupRender, RenderTargetKeepsItsTextureFromFrameToFrame)
+{
+	BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White}));
+	BindGroup* material = CreateMaterialBindGroup(CreateColorBlocks({Red, Green}), CreateWhiteTexture());
+
+	Texture* colorTexture = _renderTarget->GetColorTexture();
+
+	for (uint32_t frame = 0; frame < 4; ++frame)
+	{
+		RenderFrame([&]() {
+			SetBindGroup(0, global, 0);
+			SetBindGroup(1, material, frame % 2);
+			DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f);
+		});
+
+		EXPECT_EQ(_renderTarget->GetColorTexture(), colorTexture);
+		EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), frame % 2 == 0 ? Red : Green)) << "frame " << frame;
+	}
+}
 
 // The same BindGroup serves several draws, each reading its own block of the uniform buffer
 TEST_F(BindGroupRender, UniformBufferOffsetSelectsTheBlockOfEachDraw)

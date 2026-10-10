@@ -30,6 +30,6 @@ namespace hod::inline rhi
 	private:
 		VkRenderPass _renderPass = VK_NULL_HANDLE;
 
-		Vector<VkFramebuffer> _frameBuffers;
+		VkFramebuffer _frameBuffer = VK_NULL_HANDLE;
 	};
 }

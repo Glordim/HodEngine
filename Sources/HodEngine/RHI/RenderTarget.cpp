@@ -44,30 +44,18 @@ namespace hod::inline rhi
 		_resolution.SetX((float)width);
 		_resolution.SetY((float)height);
 
-		// Only textures readable back on the CPU (picking) need one instance per frame-in-flight,
-		// so that AcquireNextFrame's fence wait guarantees a completed, stall-free snapshot to read.
-		// Textures only ever produced and consumed by the GPU within the same frame are safe with a
-		// single instance: the layout transitions in PrepareForWrite/PrepareForRead already provide
-		// the cross-frame GPU synchronization on this render target's own queue.
-		uint32_t instanceCount = createInfo._allowReadWrite ? RhiDevice::GetInstance()->GetFrameInFlightCount() : 1;
-
-		_colorTextures.Resize(instanceCount, nullptr);
-		_depthTextures.Resize(instanceCount, nullptr);
-		for (uint32_t i = 0; i < instanceCount; ++i)
+		_colorTexture = RhiDevice::GetInstance()->CreateTexture();
+		if (_colorTexture->BuildColor(width, height, createInfo) == false)
 		{
-			_colorTextures[i] = RhiDevice::GetInstance()->CreateTexture();
-			if (_colorTextures[i]->BuildColor(width, height, createInfo) == false)
-			{
-				Clear();
-				return false;
-			}
+			Clear();
+			return false;
+		}
 
-			_depthTextures[i] = RhiDevice::GetInstance()->CreateTexture();
-			if (_depthTextures[i]->BuildDepth(width, height, createInfo) == false)
-			{
-				Clear();
-				return false;
-			}
+		_depthTexture = RhiDevice::GetInstance()->CreateTexture();
+		if (_depthTexture->BuildDepth(width, height, createInfo) == false)
+		{
+			Clear();
+			return false;
 		}
 
 		return true;
@@ -76,46 +64,32 @@ namespace hod::inline rhi
 	/// @brief
 	void RenderTarget::Clear()
 	{
-		for (Texture* texture : _colorTextures)
-		{
-			DefaultAllocator::GetInstance().Delete(texture);
-		}
-		_colorTextures.Clear();
+		DefaultAllocator::GetInstance().Delete(_colorTexture);
+		_colorTexture = nullptr;
 
-		for (Texture* texture : _depthTextures)
-		{
-			DefaultAllocator::GetInstance().Delete(texture);
-		}
-		_depthTextures.Clear();
+		DefaultAllocator::GetInstance().Delete(_depthTexture);
+		_depthTexture = nullptr;
 	}
 
 	/// @brief
 	/// @return
 	Texture* RenderTarget::GetColorTexture() const
 	{
-		if (_colorTextures.Empty() == false)
-		{
-			return _colorTextures[RhiDevice::GetInstance()->GetFrameIndex() % _colorTextures.Size()];
-		}
-		return nullptr;
+		return _colorTexture;
 	}
 
 	/// @brief
 	/// @return
 	Texture* RenderTarget::GetDepthTexture() const
 	{
-		if (_depthTextures.Empty() == false)
-		{
-			return _depthTextures[RhiDevice::GetInstance()->GetFrameIndex() % _depthTextures.Size()];
-		}
-		return nullptr;
+		return _depthTexture;
 	}
 
 	/// @brief
 	/// @return
 	bool RenderTarget::IsValid() const
 	{
-		return _colorTextures.Empty() == false;
+		return _colorTexture != nullptr;
 	}
 
 	/// @brief

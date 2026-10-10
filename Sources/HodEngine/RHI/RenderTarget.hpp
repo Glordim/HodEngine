@@ -12,7 +12,8 @@ namespace hod::inline rhi
 {
 	class CommandBuffer;
 
-	/// @brief
+	/// @brief Textures to draw into. Always the same ones: drawing into it every frame and reading it back
+	/// on the CPU without waiting is the job of renderer::ReadbackRenderTarget.
 	class HOD_RHI_API RenderTarget
 	{
 	public:
@@ -35,8 +36,8 @@ namespace hod::inline rhi
 		virtual void Clear();
 
 	protected:
-		Vector<Texture*> _colorTextures;
-		Vector<Texture*> _depthTextures;
+		Texture* _colorTexture = nullptr;
+		Texture* _depthTexture = nullptr;
 
 	protected:
 		Vector2 _resolution; // TODO Vector2_Int ?

@@ -10,6 +10,7 @@
 #include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/MaterialInstance.hpp>
+#include <HodEngine/Renderer/ReadbackRenderTarget.hpp>
 #include <HodEngine/RHI/RenderTarget.hpp>
 #include <HodEngine/Core/StaticArray.hpp>
 
@@ -36,7 +37,7 @@ namespace hod::inline editor
 
 		ImVec2   mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
 		Vector2  mousePosition(mousePos.x, mousePos.y);
-		Color    mousePickingColor = viewport.GetPickingRenderTarget()->GetColorTexture()->ReadPixel(mousePosition);
+		Color    mousePickingColor = viewport.GetPickingRenderTarget()->ReadPixel(mousePosition);
 		uint32_t mousePickingId = PickingManager::ConvertColorToId(mousePickingColor);
 
 		handle._hovered = (mousePickingId == handle._pickingId);

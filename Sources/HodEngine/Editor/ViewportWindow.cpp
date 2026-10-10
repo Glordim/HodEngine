@@ -19,6 +19,7 @@
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Renderer/ReadbackRenderTarget.hpp>
 #include <HodEngine/RHI/RenderTarget.hpp>
 #include <HodEngine/RHI/Texture.hpp>
 
@@ -59,7 +60,7 @@ namespace hod::inline editor
 		SetFlags(ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar);
 
 		_renderTarget = RhiDevice::GetInstance()->CreateRenderTarget();
-		_pickingRenderTarget = RhiDevice::GetInstance()->CreateRenderTarget();
+		_pickingRenderTarget = DefaultAllocator::GetInstance().New<ReadbackRenderTarget>();
 	}
 
 	/// @brief
@@ -215,7 +216,7 @@ namespace hod::inline editor
 					{
 						ImVec2   mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
 						Vector2  mousePosition(mousePos.x, mousePos.y);
-						Color    pickingColor = _pickingRenderTarget->GetColorTexture()->ReadPixel(mousePosition);
+						Color    pickingColor = _pickingRenderTarget->ReadPixel(mousePosition);
 						uint32_t pickingId = PickingManager::ConvertColorToId(pickingColor);
 						if (pickingId == 0)
 						{
@@ -263,8 +264,7 @@ namespace hod::inline editor
 			createInfo._allowReadWrite = false;
 			_renderTarget->Init(resolutionWidth, resolutionHeight, createInfo); // todo error
 
-			createInfo._allowReadWrite = true;
-			_pickingRenderTarget->Init(resolutionWidth, resolutionHeight, createInfo); // todo error
+			_pickingRenderTarget->Init(resolutionWidth, resolutionHeight); // todo error
 		}
 
 		if (_renderTarget->IsValid() == true)
@@ -273,7 +273,7 @@ namespace hod::inline editor
 
 			RenderView* renderView = Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
 			renderView->Init();
-			renderView->Prepare(_renderTarget, _pickingRenderTarget);
+			renderView->Prepare(_renderTarget, _pickingRenderTarget->GetRenderTarget());
 			_renderView = renderView;
 
 			if (GetOwner<EntityEditorTab>()->IsPlaying() == false || GetOwner<EntityEditorTab>()->IsPaused() == true)
@@ -429,7 +429,7 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
-	RenderTarget* ViewportWindow::GetPickingRenderTarget() const
+	ReadbackRenderTarget* ViewportWindow::GetPickingRenderTarget() const
 	{
 		return _pickingRenderTarget;
 	}

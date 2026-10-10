@@ -112,30 +112,25 @@ namespace hod::inline rhi
 			return false;
 		}
 
-		// Mirrors RenderTarget::Init's instance count: one framebuffer per color/depth texture instance.
-		_frameBuffers.Resize(_colorTextures.Size(), VK_NULL_HANDLE);
-		for (uint32_t i = 0; i < _frameBuffers.Size(); ++i)
+		VkImageView attachmentImageViews[] = {
+			static_cast<VulkanTexture*>(_colorTexture)->GetTextureImageView(),
+			// static_cast<VulkanTexture*>(_depthTexture)->GetTextureImageView()
+		};
+
+		VkFramebufferCreateInfo framebufferInfo = {};
+		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
+		framebufferInfo.renderPass = _renderPass;
+		framebufferInfo.attachmentCount = 1;
+		framebufferInfo.pAttachments = attachmentImageViews;
+		framebufferInfo.width = width;
+		framebufferInfo.height = height;
+		framebufferInfo.layers = 1;
+
+		if (vkCreateFramebuffer(rhiDevice->GetVkDevice(), &framebufferInfo, nullptr, &_frameBuffer) != VK_SUCCESS)
 		{
-			VkImageView attachmentImageViews[] = {
-				static_cast<VulkanTexture*>(_colorTextures[i])->GetTextureImageView(),
-				// static_cast<VulkanTexture*>(_depthTextures[i])->GetTextureImageView()
-			};
-
-			VkFramebufferCreateInfo framebufferInfo = {};
-			framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
-			framebufferInfo.renderPass = _renderPass;
-			framebufferInfo.attachmentCount = 1;
-			framebufferInfo.pAttachments = attachmentImageViews;
-			framebufferInfo.width = width;
-			framebufferInfo.height = height;
-			framebufferInfo.layers = 1;
-
-			if (vkCreateFramebuffer(rhiDevice->GetVkDevice(), &framebufferInfo, nullptr, &_frameBuffers[i]) != VK_SUCCESS)
-			{
-				OUTPUT_ERROR("Vulkan: Unable to create Framebuffer !");
-				Clear();
-				return false;
-			}
+			OUTPUT_ERROR("Vulkan: Unable to create Framebuffer !");
+			Clear();
+			return false;
 		}
 
 		return true;
@@ -148,14 +143,11 @@ namespace hod::inline rhi
 
 		VulkanRhiDevice* rhiDevice = VulkanRhiDevice::GetInstance();
 
-		for (VkFramebuffer frameBuffer : _frameBuffers)
+		if (_frameBuffer != VK_NULL_HANDLE)
 		{
-			if (frameBuffer != VK_NULL_HANDLE)
-			{
-				rhiDevice->DeferDestroy(frameBuffer);
-			}
+			rhiDevice->DeferDestroy(_frameBuffer);
+			_frameBuffer = VK_NULL_HANDLE;
 		}
-		_frameBuffers.Clear();
 
 		if (_renderPass != VK_NULL_HANDLE)
 		{
@@ -175,11 +167,7 @@ namespace hod::inline rhi
 	/// @return
 	VkFramebuffer VulkanRenderTarget::GetFrameBuffer() const
 	{
-		if (_frameBuffers.Empty() == false)
-		{
-			return _frameBuffers[RhiDevice::GetInstance()->GetFrameIndex() % _frameBuffers.Size()];
-		}
-		return VK_NULL_HANDLE;
+		return _frameBuffer;
 	}
 
 	/// @brief
