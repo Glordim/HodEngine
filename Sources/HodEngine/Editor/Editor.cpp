@@ -184,8 +184,6 @@ namespace hod::inline editor
 
 		Texture::CreateInfo textureCreateInfo;
 		textureCreateInfo._allowReadWrite = false;
-		textureCreateInfo._filterMode = FilterMode::Linear;
-		textureCreateInfo._wrapMode = WrapMode::Clamp;
 
 		pixels = stbi_load_from_memory(HodIcon_png, HodIcon_png_size, &x, &y, &component, 0);
 		_hodTexture = RhiDevice::GetInstance()->CreateTexture();
@@ -244,10 +242,12 @@ namespace hod::inline editor
             secondaryGrey, secondaryGrey, secondaryGrey, 255, primaryGrey,   primaryGrey,   primaryGrey,   255,
         };
 
-		textureCreateInfo._filterMode = FilterMode::Nearest;
-		textureCreateInfo._wrapMode = WrapMode::Repeat;
+		Sampler::CreateInfo checkerSamplerCreateInfo;
+		checkerSamplerCreateInfo._filterMode = FilterMode::Nearest;
+		checkerSamplerCreateInfo._wrapMode = WrapMode::Repeat;
 		_checkerTexture = RhiDevice::GetInstance()->CreateTexture();
 		_checkerTexture->BuildBuffer(2, 2, checkerBuffer, textureCreateInfo);
+		_checkerTexture->SetDefaultSampler(RhiDevice::GetInstance()->GetSampler(checkerSamplerCreateInfo));
 
 		_floatingAssetBrowserWindow = DefaultAllocator::GetInstance().New<AssetBrowserWindow>();
 		_floatingTaskTrackerWindow = DefaultAllocator::GetInstance().New<TaskTrackerWindow>();

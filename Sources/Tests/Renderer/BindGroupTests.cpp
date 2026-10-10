@@ -146,7 +146,7 @@ protected:
 		return bindGroup;
 	}
 
-	// A null texture leaves the image to the fallback of the RHI, a null sampler means the one of the texture
+	// A null texture leaves the image to the fallback of the RHI, a null sampler means the default one of the texture
 	BindGroup* CreateMaterialBindGroup(Buffer* colors, const Texture* texture, const Sampler* sampler = nullptr)
 	{
 		StaticArray<BindGroup::TextureBinding, 2> textureBindings;
@@ -176,11 +176,12 @@ protected:
 	{
 		const uint8_t pixels[4 * 2 * 2] = {255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 0, 255};
 
-		Texture::CreateInfo createInfo;
-		createInfo._filterMode = FilterMode::Nearest;
+		Sampler::CreateInfo nearest;
+		nearest._filterMode = FilterMode::Nearest;
 
 		Texture* texture = RhiDevice::GetInstance()->CreateTexture();
-		EXPECT_TRUE(texture->BuildBuffer(2, 2, pixels, createInfo));
+		EXPECT_TRUE(texture->BuildBuffer(2, 2, pixels, Texture::CreateInfo()));
+		texture->SetDefaultSampler(RhiDevice::GetInstance()->GetSampler(nearest));
 		_textures.PushBack(texture);
 		return texture;
 	}
@@ -412,7 +413,7 @@ TEST_F(BindGroupRender, SamplerIsGivenApartFromTheTexture)
 	linear._filterMode = FilterMode::Linear;
 
 	Buffer*  colors = CreateColorBlocks({White});
-	Texture* texture = CreateFourColorsTexture(); // built with a nearest filter
+	Texture* texture = CreateFourColorsTexture(); // its default sampler is a nearest one
 
 	BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White}));
 	BindGroup* withItsSampler = CreateMaterialBindGroup(colors, texture);
@@ -433,6 +434,53 @@ TEST_F(BindGroupRender, SamplerIsGivenApartFromTheTexture)
 	EXPECT_TRUE(IsBlended(ReadPixel(0.53f, 0.06f)));
 }
 
+// The default sampler of a texture is not part of the texture: it can change without rebuilding it
+TEST_F(BindGroupRender, DefaultSamplerOfATextureCanChange)
+{
+	Sampler::CreateInfo linear;
+	linear._filterMode = FilterMode::Linear;
+
+	Buffer*  colors = CreateColorBlocks({White});
+	Texture* texture = CreateFourColorsTexture();
+
+	BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White}));
+
+	auto draw = [&](BindGroup* material) {
+		RenderFrame([&]() {
+			SetBindGroup(0, global, 0);
+			SetBindGroup(1, material, 0);
+			DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f);
+		});
+	};
+
+	draw(CreateMaterialBindGroup(colors, texture));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.06f, 0.06f), Yellow));
+
+	texture->SetDefaultSampler(RhiDevice::GetInstance()->GetSampler(linear));
+
+	// A BindGroup is immutable: the new default applies to the ones created from now on
+	draw(CreateMaterialBindGroup(colors, texture));
+	EXPECT_TRUE(IsBlended(ReadPixel(0.06f, 0.06f)));
+}
+
+// A texture with no default sampler is read with the default settings: a linear filter
+TEST_F(BindGroupRender, TextureWithoutDefaultSamplerIsReadLinearly)
+{
+	Texture* texture = CreateFourColorsTexture();
+	texture->SetDefaultSampler(nullptr);
+
+	BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White}));
+	BindGroup* material = CreateMaterialBindGroup(CreateColorBlocks({White}), texture);
+
+	RenderFrame([&]() {
+		SetBindGroup(0, global, 0);
+		SetBindGroup(1, material, 0);
+		DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f);
+	});
+
+	EXPECT_TRUE(IsBlended(ReadPixel(0.06f, 0.06f)));
+}
+
 TEST_F(BindGroupRender, SamplersAreSharedByTheirSettings)
 {
 	Sampler::CreateInfo nearest;
@@ -447,8 +495,7 @@ TEST_F(BindGroupRender, SamplersAreSharedByTheirSettings)
 	EXPECT_EQ(RhiDevice::GetInstance()->GetSampler(nearest), sampler);
 	EXPECT_NE(RhiDevice::GetInstance()->GetSampler(nearestRepeat), sampler);
 
-	// A texture designates the sampler of the settings it was built with
-	EXPECT_EQ(CreateFourColorsTexture()->GetSampler(), sampler);
+	EXPECT_EQ(CreateFourColorsTexture()->GetDefaultSampler(), sampler);
 }
 
 TEST_F(BindGroupRender, CreationFailsWhenTheResourcesDoNotMatchTheSet)

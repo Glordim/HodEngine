@@ -60,10 +60,13 @@ namespace hod::inline renderer
 		}
 
 		Texture::CreateInfo createInfo;
-		createInfo._wrapMode = _wrapMode;
-		createInfo._filterMode = _filterMode;
+
+		Sampler::CreateInfo samplerCreateInfo;
+		samplerCreateInfo._wrapMode = _wrapMode;
+		samplerCreateInfo._filterMode = _filterMode;
 
 		_texture = RhiDevice::GetInstance()->CreateTexture();
+		_texture->SetDefaultSampler(RhiDevice::GetInstance()->GetSampler(samplerCreateInfo));
 		if (_texture->BuildBuffer(_width, _height, pixels, createInfo) == false)
 		{
 			OUTPUT_ERROR("TextureResource::Initialize: load texture failed");

@@ -3,6 +3,7 @@
 
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
 
+#include "HodEngine/RHI/Enums.hpp"
 #include "HodEngine/RHI/Texture.hpp"
 
 namespace hod::inline renderer

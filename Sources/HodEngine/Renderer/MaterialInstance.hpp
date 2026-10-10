@@ -52,7 +52,7 @@ namespace hod::inline renderer
 		void SetMat4(const String& memberName, const Matrix4& value);
 
 		// A null (or not yet built) texture draws as a white one.
-		// The sampler declared as "<memberName>Sampler", if any, is set to the one of the texture.
+		// The sampler declared as "<memberName>Sampler", if any, is set to the default one of the texture.
 		void SetTexture(const String& memberName, const rhi::Texture* value);
 
 		// memberName: a sampler of the material, like "imageSampler". Call it after SetTexture, which sets that sampler too.

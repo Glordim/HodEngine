@@ -97,11 +97,12 @@ protected:
 	{
 		const uint8_t pixels[4 * 2 * 2] = {255, 0, 0, 255, 0, 255, 0, 255, 0, 0, 255, 255, 255, 255, 0, 255};
 
-		Texture::CreateInfo createInfo;
-		createInfo._filterMode = FilterMode::Nearest;
+		Sampler::CreateInfo nearest;
+		nearest._filterMode = FilterMode::Nearest;
 
 		Texture* texture = RhiDevice::GetInstance()->CreateTexture();
-		EXPECT_TRUE(texture->BuildBuffer(2, 2, pixels, createInfo));
+		EXPECT_TRUE(texture->BuildBuffer(2, 2, pixels, Texture::CreateInfo()));
+		texture->SetDefaultSampler(RhiDevice::GetInstance()->GetSampler(nearest));
 		_textures.PushBack(texture);
 		return texture;
 	}
@@ -406,13 +407,13 @@ TEST_F(MaterialRender, TwoInstancesKeepTheirOwnTexture)
 	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.0f), Blue));
 }
 
-// SetTexture gives the texture its own sampler, SetSampler replaces it
+// SetTexture comes with the default sampler of the texture, SetSampler replaces it
 TEST_F(MaterialRender, SamplerCanBeSetApartFromTheTexture)
 {
 	Sampler::CreateInfo linear;
 	linear._filterMode = FilterMode::Linear;
 
-	Texture* texture = CreateFourColorsTexture(); // built with a nearest filter
+	Texture* texture = CreateFourColorsTexture(); // its default sampler is a nearest one
 
 	MaterialInstance* nearestInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
 	nearestInstance->SetVec4("ubo.color", ToVector4(White));

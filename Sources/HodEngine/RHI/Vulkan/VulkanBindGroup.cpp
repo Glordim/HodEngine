@@ -119,8 +119,8 @@ namespace hod::inline rhi
 
 			const VulkanTexture* texture = textureBinding._texture != nullptr ? static_cast<const VulkanTexture*>(textureBinding._texture) : fallbackTexture;
 
-			const Sampler* sampler = textureBinding._sampler != nullptr ? textureBinding._sampler : texture->GetSampler();
-			if (sampler == nullptr) // a texture that is not meant to be sampled, like a depth one
+			const Sampler* sampler = textureBinding._sampler != nullptr ? textureBinding._sampler : texture->GetDefaultSampler();
+			if (sampler == nullptr)
 			{
 				sampler = rhiDevice->GetSampler(Sampler::CreateInfo());
 			}

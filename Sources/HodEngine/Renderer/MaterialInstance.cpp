@@ -134,8 +134,8 @@ namespace hod::inline renderer
 			value = Renderer::GetInstance()->GetWhiteTexture();
 		}
 
-		SetTextureSlot(memberName, value, value->GetSampler());
-		SetTextureSlot(memberName + "Sampler", value, value->GetSampler());
+		SetTextureSlot(memberName, value, value->GetDefaultSampler());
+		SetTextureSlot(memberName + "Sampler", value, value->GetDefaultSampler());
 	}
 
 	/// @brief

@@ -6,7 +6,6 @@
 
 #include "HodEngine/Math/Color.hpp"
 #include "HodEngine/Math/Vector2.hpp"
-#include "HodEngine/RHI/Enums.hpp"
 
 namespace hod::inline rhi
 {
@@ -22,8 +21,6 @@ namespace hod::inline rhi
 
 		struct CreateInfo
 		{
-			WrapMode	_wrapMode = WrapMode::Clamp;
-			FilterMode	_filterMode = FilterMode::Linear;
 			bool		_allowReadWrite = false;
 		};
 
@@ -35,8 +32,10 @@ namespace hod::inline rhi
 		uint32_t	GetWidth() const;
 		uint32_t	GetHeight() const;
 
-		// The sampler matching the CreateInfo the texture was built with: the one to read it with when nothing asks for another
-		const Sampler*	GetSampler() const;
+		// The sampler to read the texture with when nothing asks for another one.
+		// None by default, which leaves the choice to RhiDevice::GetSampler(Sampler::CreateInfo()). Can be changed at any time.
+		void			SetDefaultSampler(const Sampler* sampler);
+		const Sampler*	GetDefaultSampler() const;
 
 		virtual bool BuildColor(uint32_t width, uint32_t height, const CreateInfo& createInfo) = 0;
 		virtual bool BuildDepth(uint32_t width, uint32_t height, const CreateInfo& createInfo) = 0;
@@ -54,6 +53,6 @@ namespace hod::inline rhi
 		uint32_t	_width = 0;
 		uint32_t	_height = 0;
 
-		const Sampler*	_sampler = nullptr;
+		const Sampler*	_defaultSampler = nullptr;
 	};
 }

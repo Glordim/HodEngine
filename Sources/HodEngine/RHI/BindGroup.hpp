@@ -14,7 +14,7 @@ namespace hod::inline rhi
 	{
 	public:
 		/// @brief What goes in one texture block of the set: the texture of an image block, the sampler of a sampler block, both for a combined one.
-		/// A null texture is replaced by the fallback texture, a null sampler by the one of the texture.
+		/// A null texture is replaced by the fallback texture, a null sampler by the default one of the texture.
 		struct TextureBinding
 		{
 			const Texture* _texture = nullptr;

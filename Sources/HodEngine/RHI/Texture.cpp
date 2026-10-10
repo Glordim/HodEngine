@@ -36,8 +36,16 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	const Sampler* Texture::GetSampler() const
+	void Texture::SetDefaultSampler(const Sampler* sampler)
 	{
-		return _sampler;
+		_defaultSampler = sampler;
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	const Sampler* Texture::GetDefaultSampler() const
+	{
+		return _defaultSampler;
 	}
 }

@@ -63,6 +63,8 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	bool MetalTexture::BuildColor(uint32_t width, uint32_t height, const CreateInfo& createInfo)
 	{
+		(void)createInfo; // TODO
+
 		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
 		textureDescriptor->setWidth(width);
 		textureDescriptor->setHeight(height);
@@ -75,8 +77,8 @@ namespace hod::inline rhi
 		MetalRhiDevice::GetInstance()->AddResourceToResidencySet(_texture);
 
 		MTL::SamplerDescriptor* samplerDescriptor = MTL::SamplerDescriptor::alloc()->init();
-		samplerDescriptor->setSAddressMode(createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat);
-		samplerDescriptor->setTAddressMode(createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat);
+		samplerDescriptor->setSAddressMode(MTL::SamplerAddressModeClampToEdge);
+		samplerDescriptor->setTAddressMode(MTL::SamplerAddressModeClampToEdge);
 		_sampler = MetalRhiDevice::GetInstance()->GetDevice()->newSamplerState(samplerDescriptor);
 		samplerDescriptor->release();
 
@@ -91,6 +93,8 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	bool MetalTexture::BuildBuffer(uint32_t width, uint32_t height, const uint8_t* pixels, const CreateInfo& createInfo)
 	{
+		(void)createInfo; // TODO
+
 		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
 		textureDescriptor->setWidth(width);
 		textureDescriptor->setHeight(height);
@@ -105,8 +109,8 @@ namespace hod::inline rhi
 		_texture->replaceRegion(MTL::Region( 0, 0, 0, width, height, 1 ), 0, pixels, width * 4);
 		
 		MTL::SamplerDescriptor* samplerDescriptor = MTL::SamplerDescriptor::alloc()->init();
-		samplerDescriptor->setSAddressMode(createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat);
-		samplerDescriptor->setTAddressMode(createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat);
+		samplerDescriptor->setSAddressMode(MTL::SamplerAddressModeClampToEdge);
+		samplerDescriptor->setTAddressMode(MTL::SamplerAddressModeClampToEdge);
 		_sampler = MetalRhiDevice::GetInstance()->GetDevice()->newSamplerState(samplerDescriptor);
 		samplerDescriptor->release();
 
