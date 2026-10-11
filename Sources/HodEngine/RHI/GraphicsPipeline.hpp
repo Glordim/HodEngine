@@ -6,6 +6,7 @@
 #include <map>
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
+#include "HodEngine/RHI/Enums.hpp"
 
 namespace hod::inline rhi
 {
@@ -52,6 +53,8 @@ namespace hod::inline rhi
 
 			PolygonMode _polygonMode = PolygonMode::Fill;
 			Topololy    _topololy = Topololy::TRIANGLE;
+			BlendMode   _blendMode = BlendMode::Alpha;
+			CullMode    _cullMode = CullMode::None;
 			bool        _useDepth = true;
 		};
 

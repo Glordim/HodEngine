@@ -27,11 +27,15 @@ namespace hod::inline rhi
 		NS::Range				GetVertexAttributeBufferRange() const;
 
 		MTL::RenderPipelineState*   GetNativeRenderPipeline() const;
+
+		CullMode				GetCullMode() const { return _cullMode; }
 		
 	private:
 		
 		MTL::RenderPipelineState*   _renderPipelineState = nullptr;
 
 		NS::Range _vertexAttributeBufferRange;
+
+		CullMode _cullMode = CullMode::None;
 	};
 }

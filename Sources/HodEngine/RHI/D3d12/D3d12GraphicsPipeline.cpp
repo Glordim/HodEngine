@@ -161,7 +161,18 @@ namespace hod::inline rhi
 			OUTPUT_ERROR("D3d12: GraphicsPipeline, PolygonMode::Point is not supported");
 			return false;
 		}
-		pipelineStateDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+		if (createInfo._cullMode == CullMode::Back)
+		{
+			pipelineStateDesc.RasterizerState.CullMode = D3D12_CULL_MODE_BACK;
+		}
+		else if (createInfo._cullMode == CullMode::Front)
+		{
+			pipelineStateDesc.RasterizerState.CullMode = D3D12_CULL_MODE_FRONT;
+		}
+		else
+		{
+			pipelineStateDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+		}
 		pipelineStateDesc.RasterizerState.FrontCounterClockwise = TRUE;
 		pipelineStateDesc.RasterizerState.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
 		pipelineStateDesc.RasterizerState.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
@@ -186,13 +197,30 @@ namespace hod::inline rhi
 
 		// Color blending
 		D3D12_RENDER_TARGET_BLEND_DESC& renderTargetBlend = pipelineStateDesc.BlendState.RenderTarget[0];
-		renderTargetBlend.BlendEnable = TRUE;
+		renderTargetBlend.BlendEnable = createInfo._blendMode != BlendMode::Opaque ? TRUE : FALSE;
 		renderTargetBlend.LogicOpEnable = FALSE;
-		renderTargetBlend.SrcBlend = D3D12_BLEND_SRC_ALPHA;
-		renderTargetBlend.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+		if (createInfo._blendMode == BlendMode::PremultipliedAlpha)
+		{
+			renderTargetBlend.SrcBlend = D3D12_BLEND_ONE;
+			renderTargetBlend.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+			renderTargetBlend.SrcBlendAlpha = D3D12_BLEND_ONE;
+			renderTargetBlend.DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA;
+		}
+		else if (createInfo._blendMode == BlendMode::Additive)
+		{
+			renderTargetBlend.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+			renderTargetBlend.DestBlend = D3D12_BLEND_ONE;
+			renderTargetBlend.SrcBlendAlpha = D3D12_BLEND_ONE;
+			renderTargetBlend.DestBlendAlpha = D3D12_BLEND_ONE;
+		}
+		else // Alpha, and what Opaque leaves unused
+		{
+			renderTargetBlend.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+			renderTargetBlend.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+			renderTargetBlend.SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
+			renderTargetBlend.DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA;
+		}
 		renderTargetBlend.BlendOp = D3D12_BLEND_OP_ADD;
-		renderTargetBlend.SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
-		renderTargetBlend.DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA;
 		renderTargetBlend.BlendOpAlpha = D3D12_BLEND_OP_ADD;
 		renderTargetBlend.LogicOp = D3D12_LOGIC_OP_NOOP;
 		renderTargetBlend.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;

@@ -51,6 +51,8 @@ namespace hod::inline rhi
 	{
 		// TODDO _polygonMode, _topololy, _useDepth
 
+		_cullMode = createInfo._cullMode; // set with the pipeline, see MetalCommandBuffer::SetGraphicsPipeline
+
 		const VertexInput* vertexInputs = createInfo._vertexInputs;
 		uint32_t           vertexInputCount = createInfo._vertexInputCount;
 		Shader*            vertexShader = createInfo._vertexShader;
@@ -147,13 +149,30 @@ namespace hod::inline rhi
 		pipelineDescriptor->setFragmentFunction(fragmentFunction);
 		pipelineDescriptor->setVertexDescriptor(vertexDescriptor);
 		pipelineDescriptor->colorAttachments()->object(0)->setPixelFormat(MTL::PixelFormatBGRA8Unorm);
-		pipelineDescriptor->colorAttachments()->object(0)->setBlendingEnabled(true);
+		pipelineDescriptor->colorAttachments()->object(0)->setBlendingEnabled(createInfo._blendMode != BlendMode::Opaque);
 		pipelineDescriptor->colorAttachments()->object(0)->setRgbBlendOperation(MTL::BlendOperationAdd);
 		pipelineDescriptor->colorAttachments()->object(0)->setAlphaBlendOperation(MTL::BlendOperationAdd);
-		pipelineDescriptor->colorAttachments()->object(0)->setSourceRGBBlendFactor(MTL::BlendFactorSourceAlpha);
-		pipelineDescriptor->colorAttachments()->object(0)->setDestinationRGBBlendFactor(MTL::BlendFactorOneMinusSourceAlpha);
-		pipelineDescriptor->colorAttachments()->object(0)->setSourceAlphaBlendFactor(MTL::BlendFactorOne);
-		pipelineDescriptor->colorAttachments()->object(0)->setDestinationAlphaBlendFactor(MTL::BlendFactorZero);
+		if (createInfo._blendMode == BlendMode::PremultipliedAlpha)
+		{
+			pipelineDescriptor->colorAttachments()->object(0)->setSourceRGBBlendFactor(MTL::BlendFactorOne);
+			pipelineDescriptor->colorAttachments()->object(0)->setDestinationRGBBlendFactor(MTL::BlendFactorOneMinusSourceAlpha);
+			pipelineDescriptor->colorAttachments()->object(0)->setSourceAlphaBlendFactor(MTL::BlendFactorOne);
+			pipelineDescriptor->colorAttachments()->object(0)->setDestinationAlphaBlendFactor(MTL::BlendFactorOneMinusSourceAlpha);
+		}
+		else if (createInfo._blendMode == BlendMode::Additive)
+		{
+			pipelineDescriptor->colorAttachments()->object(0)->setSourceRGBBlendFactor(MTL::BlendFactorSourceAlpha);
+			pipelineDescriptor->colorAttachments()->object(0)->setDestinationRGBBlendFactor(MTL::BlendFactorOne);
+			pipelineDescriptor->colorAttachments()->object(0)->setSourceAlphaBlendFactor(MTL::BlendFactorOne);
+			pipelineDescriptor->colorAttachments()->object(0)->setDestinationAlphaBlendFactor(MTL::BlendFactorOne);
+		}
+		else // Alpha, and what Opaque leaves unused
+		{
+			pipelineDescriptor->colorAttachments()->object(0)->setSourceRGBBlendFactor(MTL::BlendFactorSourceAlpha);
+			pipelineDescriptor->colorAttachments()->object(0)->setDestinationRGBBlendFactor(MTL::BlendFactorOneMinusSourceAlpha);
+			pipelineDescriptor->colorAttachments()->object(0)->setSourceAlphaBlendFactor(MTL::BlendFactorOne);
+			pipelineDescriptor->colorAttachments()->object(0)->setDestinationAlphaBlendFactor(MTL::BlendFactorZero);
+		}
 
 		// Create the render pipeline state
 		NS::Error*     pipelineError = nil;

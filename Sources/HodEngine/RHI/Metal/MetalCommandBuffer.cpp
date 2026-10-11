@@ -198,6 +198,19 @@ namespace hod::inline rhi
 	{
 		_graphicsPipeline = static_cast<const MetalGraphicsPipeline*>(graphicsPipeline);
 		_renderCommandEncoder->setRenderPipelineState(_graphicsPipeline->GetNativeRenderPipeline());
+
+		// Culling is not part of the pipeline state on Metal
+		MTL::CullMode cullMode = MTL::CullModeNone;
+		if (_graphicsPipeline->GetCullMode() == CullMode::Back)
+		{
+			cullMode = MTL::CullModeBack;
+		}
+		else if (_graphicsPipeline->GetCullMode() == CullMode::Front)
+		{
+			cullMode = MTL::CullModeFront;
+		}
+		_renderCommandEncoder->setCullMode(cullMode);
+		_renderCommandEncoder->setFrontFacingWinding(MTL::WindingCounterClockwise);
 	}
 
 	/// @brief

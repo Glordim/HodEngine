@@ -348,8 +348,20 @@ namespace hod::inline rhi
 			rasterizer.polygonMode = VK_POLYGON_MODE_POINT;
 		}
 		rasterizer.lineWidth = 1.0f;
-		rasterizer.cullMode = VK_CULL_MODE_NONE;                // VK_CULL_MODE_BACK_BIT;
-		rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE; // VK_FRONT_FACE_COUNTER_CLOCKWISE
+		if (createInfo._cullMode == CullMode::Back)
+		{
+			rasterizer.cullMode = VK_CULL_MODE_BACK_BIT;
+		}
+		else if (createInfo._cullMode == CullMode::Front)
+		{
+			rasterizer.cullMode = VK_CULL_MODE_FRONT_BIT;
+		}
+		else
+		{
+			rasterizer.cullMode = VK_CULL_MODE_NONE;
+		}
+		// The viewport is flipped (see VulkanCommandBuffer::SetViewport), which flips the winding back to the one of +y going up
+		rasterizer.frontFace = VK_FRONT_FACE_COUNTER_CLOCKWISE;
 		rasterizer.depthBiasEnable = VK_FALSE;
 		rasterizer.depthBiasConstantFactor = 0.0f; // Optional
 		rasterizer.depthBiasClamp = 0.0f;          // Optional
@@ -385,13 +397,30 @@ namespace hod::inline rhi
 		// Color blending
 		VkPipelineColorBlendAttachmentState& colorBlendAttachment = nativeCreateInfo._colorBlendAttachment;
 		colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
-		colorBlendAttachment.blendEnable = VK_TRUE;
-		colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;           // Optional
-		colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; // Optional
-		colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;                            // Optional
-		colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;           // Optional
-		colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; // Optional
-		colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;                            // Optional
+		colorBlendAttachment.blendEnable = createInfo._blendMode != BlendMode::Opaque ? VK_TRUE : VK_FALSE;
+		if (createInfo._blendMode == BlendMode::PremultipliedAlpha)
+		{
+			colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_ONE;
+			colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+			colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+			colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		}
+		else if (createInfo._blendMode == BlendMode::Additive)
+		{
+			colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+			colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE;
+			colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+			colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
+		}
+		else // Alpha, and what Opaque leaves unused
+		{
+			colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+			colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+			colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+			colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
+		}
+		colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;
+		colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;
 
 		VkPipelineColorBlendStateCreateInfo& colorBlending = nativeCreateInfo._colorBlend;
 		colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;

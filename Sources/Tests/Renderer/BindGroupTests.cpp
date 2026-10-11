@@ -61,17 +61,7 @@ protected:
 		ASSERT_TRUE(
 			_fragmentShader->LoadFromIR(BindGroupTest_Fragment, BindGroupTest_Fragment_size, BindGroupTest_Fragment_reflection, BindGroupTest_Fragment_reflection_size));
 
-		StaticArray<VertexInput, 2> vertexInputs = {
-			VertexInput(0, 0, VertexInput::Format::R32G32_SFloat),
-			VertexInput(1, 8, VertexInput::Format::R32G32_SFloat),
-		};
-
-		GraphicsPipeline::CreateInfo pipelineCreateInfo;
-		pipelineCreateInfo._vertexInputs = vertexInputs.Data();
-		pipelineCreateInfo._vertexInputCount = (uint32_t)vertexInputs.Size();
-		pipelineCreateInfo._vertexShader = _vertexShader;
-		pipelineCreateInfo._fragmentShader = _fragmentShader;
-		_graphicsPipeline = rhiDevice->CreateGraphicsPipeline(pipelineCreateInfo);
+		_graphicsPipeline = CreatePipeline(GraphicsPipeline::CreateInfo());
 		ASSERT_NE(_graphicsPipeline, nullptr);
 
 		// Uniform blocks sharing a buffer start on a multiple of the device alignment
@@ -99,12 +89,37 @@ protected:
 		{
 			DefaultAllocator::GetInstance().Delete(texture);
 		}
-		DefaultAllocator::GetInstance().Delete(_graphicsPipeline);
+		for (GraphicsPipeline* graphicsPipeline : _graphicsPipelines)
+		{
+			DefaultAllocator::GetInstance().Delete(graphicsPipeline);
+		}
 		DefaultAllocator::GetInstance().Delete(_vertexShader);
 		DefaultAllocator::GetInstance().Delete(_fragmentShader);
 		DefaultAllocator::GetInstance().Delete(_renderTarget);
 
 		OutputCheckedTest::TearDown();
+	}
+
+	// A pipeline of the test shaders: they and their vertex inputs are set here, the rest is left to the caller
+	GraphicsPipeline* CreatePipeline(GraphicsPipeline::CreateInfo createInfo)
+	{
+		StaticArray<VertexInput, 2> vertexInputs = {
+			VertexInput(0, 0, VertexInput::Format::R32G32_SFloat),
+			VertexInput(1, 8, VertexInput::Format::R32G32_SFloat),
+		};
+
+		createInfo._vertexInputs = vertexInputs.Data();
+		createInfo._vertexInputCount = (uint32_t)vertexInputs.Size();
+		createInfo._vertexShader = _vertexShader;
+		createInfo._fragmentShader = _fragmentShader;
+
+		GraphicsPipeline* graphicsPipeline = RhiDevice::GetInstance()->CreateGraphicsPipeline(createInfo);
+		EXPECT_NE(graphicsPipeline, nullptr);
+		if (graphicsPipeline != nullptr)
+		{
+			_graphicsPipelines.PushBack(graphicsPipeline);
+		}
+		return graphicsPipeline;
 	}
 
 	template<typename T>
@@ -280,15 +295,16 @@ protected:
 	RenderTarget*     _renderTarget = nullptr;
 	Shader*           _vertexShader = nullptr;
 	Shader*           _fragmentShader = nullptr;
-	GraphicsPipeline* _graphicsPipeline = nullptr;
+	GraphicsPipeline* _graphicsPipeline = nullptr; // the one RenderFrame draws with
 	uint32_t          _blockStride = 0;
 
 	CommandBuffer* _commandBuffer = nullptr;
 	Texture*       _frameTexture = nullptr;
 
-	Vector<BindGroup*> _bindGroups;
-	Vector<Buffer*>    _buffers;
-	Vector<Texture*>   _textures;
+	Vector<GraphicsPipeline*> _graphicsPipelines;
+	Vector<BindGroup*>        _bindGroups;
+	Vector<Buffer*>           _buffers;
+	Vector<Texture*>          _textures;
 };
 
 // A RenderTarget is the same texture frame after frame: what a frame draws replaces what the previous one drew
@@ -534,4 +550,95 @@ TEST_F(BindGroupRender, CreationFailsWhenTheResourcesDoNotMatchTheSet)
 	EXPECT_EQ(RhiDevice::GetInstance()->CreateBindGroup(_graphicsPipeline, 2, &colors, 1, nullptr, 0), nullptr);
 
 	_expectedErrorCount = 2;
+}
+
+// ============================================================================
+// What GraphicsPipeline::CreateInfo sets apart from the shaders
+// ============================================================================
+
+class PipelineStateRender : public BindGroupRender
+{
+protected:
+	// Clockwise quad on the left half of the target, counter-clockwise one on the right half
+	void RenderBothWindings(CullMode cullMode)
+	{
+		GraphicsPipeline::CreateInfo createInfo;
+		createInfo._cullMode = cullMode;
+		_graphicsPipeline = CreatePipeline(createInfo);
+
+		BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White}));
+		BindGroup* material = CreateMaterialBindGroup(CreateColorBlocks({Red}), CreateWhiteTexture());
+
+		RenderFrame([&]() {
+			SetBindGroup(0, global, 0);
+			SetBindGroup(1, material, 0);
+			DrawQuad(-1.0f, -1.0f, 0.0f, 1.0f);
+			DrawQuad(1.0f, -1.0f, 0.0f, 1.0f); // mirrored, which reverses its winding
+		});
+	}
+
+	// What a half transparent quad gives once drawn over the Background
+	Color RenderOverBackground(BlendMode blendMode)
+	{
+		GraphicsPipeline::CreateInfo createInfo;
+		createInfo._blendMode = blendMode;
+		_graphicsPipeline = CreatePipeline(createInfo);
+
+		BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White}));
+		BindGroup* material = CreateMaterialBindGroup(CreateColorBlocks({Color(0.8f, 0.4f, 0.0f, 0.5f)}), CreateWhiteTexture());
+
+		RenderFrame([&]() {
+			SetBindGroup(0, global, 0);
+			SetBindGroup(1, material, 0);
+			DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f);
+		});
+
+		return ReadPixel(0.0f, 0.0f);
+	}
+};
+
+TEST_F(PipelineStateRender, CullModeNoneDrawsBothFaces)
+{
+	RenderBothWindings(CullMode::None);
+
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, 0.0f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.0f), Red));
+}
+
+// The front face is the counter-clockwise one, on every backend
+TEST_F(PipelineStateRender, CullModeBackDrawsCounterClockwiseTriangles)
+{
+	RenderBothWindings(CullMode::Back);
+
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, 0.0f), Background));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.0f), Red));
+}
+
+TEST_F(PipelineStateRender, CullModeFrontDrawsClockwiseTriangles)
+{
+	RenderBothWindings(CullMode::Front);
+
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, 0.0f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.0f), Background));
+}
+
+TEST_F(PipelineStateRender, BlendModeOpaqueReplacesTheTarget)
+{
+	EXPECT_TRUE(ColorNear(RenderOverBackground(BlendMode::Opaque), Color(0.8f, 0.4f, 0.0f, 0.5f)));
+}
+
+TEST_F(PipelineStateRender, BlendModeAlpha)
+{
+	// The alpha is blended like the color: 0.5 * 0.5 + 1.0 * 0.5
+	EXPECT_TRUE(ColorNear(RenderOverBackground(BlendMode::Alpha), Color(0.45f, 0.25f, 0.05f, 0.75f)));
+}
+
+TEST_F(PipelineStateRender, BlendModePremultipliedAlpha)
+{
+	EXPECT_TRUE(ColorNear(RenderOverBackground(BlendMode::PremultipliedAlpha), Color(0.85f, 0.45f, 0.05f, 1.0f)));
+}
+
+TEST_F(PipelineStateRender, BlendModeAdditive)
+{
+	EXPECT_TRUE(ColorNear(RenderOverBackground(BlendMode::Additive), Color(0.5f, 0.3f, 0.1f, 1.0f)));
 }
