@@ -32,24 +32,29 @@ struct Globals
 {
 	float4 tint;
 };
-// A set is given twice: to Vulkan by [[vk::binding(binding, set)]], to D3D12 by the space of the register.
-// The b registers are numbered across the sets, after the one the push constant takes, because Metal has no space and reads them as buffer indices.
-[[vk::binding(0, 0)]]
-ConstantBuffer<Globals> global : register(b1, space0);
 
 struct UBO
 {
 	float4 color;
 };
-[[vk::binding(0, 1)]]
-ConstantBuffer<UBO> ubo : register(b2, space1);
 
-[[vk::binding(1, 1)]]
-Texture2D image : register(t0, space1);
-[[vk::binding(2, 1)]]
-SamplerState imageSampler : register(s0, space1);
+// A ParameterBlock is a set, they are numbered in the order they are declared
+
+struct Frame
+{
+	ConstantBuffer<Globals> global;
+};
+ParameterBlock<Frame> frame;
+
+struct Material
+{
+	ConstantBuffer<UBO> ubo;
+	Texture2D           image;
+	SamplerState        imageSampler;
+};
+ParameterBlock<Material> material;
 
 float4 FragmentMain(VS_OUT input) : SV_Target
 {
-	return image.Sample(imageSampler, input.uv) * ubo.color * global.tint;
+	return material.image.Sample(material.imageSampler, input.uv) * material.ubo.color * frame.global.tint;
 }

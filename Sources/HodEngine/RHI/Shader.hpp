@@ -7,6 +7,11 @@
 
 #include <map>
 
+namespace hod::inline core
+{
+	class DocumentNode;
+}
+
 namespace hod::inline rhi
 {
 	class ShaderSetDescriptor;
@@ -42,6 +47,7 @@ namespace hod::inline rhi
 
 	private:
 		ShaderSetDescriptor* GetOrCreateSetDescriptor(uint32_t set);
+		bool                 ExtractParameterBlock(const DocumentNode& parameterNode, uint32_t space);
 
 	protected:
 		Vector<uint8_t>                                    _buffer;

@@ -99,14 +99,29 @@ namespace hod::inline rhi
 		MergeSetDescriptors(*vertexShader, *fragmentShader);
 
 		// _setDescriptors is ordered and contiguous: its entries are the sets 0, 1, 2...
+		// The descriptor set of a set is its space, which is not always its number: the pipeline layout has a layout for each space
 		for (const auto& pair : _setDescriptors)
 		{
-			VkDescriptorSetLayout descriptorSetLayout = VK_NULL_HANDLE;
-			if (BuildDescriptorSetLayout(*pair.second, &descriptorSetLayout) == false)
+			uint32_t space = pair.second->GetSpace();
+			if (space >= _descriptorSetLayouts.Size())
+			{
+				_descriptorSetLayouts.Resize(space + 1, VK_NULL_HANDLE);
+			}
+
+			if (BuildDescriptorSetLayout(*pair.second, &_descriptorSetLayouts[space]) == false)
 			{
 				return false;
 			}
-			_descriptorSetLayouts.PushBack(descriptorSetLayout);
+			_setSpaces.PushBack(space);
+		}
+
+		// The spaces no set is at
+		for (VkDescriptorSetLayout& descriptorSetLayout : _descriptorSetLayouts)
+		{
+			if (descriptorSetLayout == VK_NULL_HANDLE && BuildDescriptorSetLayout(ShaderSetDescriptor(), &descriptorSetLayout) == false)
+			{
+				return false;
+			}
 		}
 
 		Vector<VkPushConstantRange> constants;
@@ -531,11 +546,19 @@ namespace hod::inline rhi
 	/// @return
 	VkDescriptorSetLayout VulkanGraphicsPipeline::GetDescriptorSetLayout(uint32_t set) const
 	{
-		if (set >= _descriptorSetLayouts.Size())
+		if (set >= _setSpaces.Size())
 		{
 			return VK_NULL_HANDLE;
 		}
-		return _descriptorSetLayouts[set];
+		return _descriptorSetLayouts[_setSpaces[set]];
+	}
+
+	/// @brief The descriptor set a set of the pipeline is bound to
+	/// @param set
+	/// @return
+	uint32_t VulkanGraphicsPipeline::GetSetSpace(uint32_t set) const
+	{
+		return _setSpaces[set];
 	}
 
 	/// @brief

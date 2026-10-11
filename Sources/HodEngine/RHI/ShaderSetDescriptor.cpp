@@ -8,6 +8,8 @@ namespace hod::inline rhi
 {
 	void ShaderSetDescriptor::Merge(const ShaderSetDescriptor& other)
 	{
+		_space = other._space;
+
 		for (const BlockUbo& otherUboBlock : other._uboBlockVector)
 		{
 			bool alreadyExist = false;
@@ -61,18 +63,30 @@ namespace hod::inline rhi
 	}
 
 	/// @brief
+	/// @return
+	uint32_t ShaderSetDescriptor::GetSpace() const
+	{
+		return _space;
+	}
+
+	/// @brief
+	/// @param space
+	void ShaderSetDescriptor::SetSpace(uint32_t space)
+	{
+		_space = space;
+	}
+
+	/// @brief
 	/// @param comp
 	/// @param resource
-	void ShaderSetDescriptor::ExtractBlockUbo(const DocumentNode& parameterNode)
+	void ShaderSetDescriptor::ExtractBlockUbo(const DocumentNode& variableNode, uint32_t binding)
 	{
-		const DocumentNode* nameNode = parameterNode.GetChild("name");
-		const DocumentNode* bindingNode = parameterNode.GetChild("binding");
-		const DocumentNode* indexNode = bindingNode->GetChild("index");
-		const DocumentNode* typeNode = parameterNode.GetChild("type");
+		const DocumentNode* nameNode = variableNode.GetChild("name");
+		const DocumentNode* typeNode = variableNode.GetChild("type");
 		Assert(typeNode);
 		const DocumentNode* elementVarLayoutNode = typeNode->GetChild("elementVarLayout");
 		Assert(elementVarLayoutNode);
-		bindingNode = elementVarLayoutNode->GetChild("binding");
+		const DocumentNode* bindingNode = elementVarLayoutNode->GetChild("binding");
 		Assert(bindingNode);
 		const DocumentNode* sizeNode = bindingNode->GetChild("size");
 		Assert(sizeNode);
@@ -85,7 +99,7 @@ namespace hod::inline rhi
 		Assert(fieldsNode);
 
 		BlockUbo ubo;
-		ubo._binding = indexNode->GetUInt32();
+		ubo._binding = binding;
 		ubo._name = nameNode->GetString();
 		ubo._rootMember._name = ubo._name;
 		ubo._rootMember._offset = 0;
@@ -204,29 +218,25 @@ namespace hod::inline rhi
 	/// @param comp
 	/// @param resource
 	/// @param type
-	void ShaderSetDescriptor::ExtractBlockTexture(const DocumentNode& parameterNode)
+	void ShaderSetDescriptor::ExtractBlockTexture(const DocumentNode& variableNode, uint32_t binding)
 	{
-		const DocumentNode* nameNode = parameterNode.GetChild("name");
-		const DocumentNode* bindingNode = parameterNode.GetChild("binding");
-		const DocumentNode* indexNode = bindingNode->GetChild("index");
+		const DocumentNode* nameNode = variableNode.GetChild("name");
 
 		BlockTexture texture;
 		texture._type = BlockTexture::Type::Texture;
-		texture._binding = indexNode->GetUInt32();
+		texture._binding = binding;
 		texture._name = nameNode->GetString();
 
 		_textureBlockVector.PushBack(std::move(texture));
 	}
 
-	void ShaderSetDescriptor::ExtractBlockSampler(const DocumentNode& parameterNode)
+	void ShaderSetDescriptor::ExtractBlockSampler(const DocumentNode& variableNode, uint32_t binding)
 	{
-		const DocumentNode* nameNode = parameterNode.GetChild("name");
-		const DocumentNode* bindingNode = parameterNode.GetChild("binding");
-		const DocumentNode* indexNode = bindingNode->GetChild("index");
+		const DocumentNode* nameNode = variableNode.GetChild("name");
 
 		BlockTexture texture;
 		texture._type = BlockTexture::Type::Sampler;
-		texture._binding = indexNode->GetUInt32();
+		texture._binding = binding;
 		texture._name = nameNode->GetString();
 
 		_textureBlockVector.PushBack(std::move(texture));

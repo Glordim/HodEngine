@@ -32,12 +32,16 @@ struct UBO
 {
 	float4 color;
 };
-ConstantBuffer<UBO> ubo;
 
-Texture2D image;
-SamplerState imageSampler;
+struct Material
+{
+	ConstantBuffer<UBO> ubo;
+	Texture2D           image;
+	SamplerState        imageSampler;
+};
+ParameterBlock<Material> material;
 
 float4 FragmentMain(VS_OUT input) : SV_Target
 {
-	return image.Sample(imageSampler, input.uv) * ubo.color;
+	return material.image.Sample(material.imageSampler, input.uv) * material.ubo.color;
 }

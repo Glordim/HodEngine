@@ -67,7 +67,9 @@ namespace hod::inline rhi
 			{
 				if (_setDescriptors.find(set) == _setDescriptors.end())
 				{
-					_setDescriptors[set] = DefaultAllocator::GetInstance().New<ShaderSetDescriptor>();
+					ShaderSetDescriptor* setDescriptor = DefaultAllocator::GetInstance().New<ShaderSetDescriptor>();
+					setDescriptor->SetSpace(set);
+					_setDescriptors[set] = setDescriptor;
 				}
 			}
 		}

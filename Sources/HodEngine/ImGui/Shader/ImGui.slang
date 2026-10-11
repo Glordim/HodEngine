@@ -32,11 +32,15 @@ VS_OUT VertexMain(VS_IN input)
 	return output;
 }
 
-Texture2D image;
-SamplerState imageSampler;
+struct Material
+{
+	Texture2D    image;
+	SamplerState imageSampler;
+};
+ParameterBlock<Material> material;
 
 float4 FragmentMain(VS_OUT input) : SV_TARGET
 {
-	float4 textureColor = image.Sample(imageSampler, input.texCoord);
+	float4 textureColor = material.image.Sample(material.imageSampler, input.texCoord);
 	return textureColor * input.color;
 }

@@ -271,7 +271,7 @@ namespace hod::inline rhi
 		}
 
 		// _setDescriptors is ordered and contiguous: its entries are the sets 0, 1, 2...
-		// A set is a register space, and the binding of a block its register in that space.
+		// The register space of a set is its space, and the binding of a block its register in that space.
 		_setLayouts.Clear();
 		for (const auto& pair : _setDescriptors)
 		{
@@ -283,7 +283,7 @@ namespace hod::inline rhi
 				rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
 				rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
 				rootParameter.Descriptor.ShaderRegister = ubo._binding;
-				rootParameter.Descriptor.RegisterSpace = pair.first;
+				rootParameter.Descriptor.RegisterSpace = pair.second->GetSpace();
 
 				if (setLayout._firstUniformBufferRootParameter == NoRootParameter)
 				{
@@ -315,7 +315,7 @@ namespace hod::inline rhi
 					descriptorRange.RangeType = isTexture ? D3D12_DESCRIPTOR_RANGE_TYPE_SRV : D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
 					descriptorRange.NumDescriptors = 1;
 					descriptorRange.BaseShaderRegister = textureBlock._binding;
-					descriptorRange.RegisterSpace = pair.first;
+					descriptorRange.RegisterSpace = pair.second->GetSpace();
 					descriptorRange.OffsetInDescriptorsFromTableStart = descriptorCount;
 					descriptorRanges.PushBack(descriptorRange);
 					++descriptorCount;

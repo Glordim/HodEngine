@@ -15,7 +15,7 @@ namespace hod::inline core
 namespace hod::inline rhi
 {
 	/// @brief A DXIL shader.
-	/// Its sets are the register spaces of its parameters, and the binding of a block is its register:
+	/// The space of a set is its register space, and the binding of a block is its register in it:
 	/// b for a uniform block, t for a texture, s for a sampler.
 	class HOD_RHI_API D3d12Shader : public Shader
 	{

@@ -20,6 +20,7 @@ namespace hod::inline rhi
 		VkPipeline       GetVkPipeline(VkRenderPass renderPass);
 		VkPipelineLayout GetPipelineLayout() const;
 		VkDescriptorSetLayout GetDescriptorSetLayout(uint32_t set) const;
+		uint32_t              GetSetSpace(uint32_t set) const;
 		uint32_t         GetPushConstantSize() const;
 
 	private:
@@ -49,7 +50,8 @@ namespace hod::inline rhi
 
 	private:
 		VkPipelineLayout _pipelineLayout = VK_NULL_HANDLE;
-		Vector<VkDescriptorSetLayout> _descriptorSetLayouts; // indexed by set
+		Vector<VkDescriptorSetLayout> _descriptorSetLayouts; // indexed by space
+		Vector<uint32_t>              _setSpaces;            // indexed by set
 		uint32_t         _pushConstantSize = 0;
 
 		CreateInfo _createInfo; // Store all create info to be able to create new Pipeline with different renderpass (may be removed if use DynamicRendering VK 1.3)

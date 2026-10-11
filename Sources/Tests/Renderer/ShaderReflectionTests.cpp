@@ -4,6 +4,9 @@
 #include <HodEngine/RHI/ShaderConstantDescriptor.hpp>
 #include <HodEngine/RHI/ShaderSetDescriptor.hpp>
 
+#include <HodEngine/Core/Output/OutputBucket.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
+
 #include <fstream>
 #include <sstream>
 #include <string>
@@ -16,8 +19,9 @@ using namespace hod;
 //   slangc P2fT2f_Texture_Unlit.slang -I ../ShaderLib -stage fragment -entry FragmentMain -reflection-json <fixture> -o <any>
 //     -target spirv -profile glsl_450+spirv_1_3    (vulkan)
 //     -target metal                                (metal)
-//     -target hlsl -profile ps_6_0                 (d3d12)
-// It declares, in this order: a push constant "pc" (marked [PushConstant]), a uniform block "ubo", a texture "image" and its sampler "imageSampler".
+//     -target hlsl -profile sm_6_0                 (d3d12)
+// It declares a push constant "pc" (marked [PushConstant]), then a ParameterBlock made of, in this order:
+// a uniform block "ubo", a texture "image" and its sampler "imageSampler".
 // ============================================================================
 
 namespace
@@ -98,6 +102,28 @@ protected:
 		EXPECT_EQ(color->second._size, 16u);
 	}
 
+	void ExpectPushConstant()
+	{
+		ASSERT_NE(_shader.GetConstantDescriptor(), nullptr);
+		EXPECT_EQ(_shader.GetConstantDescriptor()->GetSize(), 64u);
+		EXPECT_EQ(_shader.GetConstantDescriptor()->GetShaderType(), Shader::ShaderType::Fragment);
+	}
+
+	// The blocks are in the order they are declared, whatever their bindings
+	void ExpectTextureBlocks(uint32_t imageBinding, uint32_t imageSamplerBinding)
+	{
+		const Vector<ShaderSetDescriptor::BlockTexture>& textureBlocks = _set->GetTextureBlocks();
+		ASSERT_EQ(textureBlocks.Size(), 2u);
+
+		EXPECT_TRUE(textureBlocks[0]._name == "image");
+		EXPECT_EQ(textureBlocks[0]._type, ShaderSetDescriptor::BlockTexture::Texture);
+		EXPECT_EQ(textureBlocks[0]._binding, imageBinding);
+
+		EXPECT_TRUE(textureBlocks[1]._name == "imageSampler");
+		EXPECT_EQ(textureBlocks[1]._type, ShaderSetDescriptor::BlockTexture::Sampler);
+		EXPECT_EQ(textureBlocks[1]._binding, imageSamplerBinding);
+	}
+
 protected:
 	ReflectedShader            _shader;
 	const ShaderSetDescriptor* _set = nullptr;
@@ -108,73 +134,103 @@ TEST_F(ShaderReflection, Vulkan)
 {
 	Load("P2fT2f_Texture_Unlit_Fragment.vulkan.json");
 	ExpectUboLayout();
+	ExpectPushConstant();
 
-	ASSERT_NE(_shader.GetConstantDescriptor(), nullptr);
-	EXPECT_EQ(_shader.GetConstantDescriptor()->GetSize(), 64u);
-	EXPECT_EQ(_shader.GetConstantDescriptor()->GetShaderType(), Shader::ShaderType::Fragment);
+	EXPECT_EQ(_set->GetSpace(), 0u);
 
 	ASSERT_EQ(_set->GetUboBlocks().Size(), 1u);
 	EXPECT_EQ(FindUbo(*_set, "ubo")->_binding, 0u);
 
-	ASSERT_EQ(_set->GetTextureBlocks().Size(), 2u);
-	const ShaderSetDescriptor::BlockTexture* image = FindTexture(*_set, "image");
-	ASSERT_NE(image, nullptr);
-	EXPECT_EQ(image->_type, ShaderSetDescriptor::BlockTexture::Texture);
-	EXPECT_EQ(image->_binding, 1u);
-
-	const ShaderSetDescriptor::BlockTexture* imageSampler = FindTexture(*_set, "imageSampler");
-	ASSERT_NE(imageSampler, nullptr);
-	EXPECT_EQ(imageSampler->_type, ShaderSetDescriptor::BlockTexture::Sampler);
-	EXPECT_EQ(imageSampler->_binding, 2u);
+	ExpectTextureBlocks(1, 2);
 }
 
-// Buffers, textures and samplers are numbered separately, and the target has no push constant:
-// "pc" is a constant buffer that takes the first buffer index, known as the push constant by its [PushConstant] attribute
-class ShaderReflectionSeparateNumbering : public ShaderReflection, public ::testing::WithParamInterface<const char*>
+// Buffers, textures and samplers are numbered separately, in a register space of their own:
+// the first one is taken by "pc", a constant buffer known as the push constant by its [PushConstant] attribute
+TEST_F(ShaderReflection, D3d12)
 {
-};
-
-TEST_P(ShaderReflectionSeparateNumbering, Blocks)
-{
-	Load(GetParam());
+	Load("P2fT2f_Texture_Unlit_Fragment.d3d12.json");
 	ExpectUboLayout();
+	ExpectPushConstant();
 
-	ASSERT_NE(_shader.GetConstantDescriptor(), nullptr);
-	EXPECT_EQ(_shader.GetConstantDescriptor()->GetSize(), 64u);
-	EXPECT_EQ(_shader.GetConstantDescriptor()->GetShaderType(), Shader::ShaderType::Fragment);
+	EXPECT_EQ(_set->GetSpace(), 1u);
 
-	// Not one of the uniform blocks of the set, though it took the buffer index before theirs
 	ASSERT_EQ(_set->GetUboBlocks().Size(), 1u);
 	EXPECT_EQ(FindUbo(*_set, "pc"), nullptr);
-	EXPECT_EQ(FindUbo(*_set, "ubo")->_binding, 1u);
+	EXPECT_EQ(FindUbo(*_set, "ubo")->_binding, 0u);
 
-	// Same index, told apart by their type
-	ASSERT_EQ(_set->GetTextureBlocks().Size(), 2u);
-	const ShaderSetDescriptor::BlockTexture* image = FindTexture(*_set, "image");
-	ASSERT_NE(image, nullptr);
-	EXPECT_EQ(image->_type, ShaderSetDescriptor::BlockTexture::Texture);
-	EXPECT_EQ(image->_binding, 0u);
+	// Same register index, told apart by their type
+	ExpectTextureBlocks(0, 0);
+}
 
-	const ShaderSetDescriptor::BlockTexture* imageSampler = FindTexture(*_set, "imageSampler");
-	ASSERT_NE(imageSampler, nullptr);
-	EXPECT_EQ(imageSampler->_type, ShaderSetDescriptor::BlockTexture::Sampler);
-	EXPECT_EQ(imageSampler->_binding, 0u);
+// The block is an argument buffer, at the buffer index after the one of "pc": the binding of a field is its offset in it
+TEST_F(ShaderReflection, Metal)
+{
+	Load("P2fT2f_Texture_Unlit_Fragment.metal.json");
+	ExpectUboLayout();
+	ExpectPushConstant();
+
+	EXPECT_EQ(_set->GetSpace(), 1u);
+
+	ASSERT_EQ(_set->GetUboBlocks().Size(), 1u);
+	EXPECT_EQ(FindUbo(*_set, "pc"), nullptr);
+	EXPECT_EQ(FindUbo(*_set, "ubo")->_binding, 0u);
+
+	ExpectTextureBlocks(8, 16);
 }
 
 // What a pipeline does with the sets of its shaders
-TEST_P(ShaderReflectionSeparateNumbering, MergeKeepsTextureAndSamplerSharingAnIndex)
+TEST_F(ShaderReflection, MergeKeepsTextureAndSamplerSharingAnIndex)
 {
-	Load(GetParam());
+	Load("P2fT2f_Texture_Unlit_Fragment.d3d12.json");
 
 	ShaderSetDescriptor merged;
 	merged.Merge(*_set);
 	merged.Merge(*_set); // the other stage declaring the same blocks
 
+	EXPECT_EQ(merged.GetSpace(), 1u);
 	EXPECT_EQ(merged.GetUboBlocks().Size(), 1u);
 	ASSERT_EQ(merged.GetTextureBlocks().Size(), 2u);
 	EXPECT_NE(FindTexture(merged, "image"), nullptr);
 	EXPECT_NE(FindTexture(merged, "imageSampler"), nullptr);
 }
 
-INSTANTIATE_TEST_SUITE_P(Targets, ShaderReflectionSeparateNumbering,
-                         ::testing::Values("P2fT2f_Texture_Unlit_Fragment.metal.json", "P2fT2f_Texture_Unlit_Fragment.d3d12.json"));
+// The parameters declared outside of any ParameterBlock, as the shaders did before using them, still make a set.
+// The fixture is the reflection of the same shader for Vulkan, when it declared "ubo", "image" and "imageSampler" that way.
+TEST_F(ShaderReflection, ParametersOutsideOfAnyBlockMakeOneSet)
+{
+	Load("LooseParameters_Fragment.vulkan.json");
+	ExpectUboLayout();
+
+	EXPECT_EQ(_set->GetSpace(), 0u);
+
+	ASSERT_EQ(_set->GetUboBlocks().Size(), 1u);
+	EXPECT_EQ(FindUbo(*_set, "ubo")->_binding, 0u);
+
+	ExpectTextureBlocks(1, 2);
+}
+
+// Plain data in a block goes to a constant buffer only some targets add to it: it has to be declared, as a ConstantBuffer field.
+// The fixture is the reflection, for Vulkan, of: struct Material { float4 color; Texture2D image; }; ParameterBlock<Material> material;
+TEST(ShaderReflectionErrors, PlainDataInParameterBlockIsRefused)
+{
+	std::string reflection = ReadFixture("PlainDataInParameterBlock_Fragment.vulkan.json");
+	ASSERT_FALSE(reflection.empty());
+
+	hod::OutputBucket outputs;
+	hod::OutputService::PushBucket(outputs);
+
+	ReflectedShader shader;
+	EXPECT_FALSE(shader.LoadFromIR(nullptr, 0, reflection.c_str(), (uint32_t)reflection.size()));
+
+	hod::OutputService::PopBucket();
+
+	uint32_t errorCount = 0;
+	for (const hod::Output& output : outputs.GetOutputs())
+	{
+		if (output.GetType() == hod::Output::Type::Error)
+		{
+			++errorCount;
+		}
+	}
+	EXPECT_EQ(errorCount, 1u);
+}

@@ -70,9 +70,15 @@ namespace hod::inline rhi
 
 		void Merge(const ShaderSetDescriptor& other);
 
-		void ExtractBlockUbo(const DocumentNode& parameterNode);
-		void ExtractBlockTexture(const DocumentNode& parameterNode);
-		void ExtractBlockSampler(const DocumentNode& parameterNode);
+		// variableNode: a shader parameter, or a field of a ParameterBlock, of the reflection
+		void ExtractBlockUbo(const DocumentNode& variableNode, uint32_t binding);
+		void ExtractBlockTexture(const DocumentNode& variableNode, uint32_t binding);
+		void ExtractBlockSampler(const DocumentNode& variableNode, uint32_t binding);
+
+		// Where the set is for the graphics API: its descriptor set on Vulkan, its register space on D3D12.
+		// Not always the number of the set, see Shader::GenerateDescriptors.
+		uint32_t GetSpace() const;
+		void     SetSpace(uint32_t space);
 
 		const Vector<BlockUbo>&     GetUboBlocks() const;
 		const Vector<BlockTexture>& GetTextureBlocks() const;
@@ -83,5 +89,6 @@ namespace hod::inline rhi
 	private:
 		Vector<BlockUbo>     _uboBlockVector;
 		Vector<BlockTexture> _textureBlockVector;
+		uint32_t             _space = 0;
 	};
 }

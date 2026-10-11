@@ -232,8 +232,8 @@ namespace hod::inline rhi
 		}
 
 		VkDescriptorSet descriptorSet = vulkanBindGroup->GetDescriptorSet();
-		vkCmdBindDescriptorSets(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeline->GetPipelineLayout(), set, 1, &descriptorSet, dynamicOffsetCount,
-		                        dynamicOffsets);
+		vkCmdBindDescriptorSets(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeline->GetPipelineLayout(), _graphicsPipeline->GetSetSpace(set), 1, &descriptorSet,
+		                        dynamicOffsetCount, dynamicOffsets);
 	}
 
 	//-----------------------------------------------------------------------------

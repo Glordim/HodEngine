@@ -29,9 +29,14 @@ struct UBO
 {
 	float4 color;
 };
-ConstantBuffer<UBO> ubo;
+
+struct Material
+{
+	ConstantBuffer<UBO> ubo;
+};
+ParameterBlock<Material> material;
 
 float4 FragmentMain(VS_OUT input) : SV_Target
 {
-	return ubo.color;
+	return material.ubo.color;
 }

@@ -34,6 +34,43 @@ namespace hod::inline rhi
 			}
 			return false;
 		}
+
+		/// @brief The index of the binding of the given kind, among the one or several a variable of the reflection has. 0 if it has none.
+		uint32_t GetBindingIndex(const DocumentNode& variableNode, const String& kind)
+		{
+			auto getIndex = [&kind](const DocumentNode& bindingNode, uint32_t& index) {
+				const DocumentNode* kindNode = bindingNode.GetChild("kind");
+				const DocumentNode* indexNode = bindingNode.GetChild("index");
+				if (kindNode == nullptr || indexNode == nullptr || kindNode->GetString() != kind)
+				{
+					return false;
+				}
+				index = indexNode->GetUInt32();
+				return true;
+			};
+
+			uint32_t index = 0;
+
+			const DocumentNode* bindingNode = variableNode.GetChild("binding");
+			if (bindingNode != nullptr && getIndex(*bindingNode, index))
+			{
+				return index;
+			}
+
+			const DocumentNode* bindingsNode = variableNode.GetChild("bindings");
+			if (bindingsNode != nullptr)
+			{
+				for (bindingNode = bindingsNode->GetFirstChild(); bindingNode != nullptr; bindingNode = bindingNode->GetNextSibling())
+				{
+					if (getIndex(*bindingNode, index))
+					{
+						return index;
+					}
+				}
+			}
+
+			return 0;
+		}
 	}
 
 	/// @brief 
@@ -104,8 +141,82 @@ namespace hod::inline rhi
 		return setDescriptor;
 	}
 
+	/// @brief One set, made of the fields of a ParameterBlock: its ConstantBuffers, textures and samplers
+	/// @param parameterNode
+	/// @param space where the compiler put the block: the descriptor set on Vulkan, the register space on D3D12, the buffer index on Metal
+	/// @return
+	bool Shader::ExtractParameterBlock(const DocumentNode& parameterNode, uint32_t space)
+	{
+		ShaderSetDescriptor* setDescriptor = GetOrCreateSetDescriptor(space);
+
+		const DocumentNode* nameNode = parameterNode.GetChild("name");
+		const DocumentNode* typeNode = parameterNode.GetChild("type");
+		const DocumentNode* elementVarLayoutNode = typeNode->GetChild("elementVarLayout");
+		Assert(nameNode);
+		Assert(elementVarLayoutNode);
+		const DocumentNode* elementTypeNode = elementVarLayoutNode->GetChild("type");
+		Assert(elementTypeNode);
+
+		const DocumentNode* fieldsNode = elementTypeNode->GetChild("fields");
+		if (fieldsNode == nullptr)
+		{
+			return true;
+		}
+
+		for (const DocumentNode* fieldNode = fieldsNode->GetFirstChild(); fieldNode != nullptr; fieldNode = fieldNode->GetNextSibling())
+		{
+			const DocumentNode* fieldNameNode = fieldNode->GetChild("name");
+			const DocumentNode* fieldTypeNode = fieldNode->GetChild("type");
+			const DocumentNode* fieldBindingNode = fieldNode->GetChild("binding");
+			Assert(fieldNameNode);
+			Assert(fieldTypeNode);
+
+			const String&       fieldKind = fieldTypeNode->GetChild("kind")->GetString();
+			const DocumentNode* baseShapeNode = fieldTypeNode->GetChild("baseShape");
+			bool                isTexture = fieldKind == "resource" && baseShapeNode != nullptr && baseShapeNode->GetString() == "texture2D";
+			if (fieldBindingNode == nullptr || (fieldKind != "constantBuffer" && fieldKind != "samplerState" && isTexture == false))
+			{
+				// Plain data would land in a constant buffer Vulkan and D3D12 add to the block, but Metal doesn't: the blocks would differ between targets
+				OUTPUT_ERROR("Shader: \"{}.{}\" is not supported in a ParameterBlock, which takes ConstantBuffer, Texture2D and SamplerState fields", nameNode->GetString(),
+				             fieldNameNode->GetString());
+				return false;
+			}
+
+			// The binding of a field is relative to where the fields of its kind start in the block.
+			// Metal has no binding: a field is known by its offset in the argument buffer of the block.
+			uint32_t            binding = 0;
+			const DocumentNode* fieldIndexNode = fieldBindingNode->GetChild("index");
+			const DocumentNode* fieldOffsetNode = fieldBindingNode->GetChild("offset");
+			if (fieldIndexNode != nullptr)
+			{
+				binding = fieldIndexNode->GetUInt32() + GetBindingIndex(*elementVarLayoutNode, fieldBindingNode->GetChild("kind")->GetString());
+			}
+			else if (fieldOffsetNode != nullptr)
+			{
+				binding = fieldOffsetNode->GetUInt32();
+			}
+
+			if (fieldKind == "constantBuffer")
+			{
+				setDescriptor->ExtractBlockUbo(*fieldNode, binding);
+			}
+			else if (isTexture)
+			{
+				setDescriptor->ExtractBlockTexture(*fieldNode, binding);
+			}
+			else
+			{
+				setDescriptor->ExtractBlockSampler(*fieldNode, binding);
+			}
+		}
+
+		return true;
+	}
+
 	/// @brief Fills the set and constant descriptors from the reflection emitted by the shader compiler.
-	/// Only the binding kinds of the Vulkan target are handled for now.
+	/// A set is a ParameterBlock. The parameters declared outside of any block make one more set, which comes first.
+	/// The sets are numbered from 0 in the order the compiler placed them, whatever the place itself (see ShaderSetDescriptor::GetSpace):
+	/// on D3D12 the push constant takes the first register space when there is nothing else outside of the blocks, which then start at the second.
 	/// @return
 	bool Shader::GenerateDescriptors(const char* reflection, uint32_t reflectionSize)
 	{
@@ -135,8 +246,15 @@ namespace hod::inline rhi
 				Assert(indexNode);
 
 				const String& kind = kindNode->GetString();
+				if (typeNode->GetChild("kind")->GetString() == "parameterBlock")
+				{
+					if (ExtractParameterBlock(*parameterNode, indexNode->GetUInt32()) == false)
+					{
+						return false;
+					}
+				}
 				// Only Vulkan has a kind for [[vk::push_constant]]: on the other targets it is a constant buffer, known by its [PushConstant] attribute
-				if (kind == "pushConstantBuffer" || (kind == "constantBuffer" && HasUserAttribute(*parameterNode, "PushConstant")))
+				else if (kind == "pushConstantBuffer" || (kind == "constantBuffer" && HasUserAttribute(*parameterNode, "PushConstant")))
 				{
 					const DocumentNode* elementVarLayoutNode = typeNode->GetChild("elementVarLayout");
 					Assert(elementVarLayoutNode);
@@ -162,18 +280,18 @@ namespace hod::inline rhi
 					const String& kind = kindNode->GetString();
 					if (kind == "constantBuffer")
 					{
-						setDescriptor->ExtractBlockUbo(*parameterNode);
+						setDescriptor->ExtractBlockUbo(*parameterNode, indexNode->GetUInt32());
 					}
 					else if (kind == "resource")
 					{
 						const DocumentNode* baseShapeNode = typeNode->GetChild("baseShape");
 						Assert(baseShapeNode);
 						Assert(baseShapeNode->GetString() == "texture2D");
-						setDescriptor->ExtractBlockTexture(*parameterNode);
+						setDescriptor->ExtractBlockTexture(*parameterNode, indexNode->GetUInt32());
 					}
 					else if (kind == "samplerState")
 					{
-						setDescriptor->ExtractBlockSampler(*parameterNode);
+						setDescriptor->ExtractBlockSampler(*parameterNode, indexNode->GetUInt32());
 					}
 					else
 					{
@@ -188,6 +306,15 @@ namespace hod::inline rhi
 				parameterNode = parameterNode->GetNextSibling();
 			}
 		}
+
+		// So far the sets are keyed by where the compiler put them
+		std::map<uint32_t, ShaderSetDescriptor*> setDescriptors;
+		for (const auto& pair : _setDescriptors)
+		{
+			pair.second->SetSpace(pair.first);
+			setDescriptors.emplace((uint32_t)setDescriptors.size(), pair.second);
+		}
+		_setDescriptors = std::move(setDescriptors);
 
 		return true;
 	}
