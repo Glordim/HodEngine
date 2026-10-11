@@ -34,7 +34,7 @@ namespace hod::inline rhi
 	/// @param data
 	/// @param Size
 	/// @return
-	bool MetalShader::LoadFromIR(const void* data, uint32_t size, const char* /*reflection*/, uint32_t /*reflectionSize*/)
+	bool MetalShader::LoadFromIR(const void* data, uint32_t size, const char* reflection, uint32_t reflectionSize)
 	{
 		MetalRhiDevice* metalRenderer = MetalRhiDevice::GetInstance();
 
@@ -47,7 +47,18 @@ namespace hod::inline rhi
 			return false;
 		}
 
-		return FindFunction();
+		if (FindFunction() == false)
+		{
+			return false;
+		}
+
+		if (GenerateDescriptors(reflection, reflectionSize) == false)
+		{
+			OUTPUT_ERROR("MetalShader : Failed to extract descriptor");
+			return false;
+		}
+
+		return true;
 	}
 
 	/// @brief

@@ -6,7 +6,7 @@
 namespace MTL
 {
 	class Texture;
-	class SamplerState;
+	class TextureDescriptor;
 }
 
 namespace hod::inline rhi
@@ -29,11 +29,17 @@ namespace hod::inline rhi
 		void			CaptureReadback(CommandBuffer* commandBuffer) override;
 
 		MTL::Texture*       GetNativeTexture() const;
-		MTL::SamplerState*  GetNativeSampler() const;
-		
+
 	private:
-		
+
+		bool			Build(MTL::TextureDescriptor* textureDescriptor, uint32_t width, uint32_t height, const CreateInfo& createInfo);
+		void			Release();
+
+	private:
+
 		MTL::Texture*       _texture = nullptr;
-		MTL::SamplerState*  _sampler = nullptr;
+
+		bool				_readable = false; // built with CreateInfo::_allowReadWrite
+		bool				_readbackReady = false;
 	};
 }

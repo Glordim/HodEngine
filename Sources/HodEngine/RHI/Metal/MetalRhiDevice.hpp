@@ -10,6 +10,7 @@ namespace MTL
 	class Device;
 	class ResidencySet;
 	class Allocation;
+	class SharedEvent;
 }
 
 namespace MTL4
@@ -35,6 +36,8 @@ namespace hod::inline rhi
 
 	public:
 		bool CreateContext(Window* window); // TODO virtual in Renderer ?
+
+		void WaitIdle() override;
 
 		bool GetAvailableGpuDevices(Vector<GpuDevice*>* availableDevices) override;
 
@@ -74,6 +77,10 @@ namespace hod::inline rhi
 		MTL4::CommandQueue*             _commandQueue = nullptr;
 		Vector<MTL4::CommandAllocator*> _commandAllocators;
 		MTL::ResidencySet*              _residencySet = nullptr;
+
+		// Signaled by the command queue once it is done with everything committed before, see WaitIdle
+		MTL::SharedEvent* _idleEvent = nullptr;
+		uint64_t          _idleEventValue = 0;
 	};
 }
 

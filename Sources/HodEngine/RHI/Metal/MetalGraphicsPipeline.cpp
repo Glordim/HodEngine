@@ -38,7 +38,10 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	MetalGraphicsPipeline::~MetalGraphicsPipeline()
 	{
-		_renderPipelineState->release();
+		if (_renderPipelineState != nullptr)
+		{
+			_renderPipelineState->release();
+		}
 	}
 
 	//-----------------------------------------------------------------------------
@@ -65,22 +68,27 @@ namespace hod::inline rhi
 
 		if (vertexInputs != nullptr)
 		{
+			uint32_t maxBinding = 0;
+			for (uint32_t i = 0; i < vertexInputCount; ++i)
+			{
+				maxBinding = std::max(maxBinding, vertexInputs[i]._binding);
+			}
+
 			Vector<uint32_t> strides;
-			strides.Resize(vertexInputCount, 0);
+			strides.Resize(maxBinding + 1, 0);
 			for (uint32_t i = 0; i < vertexInputCount; ++i)
 			{
 				uint32_t bufferIndex = vertexInputs[i]._binding;
-				uint32_t offset = vertexInputs[i]._offset;
-				uint32_t Size = FormatToSize[vertexInputs[i]._format];
 
+				// As on the other backends, the attributes of a buffer follow each other in the order they are given
 				MTL::VertexAttributeDescriptor* vertexAttribute = MTL::VertexAttributeDescriptor::alloc()->init();
-				vertexAttribute->setOffset(offset);
+				vertexAttribute->setOffset(strides[bufferIndex]);
 				vertexAttribute->setBufferIndex(_vertexAttributeBufferRange.location + bufferIndex);
 				vertexAttribute->setFormat(FormatToMetalFormat[vertexInputs[i]._format]);
 				vertexDescriptor->attributes()->setObject(vertexAttribute, i);
 				vertexAttribute->release();
 
-				strides[bufferIndex] = std::max(strides[bufferIndex], offset + Size);
+				strides[bufferIndex] += FormatToSize[vertexInputs[i]._format];
 			}
 
 			_vertexAttributeBufferRange.length = 0;
@@ -157,6 +165,8 @@ namespace hod::inline rhi
 			OUTPUT_ERROR("Failed to create render pipeline state: {}", pipelineError->localizedDescription()->utf8String());
 			return false;
 		}
+
+		MergeSetDescriptors(*vertexShader, *fragmentShader);
 
 		return true;
 	}

@@ -2,7 +2,11 @@
 #include "HodEngine/RHI/Metal/MetalTexture.hpp"
 #include "HodEngine/RHI/Metal/MetalRhiDevice.hpp"
 
+#include <HodEngine/Core/Output/OutputService.hpp>
+
 #include <Metal/Metal.hpp>
+
+#include <utility>
 
 namespace hod::inline rhi
 {
@@ -18,16 +22,46 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	MetalTexture::~MetalTexture()
 	{
+		Release();
+	}
+
+	/// @brief
+	void MetalTexture::Release()
+	{
 		if (_texture != nullptr)
 		{
 			MetalRhiDevice::GetInstance()->RemoveResourceFromResidencySet(_texture);
 			_texture->release();
+			_texture = nullptr;
 		}
-		
-		if (_sampler != nullptr)
+		_readbackReady = false;
+	}
+
+	/// @brief Creates the texture from a descriptor holding its format and usage
+	/// @param textureDescriptor released by this function
+	/// @return
+	bool MetalTexture::Build(MTL::TextureDescriptor* textureDescriptor, uint32_t width, uint32_t height, const CreateInfo& createInfo)
+	{
+		Release();
+
+		textureDescriptor->setWidth(width);
+		textureDescriptor->setHeight(height);
+		textureDescriptor->setTextureType(MTL::TextureType2D);
+		textureDescriptor->setStorageMode(MTL::StorageModeShared);
+		_texture = MetalRhiDevice::GetInstance()->GetDevice()->newTexture(textureDescriptor);
+		textureDescriptor->release();
+		if (_texture == nullptr)
 		{
-			_sampler->release();
+			OUTPUT_ERROR("Metal: Failed to create a {}x{} texture!", width, height);
+			return false;
 		}
+		MetalRhiDevice::GetInstance()->AddResourceToResidencySet(_texture);
+
+		_width = width;
+		_height = height;
+		_readable = createInfo._allowReadWrite;
+
+		return true;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -35,27 +69,10 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	bool MetalTexture::BuildDepth(uint32_t width, uint32_t height, const CreateInfo& createInfo)
 	{
-		(void)createInfo; // TODO
-
 		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
-		textureDescriptor->setWidth(width);
-		textureDescriptor->setHeight(height);
 		textureDescriptor->setPixelFormat(MTL::PixelFormatDepth32Float_Stencil8);
-		textureDescriptor->setTextureType(MTL::TextureType2D);
-		textureDescriptor->setStorageMode(MTL::StorageModeShared);
-		textureDescriptor->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
-		_texture = MetalRhiDevice::GetInstance()->GetDevice()->newTexture(textureDescriptor);
-		textureDescriptor->release();
-		MetalRhiDevice::GetInstance()->AddResourceToResidencySet(_texture);
-
-		MTL::SamplerDescriptor* samplerDescriptor = MTL::SamplerDescriptor::alloc()->init();
-		_sampler = MetalRhiDevice::GetInstance()->GetDevice()->newSamplerState(samplerDescriptor);
-		samplerDescriptor->release();
-
-		_width = width;
-		_height = height;
-
-		return true;
+		textureDescriptor->setUsage(MTL::TextureUsageRenderTarget | MTL::TextureUsageShaderRead);
+		return Build(textureDescriptor, width, height, createInfo);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -63,29 +80,11 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	bool MetalTexture::BuildColor(uint32_t width, uint32_t height, const CreateInfo& createInfo)
 	{
-		(void)createInfo; // TODO
-
 		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
-		textureDescriptor->setWidth(width);
-		textureDescriptor->setHeight(height);
-		textureDescriptor->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
-		textureDescriptor->setTextureType(MTL::TextureType2D);
-		textureDescriptor->setStorageMode(MTL::StorageModeShared);
-		textureDescriptor->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
-		_texture = MetalRhiDevice::GetInstance()->GetDevice()->newTexture(textureDescriptor);
-		textureDescriptor->release();
-		MetalRhiDevice::GetInstance()->AddResourceToResidencySet(_texture);
-
-		MTL::SamplerDescriptor* samplerDescriptor = MTL::SamplerDescriptor::alloc()->init();
-		samplerDescriptor->setSAddressMode(MTL::SamplerAddressModeClampToEdge);
-		samplerDescriptor->setTAddressMode(MTL::SamplerAddressModeClampToEdge);
-		_sampler = MetalRhiDevice::GetInstance()->GetDevice()->newSamplerState(samplerDescriptor);
-		samplerDescriptor->release();
-
-		_width = width;
-		_height = height;
-
-		return true;
+		// Same format as the presentation surfaces: a MetalGraphicsPipeline is built for one format of color attachment
+		textureDescriptor->setPixelFormat(MTL::PixelFormatBGRA8Unorm);
+		textureDescriptor->setUsage(MTL::TextureUsageRenderTarget | MTL::TextureUsageShaderRead);
+		return Build(textureDescriptor, width, height, createInfo);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -93,29 +92,15 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	bool MetalTexture::BuildBuffer(uint32_t width, uint32_t height, const uint8_t* pixels, const CreateInfo& createInfo)
 	{
-		(void)createInfo; // TODO
-
 		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
-		textureDescriptor->setWidth(width);
-		textureDescriptor->setHeight(height);
 		textureDescriptor->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
-		textureDescriptor->setTextureType(MTL::TextureType2D);
-		textureDescriptor->setStorageMode(MTL::StorageModeShared);
-		textureDescriptor->setUsage(MTL::ResourceUsageSample | MTL::ResourceUsageRead);
-		_texture = MetalRhiDevice::GetInstance()->GetDevice()->newTexture(textureDescriptor);
-		textureDescriptor->release();
-		MetalRhiDevice::GetInstance()->AddResourceToResidencySet(_texture);
+		textureDescriptor->setUsage(MTL::TextureUsageShaderRead);
+		if (Build(textureDescriptor, width, height, createInfo) == false)
+		{
+			return false;
+		}
 
 		_texture->replaceRegion(MTL::Region( 0, 0, 0, width, height, 1 ), 0, pixels, width * 4);
-		
-		MTL::SamplerDescriptor* samplerDescriptor = MTL::SamplerDescriptor::alloc()->init();
-		samplerDescriptor->setSAddressMode(MTL::SamplerAddressModeClampToEdge);
-		samplerDescriptor->setTAddressMode(MTL::SamplerAddressModeClampToEdge);
-		_sampler = MetalRhiDevice::GetInstance()->GetDevice()->newSamplerState(samplerDescriptor);
-		samplerDescriptor->release();
-
-		_width = width;
-		_height = height;
 
 		return true;
 	}
@@ -125,25 +110,37 @@ namespace hod::inline rhi
 	/// @return 
 	Color MetalTexture::ReadPixel(const Vector2& position) const
 	{
-		(void)position; // TODO
-		return Color();
+		if (position.GetX() < 0 || position.GetX() >= _width || position.GetY() < 0 || position.GetY() >= _height)
+		{
+			return Color(0.0f, 0.0f, 0.0f, 0.0f);
+		}
+
+		if (_readbackReady == false)
+		{
+			return Color(0.0f, 0.0f, 0.0f, 0.0f);
+		}
+
+		uint8_t pixelData[4] = {0, 0, 0, 0};
+		_texture->getBytes(pixelData, sizeof(pixelData), MTL::Region((uint32_t)position.GetX(), (uint32_t)position.GetY(), 0, 1, 1, 1), 0);
+
+		if (_texture->pixelFormat() == MTL::PixelFormatBGRA8Unorm)
+		{
+			std::swap(pixelData[0], pixelData[2]);
+		}
+
+		return Color(((float)pixelData[0]) / 255.0f, ((float)pixelData[1]) / 255.0f, ((float)pixelData[2]) / 255.0f, ((float)pixelData[3]) / 255.0f);
 	}
 
-	/// @brief
+	/// @brief Nothing to record: the texture is in memory shared with the CPU, which ReadPixel reads once the GPU is done with the frame.
+	/// No-op if this texture wasn't built with CreateInfo::_allowReadWrite.
 	/// @param commandBuffer
-	void MetalTexture::CaptureReadback(CommandBuffer* commandBuffer)
+	void MetalTexture::CaptureReadback(CommandBuffer* /*commandBuffer*/)
 	{
-		(void)commandBuffer; // TODO
+		_readbackReady = _readable;
 	}
 
 	MTL::Texture* MetalTexture::GetNativeTexture() const
 	{
 		return _texture;
 	}
-
-	MTL::SamplerState* MetalTexture::GetNativeSampler() const
-	{
-		return _sampler;
-	}
 }
-

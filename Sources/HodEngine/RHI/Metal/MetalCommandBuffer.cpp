@@ -1,4 +1,5 @@
 #include "HodEngine/RHI/Pch.hpp"
+#include "HodEngine/RHI/Metal/MetalBindGroup.hpp"
 #include "HodEngine/RHI/Metal/MetalBuffer.hpp"
 #include "HodEngine/RHI/Metal/MetalCommandBuffer.hpp"
 
@@ -8,6 +9,7 @@
 #include "HodEngine/RHI/Metal/MetalRhiDevice.hpp"
 #include "HodEngine/RHI/RenderTarget.hpp"
 
+#include <HodEngine/Core/Assert.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Math/Rect.hpp>
 
@@ -50,6 +52,43 @@ namespace hod::inline rhi
 		_vertexArgumentTable->release();
 		_fragmentArgumentTable->release();
 		_commandBuffer->release();
+
+		for (MTL::Buffer* transientBuffer : _transientBuffers)
+		{
+			MetalRhiDevice::GetInstance()->RemoveResourceFromResidencySet(transientBuffer);
+			transientBuffer->release();
+		}
+	}
+
+	/// @brief
+	/// @param size
+	/// @param gpuAddress
+	/// @return
+	void* MetalCommandBuffer::AllocateTransient(uint32_t size, uint64_t& gpuAddress)
+	{
+		constexpr uint32_t alignment = 16;
+		constexpr uint32_t minBufferSize = 64 * 1024;
+
+		size = (size + alignment - 1) & ~(alignment - 1);
+
+		if (_transientBuffers.Empty() || _transientBufferOffset + size > _transientBufferSize)
+		{
+			MetalRhiDevice* metalRhiDevice = MetalRhiDevice::GetInstance();
+
+			_transientBufferSize = std::max(size, minBufferSize);
+			_transientBufferOffset = 0;
+
+			MTL::Buffer* transientBuffer = metalRhiDevice->GetDevice()->newBuffer(_transientBufferSize, MTL::ResourceStorageModeShared);
+			metalRhiDevice->AddResourceToResidencySet(transientBuffer);
+			_transientBuffers.PushBack(transientBuffer);
+		}
+
+		MTL::Buffer* transientBuffer = _transientBuffers[_transientBuffers.Size() - 1];
+
+		void* data = static_cast<uint8_t*>(transientBuffer->contents()) + _transientBufferOffset;
+		gpuAddress = transientBuffer->gpuAddress() + _transientBufferOffset;
+		_transientBufferOffset += size;
+		return data;
 	}
 
 	/// @brief
@@ -119,26 +158,14 @@ namespace hod::inline rhi
 	/// @param constant
 	/// @param Size
 	/// @param shaderType
-	void MetalCommandBuffer::SetConstant(void* constant, uint32_t Size, Shader::ShaderType shaderType)
+	void MetalCommandBuffer::SetConstant(void* constant, uint32_t Size, Shader::ShaderType /*shaderType*/)
 	{
-		Buffer* constantBuffer = MetalRhiDevice::GetInstance()->CreateBuffer(Buffer::Usage::Vertex, Size);
-		void*   constantBufferData = constantBuffer->Lock();
-		if (constantBufferData != nullptr)
-		{
-			memcpy(constantBufferData, constant, Size);
-			constantBuffer->Unlock();
-		}
-		DeleteAfterRender(constantBuffer);
+		uint64_t gpuAddress = 0;
+		memcpy(AllocateTransient(Size, gpuAddress), constant, Size);
 
-		MTL::Buffer* nativeBuffer = static_cast<MetalBuffer*>(constantBuffer)->GetNativeBuffer();
-		if (shaderType == Shader::ShaderType::Vertex)
-		{
-			_vertexArgumentTable->setAddress(nativeBuffer->gpuAddress(), 0);
-		}
-		else if (shaderType == Shader::ShaderType::Fragment)
-		{
-			_fragmentArgumentTable->setAddress(nativeBuffer->gpuAddress(), 0);
-		}
+		// The constant is the first buffer of both stages
+		_vertexArgumentTable->setAddress(gpuAddress, 0);
+		_fragmentArgumentTable->setAddress(gpuAddress, 0);
 	}
 
 	/// @brief
@@ -174,13 +201,24 @@ namespace hod::inline rhi
 	}
 
 	/// @brief
-	void MetalCommandBuffer::SetBindGroup(uint32_t set, const BindGroup* bindGroup, const uint32_t* uniformBufferOffsets, uint32_t uniformBufferOffsetCount)
+	void MetalCommandBuffer::SetBindGroup(uint32_t /*set*/, const BindGroup* bindGroup, const uint32_t* uniformBufferOffsets, uint32_t uniformBufferOffsetCount)
 	{
-		// TODO
-		(void)set;
-		(void)bindGroup;
-		(void)uniformBufferOffsets;
+		const MetalBindGroup* metalBindGroup = static_cast<const MetalBindGroup*>(bindGroup);
+		Assert(uniformBufferOffsetCount == metalBindGroup->GetUniformBufferCount());
 		(void)uniformBufferOffsetCount;
+
+		uint32_t argumentBufferSize = metalBindGroup->GetArgumentBufferSize();
+		if (argumentBufferSize == 0)
+		{
+			return;
+		}
+
+		// The offsets are part of the argument buffer: each binding gets its own
+		uint64_t gpuAddress = 0;
+		metalBindGroup->WriteArgumentBuffer(AllocateTransient(argumentBufferSize, gpuAddress), uniformBufferOffsets);
+
+		_vertexArgumentTable->setAddress(gpuAddress, metalBindGroup->GetBufferIndex());
+		_fragmentArgumentTable->setAddress(gpuAddress, metalBindGroup->GetBufferIndex());
 	}
 
 	/// @brief

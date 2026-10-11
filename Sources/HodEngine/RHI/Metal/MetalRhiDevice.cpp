@@ -3,12 +3,14 @@
 
 #include "HodEngine/Core/Output/OutputService.hpp"
 
+#include "HodEngine/RHI/Metal/MetalBindGroup.hpp"
 #include "HodEngine/RHI/Metal/MetalBuffer.hpp"
 #include "HodEngine/RHI/Metal/MetalCommandBuffer.hpp"
 #include "HodEngine/RHI/Metal/MetalPresentationSurface.hpp"
 #include "HodEngine/RHI/Metal/MetalFence.hpp"
 #include "HodEngine/RHI/RenderTarget.hpp"
 #include "HodEngine/RHI/Metal/MetalGraphicsPipeline.hpp"
+#include "HodEngine/RHI/Metal/MetalSampler.hpp"
 #include "HodEngine/RHI/Metal/MetalSemaphore.hpp"
 #include "HodEngine/RHI/Metal/MetalShader.hpp"
 #include "HodEngine/RHI/Metal/MetalTexture.hpp"
@@ -27,6 +29,7 @@ namespace hod::inline rhi
 	/// @brief
 	MetalRhiDevice::~MetalRhiDevice()
 	{
+		_idleEvent->release();
 		_residencySet->release();
 		for (MTL4::CommandAllocator* commandAllocator : _commandAllocators)
 		{
@@ -34,6 +37,19 @@ namespace hod::inline rhi
 		}
 		_commandQueue->release();
 		_device->release();
+	}
+
+	/// @brief Blocks until the GPU is done with everything submitted so far
+	void MetalRhiDevice::WaitIdle()
+	{
+		if (_commandQueue == nullptr)
+		{
+			return;
+		}
+
+		++_idleEventValue;
+		_commandQueue->signalEvent(_idleEvent, _idleEventValue);
+		_idleEvent->waitUntilSignaledValue(_idleEventValue, UINT64_MAX);
 	}
 
 	bool MetalRhiDevice::SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore, const Semaphore* waitSemaphore,
@@ -117,6 +133,8 @@ namespace hod::inline rhi
 			return false;
 		}
 		_commandQueue->addResidencySet(_residencySet);
+
+		_idleEvent = _device->newSharedEvent();
 
 		return true;
 	}
@@ -217,22 +235,31 @@ namespace hod::inline rhi
 	BindGroup* MetalRhiDevice::CreateBindGroup(const GraphicsPipeline* graphicsPipeline, uint32_t set, Buffer* const* uniformBuffers, uint32_t uniformBufferCount,
 	                                           const BindGroup::TextureBinding* textureBindings, uint32_t textureBindingCount)
 	{
-		// TODO
-		(void)graphicsPipeline;
-		(void)set;
-		(void)uniformBuffers;
-		(void)uniformBufferCount;
-		(void)textureBindings;
-		(void)textureBindingCount;
-		return nullptr;
+		if (graphicsPipeline == nullptr)
+		{
+			return nullptr;
+		}
+
+		MetalBindGroup* bindGroup = DefaultAllocator::GetInstance().New<MetalBindGroup>();
+		if (bindGroup->Build(*static_cast<const MetalGraphicsPipeline*>(graphicsPipeline), set, uniformBuffers, uniformBufferCount, textureBindings, textureBindingCount) ==
+		    false)
+		{
+			DefaultAllocator::GetInstance().Delete(bindGroup);
+			return nullptr;
+		}
+		return bindGroup;
 	}
 
 	/// @brief
 	Sampler* MetalRhiDevice::CreateSampler(const Sampler::CreateInfo& createInfo)
 	{
-		// TODO
-		(void)createInfo;
-		return nullptr;
+		MetalSampler* sampler = DefaultAllocator::GetInstance().New<MetalSampler>(createInfo);
+		if (sampler->Build() == false)
+		{
+			DefaultAllocator::GetInstance().Delete(sampler);
+			return nullptr;
+		}
+		return sampler;
 	}
 
 	/// @brief
