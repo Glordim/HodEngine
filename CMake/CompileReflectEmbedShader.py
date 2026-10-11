@@ -7,7 +7,7 @@ import shutil
 import tempfile
 from pathlib import Path
 
-def compile_shader(slangc, input_file, target_api, profile, shader_stage, output_file, reflection_json=None):
+def compile_shader(slangc, input_file, target_api, profile, shader_stage, output_file, include_dir, reflection_json=None, dxc_dir=None):
 
 	shader_stage = shader_stage.lower()
 	if shader_stage == "vertex":
@@ -25,6 +25,7 @@ def compile_shader(slangc, input_file, target_api, profile, shader_stage, output
 		"-stage", shader_stage,
 		"-entry", entry,
 		"-o", output_file,
+		"-I", include_dir,
 	]
 
 	if profile is not None:
@@ -32,6 +33,9 @@ def compile_shader(slangc, input_file, target_api, profile, shader_stage, output
 
 	if reflection_json is not None:
 		args.extend(["-reflection-json", reflection_json])
+
+	if dxc_dir is not None:
+		args.extend(["-dxc-path", dxc_dir])
 
 	subprocess.run(args, check=True)
 
@@ -96,11 +100,12 @@ def embed_to_cpp_hpp(identifier, binary_path, text_path, reflection_path, out_cp
 	generate_from_template(out_hpp, tpl_hpp, varname, bytecode_content, reflection_content, comment)
 
 def main():
-	if len(sys.argv) != 11:
-		print("Usage: CompileReflectEmbedShader.py <slangc> <input> <target_api> <shader_stage> <config> <tpl_cpp> <tpl_hpp> <out_cpp> <out_hpp> <tmp_dir>")
+	if len(sys.argv) != 12 and len(sys.argv) != 13:
+		print("Usage: CompileReflectEmbedShader.py <slangc> <input> <target_api> <shader_stage> <config> <tpl_cpp> <tpl_hpp> <out_cpp> <out_hpp> <tmp_dir> <include_dir> [<dxc_dir>]")
 		sys.exit(1)
 
-	slangc, input_file, target_api, shader_stage, config, tpl_cpp, tpl_hpp, out_cpp, out_hpp, tmp_dir = sys.argv[1:]
+	slangc, input_file, target_api, shader_stage, config, tpl_cpp, tpl_hpp, out_cpp, out_hpp, tmp_dir, include_dir = sys.argv[1:12]
+	dxc_dir = sys.argv[12] if len(sys.argv) == 13 else None # where dxcompiler.dll and dxil.dll are, only needed by d3d12
 
 	os.makedirs(tmp_dir, exist_ok=True)
 
@@ -122,13 +127,7 @@ def main():
 		bytecode_target = "dxil"
 		text_ext = "hlsl"
 		text_target = "hlsl"
-		if shader_stage.lower() == "vertex":
-			profile = "vs_6_0"
-		elif shader_stage.lower() == "fragment":
-			profile = "ps_6_0"
-		else:
-			print(f"Unsupported stage: {shader_stage}")
-			sys.exit(1)
+		profile = "sm_6_0"
 	else:
 		print(f"Unsupported target API: {target_api}")
 		sys.exit(1)
@@ -142,9 +141,9 @@ def main():
 	print(f"Shader Text: {text_output}")
 	print(f"Shader Reflection: {reflection_output}")
 
-	compile_shader(slangc, input_file, bytecode_target, profile, shader_stage.lower(), binary_output, reflection_output)
+	compile_shader(slangc, input_file, bytecode_target, profile, shader_stage.lower(), binary_output, include_dir, reflection_output, dxc_dir)
 	if config == "Debug":
-		compile_shader(slangc, input_file, text_target, profile, shader_stage.lower(), text_output)
+		compile_shader(slangc, input_file, text_target, profile, shader_stage.lower(), text_output, include_dir)
 
 	identifier = f"{base_name}_{shader_stage}"
 	embed_to_cpp_hpp(identifier, binary_output, text_output, reflection_output, out_cpp, out_hpp, tpl_cpp, tpl_hpp)

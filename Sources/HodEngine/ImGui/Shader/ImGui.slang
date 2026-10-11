@@ -1,8 +1,11 @@
+import Attributes;
+
 struct Constant
 {
 	float2 scale;
 	float2 translate;
 };
+[PushConstant]
 [[vk::push_constant]]
 ConstantBuffer<Constant> constant;
 

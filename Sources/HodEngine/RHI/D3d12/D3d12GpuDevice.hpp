@@ -3,18 +3,16 @@
 
 #include "HodEngine/RHI/GpuDevice.hpp"
 
-#include <dxgi1_5.h>
-
-#include <wrl.h>
-using namespace Microsoft::WRL;
+#include "HodEngine/RHI/D3d12/D3d12Api.hpp"
 
 namespace hod::inline rhi
 {
 	//-----------------------------------------------------------------------------
-	//! @brief		
+	//! @brief
 	//-----------------------------------------------------------------------------
 	struct HOD_RHI_API D3d12GpuDevice : public GpuDevice
 	{
 		ComPtr<IDXGIAdapter1> adapter;
+		uint32_t              deviceId = 0;
 	};
 }

@@ -11,16 +11,7 @@ CollectSourceFiles(${PROJECT_SOURCE_DIR} Srcs Includes EXCLUDES "imgui_impl_.*\\
 
 file(GLOB_RECURSE ShaderSources "${PROJECT_SOURCE_DIR}/Shader/*.slang")
 
-if(NOT APPLE)
-	if (WIN32)
-		#set(SHADER_TARGET_API d3d12)
-		set(SHADER_TARGET_API Vulkan)
-	else()
-		set(SHADER_TARGET_API Vulkan)
-	endif()
-else()
-	set(SHADER_TARGET_API Metal)
-endif()
+get_target_property(SHADER_TARGET_API RHI HOD_RHI_BACKEND)
 set(GENERATED_DIR ${PROJECT_BINARY_DIR}/Generated)
 set(SHADER_TMP_DIR ${PROJECT_BINARY_DIR}/ShaderTmp)
 set(SHADER_OUTPUT_DIR ${GENERATED_DIR}/Shader)

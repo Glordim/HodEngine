@@ -13,6 +13,29 @@
 
 namespace hod::inline rhi
 {
+	namespace
+	{
+		/// @brief Tells if a parameter of the reflection has the given attribute of ShaderLib/Attributes.slang
+		bool HasUserAttribute(const DocumentNode& parameterNode, const char* attributeName)
+		{
+			const DocumentNode* userAttribsNode = parameterNode.GetChild("userAttribs");
+			if (userAttribsNode == nullptr)
+			{
+				return false;
+			}
+
+			for (const DocumentNode* attributeNode = userAttribsNode->GetFirstChild(); attributeNode != nullptr; attributeNode = attributeNode->GetNextSibling())
+			{
+				const DocumentNode* nameNode = attributeNode->GetChild("name");
+				if (nameNode != nullptr && nameNode->GetString() == attributeName)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+
 	/// @brief 
 	/// @param type 
 	Shader::Shader(ShaderType type)
@@ -112,7 +135,8 @@ namespace hod::inline rhi
 				Assert(indexNode);
 
 				const String& kind = kindNode->GetString();
-				if (kind == "pushConstantBuffer")
+				// Only Vulkan has a kind for [[vk::push_constant]]: on the other targets it is a constant buffer, known by its [PushConstant] attribute
+				if (kind == "pushConstantBuffer" || (kind == "constantBuffer" && HasUserAttribute(*parameterNode, "PushConstant")))
 				{
 					const DocumentNode* elementVarLayoutNode = typeNode->GetChild("elementVarLayout");
 					Assert(elementVarLayoutNode);

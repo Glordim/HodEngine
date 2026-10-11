@@ -1,7 +1,10 @@
+import Attributes;
+
 struct PushMatrices
 {
 	float4x4 mvp;
 };
+[PushConstant]
 [[vk::push_constant]]
 ConstantBuffer<PushMatrices> pc;
 

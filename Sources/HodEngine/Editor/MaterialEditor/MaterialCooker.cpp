@@ -143,8 +143,11 @@ namespace hod::inline editor
 	{
 		Path   stageOutput = slangRootPath.ParentPath() / (String(dataBlockName) + ".bin");
 		Path   stageReflectionOutput = slangRootPath.ParentPath() / (String(dataBlockName) + ".reflection.json");
-		String stageParameter(fmt::format("-entry {} -stage {}", entryPoint, stage));
-#if defined(PLATFORM_WINDOWS)
+		// Tools/ShaderLib is what the shaders import from the engine, like its attributes
+		String stageParameter(fmt::format("-entry {} -stage {} -I Tools/ShaderLib", entryPoint, stage));
+#if defined(PLATFORM_WINDOWS) && defined(HOD_SHADER_TARGET_D3D12)
+		bool slangResult = Process::Create("Tools/slangc.exe", fmt::format("{} -target dxil -profile sm_6_0 {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
+#elif defined(PLATFORM_WINDOWS)
 		bool slangResult = Process::Create("Tools/slangc.exe", fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
 #elif defined(PLATFORM_LINUX)
 		bool slangResult = Process::Create("Tools/slangc", fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
@@ -171,7 +174,7 @@ namespace hod::inline editor
 			return false;
 		}
 
-		// Compiled against the host toolchain's target (spirv/metallib), not per requested platform yet
+		// Compiled against the host toolchain's target (spirv/dxil/metallib), not per requested platform yet
 		Stream& stageStream = AddDataBlockStream(dataBlockName, true, std::to_underlying(Platform::All), std::to_underlying(Config::All), std::to_underlying(ResourceVariant::Language::All));
 		stageStream.Write(stageData.Data(), stageData.Size());
 

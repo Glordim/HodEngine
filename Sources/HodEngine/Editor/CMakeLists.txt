@@ -97,6 +97,33 @@ add_custom_command(
 	COMMENT "Copying slang-glslang to output directory"
 )
 
+add_custom_command(
+	TARGET Editor POST_BUILD
+	COMMAND ${CMAKE_COMMAND} -E copy_directory
+		"${CMAKE_SOURCE_DIR}/Sources/HodEngine/Renderer/ShaderLib"
+		"$<TARGET_FILE_DIR:Editor>/Tools/ShaderLib"
+	COMMENT "Copying ShaderLib to output directory"
+)
+
+# The materials are cooked for the graphics API of the RHI
+get_target_property(RHI_BACKEND RHI HOD_RHI_BACKEND)
+if(RHI_BACKEND STREQUAL "D3D12")
+	include(EmbedShader)
+	FindDxc()
+
+	target_compile_definitions(Editor PRIVATE HOD_SHADER_TARGET_D3D12)
+
+	# slangc emits DXIL through dxcompiler.dll and signs it with dxil.dll, which it looks for next to itself
+	add_custom_command(
+		TARGET Editor POST_BUILD
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different
+			"${HOD_DXC_DIR}/dxcompiler.dll"
+			"${HOD_DXC_DIR}/dxil.dll"
+			$<TARGET_FILE_DIR:Editor>/Tools
+		COMMENT "Copying the DirectX Shader Compiler to output directory"
+	)
+endif()
+
 hod_install_lib(Editor)
 
 install(DIRECTORY "${CMAKE_CURRENT_SOURCE_DIR}/AndroidStudioTemplate/"

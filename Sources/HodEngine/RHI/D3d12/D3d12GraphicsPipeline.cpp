@@ -1,424 +1,428 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/D3d12/D3d12GraphicsPipeline.hpp"
-#include "HodEngine/RHI/D3d12/D3d12Shader.hpp"
+
 #include "HodEngine/RHI/D3d12/D3d12RhiDevice.hpp"
+#include "HodEngine/RHI/D3d12/D3d12Shader.hpp"
+
+#include "HodEngine/RHI/ShaderConstantDescriptor.hpp"
+#include "HodEngine/RHI/ShaderSetDescriptor.hpp"
 #include "HodEngine/RHI/VertexInput.hpp"
 
-#include <HodEngine/Core/Assert.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 
 #include <algorithm>
 
-#undef max
-
 namespace hod::inline rhi
 {
+	namespace
+	{
+		DXGI_FORMAT FormatToDxgiFormat[VertexInput::Format::Count] = {
+			DXGI_FORMAT_R32_FLOAT,
+			DXGI_FORMAT_R32G32_FLOAT,
+			DXGI_FORMAT_R32G32B32A32_FLOAT,
+			DXGI_FORMAT_R8G8B8A8_UNORM,
+		};
+
+		uint32_t FormatToByteSize[VertexInput::Format::Count] = {
+			1 * sizeof(float),
+			2 * sizeof(float),
+			4 * sizeof(float),
+			1 * sizeof(uint32_t),
+		};
+	}
+
 	/// @brief
-	/// @param type
 	D3d12GraphicsPipeline::D3d12GraphicsPipeline()
 	: GraphicsPipeline()
 	{
 	}
 
 	/// @brief
-	D3d12GraphicsPipeline::~D3d12GraphicsPipeline() {}
-
-	DXGI_FORMAT FormatToD3d12Format[VertexInput::Format::Count] = {
-		DXGI_FORMAT_R32_FLOAT,
-		DXGI_FORMAT_R32G32_FLOAT,
-		DXGI_FORMAT_R32G32B32A32_FLOAT,
-		DXGI_FORMAT_R8G8B8A8_UNORM,
-	};
-
-	enum class UsedStage : uint8_t
+	D3d12GraphicsPipeline::~D3d12GraphicsPipeline()
 	{
-		Vertex = (1 << 0),
-		Fragment = (1 << 1),
-	};
+		D3d12RhiDevice* rhiDevice = D3d12RhiDevice::GetInstance();
 
-	struct Param
-	{
-		uint32_t index;
-		uint8_t  usedStages;
-	};
-
-	struct SpaceReflection
-	{
-		uint32_t      spaceIndex;
-		Vector<Param> contantBuffers;
-		Vector<Param> shaderResources;
-		Vector<Param> samplerStates;
-	};
-
-	void AppendRanges(const Vector<Param>& params, std::underlying_type_t<UsedStage> usedStages, D3D12_DESCRIPTOR_RANGE1 range, Vector<D3D12_DESCRIPTOR_RANGE1>& ranges)
-	{
-		uint32_t lastIndex = std::numeric_limits<uint32_t>::max();
-		for (const Param& param : params)
-		{
-			if (param.usedStages != usedStages)
-			{
-				continue;
-			}
-
-			if (lastIndex == std::numeric_limits<uint32_t>::max())
-			{
-				range.BaseShaderRegister = param.index;
-				range.NumDescriptors = 0;
-			}
-			else if (lastIndex != param.index - 1)
-			{
-				ranges.PushBack(range);
-				range.BaseShaderRegister = param.index;
-				range.NumDescriptors = 0;
-			}
-			++range.NumDescriptors;
-			lastIndex = param.index;
-		}
-		if (range.NumDescriptors > 0)
-		{
-			ranges.PushBack(range);
-		}
+		rhiDevice->DeferRelease(std::move(_pipelineState));
+		rhiDevice->DeferRelease(std::move(_rootSignature));
 	}
 
-	bool D3d12GraphicsPipeline::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode /*polygonMode*/,
-	                          Topololy topololy, bool /*useDepth*/)
+	/// @brief
+	/// @param vertexInputs
+	/// @param vertexInputCount
+	/// @param vertexShader
+	/// @param fragmentShader
+	/// @param polygonMode
+	/// @param topololy
+	/// @param useDepth
+	/// @return
+	bool D3d12GraphicsPipeline::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode,
+	                                  Topololy topololy, bool /*useDepth*/)
 	{
-		ComPtr<ID3D12Device5> device = D3d12RhiDevice::GetInstance()->GetDevice();
+		D3d12RhiDevice* rhiDevice = D3d12RhiDevice::GetInstance();
 
-		D3D12_GRAPHICS_PIPELINE_STATE_DESC psoDesc = {};
-		psoDesc.VS = static_cast<D3d12Shader*>(vertexShader)->GetBytecode();
-		psoDesc.PS = static_cast<D3d12Shader*>(fragmentShader)->GetBytecode();
+		MergeSetDescriptors(*vertexShader, *fragmentShader);
 
-		Vector<D3D12_INPUT_ELEMENT_DESC> inputs;
-		inputs.Reserve(vertexInputCount);
+		if (BuildRootSignature(vertexShader, fragmentShader) == false)
+		{
+			return false;
+		}
+
+		D3D12_GRAPHICS_PIPELINE_STATE_DESC pipelineStateDesc = {};
+		pipelineStateDesc.pRootSignature = _rootSignature.Get();
+		pipelineStateDesc.VS = static_cast<D3d12Shader*>(vertexShader)->GetBytecode();
+		pipelineStateDesc.PS = static_cast<D3d12Shader*>(fragmentShader)->GetBytecode();
+
+		// Input layout
+		// VertexInput i is the i-th input the vertex shader declares. It follows the previous ones of its binding in the vertex buffer.
+		const Vector<D3d12Shader::VertexInputSemantic>& semantics = static_cast<D3d12Shader*>(vertexShader)->GetVertexInputSemantics();
+
+		Vector<D3D12_INPUT_ELEMENT_DESC> inputElements;
+		inputElements.Reserve(vertexInputCount);
+		_vertexStrides.Clear();
 		for (uint32_t i = 0; i < vertexInputCount; ++i)
 		{
-			const VertexInput* vertexInput = vertexInputs + i;
+			const VertexInput& vertexInput = vertexInputs[i];
+			if (vertexInput._binding >= D3D12_IA_VERTEX_INPUT_RESOURCE_SLOT_COUNT)
+			{
+				OUTPUT_ERROR("D3d12: GraphicsPipeline, vertex input binding {} is out of range", vertexInput._binding);
+				return false;
+			}
+			if (vertexInput._binding >= _vertexStrides.Size())
+			{
+				_vertexStrides.Resize(vertexInput._binding + 1, 0);
+			}
 
-			D3D12_INPUT_ELEMENT_DESC inputDesc;
-			if (i == 0)
+			if (i < semantics.Size()) // the others are not read by the shader
 			{
-				inputDesc.SemanticName = "POSITION";
+				D3D12_INPUT_ELEMENT_DESC inputElement = {};
+				inputElement.SemanticName = semantics[i]._name.CStr();
+				inputElement.SemanticIndex = semantics[i]._index;
+				inputElement.Format = FormatToDxgiFormat[vertexInput._format];
+				inputElement.InputSlot = vertexInput._binding;
+				inputElement.AlignedByteOffset = _vertexStrides[vertexInput._binding];
+				inputElement.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
+				inputElement.InstanceDataStepRate = 0;
+				inputElements.PushBack(inputElement);
 			}
-			else if (i == 1)
-			{
-				inputDesc.SemanticName = "TEXCOORD";
-			}
-			else
-			{
-				inputDesc.SemanticName = "COLOR";
-			}
-			inputDesc.SemanticIndex = 0;
-			inputDesc.InputSlot = 0;
-			inputDesc.InputSlotClass = D3D12_INPUT_CLASSIFICATION_PER_VERTEX_DATA;
-			inputDesc.Format = FormatToD3d12Format[vertexInput->_format];
-			inputDesc.AlignedByteOffset = (i == 0) ? 0 : D3D12_APPEND_ALIGNED_ELEMENT;
 
-			inputs.push_back(inputDesc);
+			_vertexStrides[vertexInput._binding] += FormatToByteSize[vertexInput._format];
 		}
-		psoDesc.InputLayout.NumElements = (UINT)inputs.Size();
-		psoDesc.InputLayout.pInputElementDescs = inputs.Data();
+		pipelineStateDesc.InputLayout.NumElements = inputElements.Size();
+		pipelineStateDesc.InputLayout.pInputElementDescs = inputElements.Data();
 
-		Vector<SpaceReflection> spaceParams;
-		spaceParams.Reserve(4);
-
-		const Document&       vertexShaderReflection = static_cast<D3d12Shader*>(vertexShader)->GetReflection();
-		const DocumentNode* vertexShaderEntryPointsNode = vertexShaderReflection.GetRootNode().GetChild("entryPoints");
-		Assert(vertexShaderEntryPointsNode);
-		const DocumentNode* vertexShaderEntryPointNode = vertexShaderEntryPointsNode->GetFirstChild();
-		Assert(vertexShaderEntryPointNode);
-		const DocumentNode* vertexShaderEntryPointsBindingNode = vertexShaderEntryPointNode->GetChild("bindings");
-		if (vertexShaderEntryPointsBindingNode != nullptr)
-		{
-			const DocumentNode* childNode = vertexShaderEntryPointsBindingNode->GetFirstChild();
-			while (childNode != nullptr)
-			{
-				const DocumentNode* bindingNode = childNode->GetChild("binding");
-				Assert(bindingNode);
-
-				const DocumentNode* usedNode = bindingNode->GetChild("used");
-				Assert(usedNode);
-
-				if (usedNode->GetBool() == false)
-				{
-					childNode = childNode->GetNextSibling();
-					continue;
-				}
-
-				uint32_t space = 0;
-				auto     it = std::find_if(spaceParams.Begin(), spaceParams.End(), [space](const SpaceReflection& spaceReflection) { return spaceReflection.spaceIndex == space; });
-				if (it == spaceParams.End())
-				{
-					SpaceReflection spaceReflection;
-					spaceReflection.spaceIndex = space;
-					spaceParams.PushBack(spaceReflection);
-					it = spaceParams.End() - 1;
-				}
-
-				const DocumentNode* indexNode = bindingNode->GetChild("index");
-				Assert(indexNode);
-				uint32_t index = indexNode->GetUInt32();
-
-				Vector<Param>::Iterator paramIt;
-				Vector<Param>*          params = nullptr;
-
-				const DocumentNode* kindNode = bindingNode->GetChild("kind");
-				Assert(kindNode);
-				const String& kind = kindNode->GetString();
-				if (kind == "constantBuffer")
-				{
-					params = &it->contantBuffers;
-				}
-				else if (kind == "shaderResource")
-				{
-					params = &it->shaderResources;
-				}
-				else if (kind == "samplerState")
-				{
-					params = &it->samplerStates;
-				}
-				else
-				{
-					Assert(false);
-				}
-
-				paramIt = std::find_if(params->Begin(), params->End(), [index](const Param& param) { return param.index == index; });
-				if (paramIt == params->End())
-				{
-					Param param;
-					param.index = index;
-					params->PushBack(param);
-					paramIt = params->Begin() + params->Size();
-				}
-
-				paramIt->usedStages |= std::to_underlying(UsedStage::Vertex);
-
-				childNode = childNode->GetNextSibling();
-			}
-		}
-
-		const Document&       fragmentShaderReflection = static_cast<D3d12Shader*>(fragmentShader)->GetReflection();
-		const DocumentNode* fragmentShaderEntryPointsNode = fragmentShaderReflection.GetRootNode().GetChild("entryPoints");
-		Assert(fragmentShaderEntryPointsNode);
-		const DocumentNode* fragmentShaderEntryPointNode = fragmentShaderEntryPointsNode->GetFirstChild();
-		Assert(fragmentShaderEntryPointNode);
-		const DocumentNode* fragmentShaderEntryPointsBindingNode = fragmentShaderEntryPointNode->GetChild("bindings");
-		if (fragmentShaderEntryPointsBindingNode != nullptr)
-		{
-			const DocumentNode* childNode = fragmentShaderEntryPointsBindingNode->GetFirstChild();
-			while (childNode != nullptr)
-			{
-				const DocumentNode* bindingNode = childNode->GetChild("binding");
-				Assert(bindingNode);
-
-				const DocumentNode* usedNode = bindingNode->GetChild("used");
-				Assert(usedNode);
-
-				if (usedNode->GetBool() == false)
-				{
-					childNode = childNode->GetNextSibling();
-					continue;
-				}
-
-				uint32_t space = 0;
-				auto     it = std::find_if(spaceParams.Begin(), spaceParams.End(), [space](const SpaceReflection& spaceReflection) { return spaceReflection.spaceIndex == space; });
-				if (it == spaceParams.End())
-				{
-					SpaceReflection spaceReflection;
-					spaceReflection.spaceIndex = space;
-					spaceParams.PushBack(spaceReflection);
-					it = spaceParams.End() - 1;
-				}
-
-				const DocumentNode* indexNode = bindingNode->GetChild("index");
-				Assert(indexNode);
-				uint32_t index = indexNode->GetUInt32();
-
-				Vector<Param>::Iterator paramIt;
-				Vector<Param>*          params = nullptr;
-
-				const DocumentNode* kindNode = bindingNode->GetChild("kind");
-				Assert(kindNode);
-				const String& kind = kindNode->GetString();
-				if (kind == "constantBuffer")
-				{
-					params = &it->contantBuffers;
-				}
-				else if (kind == "shaderResource")
-				{
-					params = &it->shaderResources;
-				}
-				else if (kind == "samplerState")
-				{
-					params = &it->samplerStates;
-				}
-				else
-				{
-					Assert(false);
-				}
-
-				paramIt = std::find_if(params->Begin(), params->End(), [index](const Param& param) { return param.index == index; });
-				if (paramIt == params->End())
-				{
-					Param param;
-					param.index = index;
-					params->PushBack(param);
-					paramIt = params->Begin() + params->Size();
-				}
-
-				paramIt->usedStages |= std::to_underlying(UsedStage::Fragment);
-
-				childNode = childNode->GetNextSibling();
-			}
-		}
-
-		Vector<D3D12_DESCRIPTOR_RANGE1> vertexRanges;
-		Vector<D3D12_DESCRIPTOR_RANGE1> fragmentRanges;
-		Vector<D3D12_DESCRIPTOR_RANGE1> bothRanges;
-		for (SpaceReflection& spaceParam : spaceParams)
-		{
-			D3D12_DESCRIPTOR_RANGE1 range;
-			range.RegisterSpace = spaceParam.spaceIndex;
-			range.Flags = D3D12_DESCRIPTOR_RANGE_FLAG_DATA_STATIC;
-			range.OffsetInDescriptorsFromTableStart = D3D12_DESCRIPTOR_RANGE_OFFSET_APPEND;
-
-			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_CBV;
-			std::sort(spaceParam.contantBuffers.Begin(), spaceParam.contantBuffers.End(), [](const Param& a, const Param& b) { return a.index < b.index; });
-			AppendRanges(spaceParam.contantBuffers, std::to_underlying(UsedStage::Vertex), range, vertexRanges);
-			AppendRanges(spaceParam.contantBuffers, std::to_underlying(UsedStage::Fragment), range, fragmentRanges);
-			AppendRanges(spaceParam.contantBuffers, std::to_underlying(UsedStage::Vertex) | std::to_underlying(UsedStage::Fragment), range, bothRanges);
-
-			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SRV;
-			std::sort(spaceParam.shaderResources.Begin(), spaceParam.shaderResources.End(), [](const Param& a, const Param& b) { return a.index < b.index; });
-			AppendRanges(spaceParam.shaderResources, std::to_underlying(UsedStage::Vertex), range, vertexRanges);
-			AppendRanges(spaceParam.shaderResources, std::to_underlying(UsedStage::Fragment), range, fragmentRanges);
-			AppendRanges(spaceParam.shaderResources, std::to_underlying(UsedStage::Vertex) | std::to_underlying(UsedStage::Fragment), range, bothRanges);
-
-			range.RangeType = D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
-			std::sort(spaceParam.samplerStates.Begin(), spaceParam.samplerStates.End(), [](const Param& a, const Param& b) { return a.index < b.index; });
-			AppendRanges(spaceParam.samplerStates, std::to_underlying(UsedStage::Vertex), range, vertexRanges);
-			AppendRanges(spaceParam.samplerStates, std::to_underlying(UsedStage::Fragment), range, fragmentRanges);
-			AppendRanges(spaceParam.samplerStates, std::to_underlying(UsedStage::Vertex) | std::to_underlying(UsedStage::Fragment), range, bothRanges);
-		}
-
-		// RootSignature
-		D3D12_ROOT_PARAMETER1 vertexParam = {};
-		vertexParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		vertexParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_VERTEX;
-		vertexParam.DescriptorTable.NumDescriptorRanges = vertexRanges.Size();
-		vertexParam.DescriptorTable.pDescriptorRanges = vertexRanges.Data();
-
-		D3D12_ROOT_PARAMETER1 fragmentParam = {};
-		fragmentParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		fragmentParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_PIXEL;
-		fragmentParam.DescriptorTable.NumDescriptorRanges = fragmentRanges.Size();
-		fragmentParam.DescriptorTable.pDescriptorRanges = fragmentRanges.Data();
-
-		D3D12_ROOT_PARAMETER1 allParam = {};
-		allParam.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
-		allParam.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
-		allParam.DescriptorTable.NumDescriptorRanges = bothRanges.Size();
-		allParam.DescriptorTable.pDescriptorRanges = bothRanges.Data();
-
-		D3D12_ROOT_PARAMETER1 rootParams[3] = {vertexParam, fragmentParam, allParam};
-
-		D3D12_VERSIONED_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
-		rootSignatureDesc.Version = D3D_ROOT_SIGNATURE_VERSION_1_1;
-		rootSignatureDesc.Desc_1_1.NumParameters = 3;
-		rootSignatureDesc.Desc_1_1.pParameters = rootParams;
-		rootSignatureDesc.Desc_1_1.NumStaticSamplers = 0;
-		rootSignatureDesc.Desc_1_1.pStaticSamplers = nullptr;
-		rootSignatureDesc.Desc_1_1.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
-
-		ComPtr<ID3DBlob> signatureBlob;
-		ComPtr<ID3DBlob> errorBlob;
-
-		if (FAILED(D3D12SerializeVersionedRootSignature(&rootSignatureDesc, &signatureBlob, &errorBlob)))
-		{
-			if (errorBlob)
-			{
-				OutputDebugStringA((char*)errorBlob->GetBufferPointer());
-			}
-			// Handle error...
-		}
-
-		ComPtr<ID3D12RootSignature> myRootSignature;
-		device->CreateRootSignature(0, signatureBlob->GetBufferPointer(), signatureBlob->GetBufferSize(), IID_PPV_ARGS(&myRootSignature));
-		psoDesc.pRootSignature = myRootSignature.Get();
-		//
-
-		// RasterizerState
-		psoDesc.RasterizerState.AntialiasedLineEnable = FALSE;
-		psoDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
-		psoDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE; // todo back
-		psoDesc.RasterizerState.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
-		psoDesc.RasterizerState.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
-		psoDesc.RasterizerState.DepthClipEnable = true;
-		psoDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
-		psoDesc.RasterizerState.ForcedSampleCount = 0;
-		psoDesc.RasterizerState.FrontCounterClockwise = FALSE;
-		psoDesc.RasterizerState.MultisampleEnable = FALSE;
-		psoDesc.RasterizerState.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
-		//
-
-		// BlendState
-		D3D12_RENDER_TARGET_BLEND_DESC rtBlendDesc = {};
-		rtBlendDesc.BlendEnable = TRUE;
-		rtBlendDesc.LogicOpEnable = FALSE;
-		rtBlendDesc.SrcBlend = D3D12_BLEND_SRC_ALPHA;
-		rtBlendDesc.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-		rtBlendDesc.BlendOp = D3D12_BLEND_OP_ADD;
-		rtBlendDesc.SrcBlendAlpha = D3D12_BLEND_ONE;
-		rtBlendDesc.DestBlendAlpha = D3D12_BLEND_ZERO;
-		rtBlendDesc.BlendOpAlpha = D3D12_BLEND_OP_ADD;
-		rtBlendDesc.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
-
-		psoDesc.BlendState.AlphaToCoverageEnable = FALSE;
-		psoDesc.BlendState.IndependentBlendEnable = FALSE;
-		psoDesc.BlendState.RenderTarget[0] = rtBlendDesc;
-		//
-
-		// DepthStencilState
-		psoDesc.DepthStencilState.DepthEnable = FALSE;
-		psoDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ALL;
-		psoDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
-
-		psoDesc.DepthStencilState.StencilEnable = FALSE;
-		psoDesc.DepthStencilState.StencilReadMask = D3D12_DEFAULT_STENCIL_READ_MASK;   // 0xFF
-		psoDesc.DepthStencilState.StencilWriteMask = D3D12_DEFAULT_STENCIL_WRITE_MASK; // 0xFF
-
-		psoDesc.DepthStencilState.FrontFace.StencilFunc = D3D12_COMPARISON_FUNC_ALWAYS;
-		psoDesc.DepthStencilState.FrontFace.StencilPassOp = D3D12_STENCIL_OP_KEEP;
-		psoDesc.DepthStencilState.FrontFace.StencilFailOp = D3D12_STENCIL_OP_KEEP;
-		psoDesc.DepthStencilState.FrontFace.StencilDepthFailOp = D3D12_STENCIL_OP_KEEP;
-
-		psoDesc.DepthStencilState.BackFace = psoDesc.DepthStencilState.FrontFace;
-		//
-
-		psoDesc.SampleMask = UINT_MAX;
-
+		// Input assembly
+		_triangleFanEmulated = false;
 		switch (topololy)
 		{
-			case Topololy::POINT: psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT; break;
-			case Topololy::LINE: psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE; break;
-			case Topololy::LINE_STRIP: psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE; break;
-			case Topololy::TRIANGLE: psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE; break;
-			case Topololy::TRIANGLE_FAN: psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE; break;
+			case Topololy::POINT:
+				pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
+				_primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
+				break;
 
+			case Topololy::LINE:
+				pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+				_primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
+				break;
+
+			case Topololy::LINE_STRIP:
+				pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
+				_primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
+				break;
+
+			case Topololy::TRIANGLE_FAN:
+				pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+				if (rhiDevice->IsTriangleFanSupported())
+				{
+					_primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLEFAN;
+				}
+				else
+				{
+					_primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
+					_triangleFanEmulated = true;
+				}
+				break;
+
+			case Topololy::TRIANGLE:
 			default:
-				psoDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_UNDEFINED; // todo
+				pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
+				_primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;
 				break;
 		}
-		psoDesc.NumRenderTargets = 1;
-		psoDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
-		psoDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
-		psoDesc.SampleDesc.Count = 1;
 
-		if (FAILED(device->CreateGraphicsPipelineState(&psoDesc, IID_PPV_ARGS(&_pipelineState))))
+		// Rasterizer
+		if (polygonMode == PolygonMode::Fill)
 		{
-			D3d12RhiDevice::GetInstance()->OutputErrors();
+			pipelineStateDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
+		}
+		else if (polygonMode == PolygonMode::Line)
+		{
+			pipelineStateDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
+		}
+		else
+		{
+			OUTPUT_ERROR("D3d12: GraphicsPipeline, PolygonMode::Point is not supported");
+			return false;
+		}
+		pipelineStateDesc.RasterizerState.CullMode = D3D12_CULL_MODE_NONE;
+		pipelineStateDesc.RasterizerState.FrontCounterClockwise = TRUE;
+		pipelineStateDesc.RasterizerState.DepthBias = D3D12_DEFAULT_DEPTH_BIAS;
+		pipelineStateDesc.RasterizerState.DepthBiasClamp = D3D12_DEFAULT_DEPTH_BIAS_CLAMP;
+		pipelineStateDesc.RasterizerState.SlopeScaledDepthBias = D3D12_DEFAULT_SLOPE_SCALED_DEPTH_BIAS;
+		pipelineStateDesc.RasterizerState.DepthClipEnable = TRUE;
+		pipelineStateDesc.RasterizerState.MultisampleEnable = FALSE;
+		pipelineStateDesc.RasterizerState.AntialiasedLineEnable = FALSE;
+		pipelineStateDesc.RasterizerState.ForcedSampleCount = 0;
+		pipelineStateDesc.RasterizerState.ConservativeRaster = D3D12_CONSERVATIVE_RASTERIZATION_MODE_OFF;
+
+		// Multisampling
+		pipelineStateDesc.SampleMask = UINT_MAX;
+		pipelineStateDesc.SampleDesc.Count = 1;
+
+		// Depth and stencil testing
+		// The render passes have no depth attachment, on any backend: what is drawn is ordered by the render queues
+		pipelineStateDesc.DepthStencilState.DepthEnable = FALSE;
+		pipelineStateDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
+		pipelineStateDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+		pipelineStateDesc.DepthStencilState.StencilEnable = FALSE;
+		pipelineStateDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
+
+		// Color blending
+		D3D12_RENDER_TARGET_BLEND_DESC& renderTargetBlend = pipelineStateDesc.BlendState.RenderTarget[0];
+		renderTargetBlend.BlendEnable = TRUE;
+		renderTargetBlend.LogicOpEnable = FALSE;
+		renderTargetBlend.SrcBlend = D3D12_BLEND_SRC_ALPHA;
+		renderTargetBlend.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
+		renderTargetBlend.BlendOp = D3D12_BLEND_OP_ADD;
+		renderTargetBlend.SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
+		renderTargetBlend.DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA;
+		renderTargetBlend.BlendOpAlpha = D3D12_BLEND_OP_ADD;
+		renderTargetBlend.LogicOp = D3D12_LOGIC_OP_NOOP;
+		renderTargetBlend.RenderTargetWriteMask = D3D12_COLOR_WRITE_ENABLE_ALL;
+
+		pipelineStateDesc.BlendState.AlphaToCoverageEnable = FALSE;
+		pipelineStateDesc.BlendState.IndependentBlendEnable = FALSE;
+
+		// Every render target and presentation surface has this format, one pipeline state serves them all
+		pipelineStateDesc.NumRenderTargets = 1;
+		pipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+
+		if (FAILED(rhiDevice->GetDevice()->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&_pipelineState))))
+		{
+			OUTPUT_ERROR("D3d12: Unable to create graphics pipeline!");
 			return false;
 		}
 
 		return true;
+	}
+
+	/// @brief
+	/// @param vertexShader
+	/// @param fragmentShader
+	/// @return
+	bool D3d12GraphicsPipeline::BuildRootSignature(Shader* vertexShader, Shader* fragmentShader)
+	{
+		const D3d12Shader& d3d12VertexShader = *static_cast<D3d12Shader*>(vertexShader);
+		const D3d12Shader& d3d12FragmentShader = *static_cast<D3d12Shader*>(fragmentShader);
+
+		Vector<D3D12_ROOT_PARAMETER> rootParameters;
+
+		// The root parameters point to their ranges: these must not move while they are added
+		Vector<D3D12_DESCRIPTOR_RANGE> descriptorRanges;
+		uint32_t                       descriptorRangeCount = 0;
+		for (const auto& pair : _setDescriptors)
+		{
+			descriptorRangeCount += pair.second->GetTextureBlocks().Size();
+		}
+		descriptorRanges.Reserve(descriptorRangeCount);
+
+		// Push constant
+		_pushConstantRootParameter = NoRootParameter;
+		_pushConstantSize = 0;
+
+		const D3d12Shader::Register* pushConstantRegister = nullptr;
+		for (const D3d12Shader* shader : {&d3d12VertexShader, &d3d12FragmentShader})
+		{
+			const ShaderConstantDescriptor* constantDescriptor = shader->GetConstantDescriptor();
+			if (constantDescriptor == nullptr || shader->GetPushConstantRegister() == nullptr)
+			{
+				continue;
+			}
+
+			if (pushConstantRegister != nullptr && *pushConstantRegister != *shader->GetPushConstantRegister())
+			{
+				OUTPUT_ERROR("D3d12: GraphicsPipeline, the push constant is not on the same register in the vertex and the fragment shader");
+				return false;
+			}
+			pushConstantRegister = shader->GetPushConstantRegister();
+			_pushConstantSize = std::max(_pushConstantSize, constantDescriptor->GetSize());
+		}
+
+		if (pushConstantRegister != nullptr)
+		{
+			D3D12_ROOT_PARAMETER rootParameter = {};
+			rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_32BIT_CONSTANTS;
+			rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+			rootParameter.Constants.ShaderRegister = pushConstantRegister->_index;
+			rootParameter.Constants.RegisterSpace = pushConstantRegister->_space;
+			rootParameter.Constants.Num32BitValues = (_pushConstantSize + 3) / 4;
+
+			_pushConstantRootParameter = rootParameters.Size();
+			rootParameters.PushBack(rootParameter);
+		}
+
+		// _setDescriptors is ordered and contiguous: its entries are the sets 0, 1, 2...
+		// A set is a register space, and the binding of a block its register in that space.
+		_setLayouts.Clear();
+		for (const auto& pair : _setDescriptors)
+		{
+			SetLayout setLayout;
+
+			for (const ShaderSetDescriptor::BlockUbo& ubo : pair.second->GetUboBlocks())
+			{
+				D3D12_ROOT_PARAMETER rootParameter = {};
+				rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_CBV;
+				rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+				rootParameter.Descriptor.ShaderRegister = ubo._binding;
+				rootParameter.Descriptor.RegisterSpace = pair.first;
+
+				if (setLayout._firstUniformBufferRootParameter == NoRootParameter)
+				{
+					setLayout._firstUniformBufferRootParameter = rootParameters.Size();
+				}
+				rootParameters.PushBack(rootParameter);
+			}
+
+			// The ranges of a table have to follow each other: first the ones of the textures, then the ones of the samplers
+			for (ShaderSetDescriptor::BlockTexture::Type blockType : {ShaderSetDescriptor::BlockTexture::Texture, ShaderSetDescriptor::BlockTexture::Sampler})
+			{
+				bool      isTexture = blockType == ShaderSetDescriptor::BlockTexture::Texture;
+				uint32_t  firstDescriptorRange = descriptorRanges.Size();
+				uint32_t& descriptorCount = isTexture ? setLayout._textureCount : setLayout._samplerCount;
+
+				for (const ShaderSetDescriptor::BlockTexture& textureBlock : pair.second->GetTextureBlocks())
+				{
+					if (textureBlock._type == ShaderSetDescriptor::BlockTexture::Combined)
+					{
+						OUTPUT_ERROR("D3d12: GraphicsPipeline, \"{}\" is a combined texture and sampler, which is not supported", textureBlock._name);
+						return false;
+					}
+					if (textureBlock._type != blockType)
+					{
+						continue;
+					}
+
+					D3D12_DESCRIPTOR_RANGE descriptorRange = {};
+					descriptorRange.RangeType = isTexture ? D3D12_DESCRIPTOR_RANGE_TYPE_SRV : D3D12_DESCRIPTOR_RANGE_TYPE_SAMPLER;
+					descriptorRange.NumDescriptors = 1;
+					descriptorRange.BaseShaderRegister = textureBlock._binding;
+					descriptorRange.RegisterSpace = pair.first;
+					descriptorRange.OffsetInDescriptorsFromTableStart = descriptorCount;
+					descriptorRanges.PushBack(descriptorRange);
+					++descriptorCount;
+				}
+
+				if (descriptorCount > 0)
+				{
+					D3D12_ROOT_PARAMETER rootParameter = {};
+					rootParameter.ParameterType = D3D12_ROOT_PARAMETER_TYPE_DESCRIPTOR_TABLE;
+					rootParameter.ShaderVisibility = D3D12_SHADER_VISIBILITY_ALL;
+					rootParameter.DescriptorTable.NumDescriptorRanges = descriptorCount;
+					rootParameter.DescriptorTable.pDescriptorRanges = descriptorRanges.Data() + firstDescriptorRange;
+
+					(isTexture ? setLayout._textureTableRootParameter : setLayout._samplerTableRootParameter) = rootParameters.Size();
+					rootParameters.PushBack(rootParameter);
+				}
+			}
+
+			_setLayouts.PushBack(setLayout);
+		}
+
+		D3D12_ROOT_SIGNATURE_DESC rootSignatureDesc = {};
+		rootSignatureDesc.NumParameters = rootParameters.Size();
+		rootSignatureDesc.pParameters = rootParameters.Data();
+		rootSignatureDesc.Flags = D3D12_ROOT_SIGNATURE_FLAG_ALLOW_INPUT_ASSEMBLER_INPUT_LAYOUT;
+
+		ComPtr<ID3DBlob> rootSignatureBlob;
+		ComPtr<ID3DBlob> errorBlob;
+		if (FAILED(D3D12SerializeRootSignature(&rootSignatureDesc, D3D_ROOT_SIGNATURE_VERSION_1_0, &rootSignatureBlob, &errorBlob)))
+		{
+			OUTPUT_ERROR("D3d12: Unable to serialize root signature! {}", errorBlob != nullptr ? static_cast<const char*>(errorBlob->GetBufferPointer()) : "");
+			return false;
+		}
+
+		ID3D12Device* device = D3d12RhiDevice::GetInstance()->GetDevice();
+		if (FAILED(device->CreateRootSignature(0, rootSignatureBlob->GetBufferPointer(), rootSignatureBlob->GetBufferSize(), IID_PPV_ARGS(&_rootSignature))))
+		{
+			OUTPUT_ERROR("D3d12: Unable to create root signature!");
+			return false;
+		}
+
+		return true;
+	}
+
+	/// @brief
+	/// @return
+	ID3D12PipelineState* D3d12GraphicsPipeline::GetPipelineState() const
+	{
+		return _pipelineState.Get();
+	}
+
+	/// @brief
+	/// @return
+	ID3D12RootSignature* D3d12GraphicsPipeline::GetRootSignature() const
+	{
+		return _rootSignature.Get();
+	}
+
+	/// @brief
+	/// @return
+	D3D_PRIMITIVE_TOPOLOGY D3d12GraphicsPipeline::GetPrimitiveTopology() const
+	{
+		return _primitiveTopology;
+	}
+
+	/// @brief
+	/// @return
+	bool D3d12GraphicsPipeline::IsTriangleFanEmulated() const
+	{
+		return _triangleFanEmulated;
+	}
+
+	/// @brief
+	/// @param set
+	/// @return
+	const D3d12GraphicsPipeline::SetLayout* D3d12GraphicsPipeline::GetSetLayout(uint32_t set) const
+	{
+		if (set >= _setLayouts.Size())
+		{
+			return nullptr;
+		}
+		return &_setLayouts[set];
+	}
+
+	/// @brief
+	/// @return
+	uint32_t D3d12GraphicsPipeline::GetPushConstantRootParameter() const
+	{
+		return _pushConstantRootParameter;
+	}
+
+	/// @brief
+	/// @return
+	uint32_t D3d12GraphicsPipeline::GetPushConstantSize() const
+	{
+		return _pushConstantSize;
+	}
+
+	/// @brief
+	/// @param binding
+	/// @return
+	uint32_t D3d12GraphicsPipeline::GetVertexStride(uint32_t binding) const
+	{
+		if (binding >= _vertexStrides.Size())
+		{
+			return 0;
+		}
+		return _vertexStrides[binding];
 	}
 }

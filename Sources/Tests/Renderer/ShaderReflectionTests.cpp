@@ -13,11 +13,11 @@ using namespace hod;
 // ============================================================================
 // The reflection of one shader, as slangc emits it for each target.
 // The fixtures are the fragment stage of Renderer/Shader/P2fT2f_Texture_Unlit.slang:
-//   slangc P2fT2f_Texture_Unlit.slang -stage fragment -entry FragmentMain -reflection-json <fixture> -o <any>
+//   slangc P2fT2f_Texture_Unlit.slang -I ../ShaderLib -stage fragment -entry FragmentMain -reflection-json <fixture> -o <any>
 //     -target spirv -profile glsl_450+spirv_1_3    (vulkan)
 //     -target metal                                (metal)
 //     -target hlsl -profile ps_6_0                 (d3d12)
-// It declares, in this order: a push constant "pc", a uniform block "ubo", a texture "image" and its sampler "imageSampler".
+// It declares, in this order: a push constant "pc" (marked [PushConstant]), a uniform block "ubo", a texture "image" and its sampler "imageSampler".
 // ============================================================================
 
 namespace
@@ -128,8 +128,8 @@ TEST_F(ShaderReflection, Vulkan)
 	EXPECT_EQ(imageSampler->_binding, 2u);
 }
 
-// Buffers, textures and samplers are numbered separately, and there is no push constant:
-// "pc" is an ordinary uniform block that takes the first buffer index
+// Buffers, textures and samplers are numbered separately, and the target has no push constant:
+// "pc" is a constant buffer that takes the first buffer index, known as the push constant by its [PushConstant] attribute
 class ShaderReflectionSeparateNumbering : public ShaderReflection, public ::testing::WithParamInterface<const char*>
 {
 };
@@ -139,13 +139,13 @@ TEST_P(ShaderReflectionSeparateNumbering, Blocks)
 	Load(GetParam());
 	ExpectUboLayout();
 
-	EXPECT_EQ(_shader.GetConstantDescriptor(), nullptr);
+	ASSERT_NE(_shader.GetConstantDescriptor(), nullptr);
+	EXPECT_EQ(_shader.GetConstantDescriptor()->GetSize(), 64u);
+	EXPECT_EQ(_shader.GetConstantDescriptor()->GetShaderType(), Shader::ShaderType::Fragment);
 
-	ASSERT_EQ(_set->GetUboBlocks().Size(), 2u);
-	const ShaderSetDescriptor::BlockUbo* pc = FindUbo(*_set, "pc");
-	ASSERT_NE(pc, nullptr);
-	EXPECT_EQ(pc->_binding, 0u);
-	EXPECT_EQ(pc->_rootMember._size, 64u);
+	// Not one of the uniform blocks of the set, though it took the buffer index before theirs
+	ASSERT_EQ(_set->GetUboBlocks().Size(), 1u);
+	EXPECT_EQ(FindUbo(*_set, "pc"), nullptr);
 	EXPECT_EQ(FindUbo(*_set, "ubo")->_binding, 1u);
 
 	// Same index, told apart by their type
@@ -170,7 +170,7 @@ TEST_P(ShaderReflectionSeparateNumbering, MergeKeepsTextureAndSamplerSharingAnIn
 	merged.Merge(*_set);
 	merged.Merge(*_set); // the other stage declaring the same blocks
 
-	EXPECT_EQ(merged.GetUboBlocks().Size(), 2u);
+	EXPECT_EQ(merged.GetUboBlocks().Size(), 1u);
 	ASSERT_EQ(merged.GetTextureBlocks().Size(), 2u);
 	EXPECT_NE(FindTexture(merged, "image"), nullptr);
 	EXPECT_NE(FindTexture(merged, "imageSampler"), nullptr);

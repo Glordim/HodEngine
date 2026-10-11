@@ -1,5 +1,53 @@
+# slangc emits DXIL through dxcompiler.dll and signs it with dxil.dll, which both come with the Windows SDK.
+# Sets HOD_DXC_DIR to the directory holding them.
+function(FindDxc)
+	if(HOD_DXC_DIR AND EXISTS "${HOD_DXC_DIR}/dxcompiler.dll")
+		return()
+	endif()
+	unset(HOD_DXC_DIR CACHE)
+
+	if(CMAKE_HOST_SYSTEM_PROCESSOR MATCHES "ARM64|aarch64")
+		set(_arch arm64)
+	else()
+		set(_arch x64)
+	endif()
+
+	set(_hints)
+	if(DEFINED ENV{WindowsSdkVerBinPath})
+		file(TO_CMAKE_PATH "$ENV{WindowsSdkVerBinPath}" _sdkVerBin)
+		list(APPEND _hints "${_sdkVerBin}/${_arch}")
+	endif()
+	foreach(_programFiles "$ENV{ProgramFiles\(x86\)}" "$ENV{ProgramFiles}")
+		if(_programFiles)
+			file(TO_CMAKE_PATH "${_programFiles}" _programFiles)
+			file(GLOB _sdkBins "${_programFiles}/Windows Kits/10/bin/10.*")
+			list(SORT _sdkBins COMPARE NATURAL ORDER DESCENDING) # newest first
+			foreach(_sdkBin ${_sdkBins})
+				list(APPEND _hints "${_sdkBin}/${_arch}")
+			endforeach()
+		endif()
+	endforeach()
+
+	find_path(HOD_DXC_DIR dxcompiler.dll HINTS ${_hints} ENV PATH DOC "Directory of dxcompiler.dll and dxil.dll")
+	if(NOT HOD_DXC_DIR)
+		message(FATAL_ERROR "dxcompiler.dll not found: the D3D12 shaders need the DirectX Shader Compiler of the Windows SDK (or set HOD_DXC_DIR)")
+	endif()
+endfunction()
+
 function(CompileReflectEmbedShader INPUT_SLANG TARGET_API SHADER_TYPE SHADER_CONFIG TEMPLATE_CPP TEMPLATE_HPP OUTPUT_CPP OUTPUT_HPP TEMP_DIR)
 	find_package(Python3 REQUIRED COMPONENTS Interpreter)
+
+	# What the shaders import, like the attributes the engine reads from their reflection
+	set(SHADER_LIB_DIR "${CMAKE_SOURCE_DIR}/Sources/HodEngine/Renderer/ShaderLib")
+	file(GLOB_RECURSE ShaderLibSources "${SHADER_LIB_DIR}/*.slang")
+
+	set(DXC_DIR_ARG "")
+	string(TOLOWER "${TARGET_API}" _targetApi)
+	if(_targetApi STREQUAL "d3d12")
+		FindDxc()
+		set(DXC_DIR_ARG "${HOD_DXC_DIR}")
+	endif()
+
 	add_custom_command(
 		OUTPUT ${OUTPUT_CPP} ${OUTPUT_HPP}
 		COMMAND ${Python3_EXECUTABLE}
@@ -14,8 +62,11 @@ function(CompileReflectEmbedShader INPUT_SLANG TARGET_API SHADER_TYPE SHADER_CON
 			${OUTPUT_CPP}
 			${OUTPUT_HPP}
 			${TEMP_DIR}
+			${SHADER_LIB_DIR}
+			${DXC_DIR_ARG}
 		DEPENDS
 			${INPUT_SLANG}
+			${ShaderLibSources}
 			${CMAKE_SOURCE_DIR}/CMake/CompileReflectEmbedShader.py
 			${TEMPLATE_CPP}
 			${TEMPLATE_HPP}

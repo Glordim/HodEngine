@@ -2,6 +2,14 @@
     "parameters": [
         {
             "name": "pc",
+            "userAttribs": [
+                {
+                    "name": "PushConstant",
+                    "arguments": [
+
+                    ]
+                }
+            ],
             "binding": {"kind": "pushConstantBuffer", "index": 0},
             "type": {
                 "kind": "constantBuffer",

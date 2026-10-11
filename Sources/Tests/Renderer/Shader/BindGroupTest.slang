@@ -1,7 +1,10 @@
+import Attributes;
+
 struct PushMatrices
 {
 	float4x4 mvp;
 };
+[PushConstant]
 [[vk::push_constant]]
 ConstantBuffer<PushMatrices> pc;
 
@@ -29,20 +32,22 @@ struct Globals
 {
 	float4 tint;
 };
+// A set is given twice: to Vulkan by [[vk::binding(binding, set)]], to D3D12 by the space of the register.
+// The b registers are numbered across the sets, after the one the push constant takes, because Metal has no space and reads them as buffer indices.
 [[vk::binding(0, 0)]]
-ConstantBuffer<Globals> global;
+ConstantBuffer<Globals> global : register(b1, space0);
 
 struct UBO
 {
 	float4 color;
 };
 [[vk::binding(0, 1)]]
-ConstantBuffer<UBO> ubo;
+ConstantBuffer<UBO> ubo : register(b2, space1);
 
 [[vk::binding(1, 1)]]
-Texture2D image;
+Texture2D image : register(t0, space1);
 [[vk::binding(2, 1)]]
-SamplerState imageSampler;
+SamplerState imageSampler : register(s0, space1);
 
 float4 FragmentMain(VS_OUT input) : SV_Target
 {
