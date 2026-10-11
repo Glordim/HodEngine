@@ -4,6 +4,7 @@
 #include "HodEngine/Core/Singleton.hpp"
 
 #include <stdint.h>
+#include <atomic>
 
 namespace enki
 {

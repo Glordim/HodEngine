@@ -2,6 +2,7 @@
 #include "HodEngine/GameSystems/Export.hpp"
 
 #include <HodEngine/Core/Thread/Thread.hpp>
+#include <atomic>
 
 namespace enki
 {
