@@ -47,13 +47,14 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool MetalGraphicsPipeline::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode,
-								GraphicsPipeline::Topololy topololy, bool useDepth)
+	bool MetalGraphicsPipeline::Build(const CreateInfo& createInfo)
 	{
-		// TODDO
-		(void)topololy;
-		(void)polygonMode;
-		(void)useDepth;
+		// TODDO _polygonMode, _topololy, _useDepth
+
+		const VertexInput* vertexInputs = createInfo._vertexInputs;
+		uint32_t           vertexInputCount = createInfo._vertexInputCount;
+		Shader*            vertexShader = createInfo._vertexShader;
+		Shader*            fragmentShader = createInfo._fragmentShader;
 
 		MTL::Function* vertexFunction = static_cast<MetalShader*>(vertexShader)->GetNativeFunction();
 		MTL::Function* fragmentFunction = static_cast<MetalShader*>(fragmentShader)->GetNativeFunction();

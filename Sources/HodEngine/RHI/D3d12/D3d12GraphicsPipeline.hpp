@@ -33,8 +33,7 @@ namespace hod::inline rhi
 		D3d12GraphicsPipeline();
 		~D3d12GraphicsPipeline() override;
 
-		bool Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode = PolygonMode::Fill,
-		           Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) override;
+		bool Build(const CreateInfo& createInfo) override;
 
 		ID3D12PipelineState* GetPipelineState() const;
 		ID3D12RootSignature* GetRootSignature() const;

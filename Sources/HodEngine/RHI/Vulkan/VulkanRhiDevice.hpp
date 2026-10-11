@@ -52,9 +52,7 @@ namespace hod::inline rhi
 		CommandBuffer*    CreateCommandBuffer() override;
 		Buffer*           CreateBuffer(Buffer::Usage usage, uint32_t size) override;
 		Shader*           CreateShader(Shader::ShaderType type) override;
-		GraphicsPipeline*         CreateGraphicsPipeline(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
-		                                 GraphicsPipeline::PolygonMode polygonMode = GraphicsPipeline::PolygonMode::Fill, GraphicsPipeline::Topololy topololy = GraphicsPipeline::Topololy::TRIANGLE,
-		                                 bool useDepth = true) override;
+		GraphicsPipeline* CreateGraphicsPipeline(const GraphicsPipeline::CreateInfo& createInfo) override;
 		Texture*          CreateTexture() override;
 		RenderTarget*     CreateRenderTarget() override;
 		Semaphore*        CreateSemaphore() override;

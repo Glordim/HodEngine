@@ -40,11 +40,25 @@ namespace hod::inline rhi
 
 		REFLECTED_ENUM(HOD_RHI_API, Topololy);
 
+		/// @brief What a pipeline is built from, see RhiDevice::CreateGraphicsPipeline
+		struct CreateInfo
+		{
+			// One per input of the vertex shader, in the order it declares them
+			const VertexInput* _vertexInputs = nullptr;
+			uint32_t           _vertexInputCount = 0;
+
+			Shader* _vertexShader = nullptr;
+			Shader* _fragmentShader = nullptr;
+
+			PolygonMode _polygonMode = PolygonMode::Fill;
+			Topololy    _topololy = Topololy::TRIANGLE;
+			bool        _useDepth = true;
+		};
+
 		GraphicsPipeline();
 		virtual ~GraphicsPipeline();
 
-		virtual bool Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
-							PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) = 0;
+		virtual bool Build(const CreateInfo& createInfo) = 0;
 
 		const std::map<uint32_t, ShaderSetDescriptor*>& GetSetDescriptors() const;
 

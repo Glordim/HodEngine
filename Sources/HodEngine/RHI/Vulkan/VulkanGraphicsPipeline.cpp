@@ -78,25 +78,18 @@ namespace hod::inline rhi
 	}
 
 	/// @brief
-	/// @param vertexInputs
-	/// @param vertexInputCount
-	/// @param vertexShader
-	/// @param fragmentShader
-	/// @param polygonMode
-	/// @param topololy
-	/// @param useDepth
+	/// @param createInfo
 	/// @return
-	bool VulkanGraphicsPipeline::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode,
-	                       GraphicsPipeline::Topololy topololy, bool useDepth)
+	bool VulkanGraphicsPipeline::Build(const CreateInfo& createInfo)
 	{
-		if (VulkanGraphicsPipeline::FillCreateInfo(_createInfo, vertexInputs, vertexInputCount, vertexShader, fragmentShader, polygonMode, topololy, useDepth) == false)
+		if (VulkanGraphicsPipeline::FillNativeCreateInfo(_nativeCreateInfo, createInfo) == false)
 		{
 			return false;
 		}
 
 		VulkanRhiDevice* rhiDevice = (VulkanRhiDevice*)RhiDevice::GetInstance();
 
-		MergeSetDescriptors(*vertexShader, *fragmentShader);
+		MergeSetDescriptors(*createInfo._vertexShader, *createInfo._fragmentShader);
 
 		// _setDescriptors is ordered and contiguous: its entries are the sets 0, 1, 2...
 		// The descriptor set of a set is its space, which is not always its number: the pipeline layout has a layout for each space
@@ -125,7 +118,7 @@ namespace hod::inline rhi
 		}
 
 		Vector<VkPushConstantRange> constants;
-		for (const Shader* shader : {vertexShader, fragmentShader})
+		for (const Shader* shader : {createInfo._vertexShader, createInfo._fragmentShader})
 		{
 			const ShaderConstantDescriptor* constantDescriptor = shader->GetConstantDescriptor();
 			if (constantDescriptor != nullptr)
@@ -160,11 +153,15 @@ namespace hod::inline rhi
 		return CreatePipeline(rhiDevice->GetDummyRenderPass(), true);
 	}
 
-	bool VulkanGraphicsPipeline::FillCreateInfo(CreateInfo& createInfo, const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
-	                                PolygonMode polygonMode, Topololy topololy, bool useDepth)
+	bool VulkanGraphicsPipeline::FillNativeCreateInfo(NativeCreateInfo& nativeCreateInfo, const CreateInfo& createInfo)
 	{
+		const VertexInput* vertexInputs = createInfo._vertexInputs;
+		uint32_t           vertexInputCount = createInfo._vertexInputCount;
+		Shader*            vertexShader = createInfo._vertexShader;
+		Shader*            fragmentShader = createInfo._fragmentShader;
+
 		// Shader stages
-		VkPipelineShaderStageCreateInfo& vertShaderStageInfo = createInfo._shaderStageInfos[0];
+		VkPipelineShaderStageCreateInfo& vertShaderStageInfo = nativeCreateInfo._shaderStageInfos[0];
 		vertShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		vertShaderStageInfo.pNext = nullptr;
 		vertShaderStageInfo.flags = 0;
@@ -173,7 +170,7 @@ namespace hod::inline rhi
 		vertShaderStageInfo.pName = "main";
 		vertShaderStageInfo.pSpecializationInfo = nullptr;
 
-		VkPipelineShaderStageCreateInfo& fragShaderStageInfo = createInfo._shaderStageInfos[1];
+		VkPipelineShaderStageCreateInfo& fragShaderStageInfo = nativeCreateInfo._shaderStageInfos[1];
 		fragShaderStageInfo.sType = VK_STRUCTURE_TYPE_PIPELINE_SHADER_STAGE_CREATE_INFO;
 		fragShaderStageInfo.pNext = nullptr;
 		fragShaderStageInfo.flags = 0;
@@ -183,8 +180,8 @@ namespace hod::inline rhi
 		fragShaderStageInfo.pSpecializationInfo = nullptr;
 
 		Vector<uint32_t>                           strides;
-		Vector<VkVertexInputAttributeDescription>& vertexAttributeDecriptions = createInfo._vertexAttributeDecriptions;
-		Vector<VkVertexInputBindingDescription>&   vertexBindingDescriptions = createInfo._vertexBindingDescriptions;
+		Vector<VkVertexInputAttributeDescription>& vertexAttributeDecriptions = nativeCreateInfo._vertexAttributeDecriptions;
+		Vector<VkVertexInputBindingDescription>&   vertexBindingDescriptions = nativeCreateInfo._vertexBindingDescriptions;
 
 		if (vertexInputs != nullptr)
 		{
@@ -280,7 +277,7 @@ namespace hod::inline rhi
 		bindingDescription.inputRate = VK_VERTEX_INPUT_RATE_VERTEX;
 		*/
 
-		VkPipelineVertexInputStateCreateInfo& vertexInput = createInfo._vertexInput;
+		VkPipelineVertexInputStateCreateInfo& vertexInput = nativeCreateInfo._vertexInput;
 		vertexInput.sType = VK_STRUCTURE_TYPE_PIPELINE_VERTEX_INPUT_STATE_CREATE_INFO;
 		vertexInput.pNext = nullptr;
 		vertexInput.flags = 0;
@@ -291,27 +288,27 @@ namespace hod::inline rhi
 		vertexInput.pVertexAttributeDescriptions = vertexAttributeDecriptions.Data();
 
 		// Input assembly
-		VkPipelineInputAssemblyStateCreateInfo& inputAssembly = createInfo._inputAssembly;
+		VkPipelineInputAssemblyStateCreateInfo& inputAssembly = nativeCreateInfo._inputAssembly;
 		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		inputAssembly.pNext = nullptr;
 		inputAssembly.flags = 0;
-		if (topololy == Topololy::TRIANGLE)
+		if (createInfo._topololy == Topololy::TRIANGLE)
 		{
 			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 		}
-		else if (topololy == Topololy::TRIANGLE_FAN)
+		else if (createInfo._topololy == Topololy::TRIANGLE_FAN)
 		{
 			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
 		}
-		else if (topololy == Topololy::LINE)
+		else if (createInfo._topololy == Topololy::LINE)
 		{
 			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
 		}
-		else if (topololy == Topololy::LINE_STRIP)
+		else if (createInfo._topololy == Topololy::LINE_STRIP)
 		{
 			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
 		}
-		else if (topololy == Topololy::POINT)
+		else if (createInfo._topololy == Topololy::POINT)
 		{
 			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
 		}
@@ -322,7 +319,7 @@ namespace hod::inline rhi
 		inputAssembly.primitiveRestartEnable = VK_FALSE;
 
 		// Viewports and scissors
-		VkPipelineViewportStateCreateInfo& viewport = createInfo._viewport;
+		VkPipelineViewportStateCreateInfo& viewport = nativeCreateInfo._viewport;
 		viewport.sType = VK_STRUCTURE_TYPE_PIPELINE_VIEWPORT_STATE_CREATE_INFO;
 		viewport.pNext = nullptr;
 		viewport.flags = 0;
@@ -332,17 +329,17 @@ namespace hod::inline rhi
 		viewport.pScissors = nullptr;
 
 		// Rasterizer
-		VkPipelineRasterizationStateCreateInfo& rasterizer = createInfo._rasterizer;
+		VkPipelineRasterizationStateCreateInfo& rasterizer = nativeCreateInfo._rasterizer;
 		rasterizer.sType = VK_STRUCTURE_TYPE_PIPELINE_RASTERIZATION_STATE_CREATE_INFO;
 		rasterizer.pNext = nullptr;
 		rasterizer.flags = 0;
 		rasterizer.depthClampEnable = VK_FALSE;
 		rasterizer.rasterizerDiscardEnable = VK_FALSE;
-		if (polygonMode == PolygonMode::Fill)
+		if (createInfo._polygonMode == PolygonMode::Fill)
 		{
 			rasterizer.polygonMode = VK_POLYGON_MODE_FILL;
 		}
-		else if (polygonMode == PolygonMode::Line)
+		else if (createInfo._polygonMode == PolygonMode::Line)
 		{
 			rasterizer.polygonMode = VK_POLYGON_MODE_LINE;
 		}
@@ -359,7 +356,7 @@ namespace hod::inline rhi
 		rasterizer.depthBiasSlopeFactor = 0.0f;    // Optional
 
 		// Multisampling
-		VkPipelineMultisampleStateCreateInfo& multisampling = createInfo._multisampling;
+		VkPipelineMultisampleStateCreateInfo& multisampling = nativeCreateInfo._multisampling;
 		multisampling.sType = VK_STRUCTURE_TYPE_PIPELINE_MULTISAMPLE_STATE_CREATE_INFO;
 		multisampling.pNext = nullptr;
 		multisampling.flags = 0;
@@ -371,12 +368,12 @@ namespace hod::inline rhi
 		multisampling.alphaToOneEnable = VK_FALSE;      // Optional
 
 		// Depth and stencil testing
-		VkPipelineDepthStencilStateCreateInfo& depthStencil = createInfo._depthStencil;
+		VkPipelineDepthStencilStateCreateInfo& depthStencil = nativeCreateInfo._depthStencil;
 		depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 		depthStencil.pNext = nullptr;
 		depthStencil.flags = 0;
-		depthStencil.depthTestEnable = useDepth ? VK_TRUE : VK_FALSE;
-		depthStencil.depthWriteEnable = useDepth ? VK_TRUE : VK_FALSE;
+		depthStencil.depthTestEnable = createInfo._useDepth ? VK_TRUE : VK_FALSE;
+		depthStencil.depthWriteEnable = createInfo._useDepth ? VK_TRUE : VK_FALSE;
 		depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
 		depthStencil.depthBoundsTestEnable = VK_FALSE;
 		depthStencil.minDepthBounds = 0.0f; // Optional
@@ -386,7 +383,7 @@ namespace hod::inline rhi
 		depthStencil.back = {};  // Optional
 
 		// Color blending
-		VkPipelineColorBlendAttachmentState& colorBlendAttachment = createInfo._colorBlendAttachment;
+		VkPipelineColorBlendAttachmentState& colorBlendAttachment = nativeCreateInfo._colorBlendAttachment;
 		colorBlendAttachment.colorWriteMask = VK_COLOR_COMPONENT_R_BIT | VK_COLOR_COMPONENT_G_BIT | VK_COLOR_COMPONENT_B_BIT | VK_COLOR_COMPONENT_A_BIT;
 		colorBlendAttachment.blendEnable = VK_TRUE;
 		colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;           // Optional
@@ -396,7 +393,7 @@ namespace hod::inline rhi
 		colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA; // Optional
 		colorBlendAttachment.alphaBlendOp = VK_BLEND_OP_ADD;                            // Optional
 
-		VkPipelineColorBlendStateCreateInfo& colorBlending = createInfo._colorBlend;
+		VkPipelineColorBlendStateCreateInfo& colorBlending = nativeCreateInfo._colorBlend;
 		colorBlending.sType = VK_STRUCTURE_TYPE_PIPELINE_COLOR_BLEND_STATE_CREATE_INFO;
 		colorBlending.pNext = nullptr;
 		colorBlending.flags = 0;
@@ -409,15 +406,15 @@ namespace hod::inline rhi
 		colorBlending.blendConstants[2] = 0.0f; // Optional
 		colorBlending.blendConstants[3] = 0.0f; // Optional
 
-		createInfo._dynamicStates[0] = VK_DYNAMIC_STATE_VIEWPORT;
-		createInfo._dynamicStates[1] = VK_DYNAMIC_STATE_SCISSOR;
+		nativeCreateInfo._dynamicStates[0] = VK_DYNAMIC_STATE_VIEWPORT;
+		nativeCreateInfo._dynamicStates[1] = VK_DYNAMIC_STATE_SCISSOR;
 
-		VkPipelineDynamicStateCreateInfo& dynamicState = createInfo._dynamic;
+		VkPipelineDynamicStateCreateInfo& dynamicState = nativeCreateInfo._dynamic;
 		dynamicState.sType = VK_STRUCTURE_TYPE_PIPELINE_DYNAMIC_STATE_CREATE_INFO;
 		dynamicState.pNext = nullptr;
 		dynamicState.flags = 0;
 		dynamicState.dynamicStateCount = 2;
-		dynamicState.pDynamicStates = createInfo._dynamicStates;
+		dynamicState.pDynamicStates = nativeCreateInfo._dynamicStates;
 
 		return true;
 	}
@@ -430,15 +427,15 @@ namespace hod::inline rhi
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pipelineInfo.flags = 0;
 		pipelineInfo.stageCount = 2;
-		pipelineInfo.pStages = _createInfo._shaderStageInfos;
-		pipelineInfo.pVertexInputState = &_createInfo._vertexInput;
-		pipelineInfo.pInputAssemblyState = &_createInfo._inputAssembly;
-		pipelineInfo.pViewportState = &_createInfo._viewport;
-		pipelineInfo.pRasterizationState = &_createInfo._rasterizer;
-		pipelineInfo.pMultisampleState = &_createInfo._multisampling;
-		pipelineInfo.pDepthStencilState = &_createInfo._depthStencil;
-		pipelineInfo.pColorBlendState = &_createInfo._colorBlend;
-		pipelineInfo.pDynamicState = &_createInfo._dynamic;
+		pipelineInfo.pStages = _nativeCreateInfo._shaderStageInfos;
+		pipelineInfo.pVertexInputState = &_nativeCreateInfo._vertexInput;
+		pipelineInfo.pInputAssemblyState = &_nativeCreateInfo._inputAssembly;
+		pipelineInfo.pViewportState = &_nativeCreateInfo._viewport;
+		pipelineInfo.pRasterizationState = &_nativeCreateInfo._rasterizer;
+		pipelineInfo.pMultisampleState = &_nativeCreateInfo._multisampling;
+		pipelineInfo.pDepthStencilState = &_nativeCreateInfo._depthStencil;
+		pipelineInfo.pColorBlendState = &_nativeCreateInfo._colorBlend;
+		pipelineInfo.pDynamicState = &_nativeCreateInfo._dynamic;
 		pipelineInfo.layout = _pipelineLayout;
 		pipelineInfo.renderPass = renderPass;
 		pipelineInfo.subpass = 0;

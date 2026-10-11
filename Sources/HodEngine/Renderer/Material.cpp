@@ -49,7 +49,16 @@ namespace hod::inline renderer
 	bool Material::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode,
 	                     Topololy topololy, bool useDepth)
 	{
-		_graphicsPipeline = RhiDevice::GetInstance()->CreateGraphicsPipeline(vertexInputs, vertexInputCount, vertexShader, fragmentShader, polygonMode, topololy, useDepth);
+		GraphicsPipeline::CreateInfo createInfo;
+		createInfo._vertexInputs = vertexInputs;
+		createInfo._vertexInputCount = vertexInputCount;
+		createInfo._vertexShader = vertexShader;
+		createInfo._fragmentShader = fragmentShader;
+		createInfo._polygonMode = polygonMode;
+		createInfo._topololy = topololy;
+		createInfo._useDepth = useDepth;
+
+		_graphicsPipeline = RhiDevice::GetInstance()->CreateGraphicsPipeline(createInfo);
 		if (_graphicsPipeline == nullptr)
 		{
 			return false;

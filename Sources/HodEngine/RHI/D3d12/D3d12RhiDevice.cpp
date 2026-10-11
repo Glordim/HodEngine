@@ -685,12 +685,11 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	GraphicsPipeline* D3d12RhiDevice::CreateGraphicsPipeline(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
-	                                                         GraphicsPipeline::PolygonMode polygonMode, GraphicsPipeline::Topololy topololy, bool useDepth)
+	GraphicsPipeline* D3d12RhiDevice::CreateGraphicsPipeline(const GraphicsPipeline::CreateInfo& createInfo)
 	{
 		D3d12GraphicsPipeline* graphicsPipeline = DefaultAllocator::GetInstance().New<D3d12GraphicsPipeline>();
 
-		if (graphicsPipeline->Build(vertexInputs, vertexInputCount, vertexShader, fragmentShader, polygonMode, topololy, useDepth) == false)
+		if (graphicsPipeline->Build(createInfo) == false)
 		{
 			DefaultAllocator::GetInstance().Delete(graphicsPipeline);
 			return nullptr;

@@ -170,11 +170,10 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	GraphicsPipeline* MetalRhiDevice::CreateGraphicsPipeline(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
-											GraphicsPipeline::PolygonMode polygonMode, GraphicsPipeline::Topololy topololy, bool useDepth)
+	GraphicsPipeline* MetalRhiDevice::CreateGraphicsPipeline(const GraphicsPipeline::CreateInfo& createInfo)
 	{
 		MetalGraphicsPipeline* graphicsPipeline = DefaultAllocator::GetInstance().New<MetalGraphicsPipeline>();
-		if (graphicsPipeline->Build(vertexInputs, vertexInputCount, vertexShader, fragmentShader, polygonMode, topololy, useDepth) == false)
+		if (graphicsPipeline->Build(createInfo) == false)
 		{
 			DefaultAllocator::GetInstance().Delete(graphicsPipeline);
 			return nullptr;

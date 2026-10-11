@@ -22,7 +22,7 @@ namespace hod::inline rhi
 								MetalGraphicsPipeline();
 								~MetalGraphicsPipeline() override;
 
-		bool			        Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) override;
+		bool			        Build(const CreateInfo& createInfo) override;
 		
 		NS::Range				GetVertexAttributeBufferRange() const;
 

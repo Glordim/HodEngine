@@ -47,17 +47,15 @@ namespace hod::inline rhi
 	}
 
 	/// @brief
-	/// @param vertexInputs
-	/// @param vertexInputCount
-	/// @param vertexShader
-	/// @param fragmentShader
-	/// @param polygonMode
-	/// @param topololy
-	/// @param useDepth
+	/// @param createInfo
 	/// @return
-	bool D3d12GraphicsPipeline::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode,
-	                                  Topololy topololy, bool /*useDepth*/)
+	bool D3d12GraphicsPipeline::Build(const CreateInfo& createInfo)
 	{
+		const VertexInput* vertexInputs = createInfo._vertexInputs;
+		uint32_t           vertexInputCount = createInfo._vertexInputCount;
+		Shader*            vertexShader = createInfo._vertexShader;
+		Shader*            fragmentShader = createInfo._fragmentShader;
+
 		D3d12RhiDevice* rhiDevice = D3d12RhiDevice::GetInstance();
 
 		MergeSetDescriptors(*vertexShader, *fragmentShader);
@@ -112,7 +110,7 @@ namespace hod::inline rhi
 
 		// Input assembly
 		_triangleFanEmulated = false;
-		switch (topololy)
+		switch (createInfo._topololy)
 		{
 			case Topololy::POINT:
 				pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
@@ -150,11 +148,11 @@ namespace hod::inline rhi
 		}
 
 		// Rasterizer
-		if (polygonMode == PolygonMode::Fill)
+		if (createInfo._polygonMode == PolygonMode::Fill)
 		{
 			pipelineStateDesc.RasterizerState.FillMode = D3D12_FILL_MODE_SOLID;
 		}
-		else if (polygonMode == PolygonMode::Line)
+		else if (createInfo._polygonMode == PolygonMode::Line)
 		{
 			pipelineStateDesc.RasterizerState.FillMode = D3D12_FILL_MODE_WIREFRAME;
 		}

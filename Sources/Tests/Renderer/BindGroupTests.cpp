@@ -65,7 +65,13 @@ protected:
 			VertexInput(0, 0, VertexInput::Format::R32G32_SFloat),
 			VertexInput(1, 8, VertexInput::Format::R32G32_SFloat),
 		};
-		_graphicsPipeline = rhiDevice->CreateGraphicsPipeline(vertexInputs.Data(), (uint32_t)vertexInputs.Size(), _vertexShader, _fragmentShader);
+
+		GraphicsPipeline::CreateInfo pipelineCreateInfo;
+		pipelineCreateInfo._vertexInputs = vertexInputs.Data();
+		pipelineCreateInfo._vertexInputCount = (uint32_t)vertexInputs.Size();
+		pipelineCreateInfo._vertexShader = _vertexShader;
+		pipelineCreateInfo._fragmentShader = _fragmentShader;
+		_graphicsPipeline = rhiDevice->CreateGraphicsPipeline(pipelineCreateInfo);
 		ASSERT_NE(_graphicsPipeline, nullptr);
 
 		// Uniform blocks sharing a buffer start on a multiple of the device alignment

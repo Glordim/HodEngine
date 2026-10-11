@@ -1288,12 +1288,11 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	GraphicsPipeline* VulkanRhiDevice::CreateGraphicsPipeline(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
-	                                         GraphicsPipeline::PolygonMode polygonMode, GraphicsPipeline::Topololy topololy, bool useDepth)
+	GraphicsPipeline* VulkanRhiDevice::CreateGraphicsPipeline(const GraphicsPipeline::CreateInfo& createInfo)
 	{
 		VulkanGraphicsPipeline* mat = DefaultAllocator::GetInstance().New<VulkanGraphicsPipeline>();
 
-		if (mat->Build(vertexInputs, vertexInputCount, vertexShader, fragmentShader, polygonMode, topololy, useDepth) == false)
+		if (mat->Build(createInfo) == false)
 		{
 			DefaultAllocator::GetInstance().Delete(mat);
 			return nullptr;

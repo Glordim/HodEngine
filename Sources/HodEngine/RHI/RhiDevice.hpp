@@ -57,9 +57,7 @@ namespace hod::inline rhi
 		virtual Fence*         CreateFence() = 0;
 
 		virtual Shader*           CreateShader(Shader::ShaderType type) = 0;
-		virtual GraphicsPipeline*         CreateGraphicsPipeline(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
-		                                         GraphicsPipeline::PolygonMode polygonMode = GraphicsPipeline::PolygonMode::Fill, GraphicsPipeline::Topololy topololy = GraphicsPipeline::Topololy::TRIANGLE,
-		                                         bool useDepth = true) = 0;
+		virtual GraphicsPipeline* CreateGraphicsPipeline(const GraphicsPipeline::CreateInfo& createInfo) = 0;
 		virtual Texture*          CreateTexture() = 0;
 		virtual RenderTarget*     CreateRenderTarget() = 0;
 

@@ -14,8 +14,7 @@ namespace hod::inline rhi
 		VulkanGraphicsPipeline();
 		virtual ~VulkanGraphicsPipeline();
 
-		virtual bool Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode = PolygonMode::Fill,
-		                   Topololy topololy = Topololy::TRIANGLE, bool useDepth = true) override;
+		bool Build(const CreateInfo& createInfo) override;
 
 		VkPipeline       GetVkPipeline(VkRenderPass renderPass);
 		VkPipelineLayout GetPipelineLayout() const;
@@ -24,7 +23,7 @@ namespace hod::inline rhi
 		uint32_t         GetPushConstantSize() const;
 
 	private:
-		struct CreateInfo
+		struct NativeCreateInfo
 		{
 			VkPipelineShaderStageCreateInfo           _shaderStageInfos[2];
 			Vector<VkVertexInputAttributeDescription> _vertexAttributeDecriptions;
@@ -43,8 +42,7 @@ namespace hod::inline rhi
 		};
 
 	private:
-		static bool FillCreateInfo(CreateInfo& createInfo, const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
-		                           PolygonMode polygonMode, Topololy topololy, bool useDepth);
+		static bool FillNativeCreateInfo(NativeCreateInfo& nativeCreateInfo, const CreateInfo& createInfo);
 		static bool BuildDescriptorSetLayout(const ShaderSetDescriptor& setDescriptor, VkDescriptorSetLayout* descriptorSetLayout);
 		VkPipeline  CreatePipeline(VkRenderPass renderPass, bool parent);
 
@@ -54,7 +52,7 @@ namespace hod::inline rhi
 		Vector<uint32_t>              _setSpaces;            // indexed by set
 		uint32_t         _pushConstantSize = 0;
 
-		CreateInfo _createInfo; // Store all create info to be able to create new Pipeline with different renderpass (may be removed if use DynamicRendering VK 1.3)
+		NativeCreateInfo _nativeCreateInfo; // Store all create info to be able to create new Pipeline with different renderpass (may be removed if use DynamicRendering VK 1.3)
 
 		VkPipeline                                  _parent = VK_NULL_HANDLE;
 		Vector<std::pair<VkRenderPass, VkPipeline>> _pipelines;
