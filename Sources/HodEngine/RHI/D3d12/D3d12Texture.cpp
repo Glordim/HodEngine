@@ -47,6 +47,12 @@ namespace hod::inline rhi
 			_renderTargetViewIndex = D3d12DescriptorHeap::InvalidIndex;
 		}
 
+		if (_depthStencilViewIndex != D3d12DescriptorHeap::InvalidIndex)
+		{
+			rhiDevice->DeferFree(rhiDevice->GetDepthStencilViewHeap(), _depthStencilViewIndex);
+			_depthStencilViewIndex = D3d12DescriptorHeap::InvalidIndex;
+		}
+
 		if (_readbackBuffer != nullptr)
 		{
 			D3D12_RANGE writtenRange = {0, 0}; // only read
@@ -81,6 +87,14 @@ namespace hod::inline rhi
 	D3D12_CPU_DESCRIPTOR_HANDLE D3d12Texture::GetRenderTargetView() const
 	{
 		return D3d12RhiDevice::GetInstance()->GetRenderTargetViewHeap().GetCpuHandle(_renderTargetViewIndex);
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	D3D12_CPU_DESCRIPTOR_HANDLE D3d12Texture::GetDepthStencilView() const
+	{
+		return D3d12RhiDevice::GetInstance()->GetDepthStencilViewHeap().GetCpuHandle(_depthStencilViewIndex);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -184,9 +198,25 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	bool D3d12Texture::BuildDepth(uint32_t width, uint32_t height, const CreateInfo& /*createInfo*/)
 	{
-		// Not bound by any render pass for now, like on the other backends: it has no view
-		return CreateResource(width, height, DXGI_FORMAT_D32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE,
-		                      D3D12_RESOURCE_STATE_DEPTH_WRITE);
+		D3d12RhiDevice* rhiDevice = D3d12RhiDevice::GetInstance();
+
+		// Only ever drawn into: it stays in the state that takes
+		if (CreateResource(width, height, DXGI_FORMAT_D32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE,
+		                   D3D12_RESOURCE_STATE_DEPTH_WRITE) == false)
+		{
+			return false;
+		}
+
+		_depthStencilViewIndex = rhiDevice->GetDepthStencilViewHeap().Allocate();
+		if (_depthStencilViewIndex == D3d12DescriptorHeap::InvalidIndex)
+		{
+			OUTPUT_ERROR("D3d12: Texture, the depth stencil view heap is full");
+			Release();
+			return false;
+		}
+		rhiDevice->GetDevice()->CreateDepthStencilView(_resource.Get(), nullptr, GetDepthStencilView());
+
+		return true;
 	}
 
 	//-----------------------------------------------------------------------------

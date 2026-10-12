@@ -193,7 +193,7 @@ namespace hod::inline renderer
 			}
 
 			material = Material::Create(builtinMaterialSource._vertexInputs.Data(), (uint32_t)builtinMaterialSource._vertexInputs.Size(), vertexShader, fragmentShader,
-			                                    builtinMaterialSource._polygonMode, builtinMaterialSource._topology, true);
+			                                    builtinMaterialSource._polygonMode, builtinMaterialSource._topology);
 
 			if (material == nullptr)
 			{

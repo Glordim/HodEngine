@@ -2,6 +2,7 @@
 #include "HodEngine/RHI/Vulkan/VulkanRhiDevice.hpp"
 #include "HodEngine/RHI/Vulkan/VulkanSemaphore.hpp"
 #include "HodEngine/RHI/Vulkan/VulkanPresentationSurface.hpp"
+#include "HodEngine/RHI/Vulkan/VulkanTexture.hpp"
 
 #include "HodEngine/RHI/Vulkan/ExtensionCollector/DeviceExtensionCollector.hpp"
 #include "HodEngine/RHI/Vulkan/ExtensionCollector/InstanceExtensionCollector.hpp"
@@ -422,6 +423,15 @@ namespace hod::inline rhi
 		_swapchain = newSwapchain;
 		_currentImageIndex = 0;
 
+		// The previous one is released once the frames in flight are done with it
+		DefaultAllocator::GetInstance().Delete(_depthTexture);
+		_depthTexture = RhiDevice::GetInstance()->CreateTexture();
+		if (_depthTexture->BuildDepth(_swapChainExtent.width, _swapChainExtent.height, Texture::CreateInfo()) == false)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to create the depth buffer of the SwapChain !");
+			return false;
+		}
+
 		vkGetSwapchainImagesKHR(device, _swapchain, &imageCount, nullptr);
 		_swapchainImages.Resize(imageCount, VK_NULL_HANDLE);
 		_swapchainImageViews.Resize(imageCount, VK_NULL_HANDLE);
@@ -445,7 +455,7 @@ namespace hod::inline rhi
 			colorAttachmentRef.attachment = 0;
 			colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-			/*
+			// Cleared by each render pass, and not kept after it
 			VkAttachmentDescription depthAttachment = {};
 			depthAttachment.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
 			depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -459,27 +469,26 @@ namespace hod::inline rhi
 			VkAttachmentReference depthAttachmentRef = {};
 			depthAttachmentRef.attachment = 1;
 			depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-			*/
 
 			VkSubpassDescription subpass = {};
 			subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 			subpass.colorAttachmentCount = 1;
 			subpass.pColorAttachments = &colorAttachmentRef;
-			subpass.pDepthStencilAttachment = nullptr; // &depthAttachmentRef;
+			subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
-			VkAttachmentDescription attachments[] = {colorAttachment}; // , depthAttachment };
+			VkAttachmentDescription attachments[] = {colorAttachment, depthAttachment};
 
 			VkSubpassDependency dependency {};
 			dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
 			dependency.dstSubpass = 0;
-			dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+			dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 			dependency.srcAccessMask = 0;
-			dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
-			dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+			dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+			dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
 			VkRenderPassCreateInfo renderPassInfo = {};
 			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-			renderPassInfo.attachmentCount = 1;
+			renderPassInfo.attachmentCount = 2;
 			renderPassInfo.pAttachments = attachments;
 			renderPassInfo.subpassCount = 1;
 			renderPassInfo.pSubpasses = &subpass;
@@ -523,13 +532,13 @@ namespace hod::inline rhi
 
 				VkImageView attachments[] = {
 					_swapchainImageViews[i],
-					//_depthTexture.GetTextureImageView()
+					static_cast<VulkanTexture*>(_depthTexture)->GetTextureImageView(),
 				};
 
 				VkFramebufferCreateInfo framebufferInfo = {};
 				framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 				framebufferInfo.renderPass = _renderPass;
-				framebufferInfo.attachmentCount = 1;
+				framebufferInfo.attachmentCount = 2;
 				framebufferInfo.pAttachments = attachments;
 				framebufferInfo.width = _swapChainExtent.width;
 				framebufferInfo.height = _swapChainExtent.height;
@@ -564,6 +573,9 @@ namespace hod::inline rhi
 			vkDestroyImageView(device, _swapchainImageViews[i], nullptr);
 		}
 		_swapchainImageViews.Clear();
+
+		DefaultAllocator::GetInstance().Delete(_depthTexture);
+		_depthTexture = nullptr;
 
 		if (_renderPass != VK_NULL_HANDLE)
 		{
@@ -655,13 +667,13 @@ namespace hod::inline rhi
 			{
 				VkImageView attachments[] = {
 					_swapchainImageViews[_currentImageIndex],
-					//_depthTexture.GetTextureImageView()
+					static_cast<VulkanTexture*>(_depthTexture)->GetTextureImageView(),
 				};
 
 				VkFramebufferCreateInfo framebufferInfo = {};
 				framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 				framebufferInfo.renderPass = _renderPass;
-				framebufferInfo.attachmentCount = 1;
+				framebufferInfo.attachmentCount = 2;
 				framebufferInfo.pAttachments = attachments;
 				framebufferInfo.width = _swapChainExtent.width;
 				framebufferInfo.height = _swapChainExtent.height;

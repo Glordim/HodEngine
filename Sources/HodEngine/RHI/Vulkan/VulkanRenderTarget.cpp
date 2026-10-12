@@ -54,7 +54,7 @@ namespace hod::inline rhi
 		colorAttachmentRef.attachment = 0;
 		colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
 
-		/*
+		// Cleared by each render pass, and not kept after it
 		VkAttachmentDescription depthAttachment = {};
 		depthAttachment.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
 		depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
@@ -68,15 +68,14 @@ namespace hod::inline rhi
 		VkAttachmentReference depthAttachmentRef = {};
 		depthAttachmentRef.attachment = 1;
 		depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-		*/
 
 		VkSubpassDescription subpass = {};
 		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
 		subpass.colorAttachmentCount = 1;
 		subpass.pColorAttachments = &colorAttachmentRef;
-		subpass.pDepthStencilAttachment = nullptr; // &depthAttachmentRef;
+		subpass.pDepthStencilAttachment = &depthAttachmentRef;
 
-		VkAttachmentDescription attachments[] = {colorAttachment}; // , depthAttachment };
+		VkAttachmentDescription attachments[] = {colorAttachment, depthAttachment};
 
 		VkSubpassDependency dependencies[2] {};
 
@@ -84,9 +83,9 @@ namespace hod::inline rhi
 		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
 		dependencies[0].dstSubpass = 0;
 		dependencies[0].srcStageMask = VK_PIPELINE_STAGE_TOP_OF_PIPE_BIT;
-		dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
 		dependencies[0].srcAccessMask = 0;
-		dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
 
 		// Subpass → External
 		dependencies[1].srcSubpass = 0;
@@ -98,7 +97,7 @@ namespace hod::inline rhi
 
 		VkRenderPassCreateInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-		renderPassInfo.attachmentCount = 1;
+		renderPassInfo.attachmentCount = 2;
 		renderPassInfo.pAttachments = attachments;
 		renderPassInfo.subpassCount = 1;
 		renderPassInfo.pSubpasses = &subpass;
@@ -114,13 +113,13 @@ namespace hod::inline rhi
 
 		VkImageView attachmentImageViews[] = {
 			static_cast<VulkanTexture*>(_colorTexture)->GetTextureImageView(),
-			// static_cast<VulkanTexture*>(_depthTexture)->GetTextureImageView()
+			static_cast<VulkanTexture*>(_depthTexture)->GetTextureImageView(),
 		};
 
 		VkFramebufferCreateInfo framebufferInfo = {};
 		framebufferInfo.sType = VK_STRUCTURE_TYPE_FRAMEBUFFER_CREATE_INFO;
 		framebufferInfo.renderPass = _renderPass;
-		framebufferInfo.attachmentCount = 1;
+		framebufferInfo.attachmentCount = 2;
 		framebufferInfo.pAttachments = attachmentImageViews;
 		framebufferInfo.width = width;
 		framebufferInfo.height = height;

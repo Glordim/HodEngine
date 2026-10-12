@@ -49,7 +49,7 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	bool MetalGraphicsPipeline::Build(const CreateInfo& createInfo)
 	{
-		// TODDO _polygonMode, _topololy, _useDepth
+		// TODDO _polygonMode, _topololy, _depthTest, _depthWrite
 
 		_cullMode = createInfo._cullMode; // set with the pipeline, see MetalCommandBuffer::SetGraphicsPipeline
 

@@ -188,12 +188,13 @@ namespace hod::inline rhi
 		pipelineStateDesc.SampleDesc.Count = 1;
 
 		// Depth and stencil testing
-		// The render passes have no depth attachment, on any backend: what is drawn is ordered by the render queues
-		pipelineStateDesc.DepthStencilState.DepthEnable = FALSE;
-		pipelineStateDesc.DepthStencilState.DepthWriteMask = D3D12_DEPTH_WRITE_MASK_ZERO;
-		pipelineStateDesc.DepthStencilState.DepthFunc = D3D12_COMPARISON_FUNC_LESS;
+		// The depth is only written by the depth test: writing it without testing takes a test that always passes
+		pipelineStateDesc.DepthStencilState.DepthEnable = (createInfo._depthTest || createInfo._depthWrite) ? TRUE : FALSE;
+		pipelineStateDesc.DepthStencilState.DepthWriteMask = createInfo._depthWrite ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
+		pipelineStateDesc.DepthStencilState.DepthFunc = createInfo._depthTest ? D3D12_COMPARISON_FUNC_LESS : D3D12_COMPARISON_FUNC_ALWAYS;
 		pipelineStateDesc.DepthStencilState.StencilEnable = FALSE;
-		pipelineStateDesc.DSVFormat = DXGI_FORMAT_UNKNOWN;
+		// Every render target and presentation surface has a depth buffer of this format, see D3d12Texture::BuildDepth
+		pipelineStateDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
 
 		// Color blending
 		D3D12_RENDER_TARGET_BLEND_DESC& renderTargetBlend = pipelineStateDesc.BlendState.RenderTarget[0];

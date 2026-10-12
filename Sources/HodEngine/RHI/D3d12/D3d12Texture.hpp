@@ -33,6 +33,9 @@ namespace hod::inline rhi
 		// Only for a texture built with BuildColor
 		D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const;
 
+		// Only for a texture built with BuildDepth
+		D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const;
+
 		// The state of the texture is the one the last recorded command buffer leaves it in:
 		// command buffers have to be submitted in the order they are recorded
 		void Transition(ID3D12GraphicsCommandList* commandList, D3D12_RESOURCE_STATES state);
@@ -47,6 +50,7 @@ namespace hod::inline rhi
 		D3D12_RESOURCE_STATES  _state = D3D12_RESOURCE_STATE_COMMON;
 
 		uint32_t _renderTargetViewIndex = D3d12DescriptorHeap::InvalidIndex;
+		uint32_t _depthStencilViewIndex = D3d12DescriptorHeap::InvalidIndex;
 
 		// CPU-visible copy of the texture content, kept up to date once per frame by CaptureReadback,
 		// so ReadPixel() can be a plain memory read instead of an immediate, blocking GPU round-trip.

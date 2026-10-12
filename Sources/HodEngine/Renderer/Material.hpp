@@ -44,7 +44,7 @@ namespace hod::inline renderer
 	public:
 		// The shaders are not owned, they must outlive the Material
 		static Material* Create(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
-		                        PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE, bool useDepth = true);
+		                        PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE);
 
 		Material() = default;
 		Material(const Material&) = delete;
@@ -68,8 +68,7 @@ namespace hod::inline renderer
 		void ReportUnsetTexture(const String& name) const;
 
 	private:
-		bool Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode, Topololy topololy,
-		           bool useDepth);
+		bool Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode, Topololy topololy);
 
 		bool ResolveUniform(const String& path, UniformLocation& location) const;
 

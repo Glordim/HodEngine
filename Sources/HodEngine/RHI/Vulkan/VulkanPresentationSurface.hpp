@@ -13,6 +13,7 @@ namespace hod::inline rhi
 {
 	class InstanceExtensionCollector;
 	class DeviceExtensionCollector;
+	class Texture;
 
 	/// @brief
 	class HOD_RHI_API VulkanPresentationSurface : public PresentationSurface
@@ -74,6 +75,9 @@ namespace hod::inline rhi
 		Vector<VkImageView>   _swapchainImageViews;
 		Vector<VkFramebuffer> _swapchainFramebuffers;
 		VkRenderPass          _renderPass = VK_NULL_HANDLE;
+
+		// One depth buffer serves every image of the swap chain: they are drawn into one after the other
+		Texture* _depthTexture = nullptr;
 
 		uint32_t _currentImageIndex = 0;
 

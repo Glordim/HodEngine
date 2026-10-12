@@ -10,6 +10,8 @@
 
 namespace hod::inline rhi
 {
+	class Texture;
+
 	/// @brief The swap chain of a window
 	class HOD_RHI_API D3d12PresentationSurface : public PresentationSurface
 	{
@@ -28,6 +30,7 @@ namespace hod::inline rhi
 		bool IsValid() const;
 
 		D3D12_CPU_DESCRIPTOR_HANDLE GetCurrentRenderTargetView() const;
+		D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const;
 		void                        TransitionCurrentBackBuffer(ID3D12GraphicsCommandList* commandList, D3D12_RESOURCE_STATES state);
 
 	private:
@@ -42,10 +45,14 @@ namespace hod::inline rhi
 		bool CreateSwapChain(uint32_t width, uint32_t height);
 		bool AcquireBackBuffers();
 		void ReleaseBackBuffers();
+		bool CreateDepthTexture();
 
 	private:
 		ComPtr<IDXGISwapChain3> _swapChain;
 		Vector<BackBuffer>      _backBuffers;
+
+		// One depth buffer serves every back buffer: they are drawn into one after the other
+		Texture* _depthTexture = nullptr;
 
 		uint32_t _width = 0;
 		uint32_t _height = 0;

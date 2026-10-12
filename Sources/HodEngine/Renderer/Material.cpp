@@ -28,10 +28,10 @@ namespace hod::inline renderer
 	/// @brief
 	/// @return nullptr if the pipeline can't be built
 	Material* Material::Create(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode,
-	                           Topololy topololy, bool useDepth)
+	                           Topololy topololy)
 	{
 		Material* material = DefaultAllocator::GetInstance().New<Material>();
-		if (material->Build(vertexInputs, vertexInputCount, vertexShader, fragmentShader, polygonMode, topololy, useDepth) == false)
+		if (material->Build(vertexInputs, vertexInputCount, vertexShader, fragmentShader, polygonMode, topololy) == false)
 		{
 			DefaultAllocator::GetInstance().Delete(material);
 			return nullptr;
@@ -47,7 +47,7 @@ namespace hod::inline renderer
 
 	/// @brief
 	bool Material::Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode,
-	                     Topololy topololy, bool useDepth)
+	                     Topololy topololy)
 	{
 		GraphicsPipeline::CreateInfo createInfo;
 		createInfo._vertexInputs = vertexInputs;
@@ -56,7 +56,6 @@ namespace hod::inline renderer
 		createInfo._fragmentShader = fragmentShader;
 		createInfo._polygonMode = polygonMode;
 		createInfo._topololy = topololy;
-		createInfo._useDepth = useDepth;
 
 		_graphicsPipeline = RhiDevice::GetInstance()->CreateGraphicsPipeline(createInfo);
 		if (_graphicsPipeline == nullptr)

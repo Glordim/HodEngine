@@ -2,6 +2,7 @@
 #include "HodEngine/RHI/D3d12/D3d12PresentationSurface.hpp"
 
 #include "HodEngine/RHI/D3d12/D3d12RhiDevice.hpp"
+#include "HodEngine/RHI/D3d12/D3d12Texture.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
@@ -28,6 +29,9 @@ namespace hod::inline rhi
 
 		// The back buffers can't be kept alive past their swap chain: nothing may still be drawing into them
 		rhiDevice->WaitIdle();
+
+		DefaultAllocator::GetInstance().Delete(_depthTexture);
+		_depthTexture = nullptr;
 
 		ReleaseBackBuffers();
 		for (const BackBuffer& backBuffer : _backBuffers)
@@ -75,6 +79,7 @@ namespace hod::inline rhi
 		}
 
 		AcquireBackBuffers();
+		CreateDepthTexture();
 	}
 
 	/// @brief
@@ -131,7 +136,7 @@ namespace hod::inline rhi
 			}
 		}
 
-		return AcquireBackBuffers();
+		return AcquireBackBuffers() && CreateDepthTexture();
 	}
 
 	/// @brief
@@ -159,6 +164,22 @@ namespace hod::inline rhi
 		return true;
 	}
 
+	/// @brief Of the size of the back buffers. The previous one is released once the frames in flight are done with it.
+	/// @return
+	bool D3d12PresentationSurface::CreateDepthTexture()
+	{
+		DefaultAllocator::GetInstance().Delete(_depthTexture);
+
+		_depthTexture = D3d12RhiDevice::GetInstance()->CreateTexture();
+		if (_depthTexture->BuildDepth(_width, _height, Texture::CreateInfo()) == false)
+		{
+			DefaultAllocator::GetInstance().Delete(_depthTexture);
+			_depthTexture = nullptr;
+			return false;
+		}
+		return true;
+	}
+
 	/// @brief
 	void D3d12PresentationSurface::ReleaseBackBuffers()
 	{
@@ -172,7 +193,7 @@ namespace hod::inline rhi
 	/// @return
 	bool D3d12PresentationSurface::IsValid() const
 	{
-		return _swapChain != nullptr && _backBuffers.Empty() == false && _backBuffers[_currentImageIndex]._resource != nullptr;
+		return _swapChain != nullptr && _backBuffers.Empty() == false && _backBuffers[_currentImageIndex]._resource != nullptr && _depthTexture != nullptr;
 	}
 
 	/// @brief
@@ -180,6 +201,13 @@ namespace hod::inline rhi
 	D3D12_CPU_DESCRIPTOR_HANDLE D3d12PresentationSurface::GetCurrentRenderTargetView() const
 	{
 		return D3d12RhiDevice::GetInstance()->GetRenderTargetViewHeap().GetCpuHandle(_backBuffers[_currentImageIndex]._renderTargetViewIndex);
+	}
+
+	/// @brief
+	/// @return
+	D3D12_CPU_DESCRIPTOR_HANDLE D3d12PresentationSurface::GetDepthStencilView() const
+	{
+		return static_cast<D3d12Texture*>(_depthTexture)->GetDepthStencilView();
 	}
 
 	/// @brief

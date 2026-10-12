@@ -384,9 +384,10 @@ namespace hod::inline rhi
 		depthStencil.sType = VK_STRUCTURE_TYPE_PIPELINE_DEPTH_STENCIL_STATE_CREATE_INFO;
 		depthStencil.pNext = nullptr;
 		depthStencil.flags = 0;
-		depthStencil.depthTestEnable = createInfo._useDepth ? VK_TRUE : VK_FALSE;
-		depthStencil.depthWriteEnable = createInfo._useDepth ? VK_TRUE : VK_FALSE;
-		depthStencil.depthCompareOp = VK_COMPARE_OP_LESS;
+		// The depth is only written by the depth test: writing it without testing takes a test that always passes
+		depthStencil.depthTestEnable = (createInfo._depthTest || createInfo._depthWrite) ? VK_TRUE : VK_FALSE;
+		depthStencil.depthWriteEnable = createInfo._depthWrite ? VK_TRUE : VK_FALSE;
+		depthStencil.depthCompareOp = createInfo._depthTest ? VK_COMPARE_OP_LESS : VK_COMPARE_OP_ALWAYS;
 		depthStencil.depthBoundsTestEnable = VK_FALSE;
 		depthStencil.minDepthBounds = 0.0f; // Optional
 		depthStencil.maxDepthBounds = 1.0f; // Optional

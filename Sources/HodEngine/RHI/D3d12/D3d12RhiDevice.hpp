@@ -50,6 +50,7 @@ namespace hod::inline rhi
 		ID3D12CommandQueue* GetCommandQueue() const;
 
 		D3d12DescriptorHeap& GetRenderTargetViewHeap();
+		D3d12DescriptorHeap& GetDepthStencilViewHeap();
 		D3d12DescriptorHeap& GetShaderResourceHeap(); // shader visible
 		D3d12DescriptorHeap& GetSamplerHeap();        // shader visible
 
@@ -122,6 +123,7 @@ namespace hod::inline rhi
 		uint64_t            _idleFenceValue = 0;
 
 		D3d12DescriptorHeap _renderTargetViewHeap;
+		D3d12DescriptorHeap _depthStencilViewHeap;
 		D3d12DescriptorHeap _shaderResourceHeap;
 		D3d12DescriptorHeap _samplerHeap;
 

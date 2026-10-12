@@ -23,6 +23,7 @@ namespace hod::inline rhi
 	namespace
 	{
 		constexpr uint32_t RenderTargetViewHeapCapacity = 1024;
+		constexpr uint32_t DepthStencilViewHeapCapacity = 1024;
 		constexpr uint32_t ShaderResourceHeapCapacity = 65536;
 		constexpr uint32_t SamplerHeapCapacity = D3D12_MAX_SHADER_VISIBLE_SAMPLER_HEAP_SIZE;
 
@@ -72,6 +73,7 @@ namespace hod::inline rhi
 		_samplerTables.Clear();
 		_samplerHeap.Release();
 		_shaderResourceHeap.Release();
+		_depthStencilViewHeap.Release();
 		_renderTargetViewHeap.Release();
 
 		if (_idleEvent != nullptr)
@@ -160,6 +162,7 @@ namespace hod::inline rhi
 		}
 
 		if (_renderTargetViewHeap.Init(_device.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_RTV, RenderTargetViewHeapCapacity, false) == false ||
+		    _depthStencilViewHeap.Init(_device.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, DepthStencilViewHeapCapacity, false) == false ||
 		    _shaderResourceHeap.Init(_device.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, ShaderResourceHeapCapacity, true) == false ||
 		    _samplerHeap.Init(_device.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, SamplerHeapCapacity, true) == false)
 		{
@@ -303,6 +306,7 @@ namespace hod::inline rhi
 		D3D12_MESSAGE_ID deniedIds[] = {
 			// Render targets are cleared with the color of each render pass, which is not known when they are created
 			D3D12_MESSAGE_ID_CLEARRENDERTARGETVIEW_MISMATCHINGCLEARVALUE,
+			D3D12_MESSAGE_ID_CLEARDEPTHSTENCILVIEW_MISMATCHINGCLEARVALUE,
 		};
 
 		D3D12_INFO_QUEUE_FILTER filter = {};
@@ -432,6 +436,14 @@ namespace hod::inline rhi
 	D3d12DescriptorHeap& D3d12RhiDevice::GetRenderTargetViewHeap()
 	{
 		return _renderTargetViewHeap;
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	D3d12DescriptorHeap& D3d12RhiDevice::GetDepthStencilViewHeap()
+	{
+		return _depthStencilViewHeap;
 	}
 
 	//-----------------------------------------------------------------------------

@@ -55,7 +55,11 @@ namespace hod::inline rhi
 			Topololy    _topololy = Topololy::TRIANGLE;
 			BlendMode   _blendMode = BlendMode::Alpha;
 			CullMode    _cullMode = CullMode::None;
-			bool        _useDepth = true;
+
+			// Against the depth buffer of what is drawn into: drawn only where it is nearer than what is already there (_depthTest),
+			// and becomes the depth there (_depthWrite). Each works without the other.
+			bool _depthTest = false;
+			bool _depthWrite = false;
 		};
 
 		GraphicsPipeline();

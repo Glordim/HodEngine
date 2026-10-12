@@ -101,11 +101,12 @@ namespace hod::inline rhi
 	/// @param color
 	bool VulkanCommandBuffer::StartRenderPass(RenderTarget* renderTarget, PresentationSurface* presentationSurface, const Color& color)
 	{
-		VkClearValue clearColor[1];
-		clearColor[0].color.float32[0] = color.r;
-		clearColor[0].color.float32[1] = color.g;
-		clearColor[0].color.float32[2] = color.b;
-		clearColor[0].color.float32[3] = color.a;
+		VkClearValue clearValues[2];
+		clearValues[0].color.float32[0] = color.r;
+		clearValues[0].color.float32[1] = color.g;
+		clearValues[0].color.float32[2] = color.b;
+		clearValues[0].color.float32[3] = color.a;
+		clearValues[1].depthStencil = {1.0f, 0}; // the farthest
 
 		VkRenderPassBeginInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -128,8 +129,8 @@ namespace hod::inline rhi
 			renderPassInfo.renderArea.extent.width = (uint32_t)resolution.GetX();
 			renderPassInfo.renderArea.extent.height = (uint32_t)resolution.GetY();
 		}
-		renderPassInfo.clearValueCount = 1;
-		renderPassInfo.pClearValues = clearColor;
+		renderPassInfo.clearValueCount = 2;
+		renderPassInfo.pClearValues = clearValues;
 
 		_currentRenderPass = renderPassInfo.renderPass;
 

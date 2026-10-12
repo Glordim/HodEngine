@@ -642,3 +642,119 @@ TEST_F(PipelineStateRender, BlendModeAdditive)
 {
 	EXPECT_TRUE(ColorNear(RenderOverBackground(BlendMode::Additive), Color(0.5f, 0.3f, 0.1f, 1.0f)));
 }
+
+// ============================================================================
+// Depth: z goes from 0, the nearest, to 1, the farthest
+// ============================================================================
+
+class DepthRender : public BindGroupRender
+{
+protected:
+	void SetUp() override
+	{
+		BindGroupRender::SetUp();
+
+		_global = CreateGlobalBindGroup(CreateColorBlocks({White}));
+		_material = CreateMaterialBindGroup(CreateColorBlocks({Red, Green, Blue}), CreateWhiteTexture());
+	}
+
+	GraphicsPipeline* CreateDepthPipeline(bool depthTest, bool depthWrite)
+	{
+		GraphicsPipeline::CreateInfo createInfo;
+		createInfo._depthTest = depthTest;
+		createInfo._depthWrite = depthWrite;
+		return CreatePipeline(createInfo);
+	}
+
+	// Quad covering the target, of the color 'colorIndex' of _material (Red, Green, Blue)
+	void DrawAtDepth(const GraphicsPipeline* graphicsPipeline, float depth, uint32_t colorIndex)
+	{
+		_commandBuffer->SetGraphicsPipeline(graphicsPipeline);
+
+		// A new pipeline takes its constant and its BindGroups to be set again
+		Matrix4 mvp = Matrix4::Identity; // positions are given in clip space, only their depth is set
+		mvp[3][2] = depth;
+		_commandBuffer->SetConstant(&mvp, sizeof(mvp), Shader::ShaderType::Vertex);
+		SetBindGroup(0, _global, 0);
+		SetBindGroup(1, _material, colorIndex);
+
+		DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f);
+	}
+
+protected:
+	BindGroup* _global = nullptr;
+	BindGroup* _material = nullptr;
+};
+
+TEST_F(DepthRender, WithoutDepthTestTheLastDrawIsOnTop)
+{
+	GraphicsPipeline* noDepth = CreateDepthPipeline(false, false);
+
+	RenderFrame([&]() {
+		DrawAtDepth(noDepth, 0.2f, 0);
+		DrawAtDepth(noDepth, 0.8f, 1);
+	});
+
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Green));
+}
+
+TEST_F(DepthRender, DepthTestKeepsTheNearestWhateverTheOrder)
+{
+	GraphicsPipeline* depth = CreateDepthPipeline(true, true);
+
+	RenderFrame([&]() {
+		DrawAtDepth(depth, 0.2f, 0);
+		DrawAtDepth(depth, 0.8f, 1);
+	});
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Red));
+
+	RenderFrame([&]() {
+		DrawAtDepth(depth, 0.8f, 1);
+		DrawAtDepth(depth, 0.2f, 0);
+	});
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Red));
+}
+
+// What a frame leaves in the depth buffer does not hide what the next one draws
+TEST_F(DepthRender, DepthIsClearedByEachRenderPass)
+{
+	GraphicsPipeline* depth = CreateDepthPipeline(true, true);
+
+	RenderFrame([&]() { DrawAtDepth(depth, 0.2f, 0); });
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Red));
+
+	RenderFrame([&]() { DrawAtDepth(depth, 0.8f, 1); });
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Green));
+}
+
+TEST_F(DepthRender, WithoutDepthWriteTheDepthIsLeftAsItIs)
+{
+	GraphicsPipeline* depth = CreateDepthPipeline(true, true);
+	GraphicsPipeline* testOnly = CreateDepthPipeline(true, false);
+
+	RenderFrame([&]() {
+		DrawAtDepth(testOnly, 0.2f, 0);
+		DrawAtDepth(depth, 0.8f, 1); // farther, but nothing was written at 0.2
+	});
+
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Green));
+}
+
+TEST_F(DepthRender, DepthWriteWithoutDepthTestAlwaysDraws)
+{
+	GraphicsPipeline* depth = CreateDepthPipeline(true, true);
+	GraphicsPipeline* writeOnly = CreateDepthPipeline(false, true);
+
+	RenderFrame([&]() {
+		DrawAtDepth(depth, 0.2f, 0);
+		DrawAtDepth(writeOnly, 0.6f, 1); // drawn although farther, and the depth becomes 0.6
+	});
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Green));
+
+	RenderFrame([&]() {
+		DrawAtDepth(depth, 0.2f, 0);
+		DrawAtDepth(writeOnly, 0.6f, 1);
+		DrawAtDepth(depth, 0.4f, 2); // nearer than 0.6, not than the 0.2 it replaced
+	});
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Blue));
+}
