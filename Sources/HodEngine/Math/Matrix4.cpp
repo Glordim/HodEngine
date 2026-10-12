@@ -80,37 +80,27 @@ namespace hod::inline math
 
 #undef near
 
-	/// @brief
+	/// @brief Right-handed: the camera looks down -z, with x to its right and y up.
+	/// The box that is seen maps to the clip space of the RHI: x and y to [-1, 1], the depth to [0, 1] from the nearest to the farthest.
 	/// @param left
 	/// @param right
 	/// @param bottom
 	/// @param top
-	/// @param near
-	/// @param top
+	/// @param near distance to the camera along its view direction, hence at z = -near. Negative for what is behind the camera.
+	/// @param far same, at z = -far
 	/// @return
 	Matrix4 Matrix4::OrthogonalProjection(float left, float right, float bottom, float top, float near, float far)
 	{
 		Matrix4 projection;
 
 		projection._values[0][0] = 2.0f / (right - left);
-		projection._values[0][1] = 0.0f;
-		projection._values[0][2] = 0.0f;
-		projection._values[0][3] = 0.0f;
+		projection._values[0][3] = -((right + left) / (right - left));
 
-		projection._values[1][0] = 0.0f;
 		projection._values[1][1] = 2.0f / (top - bottom);
-		projection._values[1][2] = 0.0f;
-		projection._values[1][3] = 0.0f;
+		projection._values[1][3] = -((top + bottom) / (top - bottom));
 
-		projection._values[2][0] = 0.0f;
-		projection._values[2][1] = 0.0f;
-		projection._values[2][2] = -2.0f / (far - near);
-		projection._values[2][3] = 0.0f;
-
-		projection._values[3][0] = -((right + left) / (right - left));
-		projection._values[3][1] = -((top + bottom) / (top - bottom));
-		projection._values[3][2] = -((far + near) / (far - near));
-		projection._values[3][3] = 1.0f;
+		projection._values[2][2] = -1.0f / (far - near);
+		projection._values[2][3] = -(near / (far - near));
 
 		return projection;
 	}
@@ -134,7 +124,7 @@ namespace hod::inline math
 	}
 
 	/// @brief
-	/// @param translation
+	/// @param translation its w is not used
 	/// @return
 	Matrix4 Matrix4::Translation(const Vector4& translation)
 	{
@@ -142,7 +132,6 @@ namespace hod::inline math
 		result._values[0][3] = translation.GetX();
 		result._values[1][3] = translation.GetY();
 		result._values[2][3] = translation.GetZ();
-		result._values[3][3] = translation.GetW();
 		return result;
 	}
 

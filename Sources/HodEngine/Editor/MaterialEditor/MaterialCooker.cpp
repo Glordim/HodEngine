@@ -143,8 +143,9 @@ namespace hod::inline editor
 	{
 		Path   stageOutput = slangRootPath.ParentPath() / (String(dataBlockName) + ".bin");
 		Path   stageReflectionOutput = slangRootPath.ParentPath() / (String(dataBlockName) + ".reflection.json");
-		// Tools/ShaderLib is what the shaders import from the engine, like its attributes
-		String stageParameter(fmt::format("-entry {} -stage {} -I Tools/ShaderLib", entryPoint, stage));
+		// Tools/ShaderLib is what the shaders import from the engine, like its attributes.
+		// Row major is the layout of Matrix4: matrices are given to the shaders as they are.
+		String stageParameter(fmt::format("-entry {} -stage {} -I Tools/ShaderLib -matrix-layout-row-major", entryPoint, stage));
 #if defined(PLATFORM_WINDOWS) && defined(HOD_SHADER_TARGET_D3D12)
 		bool slangResult = Process::Create("Tools/slangc.exe", fmt::format("{} -target dxil -profile sm_6_0 {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
 #elif defined(PLATFORM_WINDOWS)

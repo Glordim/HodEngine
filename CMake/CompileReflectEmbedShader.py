@@ -26,6 +26,7 @@ def compile_shader(slangc, input_file, target_api, profile, shader_stage, output
 		"-entry", entry,
 		"-o", output_file,
 		"-I", include_dir,
+		"-matrix-layout-row-major", # the layout of Matrix4: matrices are given to the shaders as they are
 	]
 
 	if profile is not None:

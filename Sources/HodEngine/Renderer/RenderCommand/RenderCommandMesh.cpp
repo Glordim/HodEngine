@@ -167,8 +167,8 @@ namespace hod::inline renderer
 		};
 
 		Constant constant;
-		constant._mvp = (projection * view * _modelMatrix).Transpose();
-		constant._model = _modelMatrix.Transpose();
+		constant._mvp = projection * view * _modelMatrix;
+		constant._model = _modelMatrix;
 		commandBuffer->SetConstant(&constant, sizeof(constant), Shader::ShaderType::Vertex);
 
 		if (_indices.Empty() == false)

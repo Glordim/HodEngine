@@ -12,6 +12,7 @@
 #include <HodEngine/Math/Matrix4.hpp>
 #include <HodEngine/Math/Rect.hpp>
 #include <HodEngine/Math/Vector2.hpp>
+#include <HodEngine/Math/Vector4.hpp>
 
 #include <HodEngine/Renderer/Renderer.hpp>
 
@@ -672,8 +673,7 @@ protected:
 		_commandBuffer->SetGraphicsPipeline(graphicsPipeline);
 
 		// A new pipeline takes its constant and its BindGroups to be set again
-		Matrix4 mvp = Matrix4::Identity; // positions are given in clip space, only their depth is set
-		mvp[3][2] = depth;
+		Matrix4 mvp = Matrix4::Translation(Vector4(0.0f, 0.0f, depth, 1.0f)); // positions are given in clip space, only their depth is set
 		_commandBuffer->SetConstant(&mvp, sizeof(mvp), Shader::ShaderType::Vertex);
 		SetBindGroup(0, _global, 0);
 		SetBindGroup(1, _material, colorIndex);
