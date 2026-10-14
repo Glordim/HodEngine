@@ -27,7 +27,6 @@ namespace hod::inline rhi
 
 		VkBuffer					GetVkBuffer() const;
 		VmaAllocation				GetVmaAllocation() const;
-		void						Detach(); // nulls handles so destructor skips destroy (use with DeferDestroy)
 
 		bool						Resize(uint32_t size) override;
 		void*						Lock() override;

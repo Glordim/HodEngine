@@ -36,7 +36,8 @@ namespace hod::inline rhi
 
 		if (_vkBuffer != VK_NULL_HANDLE)
 		{
-			vmaDestroyBuffer(rhiDevice->GetVmaAllocator(), _vkBuffer, _vmaAllocation);
+			// A frame in flight may still read it, as after a Resize
+			rhiDevice->DeferDestroy(_vkBuffer, _vmaAllocation);
 			_vkBuffer = VK_NULL_HANDLE;
 			_vmaAllocation = VK_NULL_HANDLE;
 		}
@@ -55,12 +56,6 @@ namespace hod::inline rhi
 	VmaAllocation VulkanBuffer::GetVmaAllocation() const
 	{
 		return _vmaAllocation;
-	}
-
-	void VulkanBuffer::Detach()
-	{
-		_vkBuffer      = VK_NULL_HANDLE;
-		_vmaAllocation = VK_NULL_HANDLE;
 	}
 
 	//-----------------------------------------------------------------------------

@@ -558,6 +558,82 @@ TEST_F(BindGroupRender, CreationFailsWhenTheResourcesDoNotMatchTheSet)
 	_expectedErrorCount = 2;
 }
 
+// A buffer may be deleted while the GPU still draws with it: it is only released once the frames in flight are done with it.
+// The graphics API validation reports a buffer destroyed while in use.
+TEST_F(BindGroupRender, BufferDeletedWhileInFlightIsKeptAlive)
+{
+	RhiDevice* rhiDevice = RhiDevice::GetInstance();
+
+	BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White}));
+	BindGroup* material = CreateMaterialBindGroup(CreateColorBlocks({Red}), CreateWhiteTexture());
+
+	// Not owned by the fixture: deleted by the test
+	auto createBuffer = [&](Buffer::Usage usage, const void* data, uint32_t size)
+	{
+		Buffer* buffer = rhiDevice->CreateBuffer(usage, size);
+		void*   bufferData = buffer->Lock();
+		EXPECT_NE(bufferData, nullptr);
+		if (bufferData != nullptr)
+		{
+			std::memcpy(bufferData, data, size);
+			buffer->Unlock();
+		}
+		return buffer;
+	};
+
+	StaticArray<Vector2, 4>  positions = {Vector2(-1.0f, 1.0f), Vector2(1.0f, 1.0f), Vector2(-1.0f, -1.0f), Vector2(1.0f, -1.0f)};
+	StaticArray<Vector2, 4>  uvs = {Vector2(0.0f, 1.0f), Vector2(1.0f, 1.0f), Vector2(0.0f, 0.0f), Vector2(1.0f, 0.0f)};
+	StaticArray<uint16_t, 6> indices = {0, 1, 2, 2, 1, 3};
+
+	StaticArray<Buffer*, 2> vertexBuffers = {
+		createBuffer(Buffer::Usage::Vertex, positions.Data(), (uint32_t)(positions.Size() * sizeof(Vector2))),
+		createBuffer(Buffer::Usage::Vertex, uvs.Data(), (uint32_t)(uvs.Size() * sizeof(Vector2))),
+	};
+	Buffer* indexBuffer = createBuffer(Buffer::Usage::Index, indices.Data(), (uint32_t)(indices.Size() * sizeof(uint16_t)));
+
+	Renderer::GetInstance()->AcquireNextFrame();
+
+	_frameTexture = _renderTarget->GetColorTexture();
+
+	Rect viewport;
+	viewport._position = Vector2(0.0f, 0.0f);
+	viewport._size = Vector2((float)DefaultTargetSize, (float)DefaultTargetSize);
+
+	_commandBuffer = rhiDevice->CreateCommandBuffer();
+	ASSERT_TRUE(_commandBuffer->StartRecord());
+	_commandBuffer->StartRenderPass(_renderTarget);
+	_commandBuffer->SetViewport(viewport);
+	_commandBuffer->SetGraphicsPipeline(_graphicsPipeline);
+	Matrix4 mvp = Matrix4::Identity;
+	_commandBuffer->SetConstant(&mvp, sizeof(mvp), Shader::ShaderType::Vertex);
+	SetBindGroup(0, global, 0);
+	SetBindGroup(1, material, 0);
+	_commandBuffer->SetVertexBuffer(vertexBuffers.Data(), (uint32_t)vertexBuffers.Size());
+	_commandBuffer->SetIndexBuffer(indexBuffer);
+	_commandBuffer->DrawIndexed((uint32_t)indices.Size(), 0, 0);
+	_commandBuffer->EndRenderPass();
+	_frameTexture->CaptureReadback(_commandBuffer);
+	_commandBuffer->EndRecord();
+
+	Fence* fence = rhiDevice->CreateFence();
+	fence->Reset();
+	rhiDevice->SubmitCommandBuffers(&_commandBuffer, 1, nullptr, nullptr, fence);
+
+	// Before the GPU is done with them
+	DefaultAllocator::GetInstance().Delete(vertexBuffers[0]);
+	DefaultAllocator::GetInstance().Delete(vertexBuffers[1]);
+	DefaultAllocator::GetInstance().Delete(indexBuffer);
+
+	fence->Wait();
+	DefaultAllocator::GetInstance().Delete(fence);
+	DefaultAllocator::GetInstance().Delete(_commandBuffer);
+	_commandBuffer = nullptr;
+
+	Renderer::GetInstance()->Render();
+
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Red));
+}
+
 // ============================================================================
 // What GraphicsPipeline::CreateInfo sets apart from the shaders
 // ============================================================================
