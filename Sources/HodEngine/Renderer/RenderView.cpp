@@ -19,8 +19,9 @@ namespace hod::inline renderer
 	/// @brief
 	void RenderView::Init()
 	{
+		// Opaque: the id written is the one of what is drawn, whatever is under it
 		_pickingMaterialInstance =
-			MaterialInstance::Create(BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+			MaterialInstance::Create(BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle_Opaque));
 
 		_renderFinishedSemaphore = RhiDevice::GetInstance()->CreateSemaphore();
 		_renderFinishedFence = RhiDevice::GetInstance()->CreateFence();

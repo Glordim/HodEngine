@@ -259,6 +259,17 @@ TEST_F(MaterialRender, UniformColor)
 	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.75f), Background));
 }
 
+// The picking pass writes ids with it: what it draws replaces the target, alpha included
+TEST_F(MaterialRender, OpaqueBuiltinReplacesWhatIsUnder)
+{
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle_Opaque);
+	materialInstance->SetVec4("ubo.color", Vector4(1.0f, 0.0f, 0.0f, 0.5f));
+
+	RenderFrame([&]() { DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f, materialInstance); });
+
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Color(1.0f, 0.0f, 0.0f, 0.5f)));
+}
+
 // The default camera maps world coordinates straight to the target, which would hide a camera that is not applied
 TEST_F(MaterialRender, CameraPlacesTheGeometry)
 {

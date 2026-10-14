@@ -55,7 +55,7 @@ namespace hod::inline renderer
 		BuiltinMaterialSource(const uint8_t* vertexShaderBytecode, const uint32_t vertexShaderBytecodeSize, const char* vertexShaderReflection,
 		                      const uint32_t vertexShaderReflectionSize, const uint8_t* fragmentShaderBytecode, const uint32_t fragmentShaderBytecodeSize,
 		                      const char* fragmentShaderReflection, const uint32_t fragmentShaderReflectionSize, const Vector<VertexInput>& vertexInputs,
-		                      Material::PolygonMode polygonMode, Material::Topololy topology)
+		                      Material::PolygonMode polygonMode, Material::Topololy topology, BlendMode blendMode = BlendMode::Alpha)
 		: _vertexShaderBytecode(vertexShaderBytecode)
 		, _vertexShaderBytecodeSize(vertexShaderBytecodeSize)
 		, _vertexShaderReflection(vertexShaderReflection)
@@ -67,6 +67,7 @@ namespace hod::inline renderer
 		//, _vertexInput(vertexInput)
 		, _polygonMode(polygonMode)
 		, _topology(topology)
+		, _blendMode(blendMode)
 		{
 			_vertexInputs.Resize(vertexInputs.Size());
 			std::memcpy(_vertexInputs.Data(), vertexInputs.Data(), vertexInputs.Size() * sizeof(VertexInput));
@@ -88,6 +89,7 @@ namespace hod::inline renderer
 
 		Material::PolygonMode _polygonMode;
 		Material::Topololy    _topology;
+		BlendMode             _blendMode;
 	};
 
 	/// @brief
@@ -152,10 +154,15 @@ namespace hod::inline renderer
 		                                                    {VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32B32A32_SFloat)},
 		                                                    Material::PolygonMode::Line, Material::Topololy::LINE);
 
+		static BuiltinMaterialSource P2f_Unlit_Triangle_Opaque(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Vertex_reflection, P2f_Unlit_Vertex_reflection_size,
+		                                                       P2f_Unlit_Fragment, P2f_Unlit_Fragment_size, P2f_Unlit_Fragment_reflection, P2f_Unlit_Fragment_reflection_size,
+		                                                       {VertexInput(0, 0, VertexInput::Format::R32G32_SFloat)}, Material::PolygonMode::Fill, Material::Topololy::TRIANGLE,
+		                                                       BlendMode::Opaque);
+
 		static StaticArray<const BuiltinMaterialSource*, std::to_underlying(BuiltinMaterialManager::BuiltinMaterial::Count)> _builtinMaterialSources = {
 			&P2f_Unlit_Line,         &P2f_Unlit_Triangle,         &P2f_Unlit_TriangleFan,      &P2f_Unlit_Line_TriangleFan,    &P2f_Unlit_Line_LineStrip,
 			&P2fT2f_Texture_Unlit,   &P2fT2f_Texture_Unlit_Color, &P2fC4f_Unlit_Fill_Triangle, &P2fC4f_Unlit_Fill_TriangleFan, &P2fC4f_Unlit_Line_TriangleFan,
-			&P2fC4f_Unlit_Line_Line,
+			&P2fC4f_Unlit_Line_Line, &P2f_Unlit_Triangle_Opaque,
 		};
 
 		return *_builtinMaterialSources[static_cast<uint32_t>(buildMaterial)]; // c++23 std::to_underlying
@@ -199,6 +206,7 @@ namespace hod::inline renderer
 			createInfo._fragmentShader = fragmentShader;
 			createInfo._polygonMode = builtinMaterialSource._polygonMode;
 			createInfo._topololy = builtinMaterialSource._topology;
+			createInfo._blendMode = builtinMaterialSource._blendMode;
 
 			material = Material::Create(createInfo);
 

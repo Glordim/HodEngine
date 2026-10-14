@@ -38,6 +38,7 @@ namespace hod::inline renderer
 			P2fC4f_Unlit_Fill_TriangleFan,
 			P2fC4f_Unlit_Line_TriangleFan,
 			P2fC4f_Unlit_Line_Line,
+			P2f_Unlit_Triangle_Opaque, // replaces what is drawn under it, alpha included: what the picking pass writes ids with
 
 			Count,
 		};
