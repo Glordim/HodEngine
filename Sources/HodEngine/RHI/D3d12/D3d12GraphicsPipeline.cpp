@@ -3,6 +3,7 @@
 
 #include "HodEngine/RHI/D3d12/D3d12RhiDevice.hpp"
 #include "HodEngine/RHI/D3d12/D3d12Shader.hpp"
+#include "HodEngine/RHI/D3d12/D3d12Texture.hpp"
 
 #include "HodEngine/RHI/ShaderConstantDescriptor.hpp"
 #include "HodEngine/RHI/ShaderSetDescriptor.hpp"
@@ -194,7 +195,7 @@ namespace hod::inline rhi
 		pipelineStateDesc.DepthStencilState.DepthFunc = createInfo._depthTest ? D3D12_COMPARISON_FUNC_LESS : D3D12_COMPARISON_FUNC_ALWAYS;
 		pipelineStateDesc.DepthStencilState.StencilEnable = FALSE;
 		// Every render target and presentation surface has a depth buffer of this format, see D3d12Texture::BuildDepth
-		pipelineStateDesc.DSVFormat = DXGI_FORMAT_D32_FLOAT;
+		pipelineStateDesc.DSVFormat = D3d12Texture::DepthFormat;
 
 		// Color blending
 		D3D12_RENDER_TARGET_BLEND_DESC& renderTargetBlend = pipelineStateDesc.BlendState.RenderTarget[0];

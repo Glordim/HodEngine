@@ -758,3 +758,33 @@ TEST_F(DepthRender, DepthWriteWithoutDepthTestAlwaysDraws)
 	});
 	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Blue));
 }
+
+// The depth buffer is 16 bits: layers drawn by the editor camera, which sees from z = -1024 to 1024, still sort a tenth of a unit apart
+TEST_F(DepthRender, CloseLayersSortThroughTheEditorDepthRange)
+{
+	GraphicsPipeline* depth = CreateDepthPipeline(true, true);
+
+	Matrix4 projection = Matrix4::OrthogonalProjection(-1.0f, 1.0f, -1.0f, 1.0f, -1024.0f, 1024.0f);
+	auto    drawLayer = [&](float z, uint32_t colorIndex)
+	{
+		_commandBuffer->SetGraphicsPipeline(depth);
+		Matrix4 mvp = projection * Matrix4::Translation(Vector4(0.0f, 0.0f, z, 1.0f));
+		_commandBuffer->SetConstant(&mvp, sizeof(mvp), Shader::ShaderType::Vertex);
+		SetBindGroup(0, _global, 0);
+		SetBindGroup(1, _material, colorIndex);
+		DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f);
+	};
+
+	// The greater the z, the nearer
+	RenderFrame([&]() {
+		drawLayer(0.1f, 0);
+		drawLayer(0.0f, 1);
+	});
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Red));
+
+	RenderFrame([&]() {
+		drawLayer(0.0f, 1);
+		drawLayer(0.1f, 0);
+	});
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Red));
+}

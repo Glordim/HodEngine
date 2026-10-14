@@ -70,7 +70,7 @@ namespace hod::inline rhi
 	bool MetalTexture::BuildDepth(uint32_t width, uint32_t height, const CreateInfo& createInfo)
 	{
 		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
-		textureDescriptor->setPixelFormat(MTL::PixelFormatDepth32Float_Stencil8);
+		textureDescriptor->setPixelFormat(MTL::PixelFormatDepth16Unorm); // like the other backends: no stencil, nothing uses it
 		textureDescriptor->setUsage(MTL::TextureUsageRenderTarget | MTL::TextureUsageShaderRead);
 		return Build(textureDescriptor, width, height, createInfo);
 	}

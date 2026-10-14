@@ -17,6 +17,9 @@ namespace hod::inline rhi
 		// The state a texture is in whenever it is not being drawn into, or copied
 		static constexpr D3D12_RESOURCE_STATES ShaderResourceState = D3D12_RESOURCE_STATE_ALL_SHADER_RESOURCE;
 
+		// Of every depth buffer. Linear depth (orthographic projections) needs no more. No stencil, nothing uses it.
+		static constexpr DXGI_FORMAT DepthFormat = DXGI_FORMAT_D16_UNORM;
+
 	public:
 		D3d12Texture();
 		~D3d12Texture() override;

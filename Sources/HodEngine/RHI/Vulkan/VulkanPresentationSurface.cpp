@@ -457,7 +457,7 @@ namespace hod::inline rhi
 
 			// Cleared by each render pass, and not kept after it
 			VkAttachmentDescription depthAttachment = {};
-			depthAttachment.format = VK_FORMAT_D32_SFLOAT_S8_UINT;
+			depthAttachment.format = VulkanTexture::DepthFormat;
 			depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
 			depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
 			depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;

@@ -79,21 +79,21 @@ namespace hod::inline rhi
 			/*createInfo._allowReadWrite ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : */ VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 		VkImageTiling imageTiling = /*createInfo._allowReadWrite ? VK_IMAGE_TILING_LINEAR : */ VK_IMAGE_TILING_OPTIMAL;
 
-		if (rhiDevice->CreateImage(width, height, VK_FORMAT_D32_SFLOAT_S8_UINT, imageTiling, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, memoryPropertyFlags, &_textureImage,
+		if (rhiDevice->CreateImage(width, height, DepthFormat, imageTiling, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, memoryPropertyFlags, &_textureImage,
 									&_textureImageMemory) == false)
 		{
 			goto exit;
 		}
 
 		/*
-		if (rhiDevice->TransitionImageLayoutImmediate(_textureImage, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
+		if (rhiDevice->TransitionImageLayoutImmediate(_textureImage, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
 														VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) == false)
 		{
 			goto exit;
 		}
 			*/
 
-		if (rhiDevice->CreateImageView(_textureImage, VK_FORMAT_D32_SFLOAT_S8_UINT, VK_IMAGE_ASPECT_DEPTH_BIT | VK_IMAGE_ASPECT_STENCIL_BIT, &_textureImageView) == false)
+		if (rhiDevice->CreateImageView(_textureImage, DepthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, &_textureImageView) == false)
 		{
 			goto exit;
 		}

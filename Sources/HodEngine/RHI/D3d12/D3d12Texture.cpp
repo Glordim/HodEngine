@@ -201,7 +201,7 @@ namespace hod::inline rhi
 		D3d12RhiDevice* rhiDevice = D3d12RhiDevice::GetInstance();
 
 		// Only ever drawn into: it stays in the state that takes
-		if (CreateResource(width, height, DXGI_FORMAT_D32_FLOAT, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE,
+		if (CreateResource(width, height, DepthFormat, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE,
 		                   D3D12_RESOURCE_STATE_DEPTH_WRITE) == false)
 		{
 			return false;
