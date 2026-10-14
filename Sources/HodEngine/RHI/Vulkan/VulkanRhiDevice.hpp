@@ -64,7 +64,9 @@ namespace hod::inline rhi
 		VkInstance         GetVkInstance() const;
 		VkDevice           GetVkDevice() const;
 		const VulkanGpuDevice* GetVkGpuDevice() const;
-		VkDescriptorPool   GetDescriptorPool() const;
+		// From one of the descriptor pools, another one being created when they are all full.
+		// Released with DeferDestroy(descriptorSet, descriptorPool).
+		bool AllocateDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet* descriptorSet, VkDescriptorPool* descriptorPool);
 		VkCommandPool      GetCommandPool() const;
 
 		// One color attachment of colorFormat and one depth attachment of depthFormat, either of them PixelFormat::None, both cleared at its start.
@@ -110,7 +112,7 @@ namespace hod::inline rhi
 		void DeferDestroy(VkImageView imageView);
 		void DeferDestroy(VkImage image, VmaAllocation allocation);
 		void DeferDestroy(VkBuffer buffer, VmaAllocation allocation);
-		void DeferDestroy(VkDescriptorSet descriptorSet);
+		void DeferDestroy(VkDescriptorSet descriptorSet, VkDescriptorPool descriptorPool);
 		void DeferDestroy(VkPipeline pipeline);
 		void DeferDestroy(VkPipelineLayout pipelineLayout);
 
@@ -121,6 +123,7 @@ namespace hod::inline rhi
 
 	private:
 		bool CreateVkIntance();
+		bool CreateDescriptorPool();
 
 		void EnumeratePhysicalDevice();
 		void FillPhysicalDeviceInfo(VkPhysicalDevice physicalDevice, VulkanGpuDevice& gpuDevice);
@@ -136,7 +139,7 @@ namespace hod::inline rhi
 		VkQueue          _graphicsQueue = VK_NULL_HANDLE;
 		VkQueue          _presentQueue = VK_NULL_HANDLE;
 		VkCommandPool    _commandPool = VK_NULL_HANDLE;
-		VkDescriptorPool _descriptorPool = VK_NULL_HANDLE;
+		Vector<VkDescriptorPool> _descriptorPools;
 
 		const VulkanGpuDevice*  _selectedGpu = nullptr;
 		const VulkanGpuDevice*  _recommandedGpu = nullptr;
@@ -164,6 +167,12 @@ namespace hod::inline rhi
 			VmaAllocation allocation = VK_NULL_HANDLE;
 		};
 
+		struct DeferredDescriptorSet
+		{
+			VkDescriptorSet  descriptorSet = VK_NULL_HANDLE;
+			VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
+		};
+
 		Vector<Vector<VkFramebuffer>>    _framebuffersToDestroy;
 		Vector<Vector<VkRenderPass>>     _renderPassesToDestroy;
 		Vector<Vector<VkSemaphore>>      _vkSemaphoresToDestroy;
@@ -171,7 +180,7 @@ namespace hod::inline rhi
 		Vector<Vector<VkImageView>>      _imageViewsToDestroy;
 		Vector<Vector<DeferredImage>>    _imagesToDestroy;
 		Vector<Vector<DeferredBuffer>>   _buffersToDestroy;
-		Vector<Vector<VkDescriptorSet>>  _descriptorSetsToDestroy;
+		Vector<Vector<DeferredDescriptorSet>> _descriptorSetsToDestroy;
 		Vector<Vector<VkPipeline>>       _pipelinesToDestroy;
 		Vector<Vector<VkPipelineLayout>> _pipelineLayoutsToDestroy;
 	};

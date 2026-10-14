@@ -35,6 +35,7 @@ namespace hod::inline rhi
 
 	private:
 		VkDescriptorSet  _descriptorSet = VK_NULL_HANDLE;
+		VkDescriptorPool _descriptorPool = VK_NULL_HANDLE; // the one it comes from
 		Vector<uint32_t> _uniformBufferOrder;
 	};
 }

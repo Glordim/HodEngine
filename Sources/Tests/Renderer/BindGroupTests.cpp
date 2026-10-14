@@ -558,6 +558,46 @@ TEST_F(BindGroupRender, CreationFailsWhenTheResourcesDoNotMatchTheSet)
 	_expectedErrorCount = 2;
 }
 
+// ============================================================================
+// Lifetime and capacity
+// ============================================================================
+
+// Far more BindGroups than one descriptor pool of the Vulkan backend holds: the device takes another one when a pool is full
+TEST_F(BindGroupRender, ManyBindGroupsCoexist)
+{
+	constexpr uint32_t BindGroupCount = 3000;
+
+	BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White}));
+	Buffer*    colors = CreateColorBlocks({Red, Green});
+	Texture*   texture = CreateWhiteTexture();
+
+	BindGroup* first = nullptr;
+	BindGroup* last = nullptr;
+	for (uint32_t index = 0; index < BindGroupCount; ++index)
+	{
+		BindGroup* bindGroup = CreateMaterialBindGroup(colors, texture);
+		ASSERT_NE(bindGroup, nullptr) << "BindGroup " << index;
+		if (first == nullptr)
+		{
+			first = bindGroup;
+		}
+		last = bindGroup;
+	}
+
+	RenderFrame([&]() {
+		SetBindGroup(0, global, 0);
+
+		SetBindGroup(1, first, 0);
+		DrawQuad(-1.0f, -1.0f, 0.0f, 1.0f);
+
+		SetBindGroup(1, last, 1);
+		DrawQuad(0.0f, -1.0f, 1.0f, 1.0f);
+	});
+
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, 0.0f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.0f), Green));
+}
+
 // A buffer may be deleted while the GPU still draws with it: it is only released once the frames in flight are done with it.
 // The graphics API validation reports a buffer destroyed while in use.
 TEST_F(BindGroupRender, BufferDeletedWhileInFlightIsKeptAlive)

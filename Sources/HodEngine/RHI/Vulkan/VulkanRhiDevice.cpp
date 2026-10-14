@@ -69,10 +69,11 @@ namespace hod::inline rhi
 
 		vmaDestroyAllocator(_vmaAllocator);
 
-		if (_descriptorPool != VK_NULL_HANDLE)
+		for (VkDescriptorPool descriptorPool : _descriptorPools)
 		{
-			vkDestroyDescriptorPool(_device, _descriptorPool, nullptr);
+			vkDestroyDescriptorPool(_device, descriptorPool, nullptr);
 		}
+		_descriptorPools.Clear();
 
 		if (_commandPool != VK_NULL_HANDLE)
 		{
@@ -151,12 +152,90 @@ namespace hod::inline rhi
 	}
 	*/
 
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	VkDescriptorPool VulkanRhiDevice::GetDescriptorPool() const
+	/// @brief
+	/// @param descriptorSetLayout
+	/// @param descriptorSet
+	/// @param descriptorPool the pool it comes from
+	/// @return
+	bool VulkanRhiDevice::AllocateDescriptorSet(VkDescriptorSetLayout descriptorSetLayout, VkDescriptorSet* descriptorSet, VkDescriptorPool* descriptorPool)
 	{
-		return _descriptorPool;
+		VkDescriptorSetAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
+		allocInfo.descriptorSetCount = 1;
+		allocInfo.pSetLayouts = &descriptorSetLayout;
+
+		// The most recent pool first: the previous ones were full when it was created, until sets are freed from them
+		for (uint32_t index = (uint32_t)_descriptorPools.Size(); index > 0; --index)
+		{
+			allocInfo.descriptorPool = _descriptorPools[index - 1];
+
+			VkResult result = vkAllocateDescriptorSets(_device, &allocInfo, descriptorSet);
+			if (result == VK_SUCCESS)
+			{
+				*descriptorPool = allocInfo.descriptorPool;
+				return true;
+			}
+			if (result != VK_ERROR_OUT_OF_POOL_MEMORY && result != VK_ERROR_FRAGMENTED_POOL)
+			{
+				OUTPUT_ERROR("Vulkan: Unable to allocate a descriptor set! (VkResult: {})", (int32_t)result);
+				return false;
+			}
+		}
+
+		if (CreateDescriptorPool() == false)
+		{
+			return false;
+		}
+
+		allocInfo.descriptorPool = _descriptorPools.Back();
+		VkResult result = vkAllocateDescriptorSets(_device, &allocInfo, descriptorSet);
+		if (result != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to allocate a descriptor set! (VkResult: {})", (int32_t)result);
+			return false;
+		}
+
+		*descriptorPool = allocInfo.descriptorPool;
+		return true;
+	}
+
+	/// @brief A pool more, for when the others are full
+	/// @return
+	bool VulkanRhiDevice::CreateDescriptorPool()
+	{
+		// Room for the BindGroups of most scenes in one pool. They are sized by what a BindGroup holds: uniform buffers, textures and their samplers.
+		constexpr uint32_t SetCount = 1024;
+
+		VkDescriptorPoolSize poolSizes[4];
+
+		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
+		poolSizes[0].descriptorCount = SetCount * 2;
+
+		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
+		poolSizes[1].descriptorCount = SetCount;
+
+		poolSizes[2].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
+		poolSizes[2].descriptorCount = SetCount;
+
+		poolSizes[3].type = VK_DESCRIPTOR_TYPE_SAMPLER;
+		poolSizes[3].descriptorCount = SetCount;
+
+		VkDescriptorPoolCreateInfo descriptorPoolInfo = {};
+		descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
+		descriptorPoolInfo.poolSizeCount = 4;
+		descriptorPoolInfo.pPoolSizes = poolSizes;
+		descriptorPoolInfo.maxSets = SetCount;
+		descriptorPoolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
+
+		VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
+		if (vkCreateDescriptorPool(_device, &descriptorPoolInfo, nullptr, &descriptorPool) != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to create descriptor pool!");
+			return false;
+		}
+
+		_descriptorPools.PushBack(descriptorPool);
+		return true;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -341,9 +420,9 @@ namespace hod::inline rhi
 	}
 
 	/// @brief
-	void VulkanRhiDevice::DeferDestroy(VkDescriptorSet descriptorSet)
+	void VulkanRhiDevice::DeferDestroy(VkDescriptorSet descriptorSet, VkDescriptorPool descriptorPool)
 	{
-		_descriptorSetsToDestroy[_frameIndex].PushBack(descriptorSet);
+		_descriptorSetsToDestroy[_frameIndex].PushBack({descriptorSet, descriptorPool});
 	}
 
 	/// @brief
@@ -398,9 +477,9 @@ namespace hod::inline rhi
 		}
 		_buffersToDestroy[frameIndex].Clear();
 
-		for (VkDescriptorSet descriptorSet : _descriptorSetsToDestroy[frameIndex])
+		for (const DeferredDescriptorSet& deferredDescriptorSet : _descriptorSetsToDestroy[frameIndex])
 		{
-			vkFreeDescriptorSets(_device, _descriptorPool, 1, &descriptorSet);
+			vkFreeDescriptorSets(_device, deferredDescriptorSet.descriptorPool, 1, &deferredDescriptorSet.descriptorSet);
 		}
 		_descriptorSetsToDestroy[frameIndex].Clear();
 
@@ -463,7 +542,7 @@ namespace hod::inline rhi
 			return false;
 		}
 
-		if (CreateCommandPool() == false)
+		if (CreateCommandPool() == false || CreateDescriptorPool() == false)
 		{
 			return false;
 		}
@@ -785,33 +864,6 @@ namespace hod::inline rhi
 		if (vkCreateCommandPool(_device, &poolInfo, nullptr, &_commandPool) != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to create command pool!");
-			return false;
-		}
-
-		VkDescriptorPoolSize poolSizes[4];
-
-		poolSizes[0].type = VK_DESCRIPTOR_TYPE_UNIFORM_BUFFER_DYNAMIC;
-		poolSizes[0].descriptorCount = 150000; // TODO
-
-		poolSizes[1].type = VK_DESCRIPTOR_TYPE_COMBINED_IMAGE_SAMPLER;
-		poolSizes[1].descriptorCount = 150; // TODO
-
-		poolSizes[2].type = VK_DESCRIPTOR_TYPE_SAMPLED_IMAGE;
-		poolSizes[2].descriptorCount = 150; // TODO
-
-		poolSizes[3].type = VK_DESCRIPTOR_TYPE_SAMPLER;
-		poolSizes[3].descriptorCount = 150; // TODO
-
-		VkDescriptorPoolCreateInfo descriptorPoolInfo = {};
-		descriptorPoolInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_POOL_CREATE_INFO;
-		descriptorPoolInfo.poolSizeCount = 4;
-		descriptorPoolInfo.pPoolSizes = poolSizes;
-		descriptorPoolInfo.maxSets = 150000; // TODO
-		descriptorPoolInfo.flags = VK_DESCRIPTOR_POOL_CREATE_FREE_DESCRIPTOR_SET_BIT;
-
-		if (vkCreateDescriptorPool(_device, &descriptorPoolInfo, nullptr, &_descriptorPool) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to create descriptor pool!");
 			return false;
 		}
 

@@ -37,7 +37,7 @@ namespace hod::inline rhi
 		if (_descriptorSet != VK_NULL_HANDLE)
 		{
 			VulkanRhiDevice* rhiDevice = (VulkanRhiDevice*)RhiDevice::GetInstance();
-			rhiDevice->DeferDestroy(_descriptorSet);
+			rhiDevice->DeferDestroy(_descriptorSet, _descriptorPool);
 		}
 	}
 
@@ -73,13 +73,7 @@ namespace hod::inline rhi
 
 		VkDescriptorSetLayout descriptorSetLayout = graphicsPipeline.GetDescriptorSetLayout(set);
 
-		VkDescriptorSetAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_DESCRIPTOR_SET_ALLOCATE_INFO;
-		allocInfo.descriptorPool = rhiDevice->GetDescriptorPool();
-		allocInfo.descriptorSetCount = 1;
-		allocInfo.pSetLayouts = &descriptorSetLayout;
-
-		if (vkAllocateDescriptorSets(rhiDevice->GetVkDevice(), &allocInfo, &_descriptorSet) != VK_SUCCESS)
+		if (rhiDevice->AllocateDescriptorSet(descriptorSetLayout, &_descriptorSet, &_descriptorPool) == false)
 		{
 			OUTPUT_ERROR("Vulkan: BindGroup, unable to allocate the descriptor set!");
 			return false;
