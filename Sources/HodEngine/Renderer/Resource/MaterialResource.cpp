@@ -91,7 +91,15 @@ namespace hod::inline renderer
 		vertexInputs.PushBack(VertexInput(0, 0, VertexInput::Format::R32G32_SFloat));
 		vertexInputs.PushBack(VertexInput(1, 8, VertexInput::Format::R32G32_SFloat));
 
-		_material = Material::Create(vertexInputs.Data(), (uint32_t)vertexInputs.Size(), _vertexShader, _fragmentShader, _polygonMode, _topololy);
+		Material::CreateInfo createInfo;
+		createInfo._vertexInputs = vertexInputs.Data();
+		createInfo._vertexInputCount = (uint32_t)vertexInputs.Size();
+		createInfo._vertexShader = _vertexShader;
+		createInfo._fragmentShader = _fragmentShader;
+		createInfo._polygonMode = _polygonMode;
+		createInfo._topololy = _topololy;
+
+		_material = Material::Create(createInfo);
 		if (_material == nullptr)
 		{
 			OUTPUT_ERROR("MaterialResource::Initialize: load material failed");

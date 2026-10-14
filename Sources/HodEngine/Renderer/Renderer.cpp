@@ -170,7 +170,13 @@ namespace hod::inline renderer
 					return nullptr;
 				}
 
-				_defaultMaterial = Material::Create(vertexInput, 1, _defaultVertexShader, _defaultFragmentShader);
+				Material::CreateInfo createInfo;
+				createInfo._vertexInputs = vertexInput;
+				createInfo._vertexInputCount = 1;
+				createInfo._vertexShader = _defaultVertexShader;
+				createInfo._fragmentShader = _defaultFragmentShader;
+
+				_defaultMaterial = Material::Create(createInfo);
 				if (_defaultMaterial == nullptr)
 				{
 					DefaultAllocator::GetInstance().Delete(_defaultVertexShader);

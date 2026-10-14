@@ -51,8 +51,7 @@ namespace hod::inline renderer
 		const Material* GetBuiltinMaterial(BuiltinMaterial buildMaterial);
 		const MaterialInstance* GetBuiltinMaterialDefaultInstance(BuiltinMaterial buildMaterial);
 
-		UID CreateMaterial(const String& shaderName, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE,
-		                   bool useDepth = true);
+		UID CreateMaterial(const String& shaderName, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE);
 
 	private:
 		StaticArray<Material*, static_cast<uint32_t>(BuiltinMaterial::Count)> _builtinMaterials = {nullptr}; // c++23 std::to_underlying

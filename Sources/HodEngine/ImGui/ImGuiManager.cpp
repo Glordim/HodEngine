@@ -1016,7 +1016,13 @@ namespace hod::inline imgui
 				return false;
 			}
 
-			_material = Material::Create(vertexInput, 3, _vertexShader, _fragmentShader);
+			Material::CreateInfo createInfo;
+			createInfo._vertexInputs = vertexInput;
+			createInfo._vertexInputCount = 3;
+			createInfo._vertexShader = _vertexShader;
+			createInfo._fragmentShader = _fragmentShader;
+
+			_material = Material::Create(createInfo);
 			if (_material == nullptr)
 			{
 				DefaultAllocator::GetInstance().Delete(_material);

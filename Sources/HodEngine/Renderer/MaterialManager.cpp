@@ -192,8 +192,15 @@ namespace hod::inline renderer
 				return nullptr;
 			}
 
-			material = Material::Create(builtinMaterialSource._vertexInputs.Data(), (uint32_t)builtinMaterialSource._vertexInputs.Size(), vertexShader, fragmentShader,
-			                                    builtinMaterialSource._polygonMode, builtinMaterialSource._topology);
+			Material::CreateInfo createInfo;
+			createInfo._vertexInputs = builtinMaterialSource._vertexInputs.Data();
+			createInfo._vertexInputCount = (uint32_t)builtinMaterialSource._vertexInputs.Size();
+			createInfo._vertexShader = vertexShader;
+			createInfo._fragmentShader = fragmentShader;
+			createInfo._polygonMode = builtinMaterialSource._polygonMode;
+			createInfo._topololy = builtinMaterialSource._topology;
+
+			material = Material::Create(createInfo);
 
 			if (material == nullptr)
 			{
@@ -225,12 +232,11 @@ namespace hod::inline renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	UID MaterialManager::CreateMaterial(const String& shaderName, Material::PolygonMode polygonMode, Material::Topololy topololy, bool useDepth)
+	UID MaterialManager::CreateMaterial(const String& shaderName, Material::PolygonMode polygonMode, Material::Topololy topololy)
 	{
 		(void)shaderName;
 		(void)polygonMode;
 		(void)topololy;
-		(void)useDepth;
 		return UID::INVALID_UID; // TODO ?
 
 		/*
@@ -251,7 +257,12 @@ namespace hod::inline renderer
 		    return UID::INVALID_UID;
 		}
 
-		Material* material = Material::Create(nullptr, 0, vertexShader, fragmentShader, polygonMode, topololy, useDepth);
+		Material::CreateInfo createInfo;
+		createInfo._vertexShader = vertexShader;
+		createInfo._fragmentShader = fragmentShader;
+		createInfo._polygonMode = polygonMode;
+		createInfo._topololy = topololy;
+		Material* material = Material::Create(createInfo);
 		if (material == nullptr)
 		{
 		    DefaultAllocator::GetInstance().Delete(vertexShader);

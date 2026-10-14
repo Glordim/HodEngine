@@ -24,6 +24,7 @@ namespace hod::inline renderer
 	public:
 		using PolygonMode = GraphicsPipeline::PolygonMode;
 		using Topololy = GraphicsPipeline::Topololy;
+		using CreateInfo = GraphicsPipeline::CreateInfo; // what the pipeline of the Material is built from
 
 		/// @brief Where a uniform value lives: bytes [_offset, _offset + _size) of the uniform block '_block' of the set '_set'
 		struct UniformLocation
@@ -42,9 +43,8 @@ namespace hod::inline renderer
 		};
 
 	public:
-		// The shaders are not owned, they must outlive the Material
-		static Material* Create(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader,
-		                        PolygonMode polygonMode = PolygonMode::Fill, Topololy topololy = Topololy::TRIANGLE);
+		// The shaders are not owned, they must outlive the Material. The vertex inputs are only read during the call.
+		static Material* Create(const CreateInfo& createInfo);
 
 		Material() = default;
 		Material(const Material&) = delete;
@@ -68,7 +68,7 @@ namespace hod::inline renderer
 		void ReportUnsetTexture(const String& name) const;
 
 	private:
-		bool Build(const VertexInput* vertexInputs, uint32_t vertexInputCount, Shader* vertexShader, Shader* fragmentShader, PolygonMode polygonMode, Topololy topololy);
+		bool Build(const CreateInfo& createInfo);
 
 		bool ResolveUniform(const String& path, UniformLocation& location) const;
 
