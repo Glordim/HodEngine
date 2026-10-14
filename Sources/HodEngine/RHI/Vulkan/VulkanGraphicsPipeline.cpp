@@ -61,9 +61,9 @@ namespace hod::inline rhi
 	{
 		VulkanRhiDevice* rhiDevice = (VulkanRhiDevice*)RhiDevice::GetInstance();
 
-		for (const auto& pair : _pipelines)
+		if (_pipeline != VK_NULL_HANDLE)
 		{
-			rhiDevice->DeferDestroy(pair.second);
+			rhiDevice->DeferDestroy(_pipeline);
 		}
 
 		if (_pipelineLayout != VK_NULL_HANDLE)
@@ -82,7 +82,13 @@ namespace hod::inline rhi
 	/// @return
 	bool VulkanGraphicsPipeline::Build(const CreateInfo& createInfo)
 	{
-		if (VulkanGraphicsPipeline::FillNativeCreateInfo(_nativeCreateInfo, createInfo) == false)
+		if (SetTargetFormats(createInfo) == false)
+		{
+			return false;
+		}
+
+		NativeCreateInfo nativeCreateInfo;
+		if (VulkanGraphicsPipeline::FillNativeCreateInfo(nativeCreateInfo, createInfo) == false)
 		{
 			return false;
 		}
@@ -150,7 +156,7 @@ namespace hod::inline rhi
 			return false;
 		}
 
-		return CreatePipeline(rhiDevice->GetDummyRenderPass(), true);
+		return CreatePipeline(nativeCreateInfo);
 	}
 
 	bool VulkanGraphicsPipeline::FillNativeCreateInfo(NativeCreateInfo& nativeCreateInfo, const CreateInfo& createInfo)
@@ -429,7 +435,7 @@ namespace hod::inline rhi
 		colorBlending.flags = 0;
 		colorBlending.logicOpEnable = VK_FALSE;
 		colorBlending.logicOp = VK_LOGIC_OP_COPY; // Optional
-		colorBlending.attachmentCount = 1;
+		colorBlending.attachmentCount = createInfo._colorFormat != PixelFormat::None ? 1 : 0;
 		colorBlending.pAttachments = &colorBlendAttachment;
 		colorBlending.blendConstants[0] = 0.0f; // Optional
 		colorBlending.blendConstants[1] = 0.0f; // Optional
@@ -449,66 +455,52 @@ namespace hod::inline rhi
 		return true;
 	}
 
-	VkPipeline VulkanGraphicsPipeline::CreatePipeline(VkRenderPass renderPass, bool parent)
+	/// @brief Created with a render pass of its formats, it can be drawn in any render pass of these formats
+	/// @param nativeCreateInfo
+	/// @return
+	bool VulkanGraphicsPipeline::CreatePipeline(const NativeCreateInfo& nativeCreateInfo)
 	{
 		VulkanRhiDevice* rhiDevice = (VulkanRhiDevice*)RhiDevice::GetInstance();
+
+		VkRenderPass renderPass = rhiDevice->GetCompatibleRenderPass(GetColorFormat(), GetDepthFormat());
+		if (renderPass == VK_NULL_HANDLE)
+		{
+			return false;
+		}
 
 		VkGraphicsPipelineCreateInfo pipelineInfo = {};
 		pipelineInfo.sType = VK_STRUCTURE_TYPE_GRAPHICS_PIPELINE_CREATE_INFO;
 		pipelineInfo.flags = 0;
 		pipelineInfo.stageCount = 2;
-		pipelineInfo.pStages = _nativeCreateInfo._shaderStageInfos;
-		pipelineInfo.pVertexInputState = &_nativeCreateInfo._vertexInput;
-		pipelineInfo.pInputAssemblyState = &_nativeCreateInfo._inputAssembly;
-		pipelineInfo.pViewportState = &_nativeCreateInfo._viewport;
-		pipelineInfo.pRasterizationState = &_nativeCreateInfo._rasterizer;
-		pipelineInfo.pMultisampleState = &_nativeCreateInfo._multisampling;
-		pipelineInfo.pDepthStencilState = &_nativeCreateInfo._depthStencil;
-		pipelineInfo.pColorBlendState = &_nativeCreateInfo._colorBlend;
-		pipelineInfo.pDynamicState = &_nativeCreateInfo._dynamic;
+		pipelineInfo.pStages = nativeCreateInfo._shaderStageInfos;
+		pipelineInfo.pVertexInputState = &nativeCreateInfo._vertexInput;
+		pipelineInfo.pInputAssemblyState = &nativeCreateInfo._inputAssembly;
+		pipelineInfo.pViewportState = &nativeCreateInfo._viewport;
+		pipelineInfo.pRasterizationState = &nativeCreateInfo._rasterizer;
+		pipelineInfo.pMultisampleState = &nativeCreateInfo._multisampling;
+		pipelineInfo.pDepthStencilState = &nativeCreateInfo._depthStencil;
+		pipelineInfo.pColorBlendState = &nativeCreateInfo._colorBlend;
+		pipelineInfo.pDynamicState = &nativeCreateInfo._dynamic;
 		pipelineInfo.layout = _pipelineLayout;
 		pipelineInfo.renderPass = renderPass;
 		pipelineInfo.subpass = 0;
-		if (parent)
-		{
-			pipelineInfo.flags |= VK_PIPELINE_CREATE_ALLOW_DERIVATIVES_BIT;
-			pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
-			pipelineInfo.basePipelineIndex = -1;
-		}
-		else
-		{
-			pipelineInfo.flags |= VK_PIPELINE_CREATE_DERIVATIVE_BIT;
-			pipelineInfo.basePipelineHandle = _parent;
-			pipelineInfo.basePipelineIndex = -1;
-		}
+		pipelineInfo.basePipelineHandle = VK_NULL_HANDLE;
+		pipelineInfo.basePipelineIndex = -1;
 
-		VkPipeline pipeline;
-		if (vkCreateGraphicsPipelines(rhiDevice->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &pipeline) != VK_SUCCESS)
+		if (vkCreateGraphicsPipelines(rhiDevice->GetVkDevice(), VK_NULL_HANDLE, 1, &pipelineInfo, nullptr, &_pipeline) != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to create graphics pipeline!");
-			return VK_NULL_HANDLE;
+			_pipeline = VK_NULL_HANDLE;
+			return false;
 		}
-		_pipelines.PushBack({renderPass, pipeline});
-
-		if (parent)
-		{
-			_parent = pipeline;
-		}
-		return pipeline;
+		return true;
 	}
 
 	/// @brief
 	/// @return
-	VkPipeline VulkanGraphicsPipeline::GetVkPipeline(VkRenderPass renderPass)
+	VkPipeline VulkanGraphicsPipeline::GetVkPipeline() const
 	{
-		for (const auto& pair : _pipelines)
-		{
-			if (pair.first == renderPass)
-			{
-				return pair.second;
-			}
-		}
-		return CreatePipeline(renderPass, false);
+		return _pipeline;
 	}
 
 	/// @brief

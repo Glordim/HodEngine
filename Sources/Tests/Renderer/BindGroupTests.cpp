@@ -4,6 +4,8 @@
 
 #include "Shader/BindGroupTest_Fragment.hpp"
 #include "Shader/BindGroupTest_Vertex.hpp"
+#include "Shader/DepthOnlyTest_Fragment.hpp"
+#include "Shader/DepthOnlyTest_Vertex.hpp"
 
 #include <HodEngine/Core/Memory/DefaultAllocator.hpp>
 #include <HodEngine/Core/StaticArray.hpp>
@@ -233,7 +235,10 @@ protected:
 		draw();
 
 		_commandBuffer->EndRenderPass();
-		_frameTexture->CaptureReadback(_commandBuffer);
+		if (_frameTexture != nullptr) // a target without color has nothing to read back
+		{
+			_frameTexture->CaptureReadback(_commandBuffer);
+		}
 		_commandBuffer->EndRecord();
 
 		Fence* fence = rhiDevice->CreateFence();
@@ -787,4 +792,129 @@ TEST_F(DepthRender, CloseLayersSortThroughTheEditorDepthRange)
 		drawLayer(0.1f, 0);
 	});
 	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Red));
+}
+
+// ============================================================================
+// Render targets without a color or a depth texture, and the pipelines created for them
+// ============================================================================
+
+class TargetFormatRender : public BindGroupRender
+{
+protected:
+	// Replaces the render target RenderFrame draws into
+	void UseRenderTarget(PixelFormat colorFormat, PixelFormat depthFormat)
+	{
+		DefaultAllocator::GetInstance().Delete(_renderTarget);
+
+		Texture::CreateInfo createInfo;
+		createInfo._allowReadWrite = true;
+		_renderTarget = RhiDevice::GetInstance()->CreateRenderTarget();
+		ASSERT_TRUE(_renderTarget->Init(DefaultTargetSize, DefaultTargetSize, createInfo, colorFormat, depthFormat));
+	}
+
+	GraphicsPipeline* CreatePipelineFor(PixelFormat colorFormat, PixelFormat depthFormat, bool depthWrite = false)
+	{
+		GraphicsPipeline::CreateInfo createInfo;
+		createInfo._colorFormat = colorFormat;
+		createInfo._depthFormat = depthFormat;
+		createInfo._depthTest = depthWrite;
+		createInfo._depthWrite = depthWrite;
+		return CreatePipeline(createInfo);
+	}
+};
+
+// What a post-process pass draws into
+TEST_F(TargetFormatRender, ColorOnlyTarget)
+{
+	UseRenderTarget(PixelFormat::R8G8B8A8_UNorm, PixelFormat::None);
+	_graphicsPipeline = CreatePipelineFor(PixelFormat::R8G8B8A8_UNorm, PixelFormat::None);
+	ASSERT_NE(_graphicsPipeline, nullptr);
+
+	BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White}));
+	BindGroup* material = CreateMaterialBindGroup(CreateColorBlocks({Red}), CreateWhiteTexture());
+
+	RenderFrame([&]() {
+		SetBindGroup(0, global, 0);
+		SetBindGroup(1, material, 0);
+		DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f);
+	});
+
+	EXPECT_EQ(_renderTarget->GetDepthTexture(), nullptr);
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Red));
+}
+
+// What a shadow map is drawn into, with shaders that write no color. Nothing to read back: the graphics API validation is what checks it.
+TEST_F(TargetFormatRender, DepthOnlyTarget)
+{
+	UseRenderTarget(PixelFormat::None, PixelFormat::D16_UNorm);
+
+	RhiDevice* rhiDevice = RhiDevice::GetInstance();
+
+	Shader* vertexShader = rhiDevice->CreateShader(Shader::ShaderType::Vertex);
+	ASSERT_TRUE(vertexShader->LoadFromIR(DepthOnlyTest_Vertex, DepthOnlyTest_Vertex_size, DepthOnlyTest_Vertex_reflection, DepthOnlyTest_Vertex_reflection_size));
+	Shader* fragmentShader = rhiDevice->CreateShader(Shader::ShaderType::Fragment);
+	ASSERT_TRUE(
+		fragmentShader->LoadFromIR(DepthOnlyTest_Fragment, DepthOnlyTest_Fragment_size, DepthOnlyTest_Fragment_reflection, DepthOnlyTest_Fragment_reflection_size));
+
+	VertexInput vertexInput(0, 0, VertexInput::Format::R32G32_SFloat);
+
+	GraphicsPipeline::CreateInfo createInfo;
+	createInfo._vertexInputs = &vertexInput;
+	createInfo._vertexInputCount = 1;
+	createInfo._vertexShader = vertexShader;
+	createInfo._fragmentShader = fragmentShader;
+	createInfo._colorFormat = PixelFormat::None;
+	createInfo._depthTest = true;
+	createInfo._depthWrite = true;
+	_graphicsPipeline = rhiDevice->CreateGraphicsPipeline(createInfo);
+	ASSERT_NE(_graphicsPipeline, nullptr);
+	_graphicsPipelines.PushBack(_graphicsPipeline);
+
+	// The shaders are no longer needed once the pipeline is created
+	DefaultAllocator::GetInstance().Delete(vertexShader);
+	DefaultAllocator::GetInstance().Delete(fragmentShader);
+
+	RenderFrame([&]() { DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f); });
+
+	EXPECT_EQ(_renderTarget->GetColorTexture(), nullptr);
+}
+
+TEST_F(TargetFormatRender, PipelineOfOtherFormatsIsNotBound)
+{
+	GraphicsPipeline* colorOnly = CreatePipelineFor(PixelFormat::R8G8B8A8_UNorm, PixelFormat::None);
+	ASSERT_NE(colorOnly, nullptr);
+
+	// The target has a depth texture, the pipeline is not created for one
+	RenderFrame([&]() { _commandBuffer->SetGraphicsPipeline(colorOnly); });
+
+	_expectedErrorCount = 1;
+}
+
+TEST_F(TargetFormatRender, DepthStatesNeedADepthFormat)
+{
+	StaticArray<VertexInput, 2> vertexInputs = {
+		VertexInput(0, 0, VertexInput::Format::R32G32_SFloat),
+		VertexInput(1, 8, VertexInput::Format::R32G32_SFloat),
+	};
+
+	GraphicsPipeline::CreateInfo createInfo;
+	createInfo._vertexInputs = vertexInputs.Data();
+	createInfo._vertexInputCount = (uint32_t)vertexInputs.Size();
+	createInfo._vertexShader = _vertexShader;
+	createInfo._fragmentShader = _fragmentShader;
+	createInfo._depthTest = true;
+	createInfo._depthFormat = PixelFormat::None;
+
+	EXPECT_EQ(RhiDevice::GetInstance()->CreateGraphicsPipeline(createInfo), nullptr);
+
+	_expectedErrorCount = 1;
+}
+
+TEST_F(TargetFormatRender, RenderTargetNeedsATexture)
+{
+	RenderTarget* renderTarget = RhiDevice::GetInstance()->CreateRenderTarget();
+	EXPECT_FALSE(renderTarget->Init(DefaultTargetSize, DefaultTargetSize, Texture::CreateInfo(), PixelFormat::None, PixelFormat::None));
+	DefaultAllocator::GetInstance().Delete(renderTarget);
+
+	_expectedErrorCount = 1;
 }

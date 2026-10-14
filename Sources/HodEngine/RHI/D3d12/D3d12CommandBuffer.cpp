@@ -87,6 +87,8 @@ namespace hod::inline rhi
 	{
 		D3D12_CPU_DESCRIPTOR_HANDLE renderTargetView = {};
 		D3D12_CPU_DESCRIPTOR_HANDLE depthStencilView = {};
+		bool                        hasColor = false;
+		bool                        hasDepth = false;
 		Vector2                     resolution;
 
 		_renderTargetTexture = nullptr;
@@ -94,18 +96,28 @@ namespace hod::inline rhi
 
 		if (renderTarget != nullptr)
 		{
-			_renderTargetTexture = static_cast<D3d12Texture*>(renderTarget->GetColorTexture());
-			D3d12Texture* depthTexture = static_cast<D3d12Texture*>(renderTarget->GetDepthTexture());
-			if (_renderTargetTexture == nullptr || depthTexture == nullptr)
+			if (renderTarget->IsValid() == false)
 			{
-				_renderTargetTexture = nullptr;
 				return false;
 			}
 
-			_renderTargetTexture->Transition(_commandList.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET);
-			renderTargetView = _renderTargetTexture->GetRenderTargetView();
-			depthStencilView = depthTexture->GetDepthStencilView();
+			_renderTargetTexture = static_cast<D3d12Texture*>(renderTarget->GetColorTexture());
+			if (_renderTargetTexture != nullptr)
+			{
+				_renderTargetTexture->Transition(_commandList.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET);
+				renderTargetView = _renderTargetTexture->GetRenderTargetView();
+				hasColor = true;
+			}
+
+			D3d12Texture* depthTexture = static_cast<D3d12Texture*>(renderTarget->GetDepthTexture());
+			if (depthTexture != nullptr)
+			{
+				depthStencilView = depthTexture->GetDepthStencilView();
+				hasDepth = true;
+			}
+
 			resolution = renderTarget->GetResolution();
+			SetRenderPassFormats(renderTarget->GetColorFormat(), renderTarget->GetDepthFormat());
 		}
 		else
 		{
@@ -119,14 +131,23 @@ namespace hod::inline rhi
 			_presentationSurface->TransitionCurrentBackBuffer(_commandList.Get(), D3D12_RESOURCE_STATE_RENDER_TARGET);
 			renderTargetView = _presentationSurface->GetCurrentRenderTargetView();
 			depthStencilView = _presentationSurface->GetDepthStencilView();
+			hasColor = true;
+			hasDepth = true;
 			resolution = _presentationSurface->GetResolution();
+			SetRenderPassFormats(PresentationSurface::ColorFormat, PresentationSurface::DepthFormat);
 		}
 
-		_commandList->OMSetRenderTargets(1, &renderTargetView, FALSE, &depthStencilView);
+		_commandList->OMSetRenderTargets(hasColor ? 1 : 0, hasColor ? &renderTargetView : nullptr, FALSE, hasDepth ? &depthStencilView : nullptr);
 
-		const float clearColor[4] = {color.r, color.g, color.b, color.a};
-		_commandList->ClearRenderTargetView(renderTargetView, clearColor, 0, nullptr);
-		_commandList->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr); // the farthest
+		if (hasColor)
+		{
+			const float clearColor[4] = {color.r, color.g, color.b, color.a};
+			_commandList->ClearRenderTargetView(renderTargetView, clearColor, 0, nullptr);
+		}
+		if (hasDepth)
+		{
+			_commandList->ClearDepthStencilView(depthStencilView, D3D12_CLEAR_FLAG_DEPTH, 1.0f, 0, 0, nullptr); // the farthest
+		}
 
 		// Clip space has +y going up on D3D12, there is no need to flip the viewport as the Vulkan backend does
 		D3D12_VIEWPORT d3d12Viewport = {};
@@ -211,6 +232,11 @@ namespace hod::inline rhi
 	/// @param graphicsPipeline
 	void D3d12CommandBuffer::SetGraphicsPipeline(const GraphicsPipeline* graphicsPipeline)
 	{
+		if (IsCompatible(*graphicsPipeline) == false)
+		{
+			return;
+		}
+
 		const D3d12GraphicsPipeline* d3d12GraphicsPipeline = static_cast<const D3d12GraphicsPipeline*>(graphicsPipeline);
 		if (_graphicsPipeline != d3d12GraphicsPipeline)
 		{

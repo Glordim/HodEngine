@@ -5,6 +5,7 @@
 #include <cstddef>
 
 #include "HodEngine/Math/Color.hpp"
+#include "HodEngine/RHI/Enums.hpp"
 #include "HodEngine/Math/Vector2.hpp"
 
 namespace hod::inline rhi

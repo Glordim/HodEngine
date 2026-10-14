@@ -14,9 +14,7 @@ namespace hod::inline rhi
 	class HOD_RHI_API VulkanTexture : public Texture
 	{
 	public:
-		// Of every depth buffer, hence of the depth attachment of every render pass. Always supported, and linear depth
-		// (orthographic projections) needs no more. No stencil, nothing uses it.
-		static constexpr VkFormat DepthFormat = VK_FORMAT_D16_UNORM;
+		static VkFormat ToVkFormat(PixelFormat format);
 
 		VulkanTexture();
 		~VulkanTexture() override;

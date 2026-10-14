@@ -53,7 +53,5 @@ namespace hod::inline rhi
 
 		VkCommandBuffer _vkCommandBuffer = VK_NULL_HANDLE;
 
-		VkRenderPass _currentRenderPass = VK_NULL_HANDLE;
-
 	};
 }

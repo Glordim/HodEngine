@@ -52,6 +52,11 @@ namespace hod::inline rhi
 	/// @return
 	bool D3d12GraphicsPipeline::Build(const CreateInfo& createInfo)
 	{
+		if (SetTargetFormats(createInfo) == false)
+		{
+			return false;
+		}
+
 		const VertexInput* vertexInputs = createInfo._vertexInputs;
 		uint32_t           vertexInputCount = createInfo._vertexInputCount;
 		Shader*            vertexShader = createInfo._vertexShader;
@@ -194,8 +199,7 @@ namespace hod::inline rhi
 		pipelineStateDesc.DepthStencilState.DepthWriteMask = createInfo._depthWrite ? D3D12_DEPTH_WRITE_MASK_ALL : D3D12_DEPTH_WRITE_MASK_ZERO;
 		pipelineStateDesc.DepthStencilState.DepthFunc = createInfo._depthTest ? D3D12_COMPARISON_FUNC_LESS : D3D12_COMPARISON_FUNC_ALWAYS;
 		pipelineStateDesc.DepthStencilState.StencilEnable = FALSE;
-		// Every render target and presentation surface has a depth buffer of this format, see D3d12Texture::BuildDepth
-		pipelineStateDesc.DSVFormat = D3d12Texture::DepthFormat;
+		pipelineStateDesc.DSVFormat = D3d12Texture::ToDxgiFormat(createInfo._depthFormat);
 
 		// Color blending
 		D3D12_RENDER_TARGET_BLEND_DESC& renderTargetBlend = pipelineStateDesc.BlendState.RenderTarget[0];
@@ -230,9 +234,9 @@ namespace hod::inline rhi
 		pipelineStateDesc.BlendState.AlphaToCoverageEnable = FALSE;
 		pipelineStateDesc.BlendState.IndependentBlendEnable = FALSE;
 
-		// Every render target and presentation surface has this format, one pipeline state serves them all
-		pipelineStateDesc.NumRenderTargets = 1;
-		pipelineStateDesc.RTVFormats[0] = DXGI_FORMAT_R8G8B8A8_UNORM;
+		// The pipeline state serves every render target of these formats
+		pipelineStateDesc.NumRenderTargets = createInfo._colorFormat != PixelFormat::None ? 1 : 0;
+		pipelineStateDesc.RTVFormats[0] = D3d12Texture::ToDxgiFormat(createInfo._colorFormat);
 
 		if (FAILED(rhiDevice->GetDevice()->CreateGraphicsPipelineState(&pipelineStateDesc, IID_PPV_ARGS(&_pipelineState))))
 		{

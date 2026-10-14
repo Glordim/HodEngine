@@ -50,6 +50,19 @@ namespace hod::inline rhi
 		}
 	}
 
+	/// @brief
+	/// @param format
+	/// @return VK_FORMAT_UNDEFINED for PixelFormat::None
+	VkFormat VulkanTexture::ToVkFormat(PixelFormat format)
+	{
+		switch (format)
+		{
+			case PixelFormat::R8G8B8A8_UNorm: return VK_FORMAT_R8G8B8A8_UNORM;
+			case PixelFormat::D16_UNorm: return VK_FORMAT_D16_UNORM;
+			default: return VK_FORMAT_UNDEFINED;
+		}
+	}
+
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
@@ -79,7 +92,7 @@ namespace hod::inline rhi
 			/*createInfo._allowReadWrite ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : */ VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 		VkImageTiling imageTiling = /*createInfo._allowReadWrite ? VK_IMAGE_TILING_LINEAR : */ VK_IMAGE_TILING_OPTIMAL;
 
-		if (rhiDevice->CreateImage(width, height, DepthFormat, imageTiling, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, memoryPropertyFlags, &_textureImage,
+		if (rhiDevice->CreateImage(width, height, ToVkFormat(PixelFormat::D16_UNorm), imageTiling, VK_IMAGE_USAGE_DEPTH_STENCIL_ATTACHMENT_BIT, memoryPropertyFlags, &_textureImage,
 									&_textureImageMemory) == false)
 		{
 			goto exit;
@@ -93,7 +106,7 @@ namespace hod::inline rhi
 		}
 			*/
 
-		if (rhiDevice->CreateImageView(_textureImage, DepthFormat, VK_IMAGE_ASPECT_DEPTH_BIT, &_textureImageView) == false)
+		if (rhiDevice->CreateImageView(_textureImage, ToVkFormat(PixelFormat::D16_UNorm), VK_IMAGE_ASPECT_DEPTH_BIT, &_textureImageView) == false)
 		{
 			goto exit;
 		}

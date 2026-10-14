@@ -66,7 +66,13 @@ namespace hod::inline rhi
 		const VulkanGpuDevice* GetVkGpuDevice() const;
 		VkDescriptorPool   GetDescriptorPool() const;
 		VkCommandPool      GetCommandPool() const;
-		VkRenderPass       GetDummyRenderPass() const;
+
+		// One color attachment of colorFormat and one depth attachment of depthFormat, either of them PixelFormat::None, both cleared at its start.
+		// The color is left in colorFinalLayout.
+		bool CreateRenderPass(PixelFormat colorFormat, PixelFormat depthFormat, VkImageLayout colorFinalLayout, VkRenderPass* renderPass);
+		// A render pass of these formats, owned by the device. The render passes of the same formats are all compatible with it:
+		// a pipeline created with it can be drawn in any of them.
+		VkRenderPass GetCompatibleRenderPass(PixelFormat colorFormat, PixelFormat depthFormat);
 
 		VkQueue GetPresentQueue() const
 		{
@@ -131,13 +137,20 @@ namespace hod::inline rhi
 		VkQueue          _presentQueue = VK_NULL_HANDLE;
 		VkCommandPool    _commandPool = VK_NULL_HANDLE;
 		VkDescriptorPool _descriptorPool = VK_NULL_HANDLE;
-		VkRenderPass     _dummyRenderPass = VK_NULL_HANDLE;
 
 		const VulkanGpuDevice*  _selectedGpu = nullptr;
 		const VulkanGpuDevice*  _recommandedGpu = nullptr;
 		Vector<VulkanGpuDevice> _availableGpu;
 
 		VmaAllocator _vmaAllocator = VK_NULL_HANDLE;
+
+		struct CompatibleRenderPass
+		{
+			PixelFormat  _colorFormat = PixelFormat::None;
+			PixelFormat  _depthFormat = PixelFormat::None;
+			VkRenderPass _renderPass = VK_NULL_HANDLE;
+		};
+		Vector<CompatibleRenderPass> _compatibleRenderPasses;
 
 		struct DeferredImage
 		{

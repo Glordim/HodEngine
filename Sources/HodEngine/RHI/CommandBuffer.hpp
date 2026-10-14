@@ -6,6 +6,7 @@
 #include "HodEngine/Core/Vector.hpp"
 
 #include "HodEngine/Math/Color.hpp"
+#include "HodEngine/RHI/Enums.hpp"
 #include "HodEngine/RHI/Shader.hpp"
 
 namespace hod::inline math
@@ -61,7 +62,16 @@ namespace hod::inline rhi
 
 		virtual void Present(PresentationSurface* presentationSurface) = 0;
 
+	protected:
+		// The formats of the render pass being recorded, see StartRenderPass
+		void SetRenderPassFormats(PixelFormat colorFormat, PixelFormat depthFormat);
+		// Whether the pipeline was created for the formats of the render pass being recorded. Reports it when not.
+		bool IsCompatible(const GraphicsPipeline& graphicsPipeline) const;
+
 	private:
 		Vector<Buffer*>           _bufferToDelete;
+
+		PixelFormat _renderPassColorFormat = PixelFormat::None;
+		PixelFormat _renderPassDepthFormat = PixelFormat::None;
 	};
 }

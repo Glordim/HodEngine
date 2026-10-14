@@ -101,12 +101,26 @@ namespace hod::inline rhi
 	/// @param color
 	bool VulkanCommandBuffer::StartRenderPass(RenderTarget* renderTarget, PresentationSurface* presentationSurface, const Color& color)
 	{
-		VkClearValue clearValues[2];
-		clearValues[0].color.float32[0] = color.r;
-		clearValues[0].color.float32[1] = color.g;
-		clearValues[0].color.float32[2] = color.b;
-		clearValues[0].color.float32[3] = color.a;
-		clearValues[1].depthStencil = {1.0f, 0}; // the farthest
+		PixelFormat colorFormat = renderTarget != nullptr ? renderTarget->GetColorFormat() : PresentationSurface::ColorFormat;
+		PixelFormat depthFormat = renderTarget != nullptr ? renderTarget->GetDepthFormat() : PresentationSurface::DepthFormat;
+		SetRenderPassFormats(colorFormat, depthFormat);
+
+		// In the order of the attachments of the render pass
+		VkClearValue clearValues[2] = {};
+		uint32_t     clearValueCount = 0;
+		if (colorFormat != PixelFormat::None)
+		{
+			clearValues[clearValueCount].color.float32[0] = color.r;
+			clearValues[clearValueCount].color.float32[1] = color.g;
+			clearValues[clearValueCount].color.float32[2] = color.b;
+			clearValues[clearValueCount].color.float32[3] = color.a;
+			++clearValueCount;
+		}
+		if (depthFormat != PixelFormat::None)
+		{
+			clearValues[clearValueCount].depthStencil = {1.0f, 0}; // the farthest
+			++clearValueCount;
+		}
 
 		VkRenderPassBeginInfo renderPassInfo = {};
 		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_BEGIN_INFO;
@@ -129,10 +143,8 @@ namespace hod::inline rhi
 			renderPassInfo.renderArea.extent.width = (uint32_t)resolution.GetX();
 			renderPassInfo.renderArea.extent.height = (uint32_t)resolution.GetY();
 		}
-		renderPassInfo.clearValueCount = 2;
+		renderPassInfo.clearValueCount = clearValueCount;
 		renderPassInfo.pClearValues = clearValues;
-
-		_currentRenderPass = renderPassInfo.renderPass;
 
 		vkCmdBeginRenderPass(_vkCommandBuffer, &renderPassInfo, VK_SUBPASS_CONTENTS_INLINE);
 
@@ -159,7 +171,6 @@ namespace hod::inline rhi
 	bool VulkanCommandBuffer::EndRenderPass()
 	{
 		vkCmdEndRenderPass(_vkCommandBuffer);
-		_currentRenderPass = VK_NULL_HANDLE;
 		return true; // TODO cant fail
 	}
 
@@ -204,11 +215,16 @@ namespace hod::inline rhi
 	/// @param graphicsPipeline
 	void VulkanCommandBuffer::SetGraphicsPipeline(const GraphicsPipeline* graphicsPipeline)
 	{
+		if (IsCompatible(*graphicsPipeline) == false)
+		{
+			return;
+		}
+
 		const VulkanGraphicsPipeline* vulkanGraphicsPipeline = static_cast<const VulkanGraphicsPipeline*>(graphicsPipeline);
 		if (_graphicsPipeline != vulkanGraphicsPipeline)
 		{
 			_graphicsPipeline = vulkanGraphicsPipeline;
-			vkCmdBindPipeline(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, const_cast<VulkanGraphicsPipeline*>(_graphicsPipeline)->GetVkPipeline(_currentRenderPass));
+			vkCmdBindPipeline(_vkCommandBuffer, VK_PIPELINE_BIND_POINT_GRAPHICS, _graphicsPipeline->GetVkPipeline());
 		}
 	}
 

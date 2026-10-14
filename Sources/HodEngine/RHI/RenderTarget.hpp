@@ -12,7 +12,7 @@ namespace hod::inline rhi
 {
 	class CommandBuffer;
 
-	/// @brief Textures to draw into, a color one and its depth buffer (cleared to the farthest by each render pass). Always the same ones: drawing into it every frame and reading it back
+	/// @brief Textures to draw into: a color one, a depth one (cleared to the farthest by each render pass), or both. Always the same ones: drawing into it every frame and reading it back
 	/// on the CPU without waiting is the job of renderer::ReadbackRenderTarget.
 	class HOD_RHI_API RenderTarget
 	{
@@ -22,10 +22,15 @@ namespace hod::inline rhi
 
 		Vector2 GetResolution() const;
 
-		virtual bool Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo);
+		// PixelFormat::None for no texture of that kind, not for both. The pipelines drawn into it must be created for these formats.
+		virtual bool Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo, PixelFormat colorFormat = PixelFormat::R8G8B8A8_UNorm,
+		                  PixelFormat depthFormat = PixelFormat::D16_UNorm);
 
 		Texture* GetColorTexture() const;
 		Texture* GetDepthTexture() const;
+
+		PixelFormat GetColorFormat() const;
+		PixelFormat GetDepthFormat() const;
 
 		virtual void PrepareForWrite(const CommandBuffer* commandBuffer);
 		virtual void PrepareForRead(const CommandBuffer* commandBuffer);
@@ -38,6 +43,9 @@ namespace hod::inline rhi
 	protected:
 		Texture* _colorTexture = nullptr;
 		Texture* _depthTexture = nullptr;
+
+		PixelFormat _colorFormat = PixelFormat::None;
+		PixelFormat _depthFormat = PixelFormat::None;
 
 	protected:
 		Vector2 _resolution; // TODO Vector2_Int ?

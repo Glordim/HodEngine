@@ -16,7 +16,8 @@ namespace hod::inline rhi
 
 		bool Build(const CreateInfo& createInfo) override;
 
-		VkPipeline       GetVkPipeline(VkRenderPass renderPass);
+		// Drawn in any render pass of the formats of the pipeline, see VulkanRhiDevice::GetCompatibleRenderPass
+		VkPipeline       GetVkPipeline() const;
 		VkPipelineLayout GetPipelineLayout() const;
 		VkDescriptorSetLayout GetDescriptorSetLayout(uint32_t set) const;
 		uint32_t              GetSetSpace(uint32_t set) const;
@@ -38,13 +39,12 @@ namespace hod::inline rhi
 			VkPipelineColorBlendStateCreateInfo       _colorBlend;
 			VkDynamicState                            _dynamicStates[2];
 			VkPipelineDynamicStateCreateInfo          _dynamic;
-			VkGraphicsPipelineCreateInfo              _pipelineInfo;
 		};
 
 	private:
 		static bool FillNativeCreateInfo(NativeCreateInfo& nativeCreateInfo, const CreateInfo& createInfo);
 		static bool BuildDescriptorSetLayout(const ShaderSetDescriptor& setDescriptor, VkDescriptorSetLayout* descriptorSetLayout);
-		VkPipeline  CreatePipeline(VkRenderPass renderPass, bool parent);
+		bool        CreatePipeline(const NativeCreateInfo& nativeCreateInfo);
 
 	private:
 		VkPipelineLayout _pipelineLayout = VK_NULL_HANDLE;
@@ -52,11 +52,6 @@ namespace hod::inline rhi
 		Vector<uint32_t>              _setSpaces;            // indexed by set
 		uint32_t         _pushConstantSize = 0;
 
-		NativeCreateInfo _nativeCreateInfo; // Store all create info to be able to create new Pipeline with different renderpass (may be removed if use DynamicRendering VK 1.3)
-
-		VkPipeline                                  _parent = VK_NULL_HANDLE;
-		Vector<std::pair<VkRenderPass, VkPipeline>> _pipelines;
+		VkPipeline _pipeline = VK_NULL_HANDLE;
 	};
-
-	constexpr size_t toto = sizeof(VulkanGraphicsPipeline);
 }

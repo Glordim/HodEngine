@@ -49,7 +49,12 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	bool MetalGraphicsPipeline::Build(const CreateInfo& createInfo)
 	{
-		// TODDO _polygonMode, _topololy, _depthTest, _depthWrite
+		if (SetTargetFormats(createInfo) == false)
+		{
+			return false;
+		}
+
+		// TODDO _polygonMode, _topololy, _depthTest, _depthWrite, and the pixel formats of the descriptor from _colorFormat and _depthFormat
 
 		_cullMode = createInfo._cullMode; // set with the pipeline, see MetalCommandBuffer::SetGraphicsPipeline
 

@@ -73,6 +73,19 @@ namespace hod::inline rhi
 		_height = 0;
 	}
 
+	/// @brief
+	/// @param format
+	/// @return
+	DXGI_FORMAT D3d12Texture::ToDxgiFormat(PixelFormat format)
+	{
+		switch (format)
+		{
+			case PixelFormat::R8G8B8A8_UNorm: return DXGI_FORMAT_R8G8B8A8_UNORM;
+			case PixelFormat::D16_UNorm: return DXGI_FORMAT_D16_UNORM;
+			default: return DXGI_FORMAT_UNKNOWN;
+		}
+	}
+
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
@@ -201,7 +214,7 @@ namespace hod::inline rhi
 		D3d12RhiDevice* rhiDevice = D3d12RhiDevice::GetInstance();
 
 		// Only ever drawn into: it stays in the state that takes
-		if (CreateResource(width, height, DepthFormat, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE,
+		if (CreateResource(width, height, ToDxgiFormat(PixelFormat::D16_UNorm), D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE,
 		                   D3D12_RESOURCE_STATE_DEPTH_WRITE) == false)
 		{
 			return false;

@@ -47,4 +47,15 @@ namespace hod::inline rhi
 	};
 	REFLECTED_ENUM2(HOD_RHI_API, CullMode);
 
+	/// @brief Format of what a render pass draws into, see RenderTarget::Init and GraphicsPipeline::CreateInfo.
+	/// The depth is 16 bits: always supported, and linear depth (orthographic projections) needs no more. No stencil, nothing uses it.
+	enum class PixelFormat : uint8_t
+	{
+		None, // no attachment of that kind
+		R8G8B8A8_UNorm,
+		D16_UNorm,
+
+		Count,
+	};
+
 }

@@ -61,10 +61,11 @@ namespace hod::inline rhi
 			FlushDeferredDeletions(i);
 		}
 
-		if (_dummyRenderPass != VK_NULL_HANDLE)
+		for (const CompatibleRenderPass& compatibleRenderPass : _compatibleRenderPasses)
 		{
-			vkDestroyRenderPass(_device, _dummyRenderPass, nullptr);
+			vkDestroyRenderPass(_device, compatibleRenderPass._renderPass, nullptr);
 		}
+		_compatibleRenderPasses.Clear();
 
 		vmaDestroyAllocator(_vmaAllocator);
 
@@ -166,9 +167,125 @@ namespace hod::inline rhi
 		return _commandPool;
 	}
 
-	VkRenderPass VulkanRhiDevice::GetDummyRenderPass() const
+	/// @brief
+	/// @param colorFormat
+	/// @param depthFormat
+	/// @param colorFinalLayout
+	/// @param renderPass
+	/// @return
+	bool VulkanRhiDevice::CreateRenderPass(PixelFormat colorFormat, PixelFormat depthFormat, VkImageLayout colorFinalLayout, VkRenderPass* renderPass)
 	{
-		return _dummyRenderPass;
+		*renderPass = VK_NULL_HANDLE;
+
+		VkAttachmentDescription attachments[2] = {};
+		uint32_t                attachmentCount = 0;
+
+		VkAttachmentReference colorAttachmentRef = {};
+		VkAttachmentReference depthAttachmentRef = {};
+
+		VkSubpassDescription subpass = {};
+		subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
+
+		if (colorFormat != PixelFormat::None)
+		{
+			VkAttachmentDescription& colorAttachment = attachments[attachmentCount];
+			colorAttachment.format = VulkanTexture::ToVkFormat(colorFormat);
+			colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+			colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+			colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
+			colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+			colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			colorAttachment.finalLayout = colorFinalLayout;
+
+			colorAttachmentRef.attachment = attachmentCount;
+			colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
+			subpass.colorAttachmentCount = 1;
+			subpass.pColorAttachments = &colorAttachmentRef;
+			++attachmentCount;
+		}
+
+		// Not kept after the render pass
+		if (depthFormat != PixelFormat::None)
+		{
+			VkAttachmentDescription& depthAttachment = attachments[attachmentCount];
+			depthAttachment.format = VulkanTexture::ToVkFormat(depthFormat);
+			depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
+			depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
+			depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
+			depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
+			depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
+			depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+
+			depthAttachmentRef.attachment = attachmentCount;
+			depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
+			subpass.pDepthStencilAttachment = &depthAttachmentRef;
+			++attachmentCount;
+		}
+
+		// The same in every render pass: unlike the layouts and the load and store operations, the dependencies take part in the compatibility
+		VkSubpassDependency dependencies[2] = {};
+
+		// What drew into the attachments, or read them, before they are cleared
+		dependencies[0].srcSubpass = VK_SUBPASS_EXTERNAL;
+		dependencies[0].dstSubpass = 0;
+		dependencies[0].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT | VK_PIPELINE_STAGE_LATE_FRAGMENT_TESTS_BIT |
+		                                  VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		dependencies[0].srcAccessMask = 0;
+		dependencies[0].dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
+		dependencies[0].dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
+
+		// What reads the color in a shader afterwards, when it is a render target
+		dependencies[1].srcSubpass = 0;
+		dependencies[1].dstSubpass = VK_SUBPASS_EXTERNAL;
+		dependencies[1].srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT;
+		dependencies[1].dstStageMask = VK_PIPELINE_STAGE_FRAGMENT_SHADER_BIT;
+		dependencies[1].srcAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT;
+		dependencies[1].dstAccessMask = VK_ACCESS_SHADER_READ_BIT;
+
+		VkRenderPassCreateInfo renderPassInfo = {};
+		renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
+		renderPassInfo.attachmentCount = attachmentCount;
+		renderPassInfo.pAttachments = attachments;
+		renderPassInfo.subpassCount = 1;
+		renderPassInfo.pSubpasses = &subpass;
+		renderPassInfo.dependencyCount = 2;
+		renderPassInfo.pDependencies = dependencies;
+
+		if (vkCreateRenderPass(_device, &renderPassInfo, nullptr, renderPass) != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to create render pass!");
+			return false;
+		}
+
+		return true;
+	}
+
+	/// @brief
+	/// @param colorFormat
+	/// @param depthFormat
+	/// @return
+	VkRenderPass VulkanRhiDevice::GetCompatibleRenderPass(PixelFormat colorFormat, PixelFormat depthFormat)
+	{
+		for (const CompatibleRenderPass& compatibleRenderPass : _compatibleRenderPasses)
+		{
+			if (compatibleRenderPass._colorFormat == colorFormat && compatibleRenderPass._depthFormat == depthFormat)
+			{
+				return compatibleRenderPass._renderPass;
+			}
+		}
+
+		// The final layout does not take part in the compatibility
+		CompatibleRenderPass compatibleRenderPass;
+		compatibleRenderPass._colorFormat = colorFormat;
+		compatibleRenderPass._depthFormat = depthFormat;
+		if (CreateRenderPass(colorFormat, depthFormat, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL, &compatibleRenderPass._renderPass) == false)
+		{
+			return VK_NULL_HANDLE;
+		}
+		_compatibleRenderPasses.PushBack(compatibleRenderPass);
+		return compatibleRenderPass._renderPass;
 	}
 
 	/*
@@ -360,71 +477,6 @@ namespace hod::inline rhi
 		{
 			return false;
 		}
-
-		// TODO
-		{
-			// Render pass
-			VkAttachmentDescription colorAttachment = {};
-			colorAttachment.format = VK_FORMAT_R8G8B8A8_UNORM;
-			colorAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-			colorAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-			colorAttachment.storeOp = VK_ATTACHMENT_STORE_OP_STORE;
-			colorAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-			colorAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-			colorAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			colorAttachment.finalLayout = VK_IMAGE_LAYOUT_PRESENT_SRC_KHR;
-
-			VkAttachmentReference colorAttachmentRef = {};
-			colorAttachmentRef.attachment = 0;
-			colorAttachmentRef.layout = VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL;
-
-			// Cleared by each render pass, and not kept after it
-			VkAttachmentDescription depthAttachment = {};
-			depthAttachment.format = VulkanTexture::DepthFormat;
-			depthAttachment.samples = VK_SAMPLE_COUNT_1_BIT;
-			depthAttachment.loadOp = VK_ATTACHMENT_LOAD_OP_CLEAR;
-			depthAttachment.storeOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-			depthAttachment.stencilLoadOp = VK_ATTACHMENT_LOAD_OP_DONT_CARE;
-			depthAttachment.stencilStoreOp = VK_ATTACHMENT_STORE_OP_DONT_CARE;
-			depthAttachment.initialLayout = VK_IMAGE_LAYOUT_UNDEFINED;
-			depthAttachment.finalLayout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-			VkAttachmentReference depthAttachmentRef = {};
-			depthAttachmentRef.attachment = 1;
-			depthAttachmentRef.layout = VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL;
-
-			VkSubpassDescription subpass = {};
-			subpass.pipelineBindPoint = VK_PIPELINE_BIND_POINT_GRAPHICS;
-			subpass.colorAttachmentCount = 1;
-			subpass.pColorAttachments = &colorAttachmentRef;
-			subpass.pDepthStencilAttachment = &depthAttachmentRef;
-
-			VkAttachmentDescription attachments[] = {colorAttachment, depthAttachment};
-
-			VkSubpassDependency dependency {};
-			dependency.srcSubpass = VK_SUBPASS_EXTERNAL;
-			dependency.dstSubpass = 0;
-			dependency.srcStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-			dependency.srcAccessMask = 0;
-			dependency.dstStageMask = VK_PIPELINE_STAGE_COLOR_ATTACHMENT_OUTPUT_BIT | VK_PIPELINE_STAGE_EARLY_FRAGMENT_TESTS_BIT;
-			dependency.dstAccessMask = VK_ACCESS_COLOR_ATTACHMENT_WRITE_BIT | VK_ACCESS_DEPTH_STENCIL_ATTACHMENT_WRITE_BIT;
-
-			VkRenderPassCreateInfo renderPassInfo = {};
-			renderPassInfo.sType = VK_STRUCTURE_TYPE_RENDER_PASS_CREATE_INFO;
-			renderPassInfo.attachmentCount = 2;
-			renderPassInfo.pAttachments = attachments;
-			renderPassInfo.subpassCount = 1;
-			renderPassInfo.pSubpasses = &subpass;
-			renderPassInfo.dependencyCount = 1;
-			renderPassInfo.pDependencies = &dependency;
-
-			if (vkCreateRenderPass(_device, &renderPassInfo, nullptr, &_dummyRenderPass) != VK_SUCCESS)
-			{
-				OUTPUT_ERROR("Vulkan: Unable to create render pass!");
-				return false;
-			}
-		}
-		//
 
 		return true;
 	}

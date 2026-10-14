@@ -33,7 +33,7 @@ namespace hod::inline rhi
 	/// @param width
 	/// @param height
 	/// @return
-	bool RenderTarget::Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo) // todo Vector2 Size
+	bool RenderTarget::Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo, PixelFormat colorFormat, PixelFormat depthFormat) // todo Vector2 Size
 	{
 		Clear();
 		if (width == 0 || height == 0)
@@ -41,23 +41,38 @@ namespace hod::inline rhi
 			return false;
 		}
 
+		if ((colorFormat != PixelFormat::None && colorFormat != PixelFormat::R8G8B8A8_UNorm) || (depthFormat != PixelFormat::None && depthFormat != PixelFormat::D16_UNorm) ||
+		    (colorFormat == PixelFormat::None && depthFormat == PixelFormat::None))
+		{
+			OUTPUT_ERROR("RenderTarget: needs a color format, a depth format, or both, among the ones of PixelFormat for them");
+			return false;
+		}
+
 		_resolution.SetX((float)width);
 		_resolution.SetY((float)height);
 
-		_colorTexture = RhiDevice::GetInstance()->CreateTexture();
-		if (_colorTexture->BuildColor(width, height, createInfo) == false)
+		if (colorFormat != PixelFormat::None)
 		{
-			Clear();
-			return false;
+			_colorTexture = RhiDevice::GetInstance()->CreateTexture();
+			if (_colorTexture->BuildColor(width, height, createInfo) == false)
+			{
+				Clear();
+				return false;
+			}
 		}
 
-		_depthTexture = RhiDevice::GetInstance()->CreateTexture();
-		if (_depthTexture->BuildDepth(width, height, createInfo) == false)
+		if (depthFormat != PixelFormat::None)
 		{
-			Clear();
-			return false;
+			_depthTexture = RhiDevice::GetInstance()->CreateTexture();
+			if (_depthTexture->BuildDepth(width, height, createInfo) == false)
+			{
+				Clear();
+				return false;
+			}
 		}
 
+		_colorFormat = colorFormat;
+		_depthFormat = depthFormat;
 		return true;
 	}
 
@@ -69,6 +84,9 @@ namespace hod::inline rhi
 
 		DefaultAllocator::GetInstance().Delete(_depthTexture);
 		_depthTexture = nullptr;
+
+		_colorFormat = PixelFormat::None;
+		_depthFormat = PixelFormat::None;
 	}
 
 	/// @brief
@@ -87,9 +105,23 @@ namespace hod::inline rhi
 
 	/// @brief
 	/// @return
+	PixelFormat RenderTarget::GetColorFormat() const
+	{
+		return _colorFormat;
+	}
+
+	/// @brief
+	/// @return
+	PixelFormat RenderTarget::GetDepthFormat() const
+	{
+		return _depthFormat;
+	}
+
+	/// @brief
+	/// @return
 	bool RenderTarget::IsValid() const
 	{
-		return _colorTexture != nullptr;
+		return _colorTexture != nullptr || _depthTexture != nullptr;
 	}
 
 	/// @brief

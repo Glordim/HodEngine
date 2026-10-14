@@ -60,6 +60,11 @@ namespace hod::inline rhi
 			// and becomes the depth there (_depthWrite). Each works without the other.
 			bool _depthTest = false;
 			bool _depthWrite = false;
+
+			// What the render passes it is drawn in draw into: it can only be bound in a render pass of these formats.
+			// PixelFormat::None for no attachment of that kind. The defaults are the formats of every presentation surface.
+			PixelFormat _colorFormat = PixelFormat::R8G8B8A8_UNorm;
+			PixelFormat _depthFormat = PixelFormat::D16_UNorm;
 		};
 
 		GraphicsPipeline();
@@ -69,10 +74,20 @@ namespace hod::inline rhi
 
 		const std::map<uint32_t, ShaderSetDescriptor*>& GetSetDescriptors() const;
 
+		PixelFormat GetColorFormat() const;
+		PixelFormat GetDepthFormat() const;
+
 	protected:
+		// To be called first by Build: keeps the formats of the CreateInfo, false if they are not ones of attachments,
+		// or if its states need an attachment it has no format for
+		bool SetTargetFormats(const CreateInfo& createInfo);
 		void MergeSetDescriptors(const Shader& vertexShader, const Shader& fragmentShader);
 
 	protected:
 		std::map<uint32_t, ShaderSetDescriptor*> _setDescriptors;
+
+	private:
+		PixelFormat _colorFormat = PixelFormat::None;
+		PixelFormat _depthFormat = PixelFormat::None;
 	};
 }

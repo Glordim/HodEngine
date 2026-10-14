@@ -4,6 +4,8 @@
 
 #include "HodEngine/RHI/ShaderSetDescriptor.hpp"
 
+#include <HodEngine/Core/Output/OutputService.hpp>
+
 namespace hod::inline rhi
 {
 	DESCRIBE_REFLECTED_ENUM(GraphicsPipeline::PolygonMode, reflectionDescriptor)
@@ -80,5 +82,45 @@ namespace hod::inline rhi
 	const std::map<uint32_t, ShaderSetDescriptor*>& GraphicsPipeline::GetSetDescriptors() const
 	{
 		return _setDescriptors;
+	}
+
+	/// @brief
+	/// @param createInfo
+	/// @return
+	bool GraphicsPipeline::SetTargetFormats(const CreateInfo& createInfo)
+	{
+		if (createInfo._colorFormat != PixelFormat::None && createInfo._colorFormat != PixelFormat::R8G8B8A8_UNorm)
+		{
+			OUTPUT_ERROR("GraphicsPipeline: the color format is not one of a color attachment");
+			return false;
+		}
+		if (createInfo._depthFormat != PixelFormat::None && createInfo._depthFormat != PixelFormat::D16_UNorm)
+		{
+			OUTPUT_ERROR("GraphicsPipeline: the depth format is not one of a depth attachment");
+			return false;
+		}
+		if ((createInfo._depthTest || createInfo._depthWrite) && createInfo._depthFormat == PixelFormat::None)
+		{
+			OUTPUT_ERROR("GraphicsPipeline: depth test or write, without a depth format to draw into");
+			return false;
+		}
+
+		_colorFormat = createInfo._colorFormat;
+		_depthFormat = createInfo._depthFormat;
+		return true;
+	}
+
+	/// @brief
+	/// @return
+	PixelFormat GraphicsPipeline::GetColorFormat() const
+	{
+		return _colorFormat;
+	}
+
+	/// @brief
+	/// @return
+	PixelFormat GraphicsPipeline::GetDepthFormat() const
+	{
+		return _depthFormat;
 	}
 }
