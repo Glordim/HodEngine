@@ -17,15 +17,15 @@ namespace hod::inline rhi
 		reflectionDescriptor.AddEnumValue(GraphicsPipeline::PolygonMode::Point, "Point");
 	}
 
-	DESCRIBE_REFLECTED_ENUM(GraphicsPipeline::Topololy, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(GraphicsPipeline::Topology, reflectionDescriptor)
 	{
 		// constexpr auto names = EnumTrait::GetEnumNames<Entity::InternalState, 0, 1>();
 
-		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topololy::POINT, "Point");
-		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topololy::LINE, "Line");
-		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topololy::LINE_STRIP, "LineStrip");
-		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topololy::TRIANGLE, "Triangle");
-		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topololy::TRIANGLE_FAN, "TriangleFan");
+		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topology::POINT, "Point");
+		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topology::LINE, "Line");
+		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topology::LINE_STRIP, "LineStrip");
+		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topology::TRIANGLE, "Triangle");
+		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topology::TRIANGLE_FAN, "TriangleFan");
 	}
 
 	GraphicsPipeline::GraphicsPipeline() {}

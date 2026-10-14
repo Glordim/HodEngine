@@ -54,7 +54,7 @@ namespace hod::inline rhi
 			return false;
 		}
 
-		// TODDO _polygonMode, _topololy, _depthTest, _depthWrite, and the pixel formats of the descriptor from _colorFormat and _depthFormat
+		// TODDO _polygonMode, _topology, _depthTest, _depthWrite, and the pixel formats of the descriptor from _colorFormat and _depthFormat
 
 		_cullMode = createInfo._cullMode; // set with the pipeline, see MetalCommandBuffer::SetGraphicsPipeline
 

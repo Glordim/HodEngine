@@ -23,7 +23,7 @@ namespace hod::inline renderer
 	{
 	public:
 		using PolygonMode = GraphicsPipeline::PolygonMode;
-		using Topololy = GraphicsPipeline::Topololy;
+		using Topology = GraphicsPipeline::Topology;
 		using CreateInfo = GraphicsPipeline::CreateInfo; // what the pipeline of the Material is built from
 
 		/// @brief Where a uniform value lives: bytes [_offset, _offset + _size) of the uniform block '_block' of the set '_set'

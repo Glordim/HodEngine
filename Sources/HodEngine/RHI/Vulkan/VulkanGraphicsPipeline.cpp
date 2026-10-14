@@ -298,23 +298,23 @@ namespace hod::inline rhi
 		inputAssembly.sType = VK_STRUCTURE_TYPE_PIPELINE_INPUT_ASSEMBLY_STATE_CREATE_INFO;
 		inputAssembly.pNext = nullptr;
 		inputAssembly.flags = 0;
-		if (createInfo._topololy == Topololy::TRIANGLE)
+		if (createInfo._topology == Topology::TRIANGLE)
 		{
 			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_LIST;
 		}
-		else if (createInfo._topololy == Topololy::TRIANGLE_FAN)
+		else if (createInfo._topology == Topology::TRIANGLE_FAN)
 		{
 			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_TRIANGLE_FAN;
 		}
-		else if (createInfo._topololy == Topololy::LINE)
+		else if (createInfo._topology == Topology::LINE)
 		{
 			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_LIST;
 		}
-		else if (createInfo._topololy == Topololy::LINE_STRIP)
+		else if (createInfo._topology == Topology::LINE_STRIP)
 		{
 			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_LINE_STRIP;
 		}
-		else if (createInfo._topololy == Topololy::POINT)
+		else if (createInfo._topology == Topology::POINT)
 		{
 			inputAssembly.topology = VK_PRIMITIVE_TOPOLOGY_POINT_LIST;
 		}

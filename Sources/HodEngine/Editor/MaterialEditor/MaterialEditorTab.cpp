@@ -33,7 +33,7 @@ namespace hod::inline editor
 	DESCRIBE_REFLECTED_CLASS(MaterialSettings, reflectionDescriptor)
 	{
 		AddPropertyT(reflectionDescriptor, &MaterialSettings::_polygonMode, "_polygonMode");
-		AddPropertyT(reflectionDescriptor, &MaterialSettings::_topololy, "_topololy");
+		AddPropertyT(reflectionDescriptor, &MaterialSettings::_topology, "_topology");
 		AddPropertyT(reflectionDescriptor, &MaterialSettings::_blendMode, "_blendMode");
 		AddPropertyT(reflectionDescriptor, &MaterialSettings::_cullMode, "_cullMode");
 		AddPropertyT(reflectionDescriptor, &MaterialSettings::_depthTest, "_depthTest");

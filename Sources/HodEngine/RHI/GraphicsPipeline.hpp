@@ -30,7 +30,7 @@ namespace hod::inline rhi
 
 		REFLECTED_ENUM(HOD_RHI_API, PolygonMode);
 
-		enum Topololy
+		enum Topology
 		{
 			POINT,
 			LINE,
@@ -39,7 +39,7 @@ namespace hod::inline rhi
 			TRIANGLE_FAN,
 		};
 
-		REFLECTED_ENUM(HOD_RHI_API, Topololy);
+		REFLECTED_ENUM(HOD_RHI_API, Topology);
 
 		/// @brief What a pipeline is built from, see RhiDevice::CreateGraphicsPipeline
 		struct CreateInfo
@@ -52,7 +52,7 @@ namespace hod::inline rhi
 			Shader* _fragmentShader = nullptr;
 
 			PolygonMode _polygonMode = PolygonMode::Fill;
-			Topololy    _topololy = Topololy::TRIANGLE;
+			Topology    _topology = Topology::TRIANGLE;
 			BlendMode   _blendMode = BlendMode::Alpha;
 			CullMode    _cullMode = CullMode::None;
 

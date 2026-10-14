@@ -18,7 +18,7 @@ namespace hod::inline renderer
 	DESCRIBE_REFLECTED_CLASS(MaterialResource, reflectionDescriptor)
 	{
 		AddPropertyT(reflectionDescriptor, &MaterialResource::_polygonMode, "_polygonMode");
-		AddPropertyT(reflectionDescriptor, &MaterialResource::_topololy, "_topololy");
+		AddPropertyT(reflectionDescriptor, &MaterialResource::_topology, "_topology");
 		AddPropertyT(reflectionDescriptor, &MaterialResource::_blendMode, "_blendMode");
 		AddPropertyT(reflectionDescriptor, &MaterialResource::_cullMode, "_cullMode");
 		AddPropertyT(reflectionDescriptor, &MaterialResource::_depthTest, "_depthTest");
@@ -115,7 +115,7 @@ namespace hod::inline renderer
 		createInfo._vertexShader = _vertexShader;
 		createInfo._fragmentShader = _fragmentShader;
 		createInfo._polygonMode = _polygonMode;
-		createInfo._topololy = _topololy;
+		createInfo._topology = _topology;
 		createInfo._blendMode = _blendMode;
 		createInfo._cullMode = _cullMode;
 		createInfo._depthTest = _depthTest;

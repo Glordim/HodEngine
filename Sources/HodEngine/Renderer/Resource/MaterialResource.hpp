@@ -48,7 +48,7 @@ namespace hod::inline renderer
 		Shader*				_fragmentShader = nullptr;
 
 		Material::PolygonMode	_polygonMode = Material::PolygonMode::Fill;
-		Material::Topololy		_topololy = Material::Topololy::TRIANGLE;
+		Material::Topology		_topology = Material::Topology::TRIANGLE;
 		BlendMode				_blendMode = BlendMode::Alpha;
 		CullMode				_cullMode = CullMode::None;
 		bool					_depthTest = false;

@@ -116,24 +116,24 @@ namespace hod::inline rhi
 
 		// Input assembly
 		_triangleFanEmulated = false;
-		switch (createInfo._topololy)
+		switch (createInfo._topology)
 		{
-			case Topololy::POINT:
+			case Topology::POINT:
 				pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_POINT;
 				_primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_POINTLIST;
 				break;
 
-			case Topololy::LINE:
+			case Topology::LINE:
 				pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 				_primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_LINELIST;
 				break;
 
-			case Topololy::LINE_STRIP:
+			case Topology::LINE_STRIP:
 				pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_LINE;
 				_primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_LINESTRIP;
 				break;
 
-			case Topololy::TRIANGLE_FAN:
+			case Topology::TRIANGLE_FAN:
 				pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 				if (rhiDevice->IsTriangleFanSupported())
 				{
@@ -146,7 +146,7 @@ namespace hod::inline rhi
 				}
 				break;
 
-			case Topololy::TRIANGLE:
+			case Topology::TRIANGLE:
 			default:
 				pipelineStateDesc.PrimitiveTopologyType = D3D12_PRIMITIVE_TOPOLOGY_TYPE_TRIANGLE;
 				_primitiveTopology = D3D_PRIMITIVE_TOPOLOGY_TRIANGLELIST;

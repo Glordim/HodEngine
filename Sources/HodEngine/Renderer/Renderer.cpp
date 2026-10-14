@@ -160,7 +160,7 @@ namespace hod::inline renderer
 			{
 				// TODO
 				//_wireframeMaterial = BuiltinMaterialManager::GetInstance()->GetData(
-				//	BuiltinMaterialManager::GetInstance()->CreateMaterial("SpriteWireframe", Material::PolygonMode::Line, Material::Topololy::TRIANGLE));
+				//	BuiltinMaterialManager::GetInstance()->CreateMaterial("SpriteWireframe", Material::PolygonMode::Line, Material::Topology::TRIANGLE));
 			}
 
 			_wireframeMaterialInstance = MaterialInstance::Create(_wireframeMaterial);
