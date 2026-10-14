@@ -4,7 +4,7 @@
 #include "HodEngine/Editor/ViewportWindow.hpp"
 #include <HodEngine/Math/Math.hpp>
 #include <HodEngine/Math/Vector4.hpp>
-#include <HodEngine/Renderer/MaterialManager.hpp>
+#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/PickingManager.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
@@ -93,7 +93,7 @@ namespace hod::inline editor
 		GeometryGenerator::CircleShapeFillNoFan<segmentCount>(vertices, Vector2::Zero, radius);
 
 		MaterialInstance* materialInstance = MaterialInstance::Create(
-			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+			BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 		materialInstance->SetVec4("ubo.color",
 		                          handle._hovered ? Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a) : Vector4(color.r, color.g, color.b, color.a));
 
@@ -117,7 +117,7 @@ namespace hod::inline editor
 			Vector2(Size.GetX() * 0.5f, -Size.GetY() * 0.5f), Vector2(-Size.GetX() * 0.5f, -Size.GetY() * 0.5f), Vector2(Size.GetX() * 0.5f, Size.GetY() * 0.5f)};
 
 		MaterialInstance* materialInstance = MaterialInstance::Create(
-			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+			BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 		materialInstance->SetVec4("ubo.color",
 		                          handle._hovered ? Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a) : Vector4(color.r, color.g, color.b, color.a));
 
@@ -136,7 +136,7 @@ namespace hod::inline editor
 		bool changed = FreeMoveBehavior(handle, viewport);
 
 		MaterialInstance* materialInstance = MaterialInstance::Create(
-			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+			BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 		materialInstance->SetVec4("ubo.color",
 		                          handle._hovered ? Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a) : Vector4(color.r, color.g, color.b, color.a));
 
@@ -156,7 +156,7 @@ namespace hod::inline editor
 		};
 
 		MaterialInstance* materialInstance = MaterialInstance::Create(
-			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
+			BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
 		materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
 
 		RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
@@ -170,7 +170,7 @@ namespace hod::inline editor
 		StaticArray<Vector2, 2> vertices {start, end};
 
 		MaterialInstance* materialInstance = MaterialInstance::Create(
-			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
+			BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
 		materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
 
 		RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(

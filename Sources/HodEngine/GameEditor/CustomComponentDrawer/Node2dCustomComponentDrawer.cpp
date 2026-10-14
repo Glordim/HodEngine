@@ -4,7 +4,7 @@
 #include "HodEngine/GameEditor/CustomComponentDrawer/Node2dCustomComponentDrawer.hpp"
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 
-#include <HodEngine/Renderer/MaterialManager.hpp>
+#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/PickingManager.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>

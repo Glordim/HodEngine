@@ -5,7 +5,6 @@
 #include <unordered_map>
 
 #include <HodEngine/Core/Singleton.hpp>
-#include <HodEngine/Core/UID.hpp>
 
 #include "HodEngine/Renderer/Material.hpp"
 #include "HodEngine/Core/StaticArray.hpp"
@@ -19,12 +18,11 @@ namespace hod::inline renderer
 
 namespace hod::inline renderer
 {
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	class HOD_RENDERER_API MaterialManager
+	/// @brief The materials of the engine itself, built from shaders embedded in it, each with a default instance.
+	/// The materials of a project are MaterialResources.
+	class HOD_RENDERER_API BuiltinMaterialManager
 	{
-		_Singleton(MaterialManager)
+		_Singleton(BuiltinMaterialManager)
 
 	public:
 		enum class BuiltinMaterial : uint32_t
@@ -45,13 +43,11 @@ namespace hod::inline renderer
 		};
 
 	public:
-		~MaterialManager();
+		~BuiltinMaterialManager();
 		void Clear();
 
 		const Material* GetBuiltinMaterial(BuiltinMaterial buildMaterial);
 		const MaterialInstance* GetBuiltinMaterialDefaultInstance(BuiltinMaterial buildMaterial);
-
-		UID CreateMaterial(const String& shaderName, Material::PolygonMode polygonMode = Material::PolygonMode::Fill, Material::Topololy topololy = Material::Topololy::TRIANGLE);
 
 	private:
 		StaticArray<Material*, static_cast<uint32_t>(BuiltinMaterial::Count)> _builtinMaterials = {nullptr}; // c++23 std::to_underlying

@@ -15,7 +15,7 @@
 #include <HodEngine/Math/Rect.hpp>
 #include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 #include <HodEngine/Renderer/FrameResources.hpp>
-#include <HodEngine/Renderer/MaterialManager.hpp>
+#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>

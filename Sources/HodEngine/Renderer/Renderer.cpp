@@ -3,7 +3,7 @@
 #include "HodEngine/Renderer/Renderer.hpp"
 
 #include "HodEngine/Renderer/Font/FontManager.hpp"
-#include "HodEngine/Renderer/MaterialManager.hpp"
+#include "HodEngine/Renderer/BuiltinMaterialManager.hpp"
 #include "HodEngine/Renderer/PickingManager.hpp"
 #include "HodEngine/Renderer/RenderView.hpp"
 #include "HodEngine/Renderer/Material.hpp"
@@ -13,9 +13,6 @@
 #include "HodEngine/RHI/RhiDevice.hpp"
 #include "HodEngine/RHI/Shader.hpp"
 #include "HodEngine/RHI/Texture.hpp"
-
-#include "Shader/P2f_Unlit_Fragment.hpp"
-#include "Shader/P2f_Unlit_Vertex.hpp"
 
 #include "HodEngine/RHI/VertexInput.hpp"
 
@@ -31,7 +28,7 @@ namespace hod::inline renderer
 	{
 		CreatePlatformRhiDevice();
 
-		MaterialManager::CreateInstance();
+		BuiltinMaterialManager::CreateInstance();
 		PickingManager::CreateInstance();
 		FontManager::CreateInstance();
 		FontManager::GetInstance()->Init(); // todo catch error ?
@@ -46,7 +43,7 @@ namespace hod::inline renderer
 	{
 		FontManager::DestroyInstance();
 		PickingManager::DestroyInstance();
-		MaterialManager::DestroyInstance();
+		BuiltinMaterialManager::DestroyInstance();
 
 		RhiDevice::DestroyInstance();
 	}
@@ -62,7 +59,7 @@ namespace hod::inline renderer
 	/// @brief
 	void Renderer::Clear()
 	{
-		MaterialManager::GetInstance()->Clear();
+		BuiltinMaterialManager::GetInstance()->Clear();
 
 		DefaultAllocator::GetInstance().Delete(_overdrawnMaterialInstance);
 		_overdrawnMaterialInstance = nullptr;
@@ -73,15 +70,6 @@ namespace hod::inline renderer
 		_wireframeMaterialInstance = nullptr;
 		DefaultAllocator::GetInstance().Delete(_wireframeMaterial);
 		_wireframeMaterial = nullptr;
-
-		DefaultAllocator::GetInstance().Delete(_defaultMaterialInstance);
-		_defaultMaterialInstance = nullptr;
-		DefaultAllocator::GetInstance().Delete(_defaultMaterial);
-		_defaultMaterial = nullptr;
-		DefaultAllocator::GetInstance().Delete(_defaultVertexShader);
-		_defaultVertexShader = nullptr;
-		DefaultAllocator::GetInstance().Delete(_defaultFragmentShader);
-		_defaultFragmentShader = nullptr;
 
 		for (FrameResources& frameResources : _frameResources)
 		{
@@ -138,59 +126,9 @@ namespace hod::inline renderer
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	MaterialInstance* Renderer::GetDefaultMaterialInstance()
+	const MaterialInstance* Renderer::GetDefaultMaterialInstance()
 	{
-		if (_defaultMaterialInstance == nullptr)
-		{
-			if (_defaultMaterial == nullptr)
-			{
-				RhiDevice* rhiDevice = RhiDevice::GetInstance();
-
-				VertexInput vertexInput[1] = {
-					{0, 0, VertexInput::Format::R32G32_SFloat},
-					//{ 8, VertexInput::Format::R32G32_SFloat },
-					//{ 16, VertexInput::Format::A8B8G8R8_UNorm_Pack32 },
-				};
-
-				_defaultVertexShader = rhiDevice->CreateShader(Shader::ShaderType::Vertex);
-				if (_defaultVertexShader->LoadFromIR(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Vertex_reflection, P2f_Unlit_Vertex_reflection_size) == false)
-				{
-					DefaultAllocator::GetInstance().Delete(_defaultVertexShader);
-					_defaultVertexShader = nullptr;
-					return nullptr;
-				}
-
-				_defaultFragmentShader = rhiDevice->CreateShader(Shader::ShaderType::Fragment);
-				if (_defaultFragmentShader->LoadFromIR(P2f_Unlit_Fragment, P2f_Unlit_Fragment_size, P2f_Unlit_Fragment_reflection, P2f_Unlit_Fragment_reflection_size) == false)
-				{
-					DefaultAllocator::GetInstance().Delete(_defaultVertexShader);
-					DefaultAllocator::GetInstance().Delete(_defaultFragmentShader);
-					_defaultVertexShader = nullptr;
-					_defaultFragmentShader = nullptr;
-					return nullptr;
-				}
-
-				Material::CreateInfo createInfo;
-				createInfo._vertexInputs = vertexInput;
-				createInfo._vertexInputCount = 1;
-				createInfo._vertexShader = _defaultVertexShader;
-				createInfo._fragmentShader = _defaultFragmentShader;
-
-				_defaultMaterial = Material::Create(createInfo);
-				if (_defaultMaterial == nullptr)
-				{
-					DefaultAllocator::GetInstance().Delete(_defaultVertexShader);
-					DefaultAllocator::GetInstance().Delete(_defaultFragmentShader);
-					_defaultVertexShader = nullptr;
-					_defaultFragmentShader = nullptr;
-					return nullptr;
-				}
-			}
-
-			_defaultMaterialInstance = MaterialInstance::Create(_defaultMaterial);
-		}
-
-		return _defaultMaterialInstance;
+		return BuiltinMaterialManager::GetInstance()->GetBuiltinMaterialDefaultInstance(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -202,7 +140,7 @@ namespace hod::inline renderer
 		{
 			if (_overdrawnMaterial == nullptr)
 			{
-				//_overdrawnMaterial = MaterialManager::GetInstance()->CreateMaterial("SpriteOverdraw"); // TODO
+				//_overdrawnMaterial = BuiltinMaterialManager::GetInstance()->CreateMaterial("SpriteOverdraw"); // TODO
 			}
 
 			_overdrawnMaterialInstance = MaterialInstance::Create(_overdrawnMaterial);
@@ -221,8 +159,8 @@ namespace hod::inline renderer
 			if (_wireframeMaterial == nullptr)
 			{
 				// TODO
-				//_wireframeMaterial = MaterialManager::GetInstance()->GetData(
-				//	MaterialManager::GetInstance()->CreateMaterial("SpriteWireframe", Material::PolygonMode::Line, Material::Topololy::TRIANGLE));
+				//_wireframeMaterial = BuiltinMaterialManager::GetInstance()->GetData(
+				//	BuiltinMaterialManager::GetInstance()->CreateMaterial("SpriteWireframe", Material::PolygonMode::Line, Material::Topololy::TRIANGLE));
 			}
 
 			_wireframeMaterialInstance = MaterialInstance::Create(_wireframeMaterial);

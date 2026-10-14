@@ -4,7 +4,7 @@
 
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <HodEngine/Math/Vector4.hpp>
-#include <HodEngine/Renderer/MaterialManager.hpp>
+#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/MaterialInstance.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
 
@@ -79,10 +79,10 @@ namespace hod::inline ui2
 		};
 		static const StaticArray<uint16_t, 6> indices = {0, 1, 2, 0, 2, 3};
 
-		MaterialManager::BuiltinMaterial builtinMaterial =
-			texture != nullptr ? MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color : MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle;
+		BuiltinMaterialManager::BuiltinMaterial builtinMaterial =
+			texture != nullptr ? BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color : BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle;
 
-		MaterialInstance* materialInstance = MaterialInstance::Create(MaterialManager::GetInstance()->GetBuiltinMaterial(builtinMaterial));
+		MaterialInstance* materialInstance = MaterialInstance::Create(BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(builtinMaterial));
 		if (texture != nullptr)
 		{
 			materialInstance->SetTexture("image", texture);

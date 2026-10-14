@@ -2,7 +2,7 @@
 #include "HodEngine/UI/Drawable/Text.hpp"
 #include "HodEngine/UI/Node.hpp"
 
-#include "HodEngine/Renderer/MaterialManager.hpp"
+#include "HodEngine/Renderer/BuiltinMaterialManager.hpp"
 #include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
 #include "HodEngine/RHI/RhiDevice.hpp"
 #include "HodEngine/Renderer/RenderView.hpp"
@@ -116,7 +116,7 @@ namespace hod::inline ui
 				if (_materialInstance == nullptr)
 				{
 					const Material* material =
-						MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
+						BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
 					_materialInstance = MaterialInstance::Create(material);
 				}
 				_materialInstance->SetTexture("image", font->GetTexture());

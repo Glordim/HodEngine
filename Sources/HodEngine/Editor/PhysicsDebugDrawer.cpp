@@ -11,7 +11,7 @@
 #include "HodEngine/Renderer/MaterialInstance.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
 
-#include "HodEngine/Renderer/MaterialManager.hpp"
+#include "HodEngine/Renderer/BuiltinMaterialManager.hpp"
 #include "HodEngine/RHI/CommandBuffer.hpp"
 
 #include "HodEngine/Math/Math.hpp"
@@ -26,15 +26,15 @@ namespace hod::inline editor
 	/// @brief
 	PhysicsDebugDrawer::PhysicsDebugDrawer()
 	{
-		MaterialManager* materialManager = MaterialManager::GetInstance();
+		BuiltinMaterialManager* materialManager = BuiltinMaterialManager::GetInstance();
 
-		const Material* material = materialManager->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_TriangleFan);
+		const Material* material = materialManager->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_TriangleFan);
 		_solidPolygonMaterialInstance = MaterialInstance::Create(material);
 
-		material = materialManager->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line_TriangleFan);
+		material = materialManager->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Line_TriangleFan);
 		_wireframePolygonMaterialInstance = MaterialInstance::Create(material);
 
-		material = materialManager->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line);
+		material = materialManager->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Line);
 		_lineMaterialInstance = MaterialInstance::Create(material);
 	}
 

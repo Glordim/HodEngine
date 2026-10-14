@@ -5,7 +5,7 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/Renderer/MaterialManager.hpp>
+#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
@@ -24,7 +24,7 @@ namespace hod::inline editor
 	MultiShapeCollider2dCustomComponentDrawer::MultiShapeCollider2dCustomComponentDrawer()
 	{
 		_materialInstance = MaterialInstance::Create(
-			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
+			BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
 		_materialInstance->SetVec4("ubo.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
 	}
 

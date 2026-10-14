@@ -21,7 +21,7 @@
 #include <HodEngine/Math/Vector4.hpp>
 
 #include <HodEngine/Renderer/FrameResources.hpp>
-#include <HodEngine/Renderer/MaterialManager.hpp>
+#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
@@ -189,7 +189,7 @@ namespace hod::inline editor
 
 		/*
 		MaterialInstance* backgroundMaterial = MaterialInstance::Create(
-			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+			BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 		backgroundMaterial->SetVec4("ubo.color", Vector4(30.0f / 255.0f, 30.0f / 255.0f, 30.0f / 255.0f, 1.0f));
 
 		StaticArray<Vector2, 4> backgroundVertices = {
@@ -623,7 +623,7 @@ namespace hod::inline editor
 			StaticArray<uint16_t, 6> indices = {0, 1, 2, 0, 2, 3};
 
 			MaterialInstance* materialInstance = MaterialInstance::Create(
-				MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+				BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
 			materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
 
 			RenderCommandMesh* command = DefaultAllocator::GetInstance().New<RenderCommandMesh>(

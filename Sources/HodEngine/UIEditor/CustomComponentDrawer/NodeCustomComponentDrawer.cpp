@@ -7,7 +7,7 @@
 #include <HodEngine/Game/Entity.hpp>
 #include <HodEngine/UI/Node.hpp>
 
-#include <HodEngine/Renderer/MaterialManager.hpp>
+#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/PickingManager.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>

@@ -1,5 +1,5 @@
 #include "HodEngine/Renderer/Pch.hpp"
-#include "HodEngine/Renderer/MaterialManager.hpp"
+#include "HodEngine/Renderer/BuiltinMaterialManager.hpp"
 
 #include "HodEngine/Renderer/Material.hpp"
 #include "HodEngine/Renderer/MaterialInstance.hpp"
@@ -23,16 +23,16 @@
 
 namespace hod::inline renderer
 {
-	_SingletonConstructor(MaterialManager) {}
+	_SingletonConstructor(BuiltinMaterialManager) {}
 
 	/// @brief
-	MaterialManager::~MaterialManager()
+	BuiltinMaterialManager::~BuiltinMaterialManager()
 	{
 		Clear();
 	}
 
 	/// @brief
-	void MaterialManager::Clear()
+	void BuiltinMaterialManager::Clear()
 	{
 		for (uint32_t index = 0; index < _builtinMaterials.Size(); ++index)
 		{
@@ -93,7 +93,7 @@ namespace hod::inline renderer
 	/// @brief
 	/// @param buildMaterial
 	/// @return
-	const BuiltinMaterialSource& GetBuiltinMaterialSource(MaterialManager::BuiltinMaterial buildMaterial)
+	const BuiltinMaterialSource& GetBuiltinMaterialSource(BuiltinMaterialManager::BuiltinMaterial buildMaterial)
 	{
 		static BuiltinMaterialSource P2f_Unlit_Line(P2f_Unlit_Vertex, P2f_Unlit_Vertex_size, P2f_Unlit_Vertex_reflection, P2f_Unlit_Vertex_reflection_size, P2f_Unlit_Fragment,
 		                                            P2f_Unlit_Fragment_size, P2f_Unlit_Fragment_reflection, P2f_Unlit_Fragment_reflection_size,
@@ -152,7 +152,7 @@ namespace hod::inline renderer
 		                                                    {VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32B32A32_SFloat)},
 		                                                    Material::PolygonMode::Line, Material::Topololy::LINE);
 
-		static StaticArray<const BuiltinMaterialSource*, std::to_underlying(MaterialManager::BuiltinMaterial::Count)> _builtinMaterialSources = {
+		static StaticArray<const BuiltinMaterialSource*, std::to_underlying(BuiltinMaterialManager::BuiltinMaterial::Count)> _builtinMaterialSources = {
 			&P2f_Unlit_Line,         &P2f_Unlit_Triangle,         &P2f_Unlit_TriangleFan,      &P2f_Unlit_Line_TriangleFan,    &P2f_Unlit_Line_LineStrip,
 			&P2fT2f_Texture_Unlit,   &P2fT2f_Texture_Unlit_Color, &P2fC4f_Unlit_Fill_Triangle, &P2fC4f_Unlit_Fill_TriangleFan, &P2fC4f_Unlit_Line_TriangleFan,
 			&P2fC4f_Unlit_Line_Line,
@@ -164,7 +164,7 @@ namespace hod::inline renderer
 	/// @brief
 	/// @param buildMaterial
 	/// @return
-	const Material* MaterialManager::GetBuiltinMaterial(BuiltinMaterial buildMaterial)
+	const Material* BuiltinMaterialManager::GetBuiltinMaterial(BuiltinMaterial buildMaterial)
 	{
 		assert(buildMaterial != BuiltinMaterial::Count);
 
@@ -220,61 +220,12 @@ namespace hod::inline renderer
 	/// @brief
 	/// @param buildMaterial
 	/// @return
-	const MaterialInstance* MaterialManager::GetBuiltinMaterialDefaultInstance(BuiltinMaterial buildMaterial)
+	const MaterialInstance* BuiltinMaterialManager::GetBuiltinMaterialDefaultInstance(BuiltinMaterial buildMaterial)
 	{
 		if (GetBuiltinMaterial(buildMaterial) == nullptr)
 		{
 			return nullptr;
 		}
 		return _builtinDefaultInstances[static_cast<uint32_t>(buildMaterial)];
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	UID MaterialManager::CreateMaterial(const String& shaderName, Material::PolygonMode polygonMode, Material::Topololy topololy)
-	{
-		(void)shaderName;
-		(void)polygonMode;
-		(void)topololy;
-		return UID::INVALID_UID; // TODO ?
-
-		/*
-		RhiDevice* rhiDevice = RhiDevice::GetInstance();
-
-		Shader* vertexShader = rhiDevice->CreateShader(Shader::ShaderType::Vertex);
-		if (vertexShader->LoadFromFile("Shader/" + shaderName + ".vert.spirv") == false)
-		{
-		    DefaultAllocator::GetInstance().Delete(vertexShader);
-		    return UID::INVALID_UID;
-		}
-
-		Shader* fragmentShader = rhiDevice->CreateShader(Shader::ShaderType::Fragment);
-		if (fragmentShader->LoadFromFile("Shader/" + shaderName + ".frag.spirv") == false)
-		{
-		    DefaultAllocator::GetInstance().Delete(vertexShader);
-		    DefaultAllocator::GetInstance().Delete(fragmentShader);
-		    return UID::INVALID_UID;
-		}
-
-		Material::CreateInfo createInfo;
-		createInfo._vertexShader = vertexShader;
-		createInfo._fragmentShader = fragmentShader;
-		createInfo._polygonMode = polygonMode;
-		createInfo._topololy = topololy;
-		Material* material = Material::Create(createInfo);
-		if (material == nullptr)
-		{
-		    DefaultAllocator::GetInstance().Delete(vertexShader);
-		    DefaultAllocator::GetInstance().Delete(fragmentShader);
-		    return UID::INVALID_UID;
-		}
-
-		UID uid = UID::GenerateUID();
-
-		this->AddData(uid, material);
-
-		return uid;
-		*/
 	}
 }

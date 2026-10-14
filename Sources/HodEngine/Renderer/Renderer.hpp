@@ -66,7 +66,7 @@ namespace hod::inline renderer
 		VisualizationMode GetVisualizationMode() const;
 		void              SetVisualizationMode(VisualizationMode visualizationMode);
 
-		MaterialInstance* GetDefaultMaterialInstance();
+		const MaterialInstance* GetDefaultMaterialInstance(); // the one of BuiltinMaterial::P2f_Unlit_Triangle
 		MaterialInstance* GetOverdrawMaterialInstance();
 		MaterialInstance* GetWireframeMaterialInstance();
 
@@ -79,11 +79,6 @@ namespace hod::inline renderer
 
 		Material*         _wireframeMaterial = nullptr;
 		MaterialInstance* _wireframeMaterialInstance = nullptr;
-
-		Material*         _defaultMaterial = nullptr;
-		MaterialInstance* _defaultMaterialInstance = nullptr;
-		Shader*           _defaultVertexShader = nullptr;
-		Shader*           _defaultFragmentShader = nullptr;
 
 		Vector<RenderView*> _renderViews;
 

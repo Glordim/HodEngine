@@ -5,7 +5,7 @@
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <HodEngine/Math/Vector4.hpp>
 #include <HodEngine/Renderer/Font/Font.hpp>
-#include <HodEngine/Renderer/MaterialManager.hpp>
+#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/MaterialInstance.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
 
@@ -195,7 +195,7 @@ namespace hod::inline ui2
 		}
 
 		MaterialInstance* materialInstance =
-			MaterialInstance::Create(MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color));
+			MaterialInstance::Create(BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color));
 		materialInstance->SetTexture("image", font->GetTexture());
 		materialInstance->SetVec4("ubo.color", Vector4(_color.r, _color.g, _color.b, _color.a));
 

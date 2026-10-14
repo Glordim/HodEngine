@@ -1,7 +1,7 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/DebugDrawer.hpp"
 
-#include <HodEngine/Renderer/MaterialManager.hpp>
+#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Core/StaticArray.hpp>
@@ -13,7 +13,7 @@ namespace hod::inline game
 	/// @brief
 	DebugDrawer::DebugDrawer()
 	{
-		_lineMaterial = MaterialManager::GetInstance()->GetBuiltinMaterialDefaultInstance(MaterialManager::BuiltinMaterial::P2fC4f_Unlit_Line_Line);
+		_lineMaterial = BuiltinMaterialManager::GetInstance()->GetBuiltinMaterialDefaultInstance(BuiltinMaterialManager::BuiltinMaterial::P2fC4f_Unlit_Line_Line);
 	}
 
 	/// @brief

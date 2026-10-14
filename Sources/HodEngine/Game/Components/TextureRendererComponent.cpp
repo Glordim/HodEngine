@@ -4,7 +4,7 @@
 #include "HodEngine/Game/Entity.hpp"
 
 #include <HodEngine/Math/Color.hpp>
-#include <HodEngine/Renderer/MaterialManager.hpp>
+#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/P2fC4f.hpp>
 #include <HodEngine/Renderer/P2fT2f.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
@@ -126,7 +126,7 @@ namespace hod::inline game
 				if (_materialInstance == nullptr)
 				{
 					const Material* material =
-						MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
+						BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
 					_builtinMaterialInstance = MaterialInstance::Create(material);
 					_materialInstance = _builtinMaterialInstance;
 					RefreshMaterialInstance();

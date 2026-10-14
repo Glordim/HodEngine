@@ -4,7 +4,7 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/Renderer/MaterialManager.hpp>
+#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
@@ -23,7 +23,7 @@ namespace hod::inline editor
 	TextureRendererCustomComponentDrawer::TextureRendererCustomComponentDrawer()
 	{
 		_materialInstance = MaterialInstance::Create(
-			MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
+			BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
 		_materialInstance->SetVec4("ubo.color", Vector4(0.75f, 0.75f, 0.75f, 1.0f));
 	}
 

@@ -14,7 +14,7 @@
 #include <HodEngine/Math/Vector4.hpp>
 
 #include <HodEngine/Renderer/FrameResources.hpp>
-#include <HodEngine/Renderer/MaterialManager.hpp>
+#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/ReadbackRenderTarget.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
@@ -77,9 +77,9 @@ protected:
 		OutputCheckedTest::TearDown();
 	}
 
-	MaterialInstance* CreateMaterialInstance(MaterialManager::BuiltinMaterial builtinMaterial)
+	MaterialInstance* CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial builtinMaterial)
 	{
-		MaterialInstance* materialInstance = MaterialInstance::Create(MaterialManager::GetInstance()->GetBuiltinMaterial(builtinMaterial));
+		MaterialInstance* materialInstance = MaterialInstance::Create(BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(builtinMaterial));
 		_materialInstances.PushBack(materialInstance);
 		return materialInstance;
 	}
@@ -162,7 +162,7 @@ protected:
 		DesktopWindow* window = static_cast<DesktopWindow*>(visualMode._window);
 		window->SetTitle(::testing::UnitTest::GetInstance()->current_test_info()->name());
 
-		MaterialInstance* materialInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+		MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
 		materialInstance->SetVec4("ubo.color", ToVector4(White));
 		materialInstance->SetTexture("image", _frameTexture);
 
@@ -247,7 +247,7 @@ TEST_F(MaterialRender, ClearColor)
 
 TEST_F(MaterialRender, UniformColor)
 {
-	MaterialInstance* materialInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle);
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle);
 	materialInstance->SetVec4("ubo.color", ToVector4(Red));
 
 	RenderFrame([&]() { DrawQuad(-0.5f, -0.5f, 0.5f, 0.5f, materialInstance); });
@@ -262,7 +262,7 @@ TEST_F(MaterialRender, UniformColor)
 // The default camera maps world coordinates straight to the target, which would hide a camera that is not applied
 TEST_F(MaterialRender, CameraPlacesTheGeometry)
 {
-	MaterialInstance* materialInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle);
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle);
 	materialInstance->SetVec4("ubo.color", ToVector4(Red));
 
 	// Sees [-2, 2] on both axes, from one unit to the right: the target spans the world from x = -1 to x = 3
@@ -279,10 +279,10 @@ TEST_F(MaterialRender, CameraPlacesTheGeometry)
 
 TEST_F(MaterialRender, TwoInstancesOfTheSameMaterialKeepTheirOwnValues)
 {
-	MaterialInstance* redInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle);
+	MaterialInstance* redInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle);
 	redInstance->SetVec4("ubo.color", ToVector4(Red));
 
-	MaterialInstance* greenInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle);
+	MaterialInstance* greenInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle);
 	greenInstance->SetVec4("ubo.color", ToVector4(Green));
 
 	RenderFrame([&]() {
@@ -296,7 +296,7 @@ TEST_F(MaterialRender, TwoInstancesOfTheSameMaterialKeepTheirOwnValues)
 
 TEST_F(MaterialRender, UniformChangedBetweenFramesIsSeenByTheNextFrame)
 {
-	MaterialInstance* materialInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle);
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle);
 
 	materialInstance->SetVec4("ubo.color", ToVector4(Red));
 	RenderFrame([&]() { DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f, materialInstance); });
@@ -323,7 +323,7 @@ TEST_F(MaterialRender, FramesInFlightKeepTheValueTheyWereSubmittedWith)
 	const uint32_t              frameInFlightCount = RhiDevice::GetInstance()->GetFrameInFlightCount();
 	const uint32_t              frameCount = 1024;
 
-	MaterialInstance* materialInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2f_Unlit_Triangle);
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle);
 
 	for (uint32_t frame = 0; frame < frameCount + frameInFlightCount; ++frame)
 	{
@@ -349,7 +349,7 @@ TEST_F(MaterialRender, FramesInFlightKeepTheValueTheyWereSubmittedWith)
 
 TEST_F(MaterialRender, Texture)
 {
-	MaterialInstance* materialInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
 	materialInstance->SetVec4("ubo.color", ToVector4(White));
 	materialInstance->SetTexture("image", CreateFourColorsTexture());
 
@@ -364,7 +364,7 @@ TEST_F(MaterialRender, Texture)
 
 TEST_F(MaterialRender, TextureIsModulatedByTheUniformColor)
 {
-	MaterialInstance* materialInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
 	materialInstance->SetVec4("ubo.color", ToVector4(Red));
 	materialInstance->SetTexture("image", CreateFourColorsTexture());
 
@@ -383,11 +383,11 @@ TEST_F(MaterialRender, TwoInstancesKeepTheirOwnTexture)
 	ASSERT_TRUE(blueTexture->BuildBuffer(2, 2, bluePixels, Texture::CreateInfo()));
 	_textures.PushBack(blueTexture);
 
-	MaterialInstance* fourColorsInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+	MaterialInstance* fourColorsInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
 	fourColorsInstance->SetVec4("ubo.color", ToVector4(White));
 	fourColorsInstance->SetTexture("image", CreateFourColorsTexture());
 
-	MaterialInstance* blueInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+	MaterialInstance* blueInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
 	blueInstance->SetVec4("ubo.color", ToVector4(White));
 	blueInstance->SetTexture("image", blueTexture);
 
@@ -408,11 +408,11 @@ TEST_F(MaterialRender, SamplerCanBeSetApartFromTheTexture)
 
 	Texture* texture = CreateFourColorsTexture(); // its default sampler is a nearest one
 
-	MaterialInstance* nearestInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+	MaterialInstance* nearestInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
 	nearestInstance->SetVec4("ubo.color", ToVector4(White));
 	nearestInstance->SetTexture("image", texture);
 
-	MaterialInstance* linearInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+	MaterialInstance* linearInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
 	linearInstance->SetVec4("ubo.color", ToVector4(White));
 	linearInstance->SetTexture("image", texture);
 	linearInstance->SetSampler("imageSampler", RhiDevice::GetInstance()->GetSampler(linear));
@@ -435,7 +435,7 @@ TEST_F(MaterialRender, TextureChangedBetweenFramesIsSeenByTheNextFrame)
 	ASSERT_TRUE(blueTexture->BuildBuffer(2, 2, bluePixels, Texture::CreateInfo()));
 	_textures.PushBack(blueTexture);
 
-	MaterialInstance* materialInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
 	materialInstance->SetVec4("ubo.color", ToVector4(White));
 
 	materialInstance->SetTexture("image", CreateFourColorsTexture());
@@ -458,7 +458,7 @@ TEST_F(MaterialRender, TextureChangedBetweenFramesIsSeenByTheNextFrame)
 // An explicit null texture is a supported way to draw with the uniform color only
 TEST_F(MaterialRender, NullTextureRendersTheUniformColor)
 {
-	MaterialInstance* materialInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
 	materialInstance->SetVec4("ubo.color", ToVector4(Green));
 	materialInstance->SetTexture("image", nullptr);
 
@@ -471,7 +471,7 @@ TEST_F(MaterialRender, NullTextureRendersTheUniformColor)
 TEST_F(MaterialRender, NeverSetTextureFallsBackAndIsReported)
 {
 	// The report is emitted once per material: use a material no other test leaves a texture unset on
-	MaterialInstance* materialInstance = CreateMaterialInstance(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
 	materialInstance->SetVec4("ubo.color", ToVector4(White));
 
 	RenderFrame([&]() { DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f, materialInstance); });

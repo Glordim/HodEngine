@@ -5,7 +5,7 @@
 
 #include <HodEngine/Math/Color.hpp>
 #include <HodEngine/Renderer/Font/Font.hpp>
-#include <HodEngine/Renderer/MaterialManager.hpp>
+#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/P2fC4f.hpp>
 #include <HodEngine/Renderer/P2fT2f.hpp>
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
@@ -29,7 +29,7 @@ namespace hod::inline game
 	/// @brief
 	TextRendererComponent::TextRendererComponent()
 	{
-		const Material* material = MaterialManager::GetInstance()->GetBuiltinMaterial(MaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+		const Material* material = BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
 		_materialInstance = MaterialInstance::Create(material);
 	}
 

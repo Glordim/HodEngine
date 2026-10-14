@@ -8,7 +8,7 @@
 #include "HodEngine/RHI/RenderTarget.hpp"
 #include "HodEngine/RHI/Semaphore.hpp"
 
-#include "HodEngine/Renderer/MaterialManager.hpp"
+#include "HodEngine/Renderer/BuiltinMaterialManager.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
 
 namespace hod::inline renderer

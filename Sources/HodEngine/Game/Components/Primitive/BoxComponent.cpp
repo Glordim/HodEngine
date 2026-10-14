@@ -10,7 +10,7 @@
 #include <HodEngine/Renderer/MaterialInstance.hpp>
 #include <HodEngine/Renderer/Sprite.hpp>
 #include <HodEngine/Renderer/SpriteAtlas.hpp>
-#include <HodEngine/Renderer/MaterialManager.hpp>
+#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 
 #include "HodEngine/Core/StaticArray.hpp"
