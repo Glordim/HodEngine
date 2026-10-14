@@ -7,6 +7,7 @@
 
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
+#include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 
 #include <HodEngine/Core/Output/OutputService.hpp>
@@ -18,6 +19,10 @@ namespace hod::inline renderer
 	{
 		AddPropertyT(reflectionDescriptor, &MaterialResource::_polygonMode, "_polygonMode");
 		AddPropertyT(reflectionDescriptor, &MaterialResource::_topololy, "_topololy");
+		AddPropertyT(reflectionDescriptor, &MaterialResource::_blendMode, "_blendMode");
+		AddPropertyT(reflectionDescriptor, &MaterialResource::_cullMode, "_cullMode");
+		AddPropertyT(reflectionDescriptor, &MaterialResource::_depthTest, "_depthTest");
+		AddPropertyT(reflectionDescriptor, &MaterialResource::_depthWrite, "_depthWrite");
 
 		AddPropertyT(reflectionDescriptor, &MaterialResource::_defaultInstanceParams, "_defaultInstanceParams");
 	}
@@ -55,6 +60,19 @@ namespace hod::inline renderer
 
 	bool MaterialResource::Initialize(const ResourceContainer& resourceContainer)
 	{
+		// What the material editor sets. A material never saved by it has none, and keeps the defaults.
+		const ResourceContainer::DataBlockInfo* settingsDataBlock = resourceContainer.FindDataBlock("Settings");
+		if (settingsDataBlock != nullptr)
+		{
+			Document           settingsDocument;
+			DocumentReaderJson documentReader;
+			if (documentReader.Read(settingsDocument, *settingsDataBlock->_stream) == false || Serializer::Deserialize(*this, settingsDocument.GetRootNode()) == false)
+			{
+				OUTPUT_ERROR("MaterialResource::Initialize: can't read 'Settings' data block");
+				return false;
+			}
+		}
+
 		Vector<uint8_t> vertexData;
 		Vector<uint8_t> vertexReflectionData;
 		if (ReadDataBlock(resourceContainer, "Vertex", vertexData) == false || ReadDataBlock(resourceContainer, "VertexReflection", vertexReflectionData) == false)
@@ -98,6 +116,10 @@ namespace hod::inline renderer
 		createInfo._fragmentShader = _fragmentShader;
 		createInfo._polygonMode = _polygonMode;
 		createInfo._topololy = _topololy;
+		createInfo._blendMode = _blendMode;
+		createInfo._cullMode = _cullMode;
+		createInfo._depthTest = _depthTest;
+		createInfo._depthWrite = _depthWrite;
 
 		_material = Material::Create(createInfo);
 		if (_material == nullptr)

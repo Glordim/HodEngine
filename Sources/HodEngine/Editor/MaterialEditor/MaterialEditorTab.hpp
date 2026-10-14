@@ -29,8 +29,13 @@ namespace hod::inline editor
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(MaterialSettings)
 
+		// Saved under the names MaterialResource reads them with
 		Material::PolygonMode		_polygonMode = Material::PolygonMode::Fill;
 		Material::Topololy			_topololy = Material::Topololy::TRIANGLE;
+		BlendMode					_blendMode = BlendMode::Alpha;
+		CullMode					_cullMode = CullMode::None;
+		bool						_depthTest = false;
+		bool						_depthWrite = false;
 
 		Document					_defaultInstanceParams;
 	};

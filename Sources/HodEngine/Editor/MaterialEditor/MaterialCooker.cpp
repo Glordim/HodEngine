@@ -136,6 +136,26 @@ namespace hod::inline editor
 			return false;
 		}
 
+		// What the material editor sets, read as it is by MaterialResource. Absent until the material is first saved by the editor.
+		const AssetContainer::DataBlockInfo* settingsDataBlock = assetContainer.FindDataBlock("Settings");
+		if (settingsDataBlock != nullptr)
+		{
+			Vector<uint8_t> settingsData;
+			settingsData.Resize(settingsDataBlock->_uncompressedSize);
+			if (settingsDataBlock->_stream->Read(settingsData.Data(), settingsData.Size()) != settingsData.Size())
+			{
+				OUTPUT_ERROR("MaterialCooker: can't read 'Settings' data block");
+				return false;
+			}
+
+			Stream& settingsStream = AddDataBlockStream("Settings", false, std::to_underlying(Platform::All), std::to_underlying(Config::All), std::to_underlying(ResourceVariant::Language::All));
+			if (settingsStream.Write(settingsData.Data(), settingsData.Size()) != settingsData.Size())
+			{
+				OUTPUT_ERROR("MaterialCooker: unable to write 'Settings' data block");
+				return false;
+			}
+		}
+
 		return true;
 	}
 

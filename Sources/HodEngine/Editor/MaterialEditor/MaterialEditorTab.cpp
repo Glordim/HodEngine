@@ -34,6 +34,10 @@ namespace hod::inline editor
 	{
 		AddPropertyT(reflectionDescriptor, &MaterialSettings::_polygonMode, "_polygonMode");
 		AddPropertyT(reflectionDescriptor, &MaterialSettings::_topololy, "_topololy");
+		AddPropertyT(reflectionDescriptor, &MaterialSettings::_blendMode, "_blendMode");
+		AddPropertyT(reflectionDescriptor, &MaterialSettings::_cullMode, "_cullMode");
+		AddPropertyT(reflectionDescriptor, &MaterialSettings::_depthTest, "_depthTest");
+		AddPropertyT(reflectionDescriptor, &MaterialSettings::_depthWrite, "_depthWrite");
 
 		AddPropertyT(reflectionDescriptor, &MaterialSettings::_defaultInstanceParams, "_defaultInstanceParams")->AddTrait<ReflectionTraitHide>();
 	}
