@@ -276,6 +276,15 @@ namespace hod::inline rhi
 			return false;
 		}
 
+		// Filled by the upload commands, which the CPU does not wait for: before what is submitted next draws with it.
+		// Pending, they make what is released kept until they are done, the upload buffer included.
+		ID3D12GraphicsCommandList* commandList = rhiDevice->GetUploadCommandList();
+		if (commandList == nullptr)
+		{
+			Release();
+			return false;
+		}
+
 		ComPtr<ID3D12Resource>             uploadBuffer;
 		D3D12_PLACED_SUBRESOURCE_FOOTPRINT uploadFootprint = {};
 
@@ -324,13 +333,6 @@ namespace hod::inline rhi
 			uploadBuffer->Unmap(0, nullptr);
 		}
 
-		ID3D12GraphicsCommandList* commandList = rhiDevice->BeginImmediateCommands();
-		if (commandList == nullptr)
-		{
-			Release();
-			return false;
-		}
-
 		if (uploadBuffer != nullptr)
 		{
 			D3D12_TEXTURE_COPY_LOCATION destination = {};
@@ -348,12 +350,7 @@ namespace hod::inline rhi
 
 		Transition(commandList, ShaderResourceState);
 
-		if (rhiDevice->EndImmediateCommands() == false) // the upload buffer is not used past it
-		{
-			Release();
-			return false;
-		}
-
+		rhiDevice->DeferRelease(std::move(uploadBuffer));
 		return true;
 	}
 

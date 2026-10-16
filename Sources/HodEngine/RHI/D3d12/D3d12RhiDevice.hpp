@@ -61,9 +61,9 @@ namespace hod::inline rhi
 		bool AcquireCommandList(ComPtr<ID3D12CommandAllocator>& commandAllocator, ComPtr<ID3D12GraphicsCommandList>& commandList);
 		void ReleaseCommandList(ComPtr<ID3D12CommandAllocator>& commandAllocator, ComPtr<ID3D12GraphicsCommandList>& commandList);
 
-		// Commands executed, and waited for, by EndImmediateCommands
-		ID3D12GraphicsCommandList* BeginImmediateCommands();
-		bool                       EndImmediateCommands();
+		// Commands that upload data into resources, recorded at any time without the CPU waiting for them: they are executed ahead of
+		// the next SubmitCommandBuffers, so that what they upload is ready for it. What is released meanwhile is kept until they are done.
+		ID3D12GraphicsCommandList* GetUploadCommandList();
 
 		// Table of the sampler heap holding the given samplers, in that order.
 		// The sampler heap is small (2048 descriptors) while BindGroups are many: they share the table of their samplers.
@@ -83,6 +83,16 @@ namespace hod::inline rhi
 		bool SelectGpuDevice(uint32_t physicalDeviceIdentifier);
 		bool CreateDevice();
 		void SetupValidationOutput();
+
+		// Closes the pending upload commands, for the caller to execute them now. Null when there are none.
+		ID3D12CommandList* EndUploads();
+		void               FlushUploads(); // executes them on their own, for WaitIdle
+
+		// To call after each submission: gives it the next submission index
+		bool SignalSubmissionIndex();
+		// What is released now may be used by the submissions up to the next one, which carries the pending upload commands
+		uint64_t GetDeferredDeletionSubmissionIndex() const;
+		void     ReleaseCompletedDeletions(uint64_t completedSubmissionIndex);
 		void OutputStoredValidationMessages();
 
 	private:
@@ -103,6 +113,20 @@ namespace hod::inline rhi
 			D3d12DescriptorHeap* _descriptorHeap = nullptr;
 			uint32_t             _index = 0;
 			uint32_t             _count = 0;
+			uint64_t             _submissionIndex = 0;
+		};
+
+		// Released with the index of the next submission: released once the GPU is done with it, the last one that may use them
+		struct DeferredObject
+		{
+			IUnknown* _object = nullptr; // holds a reference (a ComPtr can't be stored in a Vector, which takes the address of its elements)
+			uint64_t  _submissionIndex = 0;
+		};
+
+		struct DeferredCommandList
+		{
+			CommandList _commandList;
+			uint64_t    _submissionIndex = 0;
 		};
 
 	private:
@@ -118,9 +142,10 @@ namespace hod::inline rhi
 		ComPtr<ID3D12InfoQueue> _infoQueue;                    // only with the validation layer
 		DWORD                   _validationCallbackCookie = 0; // 0 when the messages have to be polled instead
 
-		ComPtr<ID3D12Fence> _idleFence;
+		// Every submission to the queue gets the next index, which it signals once the GPU is done with it
+		ComPtr<ID3D12Fence> _submissionFence;
+		uint64_t            _lastSubmissionIndex = 0;
 		HANDLE              _idleEvent = nullptr;
-		uint64_t            _idleFenceValue = 0;
 
 		D3d12DescriptorHeap _renderTargetViewHeap;
 		D3d12DescriptorHeap _depthStencilViewHeap;
@@ -130,11 +155,13 @@ namespace hod::inline rhi
 		Vector<SamplerTable> _samplerTables;
 
 		Vector<CommandList> _freeCommandLists;
-		CommandList         _immediateCommandList;
+		CommandList         _uploadCommandList; // recording while its list is not null, until EndUploads
 
 		bool _triangleFanSupported = false;
 
-		Vector<Vector<IUnknown*>>           _objectsToRelease; // each holds a reference (a ComPtr can't be stored in a Vector, which takes the address of its elements)
-		Vector<Vector<DeferredDescriptors>> _descriptorsToFree;
+		Vector<DeferredObject>      _objectsToRelease;
+		Vector<DeferredDescriptors> _descriptorsToFree;
+		Vector<DeferredCommandList> _commandListsToRelease; // back to _freeCommandLists
+		bool                        _deferredDeletionsClosed = false; // from the destruction on, what is released goes right away
 	};
 }

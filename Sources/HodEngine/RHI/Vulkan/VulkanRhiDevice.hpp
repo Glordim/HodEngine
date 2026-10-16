@@ -88,19 +88,17 @@ namespace hod::inline rhi
 
 		// GraphicsPipeline* GetSharedMinimalMaterial() const;
 
-		bool CreateBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags memoryProperties, VkBuffer* buffer, VkDeviceMemory* bufferMemory);
 		bool CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image,
 		                 VmaAllocation* imageMemory);
 		bool CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView);
 
-		bool BeginSingleTimeCommands(VkCommandBuffer* commandBuffer);
-		bool EndSingleTimeCommands(VkCommandBuffer commandBuffer);
+		// Commands that upload data into resources, recorded at any time without the CPU waiting for them: they are submitted ahead of
+		// the next SubmitCommandBuffers, so that what they upload is ready for it. What is released meanwhile is kept until they are done.
+		VkCommandBuffer GetUploadCommandBuffer();
+		// A buffer, mapped, for an upload command to copy from. Released once the upload commands are done.
+		bool CreateUploadBuffer(VkDeviceSize size, VkBuffer* buffer, void** mappedData);
 
-		bool CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize size);
-
-		bool TransitionImageLayoutImmediate(VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout);
 		bool TransitionImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout);
-		bool CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height);
 		void CopyImageToBuffer(VkCommandBuffer commandBuffer, VkImage image, VkBuffer buffer, uint32_t width, uint32_t height);
 
 		bool FindMemoryTypeIndex(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryProperties, uint32_t* memoryTypeIndex);
@@ -115,6 +113,7 @@ namespace hod::inline rhi
 		void DeferDestroy(VkDescriptorSet descriptorSet, VkDescriptorPool descriptorPool);
 		void DeferDestroy(VkPipeline pipeline);
 		void DeferDestroy(VkPipelineLayout pipelineLayout);
+		void DeferDestroy(VkCommandBuffer commandBuffer);
 
 	protected:
 		bool     InitDevice(uint32_t physicalDeviceIdentifier) override;
@@ -123,6 +122,17 @@ namespace hod::inline rhi
 
 	private:
 		bool CreateVkIntance();
+
+		// Ends the pending upload commands, for the caller to submit them now. Null when there are none.
+		VkCommandBuffer EndUploads();
+		void            FlushUploads(); // submits them on their own, for WaitIdle
+
+		// To call after each submission: gives it the next submission index
+		bool SignalSubmissionIndex();
+		void UpdateCompletedSubmissionIndex();
+		// What is released now may be used by the submissions up to the next one, which carries the pending upload commands
+		uint64_t GetDeferredDeletionSubmissionIndex() const;
+		void     ReleaseCompletedDeletions();
 		bool CreateDescriptorPool();
 
 		void EnumeratePhysicalDevice();
@@ -173,15 +183,38 @@ namespace hod::inline rhi
 			VkDescriptorPool descriptorPool = VK_NULL_HANDLE;
 		};
 
-		Vector<Vector<VkFramebuffer>>    _framebuffersToDestroy;
-		Vector<Vector<VkRenderPass>>     _renderPassesToDestroy;
-		Vector<Vector<VkSemaphore>>      _vkSemaphoresToDestroy;
-		Vector<Vector<VkSampler>>        _samplersToDestroy;
-		Vector<Vector<VkImageView>>      _imageViewsToDestroy;
-		Vector<Vector<DeferredImage>>    _imagesToDestroy;
-		Vector<Vector<DeferredBuffer>>   _buffersToDestroy;
-		Vector<Vector<DeferredDescriptorSet>> _descriptorSetsToDestroy;
-		Vector<Vector<VkPipeline>>       _pipelinesToDestroy;
-		Vector<Vector<VkPipelineLayout>> _pipelineLayoutsToDestroy;
+		// Released with the index of the next submission: destroyed once the GPU is done with it, the last one that may use them
+		template<typename T>
+		struct Deferred
+		{
+			T        _object = {};
+			uint64_t _submissionIndex = 0;
+		};
+
+		Vector<Deferred<VkFramebuffer>>         _framebuffersToDestroy;
+		Vector<Deferred<VkRenderPass>>          _renderPassesToDestroy;
+		Vector<Deferred<VkSemaphore>>           _vkSemaphoresToDestroy;
+		Vector<Deferred<VkSampler>>             _samplersToDestroy;
+		Vector<Deferred<VkImageView>>           _imageViewsToDestroy;
+		Vector<Deferred<DeferredImage>>         _imagesToDestroy;
+		Vector<Deferred<DeferredBuffer>>        _buffersToDestroy;
+		Vector<Deferred<DeferredDescriptorSet>> _descriptorSetsToDestroy;
+		Vector<Deferred<VkPipeline>>            _pipelinesToDestroy;
+		Vector<Deferred<VkPipelineLayout>>      _pipelineLayoutsToDestroy;
+		Vector<Deferred<VkCommandBuffer>>       _commandBuffersToDestroy;
+
+		// Every submission to the queue gets the next index, which a fence signals once the GPU is done with it, and so with the ones before
+		struct SubmittedFence
+		{
+			VkFence  _fence = VK_NULL_HANDLE;
+			uint64_t _submissionIndex = 0;
+		};
+
+		uint64_t               _lastSubmissionIndex = 0;
+		uint64_t               _completedSubmissionIndex = 0; // the GPU is done with the submissions up to it
+		Vector<SubmittedFence> _submittedFences;              // not signaled yet when last polled, in submission order
+		Vector<VkFence>        _freeFences;
+
+		VkCommandBuffer _uploadCommandBuffer = VK_NULL_HANDLE; // recording, until EndUploads
 	};
 }

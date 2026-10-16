@@ -38,6 +38,32 @@
 
 namespace hod::inline rhi
 {
+	namespace
+	{
+		/// @brief Destroys, in the order they were released, the objects the GPU is done with: the first ones, as their submission indices only grow
+		template<typename Deferred, typename Destroy>
+		void ReleaseCompleted(Vector<Deferred>& objects, uint64_t completedSubmissionIndex, Destroy destroy)
+		{
+			uint32_t completedCount = 0;
+			while (completedCount < objects.Size() && objects[completedCount]._submissionIndex <= completedSubmissionIndex)
+			{
+				destroy(objects[completedCount]._object);
+				++completedCount;
+			}
+
+			// The ones left are shifted to the front. A ring buffer would suit these lists better: they are only pushed to the back
+			// and released from the front. Cheap for now, as only the ones still in flight are shifted, once per frame.
+			if (completedCount > 0)
+			{
+				for (uint32_t index = completedCount; index < objects.Size(); ++index)
+				{
+					objects[index - completedCount] = objects[index];
+				}
+				objects.Resize(objects.Size() - completedCount);
+			}
+		}
+	}
+
 	_SingletonOverrideConstructor(VulkanRhiDevice)
 	: RhiDevice()
 	{
@@ -48,18 +74,22 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	VulkanRhiDevice::~VulkanRhiDevice()
 	{
-		if (_device != VK_NULL_HANDLE)
-		{
-			if (vkDeviceWaitIdle(_device) != VK_SUCCESS)
-			{
-				OUTPUT_ERROR("Vulkan: DeviceWaitIdle failed!");
-			}
-		}
+		WaitIdle();
 
-		for (uint32_t i = 0; i < GetFrameInFlightCount(); ++i)
+		// Nothing is submitted anymore: what was released after the last submission can go too
+		_completedSubmissionIndex = _lastSubmissionIndex + 1;
+		ReleaseCompletedDeletions();
+
+		for (const SubmittedFence& submittedFence : _submittedFences)
 		{
-			FlushDeferredDeletions(i);
+			vkDestroyFence(_device, submittedFence._fence, nullptr);
 		}
+		_submittedFences.Clear();
+		for (VkFence fence : _freeFences)
+		{
+			vkDestroyFence(_device, fence, nullptr);
+		}
+		_freeFences.Clear();
 
 		for (const CompatibleRenderPass& compatibleRenderPass : _compatibleRenderPasses)
 		{
@@ -102,10 +132,15 @@ namespace hod::inline rhi
 	{
 		if (_device != VK_NULL_HANDLE)
 		{
+			FlushUploads();
+
 			if (vkDeviceWaitIdle(_device) != VK_SUCCESS)
 			{
 				OUTPUT_ERROR("Vulkan: DeviceWaitIdle failed!");
 			}
+
+			UpdateCompletedSubmissionIndex();
+			ReleaseCompletedDeletions();
 		}
 	}
 
@@ -380,126 +415,266 @@ namespace hod::inline rhi
 	/// @brief
 	void VulkanRhiDevice::DeferDestroy(VkFramebuffer framebuffer)
 	{
-		_framebuffersToDestroy[_frameIndex].PushBack(framebuffer);
+		_framebuffersToDestroy.PushBack({framebuffer, GetDeferredDeletionSubmissionIndex()});
 	}
 
 	/// @brief
 	void VulkanRhiDevice::DeferDestroy(VkRenderPass renderPass)
 	{
-		_renderPassesToDestroy[_frameIndex].PushBack(renderPass);
+		_renderPassesToDestroy.PushBack({renderPass, GetDeferredDeletionSubmissionIndex()});
 	}
 
 	/// @brief
 	void VulkanRhiDevice::DeferDestroy(VkSemaphore semaphore)
 	{
-		_vkSemaphoresToDestroy[_frameIndex].PushBack(semaphore);
+		_vkSemaphoresToDestroy.PushBack({semaphore, GetDeferredDeletionSubmissionIndex()});
 	}
 
 	/// @brief
 	void VulkanRhiDevice::DeferDestroy(VkSampler sampler)
 	{
-		_samplersToDestroy[_frameIndex].PushBack(sampler);
+		_samplersToDestroy.PushBack({sampler, GetDeferredDeletionSubmissionIndex()});
 	}
 
 	/// @brief
 	void VulkanRhiDevice::DeferDestroy(VkImageView imageView)
 	{
-		_imageViewsToDestroy[_frameIndex].PushBack(imageView);
+		_imageViewsToDestroy.PushBack({imageView, GetDeferredDeletionSubmissionIndex()});
 	}
 
 	/// @brief
 	void VulkanRhiDevice::DeferDestroy(VkImage image, VmaAllocation allocation)
 	{
-		_imagesToDestroy[_frameIndex].PushBack({image, allocation});
+		_imagesToDestroy.PushBack({{image, allocation}, GetDeferredDeletionSubmissionIndex()});
 	}
 
 	/// @brief
 	void VulkanRhiDevice::DeferDestroy(VkBuffer buffer, VmaAllocation allocation)
 	{
-		_buffersToDestroy[_frameIndex].PushBack({buffer, allocation});
+		_buffersToDestroy.PushBack({{buffer, allocation}, GetDeferredDeletionSubmissionIndex()});
 	}
 
 	/// @brief
 	void VulkanRhiDevice::DeferDestroy(VkDescriptorSet descriptorSet, VkDescriptorPool descriptorPool)
 	{
-		_descriptorSetsToDestroy[_frameIndex].PushBack({descriptorSet, descriptorPool});
+		_descriptorSetsToDestroy.PushBack({{descriptorSet, descriptorPool}, GetDeferredDeletionSubmissionIndex()});
 	}
 
 	/// @brief
 	void VulkanRhiDevice::DeferDestroy(VkPipeline pipeline)
 	{
-		_pipelinesToDestroy[_frameIndex].PushBack(pipeline);
+		_pipelinesToDestroy.PushBack({pipeline, GetDeferredDeletionSubmissionIndex()});
 	}
 
 	/// @brief
 	void VulkanRhiDevice::DeferDestroy(VkPipelineLayout pipelineLayout)
 	{
-		_pipelineLayoutsToDestroy[_frameIndex].PushBack(pipelineLayout);
+		_pipelineLayoutsToDestroy.PushBack({pipelineLayout, GetDeferredDeletionSubmissionIndex()});
 	}
 
 	/// @brief
-	void VulkanRhiDevice::FlushDeferredDeletions(uint32_t frameIndex)
+	void VulkanRhiDevice::DeferDestroy(VkCommandBuffer commandBuffer)
 	{
-		for (VkFramebuffer framebuffer : _framebuffersToDestroy[frameIndex])
-		{
-			vkDestroyFramebuffer(_device, framebuffer, nullptr);
-		}
-		_framebuffersToDestroy[frameIndex].Clear();
+		_commandBuffersToDestroy.PushBack({commandBuffer, GetDeferredDeletionSubmissionIndex()});
+	}
 
-		for (VkSemaphore semaphore : _vkSemaphoresToDestroy[frameIndex])
-		{
-			vkDestroySemaphore(_device, semaphore, nullptr);
-		}
-		_vkSemaphoresToDestroy[frameIndex].Clear();
+	/// @brief
+	/// @return
+	uint64_t VulkanRhiDevice::GetDeferredDeletionSubmissionIndex() const
+	{
+		return _lastSubmissionIndex + 1;
+	}
 
-		for (VkSampler sampler : _samplersToDestroy[frameIndex])
+	/// @brief
+	/// @return
+	bool VulkanRhiDevice::SignalSubmissionIndex()
+	{
+		VkFence fence = VK_NULL_HANDLE;
+		if (_freeFences.Empty() == false)
 		{
-			vkDestroySampler(_device, sampler, nullptr);
+			fence = _freeFences.Back();
+			_freeFences.PopBack();
 		}
-		_samplersToDestroy[frameIndex].Clear();
+		else
+		{
+			VkFenceCreateInfo fenceInfo = {};
+			fenceInfo.sType = VK_STRUCTURE_TYPE_FENCE_CREATE_INFO;
+			if (vkCreateFence(_device, &fenceInfo, nullptr, &fence) != VK_SUCCESS)
+			{
+				OUTPUT_ERROR("Vulkan: Unable to create a submission fence!");
+				return false;
+			}
+		}
 
-		for (VkImageView imageView : _imageViewsToDestroy[frameIndex])
+		// Without command buffer, signaled once the GPU is done with what was submitted before
+		if (vkQueueSubmit(_graphicsQueue, 0, nullptr, fence) != VK_SUCCESS)
 		{
-			vkDestroyImageView(_device, imageView, nullptr);
+			OUTPUT_ERROR("Vulkan: Unable to submit a submission fence!");
+			_freeFences.PushBack(fence);
+			return false;
 		}
-		_imageViewsToDestroy[frameIndex].Clear();
 
-		for (const DeferredImage& img : _imagesToDestroy[frameIndex])
-		{
-			vkDestroyImage(_device, img.image, nullptr);
-			vmaFreeMemory(_vmaAllocator, img.allocation);
-		}
-		_imagesToDestroy[frameIndex].Clear();
+		++_lastSubmissionIndex;
+		_submittedFences.PushBack({fence, _lastSubmissionIndex});
+		return true;
+	}
 
-		for (const DeferredBuffer& buf : _buffersToDestroy[frameIndex])
+	/// @brief
+	void VulkanRhiDevice::UpdateCompletedSubmissionIndex()
+	{
+		while (_submittedFences.Empty() == false && vkGetFenceStatus(_device, _submittedFences[0]._fence) == VK_SUCCESS)
 		{
-			vmaDestroyBuffer(_vmaAllocator, buf.buffer, buf.allocation);
-		}
-		_buffersToDestroy[frameIndex].Clear();
+			SubmittedFence submittedFence = _submittedFences[0];
+			_submittedFences.Erase(_submittedFences.Begin());
 
-		for (const DeferredDescriptorSet& deferredDescriptorSet : _descriptorSetsToDestroy[frameIndex])
-		{
-			vkFreeDescriptorSets(_device, deferredDescriptorSet.descriptorPool, 1, &deferredDescriptorSet.descriptorSet);
+			_completedSubmissionIndex = submittedFence._submissionIndex;
+			vkResetFences(_device, 1, &submittedFence._fence);
+			_freeFences.PushBack(submittedFence._fence);
 		}
-		_descriptorSetsToDestroy[frameIndex].Clear();
+	}
 
-		for (VkPipeline pipeline : _pipelinesToDestroy[frameIndex])
+	/// @brief
+	/// @return null if it can't be recorded
+	VkCommandBuffer VulkanRhiDevice::GetUploadCommandBuffer()
+	{
+		if (_uploadCommandBuffer != VK_NULL_HANDLE)
 		{
-			vkDestroyPipeline(_device, pipeline, nullptr);
+			return _uploadCommandBuffer;
 		}
-		_pipelinesToDestroy[frameIndex].Clear();
 
-		for (VkPipelineLayout pipelineLayout : _pipelineLayoutsToDestroy[frameIndex])
-		{
-			vkDestroyPipelineLayout(_device, pipelineLayout, nullptr);
-		}
-		_pipelineLayoutsToDestroy[frameIndex].Clear();
+		VkCommandBufferAllocateInfo allocInfo = {};
+		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
+		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
+		allocInfo.commandPool = _commandPool;
+		allocInfo.commandBufferCount = 1;
 
-		for (VkRenderPass renderPass : _renderPassesToDestroy[frameIndex])
+		VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
+		if (vkAllocateCommandBuffers(_device, &allocInfo, &commandBuffer) != VK_SUCCESS)
 		{
-			vkDestroyRenderPass(_device, renderPass, nullptr);
+			OUTPUT_ERROR("Vulkan: Unable to create the upload command buffer!");
+			return VK_NULL_HANDLE;
 		}
-		_renderPassesToDestroy[frameIndex].Clear();
+
+		VkCommandBufferBeginInfo beginInfo = {};
+		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
+		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
+		if (vkBeginCommandBuffer(commandBuffer, &beginInfo) != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to begin the upload command buffer!");
+			vkFreeCommandBuffers(_device, _commandPool, 1, &commandBuffer);
+			return VK_NULL_HANDLE;
+		}
+
+		_uploadCommandBuffer = commandBuffer;
+		return _uploadCommandBuffer;
+	}
+
+	/// @brief
+	/// @param size
+	/// @param buffer
+	/// @param mappedData
+	/// @return
+	bool VulkanRhiDevice::CreateUploadBuffer(VkDeviceSize size, VkBuffer* buffer, void** mappedData)
+	{
+		// Released once the next submission is done, the one that carries the upload commands
+		if (GetUploadCommandBuffer() == VK_NULL_HANDLE)
+		{
+			return false;
+		}
+
+		VkBufferCreateInfo bufferInfo = {};
+		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
+		bufferInfo.size = size;
+		bufferInfo.usage = VK_BUFFER_USAGE_TRANSFER_SRC_BIT;
+		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
+
+		VmaAllocationCreateInfo allocationCreateInfo = {};
+		allocationCreateInfo.usage = VMA_MEMORY_USAGE_CPU_ONLY; // host coherent
+		allocationCreateInfo.flags = VMA_ALLOCATION_CREATE_MAPPED_BIT;
+
+		VmaAllocation     allocation = VK_NULL_HANDLE;
+		VmaAllocationInfo allocationInfo = {};
+		if (vmaCreateBuffer(_vmaAllocator, &bufferInfo, &allocationCreateInfo, buffer, &allocation, &allocationInfo) != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to create an upload buffer!");
+			return false;
+		}
+
+		*mappedData = allocationInfo.pMappedData;
+		DeferDestroy(*buffer, allocation);
+		return true;
+	}
+
+	/// @brief
+	/// @return
+	VkCommandBuffer VulkanRhiDevice::EndUploads()
+	{
+		if (_uploadCommandBuffer == VK_NULL_HANDLE)
+		{
+			return VK_NULL_HANDLE;
+		}
+
+		VkCommandBuffer commandBuffer = _uploadCommandBuffer;
+		_uploadCommandBuffer = VK_NULL_HANDLE;
+		DeferDestroy(commandBuffer);
+
+		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to end the upload command buffer!");
+			return VK_NULL_HANDLE;
+		}
+		return commandBuffer;
+	}
+
+	/// @brief
+	void VulkanRhiDevice::FlushUploads()
+	{
+		VkCommandBuffer commandBuffer = EndUploads();
+		if (commandBuffer == VK_NULL_HANDLE)
+		{
+			return;
+		}
+
+		VkSubmitInfo submitInfo = {};
+		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
+		submitInfo.commandBufferCount = 1;
+		submitInfo.pCommandBuffers = &commandBuffer;
+		if (vkQueueSubmit(_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
+		{
+			OUTPUT_ERROR("Vulkan: Unable to submit the upload command buffer!");
+			return;
+		}
+		SignalSubmissionIndex();
+	}
+
+	/// @brief Whatever the frame: what is released is tagged with a submission index, not with a frame
+	void VulkanRhiDevice::FlushDeferredDeletions(uint32_t /*frameIndex*/)
+	{
+		UpdateCompletedSubmissionIndex();
+		ReleaseCompletedDeletions();
+	}
+
+	/// @brief
+	void VulkanRhiDevice::ReleaseCompletedDeletions()
+	{
+		// What uses another object goes before it
+		ReleaseCompleted(_framebuffersToDestroy, _completedSubmissionIndex, [this](VkFramebuffer framebuffer) { vkDestroyFramebuffer(_device, framebuffer, nullptr); });
+		ReleaseCompleted(_vkSemaphoresToDestroy, _completedSubmissionIndex, [this](VkSemaphore semaphore) { vkDestroySemaphore(_device, semaphore, nullptr); });
+		ReleaseCompleted(_samplersToDestroy, _completedSubmissionIndex, [this](VkSampler sampler) { vkDestroySampler(_device, sampler, nullptr); });
+		ReleaseCompleted(_imageViewsToDestroy, _completedSubmissionIndex, [this](VkImageView imageView) { vkDestroyImageView(_device, imageView, nullptr); });
+		ReleaseCompleted(_imagesToDestroy, _completedSubmissionIndex,
+		                 [this](const DeferredImage& image)
+		                 {
+			                 vkDestroyImage(_device, image.image, nullptr);
+			                 vmaFreeMemory(_vmaAllocator, image.allocation);
+		                 });
+		ReleaseCompleted(_buffersToDestroy, _completedSubmissionIndex, [this](const DeferredBuffer& buffer) { vmaDestroyBuffer(_vmaAllocator, buffer.buffer, buffer.allocation); });
+		ReleaseCompleted(_descriptorSetsToDestroy, _completedSubmissionIndex, [this](const DeferredDescriptorSet& descriptorSet)
+		                 { vkFreeDescriptorSets(_device, descriptorSet.descriptorPool, 1, &descriptorSet.descriptorSet); });
+		ReleaseCompleted(_pipelinesToDestroy, _completedSubmissionIndex, [this](VkPipeline pipeline) { vkDestroyPipeline(_device, pipeline, nullptr); });
+		ReleaseCompleted(_commandBuffersToDestroy, _completedSubmissionIndex, [this](VkCommandBuffer commandBuffer) { vkFreeCommandBuffers(_device, _commandPool, 1, &commandBuffer); });
+		ReleaseCompleted(_pipelineLayoutsToDestroy, _completedSubmissionIndex, [this](VkPipelineLayout pipelineLayout) { vkDestroyPipelineLayout(_device, pipelineLayout, nullptr); });
+		ReleaseCompleted(_renderPassesToDestroy, _completedSubmissionIndex, [this](VkRenderPass renderPass) { vkDestroyRenderPass(_device, renderPass, nullptr); });
 	}
 
 	PresentationSurface* VulkanRhiDevice::CreatePresentationSurface(window::Window* window)
@@ -514,16 +689,6 @@ namespace hod::inline rhi
 	/// @return
 	bool VulkanRhiDevice::InitDevice(uint32_t physicalDeviceIdentifier)
 	{
-		_framebuffersToDestroy.Resize(GetFrameInFlightCount());
-		_renderPassesToDestroy.Resize(GetFrameInFlightCount());
-		_vkSemaphoresToDestroy.Resize(GetFrameInFlightCount());
-		_samplersToDestroy.Resize(GetFrameInFlightCount());
-		_imageViewsToDestroy.Resize(GetFrameInFlightCount());
-		_imagesToDestroy.Resize(GetFrameInFlightCount());
-		_buffersToDestroy.Resize(GetFrameInFlightCount());
-		_descriptorSetsToDestroy.Resize(GetFrameInFlightCount());
-		_pipelinesToDestroy.Resize(GetFrameInFlightCount());
-		_pipelineLayoutsToDestroy.Resize(GetFrameInFlightCount());
 
 		if (CreateVkIntance() == false)
 		{
@@ -873,56 +1038,6 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool VulkanRhiDevice::CreateBuffer(VkDeviceSize bufferSize, VkBufferUsageFlags bufferUsage, VkMemoryPropertyFlags memoryProperties, VkBuffer* buffer,
-	                                  VkDeviceMemory* bufferMemory)
-	{
-		// TODO use VMA ?
-
-		VkBufferCreateInfo bufferInfo = {};
-		bufferInfo.sType = VK_STRUCTURE_TYPE_BUFFER_CREATE_INFO;
-		bufferInfo.size = bufferSize;
-		bufferInfo.usage = bufferUsage;
-		bufferInfo.sharingMode = VK_SHARING_MODE_EXCLUSIVE;
-
-		if (vkCreateBuffer(_device, &bufferInfo, nullptr, buffer) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to create buffer!");
-			return false;
-		}
-
-		VkMemoryRequirements memRequirements;
-		vkGetBufferMemoryRequirements(_device, *buffer, &memRequirements);
-
-		uint32_t memoryTypeIndex = 0;
-		if (FindMemoryTypeIndex(memRequirements.memoryTypeBits, memoryProperties, &memoryTypeIndex) == false)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to find memory type for this buffer!");
-			return false;
-		}
-
-		VkMemoryAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_MEMORY_ALLOCATE_INFO;
-		allocInfo.allocationSize = memRequirements.size;
-		allocInfo.memoryTypeIndex = memoryTypeIndex;
-
-		if (vkAllocateMemory(_device, &allocInfo, nullptr, bufferMemory) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to allocate buffer memory!");
-			return false;
-		}
-
-		if (vkBindBufferMemory(_device, *buffer, *bufferMemory, 0) != VK_SUCCESS)
-		{
-			OUTPUT_ERROR("Vulkan: Unable to bind buffer and buffer memory!");
-			return false;
-		}
-
-		return true;
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
 	bool VulkanRhiDevice::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
 	                                 VkImage* image, VmaAllocation* imageMemory)
 	{
@@ -1009,96 +1124,6 @@ namespace hod::inline rhi
 		if (vkCreateImageView(_device, &viewInfo, nullptr, imageView) != VK_SUCCESS)
 		{
 			OUTPUT_ERROR("Vulkan: Failed to create texture image view!");
-			return false;
-		}
-
-		return true;
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	bool VulkanRhiDevice::BeginSingleTimeCommands(VkCommandBuffer* commandBuffer)
-	{
-		*commandBuffer = VK_NULL_HANDLE;
-
-		VkCommandBufferAllocateInfo allocInfo = {};
-		allocInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_ALLOCATE_INFO;
-		allocInfo.level = VK_COMMAND_BUFFER_LEVEL_PRIMARY;
-		allocInfo.commandPool = _commandPool;
-		allocInfo.commandBufferCount = 1;
-
-		if (vkAllocateCommandBuffers(_device, &allocInfo, commandBuffer) != VK_SUCCESS)
-		{
-			return false;
-		}
-
-		VkCommandBufferBeginInfo beginInfo = {};
-		beginInfo.sType = VK_STRUCTURE_TYPE_COMMAND_BUFFER_BEGIN_INFO;
-		beginInfo.flags = VK_COMMAND_BUFFER_USAGE_ONE_TIME_SUBMIT_BIT;
-
-		if (vkBeginCommandBuffer(*commandBuffer, &beginInfo) != VK_SUCCESS)
-		{
-			vkFreeCommandBuffers(_device, _commandPool, 1, commandBuffer);
-			return false;
-		}
-
-		return true;
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	bool VulkanRhiDevice::EndSingleTimeCommands(VkCommandBuffer commandBuffer)
-	{
-		bool         ret = false;
-		VkSubmitInfo submitInfo = {};
-
-		if (vkEndCommandBuffer(commandBuffer) != VK_SUCCESS)
-		{
-			goto exit;
-		}
-
-		submitInfo.sType = VK_STRUCTURE_TYPE_SUBMIT_INFO;
-		submitInfo.commandBufferCount = 1;
-		submitInfo.pCommandBuffers = &commandBuffer;
-
-		if (vkQueueSubmit(_graphicsQueue, 1, &submitInfo, VK_NULL_HANDLE) != VK_SUCCESS)
-		{
-			goto exit;
-		}
-
-		if (vkQueueWaitIdle(_graphicsQueue) != VK_SUCCESS)
-		{
-			goto exit;
-		}
-
-		ret = true;
-
-	exit:
-		vkFreeCommandBuffers(_device, _commandPool, 1, &commandBuffer);
-
-		return ret;
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	bool VulkanRhiDevice::CopyBuffer(VkBuffer srcBuffer, VkBuffer dstBuffer, VkDeviceSize Size)
-	{
-		VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-		VkBufferCopy    copyRegion = {};
-		copyRegion.size = Size;
-
-		if (BeginSingleTimeCommands(&commandBuffer) == false)
-		{
-			return false;
-		}
-
-		vkCmdCopyBuffer(commandBuffer, srcBuffer, dstBuffer, 1, &copyRegion);
-
-		if (EndSingleTimeCommands(commandBuffer) == false)
-		{
 			return false;
 		}
 
@@ -1221,64 +1246,6 @@ namespace hod::inline rhi
 		return true;
 	}
 
-	/// @brief
-	/// @param image
-	/// @param aspectFlags
-	/// @param oldLayout
-	/// @param newLayout
-	/// @return
-	bool VulkanRhiDevice::TransitionImageLayoutImmediate(VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout)
-	{
-		VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-
-		if (BeginSingleTimeCommands(&commandBuffer) == false)
-		{
-			return false;
-		}
-
-		TransitionImageLayout(commandBuffer, image, aspectFlags, oldLayout, newLayout);
-
-		if (EndSingleTimeCommands(commandBuffer) == false)
-		{
-			return false;
-		}
-
-		return true;
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	bool VulkanRhiDevice::CopyBufferToImage(VkBuffer buffer, VkImage image, uint32_t width, uint32_t height)
-	{
-		VkCommandBuffer commandBuffer = VK_NULL_HANDLE;
-
-		if (BeginSingleTimeCommands(&commandBuffer) == false)
-		{
-			return false;
-		}
-
-		VkBufferImageCopy region = {};
-		region.bufferOffset = 0;
-		region.bufferRowLength = 0;
-		region.bufferImageHeight = 0;
-		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
-		region.imageSubresource.mipLevel = 0;
-		region.imageSubresource.baseArrayLayer = 0;
-		region.imageSubresource.layerCount = 1;
-		region.imageOffset = {0, 0, 0};
-		region.imageExtent = {width, height, 1};
-
-		vkCmdCopyBufferToImage(commandBuffer, buffer, image, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
-
-		if (EndSingleTimeCommands(commandBuffer) == false)
-		{
-			return false;
-		}
-
-		return true;
-	}
-
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
@@ -1325,10 +1292,19 @@ namespace hod::inline rhi
 	bool VulkanRhiDevice::SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore, const Semaphore* waitSemaphore,
 	                                          const Fence* fence)
 	{
-		Vector<VkCommandBuffer> vkCommandBuffers(commandBufferCount);
+		Vector<VkCommandBuffer> vkCommandBuffers;
+		vkCommandBuffers.Reserve(commandBufferCount + 1);
+
+		// Ahead of what draws with what they upload: their barriers order them before it, as it comes after them on the queue
+		VkCommandBuffer uploadCommandBuffer = EndUploads();
+		if (uploadCommandBuffer != VK_NULL_HANDLE)
+		{
+			vkCommandBuffers.PushBack(uploadCommandBuffer);
+		}
+
 		for (uint32_t commandBufferIndex = 0; commandBufferIndex < commandBufferCount; ++commandBufferIndex)
 		{
-			vkCommandBuffers[commandBufferIndex] = static_cast<VulkanCommandBuffer*>(commandBuffers[commandBufferIndex])->GetVkCommandBuffer();
+			vkCommandBuffers.PushBack(static_cast<VulkanCommandBuffer*>(commandBuffers[commandBufferIndex])->GetVkCommandBuffer());
 		}
 
 		VkSemaphore vkSignalSemaphore = VK_NULL_HANDLE;
@@ -1377,7 +1353,7 @@ namespace hod::inline rhi
 			return false;
 		}
 
-		return true;
+		return SignalSubmissionIndex();
 	}
 
 	//-----------------------------------------------------------------------------

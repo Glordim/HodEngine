@@ -22,6 +22,24 @@ namespace hod::inline rhi
 {
 	namespace
 	{
+		/// @brief Removes the first count elements, keeping the order of the others
+		template<typename T>
+		void RemoveFirst(Vector<T>& elements, uint32_t count)
+		{
+			if (count == 0)
+			{
+				return;
+			}
+
+			// The ones left are shifted to the front. A ring buffer would suit these lists better: they are only pushed to the back
+			// and released from the front. Cheap for now, as only the ones still in flight are shifted, once per frame.
+			for (uint32_t index = count; index < elements.Size(); ++index)
+			{
+				elements[index - count] = std::move(elements[index]);
+			}
+			elements.Resize(elements.Size() - count);
+		}
+
 		constexpr uint32_t RenderTargetViewHeapCapacity = 1024;
 		constexpr uint32_t DepthStencilViewHeapCapacity = 1024;
 		constexpr uint32_t ShaderResourceHeapCapacity = 65536;
@@ -59,16 +77,11 @@ namespace hod::inline rhi
 	{
 		WaitIdle();
 
-		for (uint32_t frameIndex = 0; frameIndex < _objectsToRelease.Size(); ++frameIndex)
-		{
-			FlushDeferredDeletions(frameIndex);
-		}
-		// From now on DeferRelease and DeferFree act immediately
-		_objectsToRelease.Clear();
-		_descriptorsToFree.Clear();
+		// Nothing is submitted anymore: what was released after the last submission can go too. From now on, DeferRelease and DeferFree act right away.
+		ReleaseCompletedDeletions(_lastSubmissionIndex + 1);
+		_deferredDeletionsClosed = true;
 
 		_freeCommandLists.Clear();
-		_immediateCommandList = CommandList();
 
 		_samplerTables.Clear();
 		_samplerHeap.Release();
@@ -100,9 +113,6 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	bool D3d12RhiDevice::InitDevice(uint32_t physicalDeviceIdentifier)
 	{
-		_objectsToRelease.Resize(GetFrameInFlightCount());
-		_descriptorsToFree.Resize(GetFrameInFlightCount());
-
 		UINT factoryFlags = 0;
 
 #if defined(RHI_ENABLE_VALIDATION_LAYER)
@@ -148,7 +158,7 @@ namespace hod::inline rhi
 			return false;
 		}
 
-		if (FAILED(_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_idleFence))))
+		if (FAILED(_device->CreateFence(0, D3D12_FENCE_FLAG_NONE, IID_PPV_ARGS(&_submissionFence))))
 		{
 			OUTPUT_ERROR("D3d12: Unable to create fence!");
 			return false;
@@ -165,11 +175,6 @@ namespace hod::inline rhi
 		    _depthStencilViewHeap.Init(_device.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_DSV, DepthStencilViewHeapCapacity, false) == false ||
 		    _shaderResourceHeap.Init(_device.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_CBV_SRV_UAV, ShaderResourceHeapCapacity, true) == false ||
 		    _samplerHeap.Init(_device.Get(), D3D12_DESCRIPTOR_HEAP_TYPE_SAMPLER, SamplerHeapCapacity, true) == false)
-		{
-			return false;
-		}
-
-		if (AcquireCommandList(_immediateCommandList._commandAllocator, _immediateCommandList._commandList) == false)
 		{
 			return false;
 		}
@@ -364,21 +369,22 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	void D3d12RhiDevice::WaitIdle()
 	{
-		if (_commandQueue == nullptr || _idleFence == nullptr)
+		if (_commandQueue == nullptr || _submissionFence == nullptr)
 		{
 			return;
 		}
 
-		++_idleFenceValue;
-		if (FAILED(_commandQueue->Signal(_idleFence.Get(), _idleFenceValue)))
+		FlushUploads();
+
+		if (SignalSubmissionIndex() == false)
 		{
 			OUTPUT_ERROR("D3d12: WaitIdle failed!");
 			return;
 		}
 
-		if (_idleFence->GetCompletedValue() < _idleFenceValue)
+		if (_submissionFence->GetCompletedValue() < _lastSubmissionIndex)
 		{
-			if (FAILED(_idleFence->SetEventOnCompletion(_idleFenceValue, _idleEvent)))
+			if (FAILED(_submissionFence->SetEventOnCompletion(_lastSubmissionIndex, _idleEvent)))
 			{
 				OUTPUT_ERROR("D3d12: WaitIdle failed!");
 				return;
@@ -517,35 +523,68 @@ namespace hod::inline rhi
 		_freeCommandLists.PushBack(std::move(freeCommandList));
 	}
 
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	ID3D12GraphicsCommandList* D3d12RhiDevice::BeginImmediateCommands()
+	/// @brief
+	/// @return null if it can't be recorded
+	ID3D12GraphicsCommandList* D3d12RhiDevice::GetUploadCommandList()
 	{
-		if (FAILED(_immediateCommandList._commandAllocator->Reset()) || FAILED(_immediateCommandList._commandList->Reset(_immediateCommandList._commandAllocator.Get(), nullptr)))
+		if (_uploadCommandList._commandList != nullptr)
 		{
-			OUTPUT_ERROR("D3d12: Unable to begin immediate commands!");
+			return _uploadCommandList._commandList.Get();
+		}
+
+		CommandList commandList;
+		if (AcquireCommandList(commandList._commandAllocator, commandList._commandList) == false)
+		{
 			return nullptr;
 		}
-		return _immediateCommandList._commandList.Get();
-	}
 
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	bool D3d12RhiDevice::EndImmediateCommands()
-	{
-		if (FAILED(_immediateCommandList._commandList->Close()))
+		if (FAILED(commandList._commandAllocator->Reset()) || FAILED(commandList._commandList->Reset(commandList._commandAllocator.Get(), nullptr)))
 		{
-			OUTPUT_ERROR("D3d12: Unable to end immediate commands!");
-			return false;
+			OUTPUT_ERROR("D3d12: Unable to begin the upload commands!");
+			ReleaseCommandList(commandList._commandAllocator, commandList._commandList);
+			return nullptr;
 		}
 
-		ID3D12CommandList* commandLists[] = {_immediateCommandList._commandList.Get()};
-		_commandQueue->ExecuteCommandLists(1, commandLists);
+		_uploadCommandList = std::move(commandList);
+		return _uploadCommandList._commandList.Get();
+	}
 
-		WaitIdle();
-		return true;
+	/// @brief
+	/// @return
+	ID3D12CommandList* D3d12RhiDevice::EndUploads()
+	{
+		if (_uploadCommandList._commandList == nullptr)
+		{
+			return nullptr;
+		}
+
+		ID3D12GraphicsCommandList* commandList = _uploadCommandList._commandList.Get();
+		bool                       closed = SUCCEEDED(commandList->Close());
+
+		// Kept until the submission that carries it is done: the deferred list owns it from now on, which ends the pending upload commands
+		DeferredCommandList deferredCommandList;
+		deferredCommandList._commandList = std::move(_uploadCommandList);
+		deferredCommandList._submissionIndex = GetDeferredDeletionSubmissionIndex();
+		_commandListsToRelease.PushBack(std::move(deferredCommandList));
+		_uploadCommandList = CommandList();
+
+		if (closed == false)
+		{
+			OUTPUT_ERROR("D3d12: Unable to end the upload commands!");
+			return nullptr;
+		}
+		return commandList;
+	}
+
+	/// @brief
+	void D3d12RhiDevice::FlushUploads()
+	{
+		ID3D12CommandList* commandList = EndUploads();
+		if (commandList != nullptr)
+		{
+			_commandQueue->ExecuteCommandLists(1, &commandList);
+			SignalSubmissionIndex();
+		}
 	}
 
 	/// @brief
@@ -598,9 +637,9 @@ namespace hod::inline rhi
 	/// @param object
 	void D3d12RhiDevice::DeferRelease(ComPtr<IUnknown> object)
 	{
-		if (object != nullptr && _objectsToRelease.Empty() == false)
+		if (object != nullptr && _deferredDeletionsClosed == false)
 		{
-			_objectsToRelease[_frameIndex].PushBack(object.Detach());
+			_objectsToRelease.PushBack({object.Detach(), GetDeferredDeletionSubmissionIndex()});
 		}
 	}
 
@@ -610,7 +649,7 @@ namespace hod::inline rhi
 	/// @param count
 	void D3d12RhiDevice::DeferFree(D3d12DescriptorHeap& descriptorHeap, uint32_t index, uint32_t count)
 	{
-		if (_descriptorsToFree.Empty())
+		if (_deferredDeletionsClosed)
 		{
 			descriptorHeap.Free(index, count);
 			return;
@@ -620,26 +659,71 @@ namespace hod::inline rhi
 		deferredDescriptors._descriptorHeap = &descriptorHeap;
 		deferredDescriptors._index = index;
 		deferredDescriptors._count = count;
-		_descriptorsToFree[_frameIndex].PushBack(deferredDescriptors);
+		deferredDescriptors._submissionIndex = GetDeferredDeletionSubmissionIndex();
+		_descriptorsToFree.PushBack(deferredDescriptors);
+	}
+
+	/// @brief
+	/// @return
+	uint64_t D3d12RhiDevice::GetDeferredDeletionSubmissionIndex() const
+	{
+		return _lastSubmissionIndex + 1;
+	}
+
+	/// @brief
+	/// @return
+	bool D3d12RhiDevice::SignalSubmissionIndex()
+	{
+		if (FAILED(_commandQueue->Signal(_submissionFence.Get(), _lastSubmissionIndex + 1)))
+		{
+			OUTPUT_ERROR("D3d12: Unable to signal the submission fence!");
+			return false;
+		}
+		++_lastSubmissionIndex;
+		return true;
 	}
 
 	/// @brief
 	/// @param frameIndex
-	void D3d12RhiDevice::FlushDeferredDeletions(uint32_t frameIndex)
+	void D3d12RhiDevice::FlushDeferredDeletions(uint32_t /*frameIndex*/)
 	{
-		for (IUnknown* object : _objectsToRelease[frameIndex])
+		// Whatever the frame: what is released is tagged with a submission index, not with a frame
+		if (_submissionFence != nullptr)
 		{
-			object->Release();
+			ReleaseCompletedDeletions(_submissionFence->GetCompletedValue());
 		}
-		_objectsToRelease[frameIndex].Clear();
-
-		for (const DeferredDescriptors& deferredDescriptors : _descriptorsToFree[frameIndex])
-		{
-			deferredDescriptors._descriptorHeap->Free(deferredDescriptors._index, deferredDescriptors._count);
-		}
-		_descriptorsToFree[frameIndex].Clear();
 
 		OutputStoredValidationMessages();
+	}
+
+	/// @brief In the order they were released: the first ones, as their submission indices only grow
+	/// @param completedSubmissionIndex the GPU is done with the submissions up to it
+	void D3d12RhiDevice::ReleaseCompletedDeletions(uint64_t completedSubmissionIndex)
+	{
+		uint32_t count = 0;
+		while (count < _objectsToRelease.Size() && _objectsToRelease[count]._submissionIndex <= completedSubmissionIndex)
+		{
+			_objectsToRelease[count]._object->Release();
+			++count;
+		}
+		RemoveFirst(_objectsToRelease, count);
+
+		count = 0;
+		while (count < _descriptorsToFree.Size() && _descriptorsToFree[count]._submissionIndex <= completedSubmissionIndex)
+		{
+			_descriptorsToFree[count]._descriptorHeap->Free(_descriptorsToFree[count]._index, _descriptorsToFree[count]._count);
+			++count;
+		}
+		RemoveFirst(_descriptorsToFree, count);
+
+		count = 0;
+		while (count < _commandListsToRelease.Size() && _commandListsToRelease[count]._submissionIndex <= completedSubmissionIndex)
+		{
+			CommandList& commandList = _commandListsToRelease[count]._commandList;
+			ReleaseCommandList(commandList._commandAllocator, commandList._commandList);
+			++count;
+		}
+		RemoveFirst(_commandListsToRelease, count);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -666,15 +750,25 @@ namespace hod::inline rhi
 		// Everything goes through the one command queue, which executes in the order it is given the work, presents included:
 		// there is nothing left for the semaphores to order
 
-		Vector<ID3D12CommandList*> commandLists(commandBufferCount);
-		for (uint32_t commandBufferIndex = 0; commandBufferIndex < commandBufferCount; ++commandBufferIndex)
+		Vector<ID3D12CommandList*> commandLists;
+		commandLists.Reserve(commandBufferCount + 1);
+
+		// Ahead of what draws with what they upload
+		ID3D12CommandList* uploadCommandList = EndUploads();
+		if (uploadCommandList != nullptr)
 		{
-			commandLists[commandBufferIndex] = static_cast<D3d12CommandBuffer*>(commandBuffers[commandBufferIndex])->GetCommandList();
+			commandLists.PushBack(uploadCommandList);
 		}
 
-		if (commandBufferCount > 0)
+		for (uint32_t commandBufferIndex = 0; commandBufferIndex < commandBufferCount; ++commandBufferIndex)
 		{
-			_commandQueue->ExecuteCommandLists(commandBufferCount, commandLists.Data());
+			commandLists.PushBack(static_cast<D3d12CommandBuffer*>(commandBuffers[commandBufferIndex])->GetCommandList());
+		}
+
+		if (commandLists.Empty() == false)
+		{
+			_commandQueue->ExecuteCommandLists((UINT)commandLists.Size(), commandLists.Data());
+			SignalSubmissionIndex();
 		}
 
 		if (fence != nullptr && static_cast<const D3d12Fence*>(fence)->Signal(_commandQueue.Get()) == false)

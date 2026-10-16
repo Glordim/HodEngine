@@ -79,6 +79,8 @@ namespace hod::inline rhi
 		// Valid texture bound to every texture slot the caller left unset, so that a shader never samples an unbound slot.
 		Texture* GetFallbackTexture() const;
 
+		// A resource may be deleted as soon as the command buffers that use it are submitted: the device keeps it until the GPU is done with them.
+		// Not before they are submitted, as long as they are only recorded.
 		void BeginFrame();
 		void EndFrame();
 

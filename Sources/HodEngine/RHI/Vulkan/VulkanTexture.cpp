@@ -98,14 +98,6 @@ namespace hod::inline rhi
 			goto exit;
 		}
 
-		/*
-		if (rhiDevice->TransitionImageLayoutImmediate(_textureImage, VK_IMAGE_ASPECT_DEPTH_BIT, VK_IMAGE_LAYOUT_UNDEFINED,
-														VK_IMAGE_LAYOUT_DEPTH_STENCIL_ATTACHMENT_OPTIMAL) == false)
-		{
-			goto exit;
-		}
-			*/
-
 		if (rhiDevice->CreateImageView(_textureImage, ToVkFormat(PixelFormat::D16_UNorm), VK_IMAGE_ASPECT_DEPTH_BIT, &_textureImageView) == false)
 		{
 			goto exit;
@@ -171,13 +163,6 @@ namespace hod::inline rhi
 		{
 			goto exit;
 		}
-
-		/*
-		if (rhiDevice->TransitionImageLayoutImmediate(_textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_COLOR_ATTACHMENT_OPTIMAL) == false)
-		{
-			goto exit;
-		}
-		*/
 
 		if (rhiDevice->CreateImageView(_textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, &_textureImageView) == false)
 		{
@@ -269,100 +254,62 @@ namespace hod::inline rhi
 	{
 		VulkanRhiDevice* rhiDevice = (VulkanRhiDevice*)RhiDevice::GetInstance();
 
-		VkBuffer       buffer = VK_NULL_HANDLE;
-		VkDeviceMemory bufferMemory = VK_NULL_HANDLE;
-		VkDeviceSize   bufferSize = width * height * 4;
-		void*          data = nullptr;
-		bool           ret = false;
-
+		VkDeviceSize          bufferSize = width * height * 4;
 		VkMemoryPropertyFlags memoryPropertyFlags =
 			createInfo._allowReadWrite ? VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT : VK_MEMORY_PROPERTY_DEVICE_LOCAL_BIT;
 		VkImageTiling imageTiling = createInfo._allowReadWrite ? VK_IMAGE_TILING_LINEAR : VK_IMAGE_TILING_OPTIMAL;
 
-		if (rhiDevice->CreateBuffer(bufferSize, VK_BUFFER_USAGE_TRANSFER_SRC_BIT, VK_MEMORY_PROPERTY_HOST_VISIBLE_BIT | VK_MEMORY_PROPERTY_HOST_COHERENT_BIT, &buffer,
-									&bufferMemory) == false)
-		{
-			goto exit;
-		}
-
+		VkBuffer uploadBuffer = VK_NULL_HANDLE;
 		if (pixels != nullptr)
 		{
-			if (vkMapMemory(rhiDevice->GetVkDevice(), bufferMemory, 0, bufferSize, 0, &data) != VK_SUCCESS)
+			void* uploadData = nullptr;
+			if (rhiDevice->CreateUploadBuffer(bufferSize, &uploadBuffer, &uploadData) == false)
 			{
-				OUTPUT_ERROR("Vulkan: Texture, unable to map memory");
-				goto exit;
+				return false;
 			}
-			memcpy(data, pixels, static_cast<size_t>(bufferSize));
-			vkUnmapMemory(rhiDevice->GetVkDevice(), bufferMemory);
+			memcpy(uploadData, pixels, static_cast<size_t>(bufferSize));
 		}
 
 		if (rhiDevice->CreateImage(width, height, VK_FORMAT_R8G8B8A8_UNORM, imageTiling, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, memoryPropertyFlags,
-									&_textureImage, &_textureImageMemory) == false)
+		                           &_textureImage, &_textureImageMemory) == false)
 		{
-			goto exit;
-		}
-
-		if (rhiDevice->TransitionImageLayoutImmediate(_textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL) == false)
-		{
-			goto exit;
-		}
-
-		if (rhiDevice->CopyBufferToImage(buffer, _textureImage, width, height) == false)
-		{
-			goto exit;
-		}
-
-		if (rhiDevice->TransitionImageLayoutImmediate(_textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
-														VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL) == false)
-		{
-			goto exit;
+			return false;
 		}
 
 		if (rhiDevice->CreateImageView(_textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, &_textureImageView) == false)
 		{
-			goto exit;
+			// Nothing uses it yet
+			vmaDestroyImage(rhiDevice->GetVmaAllocator(), _textureImage, _textureImageMemory);
+			_textureImage = VK_NULL_HANDLE;
+			_textureImageMemory = VK_NULL_HANDLE;
+			return false;
 		}
 
-		ret = true;
-
-	exit:
-		if (buffer != VK_NULL_HANDLE)
+		// Filled by the upload commands, which the CPU does not wait for: before what is submitted next draws with it.
+		// The layout transitions between these layouts always succeed.
+		VkCommandBuffer commandBuffer = rhiDevice->GetUploadCommandBuffer();
+		if (commandBuffer == VK_NULL_HANDLE)
 		{
-			vkDestroyBuffer(rhiDevice->GetVkDevice(), buffer, nullptr);
+			return false; // the destructor releases what was created
 		}
-		if (bufferMemory != VK_NULL_HANDLE)
+
+		rhiDevice->TransitionImageLayout(commandBuffer, _textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_UNDEFINED, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL);
+
+		if (uploadBuffer != VK_NULL_HANDLE)
 		{
-			vkFreeMemory(rhiDevice->GetVkDevice(), bufferMemory, nullptr);
+			VkBufferImageCopy region = {};
+			region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+			region.imageSubresource.layerCount = 1;
+			region.imageExtent = {width, height, 1};
+			vkCmdCopyBufferToImage(commandBuffer, uploadBuffer, _textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
 		}
 
-		if (ret == false)
-		{
-			if (_textureImageView != VK_NULL_HANDLE)
-			{
-				vkDestroyImageView(rhiDevice->GetVkDevice(), _textureImageView, nullptr);
-				_textureImageView = VK_NULL_HANDLE;
-			}
+		rhiDevice->TransitionImageLayout(commandBuffer, _textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		                                 VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL);
 
-			if (_textureImage != VK_NULL_HANDLE)
-			{
-				vkDestroyImage(rhiDevice->GetVkDevice(), _textureImage, nullptr);
-				_textureImage = VK_NULL_HANDLE;
-			}
-
-			if (_textureImageMemory != VK_NULL_HANDLE)
-			{
-				// vkFreeMemory(rhiDevice->GetVkDevice(), _textureImageMemory, nullptr);
-				vmaFreeMemory(rhiDevice->GetVmaAllocator(), _textureImageMemory);
-				_textureImageMemory = VK_NULL_HANDLE;
-			}
-		}
-		else
-		{
-			_width = width;
-			_height = height;
-		}
-
-		return ret;
+		_width = width;
+		_height = height;
+		return true;
 	}
 
 	/// @brief

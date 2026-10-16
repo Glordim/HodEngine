@@ -111,7 +111,7 @@ namespace hod::inline rhi
 		return nullptr;
 	}
 
-	/// @brief Releases what was deferred the last time this frame slot was used; the caller must have waited for that frame's GPU work to complete.
+	/// @brief Releases what the GPU is done with: what was released is kept until the submissions that may use it are done, whatever the frame
 	void RhiDevice::BeginFrame()
 	{
 		FlushDeferredDeletions(_frameIndex);

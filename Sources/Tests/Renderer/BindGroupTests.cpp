@@ -674,6 +674,168 @@ TEST_F(BindGroupRender, BufferDeletedWhileInFlightIsKeptAlive)
 	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Red));
 }
 
+// Texture uploads are recorded without the CPU waiting for them, and submitted ahead of the next frame: many in a row,
+// each ready for the frame that draws with it
+TEST_F(BindGroupRender, ManyTexturesUploadedWithoutWaiting)
+{
+	constexpr uint32_t TextureCount = 300;
+
+	BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White}));
+	Buffer*    colors = CreateColorBlocks({White});
+
+	auto createTexture = [&](uint8_t red, uint8_t green)
+	{
+		const uint8_t pixels[4 * 2 * 2] = {red, green, 0, 255, red, green, 0, 255, red, green, 0, 255, red, green, 0, 255};
+
+		Texture* texture = RhiDevice::GetInstance()->CreateTexture();
+		EXPECT_TRUE(texture->BuildBuffer(2, 2, pixels, Texture::CreateInfo()));
+		_textures.PushBack(texture);
+		return texture;
+	};
+
+	BindGroup* first = CreateMaterialBindGroup(colors, createTexture(255, 0));
+	for (uint32_t index = 1; index < TextureCount - 1; ++index)
+	{
+		createTexture((uint8_t)index, 128);
+	}
+	BindGroup* last = CreateMaterialBindGroup(colors, createTexture(0, 255));
+
+	RenderFrame([&]() {
+		SetBindGroup(0, global, 0);
+
+		SetBindGroup(1, first, 0);
+		DrawQuad(-1.0f, -1.0f, 0.0f, 1.0f);
+
+		SetBindGroup(1, last, 0);
+		DrawQuad(0.0f, -1.0f, 1.0f, 1.0f);
+	});
+
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, 0.0f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.0f), Green));
+}
+
+// The upload of a texture deleted right after being built is still submitted with the next frame: the texture is kept until it is done.
+// The graphics API validation reports a resource used after being destroyed.
+TEST_F(BindGroupRender, TextureDeletedBeforeItsUploadIsSubmitted)
+{
+	const uint8_t pixels[4 * 2 * 2] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
+
+	Texture* texture = RhiDevice::GetInstance()->CreateTexture();
+	ASSERT_TRUE(texture->BuildBuffer(2, 2, pixels, Texture::CreateInfo()));
+	DefaultAllocator::GetInstance().Delete(texture);
+
+	BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White}));
+	BindGroup* material = CreateMaterialBindGroup(CreateColorBlocks({Red}), CreateWhiteTexture());
+
+	for (uint32_t frame = 0; frame < 3; ++frame) // past the frames in flight: what is deferred is released meanwhile
+	{
+		RenderFrame([&]() {
+			SetBindGroup(0, global, 0);
+			SetBindGroup(1, material, 0);
+			DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f);
+		});
+	}
+
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Red));
+}
+
+// Several frames submitted without waiting for any, each releasing what it drew with right after submitting it: what is released
+// is kept until the GPU is done with the submissions that may use it, whatever the frame.
+// The graphics API validation reports what is destroyed while still in use.
+TEST_F(BindGroupRender, ResourcesReleasedEveryFrameWithoutWaitingForTheGpu)
+{
+	constexpr uint32_t FrameCount = 6;
+
+	RhiDevice* rhiDevice = RhiDevice::GetInstance();
+
+	BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White}));
+
+	auto createBuffer = [&](Buffer::Usage usage, const void* data, uint32_t size)
+	{
+		Buffer* buffer = rhiDevice->CreateBuffer(usage, size);
+		void*   bufferData = buffer->Lock();
+		EXPECT_NE(bufferData, nullptr);
+		if (bufferData != nullptr)
+		{
+			std::memcpy(bufferData, data, size);
+			buffer->Unlock();
+		}
+		return buffer;
+	};
+
+	StaticArray<Vector2, 4>  positions = {Vector2(-1.0f, 1.0f), Vector2(1.0f, 1.0f), Vector2(-1.0f, -1.0f), Vector2(1.0f, -1.0f)};
+	StaticArray<Vector2, 4>  uvs = {Vector2(0.0f, 1.0f), Vector2(1.0f, 1.0f), Vector2(0.0f, 0.0f), Vector2(1.0f, 0.0f)};
+	StaticArray<uint16_t, 6> indices = {0, 1, 2, 2, 1, 3};
+	const uint8_t            pixels[4 * 2 * 2] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
+	Vector4                  red = ToVector4(Red);
+
+	Rect viewport;
+	viewport._position = Vector2(0.0f, 0.0f);
+	viewport._size = Vector2((float)DefaultTargetSize, (float)DefaultTargetSize);
+
+	Vector<CommandBuffer*> commandBuffers; // deleted once the GPU is done with them, as the RHI asks
+
+	for (uint32_t frame = 0; frame < FrameCount; ++frame)
+	{
+		Renderer::GetInstance()->AcquireNextFrame();
+
+		Texture* texture = rhiDevice->CreateTexture();
+		ASSERT_TRUE(texture->BuildBuffer(2, 2, pixels, Texture::CreateInfo()));
+		Buffer* colors = createBuffer(Buffer::Usage::Uniform, &red, sizeof(red));
+
+		StaticArray<BindGroup::TextureBinding, 2> textureBindings;
+		textureBindings[0]._texture = texture;
+		textureBindings[1]._texture = texture;
+		BindGroup* material = rhiDevice->CreateBindGroup(_graphicsPipeline, 1, &colors, 1, textureBindings.Data(), (uint32_t)textureBindings.Size());
+		ASSERT_NE(material, nullptr);
+
+		StaticArray<Buffer*, 2> vertexBuffers = {
+			createBuffer(Buffer::Usage::Vertex, positions.Data(), (uint32_t)(positions.Size() * sizeof(Vector2))),
+			createBuffer(Buffer::Usage::Vertex, uvs.Data(), (uint32_t)(uvs.Size() * sizeof(Vector2))),
+		};
+		Buffer* indexBuffer = createBuffer(Buffer::Usage::Index, indices.Data(), (uint32_t)(indices.Size() * sizeof(uint16_t)));
+
+		_commandBuffer = rhiDevice->CreateCommandBuffer();
+		ASSERT_TRUE(_commandBuffer->StartRecord());
+		_commandBuffer->StartRenderPass(_renderTarget);
+		_commandBuffer->SetViewport(viewport);
+		_commandBuffer->SetGraphicsPipeline(_graphicsPipeline);
+		Matrix4 mvp = Matrix4::Identity;
+		_commandBuffer->SetConstant(&mvp, sizeof(mvp), Shader::ShaderType::Vertex);
+		SetBindGroup(0, global, 0);
+		SetBindGroup(1, material, 0);
+		_commandBuffer->SetVertexBuffer(vertexBuffers.Data(), (uint32_t)vertexBuffers.Size());
+		_commandBuffer->SetIndexBuffer(indexBuffer);
+		_commandBuffer->DrawIndexed((uint32_t)indices.Size(), 0, 0);
+		_commandBuffer->EndRenderPass();
+		_renderTarget->GetColorTexture()->CaptureReadback(_commandBuffer);
+		_commandBuffer->EndRecord();
+
+		rhiDevice->SubmitCommandBuffers(&_commandBuffer, 1, nullptr, nullptr, nullptr);
+		commandBuffers.PushBack(_commandBuffer);
+		_commandBuffer = nullptr;
+
+		// Right after the submission, the GPU not being waited for
+		DefaultAllocator::GetInstance().Delete(material);
+		DefaultAllocator::GetInstance().Delete(texture);
+		DefaultAllocator::GetInstance().Delete(colors);
+		DefaultAllocator::GetInstance().Delete(vertexBuffers[0]);
+		DefaultAllocator::GetInstance().Delete(vertexBuffers[1]);
+		DefaultAllocator::GetInstance().Delete(indexBuffer);
+
+		Renderer::GetInstance()->Render();
+	}
+
+	rhiDevice->WaitIdle();
+	for (CommandBuffer* commandBuffer : commandBuffers)
+	{
+		DefaultAllocator::GetInstance().Delete(commandBuffer);
+	}
+
+	_frameTexture = _renderTarget->GetColorTexture();
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Red));
+}
+
 // ============================================================================
 // What GraphicsPipeline::CreateInfo sets apart from the shaders
 // ============================================================================
