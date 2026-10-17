@@ -107,7 +107,9 @@ namespace hod::inline editor
 				CreateDefaultLayout();
 				_initialLayoutCreated = true;
 			}
+			imgui::Window::PushDockTabStyle();
 			ImGui::DockSpace(_dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_PassthruCentralNode);
+			imgui::Window::PopDockTabStyle();
 			auto it = _windows.Begin();
 			auto itEnd = _windows.End();
 			while (it != itEnd)

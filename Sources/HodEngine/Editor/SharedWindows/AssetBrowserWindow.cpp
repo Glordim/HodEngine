@@ -403,7 +403,10 @@ namespace hod::inline editor
 	bool AssetBrowserWindow::Draw()
 	{
 		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
-		if (ImGui::Begin(GetIdentifier(), nullptr, GetFlags()) == true)
+		PushDockTabStyle();
+		bool visible = ImGui::Begin(GetIdentifier(), nullptr, GetFlags());
+		PopDockTabStyle();
+		if (visible)
 		{
 			DrawDockTabContextMenu();
 			ImRect cliprect = ImGui::GetCurrentWindow()->ClipRect;

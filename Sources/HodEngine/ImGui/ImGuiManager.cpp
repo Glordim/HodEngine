@@ -628,7 +628,12 @@ namespace hod::inline imgui
 		mainViewport->Size.y = static_cast<DesktopWindow*>(_mainWindow)->GetHeight();
 		mainViewport->DpiScale = 1.0f;
 */
+		// Floating dock nodes update their tab bar in NewFrame(), outside any Push/Pop: swap the padding directly
+		ImGuiStyle& style = ImGui::GetStyle();
+		ImVec2      framePadding = style.FramePadding;
+		style.FramePadding = Window::DockTabFramePadding;
 		ImGui::NewFrame();
+		style.FramePadding = framePadding;
 
 		if (_mainBar != nullptr)
 		{

@@ -538,7 +538,7 @@ namespace hod::inline editor
 				{
 					if (_editorTabs.Empty() == false)
 					{
-						ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(64.0f, 0.0f));
+						ImGui::SetCursorScreenPos(ImGui::GetCursorScreenPos() + ImVec2(64.0f, 2.0f));
 						ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(8, 8));
 						bool visible =
 							ImGui::BeginTabBar("EditorTabBar", ImGuiTabBarFlags_Reorderable | ImGuiTabBarFlags_AutoSelectNewTabs | ImGuiTabBarFlags_DrawSelectedOverline);

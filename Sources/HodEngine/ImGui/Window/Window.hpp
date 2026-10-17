@@ -40,6 +40,14 @@ namespace hod::inline imgui
 
 		void SetTitle(std::string_view title);
 
+	public:
+		// ImGui has no dedicated tab padding: dock tab bars and docked window title bars use style.FramePadding.
+		// Push it around ImGui::Begin() of dockable windows, ImGui::DockSpace() and ImGui::NewFrame() (floating dock nodes).
+		static constexpr ImVec2 DockTabFramePadding = ImVec2(10.0f, 6.0f);
+
+		static void PushDockTabStyle();
+		static void PopDockTabStyle();
+
 	protected:
 		void DrawDockTabContextMenu();
 

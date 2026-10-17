@@ -33,7 +33,10 @@ namespace hod::inline imgui
 	bool Window::Draw()
 	{
 		bool open = true;
-		if (ImGui::Begin(GetIdentifier(), &open, _flags) == true)
+		PushDockTabStyle();
+		bool visible = ImGui::Begin(GetIdentifier(), &open, _flags);
+		PopDockTabStyle();
+		if (visible)
 		{
 			DrawDockTabContextMenu();
 			ImRect cliprect = ImGui::GetCurrentWindow()->ClipRect;
@@ -51,6 +54,18 @@ namespace hod::inline imgui
 		}
 		ImGui::End();
 		return open;
+	}
+
+	/// @brief
+	void Window::PushDockTabStyle()
+	{
+		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, DockTabFramePadding);
+	}
+
+	/// @brief
+	void Window::PopDockTabStyle()
+	{
+		ImGui::PopStyleVar();
 	}
 
 	/// @brief Right-click menu on the dock tab, replaces the dock node window menu button (style.WindowMenuButtonPosition = ImGuiDir_None).
