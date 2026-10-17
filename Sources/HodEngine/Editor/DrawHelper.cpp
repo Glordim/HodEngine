@@ -168,6 +168,21 @@ namespace hod::inline editor
 		return changed;
 	}
 
+	bool DrawHelper::DrawToggle(const char* label, const char* itemName, bool& toggled)
+	{
+		bool changed = false;
+		if (FramedButton(label, toggled))
+		{
+			toggled = !toggled;
+			changed = true;
+		}
+		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+		{
+			ImGui::SetTooltip("%s %s", toggled ? "Hide" : "Show", itemName);
+		}
+		return changed;
+	}
+
 	bool DrawHelper::BeginSettingsPopup(const char* settingsPopupId)
 	{
 		// Same ID scope as DrawToggleWithSettings' write; BeginPopup itself stays outside of it so its ID matches the one OpenPopup used.

@@ -63,6 +63,7 @@ namespace hod::inline editor
 
 		std::vector<const Guide*>	GetGuidesToDraw() const;
 		void		DrawToolbar();
+		void		DrawViewport(bool mouseOverToolbar);
 		void		DrawGuidesSettingsPopup();
 		void		DrawGridSettingsPopup();
 		void		DrawGuides(const Vector2& origin, RenderView& renderView);

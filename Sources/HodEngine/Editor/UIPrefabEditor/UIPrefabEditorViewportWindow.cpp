@@ -88,10 +88,28 @@ namespace hod::inline editor
 	/// @brief
 	void UIPrefabEditorViewportWindow::DrawContent()
 	{
+		// The toolbar floats over the render, which fills the whole window. It is submitted first so the viewport
+		// knows when the mouse is on its buttons (no picking/zoom/pan through them), but drawn on a channel above the image.
+		ImVec2      contentPos = ImGui::GetCursorPos();
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		drawList->ChannelsSplit(2);
+		drawList->ChannelsSetCurrent(1);
+		DrawToolbar();
+		bool mouseOverToolbar = ImGui::IsAnyItemHovered() || ImGui::IsAnyItemActive();
+		drawList->ChannelsSetCurrent(0);
+
+		ImGui::SetCursorPos(contentPos);
+		DrawViewport(mouseOverToolbar);
+
+		drawList->ChannelsMerge();
+	}
+
+	/// @brief
+	/// @param mouseOverToolbar true when the mouse is used by the floating toolbar, the viewport then ignores it
+	void UIPrefabEditorViewportWindow::DrawViewport(bool mouseOverToolbar)
+	{
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
 		ui2::Node*         root = tab->GetCanvas().GetRootNode();
-
-		DrawToolbar();
 
 		tab->GetCanvas().UpdateLayout();
 		Vector2 canvasSize = root->GetSize();
@@ -123,7 +141,7 @@ namespace hod::inline editor
 		// Uniform scale (pixels per canvas unit) that fits the whole canvas inside the viewport at zoom = 1, letterboxed.
 		float baseScale = std::min(resolutionWidth / canvasSize.GetX(), resolutionHeight / canvasSize.GetY());
 
-		bool hovered = ImGui::IsWindowHovered();
+		bool hovered = ImGui::IsWindowHovered() && mouseOverToolbar == false;
 		if (hovered && ImGui::GetIO().MouseWheel != 0.0f)
 		{
 			_targetZoom = std::clamp(_targetZoom + ImGui::GetIO().MouseWheel * 0.1f * _targetZoom, 0.05f, 50.0f);
@@ -311,8 +329,6 @@ namespace hod::inline editor
 			_settings.Save();
 			_settingsDirty = false;
 		}
-
-		ImGui::Separator();
 	}
 
 	/// @brief Editable list of guides: one row per guide (enabled checkbox, color, name,

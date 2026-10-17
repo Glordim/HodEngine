@@ -23,6 +23,11 @@ namespace hod::inline editor
         /// @return true if `toggled` changed
         static bool				DrawToggleWithSettings(const char* label, const char* itemName, const char* settingsPopupId, bool& toggled);
 
+        /// @brief Same toggle button as DrawToggleWithSettings, without the settings arrow.
+        /// @param itemName what is shown/hidden, used to build the tooltip
+        /// @return true if `toggled` changed
+        static bool				DrawToggle(const char* label, const char* itemName, bool& toggled);
+
         /// @brief ImGui::BeginPopup for a popup opened by DrawToggleWithSettings, anchored under it (popup's top-left corner on the widget's bottom-left corner).
         /// Must be called in the same window and the same frame as the matching DrawToggleWithSettings, after it.
         static bool				BeginSettingsPopup(const char* settingsPopupId);

@@ -8,6 +8,7 @@
 
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/ImGuiManager.hpp>
+#include <HodEngine/ImGui/Widgets.hpp>
 
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
 #include "HodEngine/Game/Components/RendererComponent.hpp"
@@ -45,6 +46,7 @@
 
 #include <algorithm>
 #include <cmath>
+#include <cstdio>
 #include <format>
 
 namespace hod::inline editor
@@ -58,7 +60,7 @@ namespace hod::inline editor
 	ViewportWindow::ViewportWindow(EditorTab* editorTab)
 	: EditorTabWindow(editorTab)
 	{
-		SetFlags(ImGuiWindowFlags_MenuBar | ImGuiWindowFlags_NoScrollbar);
+		SetFlags(ImGuiWindowFlags_NoScrollbar);
 
 		_renderTarget = RhiDevice::GetInstance()->CreateRenderTarget();
 		_pickingRenderTarget = DefaultAllocator::GetInstance().New<ReadbackRenderTarget>();
@@ -103,76 +105,117 @@ namespace hod::inline editor
 	/// @brief
 	void ViewportWindow::DrawContent()
 	{
-		if (ImGui::BeginMenuBar())
+		// The toolbar floats over the render, which fills the whole window. It is submitted first so the viewport
+		// knows when the mouse is on its buttons (no picking/zoom/pan/gizmo through them), but drawn on a channel above the image.
+		ImVec2      contentPos = ImGui::GetCursorPos();
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		drawList->ChannelsSplit(2);
+		drawList->ChannelsSetCurrent(1);
+		DrawToolbar();
+		_mouseOverToolbar = ImGui::IsAnyItemHovered() || ImGui::IsAnyItemActive();
+		drawList->ChannelsSetCurrent(0);
+
+		ImGui::SetCursorPos(contentPos);
+		DrawViewport();
+
+		drawList->ChannelsMerge();
+	}
+
+	/// @brief Toolbar floating over the top of the viewport: picking buffer, physics debug (with its draw flags) and grid toggles, plus the play mode resolution.
+	void ViewportWindow::DrawToolbar()
+	{
+		struct Resolution
 		{
-			// Keep the menu items off the hidden tab bar triangle.
-			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + DrawHelper::GetHiddenTabBarButtonWidth());
-			ImGui::MenuItem("Debug Picker", nullptr, &_debugPicker);
-			ImGui::SameLine();
-			bool enabled = _physicsDebugDrawer != nullptr;
-			if (ImGui::MenuItem("Debug Physics", nullptr, &enabled) == true)
-			{
-				EnablePhysicsDebugDrawer(enabled);
-			}
-			ImGui::SameLine();
-			if (ImGui::BeginMenu(ICON_MDI_TRIANGLE_SMALL_DOWN))
-			{
-				game::World*          world = GetOwner<EntityEditorTab>()->GetWorld();
-				physics::World*       physicsWorld = world->GetPhysicsWorld();
-				physics::DebugDrawer* physicsDebugDrawer = physicsWorld->GetDebugDrawer();
-				uint32_t              flags = physicsDebugDrawer->GetFlags();
+			const char* _shortLabel;
+			const char* _label;
+			Vector2     _ratio;
+		};
 
-				for (const physics::DebugDrawer::Flag& flag : physicsDebugDrawer->GetAvailableFlags())
-				{
-					bool enabled = flags & flag._value;
-					if (ImGui::MenuItem(flag._label, nullptr, &enabled))
-					{
-						if (enabled)
-						{
-							flags |= flag._value;
-						}
-						else
-						{
-							flags &= ~(flag._value);
-						}
-						physicsDebugDrawer->SetFlags(flags);
-					}
-				}
-				ImGui::EndMenu();
-			}
+		static const Resolution resolutions[] = {
+			{"16:9", "16:9 (landscape)", Vector2(16.0f, 9.0f)},
+			{"21:9", "21:9 (landscape)", Vector2(21.0f, 9.0f)},
+			{"9:16", "16:9 (portrait)", Vector2(9.0f, 16.0f)},
+			{"9:21", "21:9 (portrait)", Vector2(9.0f, 21.0f)},
+		};
 
-			if (ImGui::BeginMenu("Resolution"))
-			{
-				if (ImGui::MenuItem("16:9 (landscapce)"))
-				{
-					_playRatio = Vector2(16.0f, 9.0f);
-				}
-				if (ImGui::MenuItem("21:9 (landscapce)"))
-				{
-					_playRatio = Vector2(21.0f, 9.0f);
-				}
-				if (ImGui::MenuItem("16:9 (portrait)"))
-				{
-					_playRatio = Vector2(9.0f, 16.0f);
-				}
-				if (ImGui::MenuItem("21:9 (portrait)"))
-				{
-					_playRatio = Vector2(9.0f, 21.0f);
-				}
-				ImGui::EndMenu();
-			}
+		// The window itself has no padding (the viewport image goes edge to edge), keep the toolbar off the borders
+		// and off the hidden tab bar triangle.
+		ImGui::SetCursorPos(ImGui::GetCursorPos() + ImGui::GetStyle().WindowPadding + ImVec2(DrawHelper::GetHiddenTabBarButtonWidth(), 0.0f));
 
-			if (ImGui::MenuItem(ICON_MDI_GRID, nullptr, &_drawGrid) == true)
-			{
-			}
-			ImGui::SameLine();
-			if (ImGui::BeginMenu(ICON_MDI_TRIANGLE_SMALL_DOWN))
-			{
-				// ImGui::TextUnformatted();
-				ImGui::EndMenu();
-			}
-			ImGui::EndMenuBar();
+		DrawHelper::DrawToggle(ICON_MDI_EYEDROPPER " Picker", "picking buffer", _debugPicker);
+		ImGui::SameLine();
+
+		bool physicsEnabled = _physicsDebugDrawer != nullptr;
+		if (DrawHelper::DrawToggleWithSettings(ICON_MDI_ATOM " Physics", "physics debug", "ViewportPhysics", physicsEnabled))
+		{
+			EnablePhysicsDebugDrawer(physicsEnabled);
 		}
+		ImGui::SameLine();
+
+		DrawHelper::DrawToggle(ICON_MDI_GRID " Grid", "grid", _drawGrid);
+		ImGui::SameLine();
+
+		const char* resolutionLabel = "Custom";
+		for (const Resolution& resolution : resolutions)
+		{
+			if (_playRatio == resolution._ratio)
+			{
+				resolutionLabel = resolution._shortLabel;
+			}
+		}
+		char resolutionButtonLabel[64];
+		std::snprintf(resolutionButtonLabel, sizeof(resolutionButtonLabel), ICON_MDI_ASPECT_RATIO " %s##Resolution", resolutionLabel);
+		ImVec2 resolutionPopupAnchor = ImGui::GetCursorScreenPos() + ImVec2(0.0f, ImGui::GetFrameHeight());
+		if (FramedButton(resolutionButtonLabel))
+		{
+			ImGui::OpenPopup("ViewportResolution");
+		}
+		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+		{
+			ImGui::SetTooltip("Play mode resolution");
+		}
+
+		if (DrawHelper::BeginSettingsPopup("ViewportPhysics"))
+		{
+			physics::DebugDrawer* physicsDebugDrawer = GetOwner<EntityEditorTab>()->GetWorld()->GetPhysicsWorld()->GetDebugDrawer();
+			uint32_t              flags = physicsDebugDrawer->GetFlags();
+
+			for (const physics::DebugDrawer::Flag& flag : physicsDebugDrawer->GetAvailableFlags())
+			{
+				bool enabled = flags & flag._value;
+				if (ImGui::Checkbox(flag._label, &enabled))
+				{
+					if (enabled)
+					{
+						flags |= flag._value;
+					}
+					else
+					{
+						flags &= ~(flag._value);
+					}
+					physicsDebugDrawer->SetFlags(flags);
+				}
+			}
+			ImGui::EndPopup();
+		}
+
+		ImGui::SetNextWindowPos(resolutionPopupAnchor);
+		if (ImGui::BeginPopup("ViewportResolution"))
+		{
+			for (const Resolution& resolution : resolutions)
+			{
+				if (ImGui::Selectable(resolution._label, _playRatio == resolution._ratio))
+				{
+					_playRatio = resolution._ratio;
+				}
+			}
+			ImGui::EndPopup();
+		}
+	}
+
+	/// @brief
+	void ViewportWindow::DrawViewport()
+	{
 
 		/*
 		World* world = GetOwner<EntityEditorTab>()->GetWorld();
@@ -200,19 +243,19 @@ namespace hod::inline editor
 					//_gizmoOperation = ImGuizmo::OPERATION::SCALE;
 				}
 
-				if (ImGui::GetIO().MouseWheel != 0.0f)
+				if (ImGui::GetIO().MouseWheel != 0.0f && _mouseOverToolbar == false)
 				{
 					_size -= ImGui::GetIO().MouseWheel * 0.1f * std::abs(_size);
 				}
 
-				if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] == true && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
+				if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] == true && _mouseOverToolbar == false && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
 				{
 					Vector2 movement(ImGui::GetIO().MouseDelta.x * 0.01f, -ImGui::GetIO().MouseDelta.y * 0.01f);
 					_cameraPosition.SetX(_cameraPosition.GetX() - movement.GetX());
 					_cameraPosition.SetY(_cameraPosition.GetY() - movement.GetY());
 				}
 
-				if (ImGui::GetIO().MouseClicked[ImGuiMouseButton_Left] == true && ImGui::IsWindowHovered())
+				if (ImGui::GetIO().MouseClicked[ImGuiMouseButton_Left] == true && ImGui::IsWindowHovered() && _mouseOverToolbar == false)
 				{
 					ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
 
@@ -458,6 +501,13 @@ namespace hod::inline editor
 	const Vector2& ViewportWindow::GetPlayRatio() const
 	{
 		return _playRatio;
+	}
+
+	/// @brief
+	/// @return
+	bool ViewportWindow::IsMouseOverToolbar() const
+	{
+		return _mouseOverToolbar;
 	}
 
 	float ViewportWindow::GetCameraSize() const

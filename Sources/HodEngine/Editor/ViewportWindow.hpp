@@ -45,7 +45,13 @@ namespace hod::inline editor
 
 		const Vector2& GetPlayRatio() const;
 
+		/// @brief true while the mouse is used by the toolbar floating over the viewport, the viewport and its gizmos must then ignore it
+		bool IsMouseOverToolbar() const;
+
 	private:
+		void DrawToolbar();
+		void DrawViewport();
+
 		void EnablePhysicsDebugDrawer(bool enabled);
 		bool IsPhysicsDebugDrawerEnabled() const;
 
@@ -65,5 +71,7 @@ namespace hod::inline editor
 		bool                _debugPicker = false;
 
 		bool _drawGrid = true;
+
+		bool _mouseOverToolbar = false;
 	};
 }
