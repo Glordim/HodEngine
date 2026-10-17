@@ -28,5 +28,6 @@ namespace hod::inline audio
 		Microsoft::WRL::ComPtr<IAudioRenderClient>  _renderClient;
 		WAVEFORMATEX*                               _waveFormat;
 		UINT32                                      _bufferFrameCount;
+		bool                                        _comInitialized = false;
 	};
 }

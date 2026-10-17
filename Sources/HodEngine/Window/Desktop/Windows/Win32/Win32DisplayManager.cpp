@@ -27,7 +27,12 @@ namespace hod::inline window
 	{
 		SetProcessDpiAwarenessContext(DPI_AWARENESS_CONTEXT_PER_MONITOR_AWARE_V2);
 
-		OleInitialize(nullptr);
+		HRESULT oleResult = OleInitialize(nullptr);
+		if (FAILED(oleResult))
+		{
+			// Typically RPC_E_CHANGED_MODE: COM already initialized as MTA on this thread, shell dialogs and drag & drop will misbehave
+			OUTPUT_ERROR("Win32DisplayManager: OleInitialize failed (0x{:08X}), the UI thread must be a single-threaded apartment", static_cast<uint32_t>(oleResult));
+		}
 
 		_hInstance = ::GetModuleHandle(NULL);
 

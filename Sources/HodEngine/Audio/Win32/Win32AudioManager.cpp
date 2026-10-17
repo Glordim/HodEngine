@@ -14,7 +14,11 @@ namespace hod::inline audio
 	/// @return
 	bool Win32AudioManager::Initialize()
 	{
-		if (CoInitializeEx(nullptr, COINIT_MULTITHREADED) == RPC_E_CHANGED_MODE)
+		// The main thread hosts the windows: it must stay a single-threaded apartment (OLE drag & drop, shell dialogs like SHBrowseForFolder hang in MTA).
+		// WASAPI works in any apartment, so join the one already set up if any
+		HRESULT result = CoInitializeEx(nullptr, COINIT_APARTMENTTHREADED);
+		_comInitialized = SUCCEEDED(result);
+		if (_comInitialized == false && result != RPC_E_CHANGED_MODE)
 		{
 			return false;
 		}
@@ -72,7 +76,11 @@ namespace hod::inline audio
 		_audioClient->Stop();
 		CoTaskMemFree(_waveFormat);
 
-		CoUninitialize();
+		if (_comInitialized)
+		{
+			CoUninitialize();
+			_comInitialized = false;
+		}
 	}
 
 	/// @brief
