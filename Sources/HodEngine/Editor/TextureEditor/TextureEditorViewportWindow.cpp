@@ -63,6 +63,7 @@ namespace hod::inline editor
 		ImGui::PopStyleVar(2);
 		if (visible)
 		{
+			DrawDockTabContextMenu();
 			DrawContent();
 			DrawHelper::DrawHiddenTabBarButton();
 		}

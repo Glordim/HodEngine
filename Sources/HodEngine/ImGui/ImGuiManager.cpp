@@ -430,6 +430,8 @@ namespace hod::inline imgui
 		style.LogSliderDeadzone = 4;
 		style.TabRounding = 4;
 		style.DisabledAlpha = 0.5f;
+		style.WindowMenuButtonPosition = ImGuiDir_None; // Dock tab right-click menu instead, see Window::DrawDockTabContextMenu
+		style.DockingNodeHasCloseButton = false;        // No "close all docked windows" button, windows are closed one by one from their tab
 	}
 
 	/// @brief

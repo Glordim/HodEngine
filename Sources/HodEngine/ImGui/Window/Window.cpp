@@ -35,6 +35,7 @@ namespace hod::inline imgui
 		bool open = true;
 		if (ImGui::Begin(GetIdentifier(), &open, _flags) == true)
 		{
+			DrawDockTabContextMenu();
 			ImRect cliprect = ImGui::GetCurrentWindow()->ClipRect;
 			cliprect.Min.x -= ImGui::GetStyle().WindowPadding.x * 0.5f;
 			cliprect.Min.y -= ImGui::GetStyle().WindowPadding.y * 0.5f;
@@ -50,6 +51,28 @@ namespace hod::inline imgui
 		}
 		ImGui::End();
 		return open;
+	}
+
+	/// @brief Right-click menu on the dock tab, replaces the dock node window menu button (style.WindowMenuButtonPosition = ImGuiDir_None).
+	/// Must be called right after ImGui::Begin(), while the last item is still the dock tab.
+	void Window::DrawDockTabContextMenu()
+	{
+		// GetCurrentWindowRead(): GetCurrentWindow() sets WriteAccessed, which makes IsItemHovered() reject the tab item (MoveId)
+		ImGuiWindow* window = ImGui::GetCurrentWindowRead();
+		if (window->DockIsActive == false || window->DockNode->Windows.Size != 1)
+		{
+			return;
+		}
+
+		if (ImGui::BeginPopupContextItem("##DockTabContextMenu"))
+		{
+			ImGuiDockNode* node = window->DockNode;
+			if (ImGui::MenuItem("Hide tab bar", nullptr, node->IsHiddenTabBar()))
+			{
+				node->WantHiddenTabBarToggle = true;
+			}
+			ImGui::EndPopup();
+		}
 	}
 
 	/// @brief

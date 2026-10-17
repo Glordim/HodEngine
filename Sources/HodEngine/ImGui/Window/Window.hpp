@@ -40,6 +40,9 @@ namespace hod::inline imgui
 
 		void SetTitle(std::string_view title);
 
+	protected:
+		void DrawDockTabContextMenu();
+
 	private:
 		bool _closed = false;
 

@@ -59,6 +59,7 @@ namespace hod::inline editor
 	{
 		if (ImGui::Begin(GetIdentifier(), nullptr, GetFlags()) == true)
 		{
+			DrawDockTabContextMenu();
 			ImRect cliprect = ImGui::GetCurrentWindow()->ClipRect;
 			cliprect.Min.x -= ImGui::GetStyle().WindowPadding.x * 0.5f;
 			cliprect.Min.y -= ImGui::GetStyle().WindowPadding.y * 0.5f;
