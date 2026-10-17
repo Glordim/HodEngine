@@ -36,6 +36,15 @@ namespace hod::inline editor
         /// @param enabled when not null, shows an enable checkbox bound to it (the title is greyed out when disabled).
         /// @param removeRequested when not null, shows a close button which sets it to true when clicked.
         /// @return true if the block is expanded, i.e. its content must be drawn
+        /// @brief Width of the small triangle ImGui draws in the top-left corner of a docked window whose tab bar is hidden
+        /// (clicking it shows the tab bar back), 0 when the current window has none.
+        /// Windows without padding (viewports) shift their first widgets by it so they don't cover the triangle.
+        static float			GetHiddenTabBarButtonWidth();
+
+        /// @brief Draws again that triangle (same look, the click is still handled by ImGui::Begin), on top of what the window drew:
+        /// ImGui draws it in Begin, so a viewport image covering the whole window hides it. Call it after the window content, before ImGui::End.
+        static void				DrawHiddenTabBarButton();
+
         static bool				BeginInspectorBlock(const void* id, const char* icon, const char* title, bool* enabled = nullptr, bool* removeRequested = nullptr);
         static void				EndInspectorBlock();
     };

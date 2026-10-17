@@ -5,6 +5,7 @@
 #include "HodEngine/Math/Vector4.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
+#include "HodEngine/ImGui/DearImGui/imgui_internal.h"
 #include "HodEngine/ImGui/Widgets.hpp"
 #include "HodEngine/ImGui/Helper.hpp"
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
@@ -176,6 +177,40 @@ namespace hod::inline editor
 
 		ImGui::SetNextWindowPos(anchor, ImGuiCond_Always, ImVec2(0.0f, 0.0f));
 		return ImGui::BeginPopup(settingsPopupId);
+	}
+
+	float DrawHelper::GetHiddenTabBarButtonWidth()
+	{
+		// Same condition and size as the "#UNHIDE" triangle in ImGui::Begin.
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->DockIsActive && window->DockNode->IsHiddenTabBar() && window->DockNode->IsNoTabBar() == false)
+		{
+			return ImTrunc(ImGui::GetFontSize() * 0.70f);
+		}
+		return 0.0f;
+	}
+
+	void DrawHelper::DrawHiddenTabBarButton()
+	{
+		float size = GetHiddenTabBarButtonWidth();
+		if (size == 0.0f)
+		{
+			return;
+		}
+
+		// Same ID, hover/held state and color as the "#UNHIDE" button in ImGui::Begin (the window ID is back on top of the ID stack here).
+		ImGuiContext& g = *ImGui::GetCurrentContext();
+		ImGuiWindow*  window = ImGui::GetCurrentWindow();
+		ImGuiDockNode* node = window->DockNode;
+		ImGuiID       id = window->GetID("#UNHIDE");
+		bool          hovered = g.HoveredId == id;
+		bool          held = g.ActiveId == id;
+		ImU32         color = ImGui::GetColorU32(((held && hovered) || (node->IsFocused && !hovered)) ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Button);
+
+		ImVec2 p = node->Pos;
+		window->DrawList->PushClipRect(window->Pos, window->Pos + window->Size, false);
+		window->DrawList->AddTriangleFilled(p, p + ImVec2(size, 0.0f), p + ImVec2(0.0f, size), color);
+		window->DrawList->PopClipRect();
 	}
 
 	bool DrawHelper::BeginInspectorBlock(const void* id, const char* icon, const char* title, bool* enabled, bool* removeRequested)

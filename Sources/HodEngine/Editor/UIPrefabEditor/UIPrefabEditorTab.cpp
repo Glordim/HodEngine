@@ -146,6 +146,8 @@ namespace hod::inline editor
 		ImGui::DockBuilderDockWindow(libraryWindow->GetIdentifier(), dockLeftBottom);
 		ImGui::DockBuilderDockWindow(inspectorWindow->GetIdentifier(), dockRight);
 		ImGui::DockBuilderDockWindow(viewportWindow->GetIdentifier(), opposite);
+		ImGuiDockNode* viewportNode = ImGui::DockBuilderGetNode(opposite);
+		viewportNode->SetLocalFlags(viewportNode->LocalFlags | ImGuiDockNodeFlags_HiddenTabBar);
 		ImGui::DockBuilderFinish(_dockSpaceId);
 	}
 

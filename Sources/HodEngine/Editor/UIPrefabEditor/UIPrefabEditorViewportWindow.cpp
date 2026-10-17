@@ -65,6 +65,27 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	bool UIPrefabEditorViewportWindow::Draw()
+	{
+		bool open = true;
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+		bool visible = ImGui::Begin(GetIdentifier(), &open, GetFlags());
+		ImGui::PopStyleVar(2);
+		if (visible)
+		{
+			DrawContent();
+			DrawHelper::DrawHiddenTabBarButton();
+		}
+		if (open == false)
+		{
+			Close();
+		}
+		ImGui::End();
+		return open;
+	}
+
+	/// @brief
 	void UIPrefabEditorViewportWindow::DrawContent()
 	{
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
@@ -274,6 +295,9 @@ namespace hod::inline editor
 	/// arrow button opening its settings (see DrawHelper::DrawToggleWithSettings).
 	void UIPrefabEditorViewportWindow::DrawToolbar()
 	{
+		// The window itself has no padding (the viewport image goes edge to edge), keep the toolbar off the borders
+		// and off the hidden tab bar triangle.
+		ImGui::SetCursorPos(ImGui::GetCursorPos() + ImGui::GetStyle().WindowPadding + ImVec2(DrawHelper::GetHiddenTabBarButtonWidth(), 0.0f));
 		_settingsDirty |= DrawHelper::DrawToggleWithSettings(ICON_MDI_RULER_SQUARE " Guides", "guides", "UIPrefabGuides", _settings._guidesVisible);
 		ImGui::SameLine();
 		_settingsDirty |= DrawHelper::DrawToggleWithSettings(ICON_MDI_GRID " Grid", "grid", "UIPrefabGrid", _settings._gridVisible);

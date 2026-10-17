@@ -1,6 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialEditorViewportWindow.hpp"
 
+#include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/EditorTab.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialEditorTab.hpp"
 
@@ -69,9 +70,14 @@ namespace hod::inline editor
 	bool MaterialEditorViewportWindow::Draw()
 	{
 		bool open = true;
-		if (ImGui::Begin(GetIdentifier(), &open, GetFlags()) == true)
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
+		bool visible = ImGui::Begin(GetIdentifier(), &open, GetFlags());
+		ImGui::PopStyleVar(2);
+		if (visible)
 		{
 			DrawContent();
+			DrawHelper::DrawHiddenTabBarButton();
 		}
 		if (open == false)
 		{

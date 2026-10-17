@@ -1,6 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Core/Hash.hpp"
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
@@ -76,8 +77,9 @@ namespace hod::inline editor
 	{
 		bool open = true;
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowPadding, ImVec2(0.0f, 0.0f));
+		ImGui::PushStyleVar(ImGuiStyleVar_WindowBorderSize, 0.0f);
 		bool visible = ImGui::Begin(GetIdentifier(), &open, GetFlags());
-		ImGui::PopStyleVar();
+		ImGui::PopStyleVar(2);
 		if (visible)
 		{
 			ImRect cliprect = ImGui::GetCurrentWindow()->ClipRect;
@@ -88,6 +90,7 @@ namespace hod::inline editor
 			ImGui::PopClipRect();
 			ImGui::PushClipRect(cliprect.Min, cliprect.Max, false);
 			DrawContent();
+			DrawHelper::DrawHiddenTabBarButton();
 		}
 		if (open == false)
 		{
@@ -102,6 +105,8 @@ namespace hod::inline editor
 	{
 		if (ImGui::BeginMenuBar())
 		{
+			// Keep the menu items off the hidden tab bar triangle.
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + DrawHelper::GetHiddenTabBarButtonWidth());
 			ImGui::MenuItem("Debug Picker", nullptr, &_debugPicker);
 			ImGui::SameLine();
 			bool enabled = _physicsDebugDrawer != nullptr;

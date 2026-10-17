@@ -54,6 +54,7 @@ namespace hod::inline editor
 
 	public:
 
+		bool		Draw() override;
 		void		DrawContent() override;
 
 	private:
