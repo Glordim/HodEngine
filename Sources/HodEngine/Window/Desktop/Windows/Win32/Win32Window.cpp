@@ -14,10 +14,22 @@
 
 #include <cstdlib>
 
+#include <dwmapi.h>
 #include <windowsx.h>
+
+#pragma comment(lib, "Dwmapi.lib")
 
 namespace hod::inline window
 {
+	/// @brief Thickness of the (invisible) resize frame, also the overflow of a maximized window beyond the monitor
+	/// @param hWnd
+	/// @return
+	static int GetResizeFrameThickness(HWND hWnd)
+	{
+		UINT dpi = ::GetDpiForWindow(hWnd);
+		return ::GetSystemMetricsForDpi(SM_CXFRAME, dpi) + ::GetSystemMetricsForDpi(SM_CXPADDEDBORDER, dpi);
+	}
+
 	/// @brief
 	/// @param hWnd
 	/// @param msg
@@ -154,6 +166,69 @@ namespace hod::inline window
 		else if (msg == WM_ERASEBKGND)
 		{
 			return 1;
+		}
+		else if (msg == WM_NCCALCSIZE && _customTitleBar && wParam == TRUE)
+		{
+			// Whole window is client area, a maximized window overflows the monitor by the frame thickness so pull it back
+			if (::IsZoomed(_hWnd))
+			{
+				NCCALCSIZE_PARAMS* params = reinterpret_cast<NCCALCSIZE_PARAMS*>(lParam);
+				int                frame = GetResizeFrameThickness(_hWnd);
+				params->rgrc[0].left += frame;
+				params->rgrc[0].top += frame;
+				params->rgrc[0].right -= frame;
+				params->rgrc[0].bottom -= frame;
+			}
+			return 0;
+		}
+		else if (msg == WM_NCHITTEST && _customTitleBar)
+		{
+			POINT point = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+
+			if (::IsZoomed(_hWnd) == FALSE)
+			{
+				RECT windowRect;
+				::GetWindowRect(_hWnd, &windowRect);
+				int frame = GetResizeFrameThickness(_hWnd);
+
+				bool left = point.x < windowRect.left + frame;
+				bool right = point.x >= windowRect.right - frame;
+				bool top = point.y < windowRect.top + frame;
+				bool bottom = point.y >= windowRect.bottom - frame;
+
+				if (top && left)
+					return HTTOPLEFT;
+				if (top && right)
+					return HTTOPRIGHT;
+				if (bottom && left)
+					return HTBOTTOMLEFT;
+				if (bottom && right)
+					return HTBOTTOMRIGHT;
+				if (left)
+					return HTLEFT;
+				if (right)
+					return HTRIGHT;
+				if (top)
+					return HTTOP;
+				if (bottom)
+					return HTBOTTOM;
+			}
+
+			::ScreenToClient(_hWnd, &point);
+			if (IsInTitleBarDragArea(Vector2(static_cast<float>(point.x), static_cast<float>(point.y))))
+			{
+				return HTCAPTION;
+			}
+			return HTCLIENT;
+		}
+		else if (msg == WM_NCMOUSEMOVE && _customTitleBar)
+		{
+			// Keep the app informed while hovering the drag area, otherwise the last hovered title bar item stays highlighted
+			POINT point = {GET_X_LPARAM(lParam), GET_Y_LPARAM(lParam)};
+			::ScreenToClient(_hWnd, &point);
+			SetMousePosition(Vector2(point.x, point.y));
+			EmitMouseMoved(point.x, point.y);
+			return ::DefWindowProc(_hWnd, msg, wParam, lParam);
 		}
 		else if (msg == WM_MOVE)
 		{
@@ -309,6 +384,20 @@ namespace hod::inline window
 		});
 	}
 
+	void Win32Window::SetCustomTitleBar(bool customTitleBar)
+	{
+		RunOnWin32Thread(
+			[this, customTitleBar]()
+			{
+				_customTitleBar = customTitleBar;
+
+				// Keep a 1px DWM frame so the window keeps its shadow and Win11 rounded corners
+				MARGINS margins = {0, 0, customTitleBar ? 1 : 0, 0};
+				::DwmExtendFrameIntoClientArea(_hWnd, &margins);
+				::SetWindowPos(_hWnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+			});
+	}
+
 	void Win32Window::SetSize(uint16_t width, uint16_t height)
 	{
 		_width = width;
@@ -342,6 +431,21 @@ namespace hod::inline window
 	void Win32Window::Maximize()
 	{
 		RunOnWin32Thread([this]() { ShowWindow(_hWnd, SW_MAXIMIZE); });
+	}
+
+	void Win32Window::Minimize()
+	{
+		RunOnWin32Thread([this]() { ShowWindow(_hWnd, SW_MINIMIZE); });
+	}
+
+	void Win32Window::Restore()
+	{
+		RunOnWin32Thread([this]() { ShowWindow(_hWnd, SW_RESTORE); });
+	}
+
+	bool Win32Window::IsWindowMaximized() const
+	{
+		return ::IsZoomed(_hWnd) == TRUE;
 	}
 
 	void Win32Window::SetVisible(bool visible)

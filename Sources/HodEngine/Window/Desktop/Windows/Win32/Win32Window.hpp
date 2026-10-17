@@ -36,6 +36,9 @@ namespace hod::inline window
 		void SetSize(uint16_t width, uint16_t height) override;
 		void CenterToScreen() override;
 		void Maximize() override;
+		void Minimize() override;
+		void Restore() override;
+		bool IsWindowMaximized() const override;
 
 		void LockSize();
 		void UnlockSize();
@@ -44,6 +47,7 @@ namespace hod::inline window
 
 		void SetTitle(const char* title) override;
 		void SetDecoration(bool decoration) override;
+		void SetCustomTitleBar(bool customTitleBar) override;
 
 		void SetPosition(const Vector2& position) override;
 
@@ -65,5 +69,7 @@ namespace hod::inline window
 		Vector<std::function<void()>> _runOnWin32Thread;
 
 		std::mutex _sizeLock;
+
+		bool _customTitleBar = false;
 	};
 }

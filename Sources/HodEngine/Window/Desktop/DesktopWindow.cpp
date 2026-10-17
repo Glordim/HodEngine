@@ -47,6 +47,42 @@ namespace hod::inline window
 	}
 
 	/// @brief
+	/// @param dragArea
+	/// @param interactiveAreas
+	void DesktopWindow::SetTitleBarHitRegions(const Rect& dragArea, const Vector<Rect>& interactiveAreas)
+	{
+		std::lock_guard<std::mutex> lock(_titleBarMutex);
+		_titleBarDragArea = dragArea;
+		_titleBarInteractiveAreas = interactiveAreas;
+	}
+
+	/// @brief
+	/// @param clientPosition
+	/// @return
+	bool DesktopWindow::IsInTitleBarDragArea(const Vector2& clientPosition) const
+	{
+		auto contains = [&clientPosition](const Rect& rect)
+		{
+			return clientPosition.GetX() >= rect._position.GetX() && clientPosition.GetX() < rect._position.GetX() + rect._size.GetX() &&
+			       clientPosition.GetY() >= rect._position.GetY() && clientPosition.GetY() < rect._position.GetY() + rect._size.GetY();
+		};
+
+		std::lock_guard<std::mutex> lock(_titleBarMutex);
+		if (contains(_titleBarDragArea) == false)
+		{
+			return false;
+		}
+		for (const Rect& interactiveArea : _titleBarInteractiveAreas)
+		{
+			if (contains(interactiveArea))
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/// @brief
 	/// @return
 	bool DesktopWindow::IsFocused() const
 	{
