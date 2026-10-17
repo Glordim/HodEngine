@@ -28,22 +28,22 @@ namespace hod::inline editor
 		availableWidth -= ImGui::GetStyle().ItemSpacing.x - 2;
 		
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.5f, 0.0f, 0.0f, 1.0f));
-		FramedText(labelX, ImDrawFlags_RoundCornersLeft);
+		FramedText(labelX, ImDrawFlags_RoundLeft);
 		ImGui::PopStyleColor();
 		ImGui::SameLine(0.0f, 0.0f);
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
 		ImGui::SetNextItemWidth(availableWidth * 0.5f);
-		changed |= DragScalar("##x", ImGuiDataType_Float, &x, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundCornersRight);
+		changed |= DragScalar("##x", ImGuiDataType_Float, &x, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundRight);
 
 		ImGui::SameLine();
 
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.0f, 0.5f, 0.0f, 1.0f));
-		FramedText(labelY, ImDrawFlags_RoundCornersLeft);
+		FramedText(labelY, ImDrawFlags_RoundLeft);
 		ImGui::PopStyleColor();
 		ImGui::SameLine(0.0f, 0.0f);
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
 		ImGui::SetNextItemWidth(availableWidth * 0.5f);
-		changed |= DragScalar("##y", ImGuiDataType_Float, &y, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundCornersRight);
+		changed |= DragScalar("##y", ImGuiDataType_Float, &y, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundRight);
 
 		ImGui::PopID();
 
@@ -74,42 +74,42 @@ namespace hod::inline editor
 		availableWidth -= ImGui::GetStyle().ItemSpacing.x - 2;
 
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.5f, 0.0f, 0.0f, 1.0f));
-		FramedText(labelX, ImDrawFlags_RoundCornersLeft);
+		FramedText(labelX, ImDrawFlags_RoundLeft);
 		ImGui::PopStyleColor();
 		ImGui::SameLine(0.0f, 0.0f);
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
 		ImGui::SetNextItemWidth(availableWidth * 0.24f);
-		changed |= DragScalar("##x", ImGuiDataType_Float, &x, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundCornersRight);
+		changed |= DragScalar("##x", ImGuiDataType_Float, &x, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundRight);
 
 		ImGui::SameLine();
 
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.0f, 0.5f, 0.0f, 1.0f));
-		FramedText(labelY, ImDrawFlags_RoundCornersLeft);
+		FramedText(labelY, ImDrawFlags_RoundLeft);
 		ImGui::PopStyleColor();
 		ImGui::SameLine(0.0f, 0.0f);
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
 		ImGui::SetNextItemWidth(availableWidth * 0.24f);
-		changed |= DragScalar("##y", ImGuiDataType_Float, &y, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundCornersRight);
+		changed |= DragScalar("##y", ImGuiDataType_Float, &y, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundRight);
 
 		ImGui::SameLine();
 
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
-		FramedText(labelZ, ImDrawFlags_RoundCornersLeft);
+		FramedText(labelZ, ImDrawFlags_RoundLeft);
 		ImGui::PopStyleColor();
 		ImGui::SameLine(0.0f, 0.0f);
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
 		ImGui::SetNextItemWidth(availableWidth * 0.24f);
-		changed |= DragScalar("##z", ImGuiDataType_Float, &z, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundCornersRight);
+		changed |= DragScalar("##z", ImGuiDataType_Float, &z, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundRight);
 
 		ImGui::SameLine();
 
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-		FramedText(labelW, ImDrawFlags_RoundCornersLeft);
+		FramedText(labelW, ImDrawFlags_RoundLeft);
 		ImGui::PopStyleColor();
 		ImGui::SameLine(0.0f, 0.0f);
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
 		ImGui::SetNextItemWidth(availableWidth * 0.24f);
-		changed |= DragScalar("##w", ImGuiDataType_Float, &w, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundCornersRight);
+		changed |= DragScalar("##w", ImGuiDataType_Float, &w, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundRight);
 
 		ImGui::PopID();
 
@@ -139,7 +139,7 @@ namespace hod::inline editor
 		ImGui::GetStateStorage()->SetFloat(ImGui::GetID("AnchorX"), anchor.x);
 		ImGui::GetStateStorage()->SetFloat(ImGui::GetID("AnchorY"), anchor.y);
 
-		if (FramedButton(label, toggled, ImDrawFlags_RoundCornersLeft))
+		if (FramedButton(label, toggled, ImDrawFlags_RoundLeft))
 		{
 			toggled = !toggled;
 			changed = true;
@@ -151,7 +151,7 @@ namespace hod::inline editor
 
 		ImGui::SameLine(0.0f, 0.0f);
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
-		bool openSettings = FramedButton(ICON_MDI_MENU_DOWN "##Settings", settingsOpened, ImDrawFlags_RoundCornersRight);
+		bool openSettings = FramedButton(ICON_MDI_MENU_DOWN "##Settings", settingsOpened, ImDrawFlags_RoundRight);
 		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && settingsOpened == false)
 		{
 			ImGui::SetTooltip("Configure %s", itemName);
