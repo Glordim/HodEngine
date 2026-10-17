@@ -164,6 +164,7 @@ namespace hod::inline application
 		FrameSequencer* frameSequencer = FrameSequencer::GetInstance();
 		DisplayManager::GetInstance()->SetThreadId(0);
 
+		bool firstFrame = true;
 		while (_shouldQuit == false)
 		{
 			PROFILER_BEGIN_EVENT("Frame");
@@ -183,6 +184,15 @@ namespace hod::inline application
 			ui2::CanvasManager::GetInstance()->Update(); // TODO
 
 			Renderer::GetInstance()->Render();
+
+#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_MACOS) || defined(PLATFORM_LINUX)
+			// The main window is created hidden, show it once it has content (if the app didn't already)
+			if (firstFrame)
+			{
+				firstFrame = false;
+				static_cast<DesktopWindow*>(_window)->SetVisible(true);
+			}
+#endif
 
 			PROFILER_END_EVENT();
 		}

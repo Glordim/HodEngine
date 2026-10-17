@@ -46,6 +46,7 @@ public:
 		if (visualMode._enabled)
 		{
 			ASSERT_NE(hod::RhiDevice::GetInstance()->CreatePresentationSurface(visualMode._window), nullptr);
+			static_cast<hod::DesktopWindow*>(visualMode._window)->SetVisible(true);
 		}
 	}
 

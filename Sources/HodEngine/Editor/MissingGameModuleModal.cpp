@@ -26,7 +26,6 @@ namespace hod::inline editor
 		DesktopWindow* mainWindow = static_cast<DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow());
 		mainWindow->SetSize(320, 200);
 		mainWindow->CenterToScreen();
-		mainWindow->SetVisible(true);
 	}
 
 	/// @brief

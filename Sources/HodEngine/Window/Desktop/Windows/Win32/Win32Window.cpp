@@ -286,19 +286,13 @@ namespace hod::inline window
 	}
 
 	/// @brief
-	Win32Window::Win32Window(bool /* hidden*/)
+	Win32Window::Win32Window(bool hidden)
 	: DesktopWindow()
+	, _hidden(hidden)
 	{
 		_hWndThreadId = Thread::GetCurrentThreadId();
 
 		_hInstance = ::GetModuleHandle(NULL);
-
-		/*
-		if (hidden == false)
-		{
-		    ::ShowWindow(_hWnd, SW_NORMAL);
-		}
-		    */
 	}
 
 	/// @brief
@@ -351,7 +345,10 @@ namespace hod::inline window
 			return false;
 		}
 		SetWindowLongPtrA(_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
-		ShowWindow(_hWnd, SW_NORMAL);
+		if (_hidden == false)
+		{
+			ShowWindow(_hWnd, SW_NORMAL);
+		}
 
 		return true;
 	}
@@ -400,15 +397,16 @@ namespace hod::inline window
 
 	void Win32Window::SetSize(uint16_t width, uint16_t height)
 	{
-		_width = width;
-		_height = height;
-
-		RunOnWin32Thread([this]() {
-			RECT rect = { 0, 0, static_cast<LONG>(_width), static_cast<LONG>(_height) };
-			DWORD style = GetWindowLong(_hWnd, GWL_STYLE);
-			DWORD exStyle = GetWindowLong(_hWnd, GWL_EXSTYLE);
-			BOOL hasMenu = (GetMenu(_hWnd) != nullptr);
-			AdjustWindowRectEx(&rect, style, hasMenu, exStyle);
+		// _width/_height are updated by WM_SIZE (ResizeInternal), setting them here would swallow the Resized event and the swap chain would keep its old size
+		RunOnWin32Thread([this, width, height]() {
+			RECT rect = { 0, 0, static_cast<LONG>(width), static_cast<LONG>(height) };
+			if (_customTitleBar == false) // With a custom title bar the whole window is client area
+			{
+				DWORD style = GetWindowLong(_hWnd, GWL_STYLE);
+				DWORD exStyle = GetWindowLong(_hWnd, GWL_EXSTYLE);
+				BOOL hasMenu = (GetMenu(_hWnd) != nullptr);
+				AdjustWindowRectEx(&rect, style, hasMenu, exStyle);
+			}
 
 			int totalWidth  = rect.right - rect.left;
 			int totalHeight = rect.bottom - rect.top;
@@ -422,8 +420,10 @@ namespace hod::inline window
 		RunOnWin32Thread(
 			[this]()
 			{
-				int x = static_cast<int>(GetSystemMetrics(SM_CXSCREEN) * 0.5f - _width * 0.5f);
-				int y = static_cast<int>(GetSystemMetrics(SM_CYSCREEN) * 0.5f - _height * 0.5f);
+				RECT windowRect;
+				GetWindowRect(_hWnd, &windowRect);
+				int x = static_cast<int>(GetSystemMetrics(SM_CXSCREEN) * 0.5f - (windowRect.right - windowRect.left) * 0.5f);
+				int y = static_cast<int>(GetSystemMetrics(SM_CYSCREEN) * 0.5f - (windowRect.bottom - windowRect.top) * 0.5f);
 				SetWindowPos(_hWnd, nullptr, x, y, 0, 0, SWP_NOSIZE);
 			});
 	}

@@ -59,7 +59,8 @@ namespace hod::inline window
 		PeekMessageA(&msg, NULL, 0, 0, PM_NOREMOVE);
 
 		_mainThreadId = Thread::GetCurrentThreadId();
-		_mainWindow = CreateWindow();
+		// Hidden until the app has sized/placed it and rendered a first frame (no blank window during renderer init)
+		_mainWindow = CreateWindow(true);
 		return true;
 	}
 

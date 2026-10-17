@@ -70,6 +70,7 @@ namespace hod::inline window
 
 		std::mutex _sizeLock;
 
+		bool _hidden = false;
 		bool _customTitleBar = false;
 	};
 }
