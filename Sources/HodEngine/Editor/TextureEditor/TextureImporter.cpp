@@ -5,8 +5,6 @@
 
 #include <cstdint>
 #include <stb_image.h>
-#include <stb_image_write.h>
-#include <stb_image_resize2.h>
 
 namespace hod::inline editor
 {
@@ -27,17 +25,19 @@ namespace hod::inline editor
 			return false;
 		}
 
+		// Always stored as RGBA8, whatever the source layout (grey, RGB, ...): the TextureCooker and the RHI expect 4 components
+		constexpr uint32_t componentCount = 4;
+
 		int      x;
 		int      y;
-		int      componentCount;
-		uint8_t* pixels = stbi_load_from_memory(dataBuffer, (int)dataSize, &x, &y, &componentCount, 0); // TODO rgba
+		int      sourceComponentCount;
+		uint8_t* pixels = stbi_load_from_memory(dataBuffer, (int)dataSize, &x, &y, &sourceComponentCount, (int)componentCount);
+		DefaultAllocator::GetInstance().Free(dataBuffer);
 		if (pixels == nullptr)
 		{
 			OUTPUT_ERROR("TextureImporter : Can't load Texture data");
 			return false;
 		}
-
-		DefaultAllocator::GetInstance().Free(dataBuffer);
 
 		uint16_t width = x;
 		uint16_t height = y;
@@ -48,6 +48,8 @@ namespace hod::inline editor
 		Stream& pixelsStream = AddDataBlockStream("Pixels", true);
 		uint32_t pixelsSize = x * y * componentCount;
 		pixelsStream.Write(pixels, pixelsSize);
+
+		SetThumbnail(pixels, width, height);
 		stbi_image_free(pixels);
 		return true;
 	}

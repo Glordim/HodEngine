@@ -80,6 +80,41 @@ namespace hod::inline editor
 		return true;
 	}
 
+	bool AssetContainer::ReadThumbnail(Stream& stream)
+	{
+		_thumbnail.Clear();
+		_thumbnailFilterMode = FilterMode::Linear;
+
+		if (stream.Read(&_thumbnailFilterMode, sizeof(_thumbnailFilterMode)) != sizeof(_thumbnailFilterMode))
+		{
+			OUTPUT_ERROR("AssetContainer::ReadThumbnail: read failed");
+			return false;
+		}
+		if (_thumbnailFilterMode >= FilterMode::Count)
+		{
+			_thumbnailFilterMode = FilterMode::Linear;
+		}
+
+		uint32_t thumbnailSize = 0;
+		if (stream.Read(&thumbnailSize, sizeof(thumbnailSize)) != sizeof(thumbnailSize))
+		{
+			OUTPUT_ERROR("AssetContainer::ReadThumbnail: read failed");
+			return false;
+		}
+
+		if (thumbnailSize > 0)
+		{
+			_thumbnail.Resize(thumbnailSize);
+			if (stream.Read(_thumbnail.Data(), thumbnailSize) != thumbnailSize)
+			{
+				OUTPUT_ERROR("AssetContainer::ReadThumbnail: read failed");
+				_thumbnail.Clear();
+				return false;
+			}
+		}
+		return true;
+	}
+
 	/// @brief Read only the fixed Header and the Sources block (no Content/Data), for fast scans at startup
 	/// @param path
 	/// @return
@@ -107,6 +142,18 @@ namespace hod::inline editor
 		return ReadHeader(fileStream) && ReadSources(fileStream);
 	}
 
+	bool AssetContainer::LoadThumbnail(const Path& path)
+	{
+		FileStream fileStream;
+		if (fileStream.Open(path) == false)
+		{
+			OUTPUT_ERROR("AssetContainer::LoadThumbnail: can't open {}", path);
+			return false;
+		}
+
+		return ReadHeader(fileStream) && ReadSources(fileStream) && ReadThumbnail(fileStream);
+	}
+
 	/// @brief Read the whole asset (Header + Sources + Content + Data)
 	/// @param path
 	/// @return
@@ -125,6 +172,11 @@ namespace hod::inline editor
 		}
 
 		if (ReadSources(fileStream) == false)
+		{
+			return false;
+		}
+
+		if (ReadThumbnail(fileStream) == false)
 		{
 			return false;
 		}
@@ -224,6 +276,15 @@ namespace hod::inline editor
 				file.Write(source._path.CStr(), sourcePathLen);
 			}
 			file.Write(&source._hash, sizeof(source._hash));
+		}
+
+		// Not part of the content hash (see GetThumbnail())
+		file.Write(&_thumbnailFilterMode, sizeof(_thumbnailFilterMode));
+		uint32_t thumbnailSize = _thumbnail.Size();
+		file.Write(&thumbnailSize, sizeof(thumbnailSize));
+		if (thumbnailSize > 0)
+		{
+			file.Write(_thumbnail.Data(), thumbnailSize);
 		}
 
 		uint32_t importSettingsLen = 0;
@@ -357,6 +418,33 @@ namespace hod::inline editor
 	void AssetContainer::ClearSources()
 	{
 		_sources.Clear();
+	}
+
+	const Vector<uint8_t>& AssetContainer::GetThumbnail() const
+	{
+		return _thumbnail;
+	}
+
+	void AssetContainer::SetThumbnail(Vector<uint8_t> thumbnail, FilterMode filterMode)
+	{
+		_thumbnail = std::move(thumbnail);
+		_thumbnailFilterMode = filterMode;
+	}
+
+	void AssetContainer::ClearThumbnail()
+	{
+		_thumbnail.Clear();
+		_thumbnailFilterMode = FilterMode::Linear;
+	}
+
+	FilterMode AssetContainer::GetThumbnailFilterMode() const
+	{
+		return _thumbnailFilterMode;
+	}
+
+	void AssetContainer::SetThumbnailFilterMode(FilterMode filterMode)
+	{
+		_thumbnailFilterMode = filterMode;
 	}
 
 	DocumentNode& AssetContainer::GetImportSettings()

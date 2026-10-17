@@ -11,6 +11,7 @@
 #include "HodEngine/Editor/Project.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/TaskTracker/TaskTracker.hpp"
+#include "HodEngine/Editor/Thumbnail.hpp"
 
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
@@ -40,6 +41,7 @@ namespace hod::inline editor
 		_taskId = taskId;
 		_sourcePath = sourcePath;
 		_additionalSources.Clear();
+		_thumbnail.Clear();
 		Editor::GetInstance()->GetTaskTracker().UpdateTaskProgress(_taskId, 0.0f);
 		Editor::GetInstance()->GetTaskTracker().UpdateTaskDescription(_taskId, "Opening source");
 
@@ -114,6 +116,7 @@ namespace hod::inline editor
 		{
 			assetContainer.AddSource(additionalSource._path, additionalSource._hash);
 		}
+		assetContainer.SetThumbnail(std::move(_thumbnail));
 
 		if (importSettings != nullptr)
 		{
@@ -144,6 +147,12 @@ namespace hod::inline editor
 		AssetContainer::SourceInfo& source = _additionalSources.EmplaceBack();
 		source._path = sourcePath;
 		source._hash = sourceHash;
+	}
+
+	void Importer::SetThumbnail(const uint8_t* rgbaPixels, uint32_t width, uint32_t height)
+	{
+		// A missing thumbnail must not fail the import, Encode() already logged
+		Thumbnail::Encode(rgbaPixels, width, height, _thumbnail);
 	}
 
 	Stream& Importer::AddDataBlockStream(std::string_view name, bool compressed)

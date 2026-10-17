@@ -68,6 +68,9 @@ namespace hod::inline editor
 		/// @brief Register an additional source (besides the main source path) that this asset was imported from
 		void AddSource(const Path& sourcePath, uint64_t sourceHash);
 
+		/// @brief Generate the asset thumbnail from RGBA8 pixels (see Thumbnail::Encode()), to call from FillDataBlock()
+		void SetThumbnail(const uint8_t* rgbaPixels, uint32_t width, uint32_t height);
+
 	private:
 		String _assetExtension;
 
@@ -77,6 +80,7 @@ namespace hod::inline editor
 		uint64_t _assetType = 0;
 
 		Vector<AssetContainer::SourceInfo> _additionalSources;
+		Vector<uint8_t>                    _thumbnail;
 
 		class DataBlock
 		{

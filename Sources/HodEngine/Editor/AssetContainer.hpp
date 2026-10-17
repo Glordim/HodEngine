@@ -10,13 +10,14 @@
 #include <HodEngine/Core/String.hpp>
 #include <HodEngine/Core/UID.hpp>
 #include <HodEngine/Core/Vector.hpp>
+#include <HodEngine/RHI/Enums.hpp>
 
 #include <cstdint>
 #include <string_view>
 
 namespace hod::inline editor
 {
-	/// @brief Binary container for .asset files: Header(fixed) + Sources block + Content block (json) + Data section
+	/// @brief Binary container for .asset files: Header(fixed) + Sources block + Thumbnail block (filter mode + encoded pixels) + Content block (json) + Data section
 	class HOD_EDITOR_API AssetContainer
 	{
 	public:
@@ -44,6 +45,9 @@ namespace hod::inline editor
 		/// @brief Read only the fixed Header and the Sources block (no Content/Data), for fast scans at startup
 		bool LoadHeader(const Path& path);
 		bool LoadSources(const Path& path);
+
+		/// @brief Read the fixed Header, the Sources block and the Thumbnail block (no Content/Data), for the editor's asset views
+		bool LoadThumbnail(const Path& path);
 
 		/// @brief Read the whole asset (Header + Sources + Content + Data)
 		bool Load(const Path& path);
@@ -76,6 +80,16 @@ namespace hod::inline editor
 		void                        AddSource(const Path& sourcePath, uint64_t sourceHash);
 		void                        ClearSources();
 
+		/// @brief Encoded (see Thumbnail) editor-only preview. Kept out of the content hash: a thumbnail is not deterministic
+		/// across machines (GPU, driver) and must never trigger a recook. Never copied into cooked Resources.
+		const Vector<uint8_t>& GetThumbnail() const;
+		void                   SetThumbnail(Vector<uint8_t> thumbnail, FilterMode filterMode = FilterMode::Linear);
+		void                   ClearThumbnail();
+
+		/// @brief How the editor samples the thumbnail when it is displayed bigger than it is (e.g. Nearest for pixel art)
+		FilterMode GetThumbnailFilterMode() const;
+		void       SetThumbnailFilterMode(FilterMode filterMode);
+
 		DocumentNode&       GetImportSettings();
 		const DocumentNode& GetImportSettings() const;
 
@@ -90,6 +104,7 @@ namespace hod::inline editor
 	private:
 		bool ReadHeader(Stream& stream);
 		bool ReadSources(Stream& stream);
+		bool ReadThumbnail(Stream& stream);
 
 	private:
 		static const uint8_t MAGIC[8];
@@ -145,6 +160,9 @@ namespace hod::inline editor
 		uint64_t _contentHash = 0;
 
 		Vector<SourceInfo> _sources;
+
+		Vector<uint8_t> _thumbnail;
+		FilterMode      _thumbnailFilterMode = FilterMode::Linear;
 
 		Document _importSettings;
 

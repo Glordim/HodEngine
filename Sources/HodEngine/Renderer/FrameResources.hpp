@@ -13,6 +13,7 @@ namespace hod::inline rhi
 	class Semaphore;
 	class Fence;
 	class PresentationSurface;
+	class Texture;
 }
 
 namespace hod::inline renderer
@@ -40,6 +41,9 @@ namespace hod::inline renderer
 		// Deletes a MaterialInstance made for this frame only, once the frame is done
 		void DeleteAfter(MaterialInstance* materialInstance);
 
+		// Deletes a Texture that may still be referenced by this frame's commands (e.g. ImGui draw lists), once the frame is done
+		void DeleteAfter(Texture* texture);
+
 		bool       AcquireSurface(PresentationSurface* presentationSurface);
 		Semaphore* GetImageAvalaibleSemaphore(PresentationSurface* presentationSurface);
 
@@ -66,6 +70,7 @@ namespace hod::inline renderer
 		Vector<RenderView*> _renderViews;
 
 		Vector<MaterialInstance*> _materialInstances;
+		Vector<Texture*>          _textures;
 		UniformAllocator          _uniformAllocator;
 
 		Vector<ImageAvalaibleSemaphore> _imageAvalaibleSemaphores;

@@ -193,12 +193,6 @@ namespace hod::inline editor
 			return false;
 		}
 
-		_thumbnailDirPath = _projectPath.ParentPath() / "Cache" / "Thumbnails";
-		if (FileSystem::GetInstance()->Exists(_thumbnailDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_thumbnailDirPath) == false)
-		{
-			return false;
-		}
-
 		_cacheBuildDirPath = _projectPath.ParentPath() / "Cache" / "Build";
 		if (FileSystem::GetInstance()->Exists(_cacheBuildDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_cacheBuildDirPath) == false)
 		{
@@ -348,13 +342,6 @@ namespace hod::inline editor
 	const Path& Project::GetResourceDirPath() const
 	{
 		return _resourceDirPath;
-	}
-
-	/// @brief
-	/// @return
-	const Path& Project::GetThumbnailDirPath() const
-	{
-		return _thumbnailDirPath;
 	}
 
 	const Path& Project::GetCacheBuildDirPath() const

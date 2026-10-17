@@ -141,10 +141,15 @@ namespace hod::inline editor
 			return _dataTableTexture;
 		}
 
+		/// @brief 2x2 transparency checker (Nearest + Repeat), CheckerPrimaryGrey in its top-left texel
 		Texture* GetCheckerTexture() const
 		{
 			return _checkerTexture;
 		}
+
+		/// @brief Grey levels of the transparency checker, shared by GetCheckerTexture() and the baked thumbnail backgrounds
+		static constexpr uint8_t CheckerPrimaryGrey = 71;
+		static constexpr uint8_t CheckerSecondaryGrey = 102;
 
 		TaskTracker& GetTaskTracker()
 		{

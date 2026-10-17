@@ -239,8 +239,8 @@ namespace hod::inline editor
 		_dataTableTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 		stbi_image_free(pixels);
 
-		static constexpr uint8_t primaryGrey = 71;
-		static constexpr uint8_t secondaryGrey = 102;
+		static constexpr uint8_t primaryGrey = CheckerPrimaryGrey;
+		static constexpr uint8_t secondaryGrey = CheckerSecondaryGrey;
 		const uint8_t            checkerBuffer[2 * 2 * 4] = {
             primaryGrey,   primaryGrey,   primaryGrey,   255, secondaryGrey, secondaryGrey, secondaryGrey, 255,
             secondaryGrey, secondaryGrey, secondaryGrey, 255, primaryGrey,   primaryGrey,   primaryGrey,   255,

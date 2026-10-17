@@ -6,6 +6,7 @@
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Project.hpp"
+#include "HodEngine/Editor/Thumbnail.hpp"
 
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
@@ -16,6 +17,8 @@
 
 #include "HodEngine/RHI/RhiDevice.hpp"
 #include "HodEngine/RHI/Texture.hpp"
+#include "HodEngine/Renderer/FrameResources.hpp"
+#include "HodEngine/Renderer/Renderer.hpp"
 
 namespace hod::inline editor
 {
@@ -30,7 +33,27 @@ namespace hod::inline editor
 	/// @brief
 	Asset::~Asset()
 	{
-		DefaultAllocator::GetInstance().Delete(_thumbnail);
+		ReleaseThumbnail();
+	}
+
+	/// @brief The thumbnail may already be referenced by this frame's ImGui draw lists (Load() runs from the
+	/// AssetDatabase PostRender job, before Renderer::Render()), so its deletion waits for the frame to be done
+	void Asset::ReleaseThumbnail() const
+	{
+		if (_thumbnail != nullptr)
+		{
+			Renderer* renderer = Renderer::GetInstance();
+			if (renderer != nullptr)
+			{
+				renderer->GetCurrentFrameResources().DeleteAfter(_thumbnail);
+			}
+			else
+			{
+				DefaultAllocator::GetInstance().Delete(_thumbnail);
+			}
+			_thumbnail = nullptr;
+		}
+		_thumbnailLoaded = false;
 	}
 
 	/// @brief
@@ -60,6 +83,8 @@ namespace hod::inline editor
 		_subType = assetContainer.GetSubType();
 		_contentHash = assetContainer.GetContentHash();
 		_sources = assetContainer.GetSources();
+
+		ReleaseThumbnail();
 
 		/*
 		Path metaPath = _path;
@@ -96,23 +121,7 @@ namespace hod::inline editor
 		}
 
 		AssetDatabase::GetInstance()->ReimportAssetIfNecessary(shared_from_this());
-
-		Project* project = Project::GetInstance();
-		Path     thumbnailFilePath = project->GetThumbnailDirPath() / _meta._uid.ToString().CStr();
-		thumbnailFilePath += ".png";
-
-		if (_thumbnail != nullptr)
-		{
-			DefaultAllocator::GetInstance().Delete(_thumbnail);
-			_thumbnail = nullptr;
-		}
-
-		_thumbnail = RhiDevice::GetInstance()->CreateTexture();
-		if (_thumbnail->LoadFromPath(thumbnailFilePath.GetString().CStr()) == false)
-		{
-			DefaultAllocator::GetInstance().Delete(_thumbnail);
-			_thumbnail = nullptr;
-		}*/
+		*/
 
 		return true;
 	}
@@ -153,6 +162,16 @@ namespace hod::inline editor
 	/// @return
 	Texture* Asset::GetThumbnail() const
 	{
+		if (_thumbnailLoaded == false)
+		{
+			_thumbnailLoaded = true; // Don't retry each frame on assets without thumbnail
+
+			AssetContainer assetContainer;
+			if (assetContainer.LoadThumbnail(_path))
+			{
+				_thumbnail = Thumbnail::CreateTexture(assetContainer.GetThumbnail(), assetContainer.GetThumbnailFilterMode());
+			}
+		}
 		return _thumbnail;
 	}
 }

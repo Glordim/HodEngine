@@ -44,7 +44,6 @@ namespace hod::inline editor
 		const Path& GetSourceDirPath() const;
 		const Path& GetAssetDirPath() const;
 		const Path& GetResourceDirPath() const;
-		const Path& GetThumbnailDirPath() const;
 		const Path& GetCacheBuildDirPath() const;
 		const Path& GetBuildDirPath() const;
 
@@ -66,7 +65,6 @@ namespace hod::inline editor
 		Path _sourceDirPath;
 		Path _assetDirPath;
 		Path _resourceDirPath;
-		Path _thumbnailDirPath;
 		Path _cacheBuildDirPath;
 		Path _buildDirPath;
 

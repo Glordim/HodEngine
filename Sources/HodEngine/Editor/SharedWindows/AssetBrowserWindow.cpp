@@ -83,6 +83,12 @@ namespace hod::inline editor
 {
 	Vector<AssetBrowserWindow::ContextualMenuAction> AssetBrowserWindow::_contextualMenuActions;
 
+	// Explorer item: a square image area of ExplorerItemImageSize surrounded by
+	// ExplorerItemPadding, plus a line of text for the name
+	static constexpr float ExplorerItemImageSize = 96.0f;
+	static constexpr float ExplorerItemPadding = 10.0f;
+	static constexpr float ExplorerItemWidth = ExplorerItemImageSize + ExplorerItemPadding * 2.0f;
+
 	DESCRIBE_REFLECTED_CLASS(AssetBrowserWindow, reflectionDescriptor)
 	{
 		(void)reflectionDescriptor;
@@ -745,7 +751,7 @@ namespace hod::inline editor
 				}
 				ImGui::EndDragDropTarget();
 			}
-			if (available > 210)
+			if (available > ExplorerItemWidth * 2.0f + ImGui::GetStyle().ItemSpacing.x)
 			{
 				ImGui::SameLine();
 			}
@@ -830,7 +836,7 @@ namespace hod::inline editor
 			{
 				_currentExplorerNode = asset;
 			}
-			if (available > 210)
+			if (available > ExplorerItemWidth * 2.0f + ImGui::GetStyle().ItemSpacing.x)
 			{
 				ImGui::SameLine();
 			}
@@ -965,8 +971,8 @@ namespace hod::inline editor
 		const ImGuiStyle& style = g.Style;
 		const ImGuiID     id = window->GetID(item);
 
-		ImVec2 Size(100, 100 + ImGui::GetTextLineHeight());
-		float  padding = 10.0f;
+		ImVec2 Size(ExplorerItemWidth, ExplorerItemWidth + ImGui::GetTextLineHeight());
+		float  padding = ExplorerItemPadding;
 
 		if (_itemToRename != nullptr)
 		{

@@ -17,6 +17,7 @@
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/Core/Math.hpp"
 
 #include "HodEngine/RHI/Texture.hpp"
 
@@ -95,8 +96,11 @@ namespace hod::inline editor
 				{
 					if (ImGui::BeginTooltip())
 					{
-						ImVec2 Size = ImVec2(256.0f, ((float)asset->GetThumbnail()->GetHeight() / (float)asset->GetThumbnail()->GetWidth()) * 256.0f);
-						ImGui::Image(asset->GetThumbnail(), Size);
+						// Largest side always 256, keeping aspect ratio (small thumbnails are upscaled with their own filter mode)
+						float thumbnailWidth = (float)asset->GetThumbnail()->GetWidth();
+						float thumbnailHeight = (float)asset->GetThumbnail()->GetHeight();
+						float scale = 256.0f / Max(thumbnailWidth, thumbnailHeight);
+						ImGui::Image(asset->GetThumbnail(), ImVec2(thumbnailWidth * scale, thumbnailHeight * scale));
 						ImGui::EndTooltip();
 					}
 				}

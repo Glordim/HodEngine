@@ -45,6 +45,9 @@ namespace hod::inline editor
 		void SetPath(const Path& path);
 
 	private:
+		void ReleaseThumbnail() const;
+
+	private:
 		String _name;
 		Path _path;
 		UID _uid;
@@ -53,6 +56,8 @@ namespace hod::inline editor
 		uint64_t _contentHash = 0;
 		Vector<AssetContainer::SourceInfo> _sources;
 
-		Texture* _thumbnail = nullptr;
+		// Lazily created on the first GetThumbnail() (only for assets actually displayed), reset by Load()
+		mutable Texture* _thumbnail = nullptr;
+		mutable bool     _thumbnailLoaded = false;
 	};
 }

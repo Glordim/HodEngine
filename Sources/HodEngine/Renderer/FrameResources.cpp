@@ -9,6 +9,7 @@
 #include "HodEngine/RHI/Fence.hpp"
 #include "HodEngine/RHI/PresentationSurface.hpp"
 #include "HodEngine/RHI/Semaphore.hpp"
+#include "HodEngine/RHI/Texture.hpp"
 
 #include <HodEngine/Core/Assert.hpp>
 #include <HodEngine/Window/Event.hpp>
@@ -24,6 +25,7 @@ namespace hod::inline renderer
 		Assert(_fences.Empty());
 		Assert(_renderViews.Empty());
 		Assert(_materialInstances.Empty());
+		Assert(_textures.Empty());
 		Assert(_imageAvalaibleSemaphores.Empty());
 	}
 
@@ -65,6 +67,12 @@ namespace hod::inline renderer
 		}
 		_materialInstances.Clear();
 
+		for (Texture* texture : _textures)
+		{
+			DefaultAllocator::GetInstance().Delete(texture);
+		}
+		_textures.Clear();
+
 		_uniformAllocator.Reset();
 
 		_imageAvalaibleSemaphores.Clear();
@@ -84,6 +92,11 @@ namespace hod::inline renderer
 	void FrameResources::DeleteAfter(MaterialInstance* materialInstance)
 	{
 		_materialInstances.PushBack(materialInstance);
+	}
+
+	void FrameResources::DeleteAfter(Texture* texture)
+	{
+		_textures.PushBack(texture);
 	}
 
 	CommandBuffer* FrameResources::CreateCommandBuffer()

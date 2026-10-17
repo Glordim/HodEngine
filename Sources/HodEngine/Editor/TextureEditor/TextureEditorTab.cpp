@@ -126,6 +126,9 @@ namespace hod::inline editor
 			return false;
 		}
 
+		// Show the thumbnail the way the texture will be sampled (e.g. sharp pixel art)
+		_assetContainer.SetThumbnailFilterMode(_textureSettings._filterMode);
+
 		return true;
 	}
 
