@@ -32,8 +32,11 @@ namespace hod::inline editor
 	/// @brief
 	bool MissingGameModuleModal::Draw()
 	{
-		ImGui::SetNextWindowPos(ImVec2(0.0f, 0.0f));
-		ImGui::SetNextWindowSize(ImGui::GetIO().DisplaySize);
+		// Viewports are enabled: positions are in screen space, so stick to the main viewport (the OS window)
+		ImGuiViewport* mainViewport = ImGui::GetMainViewport();
+		ImGui::SetNextWindowPos(mainViewport->Pos);
+		ImGui::SetNextWindowSize(mainViewport->Size);
+		ImGui::SetNextWindowViewport(mainViewport->ID);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 
 		if (ImGui::Begin("MissingGameModuleModal", nullptr, ImGuiWindowFlags_NoDecoration))
