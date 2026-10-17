@@ -44,7 +44,7 @@ namespace hod::inline editor
 
 	private:
 
-		bool		_askForGeneration = true;
+		bool		_generationStarted = false;
 
 		StepStatus	_prepareResult = StepStatus::Pending;
 		StepStatus	_configureResult = StepStatus::Pending;

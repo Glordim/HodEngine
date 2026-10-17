@@ -22,6 +22,7 @@
 #include "HodEngine/Editor/ProjectBrowser.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/TaskTracker/TaskTrackerWindow.hpp"
+#include "HodEngine/Editor/TitleBar.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
 
 #include "HodEngine/Core/ArgumentParser.hpp"
@@ -166,6 +167,9 @@ namespace hod::inline editor
 	bool Editor::Init(const ArgumentParser& argumentParser)
 	{
 		_taskTracker = DefaultAllocator::GetInstance().New<TaskTracker>();
+
+		// Every editor screen (project browser, missing module, editor) draws its own title bar, see TitleBar
+		static_cast<DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow())->SetCustomTitleBar(true);
 
 		Project::CreateInstance();
 		Project::GetInstance()->GetOnModulesReloadedEvent().Connect(_onProjectModulesReloadedSlot);
@@ -506,12 +510,9 @@ namespace hod::inline editor
 					}
 					float menusEndX = ImGui::GetItemRectMax().x;
 
-					// Custom title bar: window controls replace the OS ones
-					DesktopWindow* mainWindow = static_cast<DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow());
-					ImVec2         titleBarPos = ImGui::GetWindowPos();
-					ImVec2         titleBarSize = ImGui::GetWindowSize();
-					ImVec2         controlSize(46.0f, titleBarSize.y);
-					ImVec2         controlsPos(titleBarPos.x + titleBarSize.x - controlSize.x * 3.0f, titleBarPos.y);
+					ImVec2 titleBarPos = ImGui::GetWindowPos();
+					ImVec2 titleBarSize = ImGui::GetWindowSize();
+					float  controlsPosX = titleBarPos.x + titleBarSize.x - TitleBar::GetWindowControlsWidth();
 
 					_fpsCounter.OnFrame();
 					char fps[64] = {'\0'};
@@ -520,7 +521,7 @@ namespace hod::inline editor
 					float  itemSpacing = ImGui::GetStyle().ItemSpacing.x;
 					// Fixed slot for the fps so the project name doesn't move when the digit count changes
 					float  fpsSlotWidth = ImGui::CalcTextSize("9999 fps").x;
-					float  fpsSlotPosX = controlsPos.x - titleBarPos.x - fpsSlotWidth - itemSpacing * 2.0f;
+					float  fpsSlotPosX = controlsPosX - titleBarPos.x - fpsSlotWidth - itemSpacing * 2.0f;
 					ImGui::BeginDisabled();
 					ImGui::SameLine(fpsSlotPosX - ImGui::CalcTextSize(projectName.CStr()).x - itemSpacing * 3.0f);
 					ImGui::TextUnformatted(projectName.CStr());
@@ -528,57 +529,11 @@ namespace hod::inline editor
 					ImGui::TextUnformatted(fps);
 					ImGui::EndDisabled();
 
-					auto titleBarButton = [&controlSize](const char* id, const char* icon, const ImVec2& pos, ImU32 hoveredColor, ImU32 activeColor)
-					{
-						ImGui::SetCursorScreenPos(pos);
-						bool        clicked = ImGui::InvisibleButton(id, controlSize);
-						ImDrawList* drawList = ImGui::GetWindowDrawList();
-						if (ImGui::IsItemActive())
-						{
-							drawList->AddRectFilled(pos, pos + controlSize, activeColor);
-						}
-						else if (ImGui::IsItemHovered())
-						{
-							drawList->AddRectFilled(pos, pos + controlSize, hoveredColor);
-						}
-						ImVec2 iconSize = ImGui::CalcTextSize(icon);
-						drawList->AddText(ImFloor(pos + (controlSize - iconSize) * 0.5f), ImGui::GetColorU32(ImGuiCol_Text), icon);
-						return clicked;
-					};
-
-					ImU32 hoveredColor = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
-					ImU32 activeColor = ImGui::GetColorU32(ImGuiCol_ButtonActive);
-					if (titleBarButton("##Minimize", ICON_MDI_WINDOW_MINIMIZE, controlsPos, hoveredColor, activeColor))
-					{
-						mainWindow->Minimize();
-					}
-					bool maximized = mainWindow->IsWindowMaximized();
-					if (titleBarButton("##Maximize", maximized ? ICON_MDI_WINDOW_RESTORE : ICON_MDI_WINDOW_MAXIMIZE, controlsPos + ImVec2(controlSize.x, 0.0f), hoveredColor,
-					                   activeColor))
-					{
-						if (maximized)
-						{
-							mainWindow->Restore();
-						}
-						else
-						{
-							mainWindow->Maximize();
-						}
-					}
-					if (titleBarButton("##Close", ICON_MDI_WINDOW_CLOSE, controlsPos + ImVec2(controlSize.x * 2.0f, 0.0f), IM_COL32(196, 43, 28, 255),
-					                   IM_COL32(150, 30, 20, 255)))
-					{
-						mainWindow->Close();
-					}
-
-					// Empty space of the bar drags the window, menus and window controls stay clickable
-					ImVec2         titleBarClientPos = titleBarPos - mainViewport->Pos;
-					ImVec2         menusClientPos = ImVec2(64.0f, 0.0f) + titleBarClientPos;
-					ImVec2         controlsClientPos = controlsPos - mainViewport->Pos;
-					Vector<Rect>   interactiveAreas;
-					interactiveAreas.push_back(Rect {Vector2(menusClientPos.x, menusClientPos.y), Vector2(menusEndX - mainViewport->Pos.x - menusClientPos.x, titleBarSize.y)});
-					interactiveAreas.push_back(Rect {Vector2(controlsClientPos.x, controlsClientPos.y), Vector2(controlSize.x * 3.0f, controlSize.y)});
-					mainWindow->SetTitleBarHitRegions(Rect {Vector2(titleBarClientPos.x, titleBarClientPos.y), Vector2(titleBarSize.x, titleBarSize.y)}, interactiveAreas);
+					// Custom title bar: empty space of the bar drags the window, menus stay clickable
+					float        menusStartX = mainViewport->Pos.x + 64.0f;
+					Vector<Rect> interactiveAreas;
+					interactiveAreas.push_back(Rect {Vector2(menusStartX, titleBarPos.y), Vector2(menusEndX - menusStartX, titleBarSize.y)});
+					TitleBar::Draw(Rect {Vector2(titleBarPos.x, titleBarPos.y), Vector2(titleBarSize.x, titleBarSize.y)}, interactiveAreas);
 
 					ImGui::EndMainMenuBar();
 				}
@@ -741,7 +696,6 @@ namespace hod::inline editor
 		// ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>();
 
 		DesktopWindow* mainWindow = static_cast<DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow());
-		mainWindow->SetCustomTitleBar(true);
 		mainWindow->Maximize();
 		return true;
 	}

@@ -1,6 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/MissingGameModuleModal.hpp"
+#include "HodEngine/Editor/TitleBar.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
@@ -24,7 +25,7 @@ namespace hod::inline editor
 	: _generationJob(this, &MissingGameModuleModal::GenerationJob)
 	{
 		DesktopWindow* mainWindow = static_cast<DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow());
-		mainWindow->SetSize(320, 200);
+		mainWindow->SetSize(800, 600);
 		mainWindow->CenterToScreen();
 	}
 
@@ -40,6 +41,7 @@ namespace hod::inline editor
 
 		if (ImGui::Begin("MissingGameModuleModal", nullptr, ImGuiWindowFlags_NoDecoration))
 		{
+			TitleBar::DrawAtTopOfWindow("HodEngine");
 			DrawContent();
 		}
 		ImGui::End();
@@ -52,46 +54,43 @@ namespace hod::inline editor
 	/// @brief
 	void MissingGameModuleModal::DrawContent()
 	{
-		if (_askForGeneration)
+		// Started from the first Draw and not the constructor: the modal can be opened during Editor::Init, before the JobScheduler is initialized
+		if (_generationStarted == false)
 		{
-			ImGui::TextUnformatted("Missing 'Game' module");
-			ImGui::TextUnformatted("Do you want to generate it?");
-			if (ImGui::Button("Generate"))
+			_generationStarted = true;
+			JobScheduler::GetInstance()->PushBackground(&_generationJob);
+		}
+
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted("Building the game module of the project:");
+
+		bool failed = _prepareResult == StepStatus::Failed || _configureResult == StepStatus::Failed || _buildResult == StepStatus::Failed;
+		if (failed)
+		{
+			ImGui::SameLine();
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Retry").x - ImGui::GetStyle().FramePadding.x * 2.0f);
+			if (ImGui::Button("Retry"))
 			{
-				_askForGeneration = false;
-
-				DesktopWindow* mainWindow = static_cast<DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow());
-				mainWindow->SetSize(800, 600);
-				mainWindow->CenterToScreen();
-
+				_generationJob.Wait(); // The job may still be returning after flagging the failure
 				JobScheduler::GetInstance()->PushBackground(&_generationJob);
 			}
-			ImGui::SameLine();
-			if (ImGui::Button("Exit"))
-			{
-				// DesktopApplication* application = DesktopApplication::GetInstance();
-				// application->Quit();
-			}
 		}
-		else
+
+		DrawStep("Prepare", _prepareResult);
+		DrawStep("Configure", _configureResult);
+		DrawStep("Build", _buildResult);
+
+		if (ImGui::BeginChild("Output", ImVec2(0.0f, -1.0f), ImGuiChildFlags_FrameStyle))
 		{
-			ImGui::TextUnformatted("Game module generation:");
-			DrawStep("Prepare", _prepareResult);
-			DrawStep("Configure", _configureResult);
-			DrawStep("Build", _buildResult);
+			DrawOutputs();
+		}
+		ImGui::EndChild();
 
-			if (ImGui::BeginChild("Output", ImVec2(0.0f, -1.0f), ImGuiChildFlags_FrameStyle))
+		if (_buildResult == StepStatus::Succeeded)
+		{
+			if (Editor::GetInstance()->LoadEditor() == false)
 			{
-				DrawOutputs();
-			}
-			ImGui::EndChild();
-
-			if (_buildResult == StepStatus::Succeeded)
-			{
-				if (Editor::GetInstance()->LoadEditor() == false)
-				{
-					exit(EXIT_FAILURE);
-				}
+				exit(EXIT_FAILURE);
 			}
 		}
 	}

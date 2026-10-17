@@ -3,6 +3,7 @@
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/ProjectBrowser.hpp"
+#include "HodEngine/Editor/TitleBar.hpp"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -64,6 +65,8 @@ namespace hod::inline editor
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 		if (ImGui::Begin("ProjectBrowser", nullptr, ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoResize) == true)
 		{
+			TitleBar::DrawAtTopOfWindow("HodEngine");
+
 			ImGui::Text("Project Browser");
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x - 140.0f, 0.0f);
 			if (ImGui::Button("Open") == true)
