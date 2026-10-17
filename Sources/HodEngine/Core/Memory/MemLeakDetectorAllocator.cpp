@@ -1,19 +1,61 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Debug.hpp"
-#include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Core/Memory/MemLeakDetectorAllocator.hpp"
 #include "HodEngine/Core/OS.hpp"
-#include "HodEngine/Core/Output/OutputService.hpp"
 #include <cstdint>
 
 #if defined(HOD_ENABLED_MEMLEAK_DETECTOR)
 
 	#include <cassert>
+	#include <cstdio>
 	#include <cstdlib>
 	#include <cstring>
 
+	#if defined(PLATFORM_WINDOWS)
+		#include <Windows.h>
+	#else
+		#include <sys/stat.h>
+	#endif
+
 namespace hod::inline core
 {
+	/// @brief Build the report path using only OS APIs.
+	/// DumpReport runs after every other static is destroyed (FileSystem, OutputService, ...), so it can't rely on them
+	/// @param buffer
+	/// @param bufferSize
+	/// @return
+	static bool BuildMemleakReportPath(char* buffer, uint32_t bufferSize)
+	{
+	#if defined(PLATFORM_WINDOWS)
+		DWORD length = GetTempPathA(bufferSize, buffer); // ends with a '\'
+		if (length == 0 || length >= bufferSize)
+		{
+			return false;
+		}
+		const char* directoryName = "HodEngine";
+		const char* fileName = "\\MemleakReport.txt";
+	#else
+		buffer[0] = '\0';
+		const char* directoryName = "/tmp/HodEngine";
+		const char* fileName = "/MemleakReport.txt";
+	#endif
+
+		size_t prefixLength = std::strlen(buffer);
+		if (prefixLength + std::strlen(directoryName) + std::strlen(fileName) + 1 > bufferSize)
+		{
+			return false;
+		}
+
+		std::strcat(buffer, directoryName);
+	#if defined(PLATFORM_WINDOWS)
+		CreateDirectoryA(buffer, nullptr); // fail if already exist, fopen will report real errors
+	#else
+		mkdir(buffer, 0755);
+	#endif
+		std::strcat(buffer, fileName);
+		return true;
+	}
+
 	/// @brief
 	MemLeakDetectorAllocator::~MemLeakDetectorAllocator()
 	{
@@ -165,12 +207,16 @@ namespace hod::inline core
 				it = it->_next;
 			}
 
-			Path memleakReportPath = FileSystem::GetTemporaryPath() / "HodEngine" / "MemleakReport.txt";
-			FileSystem::GetInstance()->CreateDirectories(memleakReportPath.ParentPath());
-			FILE* memleakReport = fopen(memleakReportPath.GetString().CStr(), "w");
-			if (memleakReport == NULL)
+			char  memleakReportPath[1024];
+			FILE* memleakReport = nullptr;
+			if (BuildMemleakReportPath(memleakReportPath, sizeof(memleakReportPath)))
 			{
-				OUTPUT_ERROR("MemoryManagerLeakDetector: Fail to open MemleakReport.txt");
+				memleakReport = std::fopen(memleakReportPath, "w");
+			}
+
+			if (memleakReport == nullptr)
+			{
+				std::fprintf(stderr, "MemoryManagerLeakDetector: Fail to open MemleakReport.txt\n");
 				result = false;
 			}
 			else
@@ -198,8 +244,8 @@ namespace hod::inline core
 
 				fclose(memleakReport);
 
-				OUTPUT_MESSAGE("MemoryManagerLeakDetector: Memleak detected, report available here {}", memleakReportPath);
-				OS::OpenFileWithDefaultApp(memleakReportPath.GetString().CStr());
+				std::fprintf(stderr, "MemoryManagerLeakDetector: Memleak detected, report available here %s\n", memleakReportPath);
+				OS::OpenFileWithDefaultApp(memleakReportPath);
 			}
 		}
 		_stopAllocationCollect = false;
