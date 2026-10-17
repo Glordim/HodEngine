@@ -91,10 +91,12 @@ namespace hod::inline renderer
 		void SetTextureSlot(const String& name, const rhi::Texture* texture, const Sampler* sampler);
 
 		BindGroup* GetBindGroup(uint32_t setIndex, Buffer* const* uniformBuffers, uint32_t uniformBufferCount) const;
-		void       ReleaseBindGroups(Set& set);
+		void       ReleaseBindGroups(const Set& set) const;
 
 	private:
 		const Material& _material;
 		Vector<Set>     _sets; // indexed by set
+
+		mutable uint32_t _graphicsPipelineGeneration = 0; // the one of the material the BindGroups were made against
 	};
 }

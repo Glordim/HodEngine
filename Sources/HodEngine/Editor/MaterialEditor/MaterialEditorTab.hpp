@@ -52,7 +52,7 @@ namespace hod::inline editor
 				bool boolValue;
 				int intValue;
 				float floatValue;
-			} _value;
+			} _value = {};
 		};
 
 		struct ShaderParamTexture : ShaderParameter
@@ -78,6 +78,9 @@ namespace hod::inline editor
 
 		MaterialSettings&	GetMaterialSettings() { return _materialSettings; }
 
+		// Live edit: rebuilds the pipeline of the material with the states of the settings
+		void				ApplyPipelineStates();
+
 		Vector<ShaderParamScalar>&					GetScalarParameters();
 		Vector<ShaderParamTexture>&					GetTextureParameters();
 		Vector<ShaderParamVec2>&					GetVector2Parameters();
@@ -95,9 +98,15 @@ namespace hod::inline editor
 
 	private:
 
+		void	LoadParameterValues();
+		void	ApplyParameterValues();
+
+	private:
+
 		float _zoomFactor = 1.0f;
-		
+
 		MaterialSettings _materialSettings;
+		MaterialSettings _savedSettings; // what the resource is reverted to if the tab is closed with unsaved live edits
 
 		std::shared_ptr<MaterialResource>	_material;
 

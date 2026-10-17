@@ -43,6 +43,10 @@ namespace hod::inline rhi
 				size_t     _count;
 				size_t     _offset;
 				MemberType _memberType;
+				// [Color] in the shader (ShaderLib/Attributes.slang): edited as a color.
+				// TODO Only the editors use it, the RHI has no use for it: it is here because the reflection is only read here.
+				// Should the editor read the reflection itself instead (e.g. metadata the MaterialCooker extracts into a data block of its own)?
+				bool       _color = false;
 
 				std::unordered_map<String, Member> _childsMap;
 			};

@@ -10,6 +10,11 @@ namespace hod::inline core
 	class ReflectionDescriptor;
 }
 
+namespace hod::inline math
+{
+	class Vector4;
+}
+
 namespace hod::inline editor
 {
 	class EditorReflectedObject;
@@ -28,5 +33,8 @@ namespace hod::inline editor
 	public:
 
 		void		DrawContent() override;
+
+		// A Float4 parameter, as a color one if it is marked [Color] in the shader. Shared with the material instance editor.
+		static bool	DrawVector4(Vector4& value, bool color);
 	};
 }

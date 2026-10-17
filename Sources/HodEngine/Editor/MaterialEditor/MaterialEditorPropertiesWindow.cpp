@@ -43,6 +43,28 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @param value
+	/// @param color
+	/// @return
+	bool MaterialEditorPropertiesWindow::DrawVector4(Vector4& value, bool color)
+	{
+		if (color == false)
+		{
+			EditorReflectedObject editorObject(&value, &Vector4::GetReflectionDescriptor(), nullptr, nullptr);
+			return PropertyDrawer::DrawDescriptor(editorObject);
+		}
+
+		float rgba[4] = {value.GetX(), value.GetY(), value.GetZ(), value.GetW()};
+		ImGui::SetNextItemWidth(-1);
+		if (ImGui::ColorEdit4("##color", rgba, ImGuiColorEditFlags_AlphaPreviewHalf) == false)
+		{
+			return false;
+		}
+		value = Vector4(rgba[0], rgba[1], rgba[2], rgba[3]);
+		return true;
+	}
+
+	/// @brief
 	/// @param editorTab
 	MaterialEditorPropertiesWindow::MaterialEditorPropertiesWindow(EditorTab* editorTab)
 	: EditorTabWindow(editorTab)
@@ -62,7 +84,11 @@ namespace hod::inline editor
 		if (ImGui::CollapsingHeader("Data", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			EditorReflectedObject reflectedObject(&materialSettings, &materialSettings.GetReflectionDescriptorV(), nullptr, this);
-			changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
+			if (PropertyDrawer::DrawDescriptor(reflectedObject))
+			{
+				GetOwner<MaterialEditorTab>()->ApplyPipelineStates();
+				changed = true;
+			}
 		}
 
 		if (ImGui::CollapsingHeader("Default Params", ImGuiTreeNodeFlags_DefaultOpen))
@@ -117,8 +143,7 @@ namespace hod::inline editor
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(vec4Parameter._name.CStr());
 				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
-				EditorReflectedObject editorObject(&vec4Parameter._value, &Vector4::GetReflectionDescriptor(), nullptr, nullptr);
-				if (PropertyDrawer::DrawDescriptor(editorObject))
+				if (DrawVector4(vec4Parameter._value, vec4Parameter._color))
 				{
 					GetOwner<MaterialEditorTab>()->GetMaterial()->EditDefaultInstance()->SetVec4("ubo." + vec4Parameter._name, vec4Parameter._value);
 					changed = true;

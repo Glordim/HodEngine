@@ -35,7 +35,7 @@ namespace hod::inline renderer
 					}
 					else if (childPair.second._memberType == ShaderSetDescriptor::BlockUbo::MemberType::Float4)
 					{
-						params.EmplaceBack(childPair.second._name, ShaderParameter::Type::Float4);
+						params.EmplaceBack(childPair.second._name, ShaderParameter::Type::Float4, childPair.second._color);
 					}
 				}
 			}

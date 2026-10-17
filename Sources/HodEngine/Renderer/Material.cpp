@@ -85,6 +85,32 @@ namespace hod::inline renderer
 	}
 
 	/// @brief
+	/// @param createInfo
+	/// @return false if the pipeline can't be built, the current one is kept
+	bool Material::RebuildGraphicsPipeline(const CreateInfo& createInfo)
+	{
+		GraphicsPipeline* graphicsPipeline = RhiDevice::GetInstance()->CreateGraphicsPipeline(createInfo);
+		if (graphicsPipeline == nullptr)
+		{
+			return false;
+		}
+
+		// The RHI keeps what a frame in flight still uses alive.
+		// Same shaders: the uniform and texture locations stay the same.
+		DefaultAllocator::GetInstance().Delete(_graphicsPipeline);
+		_graphicsPipeline = graphicsPipeline;
+		++_graphicsPipelineGeneration;
+		return true;
+	}
+
+	/// @brief
+	/// @return
+	uint32_t Material::GetGraphicsPipelineGeneration() const
+	{
+		return _graphicsPipelineGeneration;
+	}
+
+	/// @brief
 	/// @return
 	const std::map<uint32_t, ShaderSetDescriptor*>& Material::GetSetDescriptors() const
 	{

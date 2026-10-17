@@ -6,6 +6,29 @@
 
 namespace hod::inline rhi
 {
+	namespace
+	{
+		/// @brief Tells if a field of the reflection has the given attribute of ShaderLib/Attributes.slang
+		bool HasUserAttribute(const DocumentNode& fieldNode, const char* attributeName)
+		{
+			const DocumentNode* userAttribsNode = fieldNode.GetChild("userAttribs");
+			if (userAttribsNode == nullptr)
+			{
+				return false;
+			}
+
+			for (const DocumentNode* attributeNode = userAttribsNode->GetFirstChild(); attributeNode != nullptr; attributeNode = attributeNode->GetNextSibling())
+			{
+				const DocumentNode* nameNode = attributeNode->GetChild("name");
+				if (nameNode != nullptr && nameNode->GetString() == attributeName)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+	}
+
 	void ShaderSetDescriptor::Merge(const ShaderSetDescriptor& other)
 	{
 		_space = other._space;
@@ -141,6 +164,7 @@ namespace hod::inline rhi
 		member._name = nameNode->GetString();
 		member._offset = offsetNode->GetUInt32();
 		member._size = sizeNode->GetUInt32();
+		member._color = HasUserAttribute(fieldNode, "Color");
 		const String& kind = kindNode->GetString();
 		if (kind == "scalar")
 		{

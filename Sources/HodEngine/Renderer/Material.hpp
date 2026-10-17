@@ -57,6 +57,14 @@ namespace hod::inline renderer
 	public:
 		GraphicsPipeline* GetGraphicsPipeline() const;
 
+		// Replaces the pipeline with one built from createInfo, for its states to be edited live.
+		// Its shaders and vertex inputs must be the ones the Material was created with: the parameters keep their layout.
+		// Keeps the current pipeline if the new one can't be built.
+		bool RebuildGraphicsPipeline(const CreateInfo& createInfo);
+
+		// Incremented each time the pipeline is replaced: what was made against the previous one is to be made again
+		uint32_t GetGraphicsPipelineGeneration() const;
+
 		// Ordered and contiguous: the sets 0, 1, 2...
 		const std::map<uint32_t, ShaderSetDescriptor*>& GetSetDescriptors() const;
 
@@ -74,6 +82,7 @@ namespace hod::inline renderer
 
 	private:
 		GraphicsPipeline* _graphicsPipeline = nullptr;
+		uint32_t          _graphicsPipelineGeneration = 0;
 
 		// Every path without array index, resolved once: read only after Build, hence safe to read from several threads
 		std::unordered_map<String, UniformLocation> _uniformLocations;

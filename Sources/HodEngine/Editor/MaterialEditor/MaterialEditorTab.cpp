@@ -87,6 +87,7 @@ namespace hod::inline editor
 							ShaderParamVec4 value;
 							value._name = param._name;
 							value._type = param._type;
+							value._color = param._color;
 							_vec4Parameters.push_back(value);
 						}
 						else if (param._type != ShaderParameter::Type::Unknown)
@@ -99,91 +100,136 @@ namespace hod::inline editor
 					}
 				}
 
-				const DocumentNode* paramNode = _materialSettings._defaultInstanceParams.GetRootNode().GetFirstChild();
-				while (paramNode != nullptr)
-				{
-					String name = paramNode->GetChild("Name")->GetString();
-					ShaderParameter::Type type = static_cast<ShaderParameter::Type>(paramNode->GetChild("Type")->GetUInt8());
-					switch (type)
-					{
-					case ShaderParameter::Type::Float:
-						for (ShaderParamScalar& param : _scalarParameters)
-						{
-							if (param._name == name)
-							{
-								param._value.floatValue = paramNode->GetChild("Value")->GetFloat32();
-								break;
-							}
-						}
-						break;
-
-					case ShaderParameter::Type::Float2:
-						for (ShaderParamVec2& param : _vec2Parameters)
-						{
-							if (param._name == name)
-							{
-								Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
-								break;
-							}
-						}
-						break;
-
-					case ShaderParameter::Type::Float4:
-						for (ShaderParamVec4& param : _vec4Parameters)
-						{
-							if (param._name == name)
-							{
-								Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
-								break;
-							}
-						}
-						break;
-
-					case ShaderParameter::Type::Texture:
-						for (ShaderParamTexture& param : _textureParameters)
-						{
-							if (param._name == name)
-							{
-								Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
-								break;
-							}
-						}
-						break;
-					
-					default:
-						break;
-					}
-					paramNode = paramNode->GetNextSibling();
-				}
-
-				MaterialInstance* defaultInstance = _material->EditDefaultInstance();
-				for (const ShaderParamScalar& param : _scalarParameters)
-				{
-					defaultInstance->SetFloat("ubo." + param._name, param._value.floatValue);
-				}
-				for (const ShaderParamVec2& param : _vec2Parameters)
-				{
-					defaultInstance->SetVec2("ubo." + param._name, param._value);
-				}
-				for (const ShaderParamVec4& param : _vec4Parameters)
-				{
-					defaultInstance->SetVec4("ubo." + param._name, param._value);
-				}
-				for (const ShaderParamTexture& param : _textureParameters)
-				{
-					std::shared_ptr<TextureResource> textureResource = param._value.Lock();
-					if (textureResource != nullptr)
-					{
-						defaultInstance->SetTexture(param._name, textureResource->GetTexture());
-					}
-				}
+				ApplyPipelineStates();
+				LoadParameterValues();
+				ApplyParameterValues();
 			}
+
+			_savedSettings = _materialSettings;
 		}
 	}
 
-	/// @brief 
+	/// @brief Reverts the resource, shared with whatever uses it, to what is saved: the live edits are not
 	MaterialEditorTab::~MaterialEditorTab()
 	{
+		if (_material != nullptr && IsDirty())
+		{
+			_materialSettings = _savedSettings;
+			ApplyPipelineStates();
+			LoadParameterValues();
+			ApplyParameterValues();
+		}
+	}
+
+	/// @brief
+	void MaterialEditorTab::ApplyPipelineStates()
+	{
+		if (_material != nullptr)
+		{
+			_material->SetPipelineStates(_materialSettings._polygonMode, _materialSettings._topology, _materialSettings._blendMode, _materialSettings._cullMode,
+			                             _materialSettings._depthTest, _materialSettings._depthWrite);
+		}
+	}
+
+	/// @brief The values of the parameters from the settings, the ones it has not are reset
+	void MaterialEditorTab::LoadParameterValues()
+	{
+		for (ShaderParamScalar& param : _scalarParameters)
+		{
+			param._value.floatValue = 0.0f;
+		}
+		for (ShaderParamVec2& param : _vec2Parameters)
+		{
+			param._value = Vector2();
+		}
+		for (ShaderParamVec4& param : _vec4Parameters)
+		{
+			param._value = Vector4();
+		}
+		for (ShaderParamTexture& param : _textureParameters)
+		{
+			param._value = WeakResource<TextureResource>();
+		}
+
+		const DocumentNode* paramNode = _materialSettings._defaultInstanceParams.GetRootNode().GetFirstChild();
+		while (paramNode != nullptr)
+		{
+			String name = paramNode->GetChild("Name")->GetString();
+			ShaderParameter::Type type = static_cast<ShaderParameter::Type>(paramNode->GetChild("Type")->GetUInt8());
+			switch (type)
+			{
+			case ShaderParameter::Type::Float:
+				for (ShaderParamScalar& param : _scalarParameters)
+				{
+					if (param._name == name)
+					{
+						param._value.floatValue = paramNode->GetChild("Value")->GetFloat32();
+						break;
+					}
+				}
+				break;
+
+			case ShaderParameter::Type::Float2:
+				for (ShaderParamVec2& param : _vec2Parameters)
+				{
+					if (param._name == name)
+					{
+						Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
+						break;
+					}
+				}
+				break;
+
+			case ShaderParameter::Type::Float4:
+				for (ShaderParamVec4& param : _vec4Parameters)
+				{
+					if (param._name == name)
+					{
+						Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
+						break;
+					}
+				}
+				break;
+
+			case ShaderParameter::Type::Texture:
+				for (ShaderParamTexture& param : _textureParameters)
+				{
+					if (param._name == name)
+					{
+						Serializer::Deserialize(param._value, *paramNode->GetChild("Value"));
+						break;
+					}
+				}
+				break;
+			
+			default:
+				break;
+			}
+			paramNode = paramNode->GetNextSibling();
+		}
+	}
+
+	/// @brief Sets the values of the parameters on the default instance of the material
+	void MaterialEditorTab::ApplyParameterValues()
+	{
+		MaterialInstance* defaultInstance = _material->EditDefaultInstance();
+		for (const ShaderParamScalar& param : _scalarParameters)
+		{
+			defaultInstance->SetFloat("ubo." + param._name, param._value.floatValue);
+		}
+		for (const ShaderParamVec2& param : _vec2Parameters)
+		{
+			defaultInstance->SetVec2("ubo." + param._name, param._value);
+		}
+		for (const ShaderParamVec4& param : _vec4Parameters)
+		{
+			defaultInstance->SetVec4("ubo." + param._name, param._value);
+		}
+		for (const ShaderParamTexture& param : _textureParameters)
+		{
+			std::shared_ptr<TextureResource> textureResource = param._value.Lock();
+			defaultInstance->SetTexture(param._name, textureResource != nullptr ? textureResource->GetTexture() : nullptr);
+		}
 	}
 
 	/// @brief 
@@ -321,6 +367,7 @@ namespace hod::inline editor
 			return false;
 		}
 
+		_savedSettings = _materialSettings;
 		return true;
 	}
 

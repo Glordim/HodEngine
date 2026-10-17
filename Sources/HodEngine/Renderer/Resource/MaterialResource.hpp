@@ -39,6 +39,14 @@ namespace hod::inline renderer
 		const MaterialInstance*	GetDefaultInstance() const;
 		MaterialInstance*		EditDefaultInstance();
 
+		// Live edit (material editor): rebuilds the pipeline of the material in place, the instances of it see the change.
+		// Keeps the current states if the pipeline can't be built with them.
+		bool				SetPipelineStates(Material::PolygonMode polygonMode, Material::Topology topology, BlendMode blendMode, CullMode cullMode, bool depthTest, bool depthWrite);
+
+	private:
+
+		Material::CreateInfo	MakeCreateInfo() const;
+
 	private:
 
 		Material*			_material = nullptr;

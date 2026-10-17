@@ -163,17 +163,19 @@ namespace hod::inline editor
 	{
 		Path   stageOutput = slangRootPath.ParentPath() / (String(dataBlockName) + ".bin");
 		Path   stageReflectionOutput = slangRootPath.ParentPath() / (String(dataBlockName) + ".reflection.json");
-		// Tools/ShaderLib is what the shaders import from the engine, like its attributes.
+		// Next to the editor, not in the working directory: it is the one of the opened project.
+		Path toolsDir = FileSystem::GetExecutablePath().ParentPath() / "Tools";
+		// ShaderLib is what the shaders import from the engine, like its attributes.
 		// Row major is the layout of Matrix4: matrices are given to the shaders as they are.
-		String stageParameter(fmt::format("-entry {} -stage {} -I Tools/ShaderLib -matrix-layout-row-major", entryPoint, stage));
+		String stageParameter(fmt::format("-entry {} -stage {} -I {} -matrix-layout-row-major", entryPoint, stage, toolsDir / "ShaderLib"));
 #if defined(PLATFORM_WINDOWS) && defined(HOD_SHADER_TARGET_D3D12)
-		bool slangResult = Process::Create("Tools/slangc.exe", fmt::format("{} -target dxil -profile sm_6_0 {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
+		bool slangResult = Process::Create((toolsDir / "slangc.exe").GetString(), fmt::format("{} -target dxil -profile sm_6_0 {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
 #elif defined(PLATFORM_WINDOWS)
-		bool slangResult = Process::Create("Tools/slangc.exe", fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
+		bool slangResult = Process::Create((toolsDir / "slangc.exe").GetString(), fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
 #elif defined(PLATFORM_LINUX)
-		bool slangResult = Process::Create("Tools/slangc", fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
+		bool slangResult = Process::Create((toolsDir / "slangc").GetString(), fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
 #else
-		bool slangResult = Process::Create("Tools/slangc", fmt::format("{} -target metallib {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
+		bool slangResult = Process::Create((toolsDir / "slangc").GetString(), fmt::format("{} -target metallib {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
 #endif
 		if (slangResult == false)
 		{

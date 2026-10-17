@@ -13,6 +13,8 @@
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/GameSystems/Resource/ResourceContainer.hpp>
 
+#include <iterator>
+
 namespace hod::inline renderer
 {
 	DESCRIBE_REFLECTED_CLASS(MaterialResource, reflectionDescriptor)
@@ -105,23 +107,7 @@ namespace hod::inline renderer
 			return false;
 		}
 
-		Vector<VertexInput> vertexInputs;
-		vertexInputs.PushBack(VertexInput(0, 0, VertexInput::Format::R32G32_SFloat));
-		vertexInputs.PushBack(VertexInput(1, 8, VertexInput::Format::R32G32_SFloat));
-
-		Material::CreateInfo createInfo;
-		createInfo._vertexInputs = vertexInputs.Data();
-		createInfo._vertexInputCount = (uint32_t)vertexInputs.Size();
-		createInfo._vertexShader = _vertexShader;
-		createInfo._fragmentShader = _fragmentShader;
-		createInfo._polygonMode = _polygonMode;
-		createInfo._topology = _topology;
-		createInfo._blendMode = _blendMode;
-		createInfo._cullMode = _cullMode;
-		createInfo._depthTest = _depthTest;
-		createInfo._depthWrite = _depthWrite;
-
-		_material = Material::Create(createInfo);
+		_material = Material::Create(MakeCreateInfo());
 		if (_material == nullptr)
 		{
 			OUTPUT_ERROR("MaterialResource::Initialize: load material failed");
@@ -131,6 +117,66 @@ namespace hod::inline renderer
 		_defaultInstance = MaterialInstance::Create(_material);
 		MaterialSerializationHelper::ApplyParamsFromDocument(*_defaultInstance, _defaultInstanceParams.GetRootNode(), _textureResources);
 
+		return true;
+	}
+
+	/// @brief
+	/// @return
+	Material::CreateInfo MaterialResource::MakeCreateInfo() const
+	{
+		// Position and uv, what every material is drawn with
+		static const VertexInput vertexInputs[] = {
+			VertexInput(0, 0, VertexInput::Format::R32G32_SFloat),
+			VertexInput(1, 8, VertexInput::Format::R32G32_SFloat),
+		};
+
+		Material::CreateInfo createInfo;
+		createInfo._vertexInputs = vertexInputs;
+		createInfo._vertexInputCount = (uint32_t)std::size(vertexInputs);
+		createInfo._vertexShader = _vertexShader;
+		createInfo._fragmentShader = _fragmentShader;
+		createInfo._polygonMode = _polygonMode;
+		createInfo._topology = _topology;
+		createInfo._blendMode = _blendMode;
+		createInfo._cullMode = _cullMode;
+		createInfo._depthTest = _depthTest;
+		createInfo._depthWrite = _depthWrite;
+		return createInfo;
+	}
+
+	/// @brief
+	/// @return false if the pipeline can't be built with these states, the current ones are kept
+	bool MaterialResource::SetPipelineStates(Material::PolygonMode polygonMode, Material::Topology topology, BlendMode blendMode, CullMode cullMode, bool depthTest, bool depthWrite)
+	{
+		if (_material == nullptr)
+		{
+			return false;
+		}
+
+		if (polygonMode == _polygonMode && topology == _topology && blendMode == _blendMode && cullMode == _cullMode && depthTest == _depthTest && depthWrite == _depthWrite)
+		{
+			return true;
+		}
+
+		Material::CreateInfo createInfo = MakeCreateInfo();
+		createInfo._polygonMode = polygonMode;
+		createInfo._topology = topology;
+		createInfo._blendMode = blendMode;
+		createInfo._cullMode = cullMode;
+		createInfo._depthTest = depthTest;
+		createInfo._depthWrite = depthWrite;
+		if (_material->RebuildGraphicsPipeline(createInfo) == false)
+		{
+			OUTPUT_ERROR("MaterialResource::SetPipelineStates: can't build the pipeline with these states");
+			return false;
+		}
+
+		_polygonMode = polygonMode;
+		_topology = topology;
+		_blendMode = blendMode;
+		_cullMode = cullMode;
+		_depthTest = depthTest;
+		_depthWrite = depthWrite;
 		return true;
 	}
 

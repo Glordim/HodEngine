@@ -39,6 +39,7 @@ namespace hod::inline renderer
 
 		String _name;
 		Type   _type = Type::Unknown;
+		bool   _color = false; // a Float4 marked [Color] in the shader
 	};
 
 	class HOD_RENDERER_API MaterialSerializationHelper

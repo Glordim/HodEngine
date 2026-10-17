@@ -81,6 +81,7 @@ namespace hod::inline editor
 							ShaderParamVec4 value;
 							value._name = param._name;
 							value._type = param._type;
+							value._color = param._color;
 							_vec4Parameters.push_back(value);
 						}
 						else if (param._type != ShaderParameter::Type::Unknown)

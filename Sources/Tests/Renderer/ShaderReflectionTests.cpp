@@ -209,6 +209,25 @@ TEST_F(ShaderReflection, ParametersOutsideOfAnyBlockMakeOneSet)
 	ExpectTextureBlocks(1, 2);
 }
 
+// The members marked [Color] (ShaderLib/Attributes.slang) are known as colors, for the editors to edit them as such.
+// The fixture is the reflection, for Vulkan, of: struct UBO { [Color] float4 color; float4 offset; };
+// struct Material { ConstantBuffer<UBO> ubo; }; ParameterBlock<Material> material;
+TEST_F(ShaderReflection, ColorAttributeMarksTheMember)
+{
+	Load("ColorAttribute_Fragment.vulkan.json");
+
+	const ShaderSetDescriptor::BlockUbo* ubo = FindUbo(*_set, "ubo");
+	ASSERT_NE(ubo, nullptr);
+
+	auto color = ubo->_rootMember._childsMap.find("color");
+	ASSERT_NE(color, ubo->_rootMember._childsMap.end());
+	EXPECT_TRUE(color->second._color);
+
+	auto offset = ubo->_rootMember._childsMap.find("offset");
+	ASSERT_NE(offset, ubo->_rootMember._childsMap.end());
+	EXPECT_FALSE(offset->second._color);
+}
+
 // Plain data in a block goes to a constant buffer only some targets add to it: it has to be declared, as a ConstantBuffer field.
 // The fixture is the reflection, for Vulkan, of: struct Material { float4 color; Texture2D image; }; ParameterBlock<Material> material;
 TEST(ShaderReflectionErrors, PlainDataInParameterBlockIsRefused)

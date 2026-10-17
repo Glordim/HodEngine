@@ -2,6 +2,7 @@
 #include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorPropertiesWindow.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
+#include "HodEngine/Editor/MaterialEditor/MaterialEditorPropertiesWindow.hpp"
 #include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorTab.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -114,8 +115,7 @@ namespace hod::inline editor
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(vec4Parameter._name.CStr());
 				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
-				EditorReflectedObject editorObject(&vec4Parameter._value, &Vector4::GetReflectionDescriptor(), nullptr, nullptr);
-				if (PropertyDrawer::DrawDescriptor(editorObject))
+				if (MaterialEditorPropertiesWindow::DrawVector4(vec4Parameter._value, vec4Parameter._color))
 				{
 					GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance()->GetMaterialInstance()->SetVec4("ubo." + vec4Parameter._name, vec4Parameter._value);
 					changed = true;

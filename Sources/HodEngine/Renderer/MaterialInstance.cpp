@@ -35,6 +35,7 @@ namespace hod::inline renderer
 	/// @param material
 	MaterialInstance::MaterialInstance(const Material& material)
 	: _material(material)
+	, _graphicsPipelineGeneration(material.GetGraphicsPipelineGeneration())
 	{
 		const std::map<uint32_t, ShaderSetDescriptor*>& setDescriptors = material.GetSetDescriptors();
 
@@ -185,6 +186,16 @@ namespace hod::inline renderer
 	{
 		commandBuffer.SetGraphicsPipeline(_material.GetGraphicsPipeline());
 
+		// The pipeline was rebuilt (live edit of the material): the BindGroups were made against the previous one
+		if (_graphicsPipelineGeneration != _material.GetGraphicsPipelineGeneration())
+		{
+			for (const Set& set : _sets)
+			{
+				ReleaseBindGroups(set);
+			}
+			_graphicsPipelineGeneration = _material.GetGraphicsPipelineGeneration();
+		}
+
 		UniformAllocator& uniformAllocator = Renderer::GetInstance()->GetCurrentFrameResources().GetUniformAllocator();
 
 		for (uint32_t setIndex = setOffset; setIndex < _sets.Size() && setIndex - setOffset < setCount; ++setIndex)
@@ -279,7 +290,7 @@ namespace hod::inline renderer
 
 	/// @brief
 	/// @param set
-	void MaterialInstance::ReleaseBindGroups(Set& set)
+	void MaterialInstance::ReleaseBindGroups(const Set& set) const
 	{
 		// The RHI keeps what a frame in flight still uses alive
 		for (const BoundGroup& boundGroup : set._bindGroups)
