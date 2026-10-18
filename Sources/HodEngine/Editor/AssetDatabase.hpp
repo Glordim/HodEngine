@@ -13,6 +13,7 @@
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp>
 #include <HodEngine/Core/Singleton.hpp>
+#include <HodEngine/Core/Time/SystemTime.hpp>
 #include <HodEngine/Core/UID.hpp>
 #include <HodEngine/GameSystems/Job/MemberFunctionJob.hpp>
 
@@ -123,15 +124,27 @@ namespace hod::inline editor
 		void MoveNode(FileSystemMapping& node, const Path& newPath);
 		void DeleteNode(FileSystemMapping& node);
 
+		/// @brief A path the file watcher reported something on. It is only applied once quiet and readable (see ProcessPendingChanges()):
+		/// the watcher notifies from the creation of a file, while it may still be being written
+		struct PendingChange
+		{
+			Path                  _path;
+			SystemTime::TimeStamp _lastEventTime;
+		};
+
+		static void QueueChange(Vector<PendingChange>& pendingChanges, const Path& path);
+		void        ProcessPendingChanges(Vector<PendingChange>& pendingChanges, void (AssetDatabase::*applyChange)(const Path&));
+
+		bool MoveKnownNode(const Path& oldPath, const Path& newPath);
+		void ApplyAssetChange(const Path& path);
+		void ApplySourceChange(const Path& path);
+
 		void FileSystemWatcherAssetOnCreateFile(const Path& path);
 		void FileSystemWatcherAssetOnDeleteFile(const Path& path);
 		void FileSystemWatcherAssetOnChangeFile(const Path& path);
-		void FileSystemWatcherAssetOnMoveFile(const Path& oldPath, const Path& newPath);
 
-		void FileSystemWatcherSourceOnCreateFile(const Path& path);
 		void FileSystemWatcherSourceOnDeleteFile(const Path& path);
 		void FileSystemWatcherSourceOnChangeFile(const Path& path);
-		void FileSystemWatcherSourceOnMoveFile(const Path& oldPath, const Path& newPath);
 
 		void ClearFilesystemMapping(FileSystemMapping& filesystemMapping);
 
@@ -167,6 +180,9 @@ namespace hod::inline editor
 
 		FileSystemWatcher _fileSystemWatcherAsset;
 		FileSystemWatcher _fileSystemWatcherSource;
+
+		Vector<PendingChange> _pendingAssetChanges;
+		Vector<PendingChange> _pendingSourceChanges;
 
 		Vector<ImporterEntry*> _importerEntries;
 		Vector<CookerEntry*> _cookerEntries;

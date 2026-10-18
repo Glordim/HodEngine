@@ -16,6 +16,7 @@
 
 #include <cctype>
 #include <cstdint>
+#include <cstdio>
 #include <filesystem> // todo remove
 #include <memory>
 
@@ -102,18 +103,28 @@ namespace hod::inline editor
 		_rootFileSystemMapping._path = project->GetAssetDirPath();
 		ExploreAndDetectAsset(&_rootFileSystemMapping);
 
-		if (_fileSystemWatcherAsset.Init(project->GetAssetDirPath(), std::bind(&AssetDatabase::FileSystemWatcherAssetOnCreateFile, this, std::placeholders::_1),
-		                                 std::bind(&AssetDatabase::FileSystemWatcherAssetOnDeleteFile, this, std::placeholders::_1),
-		                                 std::bind(&AssetDatabase::FileSystemWatcherAssetOnChangeFile, this, std::placeholders::_1),
-		                                 std::bind(&AssetDatabase::FileSystemWatcherAssetOnMoveFile, this, std::placeholders::_1, std::placeholders::_2)) == false)
+		// Whatever the event, the path is only queued: what to do is decided from what is on disk once it is quiet (ProcessPendingChanges())
+		auto queueAssetChange = [this](const Path& path) { QueueChange(_pendingAssetChanges, path); };
+		auto queueAssetMove = [this](const Path& oldPath, const Path& newPath)
+		{
+			if (MoveKnownNode(oldPath, newPath) == false)
+			{
+				QueueChange(_pendingAssetChanges, oldPath);
+				QueueChange(_pendingAssetChanges, newPath);
+			}
+		};
+		if (_fileSystemWatcherAsset.Init(project->GetAssetDirPath(), queueAssetChange, queueAssetChange, queueAssetChange, queueAssetMove) == false)
 		{
 			return false;
 		}
 
-		if (_fileSystemWatcherSource.Init(project->GetSourceDirPath(), std::bind(&AssetDatabase::FileSystemWatcherSourceOnCreateFile, this, std::placeholders::_1),
-		                                  std::bind(&AssetDatabase::FileSystemWatcherSourceOnDeleteFile, this, std::placeholders::_1),
-		                                  std::bind(&AssetDatabase::FileSystemWatcherSourceOnChangeFile, this, std::placeholders::_1),
-		                                  std::bind(&AssetDatabase::FileSystemWatcherSourceOnMoveFile, this, std::placeholders::_1, std::placeholders::_2)) == false)
+		auto queueSourceChange = [this](const Path& path) { QueueChange(_pendingSourceChanges, path); };
+		auto queueSourceMove = [this](const Path& oldPath, const Path& newPath)
+		{
+			QueueChange(_pendingSourceChanges, oldPath);
+			QueueChange(_pendingSourceChanges, newPath);
+		};
+		if (_fileSystemWatcherSource.Init(project->GetSourceDirPath(), queueSourceChange, queueSourceChange, queueSourceChange, queueSourceMove) == false)
 		{
 			return false;
 		}
@@ -127,6 +138,161 @@ namespace hod::inline editor
 	{
 		_fileSystemWatcherAsset.Update();
 		_fileSystemWatcherSource.Update();
+
+		ProcessPendingChanges(_pendingAssetChanges, &AssetDatabase::ApplyAssetChange);
+		ProcessPendingChanges(_pendingSourceChanges, &AssetDatabase::ApplySourceChange);
+	}
+
+	/// @brief One entry per path: the burst of events of a write (created, then modified several times) is applied once
+	/// @param pendingChanges
+	/// @param path
+	void AssetDatabase::QueueChange(Vector<PendingChange>& pendingChanges, const Path& path)
+	{
+		SystemTime::TimeStamp now = SystemTime::Now();
+		for (PendingChange& pendingChange : pendingChanges)
+		{
+			if (pendingChange._path == path)
+			{
+				pendingChange._lastEventTime = now;
+				return;
+			}
+		}
+		pendingChanges.PushBack({path, now});
+	}
+
+	/// @brief Applies the changes quiet for long enough. A file still open by its writer (it can't be opened yet) is retried later:
+	/// the watcher has no "write finished" event, a writer done with a file has closed it
+	/// @param pendingChanges
+	/// @param applyChange
+	void AssetDatabase::ProcessPendingChanges(Vector<PendingChange>& pendingChanges, void (AssetDatabase::*applyChange)(const Path&))
+	{
+		constexpr double quietDelay = 0.25; // Seconds without event on a path before it is considered
+
+		SystemTime::TimeStamp now = SystemTime::Now();
+		uint32_t              index = 0;
+		while (index < pendingChanges.Size())
+		{
+			PendingChange& pendingChange = pendingChanges[index];
+			if (SystemTime::ElapsedTimeInSeconds(pendingChange._lastEventTime, now) < quietDelay)
+			{
+				++index;
+				continue;
+			}
+
+			if (FileSystem::GetInstance()->Exists(pendingChange._path) && FileSystem::GetInstance()->IsDirectory(pendingChange._path) == false)
+			{
+				// Not FileSystem::Open(), it logs an error on failure (std::fopen() on Windows fails with a sharing violation the same way)
+				std::FILE* file = std::fopen(pendingChange._path.GetString().CStr(), "rb");
+				if (file == nullptr)
+				{
+					pendingChange._lastEventTime = now;
+					++index;
+					continue;
+				}
+				std::fclose(file);
+			}
+
+			Path path = pendingChange._path;
+			pendingChanges.Erase(pendingChanges.Begin() + index);
+			(this->*applyChange)(path); // Can queue other changes (parent folder), hence after the erase
+		}
+	}
+
+	/// @brief
+	/// @param path
+	/// @param root
+	/// @return true if path is root or inside it
+	static bool IsSameOrInside(const Path& path, const Path& root)
+	{
+		Path current = path;
+		while (current != root)
+		{
+			if (current.HasParentPath() == false)
+			{
+				return false;
+			}
+			current = current.ParentPath();
+		}
+		return true;
+	}
+
+	/// @brief A rename reported by the watcher, applied right away (nothing is written, there is nothing to wait for) as a real move:
+	/// the Asset and the content of a folder are kept, only their paths change (recursively, see MoveNode())
+	/// @param oldPath
+	/// @param newPath
+	/// @return false when it isn't a known node to move (e.g. a move done by the editor, already applied): left to the pending changes then
+	bool AssetDatabase::MoveKnownNode(const Path& oldPath, const Path& newPath)
+	{
+		FileSystemMapping* node = FindFileSystemMappingFromPath(oldPath);
+		if (node == nullptr || node == &_rootFileSystemMapping || FindFileSystemMappingFromPath(newPath) != nullptr ||
+		    FindFileSystemMappingFromPath(newPath.ParentPath()) == nullptr)
+		{
+			return false;
+		}
+
+		MoveNode(*node, newPath);
+
+		// What was waiting under the old path (a file of the folder still being written...) follows it
+		const String& oldPathString = oldPath.GetString();
+		for (PendingChange& pendingChange : _pendingAssetChanges)
+		{
+			if (IsSameOrInside(pendingChange._path, oldPath))
+			{
+				pendingChange._path = Path(newPath.GetString() + pendingChange._path.GetString().SubStr(oldPathString.Length()));
+			}
+		}
+		return true;
+	}
+
+	/// @brief Brings the database in line with what is on disk at path: removed, added or reloaded
+	/// @param path
+	void AssetDatabase::ApplyAssetChange(const Path& path)
+	{
+		FileSystemMapping* node = FindFileSystemMappingFromPath(path);
+		if (FileSystem::GetInstance()->Exists(path) == false)
+		{
+			if (node != nullptr)
+			{
+				FileSystemWatcherAssetOnDeleteFile(path);
+			}
+			return;
+		}
+
+		if (node != nullptr)
+		{
+			FileSystemWatcherAssetOnChangeFile(path);
+			return;
+		}
+
+		// The changes of a folder content can be quiet before the one of the folder itself (its modification date keeps changing)
+		Path parentPath = path.ParentPath();
+		if (FindFileSystemMappingFromPath(parentPath) == nullptr)
+		{
+			if (parentPath == _rootFileSystemMapping._path || parentPath.HasParentPath() == false)
+			{
+				return; // Not under the asset directory
+			}
+			ApplyAssetChange(parentPath);
+			if (FindFileSystemMappingFromPath(parentPath) == nullptr)
+			{
+				return;
+			}
+		}
+		FileSystemWatcherAssetOnCreateFile(path);
+	}
+
+	/// @brief
+	/// @param path
+	void AssetDatabase::ApplySourceChange(const Path& path)
+	{
+		if (FileSystem::GetInstance()->Exists(path))
+		{
+			FileSystemWatcherSourceOnChangeFile(path);
+		}
+		else
+		{
+			FileSystemWatcherSourceOnDeleteFile(path);
+		}
 	}
 
 	/// @brief
@@ -340,6 +506,10 @@ namespace hod::inline editor
 	void AssetDatabase::FileSystemMapping::RefreshPathFromParent()
 	{
 		_path = _parentFolder->_path / _path.Filename();
+		if (_asset != nullptr)
+		{
+			_asset->SetPath(_path); // Otherwise the assets of a moved folder would still be loaded and saved at their old location
+		}
 
 		for (AssetDatabase::FileSystemMapping* child : _childrenFolder)
 		{
@@ -644,7 +814,7 @@ namespace hod::inline editor
 
 					if (asset->Load() == false)
 					{
-						FileSystemWatcherAssetOnDeleteFile(path);
+						// Kept in the database: the file is still there, only a removal from disk removes the asset
 						OUTPUT_ERROR("Unable to load Asset : {}", path);
 						return;
 					}
@@ -700,29 +870,6 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @param oldPath
-	/// @param newPath
-	void AssetDatabase::FileSystemWatcherAssetOnMoveFile(const Path& oldPath, const Path& newPath)
-	{
-		FileSystemWatcherAssetOnDeleteFile(oldPath);
-		FileSystemWatcherAssetOnCreateFile(newPath);
-		/*
-		FileSystemMapping* nodeToMove = FindFileSystemMappingFromPath(oldPath);
-		if (nodeToMove != nullptr)
-		{
-		    MoveNode(*nodeToMove, newPath);
-		}
-		*/
-	}
-
-	/// @brief
-	/// @param path
-	void AssetDatabase::FileSystemWatcherSourceOnCreateFile(const Path& path)
-	{
-		FileSystemWatcherSourceOnChangeFile(path);
-	}
-
-	/// @brief
 	/// @param path
 	void AssetDatabase::FileSystemWatcherSourceOnDeleteFile(const Path& /*path*/) {}
 
@@ -737,11 +884,4 @@ namespace hod::inline editor
 		}
 	}
 
-	/// @brief
-	/// @param oldPath
-	/// @param newPath
-	void AssetDatabase::FileSystemWatcherSourceOnMoveFile(const Path& /*oldPath*/, const Path& newPath)
-	{
-		FileSystemWatcherSourceOnChangeFile(newPath);
-	}
 }
