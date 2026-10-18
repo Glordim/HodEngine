@@ -110,7 +110,7 @@ namespace hod::inline editor
 
 		Editor::GetInstance()->GetTaskTracker().UpdateTaskProgress(_taskId, 2.0f);
 		Editor::GetInstance()->GetTaskTracker().UpdateTaskDescription(_taskId, "Creating tmp folder");
-		_tmpDir = FileSystem::GetTemporaryPath() / "HodEngine" / Project::GetInstance()->GetName() / "Cook" / asset.GetUid().ToString(); // todo add datetime
+		_tmpDir = Project::GetInstance()->GetTmpDirPath() / "Cook" / asset.GetUid().ToString(); // todo add datetime
 		ScopedGuard cleanupTmp = [&]() { FileSystem::GetInstance()->RemoveAll(_tmpDir); };
 		if (FileSystem::GetInstance()->CreateDirectories(_tmpDir) == false)
 		{

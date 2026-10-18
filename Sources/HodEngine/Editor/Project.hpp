@@ -46,6 +46,7 @@ namespace hod::inline editor
 		const Path& GetResourceDirPath() const;
 		const Path& GetCacheBuildDirPath() const;
 		const Path& GetBuildDirPath() const;
+		const Path& GetTmpDirPath() const;
 
 		bool HasGameModule() const;
 		Path GetGameModulePath() const;
@@ -67,6 +68,7 @@ namespace hod::inline editor
 		Path _resourceDirPath;
 		Path _cacheBuildDirPath;
 		Path _buildDirPath;
+		Path _tmpDirPath;
 
 		String _name;
 		UID    _startupScene;

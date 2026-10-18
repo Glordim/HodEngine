@@ -205,6 +205,12 @@ namespace hod::inline editor
 			return false;
 		}
 
+		_tmpDirPath = _projectPath.ParentPath() / "Cache" / "Tmp";
+		if (FileSystem::GetInstance()->Exists(_tmpDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_tmpDirPath) == false)
+		{
+			return false;
+		}
+
 		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath / CMakeHelper::GetCurrentPlatform() / ToString(Config::Debug)); // TODO uniformize Config and Platform setup
 		ResourceManager::GetInstance()->SetFileNotFoundCallback(+[](const UID& uid) {
 			std::shared_ptr<Asset> asset = AssetDatabase::GetInstance()->Find(uid);
@@ -347,6 +353,13 @@ namespace hod::inline editor
 	const Path& Project::GetCacheBuildDirPath() const
 	{
 		return _cacheBuildDirPath;
+	}
+
+	/// @brief Temporary files that must end up in the project (same volume as the Asset directory: moving them there is an atomic rename)
+	/// @return
+	const Path& Project::GetTmpDirPath() const
+	{
+		return _tmpDirPath;
 	}
 
 	/// @brief

@@ -235,7 +235,7 @@ namespace hod::inline editor
 		ScopedGuard cleanupTmp = [&]() {};
 		if (tmpDir.Empty())
 		{
-			Path generatedTmpDir = FileSystem::GetTemporaryPath() / "HodEngine" / Project::GetInstance()->GetName() / "Save" / _uid.ToString(); // todo add datetime
+			Path generatedTmpDir = Project::GetInstance()->GetTmpDirPath() / "Save" / _uid.ToString(); // todo add datetime
 			cleanupTmp = [generatedTmpDir]() { FileSystem::GetInstance()->RemoveAll(generatedTmpDir); };
 			if (FileSystem::GetInstance()->CreateDirectories(generatedTmpDir) == false)
 			{

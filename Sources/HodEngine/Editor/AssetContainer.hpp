@@ -58,6 +58,8 @@ namespace hod::inline editor
 		bool HasValidHeaderMagic() const { return _hasValidMagic; }
 
 		/// @brief Write the whole asset (Header + Sources + Content + Data)
+		/// @brief Written in tmpDir then moved to path: tmpDir must be on the same volume as path for the move to be an atomic rename
+		/// (across volumes it is a copy, the file watcher could see the asset half written). Empty: a directory in Project::GetTmpDirPath()
 		bool Save(const Path& path, const Path& tmpDir = Path());
 
 		const UID& GetUid() const;

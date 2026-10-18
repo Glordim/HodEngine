@@ -96,7 +96,7 @@ namespace hod::inline editor
 			return false;
 		}
 
-		Path slangDir = FileSystem::GetTemporaryPath() / "HodEngine" / Project::GetInstance()->GetName() / "Cook" / asset.GetUid().ToString() / "Slang";
+		Path slangDir = Project::GetInstance()->GetTmpDirPath() / "Cook" / asset.GetUid().ToString() / "Slang";
 		ScopedGuard cleanupSlangDir = [&]() { FileSystem::GetInstance()->RemoveAll(slangDir); };
 		if (FileSystem::GetInstance()->CreateDirectories(slangDir) == false)
 		{
