@@ -92,6 +92,15 @@ namespace hod::inline editor
 		void StartItemRename(AssetDatabase::FileSystemMapping* item);
 		void ApplyRename(AssetDatabase::FileSystemMapping& item, const char* newName);
 
+		bool         IsSelected(const AssetDatabase::FileSystemMapping* item) const;
+		void         SetSelected(AssetDatabase::FileSystemMapping* item, bool selected);
+		void         PruneSelection(const Vector<AssetDatabase::FileSystemMapping*>& explorerItems);
+		void         ApplySelectionRequests(ImGuiMultiSelectIO* multiSelectIO, const Vector<AssetDatabase::FileSystemMapping*>& explorerItems);
+		Vector<Path> GetSelectedPaths() const;
+
+		void DrawFolderDropTarget(AssetDatabase::FileSystemMapping* folder);
+		void ApplyPendingDrop();
+
 	private:
 		ImGuiID                           _dockSpaceId = 0;
 		ImGuiID                           _panelDockIds[2] = {0, 0}; // Last dock node of each Panel, to put it back when dropped outside
@@ -104,7 +113,14 @@ namespace hod::inline editor
 		bool                              _focus = false;
 
 		AssetDatabase::FileSystemMapping* _nodeToDelete = nullptr;
-		AssetDatabase::FileSystemMapping* _currentExplorerNode = nullptr;
+
+		Vector<AssetDatabase::FileSystemMapping*> _selectedItems;             // Explorer multi-selection, items of _selectionFolder only
+		AssetDatabase::FileSystemMapping*         _selectionFolder = nullptr;
+		Vector<Path>                              _contextualMenuSelection;   // Selection the explorer contextual menu was opened on
+
+		AssetDatabase::FileSystemMapping* _explorerDraggedItem = nullptr; // Drag source of the explorer, its drop moves the whole selection
+		AssetDatabase::FileSystemMapping* _pendingDropItem = nullptr;
+		AssetDatabase::FileSystemMapping* _pendingDropFolder = nullptr;
 
 		AssetDatabase::FileSystemMapping* _itemToRename = nullptr;
 		char                              _itemRenameBuffer[256] = {'\0'};

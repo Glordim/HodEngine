@@ -73,6 +73,19 @@ namespace hod::inline editor
 {
 	Vector<AssetBrowserWindow::ContextualMenuAction> AssetBrowserWindow::_contextualMenuActions;
 
+	/// @brief Availability of the actions about an asset only (not a folder)
+	/// @param context
+	/// @return
+	static bool IsSingleAssetSelected(const AssetBrowserWindow::Context& context)
+	{
+		if (context.selectedItems.Size() != 1)
+		{
+			return false;
+		}
+		AssetDatabase::FileSystemMapping* fileSystemMapping = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
+		return fileSystemMapping != nullptr && fileSystemMapping->_asset != nullptr;
+	}
+
 	// Explorer item: a square image area of ExplorerItemImageSize surrounded by
 	// ExplorerItemPadding, plus a line of text for the name
 	static constexpr float ExplorerItemImageSize = 96.0f;
@@ -235,7 +248,7 @@ namespace hod::inline editor
 					if (context.selectedItems.Size() == 1)
 					{
 						AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
-						if (asset != nullptr)
+						if (asset != nullptr && asset->_asset != nullptr)
 						{
 							return asset->_asset->GetType() == Hash::ComputeXxh3_64("Material");
 						}
@@ -246,7 +259,7 @@ namespace hod::inline editor
 				+[](const Context& context)
 				{
 					AssetDatabase::FileSystemMapping* materialNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
-					if (materialNode == nullptr)
+					if (materialNode == nullptr || materialNode->_asset == nullptr)
 					{
 						return;
 					}
@@ -339,7 +352,7 @@ namespace hod::inline editor
 		RegisterContextualMenuAction({
 			.path = "Reimport",
 			.group = "",
-			.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
+			.available = &IsSingleAssetSelected,
 			.execute =
 				+[](const Context& context)
 				{
@@ -349,18 +362,18 @@ namespace hod::inline editor
 		RegisterContextualMenuAction({
 			.path = "Recook",
 			.group = "",
-			.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
+			.available = &IsSingleAssetSelected,
 			.execute = +[](const Context& context) { Editor::GetInstance()->Cook(context.selectedItems[0]); },
 		});
 		RegisterContextualMenuAction({
 			.path = "Show Resource in explorer",
 			.group = "",
-			.available = +[](const Context& context) { return context.selectedItems.Size() == 1; },
+			.available = &IsSingleAssetSelected,
 			.execute =
 				+[](const Context& context)
 				{
 					AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
-					if (asset != nullptr)
+					if (asset != nullptr && asset->_asset != nullptr)
 					{
 						OpenExplorerAtPath(Project::GetInstance()->GetResourceDirPath() / (asset->_asset->GetUid().ToString() + ".dat").CStr());
 					}
@@ -375,7 +388,7 @@ namespace hod::inline editor
 					if (context.selectedItems.Size() == 1)
 					{
 						AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
-						if (asset != nullptr)
+						if (asset != nullptr && asset->_asset != nullptr)
 						{
 							return asset->_asset->GetType() == Hash::ComputeXxh3_64("Scene");
 						}
@@ -386,7 +399,7 @@ namespace hod::inline editor
 				+[](const Context& context)
 				{
 					AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
-					if (asset != nullptr)
+					if (asset != nullptr && asset->_asset != nullptr)
 					{
 						Project::GetInstance()->SetStartupScene(asset->_asset);
 					}
@@ -422,6 +435,7 @@ namespace hod::inline editor
 			DrawPanel(Panel::FolderTree, &AssetBrowserWindow::DrawFolderTree);
 			DrawPanel(Panel::FolderExplorer, &AssetBrowserWindow::DrawFolderExplorer);
 		}
+		ApplyPendingDrop();
 		return true;
 	}
 
@@ -605,23 +619,7 @@ namespace hod::inline editor
 			{
 				_currentFolderTreeNode = pathNode;
 			}
-			if (ImGui::BeginDragDropTarget() == true)
-			{
-				const ImGuiPayload* payload = ImGui::GetDragDropPayload();
-				if (payload->IsDataType("FileSystemMapping") == true)
-				{
-					payload = ImGui::AcceptDragDropPayload("FileSystemMapping");
-					if ((payload) != nullptr)
-					{
-						// todo factorize
-						AssetDatabase::FileSystemMapping* asset = *static_cast<AssetDatabase::FileSystemMapping**>(payload->Data);
-
-						Path destinationPath = pathNode->_path / asset->_path.Filename();
-						AssetDatabase::GetInstance()->Move(*asset, destinationPath);
-					}
-				}
-				ImGui::EndDragDropTarget();
-			}
+			DrawFolderDropTarget(pathNode);
 			if (ImGui::BeginPopupContextItem())
 			{
 				if (ImGui::MenuItem("Show in Explorer") == true)
@@ -764,22 +762,9 @@ namespace hod::inline editor
 			ImGui::SetDragDropPayload("FileSystemMapping", (void*)&node, sizeof(void*), ImGuiCond_Once);
 			ImGui::EndDragDropSource();
 		}
-		else if (ImGui::BeginDragDropTarget() == true)
+		else
 		{
-			const ImGuiPayload* payload = ImGui::GetDragDropPayload();
-			if (payload->IsDataType("FileSystemMapping") == true)
-			{
-				payload = ImGui::AcceptDragDropPayload("FileSystemMapping");
-				if ((payload) != nullptr)
-				{
-					// todo factorize
-					AssetDatabase::FileSystemMapping* asset = *static_cast<AssetDatabase::FileSystemMapping**>(payload->Data);
-
-					Path destinationPath = node->_path / asset->_path.Filename();
-					AssetDatabase::GetInstance()->Move(*asset, destinationPath);
-				}
-			}
-			ImGui::EndDragDropTarget();
+			DrawFolderDropTarget(node);
 		}
 		if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
 		{
@@ -952,77 +937,37 @@ namespace hod::inline editor
 		}
 
 		_itemRenameSubmitted = false;
-		AssetDatabase::FileSystemMapping* itemToDelete = nullptr;
 
+		// Folders first, then assets: the index in this list is the multi-selection user data
+		Vector<AssetDatabase::FileSystemMapping*> explorerItems;
 		for (AssetDatabase::FileSystemMapping* folder : _currentFolderTreeNode->_childrenFolder)
 		{
-			float available = ImGui::GetContentRegionAvail().x;
-			if (DrawExplorerItem(folder) == true && ImGui::IsMouseClicked(ImGuiMouseButton_Left) == true)
-			{
-				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) == true)
-				{
-					_currentFolderTreeNode = folder;
-				}
-				_currentExplorerNode = folder;
-			}
-			if (ImGui::IsWindowFocused() && _currentExplorerNode == folder)
-			{
-				if (ImGui::IsKeyPressed(ImGuiKey_F2))
-				{
-					StartItemRename(folder);
-				}
-				else if (ImGui::IsKeyPressed(ImGuiKey_Delete))
-				{
-					itemToDelete = folder;
-				}
-			}
-			if (ImGui::BeginPopupContextItem())
-			{
-				if (ImGui::MenuItem("Rename") == true)
-				{
-					StartItemRename(folder);
-				}
-				else if (ImGui::MenuItem("Delete") == true)
-				{
-					itemToDelete = folder;
-				}
-				ImGui::EndPopup();
-			}
-			if (ImGui::BeginDragDropSource() == true)
-			{
-				// Some processing...
-				ImGui::TextUnformatted(folder->_path.Filename().GetString().CStr());
-				ImGui::SetDragDropPayload("FileSystemMapping", (void*)&folder, sizeof(void*), ImGuiCond_Once);
-				ImGui::EndDragDropSource();
-			}
-			else if (ImGui::BeginDragDropTarget() == true)
-			{
-				const ImGuiPayload* payload = ImGui::GetDragDropPayload();
-				if (payload->IsDataType("FileSystemMapping") == true)
-				{
-					payload = ImGui::AcceptDragDropPayload("FileSystemMapping");
-					if ((payload) != nullptr)
-					{
-						// todo factorize
-						AssetDatabase::FileSystemMapping* asset = *static_cast<AssetDatabase::FileSystemMapping**>(payload->Data);
-
-						Path destinationPath = folder->_path / asset->_path.Filename();
-						AssetDatabase::GetInstance()->Move(*asset, destinationPath);
-					}
-				}
-				ImGui::EndDragDropTarget();
-			}
-			if (available > ExplorerItemWidth * 2.0f + ImGui::GetStyle().ItemSpacing.x)
-			{
-				ImGui::SameLine();
-			}
+			explorerItems.PushBack(folder);
 		}
-
 		for (AssetDatabase::FileSystemMapping* asset : _currentFolderTreeNode->_childrenAsset)
 		{
-			float    available = ImGui::GetContentRegionAvail().x;
+			explorerItems.PushBack(asset);
+		}
+		PruneSelection(explorerItems);
+
+		ImGuiMultiSelectFlags multiSelectFlags = ImGuiMultiSelectFlags_ClearOnEscape | ImGuiMultiSelectFlags_NavWrapX;
+		// ImGui sees a click in our contextual menu as a click on the void of the scope (the popup is in this window hierarchy):
+		// it would start a box-selection, focus this window, which closes the menu before its item is validated
+		if (ImGui::IsPopupOpen("FolderExplorerContext") == false)
+		{
+			multiSelectFlags |= ImGuiMultiSelectFlags_ClearOnClickVoid | ImGuiMultiSelectFlags_BoxSelect2d;
+		}
+		ImGuiMultiSelectIO* multiSelectIO = ImGui::BeginMultiSelect(multiSelectFlags, static_cast<int>(_selectedItems.Size()), static_cast<int>(explorerItems.Size()));
+		ApplySelectionRequests(multiSelectIO, explorerItems);
+
+		for (uint32_t index = 0; index < explorerItems.Size(); ++index)
+		{
+			AssetDatabase::FileSystemMapping* item = explorerItems[index];
+			const bool                        isAsset = (item->_type == AssetDatabase::FileSystemMapping::Type::AssetType);
+			float                             available = ImGui::GetContentRegionAvail().x;
+
 			uint32_t pingAnimPopStyleCount = 0;
-			if (_itemToPing == asset)
+			if (isAsset && _itemToPing == item)
 			{
 				if (_pingAnimState == PingAnimState::In)
 				{
@@ -1063,48 +1008,75 @@ namespace hod::inline editor
 				ImGui::PushStyleColor(ImGuiCol_ButtonActive, activeColor);
 				++pingAnimPopStyleCount;
 			}
-			if (DrawExplorerItem(asset) == true && ImGui::IsMouseClicked(ImGuiMouseButton_Left) == true)
+
+			ImGui::SetNextItemSelectionUserData(index);
+			DrawExplorerItem(item);
+			ImGui::PopStyleColor(pingAnimPopStyleCount);
+			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 			{
-				_currentExplorerNode = asset;
-				if (ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left) == true)
+				if (isAsset)
 				{
-					Editor::GetInstance()->OpenAsset(asset->_asset);
+					Editor::GetInstance()->OpenAsset(item->_asset);
+				}
+				else
+				{
+					_currentFolderTreeNode = item;
 				}
 			}
-			ImGui::PopStyleColor(pingAnimPopStyleCount);
 
 			if (ImGui::BeginDragDropSource() == true)
 			{
-				// Some processing...
-				ImGui::TextUnformatted(asset->_asset->GetName().CStr());
-				ImGui::SetDragDropPayload("FileSystemMapping", (void*)&asset, sizeof(void*), ImGuiCond_Once);
+				// Dragging a selected item drags the whole selection (see ApplyPendingDrop)
+				_explorerDraggedItem = item;
+				if (IsSelected(item) && _selectedItems.Size() > 1)
+				{
+					ImGui::Text("%u items", _selectedItems.Size());
+				}
+				else
+				{
+					ImGui::TextUnformatted(isAsset ? item->_asset->GetName().CStr() : item->_path.Filename().GetString().CStr());
+				}
+				ImGui::SetDragDropPayload("FileSystemMapping", (void*)&item, sizeof(void*), ImGuiCond_Once);
 				ImGui::EndDragDropSource();
 			}
+			else if (isAsset == false)
+			{
+				DrawFolderDropTarget(item);
+			}
 
-			if (ImGui::IsWindowFocused() && _currentExplorerNode == asset)
-			{
-				if (ImGui::IsKeyPressed(ImGuiKey_F2))
-				{
-					StartItemRename(asset);
-				}
-				else if (ImGui::IsKeyPressed(ImGuiKey_Delete))
-				{
-					itemToDelete = asset;
-				}
-			}
-			if (ImGui::OpenPopupOnItemClick("FolderExplorerContext", ImGuiPopupFlags_MouseButtonRight))
-			{
-				_currentExplorerNode = asset;
-			}
+			// Right click selects the item (multi-selection), the menu then works on the whole selection
+			ImGui::OpenPopupOnItemClick("FolderExplorerContext", ImGuiPopupFlags_MouseButtonRight);
+
 			if (available > ExplorerItemWidth * 2.0f + ImGui::GetStyle().ItemSpacing.x)
 			{
 				ImGui::SameLine();
 			}
 		}
-		if (itemToDelete != nullptr)
+
+		multiSelectIO = ImGui::EndMultiSelect();
+		ApplySelectionRequests(multiSelectIO, explorerItems);
+
+		// Kept until the drop is applied (end of Draw()), the drop target may have been drawn before this
+		if (ImGui::IsDragDropActive() == false && _pendingDropItem == nullptr)
 		{
-			AssetDatabase::GetInstance()->Delete(*itemToDelete);
-			itemToDelete = nullptr;
+			_explorerDraggedItem = nullptr;
+		}
+
+		if (ImGui::IsWindowFocused() && _itemToRename == nullptr && ImGui::GetIO().WantTextInput == false)
+		{
+			if (ImGui::IsKeyPressed(ImGuiKey_F2) && _selectedItems.Size() == 1)
+			{
+				StartItemRename(_selectedItems[0]);
+			}
+			else if (ImGui::IsKeyPressed(ImGuiKey_Delete) && _selectedItems.Empty() == false)
+			{
+				Vector<AssetDatabase::FileSystemMapping*> itemsToDelete = std::move(_selectedItems);
+				_selectedItems.Clear();
+				for (AssetDatabase::FileSystemMapping* itemToDelete : itemsToDelete)
+				{
+					AssetDatabase::GetInstance()->Delete(*itemToDelete);
+				}
+			}
 		}
 
 		ImRect backgroundRect(ImGui::GetWindowPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize());
@@ -1168,20 +1140,19 @@ namespace hod::inline editor
 			ImGui::EndDragDropTarget();
 		}
 
+		// On the void: the menu is about the current folder (Create, Import...), not about the selection
 		if (ImGui::OpenPopupOnWindowClick("FolderExplorerContext", ImGuiPopupFlags_MouseButtonRight | ImGuiPopupFlags_NoOpenOverItems))
 		{
-			_currentExplorerNode = nullptr;
+			_selectedItems.Clear();
 		}
 
 		if (ImGui::BeginPopup("FolderExplorerContext") == true)
 		{
 			if (ImGui::IsWindowAppearing())
 			{
-				Context context({.assetBrowserWindow = *this, .currentDirectory = _currentFolderTreeNode->_path, .selectedItems = Vector<Path>()});
-				if (_currentExplorerNode != nullptr)
-				{
-					context.selectedItems.PushBack(_currentExplorerNode->_path);
-				}
+				// Taken once: the menu works on the selection it was opened on
+				_contextualMenuSelection = GetSelectedPaths();
+				Context context({.assetBrowserWindow = *this, .currentDirectory = _currentFolderTreeNode->_path, .selectedItems = _contextualMenuSelection});
 
 				_contextualMenuData.Clear();
 				for (ContextualMenuAction menuAction : _contextualMenuActions)
@@ -1200,12 +1171,7 @@ namespace hod::inline editor
 			const ContextualMenuItem* clickedMenuItem = DrawContextualMenuItems(_contextualMenuData, "");
 			if (clickedMenuItem != nullptr)
 			{
-				Context context({.assetBrowserWindow = *this, .currentDirectory = _currentFolderTreeNode->_path, .selectedItems = Vector<Path>()});
-				if (_currentExplorerNode != nullptr)
-				{
-					context.selectedItems.PushBack(_currentExplorerNode->_path);
-				}
-
+				Context context({.assetBrowserWindow = *this, .currentDirectory = _currentFolderTreeNode->_path, .selectedItems = _contextualMenuSelection});
 				clickedMenuItem->callback(context);
 			}
 			ImGui::EndPopup();
@@ -1218,6 +1184,169 @@ namespace hod::inline editor
 			ApplyRename(*_itemToRename, _itemRenameBuffer);
 			_itemToRename = nullptr;
 		}
+	}
+
+	/// @brief
+	/// @param item
+	/// @return
+	bool AssetBrowserWindow::IsSelected(const AssetDatabase::FileSystemMapping* item) const
+	{
+		for (const AssetDatabase::FileSystemMapping* selectedItem : _selectedItems)
+		{
+			if (selectedItem == item)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/// @brief
+	/// @param item
+	/// @param selected
+	void AssetBrowserWindow::SetSelected(AssetDatabase::FileSystemMapping* item, bool selected)
+	{
+		for (uint32_t index = 0; index < _selectedItems.Size(); ++index)
+		{
+			if (_selectedItems[index] == item)
+			{
+				if (selected == false)
+				{
+					_selectedItems.Erase(_selectedItems.Begin() + index);
+				}
+				return;
+			}
+		}
+		if (selected)
+		{
+			_selectedItems.PushBack(item);
+		}
+	}
+
+	/// @brief The selection only holds items of the current folder: cleared when the folder changes, and what was deleted or moved away is dropped
+	/// (only compared, never dereferenced: they may have been deleted)
+	/// @param explorerItems
+	void AssetBrowserWindow::PruneSelection(const Vector<AssetDatabase::FileSystemMapping*>& explorerItems)
+	{
+		if (_selectionFolder != _currentFolderTreeNode)
+		{
+			_selectedItems.Clear();
+			_selectionFolder = _currentFolderTreeNode;
+			return;
+		}
+
+		for (uint32_t index = _selectedItems.Size(); index > 0; --index)
+		{
+			bool found = false;
+			for (const AssetDatabase::FileSystemMapping* explorerItem : explorerItems)
+			{
+				if (explorerItem == _selectedItems[index - 1])
+				{
+					found = true;
+					break;
+				}
+			}
+			if (found == false)
+			{
+				_selectedItems.Erase(_selectedItems.Begin() + (index - 1));
+			}
+		}
+	}
+
+	/// @brief
+	/// @param multiSelectIO
+	/// @param explorerItems the multi-selection user data is an index in it
+	void AssetBrowserWindow::ApplySelectionRequests(ImGuiMultiSelectIO* multiSelectIO, const Vector<AssetDatabase::FileSystemMapping*>& explorerItems)
+	{
+		for (const ImGuiSelectionRequest& request : multiSelectIO->Requests)
+		{
+			if (request.Type == ImGuiSelectionRequestType_SetAll)
+			{
+				_selectedItems.Clear();
+				if (request.Selected)
+				{
+					_selectedItems = explorerItems;
+				}
+			}
+			else if (request.Type == ImGuiSelectionRequestType_SetRange)
+			{
+				for (ImGuiSelectionUserData index = request.RangeFirstItem; index <= request.RangeLastItem; ++index)
+				{
+					SetSelected(explorerItems[static_cast<uint32_t>(index)], request.Selected);
+				}
+			}
+		}
+	}
+
+	/// @brief
+	/// @return
+	Vector<Path> AssetBrowserWindow::GetSelectedPaths() const
+	{
+		Vector<Path> paths;
+		for (const AssetDatabase::FileSystemMapping* selectedItem : _selectedItems)
+		{
+			paths.PushBack(selectedItem->_path);
+		}
+		return paths;
+	}
+
+	/// @brief Drop target moving the dropped items into folder. Only queued: applied by ApplyPendingDrop(), out of the loops over the folder contents
+	/// @param folder
+	void AssetBrowserWindow::DrawFolderDropTarget(AssetDatabase::FileSystemMapping* folder)
+	{
+		if (ImGui::BeginDragDropTarget() == true)
+		{
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FileSystemMapping"))
+			{
+				_pendingDropItem = *static_cast<AssetDatabase::FileSystemMapping**>(payload->Data);
+				_pendingDropFolder = folder;
+			}
+			ImGui::EndDragDropTarget();
+		}
+	}
+
+	/// @brief Moves the dropped item, or the whole explorer selection when the dragged item was part of it
+	void AssetBrowserWindow::ApplyPendingDrop()
+	{
+		if (_pendingDropItem == nullptr)
+		{
+			return;
+		}
+
+		Vector<AssetDatabase::FileSystemMapping*> itemsToMove;
+		if (_pendingDropItem == _explorerDraggedItem && IsSelected(_pendingDropItem))
+		{
+			itemsToMove = _selectedItems;
+		}
+		else
+		{
+			itemsToMove.PushBack(_pendingDropItem);
+		}
+
+		for (AssetDatabase::FileSystemMapping* item : itemsToMove)
+		{
+			if (item->_parentFolder == _pendingDropFolder)
+			{
+				continue;
+			}
+
+			// A folder can't go into itself or one of its own subfolders
+			bool intoItself = false;
+			for (AssetDatabase::FileSystemMapping* folder = _pendingDropFolder; folder != nullptr && intoItself == false; folder = folder->_parentFolder)
+			{
+				intoItself = (folder == item);
+			}
+			if (intoItself)
+			{
+				continue;
+			}
+
+			AssetDatabase::GetInstance()->Move(*item, _pendingDropFolder->_path / item->_path.Filename());
+		}
+
+		_pendingDropItem = nullptr;
+		_pendingDropFolder = nullptr;
+		_explorerDraggedItem = nullptr;
 	}
 
 	/// @brief Draws the contextual menu items under prefix, a '/' in their label opens a submenu (e.g. "Create/Scene")
@@ -1303,18 +1432,39 @@ namespace hod::inline editor
 		ImVec2 cursorPosition = window->DC.CursorPos;
 		ImRect boundingBox(cursorPosition.x, cursorPosition.y, cursorPosition.x + Size.x, cursorPosition.y + Size.y);
 		ImGui::ItemSize(boundingBox.GetSize());
-		if (ImGui::ItemAdd(boundingBox, id) == false)
+		bool visible = ImGui::ItemAdd(boundingBox, id);
+
+		// Same as Selectable(): a clipped item still has to run its logic while a box-selection goes over it
+		const bool isMultiSelect = (g.LastItemData.ItemFlags & ImGuiItemFlags_IsMultiSelect) != 0;
+		if (visible == false && (isMultiSelect == false || g.BoxSelectState.UnclipMode == false || g.BoxSelectState.UnclipRect.Overlaps(boundingBox) == false))
 		{
 			return false;
 		}
 
+		bool             selected = IsSelected(item);
+		ImGuiButtonFlags buttonFlags = 0;
+		if (isMultiSelect)
+		{
+			ImGui::MultiSelectItemHeader(id, &selected, &buttonFlags);
+		}
+
 		bool hovered;
 		bool held;
-		bool pressed = ImGui::ButtonBehavior(boundingBox, id, &hovered, &held, 0);
+		bool pressed = ImGui::ButtonBehavior(boundingBox, id, &hovered, &held, buttonFlags);
+
+		if (isMultiSelect)
+		{
+			ImGui::MultiSelectItemFooter(id, &selected, &pressed);
+		}
+
+		if (visible == false)
+		{
+			return false;
+		}
 
 		// Render
 		ImU32 color;
-		if (_currentExplorerNode == item || held == true || pressed == true)
+		if (selected == true || held == true)
 		{
 			color = ImGui::GetColorU32(ImGuiCol_ButtonActive);
 		}
