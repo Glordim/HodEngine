@@ -84,6 +84,58 @@ namespace hod::inline imgui
 		return pressed;
 	}
 
+	bool LinkText(const char* label)
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems)
+		{
+			return false;
+		}
+
+		ImGuiContext&     g = *GImGui;
+		const ImGuiStyle& style = g.Style;
+		const ImGuiID     id = window->GetID(label);
+		const ImVec2      label_size = ImGui::CalcTextSize(label, NULL, false);
+
+		// Same height as a button so it lines up with the widgets around it, but only a small horizontal margin for the highlight
+		const ImVec2 padding(2.0f, style.FramePadding.y);
+		ImVec2       pos = window->DC.CursorPos;
+		ImVec2       size = label_size + padding * 2.0f;
+
+		const ImRect bb(pos, pos + size);
+		ImGui::ItemSize(size, style.FramePadding.y);
+		if (!ImGui::ItemAdd(bb, id))
+		{
+			return false;
+		}
+
+		bool hovered = false;
+		bool held = false;
+		bool pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held);
+		if (hovered)
+		{
+			ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+		}
+
+		ImGui::RenderNavCursor(bb, id);
+		if (held && hovered)
+		{
+			window->DrawList->AddRectFilled(bb.Min, bb.Max, ImGui::GetColorU32(ImGuiCol_HeaderActive), style.FrameRounding);
+		}
+
+		const ImU32  textColor = ImGui::GetColorU32(ImGuiCol_Text);
+		const ImVec2 textPos = bb.Min + padding;
+		window->DrawList->AddText(textPos, textColor, label);
+		if (hovered)
+		{
+			float lineY = textPos.y + label_size.y;
+			window->DrawList->AddLine(ImVec2(textPos.x, lineY), ImVec2(textPos.x + label_size.x, lineY), textColor);
+		}
+
+		IMGUI_TEST_ENGINE_ITEM_INFO(id, label, g.LastItemData.StatusFlags);
+		return pressed;
+	}
+
 	// Note: p_data, p_min and p_max are _pointers_ to a memory address holding the data. For a Drag widget, p_min and p_max are optional.
 	// Read code of e.g. DragFloat(), DragInt() etc. or examples in 'Demo->Widgets->Data Types' to understand how to use this function directly.
 	bool DragScalar(const char* label, ImGuiDataType data_type, void* p_data, float v_speed, const void* p_min, const void* p_max, const char* format, ImGuiSliderFlags flags,

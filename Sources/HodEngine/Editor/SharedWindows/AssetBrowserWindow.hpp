@@ -64,7 +64,22 @@ namespace hod::inline editor
 			Out,
 		};
 
+		enum class Panel
+		{
+			FolderTree,
+			FolderExplorer,
+		};
+
 	private:
+		String GetPanelIdentifier(Panel panel) const;
+		void   CreateDefaultLayout();
+		bool   RedockFloatingPanels();
+		void   DrawPanel(Panel panel, void (AssetBrowserWindow::*drawContent)());
+
+		void DrawToolbar();
+		void DrawPath();
+		void DrawCreateMenu();
+
 		void DrawFolderTree();
 		void DrawFolderTreeNode(AssetDatabase::FileSystemMapping* node);
 		void ResyncFolderTree(FolderItem* folderItem);
@@ -74,10 +89,16 @@ namespace hod::inline editor
 		void ResyncFolderExplorer();
 
 		void EditNodeName(AssetDatabase::FileSystemMapping* node);
+		void StartItemRename(AssetDatabase::FileSystemMapping* item);
+		void ApplyRename(AssetDatabase::FileSystemMapping& item, const char* newName);
 
 	private:
+		ImGuiID                           _dockSpaceId = 0;
+		ImGuiID                           _panelDockIds[2] = {0, 0}; // Last dock node of each Panel, to put it back when dropped outside
 		FolderItem                        _folderTree;
 		AssetDatabase::FileSystemMapping* _currentFolderTreeNode = nullptr;
+		AssetDatabase::FileSystemMapping* _revealedFolderTreeNode = nullptr; // Last selection expanded up to in the tree
+		bool                              _revealCurrentFolderTreeNode = false;
 		AssetDatabase::FileSystemMapping* _treeNodeToEdit = nullptr;
 		String                            _renameBuffer;
 		bool                              _focus = false;
@@ -87,6 +108,9 @@ namespace hod::inline editor
 
 		AssetDatabase::FileSystemMapping* _itemToRename = nullptr;
 		char                              _itemRenameBuffer[256] = {'\0'};
+		bool                              _itemRenameFocus = false;
+		bool                              _itemRenameSubmitted = false; // Its field was drawn this frame
+		bool                              _treeRenameSubmitted = false; // Same for _treeNodeToEdit
 
 		AssetDatabase::FileSystemMapping* _itemToPing = nullptr;
 		PingAnimState                     _pingAnimState;
@@ -101,5 +125,7 @@ namespace hod::inline editor
 			std::function<void(const Context&)> callback;
 		};
 		Vector<ContextualMenuItem> _contextualMenuData;
+
+		static const ContextualMenuItem* DrawContextualMenuItems(const Vector<ContextualMenuItem>& menuItems, std::string_view prefix);
 	};
 }
