@@ -60,6 +60,7 @@ namespace hod::inline editor
 	ViewportWindow::ViewportWindow(EditorTab* editorTab)
 	: EditorTabWindow(editorTab)
 	{
+		SetTitle("Viewport");
 		SetFlags(ImGuiWindowFlags_NoScrollbar);
 
 		_renderTarget = RhiDevice::GetInstance()->CreateRenderTarget();

@@ -31,6 +31,7 @@ namespace hod::inline editor
 	HierachyWindow::HierachyWindow(EditorTab* editorTab)
 	: EditorTabWindow(editorTab)
 	{
+		SetTitle("Hierarchy");
 	}
 
 	/// @brief

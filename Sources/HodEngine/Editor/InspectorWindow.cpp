@@ -89,6 +89,7 @@ namespace hod::inline editor
 	InspectorWindow::InspectorWindow(EditorTab* editorTab)
 	: EditorTabWindow(editorTab)
 	{
+		SetTitle("Inspector");
 	}
 
 	/// @brief
