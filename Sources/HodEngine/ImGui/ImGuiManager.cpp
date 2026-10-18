@@ -53,19 +53,21 @@ namespace hod::inline imgui
 {
 	void ImGuiManager::PlatformCreateWindow(ImGuiViewport* vp)
 	{
-		DesktopWindow* desktopWindow = (DesktopWindow*)DesktopDisplayManager::GetInstance()->CreateWindow();
+		// Hidden until ImGui has placed and sized it (Platform_ShowWindow), otherwise it flashes at the default position first
+		DesktopWindow* desktopWindow = (DesktopWindow*)DesktopDisplayManager::GetInstance()->CreateWindow(true);
 		#if PLATFORM_WINDOWS
 			Win32Window* win32Window = static_cast<Win32Window*>(desktopWindow);
 			while (win32Window->GetWindowHandle() == NULL) {}
 		#endif
 		desktopWindow->SetDecoration((vp->Flags & ImGuiViewportFlags_NoDecoration) == 0);
+		desktopWindow->SetPosition(Vector2(vp->Pos.x, vp->Pos.y));
 		desktopWindow->SetSize(vp->Size.x, vp->Size.y);
 		vp->PlatformHandle = desktopWindow;
 	}
 
 	void ImGuiManager::PlatformDestroyWindow(ImGuiViewport* vp)
 	{
-		if (vp->ID != 0x11111111 /*IMGUI_VIEWPORT_DEFAULT_ID*/)
+		if (vp != ImGui::GetMainViewport())
 		{
 			DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
 			DesktopDisplayManager::GetInstance()->DestroyWindow(desktopWindow);
@@ -154,9 +156,14 @@ namespace hod::inline imgui
 
 	void ImGuiManager::RendererDestroyWindow(ImGuiViewport* vp)
 	{
-		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
-		(void)desktopWindow;
-		//RhiDevice::GetInstance()->DestroyPresentationSurface(desktopWindow);
+		// The main viewport's surface belongs to the application
+		if (vp != ImGui::GetMainViewport())
+		{
+			// Must go before the window: a leftover surface would keep a dangling window pointer, and a new window allocated
+			// at the same address would be matched to it by FindPresentationSurface (dead swap chain: white window, then freeze)
+			DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
+			RhiDevice::GetInstance()->DestroyPresentationSurface(desktopWindow);
+		}
 		vp->RendererUserData = nullptr;
 	}
 
