@@ -392,6 +392,21 @@ namespace hod::inline editor
 		DefaultAllocator::GetInstance().Delete(cooker);
 	}
 
+	/// @brief
+	/// @param assetType
+	/// @return
+	std::string_view AssetDatabase::GetAssetTypeName(uint64_t assetType) const
+	{
+		for (const CookerEntry* entry : _cookerEntries)
+		{
+			if (entry->_assetType == assetType)
+			{
+				return std::string_view(entry->_assetTypeName.CStr(), entry->_assetTypeName.Length());
+			}
+		}
+		return std::string_view();
+	}
+
 	Importer* AssetDatabase::AcquireImporter(std::string_view extension)
 	{
 		String extensionLower = ToLowerCopy(extension);

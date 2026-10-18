@@ -26,6 +26,7 @@ namespace hod::inline editor
 		CookerEntry* entry = DefaultAllocator::GetInstance().New<CookerEntry>();
 		entry->_factory = []() -> Cooker* { return DefaultAllocator::GetInstance().New<_Cooker_>(); };
 		entry->_assetType = Hash::ComputeXxh3_64(assetType);
+		entry->_assetTypeName = assetType;
 
 		_cookerEntries.PushBack(entry);
 		return true;

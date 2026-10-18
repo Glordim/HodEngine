@@ -408,9 +408,11 @@ namespace hod::inline imgui
 		colors[ImGuiCol_TableRowBgAlt] = ImVec4(1.00f, 1.00f, 1.00f, 0.06f);
 		colors[ImGuiCol_TextSelectedBg] = ImVec4(0.20f, 0.22f, 0.23f, 1.00f);
 		colors[ImGuiCol_DragDropTarget] = ImVec4(0.33f, 0.67f, 0.86f, 1.00f);
-		colors[ImGuiCol_NavCursor] = ImVec4(1.00f, 0.00f, 0.00f, 1.00f);
-		colors[ImGuiCol_NavWindowingHighlight] = ImVec4(1.00f, 0.00f, 0.00f, 0.70f);
-		colors[ImGuiCol_NavWindowingDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.20f);
+		// Nav colors derived from one base (#54ABDB), only the alpha changes
+		const ImVec4 navColor = ImVec4(84.0f / 255.0f, 171.0f / 255.0f, 219.0f / 255.0f, 1.00f);
+		colors[ImGuiCol_NavCursor] = navColor;
+		colors[ImGuiCol_NavWindowingHighlight] = ImVec4(navColor.x, navColor.y, navColor.z, 0.70f);
+		colors[ImGuiCol_NavWindowingDimBg] = ImVec4(navColor.x, navColor.y, navColor.z, 0.20f);
 		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.35f);
 
 		ImGuiStyle& style = ImGui::GetStyle();

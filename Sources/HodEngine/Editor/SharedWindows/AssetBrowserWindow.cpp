@@ -92,6 +92,11 @@ namespace hod::inline editor
 	static constexpr float ExplorerItemPadding = 10.0f;
 	static constexpr float ExplorerItemWidth = ExplorerItemImageSize + ExplorerItemPadding * 2.0f;
 
+	// Folder tree, tighter than the style: indent of a level, margin before the arrow (FramePadding.x), and between the arrow and the label
+	static constexpr float FolderTreeIndentSpacing = 18.0f;
+	static constexpr float FolderTreeFramePaddingX = 2.0f;
+	static constexpr float FolderTreeLabelSpacing = 2.0f;
+
 	DESCRIBE_REFLECTED_CLASS(AssetBrowserWindow, reflectionDescriptor)
 	{
 		(void)reflectionDescriptor;
@@ -595,6 +600,8 @@ namespace hod::inline editor
 		ImGui::SameLine();
 		if (ImGui::Button(importLabel) == true)
 		{
+			// Like a creation, the import works on the folder: what was selected in it no longer matters
+			_selectedItems.Clear();
 			Editor::GetInstance()->OpenImportDialog(_currentFolderTreeNode->_path);
 		}
 	}
@@ -671,6 +678,7 @@ namespace hod::inline editor
 		const ContextualMenuItem* clickedMenuItem = DrawContextualMenuItems(menuItems, "");
 		if (clickedMenuItem != nullptr)
 		{
+			_selectedItems.Clear(); // Same as creating from the contextual menu opened on the void
 			clickedMenuItem->callback(context);
 		}
 	}
@@ -687,7 +695,10 @@ namespace hod::inline editor
 		_revealCurrentFolderTreeNode = (_currentFolderTreeNode != _revealedFolderTreeNode);
 		_revealedFolderTreeNode = _currentFolderTreeNode;
 		_treeRenameSubmitted = false;
+		// For the whole tree: TreePop() unindents with the value at that time, it must be the one TreePush() indented with
+		ImGui::PushStyleVar(ImGuiStyleVar_IndentSpacing, FolderTreeIndentSpacing);
 		DrawFolderTreeNode(&root);
+		ImGui::PopStyleVar();
 
 		// Same as the explorer rename: a field no longer drawn (parent collapsed...) is validated
 		if (_treeNodeToEdit != nullptr && _treeRenameSubmitted == false && _focus == false)
@@ -716,7 +727,7 @@ namespace hod::inline editor
 	/// @brief
 	void AssetBrowserWindow::DrawFolderTreeNode(AssetDatabase::FileSystemMapping* node)
 	{
-		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowOverlap | ImGuiTreeNodeFlags_DrawLinesToNodes;
+		ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_AllowOverlap;
 		if (node->_childrenFolder.Size() == 0)
 		// if (node->_childrenFolder.Next() != nullptr)
 		{
@@ -750,7 +761,10 @@ namespace hod::inline editor
 		}
 
 		ImGui::AlignTextToFramePadding();
+		// Only around the node: the rename field and the contextual menu keep the style padding
+		ImGui::PushStyleVarX(ImGuiStyleVar_FramePadding, FolderTreeFramePaddingX);
 		bool opened = ImGui::TreeNodeEx((String("##") + node->_path.Filename().GetString()).CStr(), treeNodeFlags);
+		ImGui::PopStyleVar();
 		if (_revealCurrentFolderTreeNode == true && node == _currentFolderTreeNode && ImGui::IsItemVisible() == false)
 		{
 			ImGui::SetScrollHereY(0.5f);
@@ -808,11 +822,11 @@ namespace hod::inline editor
 		}
 
 		// TreeNode render
-		ImGui::SameLine();
+		ImGui::SameLine(0.0f, FolderTreeLabelSpacing);
 		// Line height is the frame height (AlignTextToFramePadding) whether it is a label or the rename field,
 		// the spacing below must be the same too or the rename shifts the following rows
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {ImGui::GetStyle().ItemSpacing.x, 1.0f});
-		const char* icon = node->_childrenAsset.Empty() == false || node->_childrenFolder.Empty() == false ? ICON_MDI_FOLDER : ICON_MDI_FOLDER_OPEN;
+		const char* icon = ICON_MDI_FOLDER;
 		if (_treeNodeToEdit == node)
 		{
 			// Icon kept, and the text of the field where the label text is ("icon  name")
@@ -966,7 +980,6 @@ namespace hod::inline editor
 			const bool                        isAsset = (item->_type == AssetDatabase::FileSystemMapping::Type::AssetType);
 			float                             available = ImGui::GetContentRegionAvail().x;
 
-			uint32_t pingAnimPopStyleCount = 0;
 			if (isAsset && _itemToPing == item)
 			{
 				if (_pingAnimState == PingAnimState::In)
@@ -987,31 +1000,10 @@ namespace hod::inline editor
 						_itemToPing = nullptr;
 					}
 				}
-
-				ImVec4 pingColor = ImVec4(1.0f, 0.5f, 0.2f, 1.0f);
-
-				ImVec4 normalColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
-				normalColor.x = std::lerp(normalColor.x, pingColor.x, _pingAnimValue);
-				normalColor.y = std::lerp(normalColor.y, pingColor.y, _pingAnimValue);
-				normalColor.z = std::lerp(normalColor.z, pingColor.z, _pingAnimValue);
-				normalColor.w = std::lerp(normalColor.w, pingColor.w, _pingAnimValue);
-
-				ImGui::PushStyleColor(ImGuiCol_Button, normalColor);
-				++pingAnimPopStyleCount;
-
-				ImVec4 activeColor = ImGui::GetStyleColorVec4(ImGuiCol_ButtonActive);
-				activeColor.x = std::lerp(activeColor.x, pingColor.x, _pingAnimValue);
-				activeColor.y = std::lerp(activeColor.y, pingColor.y, _pingAnimValue);
-				activeColor.z = std::lerp(activeColor.z, pingColor.z, _pingAnimValue);
-				activeColor.w = std::lerp(activeColor.w, pingColor.w, _pingAnimValue);
-
-				ImGui::PushStyleColor(ImGuiCol_ButtonActive, activeColor);
-				++pingAnimPopStyleCount;
 			}
 
 			ImGui::SetNextItemSelectionUserData(index);
 			DrawExplorerItem(item);
-			ImGui::PopStyleColor(pingAnimPopStyleCount);
 			if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))
 			{
 				if (isAsset)
@@ -1407,6 +1399,50 @@ namespace hod::inline editor
 		return clickedMenuItem;
 	}
 
+	/// @brief Thumbnail of the asset, or the icon of its type when it has none
+	/// @param asset
+	/// @return
+	static Texture* GetExplorerItemTexture(const Asset& asset)
+	{
+		Texture* thumbnailTexture = asset.GetThumbnail();
+		if (thumbnailTexture != nullptr)
+		{
+			return thumbnailTexture;
+		}
+
+		Editor*  editor = Editor::GetInstance();
+		uint64_t type = asset.GetType();
+		if (type == Hash::ComputeXxh3_64("Prefab"))
+		{
+			return editor->GetPrefabTexture();
+		}
+		if (type == Hash::ComputeXxh3_64("Scene"))
+		{
+			return editor->GetSceneTexture();
+		}
+		if (type == Hash::ComputeXxh3_64("Material"))
+		{
+			return editor->GetMaterialTexture();
+		}
+		if (type == Hash::ComputeXxh3_64("Font"))
+		{
+			return editor->GetFontTexture();
+		}
+		if (type == Hash::ComputeXxh3_64("Audio"))
+		{
+			return editor->GetAudioTexture();
+		}
+		if (type == Hash::ComputeXxh3_64("DataItem"))
+		{
+			return editor->GetDataItemTexture();
+		}
+		if (type == Hash::ComputeXxh3_64("DataTable"))
+		{
+			return editor->GetDataTableTexture();
+		}
+		return editor->GetCheckerTexture();
+	}
+
 	/// @brief
 	/// @param item
 	bool AssetBrowserWindow::DrawExplorerItem(AssetDatabase::FileSystemMapping* item)
@@ -1421,8 +1457,12 @@ namespace hod::inline editor
 		const ImGuiStyle& style = g.Style;
 		const ImGuiID     id = window->GetID(item);
 
-		ImVec2 Size(ExplorerItemWidth, ExplorerItemWidth + ImGui::GetTextLineHeight());
-		float  padding = ExplorerItemPadding;
+		// Image, then the name and the type of the asset (same height for a folder, which has no type: the grid rows stay aligned)
+		const bool  isAsset = (item->_type == AssetDatabase::FileSystemMapping::Type::AssetType);
+		const float padding = ExplorerItemPadding;
+		const float lineHeight = ImGui::GetTextLineHeight();
+		const float nameOffsetY = padding + ExplorerItemImageSize + style.FramePadding.y;
+		ImVec2      Size(ExplorerItemWidth, nameOffsetY + lineHeight * 2.0f + padding * 0.5f);
 
 		if (_itemToRename != nullptr)
 		{
@@ -1463,123 +1503,75 @@ namespace hod::inline editor
 		}
 
 		// Render
-		ImU32 color;
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+
+		// No background, except the flash of a ping (Editor::PingAsset)
+		if (_itemToPing == item)
+		{
+			drawList->AddRectFilled(boundingBox.Min, boundingBox.Max, ImGui::GetColorU32(ImVec4(1.0f, 0.5f, 0.2f, _pingAnimValue)), style.FrameRounding);
+		}
+
+		const ImVec2 imageMin(boundingBox.Min.x + padding, boundingBox.Min.y + padding);
+		Texture*     texture = isAsset ? GetExplorerItemTexture(*item->_asset) : Editor::GetInstance()->GetFolderTexture();
+		ImVec2       imageSize(ExplorerItemImageSize, ExplorerItemImageSize);
+		ImVec2       imageOffset(0.0f, 0.0f);
+		if (texture->GetWidth() > texture->GetHeight()) // Fitted in the square, aspect kept
+		{
+			imageSize.y = imageSize.x * ((float)texture->GetHeight() / (float)texture->GetWidth());
+			imageOffset.y = (imageSize.x - imageSize.y) * 0.5f;
+		}
+		else
+		{
+			imageSize.x = imageSize.y * ((float)texture->GetWidth() / (float)texture->GetHeight());
+			imageOffset.x = (imageSize.y - imageSize.x) * 0.5f;
+		}
+		drawList->AddImage(texture, imageMin + imageOffset, imageMin + imageOffset + imageSize);
+
+		// Selection (and press) is an outline only, hover a lighter one
 		if (selected == true || held == true)
 		{
-			color = ImGui::GetColorU32(ImGuiCol_ButtonActive);
+			constexpr float thickness = 2.0f;
+			drawList->AddRect(boundingBox.Min + ImVec2(thickness * 0.5f, thickness * 0.5f), boundingBox.Max - ImVec2(thickness * 0.5f, thickness * 0.5f),
+			                  ImGui::GetColorU32(ImGuiCol_CheckMark), style.FrameRounding, thickness);
 		}
 		else if (hovered == true)
 		{
-			color = ImGui::GetColorU32(ImGuiCol_ButtonHovered);
-		}
-		else
-		{
-			color = ImGui::GetColorU32(ImGuiCol_Button);
+			drawList->AddRect(boundingBox.Min, boundingBox.Max, ImGui::GetColorU32(ImGuiCol_TextDisabled), style.FrameRounding);
 		}
 		ImGui::RenderNavCursor(boundingBox, id);
-		ImGui::RenderFrame(boundingBox.Min, boundingBox.Max, color, true, style.FrameRounding);
-		if (item->_type == AssetDatabase::FileSystemMapping::Type::AssetType)
-		{
-			std::shared_ptr<Asset> asset = item->_asset;
-
-			Texture* thumbnailTexture = asset->GetThumbnail();
-			if (thumbnailTexture == nullptr)
-			{
-				if (asset->GetType() == Hash::ComputeXxh3_64("Prefab"))
-				{
-					thumbnailTexture = Editor::GetInstance()->GetPrefabTexture();
-				}
-				else if (asset->GetType() == Hash::ComputeXxh3_64("Scene"))
-				{
-					thumbnailTexture = Editor::GetInstance()->GetSceneTexture();
-				}
-				else if (asset->GetType() == Hash::ComputeXxh3_64("Material"))
-				{
-					thumbnailTexture = Editor::GetInstance()->GetMaterialTexture();
-				}
-				else if (asset->GetType() == Hash::ComputeXxh3_64("Font"))
-				{
-					thumbnailTexture = Editor::GetInstance()->GetFontTexture();
-				}
-				else if (asset->GetType() == Hash::ComputeXxh3_64("Audio"))
-				{
-					thumbnailTexture = Editor::GetInstance()->GetAudioTexture();
-				}
-				else if (asset->GetType() == Hash::ComputeXxh3_64("DataItem"))
-				{
-					thumbnailTexture = Editor::GetInstance()->GetDataItemTexture();
-				}
-				else if (asset->GetType() == Hash::ComputeXxh3_64("DataTable"))
-				{
-					thumbnailTexture = Editor::GetInstance()->GetDataTableTexture();
-				}
-				else
-				{
-					thumbnailTexture = Editor::GetInstance()->GetCheckerTexture();
-				}
-			}
-
-			ImVec2 imageSize;
-			imageSize.x = boundingBox.GetWidth() - padding * 2;
-			imageSize.y = boundingBox.GetWidth() - padding * 2;
-			ImVec2 imageOffset;
-			imageOffset.x = 0;
-			imageOffset.y = 0;
-			if (thumbnailTexture->GetWidth() > thumbnailTexture->GetHeight())
-			{
-				imageSize.y = imageSize.x * ((float)thumbnailTexture->GetHeight() / (float)thumbnailTexture->GetWidth());
-				imageOffset.y = (imageSize.x - imageSize.y) * 0.5f;
-			}
-			else
-			{
-				imageSize.x = imageSize.y * ((float)thumbnailTexture->GetWidth() / (float)thumbnailTexture->GetHeight());
-				imageOffset.x = (imageSize.y - imageSize.x) * 0.5f;
-			}
-
-			ImGui::GetWindowDrawList()->AddImage(thumbnailTexture, ImVec2(cursorPosition.x + imageOffset.x + padding, cursorPosition.y + imageOffset.y + padding),
-			                                     ImVec2(cursorPosition.x + imageOffset.x + padding + imageSize.x, cursorPosition.y + imageOffset.y + padding + imageSize.y));
-		}
-		else
-		{
-			/*
-			ImGui::RenderTextClipped(ImVec2(boundingBox.Min.x + padding, boundingBox.Min.y + padding),
-			                         ImVec2(boundingBox.Max.x - padding, boundingBox.Min.y + boundingBox.GetWidth() - padding),
-			                         ICON_MD_FOLDER, nullptr, nullptr, ImVec2(0.5f, 0.5f), nullptr);
-			*/
-			ImTextureID texture = nullptr;
-			if (item->_childrenAsset.Empty() == false || item->_childrenFolder.Empty() == false)
-			{
-				texture = Editor::GetInstance()->GetFolderTexture();
-			}
-			else
-			{
-				texture = Editor::GetInstance()->GetFolderOpenTexture();
-			}
-
-			ImVec2 imageSize;
-			imageSize.x = boundingBox.GetWidth() - padding * 2;
-			imageSize.y = boundingBox.GetWidth() - padding * 2;
-			ImGui::GetWindowDrawList()->AddImage(texture, ImVec2(cursorPosition.x + padding, cursorPosition.y + padding),
-			                                     ImVec2(cursorPosition.x + padding + imageSize.x, cursorPosition.y + padding + imageSize.y));
-		}
 
 		if (g.LogEnabled == true)
 		{
 			ImGui::LogSetNextTextDecoration("[", "]");
 		}
 
+		const ImVec2 nameMin(boundingBox.Min.x + style.FramePadding.x, boundingBox.Min.y + nameOffsetY);
+		const ImVec2 nameMax(boundingBox.Max.x - style.FramePadding.x, nameMin.y + lineHeight);
 		if (_itemToRename == item)
 		{
 			auto dc = window->DC;
-			ImGui::SetCursorScreenPos(ImVec2(boundingBox.Min.x + style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y * 2 - ImGui::GetTextLineHeight()));
-			ImGui::SetNextItemWidth((boundingBox.Max.x - style.FramePadding.x) - (boundingBox.Min.x + style.FramePadding.x));
+			// InputText can't center its text: the field is sized to the text and centered instead, like the name it replaces.
+			// Only a cursor wide margin: a character typed this frame is just clipped until the field is resized on the next one.
+			// Too long to fit, it takes the whole width and scrolls as usual
+			constexpr float cursorMargin = 2.0f;
+			const float     maxWidth = nameMax.x - nameMin.x;
+			const float     fittedWidth = ImGui::CalcTextSize(_itemRenameBuffer).x + cursorMargin + style.FramePadding.x * 2.0f;
+			const bool      fits = fittedWidth <= maxWidth;
+			const float     fieldWidth = fits ? fittedWidth : maxWidth;
+			ImGui::SetCursorScreenPos(ImVec2(nameMin.x + (maxWidth - fieldWidth) * 0.5f, nameMin.y - style.FramePadding.y));
+			ImGui::SetNextItemWidth(fieldWidth);
 			// Only once: focusing it every frame would take the focus back as soon as the user clicks elsewhere
 			if (_itemRenameFocus)
 			{
 				ImGui::SetKeyboardFocusHere();
 				_itemRenameFocus = false;
 			}
-			ImGui::InputText("##Rename", _itemRenameBuffer, sizeof(_itemRenameBuffer), ImGuiInputTextFlags_AutoSelectAll);
+			ImGuiInputTextFlags inputTextFlags = ImGuiInputTextFlags_AutoSelectAll;
+			if (fits)
+			{
+				inputTextFlags |= ImGuiInputTextFlags_NoHorizontalScroll; // Otherwise a scroll taken by a typed character would stay once the field grows
+			}
+			ImGui::InputText("##Rename", _itemRenameBuffer, sizeof(_itemRenameBuffer), inputTextFlags);
 			_itemRenameSubmitted = true;
 			// Enter or focus lost validates, Escape cancels
 			if (ImGui::IsItemDeactivated())
@@ -1594,18 +1586,18 @@ namespace hod::inline editor
 		}
 		else
 		{
-			if (item->_type == AssetDatabase::FileSystemMapping::Type::AssetType)
-			{
-				ImGui::RenderTextClipped(ImVec2(boundingBox.Min.x + style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y - ImGui::GetTextLineHeight()),
-				                         ImVec2(boundingBox.Max.x - style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y), item->_asset->GetName().CStr(), nullptr,
-				                         nullptr, style.ButtonTextAlign, nullptr);
-			}
-			else
-			{
-				ImGui::RenderTextClipped(ImVec2(boundingBox.Min.x + style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y - ImGui::GetTextLineHeight()),
-				                         ImVec2(boundingBox.Max.x - style.FramePadding.x, boundingBox.Max.y - style.FramePadding.y), item->_path.Filename().GetString().CStr(),
-				                         nullptr, nullptr, style.ButtonTextAlign, nullptr);
-			}
+			String name = isAsset ? item->_asset->GetName() : item->_path.Filename().GetString();
+			ImGui::RenderTextClipped(nameMin, nameMax, name.CStr(), nullptr, nullptr, style.ButtonTextAlign, nullptr);
+		}
+
+		if (isAsset)
+		{
+			std::string_view typeName = AssetDatabase::GetInstance()->GetAssetTypeName(item->_asset->GetType());
+			const ImVec2     typeMin(nameMin.x, nameMax.y);
+			const ImVec2     typeMax(nameMax.x, typeMin.y + lineHeight);
+			ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
+			ImGui::RenderTextClipped(typeMin, typeMax, typeName.data(), typeName.data() + typeName.size(), nullptr, style.ButtonTextAlign, nullptr);
+			ImGui::PopStyleColor();
 		}
 
 		return hovered;

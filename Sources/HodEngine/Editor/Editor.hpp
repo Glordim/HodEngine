@@ -101,11 +101,6 @@ namespace hod::inline editor
 			return _folderTexture;
 		}
 
-		Texture* GetFolderOpenTexture() const
-		{
-			return _folderOpenTexture;
-		}
-
 		Texture* GetSceneTexture() const
 		{
 			return _sceneTexture;
@@ -172,7 +167,6 @@ namespace hod::inline editor
 
 		Texture* _hodTexture = nullptr;
 		Texture* _folderTexture = nullptr;
-		Texture* _folderOpenTexture = nullptr;
 		Texture* _sceneTexture = nullptr;
 		Texture* _prefabTexture = nullptr;
 		Texture* _materialTexture = nullptr;

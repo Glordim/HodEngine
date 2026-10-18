@@ -53,7 +53,6 @@
 #include <fmt/format.h>
 #include <stb_image.h>
 
-#include "Icons/folder-open.png.hpp"
 #include "Icons/folder.png.hpp"
 #include "Icons/HodIcon.png.hpp"
 #include "Icons/landscape.png.hpp"
@@ -148,7 +147,6 @@ namespace hod::inline editor
 
 		DefaultAllocator::GetInstance().Delete(_hodTexture);
 		DefaultAllocator::GetInstance().Delete(_folderTexture);
-		DefaultAllocator::GetInstance().Delete(_folderOpenTexture);
 		DefaultAllocator::GetInstance().Delete(_sceneTexture);
 		DefaultAllocator::GetInstance().Delete(_prefabTexture);
 		DefaultAllocator::GetInstance().Delete(_materialTexture);
@@ -197,11 +195,6 @@ namespace hod::inline editor
 		pixels = stbi_load_from_memory(folder_png, folder_png_size, &x, &y, &component, 0);
 		_folderTexture = RhiDevice::GetInstance()->CreateTexture();
 		_folderTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
-		stbi_image_free(pixels);
-
-		pixels = stbi_load_from_memory(folder_open_png, folder_open_png_size, &x, &y, &component, 0);
-		_folderOpenTexture = RhiDevice::GetInstance()->CreateTexture();
-		_folderOpenTexture->BuildBuffer(x, y, pixels, textureCreateInfo);
 		stbi_image_free(pixels);
 
 		pixels = stbi_load_from_memory(landscape_png, landscape_png_size, &x, &y, &component, 0);

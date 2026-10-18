@@ -74,6 +74,9 @@ namespace hod::inline editor
 		Cooker* AcquireCooker(uint64_t type);
 		void    ReleaseCooker(Cooker* cooker);
 
+		/// @brief Name an asset type was registered with (RegisterCooker), empty if unknown
+		std::string_view GetAssetTypeName(uint64_t assetType) const;
+
 		/// @brief Same as AcquireCooker/ReleaseCooker, for Importer batch/parallel usage.
 		Importer* AcquireImporter(std::string_view extension);
 		void      ReleaseImporter(Importer* importer);
@@ -141,6 +144,7 @@ namespace hod::inline editor
 		{
 			Cooker* (*_factory)() = nullptr;
 			uint64_t _assetType = 0;
+			String   _assetTypeName;
 		};
 
 		/// @brief Same as CookerEntry, for Importer; matching is by supported file extension instead of a
