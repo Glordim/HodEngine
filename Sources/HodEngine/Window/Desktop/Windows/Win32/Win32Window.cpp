@@ -163,6 +163,18 @@ namespace hod::inline window
 			EmitMouseHorizontalScroll(scroll);
 			return 0;
 		}
+		else if (msg == WM_SETFOCUS)
+		{
+			SetFocusedInternal(true);
+			return 0;
+		}
+		else if (msg == WM_KILLFOCUS)
+		{
+			// The release of the keys held meanwhile goes to the window getting the focus (e.g. Alt of Alt+Tab):
+			// the FocusLost event lets them be released here too
+			SetFocusedInternal(false);
+			return 0;
+		}
 		else if (msg == WM_ERASEBKGND)
 		{
 			return 1;
