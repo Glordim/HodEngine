@@ -14,6 +14,7 @@
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
+#include <HodEngine/Core/Math.hpp>
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 #include <HodEngine/Core/Document/DocumentWriterJson.hpp>
@@ -84,7 +85,21 @@ namespace hod::inline editor
 	/// @brief 
 	void TextureEditorTab::SetZoomFactor(float zoomFactor)
 	{
-		_zoomFactor = std::max(0.01f, zoomFactor);
+		_zoomFactor = Clamp(zoomFactor, MinZoomFactor, MaxZoomFactor);
+	}
+
+	/// @brief
+	/// @return
+	const Vector2& TextureEditorTab::GetPanOffset() const
+	{
+		return _panOffset;
+	}
+
+	/// @brief
+	/// @param panOffset
+	void TextureEditorTab::SetPanOffset(const Vector2& panOffset)
+	{
+		_panOffset = panOffset;
 	}
 
 	/// @brief 
@@ -281,7 +296,8 @@ namespace hod::inline editor
 		ImGui::SetCursorScreenPos(cursorPos + ImVec2(0.0f, 6.0f));
 
 		ImGui::SetNextItemWidth(160);
-		ImGui::SliderFloat("##Zoom", &_zoomFactor, 0.01f, 2.0f, "");
+		// Logarithmic: as precise around 10% as around 1000%, like the zoom of the mouse wheel
+		ImGui::SliderFloat("##Zoom", &_zoomFactor, MinZoomFactor, MaxZoomFactor, "", ImGuiSliderFlags_Logarithmic | ImGuiSliderFlags_AlwaysClamp);
 		ImGui::SameLine(0.0f, 8.0f);
 		cursorPos = ImGui::GetCursorScreenPos();
 		ImGui::SetCursorScreenPos(cursorPos + ImVec2(0.0f, 6.0f));
@@ -289,12 +305,14 @@ namespace hod::inline editor
 		ImGui::Text("%u%%", static_cast<uint32_t>(_zoomFactor * 100.0f));
 
 		ImGui::SameLine(0.0f, 8.0f);
-		cursorPos.x += ImGui::CalcTextSize("100%").x;
+		cursorPos.x += ImGui::CalcTextSize("6400%").x; // the widest (MaxZoomFactor)
 		ImGui::SetCursorScreenPos(cursorPos + ImVec2(0.0f, 2.0f));
-		ImGui::BeginDisabled(_zoomFactor == 1.0f);
+		// Resets the whole view: zoom and pan
+		ImGui::BeginDisabled(_zoomFactor == 1.0f && _panOffset.GetX() == 0.0f && _panOffset.GetY() == 0.0f);
 		if (ImGui::Button(ICON_MDI_UNDO, ImVec2(0, 28)) == true)
 		{
 			_zoomFactor = 1.0f;
+			_panOffset = Vector2(0.0f, 0.0f);
 		}
 		ImGui::EndDisabled();
 	}

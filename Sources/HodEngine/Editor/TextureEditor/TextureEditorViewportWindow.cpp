@@ -165,13 +165,39 @@ namespace hod::inline editor
 			return;
 		}
 
+		// The input first, for the image to be drawn where it is this frame
+		const ImVec2 viewportPosition = ImGui::GetCursorScreenPos();
+		const ImVec2 viewportSize((float)resolutionWidth, (float)resolutionHeight);
+		ImGui::InvisibleButton("##Viewport", viewportSize, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonMiddle);
+
+		const ImGuiIO& io = ImGui::GetIO();
+		Vector2        panOffset = textureEditorTab->GetPanOffset();
+		if (ImGui::IsItemActive() && (ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.0f) || ImGui::IsMouseDragging(ImGuiMouseButton_Middle, 0.0f)))
+		{
+			panOffset = Vector2(panOffset.GetX() + io.MouseDelta.x, panOffset.GetY() + io.MouseDelta.y);
+			textureEditorTab->SetPanOffset(panOffset);
+		}
+
+		if (ImGui::IsItemHovered() && io.MouseWheel != 0.0f)
+		{
+			// Around the cursor: the texel under it stays under it
+			const float previousZoomFactor = textureEditorTab->GetZoomFactor();
+			textureEditorTab->SetZoomFactor(previousZoomFactor * std::pow(1.1f, io.MouseWheel)); // 10% of the current zoom per notch
+			const float zoomRatio = textureEditorTab->GetZoomFactor() / previousZoomFactor;
+
+			const ImVec2 imageCenter = viewportPosition + viewportSize * 0.5f + ImVec2(panOffset.GetX(), panOffset.GetY());
+			const ImVec2 cursorFromCenter = io.MousePos - imageCenter;
+			panOffset = Vector2(panOffset.GetX() + cursorFromCenter.x * (1.0f - zoomRatio), panOffset.GetY() + cursorFromCenter.y * (1.0f - zoomRatio));
+			textureEditorTab->SetPanOffset(panOffset);
+		}
+
 		const float zoomFactor = textureEditorTab->GetZoomFactor();
 		const float width = texture->GetWidth() * zoomFactor;
 		const float height = texture->GetHeight() * zoomFactor;
 
 		// One unit per pixel, origin at the center of the render target. The image starts on a whole pixel: not blurred by the sampling at 100%
-		const float left = std::floor((resolutionWidth - width) * 0.5f) - resolutionWidth * 0.5f;
-		const float top = resolutionHeight * 0.5f - std::floor((resolutionHeight - height) * 0.5f);
+		const float left = std::floor((resolutionWidth - width) * 0.5f + panOffset.GetX()) - resolutionWidth * 0.5f;
+		const float top = resolutionHeight * 0.5f - std::floor((resolutionHeight - height) * 0.5f + panOffset.GetY());
 
 		StaticArray<Vector2, 4> vertices = {
 			Vector2(left, top),
@@ -226,11 +252,6 @@ namespace hod::inline editor
 			vertices.Data(), uvs.Data(), nullptr, (uint32_t)vertices.Size(), indices.Data(), (uint32_t)indices.Size(), Matrix4::Identity, materialInstance, 0, 0, true);
 		renderView->PushRenderCommand(renderMeshCommand);
 
-		ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
-
-		if (ImGui::GetIO().MouseWheel)
-		{
-			textureEditorTab->SetZoomFactor(zoomFactor + ImGui::GetIO().MouseWheel * 0.05f);
-		}
+		ImGui::GetWindowDrawList()->AddImage(_renderTarget->GetColorTexture(), viewportPosition, viewportPosition + viewportSize);
 	}
 }

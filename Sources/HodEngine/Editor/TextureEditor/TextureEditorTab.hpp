@@ -5,6 +5,7 @@
 #include "HodEngine/Editor/TextureEditor/TextureCooker.hpp"
 
 #include <HodEngine/Core/TypeTrait.hpp>
+#include <HodEngine/Math/Vector2.hpp>
 #include <memory>
 
 namespace hod::inline renderer
@@ -33,6 +34,8 @@ namespace hod::inline editor
 		std::shared_ptr<TextureResource>	GetTexture() const;
 		float								GetZoomFactor() const;
 		void								SetZoomFactor(float zoomFactor);
+		const Vector2&						GetPanOffset() const;
+		void								SetPanOffset(const Vector2& panOffset);
 		uint8_t								GetColorComponentMask() const { return _colorComponentMask; }
 
 		TextureSettings&					GetTextureSettings() { return _textureSettings; }
@@ -51,7 +54,11 @@ namespace hod::inline editor
 
 		uint8_t	_mipmapLevel = 0;
 		uint8_t	_maxMipmapLevel = 0;
+		static constexpr float MinZoomFactor = 0.01f;
+		static constexpr float MaxZoomFactor = 64.0f; // texels big enough to tell them apart
+
 		float _zoomFactor = 1.0f;
+		Vector2 _panOffset = Vector2(0.0f, 0.0f); // in pixels of the viewport, from the image centered in it (Y down)
 
 		TextureSettings _textureSettings;
 		TextureSettings _savedSettings; // what the resource is reverted to if the tab is closed with unsaved live edits
