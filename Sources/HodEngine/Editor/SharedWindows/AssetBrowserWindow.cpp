@@ -1250,6 +1250,14 @@ namespace hod::inline editor
 	/// @param explorerItems the multi-selection user data is an index in it
 	void AssetBrowserWindow::ApplySelectionRequests(ImGuiMultiSelectIO* multiSelectIO, const Vector<AssetDatabase::FileSystemMapping*>& explorerItems)
 	{
+		// The nav init of a newly focused window (e.g. on editor boot) puts the nav on the first item, and the multi-selection
+		// auto-selects it as if it was reached with the arrows (unlike Selectable() which ignores an init): only a real move selects
+		const ImGuiContext& g = *ImGui::GetCurrentContext();
+		if (g.NavJustMovedToId != 0 && g.NavJustMovedToIsInit)
+		{
+			return;
+		}
+
 		for (const ImGuiSelectionRequest& request : multiSelectIO->Requests)
 		{
 			if (request.Type == ImGuiSelectionRequestType_SetAll)
