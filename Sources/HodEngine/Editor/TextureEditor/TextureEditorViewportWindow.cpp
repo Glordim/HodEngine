@@ -232,6 +232,10 @@ namespace hod::inline editor
 		materialInstance->SetTexture("checker", Editor::GetInstance()->GetCheckerTexture());
 		materialInstance->SetVec4("ubo.channelMask", channelMask);
 		materialInstance->SetVec2("ubo.checkerScale", Vector2(width / (4 * 8), height / (4 * 8))); // 16 pixels squares, whatever the zoom
+		materialInstance->SetVec2("ubo.textureSize", Vector2((float)texture->GetWidth(), (float)texture->GetHeight()));
+		materialInstance->SetFloat("ubo.pixelsPerTexel", zoomFactor);
+		// Texel grid: fades in between 6 and 12 pixels per texel, it would hide the texels if smaller
+		materialInstance->SetFloat("ubo.gridOpacity", Clamp((zoomFactor - 6.0f) / 6.0f, 0.0f, 1.0f));
 		frameResources.DeleteAfter(materialInstance);
 
 		RenderView* renderView = frameResources.CreateRenderView();
