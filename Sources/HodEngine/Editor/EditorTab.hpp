@@ -36,6 +36,8 @@ namespace hod::inline editor
 	protected:
 		virtual void CreateDefaultLayout() = 0;
 		virtual void DrawMenuBar() = 0;
+		// The popups opened from the menu bar, drawn right after it but with the default style (the menu bar compacts its widgets)
+		virtual void DrawMenuBarPopups() {}
 		virtual bool DrawContent() = 0;
 
 		/// @brief Serializes this tab's edited data to its Asset. Overridden by tabs that hold savable data.

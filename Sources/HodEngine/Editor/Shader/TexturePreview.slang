@@ -32,10 +32,11 @@ VS_OUT VertexMain(VS_IN input)
 
 struct UBO
 {
-	float4 channelMask;  // 1 or 0 for R, G, B, A
-	float2 textureSize;  // in texels
+	float4 channelMask;    // 1 or 0 for R, G, B, A
+	float4 gridFirstColor; // line on the first pixel of each texel, alpha: how much it covers the texel, 0 for none
+	float4 gridLastColor;  // line on the last pixel of each texel, same
+	float2 textureSize;    // in texels
 	float  pixelsPerTexel;
-	float  gridOpacity; // of the lines between the texels, 0 for none
 	float  checkerTexels; // size of a square of the checker, in texels: a power of two, 1/4 at most (4 x 4 squares per texel)
 };
 
@@ -71,22 +72,18 @@ float4 FragmentMain(VS_OUT input) : SV_Target
 	float3 checker = material.checker.Sample(material.checkerSampler, input.uv * material.ubo.textureSize / (2.0 * material.ubo.checkerTexels)).rgb;
 	float3 result = lerp(checker, color.rgb, color.a);
 
-	// Texel grid: a two-tone line on each edge between texels, a dark pixel on the first pixel of the texel and a light one on the last pixel of the previous texel.
-	// One of the two always stands out, whatever the color of the texel (one color can't: it blends into the texels of its own luminance).
+	// Texel grid: a line on each edge between texels, on the first pixel of the texel and/or on the last pixel of the previous texel.
+	// With a dark one and a light one, one of the two always stands out, whatever the color of the texel.
 	// As the image starts on a whole pixel, each is 1 pixel wide at a whole zoom
 	float  pixelsPerTexel = material.ubo.pixelsPerTexel;
 	float2 pixelsInTexel = frac(input.uv * material.ubo.textureSize) * pixelsPerTexel;
-	if (material.ubo.gridOpacity > 0.0)
+	if (min(pixelsInTexel.x, pixelsInTexel.y) < 1.0)
 	{
-		float gridStrength = 0.35 * material.ubo.gridOpacity;
-		if (min(pixelsInTexel.x, pixelsInTexel.y) < 1.0)
-		{
-			result = lerp(result, float3(0.0, 0.0, 0.0), gridStrength);
-		}
-		else if (max(pixelsInTexel.x, pixelsInTexel.y) >= pixelsPerTexel - 1.0)
-		{
-			result = lerp(result, float3(1.0, 1.0, 1.0), gridStrength);
-		}
+		result = lerp(result, material.ubo.gridFirstColor.rgb, material.ubo.gridFirstColor.a);
+	}
+	else if (max(pixelsInTexel.x, pixelsInTexel.y) >= pixelsPerTexel - 1.0)
+	{
+		result = lerp(result, material.ubo.gridLastColor.rgb, material.ubo.gridLastColor.a);
 	}
 
 	return float4(result, 1.0);

@@ -100,6 +100,7 @@ namespace hod::inline editor
 
 			ImGui::PopStyleVar(3);
 			ImGui::PopStyleColor();
+			DrawMenuBarPopups();
 			ImGui::SetCursorScreenPos(cursorPos);
 
 			if (_initialLayoutCreated == false)

@@ -5,6 +5,7 @@
 #include "HodEngine/Editor/TextureEditor/TextureCooker.hpp"
 
 #include <HodEngine/Core/TypeTrait.hpp>
+#include <HodEngine/Math/Color.hpp>
 #include <HodEngine/Math/Vector2.hpp>
 #include <memory>
 
@@ -27,6 +28,27 @@ namespace hod::inline editor
 			Alpha = 1 << 3,
 		};
 
+		/// @brief Color of the lines between the texels
+		enum class GridStyle : uint8_t
+		{
+			TwoTone, // a dark and a light line side by side: one of the two stands out over any texel
+			Dark,
+			Light,
+			Color,
+
+			Count,
+		};
+
+		/// @brief How the grid between the texels is shown, for the time the tab is open
+		struct GridSettings
+		{
+			bool      _visible = true;
+			GridStyle _style = GridStyle::TwoTone;
+			Color     _color = Color(0.0f, 0.8f, 1.0f, 1.0f); // GridStyle::Color
+			float     _opacity = 0.35f;
+			float     _minZoomFactor = 6.0f; // fades in from it, fully visible at twice it
+		};
+
 	public:
 				TextureEditorTab(std::shared_ptr<Asset> asset);
 				~TextureEditorTab() override;
@@ -38,7 +60,10 @@ namespace hod::inline editor
 		void								SetTargetZoomFactor(float zoomFactor); // the one the zoom shown eases towards (mouse wheel)
 		const Vector2&						GetPanOffset() const;
 		void								SetPanOffset(const Vector2& panOffset);
+		bool								IsRecentering() const { return _recentering; }
+		void								SetRecentering(bool recentering) { _recentering = recentering; }
 		uint8_t								GetColorComponentMask() const { return _colorComponentMask; }
+		const GridSettings&					GetGridSettings() const;
 
 		TextureSettings&					GetTextureSettings() { return _textureSettings; }
 		void								ApplySamplerStates();
@@ -48,7 +73,12 @@ namespace hod::inline editor
 		void	CreateDefaultLayout() override;
 		bool	DrawContent() override;
 		void	DrawMenuBar() override;
+		void	DrawMenuBarPopups() override;
 		bool	OnSave() override;
+
+	private:
+
+		void	DrawGridSettingsPopup();
 
 	private:
 
@@ -62,6 +92,9 @@ namespace hod::inline editor
 		float _zoomFactor = 1.0f;
 		float _targetZoomFactor = 1.0f;
 		Vector2 _panOffset = Vector2(0.0f, 0.0f); // in pixels of the viewport, from the image centered in it (Y down)
+		bool    _recentering = false;             // the view is reset: the pan eases towards 0 along with the zoom towards its target
+
+		GridSettings _gridSettings;
 
 		TextureSettings _textureSettings;
 		TextureSettings _savedSettings; // what the resource is reverted to if the tab is closed with unsaved live edits

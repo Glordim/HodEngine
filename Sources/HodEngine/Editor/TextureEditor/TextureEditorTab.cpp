@@ -14,6 +14,8 @@
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
+#include "HodEngine/Editor/DrawHelper.hpp"
+
 #include <HodEngine/Core/Math.hpp>
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
@@ -180,6 +182,81 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @return
+	const TextureEditorTab::GridSettings& TextureEditorTab::GetGridSettings() const
+	{
+		return _gridSettings;
+	}
+
+	/// @brief
+	void TextureEditorTab::DrawMenuBarPopups()
+	{
+		DrawGridSettingsPopup();
+	}
+
+	/// @brief Style, opacity and zoom from which the texel grid is shown
+	void TextureEditorTab::DrawGridSettingsPopup()
+	{
+		if (DrawHelper::BeginSettingsPopup("TextureGrid"))
+		{
+			static const char* styleLabels[std::to_underlying(GridStyle::Count)] = {"Two-tone", "Dark", "Light", "Color"};
+
+			const float valuePos = ImGui::CalcTextSize("Visible from").x + ImGui::GetStyle().ItemSpacing.x * 2.0f;
+
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted("Style");
+			ImGui::SameLine(valuePos);
+			ImGui::SetNextItemWidth(120.0f);
+			if (ImGui::BeginCombo("##Style", styleLabels[std::to_underlying(_gridSettings._style)]))
+			{
+				for (uint8_t style = 0; style < std::to_underlying(GridStyle::Count); ++style)
+				{
+					if (ImGui::Selectable(styleLabels[style], std::to_underlying(_gridSettings._style) == style))
+					{
+						_gridSettings._style = static_cast<GridStyle>(style);
+					}
+				}
+				ImGui::EndCombo();
+			}
+			if (_gridSettings._style == GridStyle::Color)
+			{
+				ImGui::SameLine();
+				float color[3] = {_gridSettings._color.r, _gridSettings._color.g, _gridSettings._color.b};
+				if (ImGui::ColorEdit3("##Color", color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel))
+				{
+					_gridSettings._color = Color(color[0], color[1], color[2], 1.0f);
+				}
+			}
+
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted("Opacity");
+			ImGui::SameLine(valuePos);
+			ImGui::SetNextItemWidth(120.0f);
+			float opacityPercent = _gridSettings._opacity * 100.0f;
+			if (ImGui::SliderFloat("##Opacity", &opacityPercent, 0.0f, 100.0f, "%.0f%%", ImGuiSliderFlags_AlwaysClamp))
+			{
+				_gridSettings._opacity = opacityPercent / 100.0f;
+			}
+
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted("Visible from");
+			ImGui::SameLine(valuePos);
+			ImGui::SetNextItemWidth(120.0f);
+			float minZoomPercent = _gridSettings._minZoomFactor * 100.0f;
+			if (ImGui::SliderFloat("##VisibleFrom", &minZoomPercent, 100.0f, MaxZoomFactor * 100.0f, "%.0f%%", ImGuiSliderFlags_Logarithmic | ImGuiSliderFlags_AlwaysClamp))
+			{
+				_gridSettings._minZoomFactor = minZoomPercent / 100.0f;
+			}
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+			{
+				ImGui::SetTooltip("Zoom from which the grid fades in, fully visible at twice this zoom");
+			}
+
+			ImGui::EndPopup();
+		}
+	}
+
+	/// @brief
 	void TextureEditorTab::DrawMenuBar()
 	{
 		ImGui::SameLine(0.0f, 8.0f);
@@ -275,6 +352,17 @@ namespace hod::inline editor
 		ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical, 2.0f);
 		ImGui::SameLine(0.0f, 8.0f);
 		cursorPos = ImGui::GetCursorScreenPos();
+		ImGui::SetCursorScreenPos(cursorPos + ImVec2(0.0f, 2.0f + (28.0f - ImGui::GetFrameHeight()) * 0.5f)); // centered on the 28 pixels high buttons
+
+		// The frame padding of the editor style (ImGuiManager), as the toggles of the other viewports: the menu bar one is wider for its icon buttons
+		ImGui::PushStyleVarX(ImGuiStyleVar_FramePadding, 5.0f);
+		DrawHelper::DrawToggleWithSettings(ICON_MDI_GRID " Grid", "texel grid", "TextureGrid", _gridSettings._visible); // Its popup: DrawMenuBarPopups
+		ImGui::PopStyleVar();
+
+		ImGui::SameLine(0.0f, 8.0f);
+		ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical, 2.0f);
+		ImGui::SameLine(0.0f, 8.0f);
+		cursorPos = ImGui::GetCursorScreenPos();
 		ImGui::SetCursorScreenPos(cursorPos + ImVec2(0.0f, 6.0f));
 
 		if (_maxMipmapLevel == 0)
@@ -328,9 +416,9 @@ namespace hod::inline editor
 		ImGui::BeginDisabled(_zoomFactor == 1.0f && _targetZoomFactor == 1.0f && _panOffset.GetX() == 0.0f && _panOffset.GetY() == 0.0f);
 		if (ImGui::Button(ICON_MDI_UNDO, ImVec2(0, 28)) == true)
 		{
-			_zoomFactor = 1.0f;
+			// Eased by the viewport, like the zoom of the mouse wheel
 			_targetZoomFactor = 1.0f;
-			_panOffset = Vector2(0.0f, 0.0f);
+			_recentering = true;
 		}
 		ImGui::EndDisabled();
 	}

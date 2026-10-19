@@ -150,8 +150,10 @@ namespace hod::inline editor
 			ImGui::SetTooltip("%s %s", toggled ? "Hide" : "Show", itemName);
 		}
 
+		// Glued to the toggle, at its height: SameLine alone would go back to the height of the line, not of the toggle if it was moved (SetCursorScreenPos)
+		const ImVec2 settingsPosition(ImGui::GetItemRectMax().x - 1.0f, ImGui::GetItemRectMin().y);
 		ImGui::SameLine(0.0f, 0.0f);
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
+		ImGui::SetCursorScreenPos(settingsPosition);
 		bool openSettings = FramedButton(ICON_MDI_MENU_DOWN "##Settings", settingsOpened, ImDrawFlags_RoundRight);
 		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && settingsOpened == false)
 		{
