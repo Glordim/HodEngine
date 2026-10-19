@@ -33,6 +33,7 @@ namespace hod::inline editor
 		std::shared_ptr<TextureResource>	GetTexture() const;
 		float								GetZoomFactor() const;
 		void								SetZoomFactor(float zoomFactor);
+		uint8_t								GetColorComponentMask() const { return _colorComponentMask; }
 
 		TextureSettings&					GetTextureSettings() { return _textureSettings; }
 

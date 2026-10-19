@@ -35,6 +35,22 @@
 #include "HodEngine/Game/PrefabResource.hpp"
 #include "HodEngine/Game/Prefab.hpp"
 
+#include <HodEngine/Core/Math.hpp>
+#include <HodEngine/Core/StaticArray.hpp>
+#include <HodEngine/Renderer/FrameResources.hpp>
+#include <HodEngine/Renderer/Material.hpp>
+#include <HodEngine/Renderer/MaterialInstance.hpp>
+#include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/RHI/RenderTarget.hpp>
+#include <HodEngine/RHI/RhiDevice.hpp>
+#include <HodEngine/RHI/Shader.hpp>
+#include <HodEngine/RHI/VertexInput.hpp>
+
+#include "Shader/TexturePreview_Fragment.hpp"
+#include "Shader/TexturePreview_Vertex.hpp"
+
 #include <cmath>
 
 namespace hod::inline editor
@@ -51,6 +67,52 @@ namespace hod::inline editor
 	{
 		SetFlags(ImGuiWindowFlags_NoScrollbar);
 		SetTitle("Viewport");
+
+		_renderTarget = RhiDevice::GetInstance()->CreateRenderTarget();
+		CreateMaterial();
+	}
+
+	/// @brief
+	TextureEditorViewportWindow::~TextureEditorViewportWindow()
+	{
+		DefaultAllocator::GetInstance().Delete(_material);
+		DefaultAllocator::GetInstance().Delete(_vertexShader);
+		DefaultAllocator::GetInstance().Delete(_fragmentShader);
+		DefaultAllocator::GetInstance().Delete(_renderTarget);
+	}
+
+	/// @brief Material of the TexturePreview shader, for the format of _renderTarget
+	/// @return
+	bool TextureEditorViewportWindow::CreateMaterial()
+	{
+		RhiDevice* rhiDevice = RhiDevice::GetInstance();
+
+		_vertexShader = rhiDevice->CreateShader(Shader::ShaderType::Vertex);
+		if (_vertexShader->LoadFromIR(TexturePreview_Vertex, TexturePreview_Vertex_size, TexturePreview_Vertex_reflection, TexturePreview_Vertex_reflection_size) == false)
+		{
+			return false;
+		}
+
+		_fragmentShader = rhiDevice->CreateShader(Shader::ShaderType::Fragment);
+		if (_fragmentShader->LoadFromIR(TexturePreview_Fragment, TexturePreview_Fragment_size, TexturePreview_Fragment_reflection, TexturePreview_Fragment_reflection_size) == false)
+		{
+			return false;
+		}
+
+		const VertexInput vertexInputs[2] = {
+			VertexInput(0, 0, VertexInput::Format::R32G32_SFloat),
+			VertexInput(1, 8, VertexInput::Format::R32G32_SFloat),
+		};
+
+		Material::CreateInfo createInfo;
+		createInfo._vertexInputs = vertexInputs;
+		createInfo._vertexInputCount = 2;
+		createInfo._vertexShader = _vertexShader;
+		createInfo._fragmentShader = _fragmentShader;
+		createInfo._blendMode = BlendMode::Opaque; // The checker is blended in the shader
+
+		_material = Material::Create(createInfo);
+		return _material != nullptr;
 	}
 
 	/// @brief 
@@ -80,31 +142,95 @@ namespace hod::inline editor
 	/// @brief 
 	void TextureEditorViewportWindow::DrawContent()
 	{
-		std::shared_ptr<TextureResource> textureResource = GetOwner<TextureEditorTab>()->GetTexture();
-		if (textureResource == nullptr)
+		TextureEditorTab*                textureEditorTab = GetOwner<TextureEditorTab>();
+		std::shared_ptr<TextureResource> textureResource = textureEditorTab->GetTexture();
+		if (textureResource == nullptr || _material == nullptr)
 		{
 			return;
 		}
 		Texture* texture = textureResource->GetTexture();
 
-		float zoomFactor = GetOwner<TextureEditorTab>()->GetZoomFactor();
-		float width = texture->GetWidth() * zoomFactor;
-		float height = texture->GetHeight() * zoomFactor;
+		// The render target covers the whole viewport: the image can be zoomed larger than it
+		const ImVec2   available = ImGui::GetContentRegionAvail();
+		const uint32_t resolutionWidth = Clamp((uint32_t)available.x, 2u, 16u * 1024u);
+		const uint32_t resolutionHeight = Clamp((uint32_t)available.y, 2u, 16u * 1024u);
+		if (_renderTarget->GetResolution().GetX() != resolutionWidth || _renderTarget->GetResolution().GetY() != resolutionHeight)
+		{
+			Texture::CreateInfo createInfo;
+			createInfo._allowReadWrite = false;
+			_renderTarget->Init(resolutionWidth, resolutionHeight, createInfo);
+		}
+		if (_renderTarget->IsValid() == false)
+		{
+			return;
+		}
 
-		ImVec2 cursor = ImGui::GetCursorPos();
-		ImVec2 available = ImGui::GetContentRegionAvail();
-		ImGui::GetWindowDrawList()->AddRectFilled(ImGui::GetCursorScreenPos(), ImGui::GetCursorScreenPos() + available, IM_COL32(0, 0, 0, 255));
+		const float zoomFactor = textureEditorTab->GetZoomFactor();
+		const float width = texture->GetWidth() * zoomFactor;
+		const float height = texture->GetHeight() * zoomFactor;
 
-		cursor += ImVec2((available.x - width) * 0.5f, (available.y - height) * 0.5f);
-		ImGui::SetCursorPos(cursor);
-		ImGui::Image(Editor::GetInstance()->GetCheckerTexture(), ImVec2(width, height), ImVec2(0, 0), ImVec2(width / (4 * 8), height / (4 * 8)));
-		ImGui::SetCursorPos(cursor);
-		ImGui::Image(texture, ImVec2(width, height));
+		// One unit per pixel, origin at the center of the render target. The image starts on a whole pixel: not blurred by the sampling at 100%
+		const float left = std::floor((resolutionWidth - width) * 0.5f) - resolutionWidth * 0.5f;
+		const float top = resolutionHeight * 0.5f - std::floor((resolutionHeight - height) * 0.5f);
+
+		StaticArray<Vector2, 4> vertices = {
+			Vector2(left, top),
+			Vector2(left + width, top),
+			Vector2(left + width, top - height),
+			Vector2(left, top - height),
+		};
+
+		static StaticArray<Vector2, 4> uvs = {
+			Vector2(0, 0),
+			Vector2(1, 0),
+			Vector2(1, 1),
+			Vector2(0, 1),
+		};
+
+		static StaticArray<uint16_t, 3 * 2> indices = {
+			0, 1, 2, 0, 2, 3,
+		};
+
+		const uint8_t colorComponentMask = textureEditorTab->GetColorComponentMask();
+		auto          isShown = [colorComponentMask](TextureEditorTab::ColorComponent component)
+		{
+			return (colorComponentMask & std::to_underlying(component)) ? 1.0f : 0.0f;
+		};
+		Vector4 channelMask(isShown(TextureEditorTab::ColorComponent::Red), isShown(TextureEditorTab::ColorComponent::Green), isShown(TextureEditorTab::ColorComponent::Blue),
+		                    isShown(TextureEditorTab::ColorComponent::Alpha));
+
+		// One per frame: the one of the previous frame may still be in use by the GPU
+		FrameResources&   frameResources = Renderer::GetInstance()->GetCurrentFrameResources();
+		MaterialInstance* materialInstance = MaterialInstance::Create(_material);
+		materialInstance->SetTexture("image", texture);
+		materialInstance->SetTexture("checker", Editor::GetInstance()->GetCheckerTexture());
+		materialInstance->SetVec4("ubo.channelMask", channelMask);
+		materialInstance->SetVec2("ubo.checkerScale", Vector2(width / (4 * 8), height / (4 * 8))); // 16 pixels squares, whatever the zoom
+		frameResources.DeleteAfter(materialInstance);
+
+		RenderView* renderView = frameResources.CreateRenderView();
+		renderView->Init();
+		renderView->Prepare(_renderTarget, nullptr);
+
+		Rect viewport;
+		viewport._position.SetX(0);
+		viewport._position.SetY(0);
+		viewport._size.SetX((float)resolutionWidth);
+		viewport._size.SetY((float)resolutionHeight);
+
+		const Matrix4 projection = Matrix4::OrthogonalProjection(-(float)resolutionWidth * 0.5f, (float)resolutionWidth * 0.5f, -(float)resolutionHeight * 0.5f,
+		                                                         (float)resolutionHeight * 0.5f, -1024, 1024);
+		renderView->SetupCamera(projection, Matrix4::Identity, viewport);
+
+		RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
+			vertices.Data(), uvs.Data(), nullptr, (uint32_t)vertices.Size(), indices.Data(), (uint32_t)indices.Size(), Matrix4::Identity, materialInstance, 0, 0, true);
+		renderView->PushRenderCommand(renderMeshCommand);
+
+		ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
 
 		if (ImGui::GetIO().MouseWheel)
 		{
-			zoomFactor += ImGui::GetIO().MouseWheel * 0.05f;
-			GetOwner<TextureEditorTab>()->SetZoomFactor(zoomFactor);
+			textureEditorTab->SetZoomFactor(zoomFactor + ImGui::GetIO().MouseWheel * 0.05f);
 		}
 	}
 }

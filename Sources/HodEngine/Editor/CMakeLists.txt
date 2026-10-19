@@ -35,6 +35,23 @@ foreach(file ${FileTemplates})
 	list(APPEND Includes ${GeneratedFileH})
 endforeach()
 
+# The shaders of the editor itself (previews...), compiled for the graphics API of the RHI
+include(EmbedShader)
+file(GLOB_RECURSE ShaderSources "${PROJECT_SOURCE_DIR}/Shader/*.slang")
+get_target_property(SHADER_TARGET_API RHI HOD_RHI_BACKEND)
+set(GENERATED_SHADER_CPPS "")
+set(GENERATED_SHADER_HPPS "")
+EmbedShaders(ShaderSources ${SHADER_TARGET_API} Debug
+	${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/ShaderSourceFileTemplate.cpp.in
+	${PROJECT_SOURCE_DIR}/EmbedInSourceTemplate/ShaderSourceFileTemplate.hpp.in
+	${GENERATED_DIR}/Shader
+	${PROJECT_BINARY_DIR}/ShaderTmp
+	GENERATED_SHADER_CPPS
+	GENERATED_SHADER_HPPS
+)
+list(APPEND Srcs ${GENERATED_SHADER_CPPS})
+list(APPEND Includes ${GENERATED_SHADER_HPPS})
+
 assign_source_group(${Srcs}) # for VS
 set_source_files_properties(StbImplementation.cpp PROPERTIES SKIP_UNITY_BUILD_INCLUSION ON) #Build SingleFileHeader lib with Implementation define separatly
 
