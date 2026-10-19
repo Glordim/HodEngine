@@ -172,6 +172,14 @@ namespace hod::inline editor
 
 		const ImGuiIO& io = ImGui::GetIO();
 		Vector2        panOffset = textureEditorTab->GetPanOffset();
+
+		// Zoom changed out of the viewport since its last frame (slider of the menu bar): around the center of the view, not of the image
+		if (_drawnZoomFactor > 0.0f && textureEditorTab->GetZoomFactor() != _drawnZoomFactor)
+		{
+			const float zoomRatio = textureEditorTab->GetZoomFactor() / _drawnZoomFactor;
+			panOffset = Vector2(panOffset.GetX() * zoomRatio, panOffset.GetY() * zoomRatio);
+			textureEditorTab->SetPanOffset(panOffset);
+		}
 		if (ImGui::IsItemActive() && (ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.0f) || ImGui::IsMouseDragging(ImGuiMouseButton_Middle, 0.0f)))
 		{
 			panOffset = Vector2(panOffset.GetX() + io.MouseDelta.x, panOffset.GetY() + io.MouseDelta.y);
@@ -223,6 +231,7 @@ namespace hod::inline editor
 		}
 
 		const float zoomFactor = textureEditorTab->GetZoomFactor();
+		_drawnZoomFactor = zoomFactor;
 		const float width = texture->GetWidth() * zoomFactor;
 		const float height = texture->GetHeight() * zoomFactor;
 
