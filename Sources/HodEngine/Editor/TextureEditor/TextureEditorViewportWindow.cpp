@@ -180,14 +180,27 @@ namespace hod::inline editor
 
 		if (ImGui::IsItemHovered() && io.MouseWheel != 0.0f)
 		{
-			// Around the cursor: the texel under it stays under it
-			const float previousZoomFactor = textureEditorTab->GetZoomFactor();
-			textureEditorTab->SetZoomFactor(previousZoomFactor * std::pow(1.1f, io.MouseWheel)); // 10% of the current zoom per notch
-			const float zoomRatio = textureEditorTab->GetZoomFactor() / previousZoomFactor;
+			textureEditorTab->SetTargetZoomFactor(textureEditorTab->GetTargetZoomFactor() * std::pow(1.1f, io.MouseWheel)); // 10% of the zoom per notch
+			_zoomAnchor = io.MousePos - viewportPosition;
+		}
 
-			const ImVec2 imageCenter = viewportPosition + viewportSize * 0.5f + ImVec2(panOffset.GetX(), panOffset.GetY());
-			const ImVec2 cursorFromCenter = io.MousePos - imageCenter;
-			panOffset = Vector2(panOffset.GetX() + cursorFromCenter.x * (1.0f - zoomRatio), panOffset.GetY() + cursorFromCenter.y * (1.0f - zoomRatio));
+		// Eases towards the target zoom instead of snapping, like the UI editor, so each wheel notch feels smooth
+		const float previousZoomFactor = textureEditorTab->GetZoomFactor();
+		const float targetZoomFactor = textureEditorTab->GetTargetZoomFactor();
+		if (previousZoomFactor != targetZoomFactor)
+		{
+			float zoomFactor = previousZoomFactor + (targetZoomFactor - previousZoomFactor) * Min(1.0f, io.DeltaTime * 12.0f);
+			if (std::abs(targetZoomFactor - zoomFactor) < targetZoomFactor * 0.001f)
+			{
+				zoomFactor = targetZoomFactor;
+			}
+			textureEditorTab->SetZoomFactor(zoomFactor);
+
+			// Around the cursor of the wheel: the texel under it stays under it, all along
+			const float  zoomRatio = textureEditorTab->GetZoomFactor() / previousZoomFactor;
+			const ImVec2 imageCenter = viewportSize * 0.5f + ImVec2(panOffset.GetX(), panOffset.GetY());
+			const ImVec2 anchorFromCenter = _zoomAnchor - imageCenter;
+			panOffset = Vector2(panOffset.GetX() + anchorFromCenter.x * (1.0f - zoomRatio), panOffset.GetY() + anchorFromCenter.y * (1.0f - zoomRatio));
 			textureEditorTab->SetPanOffset(panOffset);
 		}
 
@@ -231,12 +244,12 @@ namespace hod::inline editor
 		materialInstance->SetTexture("image", texture);
 		materialInstance->SetTexture("checker", Editor::GetInstance()->GetCheckerTexture());
 		materialInstance->SetVec4("ubo.channelMask", channelMask);
-		materialInstance->SetVec2("ubo.checkerScale", Vector2(width / (4 * 8), height / (4 * 8))); // 16 pixels squares, whatever the zoom
 		materialInstance->SetVec2("ubo.textureSize", Vector2((float)texture->GetWidth(), (float)texture->GetHeight()));
 		materialInstance->SetFloat("ubo.pixelsPerTexel", zoomFactor);
 		// Texel grid: fades in between 6 and 12 pixels per texel, it would hide the texels if smaller
 		materialInstance->SetFloat("ubo.gridOpacity", Clamp((zoomFactor - 6.0f) / 6.0f, 0.0f, 1.0f));
-		frameResources.DeleteAfter(materialInstance);
+		// Checker squares aligned with the texels: the smallest power of two of texels at least 8 pixels wide, but 4 x 4 per texel at most
+		materialInstance->SetFloat("ubo.checkerTexels", Max(0.25f, std::exp2(std::ceil(std::log2(8.0f / zoomFactor)))));		frameResources.DeleteAfter(materialInstance);
 
 		RenderView* renderView = frameResources.CreateRenderView();
 		renderView->Init();

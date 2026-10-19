@@ -53,6 +53,8 @@ namespace hod::inline editor
 		// The texture is drawn into it by the TexturePreview shader (checker, channels), then shown by ImGui
 		RenderTarget*	_renderTarget = nullptr;
 
+		ImVec2			_zoomAnchor = ImVec2(0.0f, 0.0f); // where the cursor was at the last wheel notch, from the top left of the viewport: what the zoom is around
+
 		Shader*			_vertexShader = nullptr;
 		Shader*			_fragmentShader = nullptr;
 		Material*		_material = nullptr;

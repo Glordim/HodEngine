@@ -90,6 +90,20 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
+	float TextureEditorTab::GetTargetZoomFactor() const
+	{
+		return _targetZoomFactor;
+	}
+
+	/// @brief
+	/// @param zoomFactor
+	void TextureEditorTab::SetTargetZoomFactor(float zoomFactor)
+	{
+		_targetZoomFactor = Clamp(zoomFactor, MinZoomFactor, MaxZoomFactor);
+	}
+
+	/// @brief
+	/// @return
 	const Vector2& TextureEditorTab::GetPanOffset() const
 	{
 		return _panOffset;
@@ -297,7 +311,10 @@ namespace hod::inline editor
 
 		ImGui::SetNextItemWidth(160);
 		// Logarithmic: as precise around 10% as around 1000%, like the zoom of the mouse wheel
-		ImGui::SliderFloat("##Zoom", &_zoomFactor, MinZoomFactor, MaxZoomFactor, "", ImGuiSliderFlags_Logarithmic | ImGuiSliderFlags_AlwaysClamp);
+		if (ImGui::SliderFloat("##Zoom", &_zoomFactor, MinZoomFactor, MaxZoomFactor, "", ImGuiSliderFlags_Logarithmic | ImGuiSliderFlags_AlwaysClamp))
+		{
+			_targetZoomFactor = _zoomFactor; // Follows the slider at once, no easing
+		}
 		ImGui::SameLine(0.0f, 8.0f);
 		cursorPos = ImGui::GetCursorScreenPos();
 		ImGui::SetCursorScreenPos(cursorPos + ImVec2(0.0f, 6.0f));
@@ -308,10 +325,11 @@ namespace hod::inline editor
 		cursorPos.x += ImGui::CalcTextSize("6400%").x; // the widest (MaxZoomFactor)
 		ImGui::SetCursorScreenPos(cursorPos + ImVec2(0.0f, 2.0f));
 		// Resets the whole view: zoom and pan
-		ImGui::BeginDisabled(_zoomFactor == 1.0f && _panOffset.GetX() == 0.0f && _panOffset.GetY() == 0.0f);
+		ImGui::BeginDisabled(_zoomFactor == 1.0f && _targetZoomFactor == 1.0f && _panOffset.GetX() == 0.0f && _panOffset.GetY() == 0.0f);
 		if (ImGui::Button(ICON_MDI_UNDO, ImVec2(0, 28)) == true)
 		{
 			_zoomFactor = 1.0f;
+			_targetZoomFactor = 1.0f;
 			_panOffset = Vector2(0.0f, 0.0f);
 		}
 		ImGui::EndDisabled();

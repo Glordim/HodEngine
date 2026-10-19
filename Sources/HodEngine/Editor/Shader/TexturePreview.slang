@@ -33,10 +33,10 @@ VS_OUT VertexMain(VS_IN input)
 struct UBO
 {
 	float4 channelMask;  // 1 or 0 for R, G, B, A
-	float2 checkerScale; // checker tiles in the texture, on each axis
 	float2 textureSize;  // in texels
 	float  pixelsPerTexel;
 	float  gridOpacity; // of the lines between the texels, 0 for none
+	float  checkerTexels; // size of a square of the checker, in texels: a power of two, 1/4 at most (4 x 4 squares per texel)
 };
 
 struct Material
@@ -66,7 +66,9 @@ float4 FragmentMain(VS_OUT input) : SV_Target
 		color = float4(color.rgb * channelMask.rgb, lerp(1.0, color.a, channelMask.a));
 	}
 
-	float3 checker = material.checker.Sample(material.checkerSampler, input.uv * material.ubo.checkerScale).rgb;
+	// In texels: aligned with the grid, it zooms with the image. A square is a power of two of texels, or of a texel divided
+	// (down to 4 x 4 per texel), so that a translucent texel still shows the checker through it (2 x 2 texels checker texture, repeated)
+	float3 checker = material.checker.Sample(material.checkerSampler, input.uv * material.ubo.textureSize / (2.0 * material.ubo.checkerTexels)).rgb;
 	float3 result = lerp(checker, color.rgb, color.a);
 
 	// Texel grid: a two-tone line on each edge between texels, a dark pixel on the first pixel of the texel and a light one on the last pixel of the previous texel.

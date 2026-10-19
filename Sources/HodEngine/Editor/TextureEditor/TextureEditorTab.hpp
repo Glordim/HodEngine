@@ -33,7 +33,9 @@ namespace hod::inline editor
 
 		std::shared_ptr<TextureResource>	GetTexture() const;
 		float								GetZoomFactor() const;
-		void								SetZoomFactor(float zoomFactor);
+		void								SetZoomFactor(float zoomFactor); // the one shown, the target is left as is
+		float								GetTargetZoomFactor() const;
+		void								SetTargetZoomFactor(float zoomFactor); // the one the zoom shown eases towards (mouse wheel)
 		const Vector2&						GetPanOffset() const;
 		void								SetPanOffset(const Vector2& panOffset);
 		uint8_t								GetColorComponentMask() const { return _colorComponentMask; }
@@ -58,6 +60,7 @@ namespace hod::inline editor
 		static constexpr float MaxZoomFactor = 64.0f; // texels big enough to tell them apart
 
 		float _zoomFactor = 1.0f;
+		float _targetZoomFactor = 1.0f;
 		Vector2 _panOffset = Vector2(0.0f, 0.0f); // in pixels of the viewport, from the image centered in it (Y down)
 
 		TextureSettings _textureSettings;
