@@ -135,8 +135,8 @@ namespace hod::inline renderer
 			value = Renderer::GetInstance()->GetWhiteTexture();
 		}
 
-		SetTextureSlot(memberName, value, value->GetDefaultSampler());
-		SetTextureSlot(memberName + "Sampler", value, value->GetDefaultSampler());
+		SetTextureSlot(memberName, value, value->GetDefaultSampler(), true);
+		SetTextureSlot(memberName + "Sampler", value, value->GetDefaultSampler(), true);
 	}
 
 	/// @brief
@@ -150,14 +150,25 @@ namespace hod::inline renderer
 			return;
 		}
 
-		SetTextureSlot(memberName, _sets[location._set]._textures[location._block]._texture, value);
+		TextureSlot&   slot = _sets[location._set]._textures[location._block];
+		const Texture* texture = slot._texture;
+		if (value == nullptr) // Back to the default one of the texture
+		{
+			slot._defaultSampler = true; // Not kept by SetTextureSlot as one set by SetSampler
+			SetTextureSlot(memberName, texture, texture != nullptr ? texture->GetDefaultSampler() : nullptr, true);
+		}
+		else
+		{
+			SetTextureSlot(memberName, texture, value, false);
+		}
 	}
 
 	/// @brief
 	/// @param name
 	/// @param texture
 	/// @param sampler
-	void MaterialInstance::SetTextureSlot(const String& name, const Texture* texture, const Sampler* sampler)
+	/// @param defaultSampler sampler is the default one of texture, to follow. Ignored if the slot has a sampler set by SetSampler, which is kept
+	void MaterialInstance::SetTextureSlot(const String& name, const Texture* texture, const Sampler* sampler, bool defaultSampler)
 	{
 		Material::TextureLocation location;
 		if (_material.FindTexture(name, location) == false)
@@ -167,6 +178,12 @@ namespace hod::inline renderer
 
 		Set&         set = _sets[location._set];
 		TextureSlot& slot = set._textures[location._block];
+		if (defaultSampler && slot._set && slot._defaultSampler == false)
+		{
+			sampler = slot._sampler;
+			defaultSampler = false;
+		}
+
 		if (slot._set == false || slot._texture != texture || slot._sampler != sampler)
 		{
 			slot._texture = texture;
@@ -176,6 +193,7 @@ namespace hod::inline renderer
 			// A BindGroup is immutable: the ones made with the previous texture or sampler are of no use anymore
 			ReleaseBindGroups(set);
 		}
+		slot._defaultSampler = defaultSampler;
 	}
 
 	/// @brief
@@ -204,6 +222,16 @@ namespace hod::inline renderer
 			if (set._uniformBlocks.Empty() && set._textures.Empty())
 			{
 				continue;
+			}
+
+			// The default sampler of a texture was replaced (live edit of its settings): the BindGroups were made with the previous one
+			for (const TextureSlot& slot : set._textures)
+			{
+				if (slot._defaultSampler && slot._texture != nullptr && slot._sampler != slot._texture->GetDefaultSampler())
+				{
+					slot._sampler = slot._texture->GetDefaultSampler();
+					ReleaseBindGroups(set);
+				}
 			}
 
 			// This frame gets its own copy of the values

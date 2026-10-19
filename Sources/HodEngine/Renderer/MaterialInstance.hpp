@@ -52,10 +52,11 @@ namespace hod::inline renderer
 		void SetMat4(const String& memberName, const Matrix4& value);
 
 		// A null (or not yet built) texture draws as a white one.
-		// The sampler declared as "<memberName>Sampler", if any, is set to the default one of the texture.
+		// The sampler declared as "<memberName>Sampler", if any, is set to the default one of the texture, and follows it when it changes.
 		void SetTexture(const String& memberName, const rhi::Texture* value);
 
-		// memberName: a sampler of the material, like "imageSampler". Call it after SetTexture, which sets that sampler too.
+		// memberName: a sampler of the material, like "imageSampler". Kept by the next SetTexture calls.
+		// nullptr: back to the default sampler of the texture.
 		void SetSampler(const String& memberName, const Sampler* value);
 
 		// Binds the pipeline of the material and the sets [setOffset, setOffset + setCount) with the current values
@@ -66,9 +67,10 @@ namespace hod::inline renderer
 
 		struct TextureSlot
 		{
-			const rhi::Texture* _texture = nullptr;
-			const Sampler*      _sampler = nullptr;
-			bool                _set = false; // SetTexture or SetSampler was called for it
+			const rhi::Texture*    _texture = nullptr;
+			mutable const Sampler* _sampler = nullptr;
+			bool                   _set = false;            // SetTexture or SetSampler was called for it
+			bool                   _defaultSampler = false; // not set by SetSampler: _sampler follows the default one of _texture (live edit of its settings)
 		};
 
 		// The BindGroup made for a given list of uniform buffers: one per uniform buffer page the set was uploaded to
@@ -88,7 +90,7 @@ namespace hod::inline renderer
 
 	private:
 		void SetUniform(const String& path, const void* value, uint32_t size);
-		void SetTextureSlot(const String& name, const rhi::Texture* texture, const Sampler* sampler);
+		void SetTextureSlot(const String& name, const rhi::Texture* texture, const Sampler* sampler, bool defaultSampler);
 
 		BindGroup* GetBindGroup(uint32_t setIndex, Buffer* const* uniformBuffers, uint32_t uniformBufferCount) const;
 		void       ReleaseBindGroups(const Set& set) const;

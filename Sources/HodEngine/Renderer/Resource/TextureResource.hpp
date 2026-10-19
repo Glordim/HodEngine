@@ -28,6 +28,10 @@ namespace hod::inline renderer
 
 		rhi::Texture*		GetTexture() const;
 
+		// Replaces the default sampler of the texture, for its settings to be edited live.
+		// The MaterialInstances it was set to (SetTexture) follow it.
+		void				SetSamplerStates(FilterMode filterMode, WrapMode wrapMode);
+
 	public:
 
 		uint16_t					_width = 0;

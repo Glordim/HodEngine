@@ -36,6 +36,7 @@ namespace hod::inline editor
 		uint8_t								GetColorComponentMask() const { return _colorComponentMask; }
 
 		TextureSettings&					GetTextureSettings() { return _textureSettings; }
+		void								ApplySamplerStates();
 
 	protected:
 
@@ -53,6 +54,7 @@ namespace hod::inline editor
 		float _zoomFactor = 1.0f;
 
 		TextureSettings _textureSettings;
+		TextureSettings _savedSettings; // what the resource is reverted to if the tab is closed with unsaved live edits
 
 		std::shared_ptr<TextureResource>	_texture;
 	};

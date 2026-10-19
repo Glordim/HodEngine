@@ -438,6 +438,45 @@ TEST_F(MaterialRender, SamplerCanBeSetApartFromTheTexture)
 	EXPECT_TRUE(IsBlended(ReadPixel(0.53f, 0.06f)));
 }
 
+// The sampler set by SetSampler is kept by the next SetTexture, until SetSampler(nullptr) goes back to the default one of the texture
+TEST_F(MaterialRender, SamplerSetApartIsKeptBySetTexture)
+{
+	Sampler::CreateInfo linear;
+	linear._filterMode = FilterMode::Linear;
+
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+	materialInstance->SetVec4("ubo.color", ToVector4(White));
+	materialInstance->SetSampler("imageSampler", RhiDevice::GetInstance()->GetSampler(linear));
+	materialInstance->SetTexture("image", CreateFourColorsTexture()); // its default sampler is a nearest one
+
+	RenderFrame([&]() { DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f, materialInstance); });
+	EXPECT_TRUE(IsBlended(ReadPixel(0.06f, 0.12f)));
+
+	materialInstance->SetSampler("imageSampler", nullptr);
+	RenderFrame([&]() { DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f, materialInstance); });
+	EXPECT_TRUE(ColorNear(ReadPixel(0.06f, 0.12f), Yellow));
+}
+
+// The default sampler of a texture replaced after SetTexture (live edit of its settings) is the one drawn with
+TEST_F(MaterialRender, DefaultSamplerChangedAfterSetTextureIsFollowed)
+{
+	Sampler::CreateInfo linear;
+	linear._filterMode = FilterMode::Linear;
+
+	Texture* texture = CreateFourColorsTexture(); // its default sampler is a nearest one
+
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+	materialInstance->SetVec4("ubo.color", ToVector4(White));
+	materialInstance->SetTexture("image", texture);
+
+	RenderFrame([&]() { DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f, materialInstance); });
+	EXPECT_TRUE(ColorNear(ReadPixel(0.06f, 0.12f), Yellow));
+
+	texture->SetDefaultSampler(RhiDevice::GetInstance()->GetSampler(linear));
+	RenderFrame([&]() { DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f, materialInstance); });
+	EXPECT_TRUE(IsBlended(ReadPixel(0.06f, 0.12f)));
+}
+
 TEST_F(MaterialRender, TextureChangedBetweenFramesIsSeenByTheNextFrame)
 {
 	const uint8_t bluePixels[4 * 2 * 2] = {0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255};

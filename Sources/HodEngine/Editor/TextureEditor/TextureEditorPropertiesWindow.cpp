@@ -86,6 +86,7 @@ namespace hod::inline editor
 
 		if (changed)
 		{
+			GetOwner<TextureEditorTab>()->ApplySamplerStates();
 			GetOwner()->MarkAsDirty();
 		}
 	}

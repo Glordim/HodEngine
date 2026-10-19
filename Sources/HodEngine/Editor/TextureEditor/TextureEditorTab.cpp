@@ -42,12 +42,29 @@ namespace hod::inline editor
 			}
 
 			_texture = ResourceManager::GetInstance()->GetResource<TextureResource>(asset->GetUid());
+			ApplySamplerStates();
+
+			_savedSettings = _textureSettings;
 		}
 	}
 
-	/// @brief 
+	/// @brief Reverts the resource, shared with whatever uses it, to what is saved: the live edits are not
 	TextureEditorTab::~TextureEditorTab()
 	{
+		if (_texture != nullptr && IsDirty())
+		{
+			_textureSettings = _savedSettings;
+			ApplySamplerStates();
+		}
+	}
+
+	/// @brief The texture is sampled with the settings being edited, wherever it is used
+	void TextureEditorTab::ApplySamplerStates()
+	{
+		if (_texture != nullptr)
+		{
+			_texture->SetSamplerStates(_textureSettings._filterMode, _textureSettings._wrapMode);
+		}
 	}
 
 	/// @brief 
@@ -129,6 +146,7 @@ namespace hod::inline editor
 		// Show the thumbnail the way the texture will be sampled (e.g. sharp pixel art)
 		_assetContainer.SetThumbnailFilterMode(_textureSettings._filterMode);
 
+		_savedSettings = _textureSettings;
 		return true;
 	}
 
