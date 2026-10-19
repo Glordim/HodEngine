@@ -1,0 +1,28 @@
+{
+	"C_Cpp.default.configurationProvider": "ms-vscode.cmake-tools",
+	"C_Cpp.autoAddFileAssociations": false,
+	"cmake.copyCompileCommands": "${workspaceFolder}/build/compile_commands.json",
+
+	// No web tooling in this project, skip task auto-detection
+	"typescript.tsc.autoDetect": "off",
+	"npm.autoDetect": "off",
+	"grunt.autoDetect": "off",
+	"gulp.autoDetect": "off",
+	"jake.autoDetect": "off",
+
+	// Keep the explorer and search results clean
+	"files.exclude": {
+		".cache": true
+	},
+	"search.exclude": {
+		"build": true,
+		"ThirdParty": true,
+		"Externals": true
+	},
+
+	// Don't watch build outputs (lots of churn during builds)
+	"files.watcherExclude": {
+		"build/*/**": true,
+		".cache": true
+	}
+}

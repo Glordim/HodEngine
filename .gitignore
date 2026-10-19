@@ -2,7 +2,6 @@ build_*/
 build/
 
 .vs/
-.vscode/settings.json
 .cache/
 .DS_Store
 
