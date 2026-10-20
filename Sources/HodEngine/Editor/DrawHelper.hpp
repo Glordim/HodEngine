@@ -1,6 +1,11 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
+namespace hod::inline core
+{
+    class ReflectionDescriptor;
+}
+
 namespace hod::inline math
 {
     class Vector2;
@@ -52,5 +57,8 @@ namespace hod::inline editor
 
         static bool				BeginInspectorBlock(const void* id, const char* icon, const char* title, bool* enabled = nullptr, bool* removeRequested = nullptr);
         static void				EndInspectorBlock();
+
+        /// @brief Icon of a reflected type: its ReflectionTraitIcon (possibly inherited from a parent type), or fallback when it has none.
+        static const char*		GetTypeIcon(const ReflectionDescriptor& descriptor, const char* fallback = "");
     };
 }

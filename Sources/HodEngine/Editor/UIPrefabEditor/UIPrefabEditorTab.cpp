@@ -13,6 +13,7 @@
 
 #include <HodEngine/UI2/AnchoredLayoutParams.hpp>
 #include <HodEngine/UI2/Node.hpp>
+#include <HodEngine/UI2/NodeFactory.hpp>
 
 #include <HodEngine/Core/Memory/DefaultAllocator.hpp>
 
@@ -121,6 +122,40 @@ namespace hod::inline editor
 	void UIPrefabEditorTab::SetSelectedNode(ui2::Node* node)
 	{
 		_selectedNode = node;
+		_canvasSelected = false;
+	}
+
+	/// @brief
+	/// @return
+	bool UIPrefabEditorTab::IsCanvasSelected() const
+	{
+		return _canvasSelected;
+	}
+
+	/// @brief
+	void UIPrefabEditorTab::SelectCanvas()
+	{
+		_selectedNode = nullptr;
+		_canvasSelected = true;
+	}
+
+	/// @brief
+	/// @param node
+	/// @param nodeDescriptor
+	/// @return
+	ui2::Node* UIPrefabEditorTab::ConvertNode(ui2::Node* node, const ReflectionDescriptor& nodeDescriptor)
+	{
+		ui2::Node* newNode = ui2::NodeFactory::GetInstance()->CreateNode(nodeDescriptor);
+		node->ReplaceWith(newNode);
+
+		if (_selectedNode == node)
+		{
+			_selectedNode = newNode;
+		}
+
+		DefaultAllocator::GetInstance().Delete(node);
+		MarkAsDirty();
+		return newNode;
 	}
 
 	/// @brief

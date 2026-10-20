@@ -3,12 +3,14 @@
 #include "HodEngine/UI2/DrawContext.hpp"
 
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp>
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 namespace hod::inline ui2
 {
 	DESCRIBE_REFLECTED_CLASS(MaskNode, reflectionDescriptor)
 	{
-		(void)reflectionDescriptor;
+		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_CROP_FREE);
 	}
 
 	/// @brief

@@ -4,6 +4,11 @@
 
 #include <HodEngine/UI2/Canvas.hpp>
 
+namespace hod::inline core
+{
+	class ReflectionDescriptor;
+}
+
 namespace hod::inline ui2
 {
 	class Node;
@@ -30,6 +35,17 @@ namespace hod::inline editor
 		ui2::Node*		GetSelectedNode() const;
 		void			SetSelectedNode(ui2::Node* node);
 
+		// The canvas itself (its settings, e.g. the scaler) as the selection, shown as the hierarchy's top
+		// item. Exclusive with a selected node: selecting either one deselects the other.
+		bool			IsCanvasSelected() const;
+		void			SelectCanvas();
+
+		// Replaces node by a new node of the type nodeDescriptor describes (see ui2::Node::ReplaceWith),
+		// keeps it selected if it was, and deletes node: callers must not be drawing node (or iterating
+		// its children) anymore, i.e. defer the call to after their drawing pass.
+		// @return the new node
+		ui2::Node*		ConvertNode(ui2::Node* node, const ReflectionDescriptor& nodeDescriptor);
+
 	protected:
 
 		void	CreateDefaultLayout() override;
@@ -51,6 +67,7 @@ namespace hod::inline editor
 
 		ui2::Canvas	_canvas;
 		ui2::Node*	_selectedNode = nullptr;
+		bool		_canvasSelected = false;
 
 		// Counter the nodes' local ids are taken from (see ui2::Node::GetLocalId). Persisted next to the
 		// nodes in the asset's document: it belongs to the authored prefab, not to the canvas.

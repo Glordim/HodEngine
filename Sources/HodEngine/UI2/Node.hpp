@@ -128,6 +128,13 @@ namespace hod::inline ui2
 		// AddChild, which would destroy them), converted if newParent expects another type.
 		void						ReparentChild(Node* child, Node* newParent);
 
+		// Puts replacement (a freshly created node of any Node type, parentless and childless) in this
+		// node's place: it takes this node's base Node properties (name, local id — so references to the
+		// node still resolve —, transform, desired size, z-order), its Layout, its children, its LayoutParams
+		// and its place among its siblings. Properties specific to this node's own type are not carried over.
+		// This node is left detached and empty, for the caller to delete.
+		void						ReplaceWith(Node* replacement);
+
 		// Whether ancestor is this node's parent, or the parent of its parent, and so on.
 		bool						IsDescendantOf(const Node* ancestor) const;
 		Node*						GetParent() const;

@@ -3,10 +3,7 @@
 
 #include "HodEngine/Game/Components/RendererComponent.hpp"
 
-namespace hod::inline ui2
-{
-	class Canvas;
-}
+#include <HodEngine/UI2/Canvas.hpp>
 
 namespace hod::inline game
 {
@@ -28,15 +25,21 @@ namespace hod::inline game
 		void	OnConstruct() override;
 		void	OnDestruct() override;
 
-		// In game (playing, not paused) the canvas is drawn on the UI queue, scaled to fit the screen;
+		// In game (playing, not paused) the canvas is drawn on the UI queue, laid out and scaled for the screen per _scaler;
 		// otherwise (editor scene view) it is drawn in the world, 1 canvas unit = 0.01 world unit, like
 		// the previous UI system did.
 		void	PushRenderCommand(RenderView& renderView) override;
 		Rect	GetBoundingBox() const override;
 
+		// How the canvas adapts to the screen (design resolution, scale mode), applied to the canvas.
+		const ui2::CanvasScaler&	GetScaler() const;
+		void						SetScaler(const ui2::CanvasScaler& scaler);
+
 	private:
 
 		//WeakResource<UIPrefabResource>	_canvas;
-		ui2::Canvas* _canvas;
+		ui2::Canvas* _canvas = nullptr;
+
+		ui2::CanvasScaler	_scaler;
 	};
 }

@@ -1,6 +1,8 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
 
+#include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp"
 #include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Math/Vector4.hpp"
 
@@ -344,5 +346,15 @@ namespace hod::inline editor
 		ImGui::Dummy(ImVec2(0, 0)); // todo
 		ImGui::EndChild();
 		ImGui::PopID();
+	}
+
+	/// @brief
+	/// @param descriptor
+	/// @param fallback
+	/// @return
+	const char* DrawHelper::GetTypeIcon(const ReflectionDescriptor& descriptor, const char* fallback)
+	{
+		ReflectionTraitIcon* iconTrait = descriptor.FindTrait<ReflectionTraitIcon>();
+		return iconTrait != nullptr ? iconTrait->GetValue().CStr() : fallback;
 	}
 }

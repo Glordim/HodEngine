@@ -35,8 +35,31 @@ namespace hod::inline editor
 		_revealSelection = (selection != nullptr && selection != _lastSelectedNode);
 		_lastSelectedNode = selection;
 
-		// The canvas' own root node is only the hidden container of the prefab root, not part of the prefab.
-		DrawNode(tab->GetPrefabRoot());
+		// The canvas stands at the top, greyed out (not a node of the prefab: it cannot be moved, deleted or
+		// given children), so its settings are selected like any other item. The canvas' own root node is
+		// only the hidden container of the prefab root, it is never shown.
+		ImGuiTreeNodeFlags canvasFlags = ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_DefaultOpen;
+		if (tab->IsCanvasSelected())
+		{
+			canvasFlags |= ImGuiTreeNodeFlags_Selected;
+		}
+		if (_revealSelection)
+		{
+			ImGui::SetNextItemOpen(true);
+		}
+		ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+		bool canvasOpened = ImGui::TreeNodeEx("##Canvas", canvasFlags, ICON_MDI_MONITOR_SCREENSHOT " Canvas");
+		ImGui::PopStyleColor();
+		if (ImGui::IsItemClicked() && ImGui::IsItemToggledOpen() == false)
+		{
+			tab->SelectCanvas();
+		}
+
+		if (canvasOpened)
+		{
+			DrawNode(tab->GetPrefabRoot());
+			ImGui::TreePop();
+		}
 
 		if (_pendingReparentNode != nullptr)
 		{
@@ -44,6 +67,13 @@ namespace hod::inline editor
 			_pendingReparentNode = nullptr;
 			_pendingReparentParent = nullptr;
 			tab->MarkAsDirty();
+		}
+
+		if (_pendingConvertNode != nullptr)
+		{
+			tab->ConvertNode(_pendingConvertNode, *_pendingConvertDescriptor);
+			_pendingConvertNode = nullptr;
+			_pendingConvertDescriptor = nullptr;
 		}
 	}
 
@@ -153,6 +183,20 @@ namespace hod::inline editor
 			{
 				node->AddChild(ui2::NodeFactory::GetInstance()->CreateNode(ui2::Node::GetReflectionDescriptor()));
 				tab->MarkAsDirty();
+			}
+			if (ImGui::BeginMenu(ICON_MDI_SWAP_HORIZONTAL " Convert To"))
+			{
+				uint64_t currentType = node->GetReflectionDescriptorV().GetType();
+				for (const auto& descriptorPair : ui2::NodeFactory::GetInstance()->GetAllDescriptors())
+				{
+					bool isCurrent = (descriptorPair.second->GetType() == currentType);
+					if (ImGui::MenuItem(descriptorPair.second->GetDisplayName().CStr(), nullptr, isCurrent, isCurrent == false))
+					{
+						_pendingConvertNode = node;
+						_pendingConvertDescriptor = descriptorPair.second;
+					}
+				}
+				ImGui::EndMenu();
 			}
 			if (node != tab->GetPrefabRoot() && ImGui::MenuItem(ICON_MDI_DELETE " Delete"))
 			{

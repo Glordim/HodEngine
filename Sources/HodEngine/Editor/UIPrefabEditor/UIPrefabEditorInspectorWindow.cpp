@@ -15,6 +15,7 @@
 #include <HodEngine/UI2/LayoutParams.hpp>
 #include <HodEngine/UI2/Layout.hpp>
 #include <HodEngine/UI2/LayoutFactory.hpp>
+#include <HodEngine/UI2/NodeFactory.hpp>
 
 namespace hod::inline editor
 {
@@ -39,6 +40,7 @@ namespace hod::inline editor
 			BlockNode = 1,
 			BlockLayout,
 			BlockLayoutParams,
+			BlockCanvas,
 		};
 	}
 
@@ -47,18 +49,43 @@ namespace hod::inline editor
 	{
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
 		ui2::Node*         node = tab->GetSelectedNode();
+		if (tab->IsCanvasSelected())
+		{
+			if (DrawCanvasBlock(tab->GetCanvas()))
+			{
+				GetOwner()->MarkAsDirty();
+			}
+			return;
+		}
 		if (node == nullptr)
 		{
 			ImGui::TextDisabled("No node selected");
 			return;
 		}
 
-		bool changed = false;
+		bool                        changed = false;
+		const ReflectionDescriptor* convertDescriptor = nullptr;
 
 		// Same compartmentalization as the scene inspector's components: one block per concern.
 		// 1. The node itself
 		if (DrawHelper::BeginInspectorBlock((const void*)BlockNode, ICON_MDI_VECTOR_SQUARE, "Node"))
 		{
+			// Picking another type converts the node (see UIPrefabEditorTab::ConvertNode); picking the current one is a no-op.
+			ReflectionDescriptor& currentDescriptor = node->GetReflectionDescriptorV();
+			ImGui::SetNextItemWidth(-1.0f);
+			if (ImGui::BeginCombo("##NodeType", currentDescriptor.GetDisplayName().CStr()))
+			{
+				for (const auto& descriptorPair : ui2::NodeFactory::GetInstance()->GetAllDescriptors())
+				{
+					bool isCurrent = (descriptorPair.second->GetType() == currentDescriptor.GetType());
+					if (ImGui::Selectable(descriptorPair.second->GetDisplayName().CStr(), isCurrent) && isCurrent == false)
+					{
+						convertDescriptor = descriptorPair.second;
+					}
+				}
+				ImGui::EndCombo();
+			}
+
 			EditorReflectedObject nodeObject(node, &node->GetReflectionDescriptorV(), nullptr, this);
 			changed |= PropertyDrawer::DrawDescriptor(nodeObject);
 
@@ -108,6 +135,34 @@ namespace hod::inline editor
 		{
 			GetOwner()->MarkAsDirty();
 		}
+
+		// Last: the conversion deletes the node everything above was drawing.
+		if (convertDescriptor != nullptr)
+		{
+			tab->ConvertNode(node, *convertDescriptor);
+		}
+	}
+
+	/// @brief The canvas' scaler: design resolution and how it adapts to the display's ratio.
+	/// @return true if the scaler was edited
+	bool UIPrefabEditorInspectorWindow::DrawCanvasBlock(ui2::Canvas& canvas)
+	{
+		bool changed = false;
+
+		if (DrawHelper::BeginInspectorBlock((const void*)BlockCanvas, ICON_MDI_MONITOR_SCREENSHOT, "Canvas Scaler"))
+		{
+			_canvasScaler = canvas.GetScaler();
+
+			EditorReflectedObject scalerObject(&_canvasScaler, &ui2::CanvasScaler::GetReflectionDescriptor(), nullptr, this);
+			if (PropertyDrawer::DrawDescriptor(scalerObject))
+			{
+				canvas.SetScaler(_canvasScaler);
+				changed = true;
+			}
+		}
+		DrawHelper::EndInspectorBlock();
+
+		return changed;
 	}
 
 	/// @brief Layout attached to `node` (how its own children are arranged). Shown as a block when

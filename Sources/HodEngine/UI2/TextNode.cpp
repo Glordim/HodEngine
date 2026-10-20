@@ -3,6 +3,8 @@
 #include "HodEngine/UI2/DrawContext.hpp"
 
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp>
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/Math/Vector4.hpp>
 #include <HodEngine/Renderer/Font/Font.hpp>
 #include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
@@ -26,6 +28,8 @@ namespace hod::inline ui2
 
 	DESCRIBE_REFLECTED_CLASS(TextNode, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_FORMAT_TEXT);
+
 		AddPropertyT(reflectionDescriptor, &TextNode::_font, "Font", &TextNode::SetFont);
 		AddPropertyT(reflectionDescriptor, &TextNode::_value, "Value", &TextNode::SetValue);
 		AddPropertyT(reflectionDescriptor, &TextNode::_alignment, "Alignment", &TextNode::SetAlignment);

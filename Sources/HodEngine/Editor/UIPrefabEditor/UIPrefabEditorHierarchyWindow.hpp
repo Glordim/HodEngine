@@ -42,5 +42,9 @@ namespace hod::inline editor
 		// in place would modify a children list DrawNode() is iterating over.
 		ui2::Node*	_pendingReparentNode = nullptr;
 		ui2::Node*	_pendingReparentParent = nullptr;
+
+		// "Convert To" requested from the context menu, applied after the tree has been drawn for the same reason.
+		ui2::Node*						_pendingConvertNode = nullptr;
+		const ReflectionDescriptor*		_pendingConvertDescriptor = nullptr;
 	};
 }

@@ -13,7 +13,9 @@
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 #include <algorithm>
 
@@ -21,6 +23,8 @@ namespace hod::inline ui2
 {
 	DESCRIBE_REFLECTED_CLASS(Node, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_VECTOR_SQUARE);
+
 		// Serialized like any property, but never edited by hand: hidden from the inspector (same as the ECS' _localId).
 		AddPropertyT(reflectionDescriptor, &Node::_localId, "_localId")->AddTrait<ReflectionTraitHide>();
 
@@ -195,6 +199,60 @@ namespace hod::inline ui2
 		MarkMeasureAsDirty();
 
 		newParent->AddChild(child, layoutParams);
+	}
+
+	void Node::ReplaceWith(Node* replacement)
+	{
+		Assert(replacement != nullptr && replacement != this);
+		Assert(replacement->_parent == nullptr && replacement->_children.Empty());
+
+		replacement->_name = _name;
+		replacement->_localId = _localId;
+		replacement->_zOrder = _zOrder;
+		replacement->_rotation = _rotation;
+		replacement->_scale = _scale;
+		replacement->_origin = _origin;
+		replacement->_desiredSize = _desiredSize;
+
+		// Moved as is rather than through SetLayout: the children's LayoutParams already are of the type it expects.
+		DefaultAllocator::GetInstance().Delete(replacement->_layout);
+		replacement->_layout = _layout;
+		if (_layout != nullptr)
+		{
+			_layout->_node = replacement;
+			_layout = nullptr;
+		}
+
+		replacement->_children = std::move(_children);
+		_children.Clear();
+		for (Node* child : replacement->_children)
+		{
+			child->_parent = replacement;
+		}
+
+		if (_parent != nullptr)
+		{
+			auto it = std::find(_parent->_children.Begin(), _parent->_children.End(), this);
+			Assert(it != _parent->_children.End());
+			*it = replacement;
+
+			replacement->_parent = _parent;
+			replacement->_layoutParams = _layoutParams;
+			if (_layoutParams != nullptr)
+			{
+				_layoutParams->_node = replacement;
+			}
+
+			_parent = nullptr;
+			_layoutParams = nullptr;
+		}
+
+		// Same as AddChild: the fresh replacement already starts dirty, so its own call would not reach the parent.
+		replacement->MarkMeasureAsDirty();
+		if (replacement->_parent != nullptr)
+		{
+			replacement->_parent->MarkMeasureAsDirty();
+		}
 	}
 
 	bool Node::IsDescendantOf(const Node* ancestor) const
@@ -463,7 +521,10 @@ namespace hod::inline ui2
 	/// @param finalRect
 	void Node::Arrange(const Rect& finalRect)
 	{
-		if (NeedsArrange() == false)
+		// A granted rect that moved is arranged again even when nothing is dirty: e.g. a node anchored on
+		// a single point (not DependsOnParentSize) moves when its parent is resized.
+		bool rectChanged = finalRect._size != _size || finalRect._position + finalRect._size * 0.5f != _position;
+		if (NeedsArrange() == false && rectChanged == false)
 		{
 			return;
 		}
