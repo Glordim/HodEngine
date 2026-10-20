@@ -96,6 +96,20 @@ namespace hod::inline renderer
 	}
 
 	/// @brief
+	/// @param clearColor
+	void RenderView::SetClearColor(const Color& clearColor)
+	{
+		_clearColor = clearColor;
+	}
+
+	/// @brief
+	/// @return
+	const Color& RenderView::GetClearColor() const
+	{
+		return _clearColor;
+	}
+
+	/// @brief
 	/// @param renderCommand
 	void RenderView::PushRenderCommand(RenderCommand* renderCommand, RenderQueueType renderQueueType)
 	{
@@ -148,7 +162,7 @@ namespace hod::inline renderer
 			{
 				//_renderTarget->PrepareForWrite(commandBuffer);
 			}
-			commandBuffer->StartRenderPass(_renderTarget, _presentationSurface);
+			commandBuffer->StartRenderPass(_renderTarget, _presentationSurface, _clearColor);
 
 			commandBuffer->SetViewport(_viewport);
 

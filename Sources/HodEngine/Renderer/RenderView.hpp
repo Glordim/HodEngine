@@ -4,6 +4,7 @@
 #include "HodEngine/Renderer/RenderQueue/UIRenderQueue.hpp"
 #include "HodEngine/Renderer/RenderQueue/WorldRenderQueue.hpp"
 
+#include "HodEngine/Math/Color.hpp"
 #include "HodEngine/Math/Matrix4.hpp"
 #include "HodEngine/Math/Rect.hpp"
 
@@ -62,6 +63,10 @@ namespace hod::inline renderer
 		const Matrix4& GetProjectionMatrix() const;
 		const Rect&    GetViewport() const;
 
+		// Color the target is cleared to before drawing (e.g. transparent for an offscreen capture)
+		void           SetClearColor(const Color& clearColor);
+		const Color&   GetClearColor() const;
+
 		void PushRenderCommand(RenderCommand* renderCommand, RenderQueueType renderQueueType = RenderQueueType::World);
 		void Execute(Semaphore* previous = nullptr);
 		void Wait();
@@ -89,6 +94,7 @@ namespace hod::inline renderer
 		Matrix4 _projection;
 		Matrix4 _view;
 		Rect    _viewport;
+		Color   _clearColor = Color(0.1f, 0.1f, 0.1f, 1.0f);
 
 		Vector<MaterialInstance*> _materialInstancesToDelete;
 		bool                      _autoDestroy = true;

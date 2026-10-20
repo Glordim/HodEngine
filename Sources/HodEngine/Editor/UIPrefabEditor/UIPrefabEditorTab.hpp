@@ -68,6 +68,8 @@ namespace hod::inline editor
 		// placement.
 		void	EnsurePrefabRoot();
 
+		void	GenerateThumbnail();
+
 	private:
 
 		ui2::Canvas	_canvas;
