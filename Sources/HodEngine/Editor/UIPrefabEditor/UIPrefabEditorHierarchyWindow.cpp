@@ -36,6 +36,13 @@ namespace hod::inline editor
 		_revealSelection = (selection != nullptr && selection != _lastSelectedNode);
 		_lastSelectedNode = selection;
 
+		// F2 renames the selected node, as in the explorer.
+		if (ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGuiKey_F2) && ImGui::GetIO().WantTextInput == false && selection != nullptr && _renamedNode == nullptr)
+		{
+			StartRename(selection);
+		}
+		_renameSubmitted = false;
+
 		// The canvas stands at the top, greyed out (not a node of the prefab: it cannot be moved, deleted or
 		// given children), so its settings are selected like any other item. The canvas' own root node is
 		// only the hidden container of the prefab root, it is never shown.
@@ -62,6 +69,14 @@ namespace hod::inline editor
 			ImGui::TreePop();
 		}
 
+		// The rename field was not drawn this frame (a parent got collapsed...): it can't lose the focus anymore, so
+		// validate it now. Unless the rename has just been started and its field is yet to be drawn.
+		if (_renamedNode != nullptr && _renameSubmitted == false && _renameFocus == false)
+		{
+			ApplyRename();
+			_renamedNode = nullptr;
+		}
+
 		if (_pendingReparentNode != nullptr)
 		{
 			_pendingReparentNode->GetParent()->ReparentChild(_pendingReparentNode, _pendingReparentParent);
@@ -72,9 +87,33 @@ namespace hod::inline editor
 
 		if (_pendingConvertNode != nullptr)
 		{
+			if (_renamedNode == _pendingConvertNode)
+			{
+				_renamedNode = nullptr; // Deleted by the conversion
+			}
 			tab->ConvertNode(_pendingConvertNode, *_pendingConvertDescriptor);
 			_pendingConvertNode = nullptr;
 			_pendingConvertDescriptor = nullptr;
+		}
+	}
+
+	/// @brief Replaces node's label by a text field, focused on its next draw.
+	/// @param node
+	void UIPrefabEditorHierarchyWindow::StartRename(ui2::Node* node)
+	{
+		_renamedNode = node;
+		std::strncpy(_renameBuffer, node->GetName().CStr(), sizeof(_renameBuffer) - 1);
+		_renameBuffer[sizeof(_renameBuffer) - 1] = '\0';
+		_renameFocus = true;
+	}
+
+	/// @brief Gives the renamed node the name typed in its field.
+	void UIPrefabEditorHierarchyWindow::ApplyRename()
+	{
+		if (_renamedNode != nullptr && _renamedNode->GetName() != _renameBuffer)
+		{
+			_renamedNode->SetName(_renameBuffer);
+			GetOwner()->MarkAsDirty();
 		}
 	}
 
@@ -112,7 +151,10 @@ namespace hod::inline editor
 			}
 		}
 		const char* icon = DrawHelper::GetTypeIcon(node->GetReflectionDescriptorV());
-		bool        opened = ImGui::TreeNodeEx("##Node", treeNodeFlags, "%s %s", icon, label.CStr());
+		bool        renaming = (node == _renamedNode);
+		float       treeNodeStartX = ImGui::GetCursorPosX();
+		// While renamed, only the icon is drawn by the tree node: the rename field takes the label's place (see below).
+		bool opened = renaming ? ImGui::TreeNodeEx("##Node", treeNodeFlags, "%s", icon) : ImGui::TreeNodeEx("##Node", treeNodeFlags, "%s %s", icon, label.CStr());
 		if (_revealSelection && node == selection)
 		{
 			ImGui::SetScrollHereY();
@@ -186,6 +228,10 @@ namespace hod::inline editor
 				node->AddChild(ui2::NodeFactory::GetInstance()->CreateNode(ui2::Node::GetReflectionDescriptor()));
 				tab->MarkAsDirty();
 			}
+			if (ImGui::MenuItem(ICON_MDI_RENAME " Rename", "F2"))
+			{
+				StartRename(node);
+			}
 			if (ImGui::BeginMenu(ICON_MDI_SWAP_HORIZONTAL " Convert To"))
 			{
 				uint64_t currentType = node->GetReflectionDescriptorV().GetType();
@@ -208,12 +254,41 @@ namespace hod::inline editor
 				{
 					tab->SetSelectedNode(nullptr);
 				}
+				if (_renamedNode != nullptr && (_renamedNode == node || _renamedNode->IsDescendantOf(node)))
+				{
+					_renamedNode = nullptr;
+				}
 				parent->RemoveChild(node);
 				DefaultAllocator::GetInstance().Delete(node);
 				tab->MarkAsDirty();
 				deleted = true;
 			}
 			ImGui::EndPopup();
+		}
+
+		// Last of the row's widgets: everything above queries the tree node as the last item.
+		if (renaming && deleted == false)
+		{
+			// Where the label would start: after the arrow, the icon and the space of "icon name".
+			ImGui::SameLine(treeNodeStartX + ImGui::GetTreeNodeToLabelSpacing() + ImGui::CalcTextSize(icon).x + ImGui::CalcTextSize(" ").x - ImGui::GetStyle().FramePadding.x);
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			// Only once: focusing it every frame would take the focus back as soon as the user clicks elsewhere
+			if (_renameFocus)
+			{
+				ImGui::SetKeyboardFocusHere();
+				_renameFocus = false;
+			}
+			ImGui::InputText("##Rename", _renameBuffer, sizeof(_renameBuffer), ImGuiInputTextFlags_AutoSelectAll);
+			_renameSubmitted = true;
+			// Enter or focus lost validates, Escape cancels
+			if (ImGui::IsItemDeactivated())
+			{
+				if (ImGui::IsKeyPressed(ImGuiKey_Escape) == false)
+				{
+					ApplyRename();
+				}
+				_renamedNode = nullptr;
+			}
 		}
 
 		if (opened)

@@ -30,6 +30,8 @@ namespace hod::inline editor
 	private:
 
 		void		DrawNode(ui2::Node* node);
+		void		StartRename(ui2::Node* node);
+		void		ApplyRename();
 
 	private:
 
@@ -46,5 +48,11 @@ namespace hod::inline editor
 		// "Convert To" requested from the context menu, applied after the tree has been drawn for the same reason.
 		ui2::Node*						_pendingConvertNode = nullptr;
 		const ReflectionDescriptor*		_pendingConvertDescriptor = nullptr;
+
+		// Node whose label is replaced by a text field (F2 or "Rename"): Enter or focus lost validates, Escape cancels.
+		ui2::Node*	_renamedNode = nullptr;
+		char		_renameBuffer[256] = {'\0'};
+		bool		_renameFocus = false;     // The field is to be focused on its next draw
+		bool		_renameSubmitted = false; // The field was drawn this frame
 	};
 }
