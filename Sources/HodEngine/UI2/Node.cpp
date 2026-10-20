@@ -359,6 +359,11 @@ namespace hod::inline ui2
 				_parent->MarkMeasureAsDirty();
 			}
 		}
+
+		// A new measure means a new arrange, even when the measured size ends up unchanged (FinishMeasure
+		// only flags Arrange on a size change): e.g. a child added to an already laid out node must still be
+		// reached by the arrange pass. Outside the check above for the same reason as in AddChild.
+		MarkArrangeAsDirty();
 	}
 
 	/// @brief
@@ -555,6 +560,13 @@ namespace hod::inline ui2
 		LayoutParams* childLayoutParams = child->_layoutParams;
 
 		Vector2 overriddenPosition;
+		// Measure only offered the child the space its parent was offered, not the parent's actual rect:
+		// a child sized from its parent's (e.g. stretched anchors) is measured again against the real one.
+		if (childLayoutParams != nullptr && childLayoutParams->DependsOnParentSize())
+		{
+			child->Measure(parentContentRect._size);
+		}
+
 		if (childLayoutParams != nullptr && childLayoutParams->TryComputePosition(parentContentRect, child->_measuredSize, overriddenPosition))
 		{
 			Rect childFinalRect;
