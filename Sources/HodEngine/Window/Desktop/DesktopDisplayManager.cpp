@@ -18,6 +18,11 @@ namespace hod::inline window
 		}
 	}
 
+	Vector<DesktopDisplayManager::Monitor> DesktopDisplayManager::GetMonitors() const
+	{
+		return Vector<Monitor>();
+	}
+
 	Cursor* DesktopDisplayManager::GetBultinCursor(BuiltinCursor builtinCursor)
 	{
 		Cursor* cursor = _builtinCursors[static_cast<uint32_t>(builtinCursor)];

@@ -26,6 +26,8 @@ namespace hod::inline window
 		Window* CreateWindow(bool hidden = false) override;
 		void    DestroyWindow(Window* window) override;
 
+		Vector<Monitor> GetMonitors() const override;
+
 	protected:
 		Cursor* CreateBuiltinCursor(BuiltinCursor builtinCursor) override;
 

@@ -51,6 +51,7 @@ namespace hod::inline imgui
 	public:
 		bool Init(window::Window* window);
 		void Update();
+		void UpdateMonitors();
 
 		window::Window* GetMainWindow() const;
 

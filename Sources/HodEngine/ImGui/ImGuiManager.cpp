@@ -541,12 +541,7 @@ namespace hod::inline imgui
 		mainViewport->Size.y = static_cast<DesktopWindow*>(_mainWindow)->GetHeight();
 		mainViewport->DpiScale = 1.0f;
 
-		ImGui::GetPlatformIO().Monitors.resize(1);
-		ImGui::GetPlatformIO().Monitors[0].DpiScale = 1.0f;
-		ImGui::GetPlatformIO().Monitors[0].MainPos = ImVec2(0.0f, 0.0f);
-		ImGui::GetPlatformIO().Monitors[0].MainSize = ImVec2(3440, 1440); // TODO
-		ImGui::GetPlatformIO().Monitors[0].WorkPos = ImGui::GetPlatformIO().Monitors[0].MainPos;
-		ImGui::GetPlatformIO().Monitors[0].WorkSize = ImGui::GetPlatformIO().Monitors[0].MainSize;
+		UpdateMonitors();
 
 		FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::PreRender);
 
@@ -586,6 +581,39 @@ namespace hod::inline imgui
 		_windows.Clear();
 	}
 
+	/// @brief Gives ImGui the actual monitors: it keeps popups, tooltips and menus inside their work area (the screen minus
+	/// the taskbar), and places floating windows on them. Falls back on a single monitor covering the main window when the
+	/// platform doesn't report its monitors.
+	void ImGuiManager::UpdateMonitors()
+	{
+		ImVector<ImGuiPlatformMonitor>& imguiMonitors = ImGui::GetPlatformIO().Monitors;
+		imguiMonitors.resize(0);
+
+	#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_MACOS) || defined(PLATFORM_LINUX)
+		for (const DesktopDisplayManager::Monitor& monitor : DesktopDisplayManager::GetInstance()->GetMonitors())
+		{
+			ImGuiPlatformMonitor imguiMonitor;
+			imguiMonitor.MainPos = ImVec2(monitor._position.GetX(), monitor._position.GetY());
+			imguiMonitor.MainSize = ImVec2(monitor._size.GetX(), monitor._size.GetY());
+			imguiMonitor.WorkPos = ImVec2(monitor._workPosition.GetX(), monitor._workPosition.GetY());
+			imguiMonitor.WorkSize = ImVec2(monitor._workSize.GetX(), monitor._workSize.GetY());
+			imguiMonitor.DpiScale = 1.0f;
+			imguiMonitors.push_back(imguiMonitor);
+		}
+	#endif
+
+		if (imguiMonitors.Size == 0)
+		{
+			ImGuiPlatformMonitor imguiMonitor;
+			imguiMonitor.MainPos = ImVec2(static_cast<DesktopWindow*>(_mainWindow)->GetPosition().GetX(), static_cast<DesktopWindow*>(_mainWindow)->GetPosition().GetY());
+			imguiMonitor.MainSize = ImVec2((float)_mainWindow->GetWidth(), (float)_mainWindow->GetHeight());
+			imguiMonitor.WorkPos = imguiMonitor.MainPos;
+			imguiMonitor.WorkSize = imguiMonitor.MainSize;
+			imguiMonitor.DpiScale = 1.0f;
+			imguiMonitors.push_back(imguiMonitor);
+		}
+	}
+
 	/// @brief
 	void ImGuiManager::Update()
 	{
@@ -604,6 +632,14 @@ namespace hod::inline imgui
 		{
 			ImGuiViewport* viewport = platformIO.Viewports[i];
 			ProcessWindowEvent(static_cast<window::Window*>(viewport->PlatformHandle));
+		}
+
+		// Monitors can be plugged, moved, or have their taskbar moved at any time: refreshed regularly, not every frame.
+		static SystemTime::TimeStamp lastMonitorsUpdate = now;
+		if (SystemTime::ElapsedTimeInSeconds(lastMonitorsUpdate, now) >= 1.0)
+		{
+			UpdateMonitors();
+			lastMonitorsUpdate = now;
 		}
 
 		io.DisplaySize.x = _mainWindow->GetWidth();

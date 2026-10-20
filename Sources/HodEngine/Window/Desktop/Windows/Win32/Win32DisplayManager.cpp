@@ -167,4 +167,42 @@ namespace hod::inline window
 		HCURSOR cursorHandle = LoadCursorA(nullptr, builtinWin32CursorNames[static_cast<uint32_t>(builtinCursor)]);
 		return DefaultAllocator::GetInstance().New<Win32Cursor>(cursorHandle);
 	}
+
+	/// @brief
+	/// @return
+	Vector<DesktopDisplayManager::Monitor> Win32DisplayManager::GetMonitors() const
+	{
+		Vector<Monitor> monitors;
+		EnumDisplayMonitors(
+			nullptr, nullptr,
+			[](HMONITOR monitorHandle, HDC, LPRECT, LPARAM userData) -> BOOL
+			{
+				MONITORINFO info = {};
+				info.cbSize = sizeof(MONITORINFO);
+				if (GetMonitorInfoA(monitorHandle, &info) == FALSE)
+				{
+					return TRUE;
+				}
+
+				Monitor monitor;
+				monitor._position = Vector2((float)info.rcMonitor.left, (float)info.rcMonitor.top);
+				monitor._size = Vector2((float)(info.rcMonitor.right - info.rcMonitor.left), (float)(info.rcMonitor.bottom - info.rcMonitor.top));
+				monitor._workPosition = Vector2((float)info.rcWork.left, (float)info.rcWork.top);
+				monitor._workSize = Vector2((float)(info.rcWork.right - info.rcWork.left), (float)(info.rcWork.bottom - info.rcWork.top));
+				monitor._primary = (info.dwFlags & MONITORINFOF_PRIMARY) != 0;
+
+				Vector<Monitor>& monitorList = *reinterpret_cast<Vector<Monitor>*>(userData);
+				if (monitor._primary)
+				{
+					monitorList.Insert(monitorList.Begin(), monitor);
+				}
+				else
+				{
+					monitorList.PushBack(monitor);
+				}
+				return TRUE;
+			},
+			reinterpret_cast<LPARAM>(&monitors));
+		return monitors;
+	}
 }
