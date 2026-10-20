@@ -89,8 +89,8 @@ namespace hod::inline rhi
 		// GraphicsPipeline* GetSharedMinimalMaterial() const;
 
 		bool CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties, VkImage* image,
-		                 VmaAllocation* imageMemory);
-		bool CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView);
+		                 VmaAllocation* imageMemory, uint32_t mipLevelCount = 1);
+		bool CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView, uint32_t mipLevelCount = 1);
 
 		// Commands that upload data into resources, recorded at any time without the CPU waiting for them: they are submitted ahead of
 		// the next SubmitCommandBuffers, so that what they upload is ready for it. What is released meanwhile is kept until they are done.
@@ -98,7 +98,9 @@ namespace hod::inline rhi
 		// A buffer, mapped, for an upload command to copy from. Released once the upload commands are done.
 		bool CreateUploadBuffer(VkDeviceSize size, VkBuffer* buffer, void** mappedData);
 
-		bool TransitionImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout);
+		// The mip levels [0, mipLevelCount)
+		bool TransitionImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout,
+		                           uint32_t mipLevelCount = 1);
 		void CopyImageToBuffer(VkCommandBuffer commandBuffer, VkImage image, VkBuffer buffer, uint32_t width, uint32_t height);
 
 		bool FindMemoryTypeIndex(uint32_t memoryTypeBits, VkMemoryPropertyFlags memoryProperties, uint32_t* memoryTypeIndex);

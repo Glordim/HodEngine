@@ -33,6 +33,7 @@ namespace hod::inline editor
 	void TextureEditorPropertiesWindow::DrawContent()
 	{
 		bool changed = false;
+		bool mipmapsChanged = false;
 
 		TextureSettings& textureSettings = GetOwner<TextureEditorTab>()->GetTextureSettings();
 
@@ -42,7 +43,7 @@ namespace hod::inline editor
 		ImGui::TextUnformatted("Generate mipmap");
 		ImGui::SameLine(valuePos);
 		ImGui::SetNextItemWidth(-1);
-		changed |= ImGui::Checkbox("##Generate mipmap", &textureSettings._generateMipmap);
+		mipmapsChanged |= ImGui::Checkbox("##Generate mipmap", &textureSettings._generateMipmap);
 
 		static const char* filterModeLabels[static_cast<std::underlying_type_t<FilterMode>>(FilterMode::Count)] = { "Nearest", "Linear" };
 
@@ -78,12 +79,18 @@ namespace hod::inline editor
 				{
 					textureSettings._wrapMode = static_cast<WrapMode>(wrapMode);
 					changed = true;
+					mipmapsChanged |= textureSettings._generateMipmap; // the edges of the levels are filtered as the texture wraps
 					ImGui::CloseCurrentPopup();
 				}
 			}
 			ImGui::EndCombo();
 		}
 
+		if (mipmapsChanged)
+		{
+			GetOwner<TextureEditorTab>()->ApplyMipmaps();
+			GetOwner()->MarkAsDirty();
+		}
 		if (changed)
 		{
 			GetOwner<TextureEditorTab>()->ApplySamplerStates();

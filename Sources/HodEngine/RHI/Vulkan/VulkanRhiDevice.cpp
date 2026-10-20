@@ -1039,7 +1039,7 @@ namespace hod::inline rhi
 	//! @brief
 	//-----------------------------------------------------------------------------
 	bool VulkanRhiDevice::CreateImage(uint32_t width, uint32_t height, VkFormat format, VkImageTiling tiling, VkImageUsageFlags usage, VkMemoryPropertyFlags properties,
-	                                 VkImage* image, VmaAllocation* imageMemory)
+	                                 VkImage* image, VmaAllocation* imageMemory, uint32_t mipLevelCount)
 	{
 		VkImageCreateInfo imageInfo = {};
 		imageInfo.sType = VK_STRUCTURE_TYPE_IMAGE_CREATE_INFO;
@@ -1047,7 +1047,7 @@ namespace hod::inline rhi
 		imageInfo.extent.width = width;
 		imageInfo.extent.height = height;
 		imageInfo.extent.depth = 1;
-		imageInfo.mipLevels = 1;
+		imageInfo.mipLevels = mipLevelCount;
 		imageInfo.arrayLayers = 1;
 		imageInfo.format = format;
 		imageInfo.tiling = tiling;
@@ -1106,7 +1106,7 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool VulkanRhiDevice::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView)
+	bool VulkanRhiDevice::CreateImageView(VkImage image, VkFormat format, VkImageAspectFlags aspectFlags, VkImageView* imageView, uint32_t mipLevelCount)
 	{
 		*imageView = VK_NULL_HANDLE;
 
@@ -1117,7 +1117,7 @@ namespace hod::inline rhi
 		viewInfo.format = format;
 		viewInfo.subresourceRange.aspectMask = aspectFlags;
 		viewInfo.subresourceRange.baseMipLevel = 0;
-		viewInfo.subresourceRange.levelCount = 1;
+		viewInfo.subresourceRange.levelCount = mipLevelCount;
 		viewInfo.subresourceRange.baseArrayLayer = 0;
 		viewInfo.subresourceRange.layerCount = 1;
 
@@ -1137,7 +1137,9 @@ namespace hod::inline rhi
 	/// @param oldLayout
 	/// @param newLayout
 	/// @return
-	bool VulkanRhiDevice::TransitionImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout)
+	/// @param mipLevelCount
+	bool VulkanRhiDevice::TransitionImageLayout(VkCommandBuffer commandBuffer, VkImage image, VkImageAspectFlags aspectFlags, VkImageLayout oldLayout, VkImageLayout newLayout,
+	                                            uint32_t mipLevelCount)
 	{
 		VkImageMemoryBarrier barrier = {};
 		barrier.sType = VK_STRUCTURE_TYPE_IMAGE_MEMORY_BARRIER;
@@ -1148,7 +1150,7 @@ namespace hod::inline rhi
 		barrier.image = image;
 		barrier.subresourceRange.aspectMask = aspectFlags;
 		barrier.subresourceRange.baseMipLevel = 0;
-		barrier.subresourceRange.levelCount = 1;
+		barrier.subresourceRange.levelCount = mipLevelCount;
 		barrier.subresourceRange.baseArrayLayer = 0;
 		barrier.subresourceRange.layerCount = 1;
 

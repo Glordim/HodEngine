@@ -33,10 +33,12 @@ namespace hod::inline rhi
 
 		MTL::SamplerAddressMode  addressMode = createInfo._wrapMode == WrapMode::Clamp ? MTL::SamplerAddressModeClampToEdge : MTL::SamplerAddressModeRepeat;
 		MTL::SamplerMinMagFilter filter = createInfo._filterMode == FilterMode::Linear ? MTL::SamplerMinMagFilterLinear : MTL::SamplerMinMagFilterNearest;
+		MTL::SamplerMipFilter    mipFilter = createInfo._filterMode == FilterMode::Linear ? MTL::SamplerMipFilterLinear : MTL::SamplerMipFilterNearest;
 
 		MTL::SamplerDescriptor* samplerDescriptor = MTL::SamplerDescriptor::alloc()->init();
 		samplerDescriptor->setMinFilter(filter);
 		samplerDescriptor->setMagFilter(filter);
+		samplerDescriptor->setMipFilter(mipFilter); // NotMipmapped by default: the level 0 only
 		samplerDescriptor->setSAddressMode(addressMode);
 		samplerDescriptor->setTAddressMode(addressMode);
 		samplerDescriptor->setRAddressMode(addressMode);

@@ -50,7 +50,7 @@ namespace hod::inline rhi
 		samplerInfo.mipmapMode = mipmapMode;
 		samplerInfo.mipLodBias = 0.0f;
 		samplerInfo.minLod = 0.0f;
-		samplerInfo.maxLod = 0.0f;
+		samplerInfo.maxLod = VK_LOD_CLAMP_NONE; // all the mip levels of the texture
 
 		VulkanRhiDevice* rhiDevice = (VulkanRhiDevice*)RhiDevice::GetInstance();
 		if (vkCreateSampler(rhiDevice->GetVkDevice(), &samplerInfo, nullptr, &_vkSampler) != VK_SUCCESS)

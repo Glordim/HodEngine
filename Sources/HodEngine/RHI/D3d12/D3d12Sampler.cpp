@@ -18,7 +18,7 @@ namespace hod::inline rhi
 		_samplerDesc.MaxAnisotropy = 1;
 		_samplerDesc.ComparisonFunc = D3D12_COMPARISON_FUNC_NEVER;
 		_samplerDesc.MinLOD = 0.0f;
-		_samplerDesc.MaxLOD = 0.0f;
+		_samplerDesc.MaxLOD = D3D12_FLOAT32_MAX; // all the mip levels of the texture
 	}
 
 	/// @brief

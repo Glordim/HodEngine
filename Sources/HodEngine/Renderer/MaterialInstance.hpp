@@ -69,6 +69,7 @@ namespace hod::inline renderer
 		{
 			const rhi::Texture*    _texture = nullptr;
 			mutable const Sampler* _sampler = nullptr;
+			mutable uint32_t       _textureGeneration = 0; // Texture::GetGeneration of _texture when the BindGroups were made
 			bool                   _set = false;            // SetTexture or SetSampler was called for it
 			bool                   _defaultSampler = false; // not set by SetSampler: _sampler follows the default one of _texture (live edit of its settings)
 		};

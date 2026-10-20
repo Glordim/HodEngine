@@ -30,6 +30,9 @@ namespace hod::inline rhi
 		VkImageView GetTextureImageView() const;
 
 	private:
+		void Release();
+
+	private:
 		VkImage       _textureImage;
 		VmaAllocation _textureImageMemory;
 

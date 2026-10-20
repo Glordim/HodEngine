@@ -4,7 +4,9 @@
 #include "HodEngine/RHI/D3d12/D3d12CommandBuffer.hpp"
 #include "HodEngine/RHI/D3d12/D3d12RhiDevice.hpp"
 
+#include <HodEngine/Core/Math.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
+#include <HodEngine/Core/StaticArray.hpp>
 
 #include <cstring>
 
@@ -71,6 +73,7 @@ namespace hod::inline rhi
 
 		_width = 0;
 		_height = 0;
+		_mipLevelCount = 1;
 	}
 
 	/// @brief
@@ -134,9 +137,9 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool D3d12Texture::CreateResource(uint32_t width, uint32_t height, DXGI_FORMAT format, D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state)
+	bool D3d12Texture::CreateResource(uint32_t width, uint32_t height, DXGI_FORMAT format, D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state, uint32_t mipLevelCount)
 	{
-		Release();
+		Release(); // A texture built again: the previous resource is kept until the GPU is done with it
 
 		D3D12_HEAP_PROPERTIES heapProperties = {};
 		heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
@@ -146,7 +149,7 @@ namespace hod::inline rhi
 		resourceDesc.Width = width;
 		resourceDesc.Height = height;
 		resourceDesc.DepthOrArraySize = 1;
-		resourceDesc.MipLevels = 1;
+		resourceDesc.MipLevels = (UINT16)mipLevelCount;
 		resourceDesc.Format = format;
 		resourceDesc.SampleDesc.Count = 1;
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
@@ -162,6 +165,8 @@ namespace hod::inline rhi
 		_state = state;
 		_width = width;
 		_height = height;
+		_mipLevelCount = mipLevelCount;
+		++_generation;
 		return true;
 	}
 
@@ -266,12 +271,13 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool D3d12Texture::BuildBuffer(uint32_t width, uint32_t height, const uint8_t* pixels, const CreateInfo& /*createInfo*/)
+	bool D3d12Texture::BuildBuffer(uint32_t width, uint32_t height, const uint8_t* pixels, const CreateInfo& createInfo)
 	{
 		D3d12RhiDevice* rhiDevice = D3d12RhiDevice::GetInstance();
 		ID3D12Device*   device = rhiDevice->GetDevice();
 
-		if (CreateResource(width, height, ColorFormat, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST) == false)
+		const uint32_t mipLevelCount = Clamp(createInfo._mipLevelCount, 1u, ComputeMipLevelCount(width, height));
+		if (CreateResource(width, height, ColorFormat, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, mipLevelCount) == false)
 		{
 			return false;
 		}
@@ -285,14 +291,14 @@ namespace hod::inline rhi
 			return false;
 		}
 
-		ComPtr<ID3D12Resource>             uploadBuffer;
-		D3D12_PLACED_SUBRESOURCE_FOOTPRINT uploadFootprint = {};
+		ComPtr<ID3D12Resource>                                                uploadBuffer;
+		StaticArray<D3D12_PLACED_SUBRESOURCE_FOOTPRINT, D3D12_REQ_MIP_LEVELS> uploadFootprints = {}; // one per level
 
 		if (pixels != nullptr)
 		{
 			D3D12_RESOURCE_DESC textureDesc = _resource->GetDesc();
 			UINT64              uploadSize = 0;
-			device->GetCopyableFootprints(&textureDesc, 0, 1, 0, &uploadFootprint, nullptr, nullptr, &uploadSize);
+			device->GetCopyableFootprints(&textureDesc, 0, mipLevelCount, 0, uploadFootprints.Data(), nullptr, nullptr, &uploadSize);
 
 			D3D12_HEAP_PROPERTIES heapProperties = {};
 			heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
@@ -324,28 +330,39 @@ namespace hod::inline rhi
 				return false;
 			}
 
-			// The rows of the upload buffer are further apart than the ones given
-			const uint32_t rowSize = width * ColorPixelSize;
-			for (uint32_t row = 0; row < height; ++row)
+			// The rows of the upload buffer are further apart than the ones given, and each level is aligned
+			const uint8_t* mipPixels = pixels;
+			for (uint32_t mipLevel = 0; mipLevel < mipLevelCount; ++mipLevel)
 			{
-				std::memcpy(static_cast<uint8_t*>(data) + uploadFootprint.Offset + (size_t)row * uploadFootprint.Footprint.RowPitch, pixels + (size_t)row * rowSize, rowSize);
+				const D3D12_PLACED_SUBRESOURCE_FOOTPRINT& uploadFootprint = uploadFootprints[mipLevel];
+				const uint32_t                            mipHeight = ComputeMipSize(height, mipLevel);
+				const uint32_t                            rowSize = ComputeMipSize(width, mipLevel) * ColorPixelSize;
+				for (uint32_t row = 0; row < mipHeight; ++row)
+				{
+					std::memcpy(static_cast<uint8_t*>(data) + uploadFootprint.Offset + (size_t)row * uploadFootprint.Footprint.RowPitch, mipPixels + (size_t)row * rowSize,
+					            rowSize);
+				}
+				mipPixels += (size_t)mipHeight * rowSize;
 			}
 			uploadBuffer->Unmap(0, nullptr);
 		}
 
 		if (uploadBuffer != nullptr)
 		{
-			D3D12_TEXTURE_COPY_LOCATION destination = {};
-			destination.pResource = _resource.Get();
-			destination.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
-			destination.SubresourceIndex = 0;
+			for (uint32_t mipLevel = 0; mipLevel < mipLevelCount; ++mipLevel)
+			{
+				D3D12_TEXTURE_COPY_LOCATION destination = {};
+				destination.pResource = _resource.Get();
+				destination.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+				destination.SubresourceIndex = mipLevel;
 
-			D3D12_TEXTURE_COPY_LOCATION source = {};
-			source.pResource = uploadBuffer.Get();
-			source.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
-			source.PlacedFootprint = uploadFootprint;
+				D3D12_TEXTURE_COPY_LOCATION source = {};
+				source.pResource = uploadBuffer.Get();
+				source.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+				source.PlacedFootprint = uploadFootprints[mipLevel];
 
-			commandList->CopyTextureRegion(&destination, 0, 0, 0, &source, nullptr);
+				commandList->CopyTextureRegion(&destination, 0, 0, 0, &source, nullptr);
+			}
 		}
 
 		Transition(commandList, ShaderResourceState);

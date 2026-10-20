@@ -184,9 +184,11 @@ namespace hod::inline renderer
 			defaultSampler = false;
 		}
 
-		if (slot._set == false || slot._texture != texture || slot._sampler != sampler)
+		const uint32_t textureGeneration = texture != nullptr ? texture->GetGeneration() : 0;
+		if (slot._set == false || slot._texture != texture || slot._textureGeneration != textureGeneration || slot._sampler != sampler)
 		{
 			slot._texture = texture;
+			slot._textureGeneration = textureGeneration;
 			slot._sampler = sampler;
 			slot._set = true;
 
@@ -230,6 +232,13 @@ namespace hod::inline renderer
 				if (slot._defaultSampler && slot._texture != nullptr && slot._sampler != slot._texture->GetDefaultSampler())
 				{
 					slot._sampler = slot._texture->GetDefaultSampler();
+					ReleaseBindGroups(set);
+				}
+
+				// The texture was built again (live edit of its content, its mipmaps...): the BindGroups were made with what it replaced
+				if (slot._texture != nullptr && slot._textureGeneration != slot._texture->GetGeneration())
+				{
+					slot._textureGeneration = slot._texture->GetGeneration();
 					ReleaseBindGroups(set);
 				}
 			}

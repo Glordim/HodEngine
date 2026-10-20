@@ -271,12 +271,19 @@ namespace hod::inline editor
 		materialInstance->SetTexture("image", texture);
 		materialInstance->SetTexture("checker", Editor::GetInstance()->GetCheckerTexture());
 		materialInstance->SetVec4("ubo.channelMask", channelMask);
-		materialInstance->SetVec2("ubo.textureSize", Vector2((float)texture->GetWidth(), (float)texture->GetHeight()));
-		materialInstance->SetFloat("ubo.pixelsPerTexel", zoomFactor);
+		// The mip level shown is stretched over the size of the texture: its texels are larger
+		const uint32_t mipLevel = Min((uint32_t)textureEditorTab->GetMipmapLevel(), texture->GetMipLevelCount() - 1);
+		const float    mipWidth = (float)Texture::ComputeMipSize(texture->GetWidth(), mipLevel);
+		const float    mipHeight = (float)Texture::ComputeMipSize(texture->GetHeight(), mipLevel);
+		const Vector2  pixelsPerTexel(width / mipWidth, height / mipHeight);
+		const float    texelZoomFactor = Min(pixelsPerTexel.GetX(), pixelsPerTexel.GetY());
+		materialInstance->SetFloat("ubo.mipLevel", (float)mipLevel);
+		materialInstance->SetVec2("ubo.textureSize", Vector2(mipWidth, mipHeight));
+		materialInstance->SetVec2("ubo.pixelsPerTexel", pixelsPerTexel);
 		// Texel grid: fades in from its min zoom to twice it, it would hide the texels if smaller. Alpha: how much a line covers the texel
 		const TextureEditorTab::GridSettings& gridSettings = textureEditorTab->GetGridSettings();
 		const float gridMinZoomFactor = gridSettings._minZoomFactor;
-		const float gridStrength = gridSettings._visible ? gridSettings._opacity * Clamp((zoomFactor - gridMinZoomFactor) / gridMinZoomFactor, 0.0f, 1.0f) : 0.0f;
+		const float gridStrength = gridSettings._visible ? gridSettings._opacity * Clamp((texelZoomFactor - gridMinZoomFactor) / gridMinZoomFactor, 0.0f, 1.0f) : 0.0f;
 		Vector4     gridFirstColor(0.0f, 0.0f, 0.0f, 0.0f);
 		Vector4     gridLastColor(0.0f, 0.0f, 0.0f, 0.0f);
 		switch (gridSettings._style)
@@ -300,7 +307,8 @@ namespace hod::inline editor
 		materialInstance->SetVec4("ubo.gridFirstColor", gridFirstColor);
 		materialInstance->SetVec4("ubo.gridLastColor", gridLastColor);
 		// Checker squares aligned with the texels: the smallest power of two of texels at least 8 pixels wide, but 4 x 4 per texel at most
-		materialInstance->SetFloat("ubo.checkerTexels", Max(0.25f, std::exp2(std::ceil(std::log2(8.0f / zoomFactor)))));		frameResources.DeleteAfter(materialInstance);
+		materialInstance->SetFloat("ubo.checkerTexels", Max(0.25f, std::exp2(std::ceil(std::log2(8.0f / texelZoomFactor)))));
+		frameResources.DeleteAfter(materialInstance);
 
 		RenderView* renderView = frameResources.CreateRenderView();
 		renderView->Init();

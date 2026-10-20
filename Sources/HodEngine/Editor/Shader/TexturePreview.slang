@@ -35,9 +35,10 @@ struct UBO
 	float4 channelMask;    // 1 or 0 for R, G, B, A
 	float4 gridFirstColor; // line on the first pixel of each texel, alpha: how much it covers the texel, 0 for none
 	float4 gridLastColor;  // line on the last pixel of each texel, same
-	float2 textureSize;    // in texels
-	float  pixelsPerTexel;
-	float  checkerTexels; // size of a square of the checker, in texels: a power of two, 1/4 at most (4 x 4 squares per texel)
+	float2 textureSize;    // in texels, of the mip level shown
+	float2 pixelsPerTexel; // of the mip level shown
+	float  checkerTexels;  // size of a square of the checker, in texels: a power of two, 1/4 at most (4 x 4 squares per texel)
+	float  mipLevel;       // the one shown, whatever the zoom
 };
 
 struct Material
@@ -52,7 +53,7 @@ ParameterBlock<Material> material;
 
 float4 FragmentMain(VS_OUT input) : SV_Target
 {
-	float4 color = material.image.Sample(material.imageSampler, input.uv);
+	float4 color = material.image.SampleLevel(material.imageSampler, input.uv, material.ubo.mipLevel);
 
 	float4 channelMask = material.ubo.channelMask;
 	if (dot(channelMask, float4(1.0, 1.0, 1.0, 1.0)) == 1.0)
@@ -75,13 +76,13 @@ float4 FragmentMain(VS_OUT input) : SV_Target
 	// Texel grid: a line on each edge between texels, on the first pixel of the texel and/or on the last pixel of the previous texel.
 	// With a dark one and a light one, one of the two always stands out, whatever the color of the texel.
 	// As the image starts on a whole pixel, each is 1 pixel wide at a whole zoom
-	float  pixelsPerTexel = material.ubo.pixelsPerTexel;
+	float2 pixelsPerTexel = material.ubo.pixelsPerTexel;
 	float2 pixelsInTexel = frac(input.uv * material.ubo.textureSize) * pixelsPerTexel;
 	if (min(pixelsInTexel.x, pixelsInTexel.y) < 1.0)
 	{
 		result = lerp(result, material.ubo.gridFirstColor.rgb, material.ubo.gridFirstColor.a);
 	}
-	else if (max(pixelsInTexel.x, pixelsInTexel.y) >= pixelsPerTexel - 1.0)
+	else if (pixelsInTexel.x >= pixelsPerTexel.x - 1.0 || pixelsInTexel.y >= pixelsPerTexel.y - 1.0)
 	{
 		result = lerp(result, material.ubo.gridLastColor.rgb, material.ubo.gridLastColor.a);
 	}

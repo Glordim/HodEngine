@@ -43,7 +43,7 @@ namespace hod::inline rhi
 		void Transition(ID3D12GraphicsCommandList* commandList, D3D12_RESOURCE_STATES state);
 
 	private:
-		bool CreateResource(uint32_t width, uint32_t height, DXGI_FORMAT format, D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state);
+		bool CreateResource(uint32_t width, uint32_t height, DXGI_FORMAT format, D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state, uint32_t mipLevelCount = 1);
 		bool CreateReadbackBuffer();
 		void Release();
 

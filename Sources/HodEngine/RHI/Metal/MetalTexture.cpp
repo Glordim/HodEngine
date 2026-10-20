@@ -2,6 +2,7 @@
 #include "HodEngine/RHI/Metal/MetalTexture.hpp"
 #include "HodEngine/RHI/Metal/MetalRhiDevice.hpp"
 
+#include <HodEngine/Core/Math.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
 
 #include <Metal/Metal.hpp>
@@ -59,7 +60,9 @@ namespace hod::inline rhi
 
 		_width = width;
 		_height = height;
+		_mipLevelCount = (uint32_t)_texture->mipmapLevelCount();
 		_readable = createInfo._allowReadWrite;
+		++_generation;
 
 		return true;
 	}
@@ -95,12 +98,24 @@ namespace hod::inline rhi
 		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
 		textureDescriptor->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
 		textureDescriptor->setUsage(MTL::TextureUsageShaderRead);
+		textureDescriptor->setMipmapLevelCount(Clamp(createInfo._mipLevelCount, 1u, ComputeMipLevelCount(width, height)));
 		if (Build(textureDescriptor, width, height, createInfo) == false)
 		{
 			return false;
 		}
 
-		_texture->replaceRegion(MTL::Region( 0, 0, 0, width, height, 1 ), 0, pixels, width * 4);
+		if (pixels != nullptr)
+		{
+			// The levels one after the other
+			const uint8_t* mipPixels = pixels;
+			for (uint32_t mipLevel = 0; mipLevel < _mipLevelCount; ++mipLevel)
+			{
+				const uint32_t mipWidth = ComputeMipSize(width, mipLevel);
+				const uint32_t mipHeight = ComputeMipSize(height, mipLevel);
+				_texture->replaceRegion(MTL::Region(0, 0, 0, mipWidth, mipHeight, 1), mipLevel, mipPixels, mipWidth * 4);
+				mipPixels += (size_t)mipWidth * mipHeight * 4;
+			}
+		}
 
 		return true;
 	}

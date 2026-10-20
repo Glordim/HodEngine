@@ -17,6 +17,7 @@ namespace hod::inline renderer
 	{
 		AddPropertyT(reflectionDescriptor, &TextureResource::_width, "_width");
 		AddPropertyT(reflectionDescriptor, &TextureResource::_height, "_height");
+		AddPropertyT(reflectionDescriptor, &TextureResource::_mipLevelCount, "_mipLevelCount");
 		AddPropertyT(reflectionDescriptor, &TextureResource::_componentCount, "_componentCount");
 		AddPropertyT(reflectionDescriptor, &TextureResource::_filterMode, "_filterMode");
 		AddPropertyT(reflectionDescriptor, &TextureResource::_wrapMode, "_wrapMode");
@@ -45,6 +46,12 @@ namespace hod::inline renderer
 		infoDataBlock->_stream->Read(&_height, sizeof(_height));
 		infoDataBlock->_stream->Read(&_filterMode, sizeof(_filterMode));
 		infoDataBlock->_stream->Read(&_wrapMode, sizeof(_wrapMode));
+		infoDataBlock->_stream->Read(&_mipLevelCount, sizeof(_mipLevelCount));
+		if (_mipLevelCount == 0 || _mipLevelCount > Texture::ComputeMipLevelCount(_width, _height))
+		{
+			OUTPUT_ERROR("TextureResource::Initialize: invalid mip level count {}", _mipLevelCount);
+			return false;
+		}
 
 		const ResourceContainer::DataBlockInfo* pixelsDataBlock = resourceContainer.FindDataBlock("Pixels");
 		if (pixelsDataBlock == nullptr)
@@ -52,14 +59,17 @@ namespace hod::inline renderer
 			return false;
 		}
 
-		uint8_t* pixels = DefaultAllocator::GetInstance().Allocate<uint8_t>(_width * _height * 4);
-		if (pixelsDataBlock->_stream->Read(pixels, _width * _height * 4) == false)
+		// The mip levels one after the other
+		const uint32_t pixelsSize = Texture::ComputeMipChainByteSize(_width, _height, _mipLevelCount);
+		uint8_t*       pixels = DefaultAllocator::GetInstance().Allocate<uint8_t>(pixelsSize);
+		if (pixelsDataBlock->_stream->Read(pixels, pixelsSize) != pixelsSize)
 		{
 			DefaultAllocator::GetInstance().Free(pixels);
 			return false;
 		}
 
 		Texture::CreateInfo createInfo;
+		createInfo._mipLevelCount = _mipLevelCount;
 
 		_texture = RhiDevice::GetInstance()->CreateTexture();
 		SetSamplerStates(_filterMode, _wrapMode);
@@ -97,5 +107,29 @@ namespace hod::inline renderer
 			samplerCreateInfo._filterMode = _filterMode;
 			_texture->SetDefaultSampler(RhiDevice::GetInstance()->GetSampler(samplerCreateInfo));
 		}
+	}
+
+	/// @brief
+	/// @param pixels
+	/// @param mipLevelCount
+	/// @return
+	bool TextureResource::SetPixels(const uint8_t* pixels, uint8_t mipLevelCount)
+	{
+		if (_texture == nullptr || mipLevelCount == 0 || mipLevelCount > Texture::ComputeMipLevelCount(_width, _height))
+		{
+			return false;
+		}
+
+		// The same Texture, built again: what points to it stays valid, its default sampler is kept
+		Texture::CreateInfo createInfo;
+		createInfo._mipLevelCount = mipLevelCount;
+		if (_texture->BuildBuffer(_width, _height, pixels, createInfo) == false)
+		{
+			OUTPUT_ERROR("TextureResource::SetPixels: build texture failed");
+			return false;
+		}
+
+		_mipLevelCount = mipLevelCount;
+		return true;
 	}
 }

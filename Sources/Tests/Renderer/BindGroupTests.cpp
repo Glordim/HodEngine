@@ -210,6 +210,40 @@ protected:
 		return texture;
 	}
 
+	// size x size texture with all its mip levels, each of one color: levelColors[level], or the last one past them. Read with a nearest filter
+	Texture* CreateMipColorsTexture(uint32_t size, std::initializer_list<Color> levelColors)
+	{
+		const uint32_t mipLevelCount = Texture::ComputeMipLevelCount(size, size);
+
+		Vector<uint8_t> pixels;
+		pixels.Resize(Texture::ComputeMipChainByteSize(size, size, mipLevelCount));
+		uint8_t* texel = pixels.Data();
+		for (uint32_t mipLevel = 0; mipLevel < mipLevelCount; ++mipLevel)
+		{
+			const Color&   color = *(levelColors.begin() + Min(mipLevel, (uint32_t)levelColors.size() - 1));
+			const uint32_t mipSize = Texture::ComputeMipSize(size, mipLevel);
+			for (uint32_t texelIndex = 0; texelIndex < mipSize * mipSize; ++texelIndex)
+			{
+				*texel++ = (uint8_t)(color.r * 255.0f);
+				*texel++ = (uint8_t)(color.g * 255.0f);
+				*texel++ = (uint8_t)(color.b * 255.0f);
+				*texel++ = (uint8_t)(color.a * 255.0f);
+			}
+		}
+
+		Texture::CreateInfo createInfo;
+		createInfo._mipLevelCount = mipLevelCount;
+
+		Sampler::CreateInfo nearest;
+		nearest._filterMode = FilterMode::Nearest;
+
+		Texture* texture = RhiDevice::GetInstance()->CreateTexture();
+		EXPECT_TRUE(texture->BuildBuffer(size, size, pixels.Data(), createInfo));
+		texture->SetDefaultSampler(RhiDevice::GetInstance()->GetSampler(nearest));
+		_textures.PushBack(texture);
+		return texture;
+	}
+
 	// Records one render pass on the target, submits it and blocks until it can be read back
 	void RenderFrame(const std::function<void()>& draw)
 	{
@@ -509,6 +543,79 @@ TEST_F(BindGroupRender, DefaultSamplerOfATextureCanChange)
 	// A BindGroup is immutable: the new default applies to the ones created from now on
 	draw(CreateMaterialBindGroup(colors, texture));
 	EXPECT_TRUE(IsBlended(ReadPixel(0.06f, 0.06f)));
+}
+
+// Down to 1 x 1, a side halved at each level, rounded down, 1 at least
+TEST(TextureMipChain, LevelsAndSizes)
+{
+	EXPECT_EQ(Texture::ComputeMipLevelCount(64, 64), 7u);
+	EXPECT_EQ(Texture::ComputeMipLevelCount(100, 30), 7u);
+	EXPECT_EQ(Texture::ComputeMipLevelCount(1, 1), 1u);
+	EXPECT_EQ(Texture::ComputeMipLevelCount(0, 0), 0u);
+
+	EXPECT_EQ(Texture::ComputeMipSize(100, 3), 12u);
+	EXPECT_EQ(Texture::ComputeMipSize(30, 5), 1u);
+
+	EXPECT_EQ(Texture::ComputeMipChainByteSize(4, 2, 3), (4u * 2u + 2u * 1u + 1u * 1u) * 4u);
+}
+
+// The sampler reads the mip level of the size the texture is drawn at: 64 texels over 64, 32 and 8 pixels
+TEST_F(BindGroupRender, MipLevelIsChosenByTheSizeTheTextureIsDrawnAt)
+{
+	Texture* texture = CreateMipColorsTexture(64, {Red, Green, Blue, Yellow, White});
+	EXPECT_EQ(texture->GetMipLevelCount(), 7u);
+
+	BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White}));
+	BindGroup* material = CreateMaterialBindGroup(CreateColorBlocks({White}), texture);
+
+	auto drawCentered = [&](float halfSize) {
+		RenderFrame([&]() {
+			SetBindGroup(0, global, 0);
+			SetBindGroup(1, material, 0);
+			DrawQuad(-halfSize, -halfSize, halfSize, halfSize);
+		});
+	};
+
+	drawCentered(1.0f);
+	EXPECT_TRUE(ColorNear(ReadPixel(0.03f, 0.03f), Red));
+
+	drawCentered(0.5f);
+	EXPECT_TRUE(ColorNear(ReadPixel(0.03f, 0.03f), Green));
+
+	drawCentered(0.125f);
+	EXPECT_TRUE(ColorNear(ReadPixel(0.03f, 0.03f), Yellow));
+}
+
+// A texture built again is a new one for what is created from it: its generation changes, the BindGroups made after see its new levels
+TEST_F(BindGroupRender, TextureBuiltAgainGetsItsNewMipLevels)
+{
+	Texture* texture = CreateMipColorsTexture(64, {Red});
+	const uint32_t firstGeneration = texture->GetGeneration();
+
+	BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White}));
+	Buffer*    colors = CreateColorBlocks({White});
+
+	auto drawSmall = [&](BindGroup* material) {
+		RenderFrame([&]() {
+			SetBindGroup(0, global, 0);
+			SetBindGroup(1, material, 0);
+			DrawQuad(-0.125f, -0.125f, 0.125f, 0.125f);
+		});
+	};
+
+	drawSmall(CreateMaterialBindGroup(colors, texture));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.03f, 0.03f), Red));
+
+	// The level 0 alone: what is drawn small reads it too
+	const uint8_t       greenPixels[4 * 2 * 2] = {0, 255, 0, 255, 0, 255, 0, 255, 0, 255, 0, 255, 0, 255, 0, 255};
+	Texture::CreateInfo createInfo;
+	ASSERT_TRUE(texture->BuildBuffer(2, 2, greenPixels, createInfo));
+	EXPECT_NE(texture->GetGeneration(), firstGeneration);
+	EXPECT_EQ(texture->GetMipLevelCount(), 1u);
+	EXPECT_EQ(texture->GetWidth(), 2u);
+
+	drawSmall(CreateMaterialBindGroup(colors, texture));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.03f, 0.03f), Green));
 }
 
 // A texture with no default sampler is read with the default settings: a linear filter

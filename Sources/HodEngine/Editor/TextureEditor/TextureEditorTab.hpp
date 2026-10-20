@@ -63,10 +63,12 @@ namespace hod::inline editor
 		bool								IsRecentering() const { return _recentering; }
 		void								SetRecentering(bool recentering) { _recentering = recentering; }
 		uint8_t								GetColorComponentMask() const { return _colorComponentMask; }
+		uint8_t								GetMipmapLevel() const { return _mipmapLevel; }
 		const GridSettings&					GetGridSettings() const;
 
 		TextureSettings&					GetTextureSettings() { return _textureSettings; }
 		void								ApplySamplerStates();
+		void								ApplyMipmaps(); // the mip chain of the resource built again from the settings being edited
 
 	protected:
 
@@ -100,5 +102,6 @@ namespace hod::inline editor
 		TextureSettings _savedSettings; // what the resource is reverted to if the tab is closed with unsaved live edits
 
 		std::shared_ptr<TextureResource>	_texture;
+		Vector<uint8_t>						_sourcePixels; // the imported ones, read once from the asset (its stream can't seek) by ApplyMipmaps
 	};
 }

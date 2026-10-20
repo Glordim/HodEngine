@@ -46,6 +46,10 @@ namespace hod::inline editor
 
 			_texture = ResourceManager::GetInstance()->GetResource<TextureResource>(asset->GetUid());
 			ApplySamplerStates();
+			if (_texture != nullptr)
+			{
+				_maxMipmapLevel = _texture->_mipLevelCount - 1; // cooked from the saved settings
+			}
 
 			_savedSettings = _textureSettings;
 		}
@@ -56,9 +60,53 @@ namespace hod::inline editor
 	{
 		if (_texture != nullptr && IsDirty())
 		{
+			const bool mipmapsChanged = _textureSettings._generateMipmap != _savedSettings._generateMipmap ||
+			                            (_savedSettings._generateMipmap && _textureSettings._wrapMode != _savedSettings._wrapMode);
+
 			_textureSettings = _savedSettings;
 			ApplySamplerStates();
+			if (mipmapsChanged)
+			{
+				ApplyMipmaps();
+			}
 		}
+	}
+
+	/// @brief Generated as the TextureCooker does: the texture is shown, wherever it is used, as it will be once cooked
+	void TextureEditorTab::ApplyMipmaps()
+	{
+		if (_texture == nullptr)
+		{
+			return;
+		}
+
+		const uint32_t pixelsSize = (uint32_t)_texture->_width * _texture->_height * 4;
+		if (_sourcePixels.Size() != pixelsSize)
+		{
+			const AssetContainer::DataBlockInfo* pixelsDataBlock = _assetContainer.FindDataBlock("Pixels");
+			if (pixelsDataBlock == nullptr)
+			{
+				return;
+			}
+
+			_sourcePixels.Resize(pixelsSize);
+			if (pixelsDataBlock->_stream->Read(_sourcePixels.Data(), pixelsSize) != pixelsSize)
+			{
+				OUTPUT_ERROR("TextureEditorTab: Can't read the pixels of {}", GetAsset()->GetName());
+				_sourcePixels.Clear();
+				return;
+			}
+		}
+
+		Vector<uint8_t> mipChain;
+		const uint8_t   mipLevelCount = TextureCooker::BuildMipChain(_sourcePixels.Data(), _texture->_width, _texture->_height, _textureSettings, mipChain);
+		if (mipLevelCount == 0 || _texture->SetPixels(mipChain.Data(), mipLevelCount) == false)
+		{
+			return;
+		}
+
+		_maxMipmapLevel = mipLevelCount - 1;
+		_mipmapLevel = Min(_mipmapLevel, _maxMipmapLevel);
 	}
 
 	/// @brief The texture is sampled with the settings being edited, wherever it is used
