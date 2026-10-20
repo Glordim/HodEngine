@@ -40,6 +40,11 @@ namespace hod::inline editor
 		bool			IsCanvasSelected() const;
 		void			SelectCanvas();
 
+		// Asks the viewport to center and zoom on the selection (F, from the hierarchy). Consumed by the
+		// viewport on its next frame.
+		void			RequestFrameSelection();
+		bool			ConsumeFrameSelectionRequest();
+
 		// Replaces node by a new node of the type nodeDescriptor describes (see ui2::Node::ReplaceWith),
 		// keeps it selected if it was, and deletes node: callers must not be drawing node (or iterating
 		// its children) anymore, i.e. defer the call to after their drawing pass.
@@ -68,6 +73,7 @@ namespace hod::inline editor
 		ui2::Canvas	_canvas;
 		ui2::Node*	_selectedNode = nullptr;
 		bool		_canvasSelected = false;
+		bool		_frameSelectionRequested = false;
 
 		// Counter the nodes' local ids are taken from (see ui2::Node::GetLocalId). Persisted next to the
 		// nodes in the asset's document: it belongs to the authored prefab, not to the canvas.

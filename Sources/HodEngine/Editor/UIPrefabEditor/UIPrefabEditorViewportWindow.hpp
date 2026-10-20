@@ -113,6 +113,15 @@ namespace hod::inline editor
 		float   _zoom = 1.0f;
 		float   _targetZoom = 1.0f;
 
+		// Framing of the selection (F) in progress: camera and zoom animated together from the start to the target framing.
+		bool    _initialFramingDone = false;
+		bool    _framing = false;
+		float   _framingProgress = 0.0f;
+		Vector2 _framingStartPosition = Vector2::Zero;
+		float   _framingStartZoom = 1.0f;
+		Vector2 _framingTargetPosition = Vector2::Zero;
+		float   _framingTargetZoom = 1.0f;
+
 		GizmoHandle _hoveredGizmoHandle = GizmoHandle::None;
 		GizmoHandle _draggedGizmoHandle = GizmoHandle::None;
 		Vector2     _gizmoDragStartMousePosition = Vector2::Zero;

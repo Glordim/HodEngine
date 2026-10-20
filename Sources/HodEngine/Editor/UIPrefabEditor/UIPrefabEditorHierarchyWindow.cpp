@@ -41,6 +41,12 @@ namespace hod::inline editor
 		{
 			StartRename(selection);
 		}
+
+		// F frames the selection in the viewport.
+		if (ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGuiKey_F, false) && ImGui::GetIO().WantTextInput == false)
+		{
+			tab->RequestFrameSelection();
+		}
 		_renameSubmitted = false;
 
 		// The canvas stands at the top, greyed out (not a node of the prefab: it cannot be moved, deleted or

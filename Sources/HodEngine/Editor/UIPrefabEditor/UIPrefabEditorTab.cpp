@@ -140,6 +140,21 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	void UIPrefabEditorTab::RequestFrameSelection()
+	{
+		_frameSelectionRequested = true;
+	}
+
+	/// @brief
+	/// @return true if a framing was requested since the last call
+	bool UIPrefabEditorTab::ConsumeFrameSelectionRequest()
+	{
+		bool requested = _frameSelectionRequested;
+		_frameSelectionRequested = false;
+		return requested;
+	}
+
+	/// @brief
 	/// @param node
 	/// @param nodeDescriptor
 	/// @return

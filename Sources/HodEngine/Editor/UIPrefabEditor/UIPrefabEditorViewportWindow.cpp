@@ -189,17 +189,96 @@ namespace hod::inline editor
 		bool hovered = ImGui::IsWindowHovered() && mouseOverToolbar == false;
 		if (hovered && ImGui::GetIO().MouseWheel != 0.0f)
 		{
+			// The wheel takes over from a framing still in progress, from where it currently is.
+			_framing = false;
 			_targetZoom = std::clamp(_targetZoom + ImGui::GetIO().MouseWheel * 0.1f * _targetZoom, 0.05f, 50.0f);
 		}
 
-		// Ease towards the target zoom instead of snapping, so each wheel notch feels smooth.
-		_zoom += (_targetZoom - _zoom) * std::min(1.0f, ImGui::GetIO().DeltaTime * 12.0f);
+		// F (here or in the hierarchy) centers the camera on the selected node and zooms so it fills most of the
+		// viewport. With the canvas selected (or nothing), the previewed device's frame is framed instead.
+		bool frameSelection = tab->ConsumeFrameSelectionRequest();
+		if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_F, false) && ImGui::GetIO().WantTextInput == false)
+		{
+			frameSelection = true;
+		}
+		// The tab opens on the prefab root framed, already in place rather than animated there.
+		bool initialFraming = (_initialFramingDone == false);
+		_initialFramingDone = true;
+		if (frameSelection || initialFraming)
+		{
+			constexpr float framedViewportRatio = 0.8f;
+
+			_framing = true;
+			_framingProgress = 0.0f;
+			_framingStartPosition = _cameraPosition;
+			_framingStartZoom = _zoom;
+			_framingTargetZoom = _zoom;
+
+			ui2::Node* framedNode = initialFraming ? tab->GetPrefabRoot() : tab->GetSelectedNode();
+			if (framedNode != nullptr)
+			{
+				_framingTargetPosition = framedNode->ComputeCanvasMatrix().GetTranslation();
+
+				Vector2 framedSize = framedNode->GetSize();
+				if (framedSize.GetX() > 0.0f && framedSize.GetY() > 0.0f)
+				{
+					float fitScale = Min(resolutionWidth / framedSize.GetX(), resolutionHeight / framedSize.GetY()) * framedViewportRatio;
+					_framingTargetZoom = std::clamp(fitScale / baseScale, 0.05f, 50.0f);
+				}
+			}
+			else
+			{
+				// The device frame is centered on the canvas origin and fits the viewport at zoom 1 (see baseScale).
+				_framingTargetPosition = Vector2::Zero;
+				_framingTargetZoom = framedViewportRatio;
+			}
+
+			if (initialFraming)
+			{
+				_framing = false;
+				_cameraPosition = _framingTargetPosition;
+				_zoom = _framingTargetZoom;
+				_targetZoom = _framingTargetZoom;
+			}
+		}
+
+		if (_framing)
+		{
+			// Zoom and camera are driven by one shared progress so they arrive together. The zoom is interpolated
+			// geometrically (each step scales the view by the same ratio, as the eye perceives it), and the camera
+			// follows the screen-space progress of that zoom: the motion is a zoom about the one canvas point that
+			// stays still on screen between both framings, rather than a pan racing a zoom.
+			_framingProgress += (1.0f - _framingProgress) * Min(1.0f, ImGui::GetIO().DeltaTime * 10.0f);
+			if (_framingProgress > 0.999f)
+			{
+				_framingProgress = 1.0f;
+				_framing = false;
+			}
+
+			float zoomRatio = _framingTargetZoom / _framingStartZoom;
+			_zoom = _framingStartZoom * std::pow(zoomRatio, _framingProgress);
+
+			float positionProgress = _framingProgress;
+			if (std::abs(zoomRatio - 1.0f) > 0.01f)
+			{
+				positionProgress = (1.0f - _framingStartZoom / _zoom) / (1.0f - 1.0f / zoomRatio);
+			}
+			_cameraPosition = _framingStartPosition + (_framingTargetPosition - _framingStartPosition) * positionProgress;
+			_targetZoom = _zoom;
+		}
+		else
+		{
+			// Ease towards the target zoom instead of snapping, so each wheel notch feels smooth.
+			_zoom += (_targetZoom - _zoom) * std::min(1.0f, ImGui::GetIO().DeltaTime * 12.0f);
+		}
 
 		float scale = baseScale * _zoom;
 
 		if (hovered && ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
 		{
 			// Screen space is Y-down; canvas space is Y-up, hence the flip on Y.
+			// Panning drops any framing still in progress.
+			_framing = false;
 			_cameraPosition.SetX(_cameraPosition.GetX() - ImGui::GetIO().MouseDelta.x / scale);
 			_cameraPosition.SetY(_cameraPosition.GetY() + ImGui::GetIO().MouseDelta.y / scale);
 		}
