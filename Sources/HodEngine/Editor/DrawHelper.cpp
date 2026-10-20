@@ -232,7 +232,39 @@ namespace hod::inline editor
 		window->DrawList->PopClipRect();
 	}
 
-	bool DrawHelper::BeginInspectorBlock(const void* id, const char* icon, const char* title, bool* enabled, bool* removeRequested)
+	namespace
+	{
+		/// @brief Inspector block header button, at the current cursor position, fading in as the mouse gets close to it and red when hovered.
+		/// @return true if clicked
+		bool FadingHeaderButton(const char* icon)
+		{
+			ImVec2 buttonPos = ImGui::GetCursorScreenPos();
+			ImVec2 mousePos = ImGui::GetMousePos();
+
+			float distance = (float)std::sqrt(std::pow(buttonPos.x - mousePos.x, 2) + std::pow(buttonPos.y - mousePos.y, 2));
+			distance = std::clamp(distance, 15.0f, 40.0f);
+			float alpha = 1.0f - ((distance - 15.0f) / (40.0f - 15.0f));
+
+			ImVec4 textColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+			textColor.w = alpha;
+
+			ImVec4 buttonColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
+			buttonColor.w = alpha;
+
+			ImVec4 borderColor = ImGui::GetStyleColorVec4(ImGuiCol_Border);
+			borderColor.w = alpha;
+
+			ImGui::PushStyleColor(ImGuiCol_Border, borderColor);
+			ImGui::PushStyleColor(ImGuiCol_Text, textColor);
+			ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
+			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
+			bool clicked = ImGui::Button(icon);
+			ImGui::PopStyleColor(4);
+			return clicked;
+		}
+	}
+
+	bool DrawHelper::BeginInspectorBlock(const void* id, const char* icon, const char* title, bool* enabled, bool* removeRequested, const char* actionIcon, const char* actionTooltip, bool* actionRequested)
 	{
 		ImGui::PushID(id);
 		if (ImGui::BeginChild("InspectorBlock", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_Borders) == false)
@@ -294,35 +326,29 @@ namespace hod::inline editor
 		ImGui::TextUnformatted(title);
 		ImGui::EndDisabled();
 
+		// Right-aligned header buttons: the close button last, the action button just before it.
+		float rightEdge = ImGui::GetContentRegionAvail().x + 10.0f;
+		float closeWidth = (removeRequested != nullptr) ? CalculateButtonSize(ICON_MDI_CLOSE).x : 0.0f;
+		if (actionRequested != nullptr && actionIcon != nullptr)
+		{
+			float spacing = (removeRequested != nullptr) ? ImGui::GetStyle().ItemSpacing.x : 0.0f;
+			ImGui::SameLine(rightEdge - closeWidth - spacing - CalculateButtonSize(actionIcon).x, 0.0f);
+			if (FadingHeaderButton(actionIcon))
+			{
+				*actionRequested = true;
+			}
+			if (actionTooltip != nullptr)
+			{
+				ImGui::SetItemTooltip("%s", actionTooltip);
+			}
+		}
 		if (removeRequested != nullptr)
 		{
-			ImGui::SameLine(ImGui::GetContentRegionAvail().x - CalculateButtonSize(ICON_MDI_CLOSE).x + 10.0f, 0.0f);
-			ImVec2 buttonPos = ImGui::GetCursorScreenPos();
-			ImVec2 mousePos = ImGui::GetMousePos();
-
-			// The close button fades in as the mouse gets close to it.
-			float distance = (float)std::sqrt(std::pow(buttonPos.x - mousePos.x, 2) + std::pow(buttonPos.y - mousePos.y, 2));
-			distance = std::clamp(distance, 15.0f, 40.0f);
-			float alpha = 1.0f - ((distance - 15.0f) / (40.0f - 15.0f));
-
-			ImVec4 textColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
-			textColor.w = alpha;
-
-			ImVec4 buttonColor = ImGui::GetStyleColorVec4(ImGuiCol_Button);
-			buttonColor.w = alpha;
-
-			ImVec4 borderColor = ImGui::GetStyleColorVec4(ImGuiCol_Border);
-			borderColor.w = alpha;
-
-			ImGui::PushStyleColor(ImGuiCol_Border, borderColor);
-			ImGui::PushStyleColor(ImGuiCol_Text, textColor);
-			ImGui::PushStyleColor(ImGuiCol_Button, buttonColor);
-			ImGui::PushStyleColor(ImGuiCol_ButtonHovered, ImVec4(1.0f, 0.0f, 0.0f, 1.0f));
-			if (ImGui::Button(ICON_MDI_CLOSE))
+			ImGui::SameLine(rightEdge - closeWidth, 0.0f);
+			if (FadingHeaderButton(ICON_MDI_CLOSE))
 			{
 				*removeRequested = true;
 			}
-			ImGui::PopStyleColor(4);
 		}
 
 		min.y = max.y;

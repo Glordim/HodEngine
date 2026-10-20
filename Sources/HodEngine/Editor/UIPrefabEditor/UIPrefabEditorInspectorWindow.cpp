@@ -68,24 +68,34 @@ namespace hod::inline editor
 
 		// Same compartmentalization as the scene inspector's components: one block per concern.
 		// 1. The node itself
-		if (DrawHelper::BeginInspectorBlock((const void*)BlockNode, ICON_MDI_VECTOR_SQUARE, "Node"))
+		// The block is titled after the node's type; converting it to another type is an action of the header
+		// (see UIPrefabEditorTab::ConvertNode), not a field among the node's properties.
+		ReflectionDescriptor& currentDescriptor = node->GetReflectionDescriptorV();
+		bool                  convertRequested = false;
+		bool                  nodeBlockOpened = DrawHelper::BeginInspectorBlock((const void*)BlockNode, DrawHelper::GetTypeIcon(currentDescriptor, ICON_MDI_VECTOR_SQUARE),
+		                                                                        currentDescriptor.GetDisplayName().CStr(), nullptr, nullptr, ICON_MDI_SWAP_HORIZONTAL, "Convert To",
+		                                                                        &convertRequested);
+		if (convertRequested)
 		{
-			// Picking another type converts the node (see UIPrefabEditorTab::ConvertNode); picking the current one is a no-op.
-			ReflectionDescriptor& currentDescriptor = node->GetReflectionDescriptorV();
-			ImGui::SetNextItemWidth(-1.0f);
-			if (ImGui::BeginCombo("##NodeType", currentDescriptor.GetDisplayName().CStr()))
+			ImGui::OpenPopup("UIPrefabConvertNode");
+		}
+		if (ImGui::BeginPopup("UIPrefabConvertNode"))
+		{
+			ImGui::TextDisabled("Convert To");
+			ImGui::Separator();
+			for (const auto& descriptorPair : ui2::NodeFactory::GetInstance()->GetAllDescriptors())
 			{
-				for (const auto& descriptorPair : ui2::NodeFactory::GetInstance()->GetAllDescriptors())
+				bool   isCurrent = (descriptorPair.second->GetType() == currentDescriptor.GetType());
+				String typeLabel = String(DrawHelper::GetTypeIcon(*descriptorPair.second)) + " " + descriptorPair.second->GetDisplayName();
+				if (ImGui::MenuItem(typeLabel.CStr(), nullptr, isCurrent, isCurrent == false))
 				{
-					bool isCurrent = (descriptorPair.second->GetType() == currentDescriptor.GetType());
-					if (ImGui::Selectable(descriptorPair.second->GetDisplayName().CStr(), isCurrent) && isCurrent == false)
-					{
-						convertDescriptor = descriptorPair.second;
-					}
+					convertDescriptor = descriptorPair.second;
 				}
-				ImGui::EndCombo();
 			}
-
+			ImGui::EndPopup();
+		}
+		if (nodeBlockOpened)
+		{
 			EditorReflectedObject nodeObject(node, &node->GetReflectionDescriptorV(), nullptr, this);
 			changed |= PropertyDrawer::DrawDescriptor(nodeObject);
 

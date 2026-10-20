@@ -1,6 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorLibraryWindow.hpp"
 #include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
+#include "HodEngine/Editor/DrawHelper.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
@@ -33,13 +34,14 @@ namespace hod::inline editor
 		{
 			ReflectionDescriptor& nodeDescriptor = *nodeDescriptorPair.second;
 
-			ImGui::Selectable(nodeDescriptor.GetDisplayName().CStr());
+			String typeLabel = String(DrawHelper::GetTypeIcon(nodeDescriptor)) + " " + nodeDescriptor.GetDisplayName();
+			ImGui::Selectable(typeLabel.CStr());
 
 			if (ImGui::BeginDragDropSource())
 			{
 				ReflectionDescriptor* nodeDescriptorPtr = &nodeDescriptor;
 				ImGui::SetDragDropPayload("UI2NodeLibraryDescriptor", &nodeDescriptorPtr, sizeof(ReflectionDescriptor*));
-				ImGui::TextUnformatted(nodeDescriptor.GetDisplayName().CStr());
+				ImGui::TextUnformatted(typeLabel.CStr());
 				ImGui::EndDragDropSource();
 			}
 

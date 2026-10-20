@@ -1,6 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorHierarchyWindow.hpp"
 #include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
+#include "HodEngine/Editor/DrawHelper.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
@@ -110,7 +111,8 @@ namespace hod::inline editor
 				}
 			}
 		}
-		bool opened = ImGui::TreeNodeEx(label.CStr(), treeNodeFlags);
+		const char* icon = DrawHelper::GetTypeIcon(node->GetReflectionDescriptorV());
+		bool        opened = ImGui::TreeNodeEx("##Node", treeNodeFlags, "%s %s", icon, label.CStr());
 		if (_revealSelection && node == selection)
 		{
 			ImGui::SetScrollHereY();
@@ -125,7 +127,7 @@ namespace hod::inline editor
 		if (node != tab->GetPrefabRoot() && ImGui::BeginDragDropSource())
 		{
 			ImGui::SetDragDropPayload("UI2Node", &node, sizeof(ui2::Node*));
-			ImGui::TextUnformatted(label.CStr());
+			ImGui::Text("%s %s", icon, label.CStr());
 			ImGui::EndDragDropSource();
 		}
 
@@ -190,7 +192,8 @@ namespace hod::inline editor
 				for (const auto& descriptorPair : ui2::NodeFactory::GetInstance()->GetAllDescriptors())
 				{
 					bool isCurrent = (descriptorPair.second->GetType() == currentType);
-					if (ImGui::MenuItem(descriptorPair.second->GetDisplayName().CStr(), nullptr, isCurrent, isCurrent == false))
+					String typeLabel = String(DrawHelper::GetTypeIcon(*descriptorPair.second)) + " " + descriptorPair.second->GetDisplayName();
+					if (ImGui::MenuItem(typeLabel.CStr(), nullptr, isCurrent, isCurrent == false))
 					{
 						_pendingConvertNode = node;
 						_pendingConvertDescriptor = descriptorPair.second;

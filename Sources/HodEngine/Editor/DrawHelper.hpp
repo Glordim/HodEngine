@@ -55,7 +55,10 @@ namespace hod::inline editor
         /// ImGui draws it in Begin, so a viewport image covering the whole window hides it. Call it after the window content, before ImGui::End.
         static void				DrawHiddenTabBarButton();
 
-        static bool				BeginInspectorBlock(const void* id, const char* icon, const char* title, bool* enabled = nullptr, bool* removeRequested = nullptr);
+        /// @param actionIcon/actionRequested when both not null, shows an extra button (same look as the close button, just before it)
+        /// which sets actionRequested to true when clicked, e.g. for the caller to open a popup. actionTooltip (optional) is shown when hovering it.
+        static bool				BeginInspectorBlock(const void* id, const char* icon, const char* title, bool* enabled = nullptr, bool* removeRequested = nullptr,
+                                                    const char* actionIcon = nullptr, const char* actionTooltip = nullptr, bool* actionRequested = nullptr);
         static void				EndInspectorBlock();
 
         /// @brief Icon of a reflected type: its ReflectionTraitIcon (possibly inherited from a parent type), or fallback when it has none.
