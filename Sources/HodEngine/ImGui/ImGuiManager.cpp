@@ -503,7 +503,8 @@ namespace hod::inline imgui
 		icons_configMDI.PixelSnapH = true;
 		icons_configMDI.GlyphOffset.y = 2;
 		icons_configMDI.GlyphOffset.x = -0.5;
-		icons_configMDI.GlyphMaxAdvanceX = 13;
+		// No GlyphMaxAdvanceX: the icons are as wide as the font size (16 px), clamping their advance below that makes them
+		// overflow (centered) onto their neighbours, eating the space between an icon and its label.
 #if defined(PLATFORM_MACOS)
 		icons_configMDI.RasterizerDensity = macOsWindow->GetScaleFactor();
 #endif

@@ -833,7 +833,7 @@ namespace hod::inline editor
 			float iconStartX = ImGui::GetCursorPosX();
 			ImGui::TextUnformatted(icon);
 			ImGui::SameLine();
-			ImGui::SetCursorPosX(iconStartX + ImGui::CalcTextSize(icon).x + ImGui::CalcTextSize("  ").x - ImGui::GetStyle().FramePadding.x);
+			ImGui::SetCursorPosX(iconStartX + ImGui::CalcTextSize(icon).x + ImGui::CalcTextSize(" ").x - ImGui::GetStyle().FramePadding.x);
 			ImGui::SetNextItemWidth(-FLT_MIN);
 
 			if (_focus == true)
@@ -855,7 +855,7 @@ namespace hod::inline editor
 		}
 		else
 		{
-			ImGui::Text("%s  %s", icon, node->_path.Filename().GetString().CStr());
+			ImGui::Text("%s %s", icon, node->_path.Filename().GetString().CStr());
 		}
 		ImGui::PopStyleVar();
 

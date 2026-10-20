@@ -603,7 +603,7 @@ namespace hod::inline editor
 					ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
 					ImGui::PushStyleVarX(ImGuiStyleVar_FramePadding, 12.0f);
 					ImGui::SetNextItemShortcut(ImGuiMod_Ctrl | ImGuiKey_Space, ImGuiInputFlags_RouteGlobal | ImGuiInputFlags_Tooltip);
-					if (ImGui::Button(ICON_MDI_FOLDER_SEARCH "  Asset Browser", ImVec2(0.0f, statusBarHeight)))
+					if (ImGui::Button(ICON_MDI_FOLDER_SEARCH " Asset Browser", ImVec2(0.0f, statusBarHeight)))
 					{
 						_showFloatingAssetBrowser = !_showFloatingAssetBrowser;
 						if (_showFloatingAssetBrowser)
@@ -614,15 +614,15 @@ namespace hod::inline editor
 					ImGui::SameLine();
 					ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical, 2.0f);
 					ImGui::SameLine();
-					if (ImGui::Button(ICON_MDI_TEXT_BOX "  Output Log", ImVec2(0.0f, statusBarHeight)))
+					if (ImGui::Button(ICON_MDI_TEXT_BOX " Output Log", ImVec2(0.0f, statusBarHeight)))
 					{
 					}
 					ImGui::SameLine();
 					ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical, 2.0f);
-					ImGui::SameLine(ImGui::GetIO().DisplaySize.x - CalculateButtonSize(ICON_MDI_CIRCLE_OFF_OUTLINE "  Tasks").x - 2);
+					ImGui::SameLine(ImGui::GetIO().DisplaySize.x - CalculateButtonSize(ICON_MDI_CIRCLE_OFF_OUTLINE " Tasks").x - 2);
 					ImGui::SeparatorEx(ImGuiSeparatorFlags_Vertical, 2.0f);
 					ImGui::SameLine();
-					if (ImGui::Button(ICON_MDI_CIRCLE_OFF_OUTLINE "  Tasks", ImVec2(0.0f, statusBarHeight)))
+					if (ImGui::Button(ICON_MDI_CIRCLE_OFF_OUTLINE " Tasks", ImVec2(0.0f, statusBarHeight)))
 					{
 						_showFloatingTaskTracker = !_showFloatingTaskTracker;
 						if (_showFloatingTaskTracker)
