@@ -128,6 +128,22 @@ namespace hod::inline editor
 					Vector2 pivot = anchoredLayoutParams->GetPivot();
 					if (AnchorPresetsDrawer::Draw(ImVec2(100.0f, 100.0f), anchorMin, anchorMax, pivot))
 					{
+						// Re-anchoring keeps the node where it is: the desired size and offset are solved so the rect
+						// computed by AnchoredLayoutParams::TryComputeSize/TryComputePosition stays the same.
+						Vector2 parentSize = node->GetParent() != nullptr ? node->GetParent()->GetSize() : Vector2::Zero;
+
+						Vector2 oldAnchorSize = anchoredLayoutParams->GetAnchorMax() - anchoredLayoutParams->GetAnchorMin();
+						Vector2 oldAnchorPos = (anchoredLayoutParams->GetAnchorMin() + anchoredLayoutParams->GetAnchorMax()) * 0.5f;
+						Vector2 oldPivot = anchoredLayoutParams->GetPivot();
+						Vector2 size = parentSize * oldAnchorSize + node->GetDesiredSize();
+						Vector2 position = (oldAnchorPos - Vector2(0.5f, 0.5f)) * parentSize + (oldPivot - Vector2(0.5f, 0.5f)) * parentSize * oldAnchorSize +
+						                   anchoredLayoutParams->GetOffset();
+
+						Vector2 newAnchorSize = anchorMax - anchorMin;
+						Vector2 newAnchorPos = (anchorMin + anchorMax) * 0.5f;
+						node->SetDesiredSize(size - parentSize * newAnchorSize);
+						anchoredLayoutParams->SetOffset(position - (newAnchorPos - Vector2(0.5f, 0.5f)) * parentSize - (pivot - Vector2(0.5f, 0.5f)) * parentSize * newAnchorSize);
+
 						anchoredLayoutParams->SetAnchorMin(anchorMin);
 						anchoredLayoutParams->SetAnchorMax(anchorMax);
 						anchoredLayoutParams->SetPivot(pivot);
