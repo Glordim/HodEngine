@@ -2,6 +2,7 @@
 #include "HodEngine/Editor/DrawHelper.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
+#include "HodEngine/Core/String.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp"
 #include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Math/Vector4.hpp"
@@ -185,6 +186,31 @@ namespace hod::inline editor
 			ImGui::SetTooltip("%s %s", toggled ? "Hide" : "Show", itemName);
 		}
 		return changed;
+	}
+
+	void DrawHelper::DrawDropDownButton(const char* label, const char* tooltip, const char* popupId)
+	{
+		bool popupOpened = ImGui::IsPopupOpen(popupId);
+
+		// Same anchor bookkeeping as DrawToggleWithSettings, for BeginSettingsPopup.
+		ImGui::PushID(popupId);
+		ImVec2 anchor = ImGui::GetCursorScreenPos();
+		anchor.y += ImGui::GetFrameHeight();
+		ImGui::GetStateStorage()->SetFloat(ImGui::GetID("AnchorX"), anchor.x);
+		ImGui::GetStateStorage()->SetFloat(ImGui::GetID("AnchorY"), anchor.y);
+
+		String buttonLabel = String(label) + " " ICON_MDI_MENU_DOWN "##DropDown";
+		bool   clicked = FramedButton(buttonLabel.CStr(), popupOpened);
+		if (tooltip != nullptr && popupOpened == false && ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+		{
+			ImGui::SetTooltip("%s", tooltip);
+		}
+		ImGui::PopID();
+
+		if (clicked)
+		{
+			ImGui::OpenPopup(popupId);
+		}
 	}
 
 	bool DrawHelper::BeginSettingsPopup(const char* settingsPopupId)

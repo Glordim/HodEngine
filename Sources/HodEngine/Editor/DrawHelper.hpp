@@ -33,8 +33,13 @@ namespace hod::inline editor
         /// @return true if `toggled` changed
         static bool				DrawToggle(const char* label, const char* itemName, bool& toggled);
 
-        /// @brief ImGui::BeginPopup for a popup opened by DrawToggleWithSettings, anchored under it (popup's top-left corner on the widget's bottom-left corner).
-        /// Must be called in the same window and the same frame as the matching DrawToggleWithSettings, after it.
+        /// @brief Same framed look as DrawToggle, for a button that only opens the popup `popupId` (a "menu down" arrow follows the label,
+        /// highlighted while the popup is open). The caller draws the popup content between BeginSettingsPopup(popupId) and ImGui::EndPopup().
+        /// @param tooltip optional, shown when hovering the button while the popup is closed
+        static void				DrawDropDownButton(const char* label, const char* tooltip, const char* popupId);
+
+        /// @brief ImGui::BeginPopup for a popup opened by DrawToggleWithSettings or DrawDropDownButton, anchored under it (popup's top-left corner on the widget's bottom-left corner).
+        /// Must be called in the same window and the same frame as the matching DrawToggleWithSettings/DrawDropDownButton, after it.
         static bool				BeginSettingsPopup(const char* settingsPopupId);
 
         /// @brief Draws the framed, collapsible block used by inspectors to compartment their content

@@ -8,8 +8,6 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <vector>
-
 namespace hod::inline ui2
 {
 	class Node;
@@ -36,9 +34,11 @@ namespace hod::inline editor
 	/// Docs/Architecture/UI2-Architecture.md), so there is nothing to render beyond node bounds
 	/// regardless of which rendering technology is used.
 	///
-	/// A user-editable list of guides (name + resolution + color, individually toggleable) can be
-	/// overlaid: each is a rect anchored on the canvas' top-left corner (shared by all guides), labeled at
-	/// its bottom-right corner, to check the layout against target resolutions/safe areas. The guides and grid settings are persisted per user.
+	/// The prefab can be previewed on a device picked from a user-editable list (name + resolution, optionally
+	/// rotated): the canvas is then laid out for that resolution, exactly as it would be in game (see
+	/// ui2::CanvasScaler), so anchors and layouts can be checked on other aspect ratios. Switching device eases the
+	/// resolution towards the new one, so the layout morphs progressively. The device's frame is outlined and labeled.
+	/// Never saved in the prefab: the devices, the active one and the grid settings are persisted per user.
 	/// Known simplifications: rotation is ignored (boxes are drawn axis-aligned), and a node's box
 	/// is centered on its computed canvas-space position, which is only exact for the default
 	/// (centered) Origin.
@@ -59,15 +59,15 @@ namespace hod::inline editor
 
 	private:
 
-		using Guide = UIPrefabEditorViewportSettings::Guide;
+		using Device = UIPrefabEditorViewportSettings::Device;
 
-		std::vector<const Guide*>	GetGuidesToDraw() const;
 		void		DrawToolbar();
 		void		DrawViewport(bool mouseOverToolbar);
-		void		DrawGuidesSettingsPopup();
+		void		DrawDevicesPopup();
 		void		DrawGridSettingsPopup();
-		void		DrawGuides(const Vector2& origin, RenderView& renderView);
-		void		DrawGuideLabels(const Vector2& origin, const ImVec2& imagePos, const ImVec2& imageSize, float scale);
+		void		DrawPreviewFrames(RenderView& renderView);
+		void		DrawPreviewLabels(const ImVec2& imagePos, const ImVec2& imageSize, float scale);
+		Vector2		GetDeviceFrameSize() const;
 		void		DrawGrid(const Vector2& origin, const Vector2& viewCenter, float worldHalfWidth, float worldHalfHeight, float scale, RenderView& renderView);
 		void		DrawNode(ui2::Node* node, RenderView& renderView);
 		ui2::Node*	PickNode(ui2::Node* node, const Vector2& canvasPosition);
@@ -98,9 +98,16 @@ namespace hod::inline editor
 
 		RenderTarget* _renderTarget = nullptr;
 
-		// Guides/grid settings, loaded from and saved to the user settings (see UIPrefabEditorViewportSettings).
+		// Devices/grid settings, loaded from and saved to the user settings (see UIPrefabEditorViewportSettings).
 		UIPrefabEditorViewportSettings _settings;
 		bool                           _settingsDirty = false;
+
+		// Resolution the canvas is currently laid out for, easing towards the previewed device's one. Zero until the first frame (no easing then).
+		Vector2 _previewResolution = Vector2::Zero;
+
+		// Pixels per canvas unit fitting the previewed device's frame in the viewport at zoom 1, easing towards the
+		// final device's fit along with _previewResolution. Zero until the first frame.
+		float _baseScale = 0.0f;
 
 		Vector2 _cameraPosition = Vector2::Zero;
 		float   _zoom = 1.0f;

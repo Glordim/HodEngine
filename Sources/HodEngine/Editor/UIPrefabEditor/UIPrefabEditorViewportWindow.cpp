@@ -7,6 +7,9 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
+#include <HodEngine/ImGui/Widgets.hpp>
+
+#include <HodEngine/Core/Math.hpp>
 
 #include <HodEngine/UI2/AnchoredLayoutParams.hpp>
 #include <HodEngine/UI2/LayoutParams.hpp>
@@ -114,6 +117,27 @@ namespace hod::inline editor
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
 		ui2::Node*         root = tab->GetCanvas().GetRootNode();
 
+		// Laid out for the previewed device as it would be in game. Only the tab's runtime canvas state: never saved in the prefab.
+		// Eased towards the device's resolution rather than snapping to it, so switching device (or rotating it) morphs the layout progressively.
+		Vector2 previewGoal = _settings.GetPreviewResolution();
+		if (previewGoal == Vector2::Zero)
+		{
+			previewGoal = tab->GetCanvas().GetScaler()._designResolution;
+		}
+		if (_previewResolution == Vector2::Zero)
+		{
+			_previewResolution = previewGoal;
+		}
+		else
+		{
+			_previewResolution += (previewGoal - _previewResolution) * Min(1.0f, ImGui::GetIO().DeltaTime * 10.0f);
+			Vector2 remaining = previewGoal - _previewResolution;
+			if (std::abs(remaining.GetX()) < 0.5f && std::abs(remaining.GetY()) < 0.5f)
+			{
+				_previewResolution = previewGoal;
+			}
+		}
+		tab->GetCanvas().SetTargetResolution(_previewResolution);
 		tab->GetCanvas().UpdateLayout();
 		Vector2 canvasSize = root->GetSize();
 		ImVec2  available = ImGui::GetContentRegionAvail();
@@ -128,12 +152,14 @@ namespace hod::inline editor
 		resolutionWidth = std::clamp(resolutionWidth, 2u, 16u * 1024u);
 		resolutionHeight = std::clamp(resolutionHeight, 2u, 16u * 1024u);
 
+		bool viewportResized = false;
 		if (_renderTarget->GetResolution().GetX() != resolutionWidth || _renderTarget->GetResolution().GetY() != resolutionHeight)
 		{
 			Texture::CreateInfo createInfo;
 
 			createInfo._allowReadWrite = false;
 			_renderTarget->Init(resolutionWidth, resolutionHeight, createInfo); // todo error
+			viewportResized = true;
 		}
 
 		if (_renderTarget->IsValid() == false)
@@ -141,8 +167,24 @@ namespace hod::inline editor
 			return;
 		}
 
-		// Uniform scale (pixels per canvas unit) that fits the whole canvas inside the viewport at zoom = 1, letterboxed.
-		float baseScale = std::min(resolutionWidth / canvasSize.GetX(), resolutionHeight / canvasSize.GetY());
+		// Uniform scale (pixels per canvas unit) that fits the whole device frame inside the viewport at zoom = 1, letterboxed.
+		// Fitted on the frame the preview is heading to, not the one currently drawn: the intermediate resolutions
+		// pass through other aspect ratios (e.g. squarer while rotating), whose fit would zoom in then out again.
+		// Eased on its own instead, so the camera goes straight to the final framing while the layout morphs.
+		Vector2 goalLayoutSize;
+		float   goalScaleFactor = 1.0f;
+		tab->GetCanvas().GetScaler().Compute(previewGoal, goalLayoutSize, goalScaleFactor);
+		Vector2 goalFrameSize = previewGoal / goalScaleFactor;
+		float   goalBaseScale = std::min(resolutionWidth / goalFrameSize.GetX(), resolutionHeight / goalFrameSize.GetY());
+		if (_baseScale <= 0.0f || viewportResized)
+		{
+			_baseScale = goalBaseScale;
+		}
+		else
+		{
+			_baseScale += (goalBaseScale - _baseScale) * Min(1.0f, ImGui::GetIO().DeltaTime * 10.0f);
+		}
+		float baseScale = _baseScale;
 
 		bool hovered = ImGui::IsWindowHovered() && mouseOverToolbar == false;
 		if (hovered && ImGui::GetIO().MouseWheel != 0.0f)
@@ -248,14 +290,13 @@ namespace hod::inline editor
 		renderView->PushRenderCommand(backgroundCommand);
 		renderView->DeleteAfter(backgroundMaterial);
 */
-		// The grid and all the guides share the canvas' top-left corner as origin (the canvas rect is
-		// centered on the canvas origin), so a guide's edges always fall on grid lines.
+		// The grid is aligned on the canvas' top-left corner (the canvas rect is centered on the canvas origin).
 		Vector2 gridOrigin(-canvasSize.GetX() * 0.5f, canvasSize.GetY() * 0.5f);
 		if (_settings._gridVisible)
 		{
 			DrawGrid(gridOrigin, _cameraPosition, worldHalfWidth, worldHalfHeight, scale, *renderView);
 		}
-		DrawGuides(gridOrigin, *renderView);
+		DrawPreviewFrames(*renderView);
 
 		//Gizmos::Rect(Matrix4::Identity, canvasSize, Color(90.0f / 255.0f, 90.0f / 255.0f, 90.0f / 255.0f, 1.0f), *renderView);
 
@@ -272,7 +313,7 @@ namespace hod::inline editor
 		}
 
 		ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
-		DrawGuideLabels(gridOrigin, imagePos, ImVec2((float)resolutionWidth, (float)resolutionHeight), scale);
+		DrawPreviewLabels(imagePos, ImVec2((float)resolutionWidth, (float)resolutionHeight), scale);
 
 		if (hovered && mouseInsideImage && ImGui::IsMouseClicked(ImGuiMouseButton_Left) && _draggedGizmoHandle == GizmoHandle::None)
 		{
@@ -312,18 +353,44 @@ namespace hod::inline editor
 		}
 	}
 
-	/// @brief Toolbar on top of the viewport: a "Guides" and a "Grid" toggle, each glued to a small
-	/// arrow button opening its settings (see DrawHelper::DrawToggleWithSettings).
+	/// @brief Toolbar on top of the viewport: the previewed device (a drop down listing the devices, plus a
+	/// rotate toggle while one is active) and a "Grid" toggle glued to a small arrow button opening its settings
+	/// (see DrawHelper::DrawToggleWithSettings).
 	void UIPrefabEditorViewportWindow::DrawToolbar()
 	{
 		// The window itself has no padding (the viewport image goes edge to edge), keep the toolbar off the borders
 		// and off the hidden tab bar triangle.
 		ImGui::SetCursorPos(ImGui::GetCursorPos() + ImGui::GetStyle().WindowPadding + ImVec2(DrawHelper::GetHiddenTabBarButtonWidth(), 0.0f));
-		_settingsDirty |= DrawHelper::DrawToggleWithSettings(ICON_MDI_RULER_SQUARE " Guides", "guides", "UIPrefabGuides", _settings._guidesVisible);
+
+		String deviceLabel = ICON_MDI_MONITOR_CELLPHONE " ";
+		if (_settings._activeDevice >= 0)
+		{
+			deviceLabel += _settings._devices[(uint32_t)_settings._activeDevice]._name;
+		}
+		else
+		{
+			deviceLabel += "Design resolution";
+		}
+		DrawHelper::DrawDropDownButton(deviceLabel.CStr(), "Preview device", "UIPrefabDevices");
+
+		if (_settings._activeDevice >= 0)
+		{
+			ImGui::SameLine();
+			if (FramedButton(ICON_MDI_SCREEN_ROTATION, _settings._deviceRotated))
+			{
+				_settings._deviceRotated = !_settings._deviceRotated;
+				_settingsDirty = true;
+			}
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+			{
+				ImGui::SetTooltip(_settings._deviceRotated ? "Rotated (width and height swapped)" : "Rotate (swap width and height)");
+			}
+		}
+
 		ImGui::SameLine();
 		_settingsDirty |= DrawHelper::DrawToggleWithSettings(ICON_MDI_GRID " Grid", "grid", "UIPrefabGrid", _settings._gridVisible);
 
-		DrawGuidesSettingsPopup();
+		DrawDevicesPopup();
 		DrawGridSettingsPopup();
 
 		// Saved once the user is done editing (not on every keystroke/drag step): as soon as no widget is active anymore.
@@ -334,83 +401,123 @@ namespace hod::inline editor
 		}
 	}
 
-	/// @brief Editable list of guides: one row per guide (enabled checkbox, color, name,
-	/// resolution, delete) plus an "Add Guide" button.
-	void UIPrefabEditorViewportWindow::DrawGuidesSettingsPopup()
+	/// @brief Device list, one row each: a radio button marking the previewed one (click to preview it), then its
+	/// name, resolution and delete button. The first row is the canvas' design resolution, read-only (edited
+	/// in the canvas scaler). Followed by an "Add Device" and a "Reset" button.
+	void UIPrefabEditorViewportWindow::DrawDevicesPopup()
 	{
-		if (DrawHelper::BeginSettingsPopup("UIPrefabGuides"))
+		if (DrawHelper::BeginSettingsPopup("UIPrefabDevices") == false)
 		{
-			int32_t removeIndex = -1;
-			for (uint32_t i = 0; i < _settings._guides.Size(); ++i)
-			{
-				Guide& guide = _settings._guides[i];
-
-				ImGui::PushID((int)i);
-
-				_settingsDirty |= ImGui::Checkbox("##Enabled", &guide._enabled);
-
-				ImGui::SameLine();
-				float color[3] = {guide._color.r, guide._color.g, guide._color.b};
-				if (ImGui::ColorEdit3("##Color", color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel))
-				{
-					guide._color = Color(color[0], color[1], color[2], 1.0f);
-					_settingsDirty = true;
-				}
-
-				ImGui::SameLine();
-				char nameBuffer[128] = {'\0'};
-				std::strncpy(nameBuffer, guide._name.CStr(), sizeof(nameBuffer) - 1);
-				ImGui::SetNextItemWidth(140.0f);
-				if (ImGui::InputText("##Name", nameBuffer, sizeof(nameBuffer)))
-				{
-					guide._name = nameBuffer;
-					_settingsDirty = true;
-				}
-
-				ImGui::SameLine();
-				int32_t resolution[2] = {(int32_t)guide._resolution.GetX(), (int32_t)guide._resolution.GetY()};
-				ImGui::SetNextItemWidth(170.0f);
-				if (ImGui::InputInt2("##Resolution", resolution))
-				{
-					guide._resolution = Vector2((float)std::max(resolution[0], 1), (float)std::max(resolution[1], 1));
-					_settingsDirty = true;
-				}
-
-				ImGui::SameLine();
-				if (ImGui::Button(ICON_MDI_DELETE))
-				{
-					removeIndex = (int32_t)i;
-				}
-
-				ImGui::PopID();
-			}
-
-			if (removeIndex >= 0)
-			{
-				_settings._guides.Erase((uint32_t)removeIndex);
-				_settingsDirty = true;
-			}
-
-			if (_settings._guides.Empty())
-			{
-				ImGui::TextDisabled("No guide");
-			}
-
-			if (ImGui::Button(ICON_MDI_PLUS " Add Guide"))
-			{
-				static const StaticArray<Color, 5> palette = {
-					Color(1.0f, 0.35f, 0.35f, 1.0f), Color(0.35f, 1.0f, 0.45f, 1.0f), Color(0.35f, 0.65f, 1.0f, 1.0f),
-					Color(1.0f, 0.85f, 0.3f, 1.0f),  Color(0.85f, 0.45f, 1.0f, 1.0f),
-				};
-
-				Guide& guide = _settings._guides.EmplaceBack();
-				guide._name = String("Guide ") + String(std::to_string(_settings._guides.Size()).c_str());
-				guide._color = palette[(_settings._guides.Size() - 1) % palette.Size()];
-				_settingsDirty = true;
-			}
-
-			ImGui::EndPopup();
+			return;
 		}
+
+		UIPrefabEditorTab*       tab = GetOwner<UIPrefabEditorTab>();
+		const ui2::CanvasScaler& scaler = tab->GetCanvas().GetScaler();
+
+		constexpr float nameWidth = 140.0f;
+		constexpr float resolutionWidth = 170.0f;
+
+		ImGui::PushID("DesignResolution");
+		if (ImGui::RadioButton("##Active", _settings._activeDevice < 0))
+		{
+			_settings._activeDevice = -1;
+			_settingsDirty = true;
+		}
+		ImGui::SameLine();
+		ImGui::BeginDisabled();
+		char designName[] = "Design resolution";
+		ImGui::SetNextItemWidth(nameWidth);
+		ImGui::InputText("##Name", designName, sizeof(designName), ImGuiInputTextFlags_ReadOnly);
+		ImGui::SameLine();
+		int32_t designResolution[2] = {(int32_t)scaler._designResolution.GetX(), (int32_t)scaler._designResolution.GetY()};
+		ImGui::SetNextItemWidth(resolutionWidth);
+		ImGui::InputInt2("##Resolution", designResolution, ImGuiInputTextFlags_ReadOnly);
+		ImGui::EndDisabled();
+		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled))
+		{
+			ImGui::SetTooltip("Edited in the Canvas Scaler (select the Canvas in the hierarchy)");
+		}
+		ImGui::PopID();
+
+		int32_t removeIndex = -1;
+		for (uint32_t i = 0; i < _settings._devices.Size(); ++i)
+		{
+			Device& device = _settings._devices[i];
+
+			ImGui::PushID((int)i);
+
+			if (ImGui::RadioButton("##Active", _settings._activeDevice == (int32_t)i))
+			{
+				_settings._activeDevice = (int32_t)i;
+				_settingsDirty = true;
+			}
+			ImGui::SameLine();
+
+			char nameBuffer[128] = {'\0'};
+			std::strncpy(nameBuffer, device._name.CStr(), sizeof(nameBuffer) - 1);
+			ImGui::SetNextItemWidth(nameWidth);
+			if (ImGui::InputText("##Name", nameBuffer, sizeof(nameBuffer)))
+			{
+				device._name = nameBuffer;
+				_settingsDirty = true;
+			}
+
+			ImGui::SameLine();
+			int32_t resolution[2] = {(int32_t)device._resolution.GetX(), (int32_t)device._resolution.GetY()};
+			ImGui::SetNextItemWidth(resolutionWidth);
+			if (ImGui::InputInt2("##Resolution", resolution))
+			{
+				device._resolution = Vector2((float)Max(resolution[0], 1), (float)Max(resolution[1], 1));
+				_settingsDirty = true;
+			}
+
+			ImGui::SameLine();
+			if (ImGui::Button(ICON_MDI_DELETE))
+			{
+				removeIndex = (int32_t)i;
+			}
+
+			ImGui::PopID();
+		}
+
+		if (removeIndex >= 0)
+		{
+			_settings._devices.Erase((uint32_t)removeIndex);
+			if (_settings._activeDevice == removeIndex)
+			{
+				_settings._activeDevice = -1;
+			}
+			else if (_settings._activeDevice > removeIndex)
+			{
+				--_settings._activeDevice;
+			}
+			_settingsDirty = true;
+		}
+
+		if (_settings._devices.Empty())
+		{
+			ImGui::TextDisabled("No device");
+		}
+
+		if (ImGui::Button(ICON_MDI_PLUS " Add Device"))
+		{
+			Device& device = _settings._devices.EmplaceBack();
+			device._name = String("Device ") + String(std::to_string(_settings._devices.Size()).c_str());
+			device._resolution = scaler._designResolution;
+			_settingsDirty = true;
+		}
+		ImGui::SameLine();
+		if (ImGui::Button(ICON_MDI_RESTORE " Reset"))
+		{
+			_settings.ResetDevices();
+			_settingsDirty = true;
+		}
+		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+		{
+			ImGui::SetTooltip("Replace the devices by the built-in list");
+		}
+
+		ImGui::EndPopup();
 	}
 
 	/// @brief Grid settings: size of a cell at zoom 1.0 (the grid still coarsens/refines by
@@ -428,74 +535,63 @@ namespace hod::inline editor
 		}
 	}
 
-	/// @brief Enabled guides (none at all while guides are hidden) ordered from the largest to the smallest area, i.e. the order they
-	/// must be drawn in so that a smaller guide's frame ends up on top of a larger one's and stays
-	/// complete where their edges coincide. The user-facing list order is left untouched.
-	std::vector<const UIPrefabEditorViewportWindow::Guide*> UIPrefabEditorViewportWindow::GetGuidesToDraw() const
+	/// @brief Size, in canvas units, of the previewed screen (at its current, possibly still easing, resolution): the canvas'
+	/// layout size, except in CanvasScaler::Mode::Fit where the screen can be larger than the (design sized) canvas, the
+	/// difference being the letterbox bars.
+	Vector2 UIPrefabEditorViewportWindow::GetDeviceFrameSize() const
 	{
-		std::vector<const Guide*> guides;
-		if (_settings._guidesVisible == false)
+		const ui2::Canvas& canvas = const_cast<UIPrefabEditorViewportWindow*>(this)->GetOwner<UIPrefabEditorTab>()->GetCanvas();
+		if (canvas.GetScaleFactor() <= 0.0f)
 		{
-			return guides;
+			return canvas.GetLayoutSize();
 		}
-
-		for (const Guide& guide : _settings._guides)
-		{
-			if (guide._enabled)
-			{
-				guides.push_back(&guide);
-			}
-		}
-
-		std::stable_sort(guides.begin(), guides.end(),
-		                 [](const Guide* left, const Guide* right)
-		                 { return left->_resolution.GetX() * left->_resolution.GetY() > right->_resolution.GetX() * right->_resolution.GetY(); });
-		return guides;
+		return canvas.GetTargetResolution() / canvas.GetScaleFactor();
 	}
 
-	/// @brief Draws each enabled guide's rect into the render target, all sharing the same top-left
-	/// corner (`origin`) and extending right/down from it, largest first (see GetGuidesToDraw).
-	/// Their labels are drawn afterwards over the blitted image, see DrawGuideLabels.
-	/// @param origin canvas-space position of the guides' shared top-left corner
-	/// @param renderView
-	void UIPrefabEditorViewportWindow::DrawGuides(const Vector2& origin, RenderView& renderView)
+	/// @brief Outlines the previewed device's frame, centered on the canvas origin like the canvas itself. Its label is
+	/// drawn afterwards over the blitted image, see DrawPreviewLabels.
+	void UIPrefabEditorViewportWindow::DrawPreviewFrames(RenderView& renderView)
 	{
-		for (const Guide* guide : GetGuidesToDraw())
-		{
-			// Gizmos::Rect is centered on its matrix; canvas space is Y-up, so "down" is -Y.
-			Vector2 center(origin.GetX() + guide->_resolution.GetX() * 0.5f, origin.GetY() - guide->_resolution.GetY() * 0.5f);
-			Gizmos::Rect(Matrix4::Translation(center), guide->_resolution, guide->_color, renderView);
-		}
+		Gizmos::Rect(Matrix4::Identity, GetDeviceFrameSize(), Color(0.85f, 0.85f, 0.85f, 1.0f), renderView);
 	}
 
-	/// @brief Draws each enabled guide's name just inside the bottom-right corner of its rect.
-	/// Done with ImGui over the image (the render target can't draw text), hence the manual
-	/// canvas -> screen projection, the inverse of DrawContent's screenToCanvas.
-	/// @param origin canvas-space position of the guides' shared top-left corner, see DrawGuides
+	/// @brief Labels the frame of DrawPreviewFrames with the device's name and resolution, above its top-left corner.
+	/// Done with ImGui over the image (the render target can't draw text), hence the manual canvas -> screen projection,
+	/// the inverse of DrawViewport's screenToCanvas.
 	/// @param imagePos screen position of the image's top-left corner
 	/// @param imageSize
 	/// @param scale pixels per canvas unit
-	void UIPrefabEditorViewportWindow::DrawGuideLabels(const Vector2& origin, const ImVec2& imagePos, const ImVec2& imageSize, float scale)
+	void UIPrefabEditorViewportWindow::DrawPreviewLabels(const ImVec2& imagePos, const ImVec2& imageSize, float scale)
 	{
+		const ui2::CanvasScaler& scaler = GetOwner<UIPrefabEditorTab>()->GetCanvas().GetScaler();
+
+		// Canvas space is Y-up, screen space Y-down; the canvas point at the view's center is _cameraPosition.
+		auto canvasToScreen = [&](float x, float y) -> ImVec2
+		{ return ImVec2(imagePos.x + imageSize.x * 0.5f + (x - _cameraPosition.GetX()) * scale, imagePos.y + imageSize.y * 0.5f - (y - _cameraPosition.GetY()) * scale); };
+
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 		drawList->PushClipRect(imagePos, imagePos + imageSize, true);
 
-		for (const Guide* guidePtr : GetGuidesToDraw())
+		Vector2 frameSize = GetDeviceFrameSize();
+		Vector2 previewResolution = _settings.GetPreviewResolution();
+		if (previewResolution == Vector2::Zero)
 		{
-			const Guide& guide = *guidePtr;
-			if (guide._name.Empty())
-			{
-				continue;
-			}
-
-			// Canvas space is Y-up, screen space Y-down; the canvas point at the view's center is _cameraPosition.
-			float  right = imagePos.x + imageSize.x * 0.5f + (origin.GetX() + guide._resolution.GetX() - _cameraPosition.GetX()) * scale;
-			float  bottom = imagePos.y + imageSize.y * 0.5f - (origin.GetY() - guide._resolution.GetY() - _cameraPosition.GetY()) * scale;
-			ImVec2 textSize = ImGui::CalcTextSize(guide._name.CStr());
-
-			ImU32 color = ImGui::ColorConvertFloat4ToU32(ImVec4(guide._color.r, guide._color.g, guide._color.b, 1.0f));
-			drawList->AddText(ImVec2(right - textSize.x - 4.0f, bottom - textSize.y - 2.0f), color, guide._name.CStr());
+			previewResolution = scaler._designResolution;
 		}
+
+		char frameLabel[192];
+		if (_settings._activeDevice >= 0)
+		{
+			std::snprintf(frameLabel, sizeof(frameLabel), "%s  %d x %d", _settings._devices[(uint32_t)_settings._activeDevice]._name.CStr(), (int)previewResolution.GetX(),
+			              (int)previewResolution.GetY());
+		}
+		else
+		{
+			std::snprintf(frameLabel, sizeof(frameLabel), "Design resolution  %d x %d", (int)previewResolution.GetX(), (int)previewResolution.GetY());
+		}
+		ImVec2 frameTopLeft = canvasToScreen(-frameSize.GetX() * 0.5f, frameSize.GetY() * 0.5f);
+		ImVec2 frameLabelSize = ImGui::CalcTextSize(frameLabel);
+		drawList->AddText(ImVec2(frameTopLeft.x, frameTopLeft.y - frameLabelSize.y - 2.0f), IM_COL32(217, 217, 217, 255), frameLabel);
 
 		drawList->PopClipRect();
 	}
