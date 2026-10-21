@@ -24,8 +24,10 @@ namespace hod::inline rhi
 		bool Build(const MetalGraphicsPipeline& graphicsPipeline, uint32_t set, Buffer* const* uniformBuffers, uint32_t uniformBufferCount, const TextureBinding* textureBindings,
 		           uint32_t textureBindingCount);
 
-		// Index of the buffer the shaders read the argument buffer of the set from
-		uint32_t GetBufferIndex() const;
+		// Index of the buffer each stage reads the argument buffer of the set from: they can differ, the stages are compiled apart.
+		// ShaderSetDescriptor::NoSpace for a stage whose shader does not use the set.
+		uint32_t GetVertexBufferIndex() const;
+		uint32_t GetFragmentBufferIndex() const;
 
 		uint32_t GetArgumentBufferSize() const;
 		uint32_t GetUniformBufferCount() const;
@@ -41,7 +43,8 @@ namespace hod::inline rhi
 		};
 
 	private:
-		uint32_t              _bufferIndex = 0;
+		uint32_t              _vertexBufferIndex = 0;
+		uint32_t              _fragmentBufferIndex = 0;
 		Vector<uint8_t>       _argumentBuffer; // textures and samplers are in, the addresses of the uniform buffers are left to WriteArgumentBuffer
 		Vector<UniformBuffer> _uniformBuffers;
 	};

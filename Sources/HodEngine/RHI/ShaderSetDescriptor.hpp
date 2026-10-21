@@ -4,6 +4,8 @@
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/String.hpp"
 #include "HodEngine/Core/Vector.hpp"
+#include "HodEngine/RHI/Shader.hpp"
+#include <cstdint>
 #include <unordered_map>
 
 namespace hod::inline rhi
@@ -84,6 +86,13 @@ namespace hod::inline rhi
 		uint32_t GetSpace() const;
 		void     SetSpace(uint32_t space);
 
+		// The space of the set in the shader of each stage of a pipeline: the stages are compiled apart, a set is not always at the same place in each.
+		// Metal reads it, where each stage numbers its buffers apart. NoSpace for a stage whose shader does not use the set.
+		// Set by GraphicsPipeline::MergeSetDescriptors.
+		static constexpr uint32_t NoSpace = UINT32_MAX;
+		uint32_t                  GetStageSpace(Shader::ShaderType shaderType) const;
+		void                      SetStageSpace(Shader::ShaderType shaderType, uint32_t space);
+
 		const Vector<BlockUbo>&     GetUboBlocks() const;
 		const Vector<BlockTexture>& GetTextureBlocks() const;
 
@@ -91,8 +100,12 @@ namespace hod::inline rhi
 		void ExtractUboSubMembers(const DocumentNode& fieldNode, BlockUbo::Member& structMember);
 
 	private:
+		static constexpr uint32_t StageCount = Shader::ShaderType::Compute + 1;
+
+	private:
 		Vector<BlockUbo>     _uboBlockVector;
 		Vector<BlockTexture> _textureBlockVector;
 		uint32_t             _space = 0;
+		uint32_t             _stageSpaces[StageCount] = {NoSpace, NoSpace, NoSpace, NoSpace};
 	};
 }

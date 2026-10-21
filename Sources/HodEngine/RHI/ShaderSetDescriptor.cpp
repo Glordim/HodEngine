@@ -33,6 +33,14 @@ namespace hod::inline rhi
 	{
 		_space = other._space;
 
+		for (uint32_t stage = 0; stage < StageCount; ++stage)
+		{
+			if (other._stageSpaces[stage] != NoSpace)
+			{
+				_stageSpaces[stage] = other._stageSpaces[stage];
+			}
+		}
+
 		for (const BlockUbo& otherUboBlock : other._uboBlockVector)
 		{
 			bool alreadyExist = false;
@@ -97,6 +105,22 @@ namespace hod::inline rhi
 	void ShaderSetDescriptor::SetSpace(uint32_t space)
 	{
 		_space = space;
+	}
+
+	/// @brief
+	/// @param shaderType
+	/// @return
+	uint32_t ShaderSetDescriptor::GetStageSpace(Shader::ShaderType shaderType) const
+	{
+		return _stageSpaces[shaderType];
+	}
+
+	/// @brief
+	/// @param shaderType
+	/// @param space
+	void ShaderSetDescriptor::SetStageSpace(Shader::ShaderType shaderType, uint32_t space)
+	{
+		_stageSpaces[shaderType] = space;
 	}
 
 	/// @brief

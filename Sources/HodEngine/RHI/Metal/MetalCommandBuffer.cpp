@@ -1,5 +1,6 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/Metal/MetalBindGroup.hpp"
+#include "HodEngine/RHI/ShaderSetDescriptor.hpp"
 #include "HodEngine/RHI/Metal/MetalBuffer.hpp"
 #include "HodEngine/RHI/Metal/MetalCommandBuffer.hpp"
 
@@ -279,8 +280,15 @@ namespace hod::inline rhi
 		uint64_t gpuAddress = 0;
 		metalBindGroup->WriteArgumentBuffer(AllocateTransient(argumentBufferSize, gpuAddress), uniformBufferOffsets);
 
-		_vertexArgumentTable->setAddress(gpuAddress, metalBindGroup->GetBufferIndex());
-		_fragmentArgumentTable->setAddress(gpuAddress, metalBindGroup->GetBufferIndex());
+		// Each stage from where its shader reads the set, none for a stage which does not use it: its buffer at that index is something else
+		if (metalBindGroup->GetVertexBufferIndex() != ShaderSetDescriptor::NoSpace)
+		{
+			_vertexArgumentTable->setAddress(gpuAddress, metalBindGroup->GetVertexBufferIndex());
+		}
+		if (metalBindGroup->GetFragmentBufferIndex() != ShaderSetDescriptor::NoSpace)
+		{
+			_fragmentArgumentTable->setAddress(gpuAddress, metalBindGroup->GetFragmentBufferIndex());
+		}
 	}
 
 	/// @brief

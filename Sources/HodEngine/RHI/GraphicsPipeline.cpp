@@ -51,14 +51,10 @@ namespace hod::inline rhi
 				auto it = _setDescriptors.find(pair.first);
 				if (it == _setDescriptors.end())
 				{
-					ShaderSetDescriptor* setDescriptor = DefaultAllocator::GetInstance().New<ShaderSetDescriptor>();
-					setDescriptor->Merge(*pair.second);
-					_setDescriptors[pair.first] = setDescriptor;
+					it = _setDescriptors.emplace(pair.first, DefaultAllocator::GetInstance().New<ShaderSetDescriptor>()).first;
 				}
-				else
-				{
-					it->second->Merge(*pair.second);
-				}
+				it->second->Merge(*pair.second);
+				it->second->SetStageSpace(shader->GetShaderType(), pair.second->GetSpace());
 			}
 		}
 

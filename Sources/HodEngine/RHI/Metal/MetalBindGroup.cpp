@@ -48,7 +48,8 @@ namespace hod::inline rhi
 
 		MetalRhiDevice* rhiDevice = MetalRhiDevice::GetInstance();
 
-		_bufferIndex = it->second->GetSpace();
+		_vertexBufferIndex = it->second->GetStageSpace(Shader::ShaderType::Vertex);
+		_fragmentBufferIndex = it->second->GetStageSpace(Shader::ShaderType::Fragment);
 
 		// Each block is one field of the argument buffer, its binding is the offset of the field
 		uint32_t argumentBufferSize = 0;
@@ -113,9 +114,16 @@ namespace hod::inline rhi
 
 	/// @brief
 	/// @return
-	uint32_t MetalBindGroup::GetBufferIndex() const
+	uint32_t MetalBindGroup::GetVertexBufferIndex() const
 	{
-		return _bufferIndex;
+		return _vertexBufferIndex;
+	}
+
+	/// @brief
+	/// @return
+	uint32_t MetalBindGroup::GetFragmentBufferIndex() const
+	{
+		return _fragmentBufferIndex;
 	}
 
 	/// @brief
