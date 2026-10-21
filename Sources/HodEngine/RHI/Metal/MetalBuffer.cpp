@@ -18,15 +18,14 @@ namespace hod::inline rhi
 
 	MetalBuffer::~MetalBuffer()
 	{
-		MetalRhiDevice::GetInstance()->RemoveResourceFromResidencySet(_nativeBuffer);
-		_nativeBuffer->release();
+		MetalRhiDevice::GetInstance()->DeferReleaseResident(_nativeBuffer);
 	}
 
 	bool MetalBuffer::Resize(uint32_t Size)
 	{
 		MetalRhiDevice* metalRhiDevice = MetalRhiDevice::GetInstance();
-		metalRhiDevice->RemoveResourceFromResidencySet(_nativeBuffer);
-		_nativeBuffer->release();
+		// A frame in flight may still read it
+		metalRhiDevice->DeferReleaseResident(_nativeBuffer);
 		_nativeBuffer = metalRhiDevice->GetDevice()->newBuffer(Size, MTL::ResourceStorageModeShared);
 		metalRhiDevice->AddResourceToResidencySet(_nativeBuffer);
 		_size = Size;

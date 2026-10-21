@@ -18,7 +18,7 @@
 #include <QuartzCore/CAMetalDrawable.hpp>
 #include <QuartzCore/CAMetalLayer.hpp>
 
-#include <algorithm>
+#include <HodEngine/Core/Math.hpp>
 #include <cstring>
 
 namespace hod::inline rhi
@@ -51,8 +51,10 @@ namespace hod::inline rhi
 		MetalRhiDevice* metalRhiDevice = MetalRhiDevice::GetInstance();
 		MTL::Device*   device = metalRhiDevice->GetDevice();
 
+		_frameIndex = metalRhiDevice->GetFrameIndex();
+
 		_commandBuffer = device->newCommandBuffer();
-		_commandBuffer->beginCommandBuffer(metalRhiDevice->GetCommandAllocator(RhiDevice::GetInstance()->GetFrameIndex()));
+		_commandBuffer->beginCommandBuffer(metalRhiDevice->GetCommandAllocator(_frameIndex));
 
 		MTL4::ArgumentTableDescriptor* argumentTableDescriptor = MTL4::ArgumentTableDescriptor::alloc()->init();
 		argumentTableDescriptor->setMaxBufferBindCount(31);
@@ -71,46 +73,27 @@ namespace hod::inline rhi
 		{
 			_renderCommandEncoder->release();
 		}
-		_vertexArgumentTable->release();
-		_fragmentArgumentTable->release();
-		_commandBuffer->release();
-
-		for (MTL::Buffer* transientBuffer : _transientBuffers)
-		{
-			MetalRhiDevice::GetInstance()->RemoveResourceFromResidencySet(transientBuffer);
-			transientBuffer->release();
-		}
+		// Deleted once its submission is done (see RenderView::Wait), but not always: what it holds is kept until the GPU is done with it
+		MetalRhiDevice* metalRhiDevice = MetalRhiDevice::GetInstance();
+		metalRhiDevice->DeferRelease(_vertexArgumentTable);
+		metalRhiDevice->DeferRelease(_fragmentArgumentTable);
+		metalRhiDevice->DeferRelease(_commandBuffer);
 	}
 
-	/// @brief
+	/// @brief From the transient memory of its frame, reused once the GPU is done with it
 	/// @param size
 	/// @param gpuAddress
 	/// @return
 	void* MetalCommandBuffer::AllocateTransient(uint32_t size, uint64_t& gpuAddress)
 	{
-		constexpr uint32_t alignment = 16;
-		constexpr uint32_t minBufferSize = 64 * 1024;
+		return MetalRhiDevice::GetInstance()->AllocateTransient(_frameIndex, size, gpuAddress);
+	}
 
-		size = (size + alignment - 1) & ~(alignment - 1);
-
-		if (_transientBuffers.Empty() || _transientBufferOffset + size > _transientBufferSize)
-		{
-			MetalRhiDevice* metalRhiDevice = MetalRhiDevice::GetInstance();
-
-			_transientBufferSize = std::max(size, minBufferSize);
-			_transientBufferOffset = 0;
-
-			MTL::Buffer* transientBuffer = metalRhiDevice->GetDevice()->newBuffer(_transientBufferSize, MTL::ResourceStorageModeShared);
-			metalRhiDevice->AddResourceToResidencySet(transientBuffer);
-			_transientBuffers.PushBack(transientBuffer);
-		}
-
-		MTL::Buffer* transientBuffer = _transientBuffers[_transientBuffers.Size() - 1];
-
-		void* data = static_cast<uint8_t*>(transientBuffer->contents()) + _transientBufferOffset;
-		gpuAddress = transientBuffer->gpuAddress() + _transientBufferOffset;
-		_transientBufferOffset += size;
-		return data;
+	/// @brief
+	/// @return
+	uint32_t MetalCommandBuffer::GetFrameIndex() const
+	{
+		return _frameIndex;
 	}
 
 	/// @brief
@@ -209,10 +192,10 @@ namespace hod::inline rhi
 	void MetalCommandBuffer::SetScissor(const Rect& scissor)
 	{
 		MTL::ScissorRect scissorRect;
-		scissorRect.x = std::clamp((uint32_t)scissor._position.GetX(), 0u, _renderPassWidth);
-		scissorRect.y = std::clamp((uint32_t)scissor._position.GetY(), 0u, _renderPassHeight);
-		scissorRect.width = std::clamp((uint32_t)scissor._size.GetX(), 0u, _renderPassWidth - (uint32_t)scissorRect.x);
-		scissorRect.height = std::clamp((uint32_t)scissor._size.GetY(), 0u, _renderPassHeight - (uint32_t)scissorRect.y);
+		scissorRect.x = Clamp((uint32_t)scissor._position.GetX(), 0u, _renderPassWidth);
+		scissorRect.y = Clamp((uint32_t)scissor._position.GetY(), 0u, _renderPassHeight);
+		scissorRect.width = Clamp((uint32_t)scissor._size.GetX(), 0u, _renderPassWidth - (uint32_t)scissorRect.x);
+		scissorRect.height = Clamp((uint32_t)scissor._size.GetY(), 0u, _renderPassHeight - (uint32_t)scissorRect.y);
 		_renderCommandEncoder->setScissorRect(scissorRect);
 	}
 

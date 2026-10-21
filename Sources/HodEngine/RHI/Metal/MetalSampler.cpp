@@ -19,10 +19,7 @@ namespace hod::inline rhi
 	/// @brief
 	MetalSampler::~MetalSampler()
 	{
-		if (_samplerState != nullptr)
-		{
-			_samplerState->release();
-		}
+		MetalRhiDevice::GetInstance()->DeferRelease(_samplerState);
 	}
 
 	/// @brief

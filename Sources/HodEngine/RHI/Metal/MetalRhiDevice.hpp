@@ -5,8 +5,14 @@
 
 	#include "HodEngine/RHI/RhiDevice.hpp"
 
+namespace NS
+{
+	class Object;
+}
+
 namespace MTL
 {
+	class Buffer;
 	class Device;
 	class ResidencySet;
 	class Allocation;
@@ -62,8 +68,17 @@ namespace hod::inline rhi
 		MTL4::CommandQueue* GetCommandQueue() const;
 		MTL4::CommandAllocator* GetCommandAllocator(uint32_t frameIndex) const;
 
+		// Memory the GPU reads for the command buffers of a frame only: push constants, argument buffers, indices made by a draw.
+		// Returns where to write, and gives the address the GPU reads it from. Reused once the GPU is done with the frame, see FlushDeferredDeletions.
+		void* AllocateTransient(uint32_t frameIndex, uint32_t size, uint64_t& gpuAddress);
+
+		// Taken into account by the next submission: the residency set is committed once, ahead of it
 		void AddResourceToResidencySet(const MTL::Allocation* allocation);
-		void RemoveResourceFromResidencySet(const MTL::Allocation* allocation);
+
+		// Released once the GPU is done with the submissions that may use it: the next one, see GetDeferredDeletionSubmissionIndex
+		void DeferRelease(NS::Object* object);
+		// The same for a buffer or a texture, which stays in the residency set until then
+		void DeferReleaseResident(MTL::Allocation* allocation);
 
 	protected:
 		bool     InitDevice(uint32_t physicalDeviceIdentifier) override;
@@ -71,14 +86,47 @@ namespace hod::inline rhi
 		void FlushDeferredDeletions(uint32_t frameIndex) override;
 
 	private:
-		MTL::Device*                    _device = nullptr;
-		MTL4::CommandQueue*             _commandQueue = nullptr;
-		Vector<MTL4::CommandAllocator*> _commandAllocators;
-		MTL::ResidencySet*              _residencySet = nullptr;
+		// To call after each commit: gives it the next submission index, which the submission event takes once the GPU is done with it
+		void SignalSubmissionIndex();
+		// What is released now may be used by the submissions up to the next one
+		uint64_t GetDeferredDeletionSubmissionIndex() const;
+		void     ReleaseCompletedDeletions(uint64_t completedSubmissionIndex);
 
-		// Signaled by the command queue once it is done with everything committed before, see WaitIdle
-		MTL::SharedEvent* _idleEvent = nullptr;
-		uint64_t          _idleEventValue = 0;
+		void CommitResidencySet();
+
+	private:
+		// What the command buffers of a frame in flight are recorded with, reused once the GPU is done with them
+		struct FrameData
+		{
+			MTL4::CommandAllocator* _commandAllocator = nullptr;
+			uint64_t                _submissionIndex = 0; // the last one with command buffers recorded with it
+
+			Vector<MTL::Buffer*> _transientBuffers;      // filled one after the other
+			uint32_t             _transientBufferIndex = 0; // the one being filled
+			uint32_t             _transientBufferOffset = 0;
+		};
+
+	private:
+		MTL::Device*        _device = nullptr;
+		MTL4::CommandQueue* _commandQueue = nullptr;
+		Vector<FrameData>   _frames; // one per frame in flight
+		MTL::ResidencySet*  _residencySet = nullptr;
+		bool                _residencySetChanged = false; // not committed yet
+
+		// Takes the index of each submission once the GPU is done with it, and so with the ones before
+		MTL::SharedEvent* _submissionEvent = nullptr;
+		uint64_t          _lastSubmissionIndex = 0;
+
+		// Released with the index of the next submission: once the GPU is done with it, the last one that may use them
+		template<typename T>
+		struct Deferred
+		{
+			T        _object = nullptr;
+			uint64_t _submissionIndex = 0;
+		};
+
+		Vector<Deferred<NS::Object*>>      _objectsToRelease;
+		Vector<Deferred<MTL::Allocation*>> _allocationsToRelease;
 	};
 }
 

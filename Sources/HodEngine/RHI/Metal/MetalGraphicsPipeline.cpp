@@ -1,4 +1,5 @@
 #include "HodEngine/RHI/Pch.hpp"
+#include "HodEngine/Core/Math.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/RHI/Metal/MetalGraphicsPipeline.hpp"
 #include "HodEngine/RHI/Metal/MetalShader.hpp"
@@ -38,10 +39,7 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	MetalGraphicsPipeline::~MetalGraphicsPipeline()
 	{
-		if (_renderPipelineState != nullptr)
-		{
-			_renderPipelineState->release();
-		}
+		MetalRhiDevice::GetInstance()->DeferRelease(_renderPipelineState);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -82,7 +80,7 @@ namespace hod::inline rhi
 			uint32_t maxBinding = 0;
 			for (uint32_t i = 0; i < vertexInputCount; ++i)
 			{
-				maxBinding = std::max(maxBinding, vertexInputs[i]._binding);
+				maxBinding = Max(maxBinding, vertexInputs[i]._binding);
 			}
 
 			Vector<uint32_t> strides;

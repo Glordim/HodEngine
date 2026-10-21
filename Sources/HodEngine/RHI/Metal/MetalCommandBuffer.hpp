@@ -59,6 +59,8 @@ namespace hod::inline rhi
 		void Present(PresentationSurface* presentationSurface) override;
 
 		MTL4::CommandBuffer* GetNativeCommandBuffer() const;
+		// The frame in flight it is recorded for: its command allocator and transient memory, see MetalRhiDevice
+		uint32_t             GetFrameIndex() const;
 
 	private:
 		// Memory the GPU reads for the draws of this command buffer only: push constants, argument buffers of the sets.
@@ -66,9 +68,7 @@ namespace hod::inline rhi
 		void* AllocateTransient(uint32_t size, uint64_t& gpuAddress);
 
 	private:
-		Vector<MTL::Buffer*>        _transientBuffers; // released with the command buffer, the last one is the one being filled
-		uint32_t                    _transientBufferSize = 0;
-		uint32_t                    _transientBufferOffset = 0;
+		uint32_t                    _frameIndex = 0;
 
 		MTL4::CommandBuffer*        _commandBuffer = nullptr;
 		MTL4::RenderCommandEncoder* _renderCommandEncoder = nullptr;

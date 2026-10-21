@@ -26,13 +26,12 @@ namespace hod::inline rhi
 		Release();
 	}
 
-	/// @brief
+	/// @brief What was built, kept until the GPU is done with it: the texture can be built again
 	void MetalTexture::Release()
 	{
 		if (_texture != nullptr)
 		{
-			MetalRhiDevice::GetInstance()->RemoveResourceFromResidencySet(_texture);
-			_texture->release();
+			MetalRhiDevice::GetInstance()->DeferReleaseResident(_texture);
 			_texture = nullptr;
 		}
 		_readbackReady = false;

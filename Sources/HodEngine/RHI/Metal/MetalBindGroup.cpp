@@ -13,7 +13,7 @@
 
 #include <Metal/Metal.hpp>
 
-#include <algorithm>
+#include <HodEngine/Core/Math.hpp>
 #include <cstring>
 
 namespace hod::inline rhi
@@ -54,11 +54,11 @@ namespace hod::inline rhi
 		uint32_t argumentBufferSize = 0;
 		for (const ShaderSetDescriptor::BlockUbo& ubo : uboBlocks)
 		{
-			argumentBufferSize = std::max(argumentBufferSize, ubo._binding + (uint32_t)sizeof(MTL::GPUAddress));
+			argumentBufferSize = Max(argumentBufferSize, ubo._binding + (uint32_t)sizeof(MTL::GPUAddress));
 		}
 		for (const ShaderSetDescriptor::BlockTexture& textureBlock : textureBlocks)
 		{
-			argumentBufferSize = std::max(argumentBufferSize, textureBlock._binding + (uint32_t)sizeof(MTL::ResourceID));
+			argumentBufferSize = Max(argumentBufferSize, textureBlock._binding + (uint32_t)sizeof(MTL::ResourceID));
 		}
 		_argumentBuffer.Resize(argumentBufferSize, 0);
 
