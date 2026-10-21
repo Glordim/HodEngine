@@ -40,6 +40,9 @@ namespace hod::inline editor
 
 	HOD_EDITOR_API std::string_view ToString(Config config);
 
+	// The platform the editor runs on: the one it cooks for to load the resources itself, see Project
+	HOD_EDITOR_API Platform GetEditorPlatform();
+
 	/// @brief
 	class HOD_EDITOR_API Cooker
 	{

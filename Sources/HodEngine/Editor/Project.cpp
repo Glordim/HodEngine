@@ -224,7 +224,7 @@ namespace hod::inline editor
 			{
 				return false;
 			}
-			bool result = cooker->Cook(*asset, std::to_underlying(Platform::Windows), std::to_underlying(Config::Debug), std::to_underlying(ResourceVariant::Language::All), 0);
+			bool result = cooker->Cook(*asset, std::to_underlying(GetEditorPlatform()), std::to_underlying(Config::Debug), std::to_underlying(ResourceVariant::Language::All), 0);
 			AssetDatabase::GetInstance()->ReleaseCooker(cooker);
 			return result;
 		});
@@ -245,7 +245,7 @@ namespace hod::inline editor
 				AssetDatabase::GetInstance()->ReleaseCooker(cooker);
 				return true;
 			}
-			bool result = cooker->Cook(*asset, std::to_underlying(Platform::Windows), std::to_underlying(Config::Debug), std::to_underlying(ResourceVariant::Language::All), 0);
+			bool result = cooker->Cook(*asset, std::to_underlying(GetEditorPlatform()), std::to_underlying(Config::Debug), std::to_underlying(ResourceVariant::Language::All), 0);
 			AssetDatabase::GetInstance()->ReleaseCooker(cooker);
 			return result;
 		});

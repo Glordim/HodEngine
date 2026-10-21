@@ -26,8 +26,10 @@ namespace hod::inline editor
 			std::string_view name;
 		};
 
+		// The name of the directory of a platform in the resource directory: the one CMake gives it (HOD_PLATFORM_NAME), which the ResourceManager
+		// of the editor loads from (see Project), on file systems that tell the case apart too
 		constexpr PlatformEntry platformEntries[] = {
-			{Platform::Windows, "Windows"}, {Platform::MacOs, "MacOs"}, {Platform::Linux, "Linux"}, {Platform::Android, "Android"}, {Platform::Ios, "Ios"},
+			{Platform::Windows, "windows"}, {Platform::MacOs, "macos"}, {Platform::Linux, "linux"}, {Platform::Android, "android"}, {Platform::Ios, "ios"},
 		};
 
 		struct ConfigEntry
@@ -60,6 +62,21 @@ namespace hod::inline editor
 			}
 		}
 		return "";
+	}
+
+	/// @brief The editor only runs on the desktop platforms
+	/// @return
+	Platform GetEditorPlatform()
+	{
+#if defined(PLATFORM_WINDOWS)
+		return Platform::Windows;
+#elif defined(PLATFORM_MACOS)
+		return Platform::MacOs;
+#elif defined(PLATFORM_LINUX)
+		return Platform::Linux;
+#else
+	#error "The editor does not run on this platform"
+#endif
 	}
 
 	void Cooker::SetCookerVersion(uint32_t cookerVersion)
