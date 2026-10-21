@@ -40,6 +40,7 @@ namespace hod::inline rhi
 		_layer->release();
 	}
 
+	/// @brief The command buffers committed from now on wait for the drawable to be available: no semaphore needed, they are on the same queue
 	bool MetalPresentationSurface::AcquireNextImageIndex(Semaphore* /*imageAvailableSemaphore*/)
 	{
 		if (_drawable != nullptr)
@@ -47,7 +48,13 @@ namespace hod::inline rhi
 			_drawable->release();
 		}
 		_drawable = _layer->nextDrawable();
-		return _drawable != nullptr;
+		if (_drawable == nullptr)
+		{
+			return false;
+		}
+
+		MetalRhiDevice::GetInstance()->GetCommandQueue()->wait(_drawable);
+		return true;
 	}
 
 	CA::MetalDrawable* MetalPresentationSurface::GetCurrentDrawable() const
@@ -72,8 +79,19 @@ namespace hod::inline rhi
 		return Vector2(static_cast<uint32_t>(_layer->drawableSize().width), static_cast<uint32_t>(_layer->drawableSize().height));
 	}
 
+	/// @brief Presents once everything drawn into the drawable is committed: the queue signals it after the work committed before.
+	/// The semaphores of the RenderViews are not waited for, the queue already orders the signal after them.
 	bool MetalPresentationSurface::SwapBuffer()
 	{
+		_semaphoresToSwapBuffer.Clear();
+
+		if (_drawable == nullptr)
+		{
+			return false;
+		}
+
+		MetalRhiDevice::GetInstance()->GetCommandQueue()->signalDrawable(_drawable);
+		_drawable->present();
 		return true;
 	}
 

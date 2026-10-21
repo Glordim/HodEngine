@@ -34,8 +34,6 @@ namespace hod::inline rhi
 
 		bool SwapBuffer() override;
 
-		void Present();
-
 		CA::MetalLayer* GetLayer() const;
 
 	private:

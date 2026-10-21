@@ -279,16 +279,9 @@ namespace hod::inline rhi
 														indexCount * sizeof(uint16_t), 1, static_cast<NS::Integer>(vertexOffset), 0);
 	}
 
-	/// @brief
+	/// @brief Nothing to record: presented by MetalPresentationSurface::SwapBuffer, once the command buffers drawing into it are committed
 	/// @param presentationSurface
-	void MetalCommandBuffer::Present(PresentationSurface* presentationSurface)
-	{
-		MetalPresentationSurface* metalPresentationSurface = static_cast<MetalPresentationSurface*>(presentationSurface);
-		CA::MetalDrawable*        drawable = metalPresentationSurface->GetCurrentDrawable();
-
-		MetalRhiDevice::GetInstance()->GetCommandQueue()->signalDrawable(drawable);
-		drawable->present();
-	}
+	void MetalCommandBuffer::Present(PresentationSurface* /*presentationSurface*/) {}
 
 	/// @brief
 	/// @return
