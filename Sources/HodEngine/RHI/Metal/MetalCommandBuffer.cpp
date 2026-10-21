@@ -196,9 +196,15 @@ namespace hod::inline rhi
 		uint64_t gpuAddress = 0;
 		memcpy(AllocateTransient(Size, gpuAddress), constant, Size);
 
-		// The constant is the first buffer of both stages
-		_vertexArgumentTable->setAddress(gpuAddress, 0);
-		_fragmentArgumentTable->setAddress(gpuAddress, 0);
+		// Read by both stages, as on Vulkan: each from where its shader was compiled to, which leaves the buffers of its sets alone
+		if (_graphicsPipeline->GetVertexConstantIndex() != MetalGraphicsPipeline::NoConstant)
+		{
+			_vertexArgumentTable->setAddress(gpuAddress, _graphicsPipeline->GetVertexConstantIndex());
+		}
+		if (_graphicsPipeline->GetFragmentConstantIndex() != MetalGraphicsPipeline::NoConstant)
+		{
+			_fragmentArgumentTable->setAddress(gpuAddress, _graphicsPipeline->GetFragmentConstantIndex());
+		}
 	}
 
 	/// @brief

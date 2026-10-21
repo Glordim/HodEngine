@@ -4,6 +4,7 @@
 #include "HodEngine/RHI/Metal/MetalGraphicsPipeline.hpp"
 #include "HodEngine/RHI/Metal/MetalShader.hpp"
 #include "HodEngine/RHI/Metal/MetalTexture.hpp"
+#include "HodEngine/RHI/ShaderConstantDescriptor.hpp"
 #include "HodEngine/RHI/Metal/MetalRhiDevice.hpp"
 #include "HodEngine/RHI/VertexInput.hpp"
 
@@ -207,6 +208,15 @@ namespace hod::inline rhi
 		}
 
 		MergeSetDescriptors(*vertexShader, *fragmentShader);
+
+		if (const ShaderConstantDescriptor* constantDescriptor = vertexShader->GetConstantDescriptor())
+		{
+			_vertexConstantIndex = constantDescriptor->GetIndex();
+		}
+		if (const ShaderConstantDescriptor* constantDescriptor = fragmentShader->GetConstantDescriptor())
+		{
+			_fragmentConstantIndex = constantDescriptor->GetIndex();
+		}
 
 		return true;
 	}

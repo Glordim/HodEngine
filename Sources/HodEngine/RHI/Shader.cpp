@@ -258,11 +258,12 @@ namespace hod::inline rhi
 				{
 					const DocumentNode* elementVarLayoutNode = typeNode->GetChild("elementVarLayout");
 					Assert(elementVarLayoutNode);
-					bindingNode = elementVarLayoutNode->GetChild("binding");
-					Assert(bindingNode);
-					const DocumentNode* sizeNode = bindingNode->GetChild("size");
+					const DocumentNode* elementBindingNode = elementVarLayoutNode->GetChild("binding");
+					Assert(elementBindingNode);
+					const DocumentNode* sizeNode = elementBindingNode->GetChild("size");
 					Assert(sizeNode);
-					_constantDescriptor = DefaultAllocator::GetInstance().New<ShaderConstantDescriptor>(0, sizeNode->GetUInt32(), GetShaderType());
+					_constantDescriptor =
+						DefaultAllocator::GetInstance().New<ShaderConstantDescriptor>(0, sizeNode->GetUInt32(), indexNode->GetUInt32(), GetShaderType());
 				}
 				// Vulkan numbers everything in one space per set ("descriptorTableSlot"),
 				// Metal and D3D12 number buffers, textures and samplers separately
