@@ -185,6 +185,27 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @param node
+	/// @return
+	bool UIPrefabEditorTab::DeleteNode(ui2::Node* node)
+	{
+		if (node == GetPrefabRoot())
+		{
+			return false;
+		}
+
+		if (_selectedNode != nullptr && (_selectedNode == node || _selectedNode->IsDescendantOf(node)))
+		{
+			SetSelectedNode(nullptr);
+		}
+
+		node->GetParent()->RemoveChild(node);
+		DefaultAllocator::GetInstance().Delete(node);
+		MarkAsDirty();
+		return true;
+	}
+
+	/// @brief
 	void UIPrefabEditorTab::CreateDefaultLayout()
 	{
 		UIPrefabEditorHierarchyWindow* hierarchyWindow = OpenWindow<UIPrefabEditorHierarchyWindow>();

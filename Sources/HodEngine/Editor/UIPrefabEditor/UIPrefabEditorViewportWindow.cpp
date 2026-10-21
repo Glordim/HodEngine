@@ -199,6 +199,13 @@ namespace hod::inline editor
 		{
 			frameSelection = true;
 		}
+		// Delete (here or in the hierarchy) removes the selected node. Before the selection is read below, nothing of it is drawn yet.
+		if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Delete, false) && ImGui::GetIO().WantTextInput == false &&
+		    tab->GetSelectedNode() != nullptr && _draggedGizmoHandle == GizmoHandle::None)
+		{
+			tab->DeleteNode(tab->GetSelectedNode());
+		}
+
 		bool frameDevice = _frameDeviceRequested;
 		_frameDeviceRequested = false;
 

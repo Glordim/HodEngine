@@ -51,6 +51,11 @@ namespace hod::inline editor
 		// @return the new node
 		ui2::Node*		ConvertNode(ui2::Node* node, const ReflectionDescriptor& nodeDescriptor);
 
+		// Removes node (and its subtree) from the prefab, deselecting it if it, or one of its descendants, was
+		// selected. Same contract as ConvertNode: defer the call to after the drawing pass.
+		// @return false for the prefab root, which can't be deleted
+		bool			DeleteNode(ui2::Node* node);
+
 	protected:
 
 		void	CreateDefaultLayout() override;

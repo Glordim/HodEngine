@@ -49,6 +49,9 @@ namespace hod::inline editor
 		ui2::Node*						_pendingConvertNode = nullptr;
 		const ReflectionDescriptor*		_pendingConvertDescriptor = nullptr;
 
+		// Deletion requested (Delete key or context menu), applied after the tree has been drawn for the same reason.
+		ui2::Node*	_pendingDeleteNode = nullptr;
+
 		// Node whose label is replaced by a text field (F2 or "Rename"): Enter or focus lost validates, Escape cancels.
 		ui2::Node*	_renamedNode = nullptr;
 		char		_renameBuffer[256] = {'\0'};

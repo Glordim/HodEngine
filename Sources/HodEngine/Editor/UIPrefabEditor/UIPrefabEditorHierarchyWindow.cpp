@@ -47,6 +47,13 @@ namespace hod::inline editor
 		{
 			tab->RequestFrameSelection();
 		}
+
+		// Delete removes the selected node (except the prefab root).
+		if (ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGuiKey_Delete, false) && ImGui::GetIO().WantTextInput == false && selection != nullptr &&
+		    selection != tab->GetPrefabRoot())
+		{
+			_pendingDeleteNode = selection;
+		}
 		_renameSubmitted = false;
 
 		// The canvas stands at the top, greyed out (not a node of the prefab: it cannot be moved, deleted or
@@ -100,6 +107,16 @@ namespace hod::inline editor
 			tab->ConvertNode(_pendingConvertNode, *_pendingConvertDescriptor);
 			_pendingConvertNode = nullptr;
 			_pendingConvertDescriptor = nullptr;
+		}
+
+		if (_pendingDeleteNode != nullptr)
+		{
+			if (_renamedNode != nullptr && (_renamedNode == _pendingDeleteNode || _renamedNode->IsDescendantOf(_pendingDeleteNode)))
+			{
+				_renamedNode = nullptr;
+			}
+			tab->DeleteNode(_pendingDeleteNode);
+			_pendingDeleteNode = nullptr;
 		}
 	}
 
@@ -226,7 +243,6 @@ namespace hod::inline editor
 			ImGui::OpenPopup("UIPrefabNodeContextMenu");
 		}
 
-		bool deleted = false;
 		if (ImGui::BeginPopup("UIPrefabNodeContextMenu"))
 		{
 			if (ImGui::MenuItem(ICON_MDI_PLUS_BOX " Add Child"))
@@ -253,27 +269,15 @@ namespace hod::inline editor
 				}
 				ImGui::EndMenu();
 			}
-			if (node != tab->GetPrefabRoot() && ImGui::MenuItem(ICON_MDI_DELETE " Delete"))
+			if (node != tab->GetPrefabRoot() && ImGui::MenuItem(ICON_MDI_DELETE " Delete", "Del"))
 			{
-				ui2::Node* parent = node->GetParent();
-				if (tab->GetSelectedNode() == node)
-				{
-					tab->SetSelectedNode(nullptr);
-				}
-				if (_renamedNode != nullptr && (_renamedNode == node || _renamedNode->IsDescendantOf(node)))
-				{
-					_renamedNode = nullptr;
-				}
-				parent->RemoveChild(node);
-				DefaultAllocator::GetInstance().Delete(node);
-				tab->MarkAsDirty();
-				deleted = true;
+				_pendingDeleteNode = node;
 			}
 			ImGui::EndPopup();
 		}
 
 		// Last of the row's widgets: everything above queries the tree node as the last item.
-		if (renaming && deleted == false)
+		if (renaming)
 		{
 			// Where the label would start: after the arrow, the icon and the space of "icon name".
 			ImGui::SameLine(treeNodeStartX + ImGui::GetTreeNodeToLabelSpacing() + ImGui::CalcTextSize(icon).x + ImGui::CalcTextSize(" ").x - ImGui::GetStyle().FramePadding.x);
@@ -299,12 +303,9 @@ namespace hod::inline editor
 
 		if (opened)
 		{
-			if (deleted == false)
+			for (ui2::Node* child : node->GetChildren())
 			{
-				for (ui2::Node* child : node->GetChildren())
-				{
-					DrawNode(child);
-				}
+				DrawNode(child);
 			}
 			ImGui::TreePop();
 		}
