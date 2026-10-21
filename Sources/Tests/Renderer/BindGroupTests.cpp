@@ -4,8 +4,11 @@
 
 #include "Shader/BindGroupTest_Fragment.hpp"
 #include "Shader/BindGroupTest_Vertex.hpp"
+#include "Shader/ConstantFirstTest_Vertex.hpp"
 #include "Shader/DepthOnlyTest_Fragment.hpp"
 #include "Shader/DepthOnlyTest_Vertex.hpp"
+#include "Shader/SetFirstTest_Fragment.hpp"
+#include "Shader/SetFirstTest_Vertex.hpp"
 
 #include <HodEngine/Core/Memory/DefaultAllocator.hpp>
 #include <HodEngine/Core/StaticArray.hpp>
@@ -1302,4 +1305,100 @@ TEST_F(TargetFormatRender, RenderTargetNeedsATexture)
 	DefaultAllocator::GetInstance().Delete(renderTarget);
 
 	_expectedErrorCount = 1;
+}
+
+// ============================================================================
+// Where each stage reads the push constant and the sets from.
+//
+// Shader/ConstantFirstTest.slang and Shader/SetFirstTest.slang are the same shader but for the order they declare their push constant
+// and their set in. On Metal, where the compiler numbers the buffers in that order, the constant and the set are not at the same buffer
+// index in each of them, and a pipeline can take its stages from both: each stage reads them from where its own shader was compiled to.
+// ============================================================================
+
+class StageBindingRender : public BindGroupRender
+{
+protected:
+	void TearDown() override
+	{
+		BindGroupRender::TearDown();
+
+		for (Shader* shader : _stageShaders)
+		{
+			DefaultAllocator::GetInstance().Delete(shader);
+		}
+	}
+
+	Shader* LoadShader(Shader::ShaderType shaderType, const void* bytecode, uint32_t bytecodeSize, const char* reflection, uint32_t reflectionSize)
+	{
+		Shader* shader = RhiDevice::GetInstance()->CreateShader(shaderType);
+		EXPECT_TRUE(shader->LoadFromIR(bytecode, bytecodeSize, reflection, reflectionSize));
+		_stageShaders.PushBack(shader);
+		return shader;
+	}
+
+	// Becomes the one RenderFrame draws with
+	void UseStages(Shader* vertexShader, Shader* fragmentShader)
+	{
+		StaticArray<VertexInput, 2> vertexInputs = {
+			VertexInput(0, 0, VertexInput::Format::R32G32_SFloat),
+			VertexInput(1, 8, VertexInput::Format::R32G32_SFloat),
+		};
+
+		GraphicsPipeline::CreateInfo createInfo;
+		createInfo._vertexInputs = vertexInputs.Data();
+		createInfo._vertexInputCount = (uint32_t)vertexInputs.Size();
+		createInfo._vertexShader = vertexShader;
+		createInfo._fragmentShader = fragmentShader;
+
+		_graphicsPipeline = RhiDevice::GetInstance()->CreateGraphicsPipeline(createInfo);
+		ASSERT_NE(_graphicsPipeline, nullptr);
+		_graphicsPipelines.PushBack(_graphicsPipeline);
+	}
+
+	// The left half of the target moved to the right half by the constant, of the color of the set read by both stages:
+	// drawn of that color on the right only if each stage read the constant and the set from where its shader has them
+	void DrawMovedQuad(const Color& color)
+	{
+		Buffer*    colors = CreateColorBlocks({color});
+		BindGroup* bindGroup = RhiDevice::GetInstance()->CreateBindGroup(_graphicsPipeline, 0, &colors, 1, nullptr, 0);
+		ASSERT_NE(bindGroup, nullptr);
+		_bindGroups.PushBack(bindGroup);
+
+		RenderFrame([&]() {
+			Matrix4 mvp = Matrix4::Translation(Vector2(1.0f, 0.0f));
+			_commandBuffer->SetConstant(&mvp, sizeof(mvp), Shader::ShaderType::Vertex);
+			SetBindGroup(0, bindGroup, 0);
+			DrawQuad(-1.0f, -1.0f, 0.0f, 1.0f);
+		});
+	}
+
+protected:
+	Vector<Shader*> _stageShaders;
+};
+
+// The constant is not always at the first buffer: setting it does not overwrite the set there
+TEST_F(StageBindingRender, ConstantDeclaredAfterASet)
+{
+	UseStages(LoadShader(Shader::ShaderType::Vertex, SetFirstTest_Vertex, SetFirstTest_Vertex_size, SetFirstTest_Vertex_reflection, SetFirstTest_Vertex_reflection_size),
+	          LoadShader(Shader::ShaderType::Fragment, SetFirstTest_Fragment, SetFirstTest_Fragment_size, SetFirstTest_Fragment_reflection,
+	                     SetFirstTest_Fragment_reflection_size));
+
+	DrawMovedQuad(Red);
+
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.0f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, 0.0f), Background));
+}
+
+// The vertex stage has the constant at the first buffer and the set at the second, the fragment stage the set at the first
+TEST_F(StageBindingRender, ConstantAndSetAtOtherPlacesInEachStage)
+{
+	UseStages(LoadShader(Shader::ShaderType::Vertex, ConstantFirstTest_Vertex, ConstantFirstTest_Vertex_size, ConstantFirstTest_Vertex_reflection,
+	                     ConstantFirstTest_Vertex_reflection_size),
+	          LoadShader(Shader::ShaderType::Fragment, SetFirstTest_Fragment, SetFirstTest_Fragment_size, SetFirstTest_Fragment_reflection,
+	                     SetFirstTest_Fragment_reflection_size));
+
+	DrawMovedQuad(Red);
+
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.0f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, 0.0f), Background));
 }
