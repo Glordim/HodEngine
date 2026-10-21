@@ -1,5 +1,6 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/Metal/MetalShader.hpp"
+#include "HodEngine/RHI/Metal/MetalAutoreleaseScope.hpp"
 #include "HodEngine/RHI/Metal/MetalRhiDevice.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
@@ -38,8 +39,13 @@ namespace hod::inline rhi
 	{
 		MetalRhiDevice* metalRenderer = MetalRhiDevice::GetInstance();
 
-		NS::Error* error = nullptr;
-		_library = metalRenderer->GetDevice()->newLibrary(dispatch_data_create(data, size, nullptr, DISPATCH_DATA_DESTRUCTOR_DEFAULT), &error);
+		MetalAutoreleaseScope autoreleaseScope; // the error
+
+		// The bytes are copied into it (DISPATCH_DATA_DESTRUCTOR_DEFAULT), the library keeps what it needs of it
+		dispatch_data_t libraryData = dispatch_data_create(data, size, nullptr, DISPATCH_DATA_DESTRUCTOR_DEFAULT);
+		NS::Error*      error = nullptr;
+		_library = metalRenderer->GetDevice()->newLibrary(libraryData, &error);
+		dispatch_release(libraryData);
 
 		if (_library == nullptr)
 		{
@@ -99,7 +105,7 @@ namespace hod::inline rhi
 			break;
 		}
 
-		NS::String* nsFunctionName = NS::String::string(functionName, NS::ASCIIStringEncoding);
+		NS::String* nsFunctionName = NS::String::alloc()->init(functionName, NS::ASCIIStringEncoding); // owned, unlike NS::String::string
 		_function = _library->newFunction(nsFunctionName);
 		nsFunctionName->release();
 

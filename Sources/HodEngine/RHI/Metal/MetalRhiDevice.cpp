@@ -4,6 +4,7 @@
 #include "HodEngine/Core/Math.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 
+#include "HodEngine/RHI/Metal/MetalAutoreleaseScope.hpp"
 #include "HodEngine/RHI/Metal/MetalBindGroup.hpp"
 #include "HodEngine/RHI/Metal/MetalBuffer.hpp"
 #include "HodEngine/RHI/Metal/MetalCommandBuffer.hpp"
@@ -163,6 +164,8 @@ namespace hod::inline rhi
 	bool MetalRhiDevice::SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore, const Semaphore* waitSemaphore,
 												const Fence* fence)
 	{
+		MetalAutoreleaseScope autoreleaseScope;
+
 		MTL4::CommandBuffer** mtlCommandBuffers = (MTL4::CommandBuffer**)alloca(sizeof(MTL4::CommandBuffer*) * commandBufferCount);
 		for (uint32_t commandBufferIndex = 0; commandBufferIndex < commandBufferCount; ++commandBufferIndex)
 		{

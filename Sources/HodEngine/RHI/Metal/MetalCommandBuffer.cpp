@@ -1,4 +1,5 @@
 #include "HodEngine/RHI/Pch.hpp"
+#include "HodEngine/RHI/Metal/MetalAutoreleaseScope.hpp"
 #include "HodEngine/RHI/Metal/MetalBindGroup.hpp"
 #include "HodEngine/RHI/ShaderSetDescriptor.hpp"
 #include "HodEngine/RHI/Metal/MetalBuffer.hpp"
@@ -49,6 +50,8 @@ namespace hod::inline rhi
 	/// @brief
 	MetalCommandBuffer::MetalCommandBuffer()
 	{
+		MetalAutoreleaseScope autoreleaseScope;
+
 		MetalRhiDevice* metalRhiDevice = MetalRhiDevice::GetInstance();
 		MTL::Device*   device = metalRhiDevice->GetDevice();
 
@@ -165,7 +168,12 @@ namespace hod::inline rhi
 			renderPassDescriptor->depthAttachment()->setClearDepth(1.0);
 		}
 
-		_renderCommandEncoder = _commandBuffer->renderCommandEncoder(renderPassDescriptor);
+		{
+			MetalAutoreleaseScope autoreleaseScope;
+
+			_renderCommandEncoder = _commandBuffer->renderCommandEncoder(renderPassDescriptor); // autoreleased, kept until EndRenderPass
+			_renderCommandEncoder->retain();
+		}
 		renderPassDescriptor->release();
 
 		// Metal 4 does not track the hazards between passes: what the work committed before draws or reads (a render target sampled here,
@@ -184,6 +192,8 @@ namespace hod::inline rhi
 	bool MetalCommandBuffer::EndRenderPass()
 	{
 		_renderCommandEncoder->endEncoding();
+		_renderCommandEncoder->release();
+		_renderCommandEncoder = nullptr;
 
 		return true;
 	}

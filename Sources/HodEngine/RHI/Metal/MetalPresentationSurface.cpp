@@ -1,5 +1,6 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/Metal/MetalPresentationSurface.hpp"
+#include "HodEngine/RHI/Metal/MetalAutoreleaseScope.hpp"
 #include "HodEngine/RHI/Metal/MetalRhiDevice.hpp"
 #include "HodEngine/RHI/Texture.hpp"
 
@@ -19,9 +20,11 @@ namespace hod::inline rhi
 	MetalPresentationSurface::MetalPresentationSurface(MacOsWindow* window)
 	: PresentationSurface(window)
 	{
+		MetalAutoreleaseScope autoreleaseScope;
+
 		MetalRhiDevice* metalRhiDevice = MetalRhiDevice::GetInstance();
 
-		_layer = CA::MetalLayer::layer();
+		_layer = CA::MetalLayer::layer()->retain(); // autoreleased
 		_layer->setDevice(metalRhiDevice->GetDevice());
 		_layer->setPixelFormat(MTL::PixelFormatBGRA8Unorm);
 		_layer->setFramebufferOnly(true);
@@ -46,15 +49,18 @@ namespace hod::inline rhi
 	/// @brief The command buffers committed from now on wait for the drawable to be available: no semaphore needed, they are on the same queue
 	bool MetalPresentationSurface::AcquireNextImageIndex(Semaphore* /*imageAvailableSemaphore*/)
 	{
+		MetalAutoreleaseScope autoreleaseScope;
+
 		if (_drawable != nullptr)
 		{
 			_drawable->release();
 		}
-		_drawable = _layer->nextDrawable();
+		_drawable = _layer->nextDrawable(); // autoreleased, kept until the next one
 		if (_drawable == nullptr)
 		{
 			return false;
 		}
+		_drawable->retain();
 
 		MetalRhiDevice::GetInstance()->GetCommandQueue()->wait(_drawable);
 		return true;
@@ -121,6 +127,8 @@ namespace hod::inline rhi
 		{
 			return false;
 		}
+
+		MetalAutoreleaseScope autoreleaseScope;
 
 		MetalRhiDevice::GetInstance()->GetCommandQueue()->signalDrawable(_drawable);
 		_drawable->present();
