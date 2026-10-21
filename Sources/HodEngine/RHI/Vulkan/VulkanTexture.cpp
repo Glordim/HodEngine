@@ -361,7 +361,7 @@ namespace hod::inline rhi
 	/// @return
 	Color VulkanTexture::ReadPixel(const Vector2& position) const
 	{
-		if (position.GetX() < 0 || position.GetX() > _width || position.GetY() < 0 || position.GetY() > _height)
+		if (position.GetX() < 0 || position.GetX() >= _width || position.GetY() < 0 || position.GetY() >= _height)
 		{
 			return Color(0.0f, 0.0f, 0.0f, 0.0f);
 		}

@@ -10,6 +10,7 @@
 #include "HodEngine/RHI/Vulkan/VulkanRenderTarget.hpp"
 
 #include <HodEngine/Core/Assert.hpp>
+#include <HodEngine/Core/Math.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Math/Rect.hpp>
 #include <stdlib.h>
@@ -180,7 +181,7 @@ namespace hod::inline rhi
 	/// @param shaderType
 	void VulkanCommandBuffer::SetConstant(void* constant, uint32_t size, Shader::ShaderType /*shaderType*/)
 	{
-		size = std::min(size, _graphicsPipeline->GetPushConstantSize());
+		size = Min(size, _graphicsPipeline->GetPushConstantSize());
 
 		vkCmdPushConstants(_vkCommandBuffer, _graphicsPipeline->GetPipelineLayout(), VK_SHADER_STAGE_VERTEX_BIT | VK_SHADER_STAGE_FRAGMENT_BIT, 0, size, constant);
 	}
@@ -204,9 +205,18 @@ namespace hod::inline rhi
 	/// @param scissor
 	void VulkanCommandBuffer::SetScissor(const Rect& scissor)
 	{
+		// Vulkan takes no negative offset: the part of the scissor before the origin is cut, its size with it.
+		// What goes past the render area is left to Vulkan, which clips it.
+		int32_t left = (int32_t)scissor._position.GetX();
+		int32_t top = (int32_t)scissor._position.GetY();
+		int32_t right = left + (int32_t)scissor._size.GetX();
+		int32_t bottom = top + (int32_t)scissor._size.GetY();
+		left = Max(left, 0);
+		top = Max(top, 0);
+
 		VkRect2D vkScissor = {};
-		vkScissor.offset = {std::max((int32_t)scissor._position.GetX(), 0), std::max((int32_t)scissor._position.GetY(), 0)};
-		vkScissor.extent = {(uint32_t)scissor._size.GetX(), (uint32_t)scissor._size.GetY()};
+		vkScissor.offset = {left, top};
+		vkScissor.extent = {(uint32_t)Max(right - left, 0), (uint32_t)Max(bottom - top, 0)};
 
 		vkCmdSetScissor(_vkCommandBuffer, 0, 1, &vkScissor);
 	}
