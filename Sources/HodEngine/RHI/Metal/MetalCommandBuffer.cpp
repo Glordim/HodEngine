@@ -167,6 +167,11 @@ namespace hod::inline rhi
 		_renderCommandEncoder = _commandBuffer->renderCommandEncoder(renderPassDescriptor);
 		renderPassDescriptor->release();
 
+		// Metal 4 does not track the hazards between passes: what the work committed before draws or reads (a render target sampled here,
+		// or sampled before and drawn into here) is done, and visible, before this pass reads or draws. As the subpass dependencies of Vulkan.
+		constexpr MTL::Stages renderStages = static_cast<MTL::Stages>(MTL::StageVertex | MTL::StageFragment);
+		_renderCommandEncoder->barrierAfterQueueStages(renderStages, renderStages, MTL4::VisibilityOptionDevice);
+
 		_renderCommandEncoder->setArgumentTable(_vertexArgumentTable, MTL::RenderStageVertex);
 		_renderCommandEncoder->setArgumentTable(_fragmentArgumentTable, MTL::RenderStageFragment);
 
