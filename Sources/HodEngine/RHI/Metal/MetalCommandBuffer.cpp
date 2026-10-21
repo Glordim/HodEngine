@@ -116,10 +116,20 @@ namespace hod::inline rhi
 	bool MetalCommandBuffer::StartRenderPass(RenderTarget* renderTarget, PresentationSurface* presentationSurface, const Color& color)
 	{
 		MTL::Texture* colorTexture = nullptr;
+		MTL::Texture* depthTexture = nullptr;
 
 		if (renderTarget != nullptr)
 		{
-			colorTexture = static_cast<MetalTexture*>(renderTarget->GetColorTexture())->GetNativeTexture();
+			// Either of them can be missing, see RenderTarget::Init
+			if (renderTarget->GetColorTexture() != nullptr)
+			{
+				colorTexture = static_cast<MetalTexture*>(renderTarget->GetColorTexture())->GetNativeTexture();
+			}
+			if (renderTarget->GetDepthTexture() != nullptr)
+			{
+				depthTexture = static_cast<MetalTexture*>(renderTarget->GetDepthTexture())->GetNativeTexture();
+			}
+			SetRenderPassFormats(renderTarget->GetColorFormat(), renderTarget->GetDepthFormat());
 
 			Vector2 resolution = renderTarget->GetResolution();
 			_renderPassWidth = (uint32_t)resolution.GetX();
@@ -130,16 +140,29 @@ namespace hod::inline rhi
 			MetalPresentationSurface* metalPresentationSurface = static_cast<MetalPresentationSurface*>(presentationSurface);
 			CA::MetalDrawable*        drawable = metalPresentationSurface->GetCurrentDrawable();
 			colorTexture = drawable->texture();
+			depthTexture = static_cast<MetalTexture*>(metalPresentationSurface->GetDepthTexture())->GetNativeTexture();
+			SetRenderPassFormats(PresentationSurface::ColorFormat, PresentationSurface::DepthFormat);
 
 			_renderPassWidth = (uint32_t)colorTexture->width();
 			_renderPassHeight = (uint32_t)colorTexture->height();
 		}
 
 		MTL4::RenderPassDescriptor* renderPassDescriptor = MTL4::RenderPassDescriptor::alloc()->init();
-		renderPassDescriptor->colorAttachments()->object(0)->setTexture(colorTexture);
-		renderPassDescriptor->colorAttachments()->object(0)->setLoadAction(MTL::LoadActionClear);
-		renderPassDescriptor->colorAttachments()->object(0)->setStoreAction(MTL::StoreActionStore);
-		renderPassDescriptor->colorAttachments()->object(0)->setClearColor(MTL::ClearColor(color.r, color.g, color.b, color.a));
+		if (colorTexture != nullptr)
+		{
+			renderPassDescriptor->colorAttachments()->object(0)->setTexture(colorTexture);
+			renderPassDescriptor->colorAttachments()->object(0)->setLoadAction(MTL::LoadActionClear);
+			renderPassDescriptor->colorAttachments()->object(0)->setStoreAction(MTL::StoreActionStore);
+			renderPassDescriptor->colorAttachments()->object(0)->setClearColor(MTL::ClearColor(color.r, color.g, color.b, color.a));
+		}
+		// Cleared to the farthest by each render pass, and not kept after it, as on the other backends
+		if (depthTexture != nullptr)
+		{
+			renderPassDescriptor->depthAttachment()->setTexture(depthTexture);
+			renderPassDescriptor->depthAttachment()->setLoadAction(MTL::LoadActionClear);
+			renderPassDescriptor->depthAttachment()->setStoreAction(MTL::StoreActionDontCare);
+			renderPassDescriptor->depthAttachment()->setClearDepth(1.0);
+		}
 
 		_renderCommandEncoder = _commandBuffer->renderCommandEncoder(renderPassDescriptor);
 		renderPassDescriptor->release();
@@ -201,8 +224,14 @@ namespace hod::inline rhi
 
 	void MetalCommandBuffer::SetGraphicsPipeline(const GraphicsPipeline* graphicsPipeline)
 	{
+		if (IsCompatible(*graphicsPipeline) == false)
+		{
+			return;
+		}
+
 		_graphicsPipeline = static_cast<const MetalGraphicsPipeline*>(graphicsPipeline);
 		_renderCommandEncoder->setRenderPipelineState(_graphicsPipeline->GetNativeRenderPipeline());
+		_renderCommandEncoder->setDepthStencilState(_graphicsPipeline->GetNativeDepthStencilState());
 
 		// Culling is not part of the pipeline state on Metal
 		MTL::CullMode cullMode = MTL::CullModeNone;

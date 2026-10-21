@@ -3,6 +3,7 @@
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/RHI/Metal/MetalGraphicsPipeline.hpp"
 #include "HodEngine/RHI/Metal/MetalShader.hpp"
+#include "HodEngine/RHI/Metal/MetalTexture.hpp"
 #include "HodEngine/RHI/Metal/MetalRhiDevice.hpp"
 #include "HodEngine/RHI/VertexInput.hpp"
 
@@ -40,6 +41,7 @@ namespace hod::inline rhi
 	MetalGraphicsPipeline::~MetalGraphicsPipeline()
 	{
 		MetalRhiDevice::GetInstance()->DeferRelease(_renderPipelineState);
+		MetalRhiDevice::GetInstance()->DeferRelease(_depthStencilState);
 	}
 
 	//-----------------------------------------------------------------------------
@@ -51,8 +53,6 @@ namespace hod::inline rhi
 		{
 			return false;
 		}
-
-		// TODDO _depthTest, _depthWrite, and the pixel formats of the descriptor from _colorFormat and _depthFormat
 
 		// Set with the pipeline or with each draw, see MetalCommandBuffer
 		_cullMode = createInfo._cullMode;
@@ -154,8 +154,10 @@ namespace hod::inline rhi
 		pipelineDescriptor->setVertexFunction(vertexFunction);
 		pipelineDescriptor->setFragmentFunction(fragmentFunction);
 		pipelineDescriptor->setVertexDescriptor(vertexDescriptor);
-		pipelineDescriptor->colorAttachments()->object(0)->setPixelFormat(MTL::PixelFormatBGRA8Unorm);
-		pipelineDescriptor->colorAttachments()->object(0)->setBlendingEnabled(createInfo._blendMode != BlendMode::Opaque);
+		// The formats of the render passes it is drawn in, invalid for no attachment of that kind
+		pipelineDescriptor->colorAttachments()->object(0)->setPixelFormat((MTL::PixelFormat)MetalTexture::ToMetalPixelFormat(createInfo._colorFormat));
+		pipelineDescriptor->setDepthAttachmentPixelFormat((MTL::PixelFormat)MetalTexture::ToMetalPixelFormat(createInfo._depthFormat));
+		pipelineDescriptor->colorAttachments()->object(0)->setBlendingEnabled(createInfo._colorFormat != PixelFormat::None && createInfo._blendMode != BlendMode::Opaque);
 		pipelineDescriptor->colorAttachments()->object(0)->setRgbBlendOperation(MTL::BlendOperationAdd);
 		pipelineDescriptor->colorAttachments()->object(0)->setAlphaBlendOperation(MTL::BlendOperationAdd);
 		if (createInfo._blendMode == BlendMode::PremultipliedAlpha)
@@ -192,6 +194,18 @@ namespace hod::inline rhi
 			return false;
 		}
 
+		// As on the other backends: the depth is only written by the depth test, writing it without testing takes a test that always passes
+		MTL::DepthStencilDescriptor* depthStencilDescriptor = MTL::DepthStencilDescriptor::alloc()->init();
+		depthStencilDescriptor->setDepthCompareFunction(createInfo._depthTest ? MTL::CompareFunctionLess : MTL::CompareFunctionAlways);
+		depthStencilDescriptor->setDepthWriteEnabled(createInfo._depthWrite);
+		_depthStencilState = metalRhiDevice->GetDevice()->newDepthStencilState(depthStencilDescriptor);
+		depthStencilDescriptor->release();
+		if (_depthStencilState == nullptr)
+		{
+			OUTPUT_ERROR("Metal: Failed to create depth stencil state");
+			return false;
+		}
+
 		MergeSetDescriptors(*vertexShader, *fragmentShader);
 
 		return true;
@@ -200,6 +214,11 @@ namespace hod::inline rhi
 	MTL::RenderPipelineState* MetalGraphicsPipeline::GetNativeRenderPipeline() const
 	{
 		return _renderPipelineState;
+	}
+
+	MTL::DepthStencilState* MetalGraphicsPipeline::GetNativeDepthStencilState() const
+	{
+		return _depthStencilState;
 	}
 
 	NS::Range MetalGraphicsPipeline::GetVertexAttributeBufferRange() const

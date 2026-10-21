@@ -18,6 +18,8 @@ namespace CA
 
 namespace hod::inline rhi
 {
+	class Texture;
+
 	/// @brief
 	class HOD_RHI_API MetalPresentationSurface : public PresentationSurface
 	{
@@ -36,11 +38,17 @@ namespace hod::inline rhi
 
 		CA::MetalLayer* GetLayer() const;
 
+		// Of the size of the drawables, see PresentationSurface::DepthFormat
+		Texture* GetDepthTexture() const;
+
 	private:
 		void SetupLayer(MacOsWindow* window);
 
 	private:
 		CA::MetalLayer*    _layer = nullptr;
 		CA::MetalDrawable* _drawable = nullptr;
+
+		// One depth texture serves every drawable: they are drawn into one after the other
+		Texture* _depthTexture = nullptr;
 	};
 }

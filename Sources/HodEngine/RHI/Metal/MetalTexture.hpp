@@ -18,6 +18,11 @@ namespace hod::inline rhi
 	{
 	public:
 
+		// MTL::PixelFormatInvalid (0) for PixelFormat::None. R8G8B8A8_UNorm is BGRA8Unorm, the format of the presentation surfaces
+		static uint32_t	ToMetalPixelFormat(PixelFormat format);
+
+	public:
+
 						MetalTexture();
 						~MetalTexture() override;
 

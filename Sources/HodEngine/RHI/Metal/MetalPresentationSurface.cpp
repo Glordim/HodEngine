@@ -1,6 +1,7 @@
 #include "HodEngine/RHI/Pch.hpp"
 #include "HodEngine/RHI/Metal/MetalPresentationSurface.hpp"
 #include "HodEngine/RHI/Metal/MetalRhiDevice.hpp"
+#include "HodEngine/RHI/Texture.hpp"
 
 #include "HodEngine/Core/Output/OutputService.hpp"
 
@@ -33,6 +34,8 @@ namespace hod::inline rhi
 	/// @brief
 	MetalPresentationSurface::~MetalPresentationSurface()
 	{
+		DefaultAllocator::GetInstance().Delete(_depthTexture);
+
 		if (_drawable != nullptr)
 		{
 			_drawable->release();
@@ -72,6 +75,35 @@ namespace hod::inline rhi
 		Size.width = width * scaleFactor;
 		Size.height = height * scaleFactor;
 		_layer->setDrawableSize(Size);
+
+		// Built again at the size of the drawables, the previous one kept until the frames in flight are done with it
+		uint32_t drawableWidth = static_cast<uint32_t>(Size.width);
+		uint32_t drawableHeight = static_cast<uint32_t>(Size.height);
+		if (drawableWidth == 0 || drawableHeight == 0)
+		{
+			return; // no drawable to draw into, see AcquireNextImageIndex
+		}
+
+		if (_depthTexture == nullptr)
+		{
+			_depthTexture = MetalRhiDevice::GetInstance()->CreateTexture();
+		}
+		else if (_depthTexture->GetWidth() == drawableWidth && _depthTexture->GetHeight() == drawableHeight)
+		{
+			return;
+		}
+
+		if (_depthTexture->BuildDepth(drawableWidth, drawableHeight, Texture::CreateInfo()) == false)
+		{
+			OUTPUT_ERROR("Metal: Unable to create the depth texture of the presentation surface!");
+		}
+	}
+
+	/// @brief
+	/// @return
+	Texture* MetalPresentationSurface::GetDepthTexture() const
+	{
+		return _depthTexture;
 	}
 
 	Vector2 MetalPresentationSurface::GetResolution() const

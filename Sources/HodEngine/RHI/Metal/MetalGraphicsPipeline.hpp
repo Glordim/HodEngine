@@ -7,6 +7,7 @@
 
 namespace MTL
 {
+    class DepthStencilState;
     class RenderPipelineState;
 }
 
@@ -27,6 +28,8 @@ namespace hod::inline rhi
 		NS::Range				GetVertexAttributeBufferRange() const;
 
 		MTL::RenderPipelineState*   GetNativeRenderPipeline() const;
+		// Not part of the pipeline state on Metal: set with it, see MetalCommandBuffer::SetGraphicsPipeline
+		MTL::DepthStencilState*     GetNativeDepthStencilState() const;
 
 		CullMode				GetCullMode() const { return _cullMode; }
 		Topology				GetTopology() const { return _topology; }
@@ -35,6 +38,7 @@ namespace hod::inline rhi
 	private:
 
 		MTL::RenderPipelineState*   _renderPipelineState = nullptr;
+		MTL::DepthStencilState*     _depthStencilState = nullptr;
 
 		NS::Range _vertexAttributeBufferRange;
 

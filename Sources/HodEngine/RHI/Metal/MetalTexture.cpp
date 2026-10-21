@@ -37,7 +37,20 @@ namespace hod::inline rhi
 		_readbackReady = false;
 	}
 
-	/// @brief Creates the texture from a descriptor holding its format and usage
+	/// @brief
+	/// @param format
+	/// @return
+	uint32_t MetalTexture::ToMetalPixelFormat(PixelFormat format)
+	{
+		switch (format)
+		{
+			case PixelFormat::R8G8B8A8_UNorm: return MTL::PixelFormatBGRA8Unorm;
+			case PixelFormat::D16_UNorm: return MTL::PixelFormatDepth16Unorm;
+			default: return MTL::PixelFormatInvalid;
+		}
+	}
+
+	/// @brief Creates the texture from a descriptor holding its format, usage and storage mode
 	/// @param textureDescriptor released by this function
 	/// @return
 	bool MetalTexture::Build(MTL::TextureDescriptor* textureDescriptor, uint32_t width, uint32_t height, const CreateInfo& createInfo)
@@ -47,7 +60,6 @@ namespace hod::inline rhi
 		textureDescriptor->setWidth(width);
 		textureDescriptor->setHeight(height);
 		textureDescriptor->setTextureType(MTL::TextureType2D);
-		textureDescriptor->setStorageMode(MTL::StorageModeShared);
 		_texture = MetalRhiDevice::GetInstance()->GetDevice()->newTexture(textureDescriptor);
 		textureDescriptor->release();
 		if (_texture == nullptr)
@@ -60,7 +72,7 @@ namespace hod::inline rhi
 		_width = width;
 		_height = height;
 		_mipLevelCount = (uint32_t)_texture->mipmapLevelCount();
-		_readable = createInfo._allowReadWrite;
+		_readable = createInfo._allowReadWrite && _texture->storageMode() == MTL::StorageModeShared; // the depth is in GPU memory only
 		++_generation;
 
 		return true;
@@ -72,8 +84,10 @@ namespace hod::inline rhi
 	bool MetalTexture::BuildDepth(uint32_t width, uint32_t height, const CreateInfo& createInfo)
 	{
 		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
-		textureDescriptor->setPixelFormat(MTL::PixelFormatDepth16Unorm); // like the other backends: no stencil, nothing uses it
-		textureDescriptor->setUsage(MTL::TextureUsageRenderTarget | MTL::TextureUsageShaderRead);
+		textureDescriptor->setPixelFormat((MTL::PixelFormat)ToMetalPixelFormat(PixelFormat::D16_UNorm)); // like the other backends: no stencil, nothing uses it
+		// Only drawn into, as on the other backends: GPU memory only, the CPU never reads it
+		textureDescriptor->setUsage(MTL::TextureUsageRenderTarget);
+		textureDescriptor->setStorageMode(MTL::StorageModePrivate);
 		return Build(textureDescriptor, width, height, createInfo);
 	}
 
@@ -84,8 +98,9 @@ namespace hod::inline rhi
 	{
 		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
 		// Same format as the presentation surfaces: a MetalGraphicsPipeline is built for one format of color attachment
-		textureDescriptor->setPixelFormat(MTL::PixelFormatBGRA8Unorm);
+		textureDescriptor->setPixelFormat((MTL::PixelFormat)ToMetalPixelFormat(PixelFormat::R8G8B8A8_UNorm));
 		textureDescriptor->setUsage(MTL::TextureUsageRenderTarget | MTL::TextureUsageShaderRead);
+		textureDescriptor->setStorageMode(MTL::StorageModeShared); // read back by the CPU, see ReadPixel
 		return Build(textureDescriptor, width, height, createInfo);
 	}
 
@@ -97,6 +112,7 @@ namespace hod::inline rhi
 		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
 		textureDescriptor->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
 		textureDescriptor->setUsage(MTL::TextureUsageShaderRead);
+		textureDescriptor->setStorageMode(MTL::StorageModeShared); // filled by the CPU, see replaceRegion
 		textureDescriptor->setMipmapLevelCount(Clamp(createInfo._mipLevelCount, 1u, ComputeMipLevelCount(width, height)));
 		if (Build(textureDescriptor, width, height, createInfo) == false)
 		{
