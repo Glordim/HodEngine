@@ -23,6 +23,28 @@
 
 namespace hod::inline rhi
 {
+	namespace
+	{
+		/// @brief Metal has no point fill mode: the triangles of a pipeline in PolygonMode::Point are drawn as their vertices, as on Vulkan.
+		/// Nor triangle fan: drawn as a triangle list, see IsDrawnAsTriangleList.
+		MTL::PrimitiveType ToMetalPrimitiveType(const MetalGraphicsPipeline& graphicsPipeline)
+		{
+			switch (graphicsPipeline.GetTopology())
+			{
+				case GraphicsPipeline::Topology::POINT: return MTL::PrimitiveTypePoint;
+				case GraphicsPipeline::Topology::LINE: return MTL::PrimitiveTypeLine;
+				case GraphicsPipeline::Topology::LINE_STRIP: return MTL::PrimitiveTypeLineStrip;
+				default: return graphicsPipeline.GetPolygonMode() == GraphicsPipeline::PolygonMode::Point ? MTL::PrimitiveTypePoint : MTL::PrimitiveTypeTriangle;
+			}
+		}
+
+		/// @brief Whether the triangle fan of the pipeline is drawn as a triangle list, its indices made by the draw
+		bool IsDrawnAsTriangleList(const MetalGraphicsPipeline& graphicsPipeline)
+		{
+			return graphicsPipeline.GetTopology() == GraphicsPipeline::Topology::TRIANGLE_FAN && ToMetalPrimitiveType(graphicsPipeline) == MTL::PrimitiveTypeTriangle;
+		}
+	}
+
 	/// @brief
 	MetalCommandBuffer::MetalCommandBuffer()
 	{
@@ -211,6 +233,10 @@ namespace hod::inline rhi
 		}
 		_renderCommandEncoder->setCullMode(cullMode);
 		_renderCommandEncoder->setFrontFacingWinding(MTL::WindingCounterClockwise);
+
+		// Nor the fill mode, which only applies to triangles
+		_renderCommandEncoder->setTriangleFillMode(_graphicsPipeline->GetPolygonMode() == GraphicsPipeline::PolygonMode::Line ? MTL::TriangleFillModeLines
+		                                                                                                                    : MTL::TriangleFillModeFill);
 	}
 
 	/// @brief
@@ -262,8 +288,28 @@ namespace hod::inline rhi
 	/// @param vertexCount
 	void MetalCommandBuffer::Draw(uint32_t vertexCount)
 	{
-		// TODO primitive type from GraphicsPipeline ?
-		_renderCommandEncoder->drawPrimitives(MTL::PrimitiveTypeTriangle, 0, vertexCount, 1);
+		if (IsDrawnAsTriangleList(*_graphicsPipeline))
+		{
+			if (vertexCount < 3)
+			{
+				return;
+			}
+
+			// The fan (0, 1, 2, 3...) is the triangles (0, 1, 2), (0, 2, 3)...
+			uint32_t  indexCount = (vertexCount - 2) * 3;
+			uint64_t  indexBufferAddress = 0;
+			uint32_t* indices =static_cast<uint32_t*>(AllocateTransient(indexCount * sizeof(uint32_t), indexBufferAddress));
+			for (uint32_t triangle = 0; triangle < vertexCount - 2; ++triangle)
+			{
+				indices[triangle * 3 + 0] = 0;
+				indices[triangle * 3 + 1] = triangle + 1;
+				indices[triangle * 3 + 2] = triangle + 2;
+			}
+			_renderCommandEncoder->drawIndexedPrimitives(MTL::PrimitiveTypeTriangle, indexCount, MTL::IndexTypeUInt32, indexBufferAddress, indexCount * sizeof(uint32_t));
+			return;
+		}
+
+		_renderCommandEncoder->drawPrimitives(ToMetalPrimitiveType(*_graphicsPipeline), 0, vertexCount, 1);
 	}
 
 	/// @brief
@@ -272,11 +318,35 @@ namespace hod::inline rhi
 	/// @param vertexOffset
 	void MetalCommandBuffer::DrawIndexed(uint32_t indexCount, uint32_t indexOffset, uint32_t vertexOffset)
 	{
-		// TODO primitive type from GraphicsPipeline ?
-		MTL::GPUAddress indexBufferAddress =
-			_indexBuffer->GetNativeBuffer()->gpuAddress() + indexOffset * sizeof(uint16_t) + _indexBufferOffset;
-		_renderCommandEncoder->drawIndexedPrimitives(MTL::PrimitiveTypeTriangle, indexCount, MTL::IndexTypeUInt16, indexBufferAddress,
-														indexCount * sizeof(uint16_t), 1, static_cast<NS::Integer>(vertexOffset), 0);
+		MTL::GPUAddress indexBufferAddress = _indexBuffer->GetNativeBuffer()->gpuAddress() + indexOffset * sizeof(uint16_t) + _indexBufferOffset;
+
+		if (IsDrawnAsTriangleList(*_graphicsPipeline))
+		{
+			if (indexCount < 3)
+			{
+				return;
+			}
+
+			// Made from the indices of the fan as they are now: the index buffer is in memory shared with the CPU
+			const uint16_t* fanIndices =
+				reinterpret_cast<const uint16_t*>(static_cast<const uint8_t*>(_indexBuffer->GetNativeBuffer()->contents()) + _indexBufferOffset) + indexOffset;
+
+			uint32_t  triangleListIndexCount = (indexCount - 2) * 3;
+			uint64_t  triangleListAddress = 0;
+			uint16_t* indices = static_cast<uint16_t*>(AllocateTransient(triangleListIndexCount * sizeof(uint16_t), triangleListAddress));
+			for (uint32_t triangle = 0; triangle < indexCount - 2; ++triangle)
+			{
+				indices[triangle * 3 + 0] = fanIndices[0];
+				indices[triangle * 3 + 1] = fanIndices[triangle + 1];
+				indices[triangle * 3 + 2] = fanIndices[triangle + 2];
+			}
+
+			indexCount = triangleListIndexCount;
+			indexBufferAddress = triangleListAddress;
+		}
+
+		_renderCommandEncoder->drawIndexedPrimitives(ToMetalPrimitiveType(*_graphicsPipeline), indexCount, MTL::IndexTypeUInt16, indexBufferAddress, indexCount * sizeof(uint16_t), 1,
+		                                             static_cast<NS::Integer>(vertexOffset), 0);
 	}
 
 	/// @brief Nothing to record: presented by MetalPresentationSurface::SwapBuffer, once the command buffers drawing into it are committed

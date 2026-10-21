@@ -29,13 +29,18 @@ namespace hod::inline rhi
 		MTL::RenderPipelineState*   GetNativeRenderPipeline() const;
 
 		CullMode				GetCullMode() const { return _cullMode; }
-		
+		Topology				GetTopology() const { return _topology; }
+		PolygonMode				GetPolygonMode() const { return _polygonMode; }
+
 	private:
-		
+
 		MTL::RenderPipelineState*   _renderPipelineState = nullptr;
 
 		NS::Range _vertexAttributeBufferRange;
 
-		CullMode _cullMode = CullMode::None;
+		// Not part of the pipeline state on Metal: given with each draw, see MetalCommandBuffer
+		CullMode    _cullMode = CullMode::None;
+		Topology    _topology = Topology::TRIANGLE;
+		PolygonMode _polygonMode = PolygonMode::Fill;
 	};
 }

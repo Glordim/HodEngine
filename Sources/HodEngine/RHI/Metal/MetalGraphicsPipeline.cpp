@@ -54,9 +54,12 @@ namespace hod::inline rhi
 			return false;
 		}
 
-		// TODDO _polygonMode, _topology, _depthTest, _depthWrite, and the pixel formats of the descriptor from _colorFormat and _depthFormat
+		// TODDO _depthTest, _depthWrite, and the pixel formats of the descriptor from _colorFormat and _depthFormat
 
-		_cullMode = createInfo._cullMode; // set with the pipeline, see MetalCommandBuffer::SetGraphicsPipeline
+		// Set with the pipeline or with each draw, see MetalCommandBuffer
+		_cullMode = createInfo._cullMode;
+		_topology = createInfo._topology;
+		_polygonMode = createInfo._polygonMode;
 
 		const VertexInput* vertexInputs = createInfo._vertexInputs;
 		uint32_t           vertexInputCount = createInfo._vertexInputCount;
