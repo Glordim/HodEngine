@@ -1,6 +1,7 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 #include "HodEngine/Editor/EditorTabWindow.hpp"
+#include "HodEngine/Editor/Framing.hpp"
 #include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorViewportSettings.hpp"
 
 #include <HodEngine/Math/Color.hpp>
@@ -109,18 +110,9 @@ namespace hod::inline editor
 		// final device's fit along with _previewResolution. Zero until the first frame.
 		float _baseScale = 0.0f;
 
-		Vector2 _cameraPosition = Vector2::Zero;
-		float   _zoom = 1.0f;
-		float   _targetZoom = 1.0f;
-
-		// Framing of the selection (F) in progress: camera and zoom animated together from the start to the target framing.
-		bool    _initialFramingDone = false;
-		bool    _framing = false;
-		float   _framingProgress = 0.0f;
-		Vector2 _framingStartPosition = Vector2::Zero;
-		float   _framingStartZoom = 1.0f;
-		Vector2 _framingTargetPosition = Vector2::Zero;
-		float   _framingTargetZoom = 1.0f;
+		// Zoom relative to _baseScale: the view draws at _baseScale * _camera.GetZoom() pixels per canvas unit.
+		FramingCamera _camera;
+		bool          _frameDeviceRequested = false; // a device was picked in the list: its frame is framed on the next frame
 
 		GizmoHandle _hoveredGizmoHandle = GizmoHandle::None;
 		GizmoHandle _draggedGizmoHandle = GizmoHandle::None;

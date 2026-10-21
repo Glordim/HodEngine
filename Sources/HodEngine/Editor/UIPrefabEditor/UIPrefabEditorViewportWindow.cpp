@@ -167,7 +167,7 @@ namespace hod::inline editor
 			return;
 		}
 
-		// Uniform scale (pixels per canvas unit) that fits the whole device frame inside the viewport at zoom = 1, letterboxed.
+		// Uniform scale (pixels per canvas unit) that frames the device frame in the viewport at zoom = 1 (see Framing).
 		// Fitted on the frame the preview is heading to, not the one currently drawn: the intermediate resolutions
 		// pass through other aspect ratios (e.g. squarer while rotating), whose fit would zoom in then out again.
 		// Eased on its own instead, so the camera goes straight to the final framing while the layout morphs.
@@ -175,7 +175,7 @@ namespace hod::inline editor
 		float   goalScaleFactor = 1.0f;
 		tab->GetCanvas().GetScaler().Compute(previewGoal, goalLayoutSize, goalScaleFactor);
 		Vector2 goalFrameSize = previewGoal / goalScaleFactor;
-		float   goalBaseScale = std::min(resolutionWidth / goalFrameSize.GetX(), resolutionHeight / goalFrameSize.GetY());
+		float   goalBaseScale = Framing::ComputeScale(goalFrameSize, Vector2((float)resolutionWidth, (float)resolutionHeight));
 		if (_baseScale <= 0.0f || viewportResized)
 		{
 			_baseScale = goalBaseScale;
@@ -189,98 +189,47 @@ namespace hod::inline editor
 		bool hovered = ImGui::IsWindowHovered() && mouseOverToolbar == false;
 		if (hovered && ImGui::GetIO().MouseWheel != 0.0f)
 		{
-			// The wheel takes over from a framing still in progress, from where it currently is.
-			_framing = false;
-			_targetZoom = std::clamp(_targetZoom + ImGui::GetIO().MouseWheel * 0.1f * _targetZoom, 0.05f, 50.0f);
+			_camera.ZoomBy(ImGui::GetIO().MouseWheel);
 		}
 
-		// F (here or in the hierarchy) centers the camera on the selected node and zooms so it fills most of the
-		// viewport. With the canvas selected (or nothing), the previewed device's frame is framed instead.
+		// F (here or in the hierarchy) frames the selected node. With the canvas selected (or nothing), the previewed device's
+		// frame is framed instead, as when picking another device in the list.
 		bool frameSelection = tab->ConsumeFrameSelectionRequest();
 		if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_F, false) && ImGui::GetIO().WantTextInput == false)
 		{
 			frameSelection = true;
 		}
-		// The tab opens on the prefab root framed, already in place rather than animated there.
-		bool initialFraming = (_initialFramingDone == false);
-		_initialFramingDone = true;
-		if (frameSelection || initialFraming)
+		bool frameDevice = _frameDeviceRequested;
+		_frameDeviceRequested = false;
+
+		Vector2    viewSize((float)resolutionWidth, (float)resolutionHeight);
+		ui2::Node* selectedNode = tab->GetSelectedNode();
+		if (frameSelection && frameDevice == false && selectedNode != nullptr)
 		{
-			constexpr float framedViewportRatio = 0.8f;
-
-			_framing = true;
-			_framingProgress = 0.0f;
-			_framingStartPosition = _cameraPosition;
-			_framingStartZoom = _zoom;
-			_framingTargetZoom = _zoom;
-
-			ui2::Node* framedNode = initialFraming ? tab->GetPrefabRoot() : tab->GetSelectedNode();
-			if (framedNode != nullptr)
-			{
-				_framingTargetPosition = framedNode->ComputeCanvasMatrix().GetTranslation();
-
-				Vector2 framedSize = framedNode->GetSize();
-				if (framedSize.GetX() > 0.0f && framedSize.GetY() > 0.0f)
-				{
-					float fitScale = Min(resolutionWidth / framedSize.GetX(), resolutionHeight / framedSize.GetY()) * framedViewportRatio;
-					_framingTargetZoom = std::clamp(fitScale / baseScale, 0.05f, 50.0f);
-				}
-			}
-			else
-			{
-				// The device frame is centered on the canvas origin and fits the viewport at zoom 1 (see baseScale).
-				_framingTargetPosition = Vector2::Zero;
-				_framingTargetZoom = framedViewportRatio;
-			}
-
-			if (initialFraming)
-			{
-				_framing = false;
-				_cameraPosition = _framingTargetPosition;
-				_zoom = _framingTargetZoom;
-				_targetZoom = _framingTargetZoom;
-			}
+			_camera.Frame(selectedNode->ComputeCanvasMatrix().GetTranslation(), selectedNode->GetSize(), viewSize, baseScale, true);
+		}
+		else if (frameSelection || frameDevice)
+		{
+			// The device frame is centered on the canvas origin and framed at zoom 1 (see baseScale).
+			_camera.AnimateTo(Vector2::Zero, 1.0f);
+		}
+		else if (viewportResized && _camera.HasBeenMoved() == false)
+		{
+			// The tab opens on the prefab root framed, already in place rather than animated there. Snapped again on each
+			// viewport resize until the camera is moved: the docked windows of a freshly opened tab only get their final
+			// size a few frames later, so the first frame's framing is computed for a viewport of another size.
+			ui2::Node* prefabRoot = tab->GetPrefabRoot();
+			_camera.Frame(prefabRoot->ComputeCanvasMatrix().GetTranslation(), prefabRoot->GetSize(), viewSize, baseScale, false);
 		}
 
-		if (_framing)
-		{
-			// Zoom and camera are driven by one shared progress so they arrive together. The zoom is interpolated
-			// geometrically (each step scales the view by the same ratio, as the eye perceives it), and the camera
-			// follows the screen-space progress of that zoom: the motion is a zoom about the one canvas point that
-			// stays still on screen between both framings, rather than a pan racing a zoom.
-			_framingProgress += (1.0f - _framingProgress) * Min(1.0f, ImGui::GetIO().DeltaTime * 10.0f);
-			if (_framingProgress > 0.999f)
-			{
-				_framingProgress = 1.0f;
-				_framing = false;
-			}
+		_camera.Update(ImGui::GetIO().DeltaTime);
 
-			float zoomRatio = _framingTargetZoom / _framingStartZoom;
-			_zoom = _framingStartZoom * std::pow(zoomRatio, _framingProgress);
-
-			float positionProgress = _framingProgress;
-			if (std::abs(zoomRatio - 1.0f) > 0.01f)
-			{
-				positionProgress = (1.0f - _framingStartZoom / _zoom) / (1.0f - 1.0f / zoomRatio);
-			}
-			_cameraPosition = _framingStartPosition + (_framingTargetPosition - _framingStartPosition) * positionProgress;
-			_targetZoom = _zoom;
-		}
-		else
-		{
-			// Ease towards the target zoom instead of snapping, so each wheel notch feels smooth.
-			_zoom += (_targetZoom - _zoom) * std::min(1.0f, ImGui::GetIO().DeltaTime * 12.0f);
-		}
-
-		float scale = baseScale * _zoom;
+		float scale = baseScale * _camera.GetZoom();
 
 		if (hovered && ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
 		{
 			// Screen space is Y-down; canvas space is Y-up, hence the flip on Y.
-			// Panning drops any framing still in progress.
-			_framing = false;
-			_cameraPosition.SetX(_cameraPosition.GetX() - ImGui::GetIO().MouseDelta.x / scale);
-			_cameraPosition.SetY(_cameraPosition.GetY() + ImGui::GetIO().MouseDelta.y / scale);
+			_camera.Pan(Vector2(-ImGui::GetIO().MouseDelta.x / scale, ImGui::GetIO().MouseDelta.y / scale));
 		}
 
 		RenderView* renderView = Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
@@ -297,7 +246,7 @@ namespace hod::inline editor
 		float worldHalfHeight = resolutionHeight * 0.5f / scale;
 
 		Matrix4 projection = Matrix4::OrthogonalProjection(-worldHalfWidth, worldHalfWidth, -worldHalfHeight, worldHalfHeight, -1024, 1024);
-		Matrix4 view = Matrix4::Translation(_cameraPosition);
+		Matrix4 view = Matrix4::Translation(_camera.GetPosition());
 
 		renderView->SetupCamera(projection, view, viewportRect);
 
@@ -324,7 +273,6 @@ namespace hod::inline editor
 			mouseImagePos.x >= 0.0f && mouseImagePos.x < (float)resolutionWidth && mouseImagePos.y >= 0.0f && mouseImagePos.y < (float)resolutionHeight;
 		Vector2 mouseCanvasPos = screenToCanvas(ImGui::GetIO().MousePos);
 
-		ui2::Node* selectedNode = tab->GetSelectedNode();
 		if (selectedNode != nullptr)
 		{
 			UpdateGizmoDrag(selectedNode, mouseCanvasPos, scale, hovered && mouseInsideImage);
@@ -373,7 +321,7 @@ namespace hod::inline editor
 		Vector2 gridOrigin(-canvasSize.GetX() * 0.5f, canvasSize.GetY() * 0.5f);
 		if (_settings._gridVisible)
 		{
-			DrawGrid(gridOrigin, _cameraPosition, worldHalfWidth, worldHalfHeight, scale, *renderView);
+			DrawGrid(gridOrigin, _camera.GetPosition(), worldHalfWidth, worldHalfHeight, scale, *renderView);
 		}
 		DrawPreviewFrames(*renderView);
 
@@ -501,6 +449,7 @@ namespace hod::inline editor
 		{
 			_settings._activeDevice = -1;
 			_settingsDirty = true;
+			_frameDeviceRequested = true;
 		}
 		ImGui::SameLine();
 		ImGui::BeginDisabled();
@@ -529,6 +478,7 @@ namespace hod::inline editor
 			{
 				_settings._activeDevice = (int32_t)i;
 				_settingsDirty = true;
+				_frameDeviceRequested = true;
 			}
 			ImGui::SameLine();
 
@@ -644,9 +594,9 @@ namespace hod::inline editor
 	{
 		const ui2::CanvasScaler& scaler = GetOwner<UIPrefabEditorTab>()->GetCanvas().GetScaler();
 
-		// Canvas space is Y-up, screen space Y-down; the canvas point at the view's center is _cameraPosition.
+		// Canvas space is Y-up, screen space Y-down; the canvas point at the view's center is _camera.GetPosition().
 		auto canvasToScreen = [&](float x, float y) -> ImVec2
-		{ return ImVec2(imagePos.x + imageSize.x * 0.5f + (x - _cameraPosition.GetX()) * scale, imagePos.y + imageSize.y * 0.5f - (y - _cameraPosition.GetY()) * scale); };
+		{ return ImVec2(imagePos.x + imageSize.x * 0.5f + (x - _camera.GetPosition().GetX()) * scale, imagePos.y + imageSize.y * 0.5f - (y - _camera.GetPosition().GetY()) * scale); };
 
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 		drawList->PushClipRect(imagePos, imagePos + imageSize, true);
@@ -702,7 +652,7 @@ namespace hod::inline editor
 		float cellSize = std::max(_settings._gridCellSize, 1e-3f);
 
 		// Level = number of doublings of the cell size: 0 at zoom 1.0, +1 each time the zoom halves.
-		float zoomLevel = -std::log2(std::max(_zoom, 1e-6f));
+		float zoomLevel = -std::log2(std::max(_camera.GetZoom(), 1e-6f));
 		float minLevel = std::log2(minScreenSpacing / (cellSize * scale));
 		float level = std::max(zoomLevel, minLevel);
 		float majorLevel = std::ceil(level);

@@ -6,6 +6,7 @@
 #include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorViewportWindow.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/Framing.hpp"
 #include "HodEngine/Editor/Thumbnail.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -272,15 +273,14 @@ namespace hod::inline editor
 			return;
 		}
 
-		// Same framing as the viewport's (F): the root fills 80% of the shot, with a margin around it.
-		constexpr float framedRatio = 0.8f;
-		Vector2         framedSize = rootSize / framedRatio;
+		// Framed as in the viewport (see Framing): the root plus its margin.
+		Vector2 shotSize = Framing::ComputeShotSize(rootSize);
 
 		// Twice the thumbnail size, Thumbnail::Encode's downscale then smooths the edges.
 		constexpr float renderMaxSize = Thumbnail::MaxSize * 2.0f;
-		float           renderScale = renderMaxSize / Max(framedSize.GetX(), framedSize.GetY());
-		uint32_t        width = Max(1u, (uint32_t)(framedSize.GetX() * renderScale));
-		uint32_t        height = Max(1u, (uint32_t)(framedSize.GetY() * renderScale));
+		float           renderScale = renderMaxSize / Max(shotSize.GetX(), shotSize.GetY());
+		uint32_t        width = Max(1u, (uint32_t)(shotSize.GetX() * renderScale));
+		uint32_t        height = Max(1u, (uint32_t)(shotSize.GetY() * renderScale));
 
 		RenderTarget* renderTarget = RhiDevice::GetInstance()->CreateRenderTarget();
 		ScopedGuard   deleteRenderTarget = [&]() { DefaultAllocator::GetInstance().Delete(renderTarget); };
@@ -297,7 +297,7 @@ namespace hod::inline editor
 		renderView.Prepare(renderTarget, nullptr);
 		renderView.SetClearColor(Color(0.0f, 0.0f, 0.0f, 0.0f));
 
-		Vector2 halfSize = framedSize * 0.5f;
+		Vector2 halfSize = shotSize * 0.5f;
 		Matrix4 projection = Matrix4::OrthogonalProjection(-halfSize.GetX(), halfSize.GetX(), -halfSize.GetY(), halfSize.GetY(), -1024, 1024);
 		Matrix4 view = Matrix4::Translation(prefabRoot->ComputeCanvasMatrix().GetTranslation());
 
