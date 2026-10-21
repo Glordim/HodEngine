@@ -49,6 +49,7 @@ namespace hod::inline editor
 		const Path& GetTmpDirPath() const;
 
 		bool HasGameModule() const;
+		bool CanLoadProjectModules();
 		Path GetGameModulePath() const;
 
 		bool GenerateGameModuleCMakeList() const;

@@ -376,6 +376,29 @@ namespace hod::inline editor
 		return FileSystem::GetInstance()->Exists(_gameModule.GetPath());
 	}
 
+	/// @brief Try to load then unload the project modules, a module linked against outdated engine libraries fails to load
+	/// @return
+	bool Project::CanLoadProjectModules()
+	{
+		bool gameModuleLoaded = _gameModule.Load();
+		_gameModule.Unload();
+		if (gameModuleLoaded == false)
+		{
+			return false;
+		}
+
+		if (FileSystem::GetInstance()->Exists(_editorModule.GetPath()))
+		{
+			bool editorModuleLoaded = _editorModule.Load();
+			_editorModule.Unload();
+			if (editorModuleLoaded == false)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
 	/// @brief
 	/// @return
 	Path Project::GetGameModulePath() const

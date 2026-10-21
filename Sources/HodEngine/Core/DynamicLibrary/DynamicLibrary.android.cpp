@@ -1,5 +1,6 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 
 #include <dlfcn.h>
 
@@ -12,6 +13,8 @@ namespace hod::inline core
 		_sharedLib = dlopen(path.GetString().CStr(), RTLD_LAZY);
 		if (_sharedLib == nullptr)
 		{
+			OUTPUT_ERROR("Unable to load module {}", path);
+			OUTPUT_FUNCTION_ERROR(dlopen, dlerror());
 			return false;
 		}
 		return true;

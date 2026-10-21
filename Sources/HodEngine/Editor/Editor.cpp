@@ -325,7 +325,8 @@ namespace hod::inline editor
 		}
 		AddProjectInRecentProject(path);
 
-		if (Project::GetInstance()->HasGameModule() == false)
+		// Missing or outdated (linked against engine libraries that changed since) game module, rebuild it
+		if (Project::GetInstance()->HasGameModule() == false || Project::GetInstance()->CanLoadProjectModules() == false)
 		{
 			ImGuiManager::GetInstance()->CloseAllWindow();
 			ImGuiManager::GetInstance()->OpenWindow<MissingGameModuleModal>();
