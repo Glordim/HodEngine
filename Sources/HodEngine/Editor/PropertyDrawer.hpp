@@ -36,5 +36,6 @@ namespace hod::inline editor
 		static bool     DrawPropertyObject(EditorReflectedProperty& reflectedProperty, bool onlyValue = false);
 
         static bool     BeginProperty(EditorReflectedProperty& editorReflectedProperty);
+        static bool     DrawContextMenu(EditorReflectedProperty& editorReflectedProperty);
     };
 }

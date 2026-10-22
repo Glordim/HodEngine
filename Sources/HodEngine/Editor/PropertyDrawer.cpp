@@ -504,7 +504,12 @@ namespace hod::inline editor
 		}
 		else
 		{
-			if (ImGui::CollapsingHeader(property->GetDisplayName().CStr()) == true)
+			bool opened = ImGui::CollapsingHeader(property->GetDisplayName().CStr());
+			if (onlyValue == false)
+			{
+				changed |= DrawContextMenu(reflectedProperty);
+			}
+			if (opened == true)
 			{
 				EditorReflectedObject* subEditorReflectedObject = reflectedProperty.GetEditorReflectedObject();
 				for (EditorReflectedProperty* subEditorReflectedProperty : subEditorReflectedObject->GetProperties())
@@ -530,18 +535,87 @@ namespace hod::inline editor
 
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted(editorReflectedProperty.GetReflectionProperty()->GetDisplayName().CStr());
-		if (isOverride && ImGui::BeginPopupContextItem("OverrideContext") == true)
+		changed |= DrawContextMenu(editorReflectedProperty);
+
+		return changed;
+	}
+
+	/// @brief Find the root object owning the property and the chain of object properties leading from it to the property owner
+	/// @return nullptr if the owner can't be resolved from a default constructed root (array element, no default constructor...)
+	static const ReflectionDescriptor* FindDefaultRoot(EditorReflectedProperty& editorReflectedProperty, Vector<ReflectionPropertyObject*>& path)
+	{
+		ReflectionProperty* reflectionProperty = editorReflectedProperty.GetReflectionProperty();
+		if (reflectionProperty->GetRttiType() == ReflectionPropertyArray::GetRttiTypeStatic())
 		{
-			if (ImGui::Button("Revert") == true)
+			return nullptr; // ReflectionPropertyArray::Copy is not implemented
+		}
+
+		EditorReflectedObject* root = editorReflectedProperty.GetParent();
+		while (root != nullptr && root->GetSourceProperty() != nullptr)
+		{
+			ReflectionProperty* sourceProperty = root->GetSourceProperty()->GetReflectionProperty();
+			if (sourceProperty->GetRttiType() != ReflectionPropertyObject::GetRttiTypeStatic())
+			{
+				return nullptr;
+			}
+			path.push_back(static_cast<ReflectionPropertyObject*>(sourceProperty));
+			root = root->GetSourceProperty()->GetParent();
+		}
+
+		if (root == nullptr || root->GetReflectionDescriptor() == nullptr || root->GetReflectionDescriptor()->CanCreateInstance() == false)
+		{
+			return nullptr;
+		}
+		return root->GetReflectionDescriptor();
+	}
+
+	/// @brief Reset the property to the value it has in a default constructed root object
+	/// Starting from the root keeps the defaults set by the owning type (ex: a Node anchor) instead of the ones of the nested type (a zero Vector2)
+	static bool ResetToDefault(EditorReflectedProperty& editorReflectedProperty)
+	{
+		Vector<ReflectionPropertyObject*> path;
+		const ReflectionDescriptor*       rootDescriptor = FindDefaultRoot(editorReflectedProperty, path);
+		if (rootDescriptor == nullptr)
+		{
+			return false;
+		}
+
+		void* defaultRoot = rootDescriptor->CreateInstance();
+		void* defaultOwner = defaultRoot;
+		for (uint32_t index = path.Size(); index > 0; --index)
+		{
+			defaultOwner = path[index - 1]->GetInstance(defaultOwner);
+		}
+
+		ReflectionProperty* reflectionProperty = editorReflectedProperty.GetReflectionProperty();
+		for (void* instance : editorReflectedProperty.GetInstances())
+		{
+			reflectionProperty->Copy(defaultOwner, instance);
+		}
+
+		rootDescriptor->DeleteInstance(defaultRoot);
+		return true;
+	}
+
+	bool PropertyDrawer::DrawContextMenu(EditorReflectedProperty& editorReflectedProperty)
+	{
+		bool changed = false;
+		if (ImGui::BeginPopupContextItem("PropertyContext") == true)
+		{
+			if (ImGui::MenuItem("Revert", nullptr, false, editorReflectedProperty.IsOverride()) == true)
 			{
 				ReflectionProperty* reflectionProperty = editorReflectedProperty.GetReflectionProperty();
 				reflectionProperty->Copy(editorReflectedProperty.GetSourceInstance(), editorReflectedProperty.GetInstance());
 				changed = true;
-				ImGui::CloseCurrentPopup();
+			}
+
+			Vector<ReflectionPropertyObject*> path;
+			if (ImGui::MenuItem("Reset", nullptr, false, FindDefaultRoot(editorReflectedProperty, path) != nullptr) == true)
+			{
+				changed |= ResetToDefault(editorReflectedProperty);
 			}
 			ImGui::EndPopup();
 		}
-
 		return changed;
 	}
 }

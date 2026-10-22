@@ -70,6 +70,13 @@ namespace hod::inline core
 	}
 
 	/// @brief
+	/// @return false for abstract or non default constructible types
+	bool ReflectionDescriptor::CanCreateInstance() const
+	{
+		return _allocateFunction != nullptr;
+	}
+
+	/// @brief
 	/// @return
 	void* ReflectionDescriptor::CreateInstance() const
 	{
@@ -78,7 +85,7 @@ namespace hod::inline core
 
 	/// @brief
 	/// @param instance
-	void ReflectionDescriptor::DeleteInstance(void* instance)
+	void ReflectionDescriptor::DeleteInstance(void* instance) const
 	{
 		_deleteFunction(instance);
 	}

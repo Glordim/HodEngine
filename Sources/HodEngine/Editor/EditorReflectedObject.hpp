@@ -41,6 +41,7 @@ namespace hod::inline editor
 		void*                       GetInstance() const;
 		const Vector<void*>&   		GetInstances() const;
 
+		const ReflectionDescriptor* GetReflectionDescriptor() const;
 		EditorReflectedProperty*    GetSourceProperty() const;
 		EditorTabWindow*			GetEditorTabWindow() const;
 

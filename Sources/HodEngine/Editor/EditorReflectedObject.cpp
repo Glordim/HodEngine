@@ -101,6 +101,11 @@ namespace hod::inline editor
 		return _instances;
 	}
 
+	const ReflectionDescriptor* EditorReflectedObject::GetReflectionDescriptor() const
+	{
+		return _reflectionDescriptor;
+	}
+
 	EditorReflectedProperty* EditorReflectedObject::GetSourceProperty() const
 	{
 		return _sourceProperty;

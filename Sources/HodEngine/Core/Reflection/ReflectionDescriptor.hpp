@@ -71,8 +71,9 @@ namespace hod::inline core
 		void RemoveTrait();
 		void RemoveTrait(RttiType rttiType);
 
+		bool  CanCreateInstance() const;
 		void* CreateInstance() const;
-		void  DeleteInstance(void* instance);
+		void  DeleteInstance(void* instance) const;
 
 		template<typename _Type_>
 		_Type_* CreateInstance() const;
