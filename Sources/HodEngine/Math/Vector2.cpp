@@ -18,7 +18,7 @@ namespace hod::inline math
 	Vector2 Vector2::Down(0.0f, -1.0f);
 	Vector2 Vector2::Left(-1.0f, 0.0f);
 	Vector2 Vector2::Right(1.0f, 0.0f);
-	Vector2 Vector2::Infinity(std::numeric_limits<float>::max(), std::numeric_limits<float>::max());
+	Vector2 Vector2::Infinity(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity());
 
 	/// @brief
 	/// @param x

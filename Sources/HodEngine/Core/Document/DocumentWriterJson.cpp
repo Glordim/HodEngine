@@ -1,13 +1,49 @@
 #include "HodEngine/Core/Pch.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/Stream/Stream.hpp"
 
 #include <cassert>
 #include <charconv>
+#include <cmath>
 #include <cstring>
 
 namespace hod::inline core
 {
+	namespace
+	{
+		/// @brief Shortest representation that reads back to the same value. JSON has no infinity: one is written as
+		/// a number too large for any floating point type (1e999), which DocumentReaderJson (strtod) reads back as an
+		/// infinity. Nor NaN, which can't be kept: written as 0, with an error.
+		template<typename _Type_>
+		void WriteFloatingPoint(_Type_ value, Stream& stream)
+		{
+			if (std::isinf(value))
+			{
+				if (value > 0)
+				{
+					stream.Write("1e999", 5);
+				}
+				else
+				{
+					stream.Write("-1e999", 6);
+				}
+				return;
+			}
+			if (std::isnan(value))
+			{
+				OUTPUT_ERROR("DocumentWriterJson: NaN can't be written in JSON, written as 0");
+				stream.Write("0.0", 3);
+				return;
+			}
+
+			char                 buffer[256];
+			std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), value, std::chars_format::scientific);
+			assert(result.ec == std::errc());
+			stream.Write(buffer, (uint32_t)(result.ptr - buffer));
+		}
+	}
+
 	bool DocumentWriterJson::WriteDocument(Document& document, Stream& stream)
 	{
 		return WriteNode(document.GetRootNode(), stream);
@@ -209,19 +245,13 @@ namespace hod::inline core
 
 			case DocumentNode::Type::Float32:
 			{
-				char                 buffer[256];
-				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetFloat32(), std::chars_format::scientific);
-				assert(result.ec == std::errc());
-				stream.Write(buffer, (uint32_t)(result.ptr - buffer));
+				WriteFloatingPoint(node.GetFloat32(), stream);
 			}
 			break;
 
 			case DocumentNode::Type::Float64:
 			{
-				char                 buffer[256];
-				std::to_chars_result result = std::to_chars(buffer, buffer + sizeof(buffer), node.GetFloat64(), std::chars_format::scientific);
-				assert(result.ec == std::errc());
-				stream.Write(buffer, (uint32_t)(result.ptr - buffer));
+				WriteFloatingPoint(node.GetFloat64(), stream);
 			}
 			break;
 

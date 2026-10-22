@@ -548,6 +548,34 @@ namespace hod
 		EXPECT_EQ(memcmp(output.GetBuffer(), expectedJson, output.GetSize()), 0);
 	}
 
+	// JSON has no infinity: written as 1e999, read back as one. The largest finite values stay finite.
+	TEST(Document, JsonFloatingPointLimits)
+	{
+		Document document;
+		document.GetRootNode().AddChild("float32Inf").SetFloat32(std::numeric_limits<float>::infinity());
+		document.GetRootNode().AddChild("float32NegInf").SetFloat32(-std::numeric_limits<float>::infinity());
+		document.GetRootNode().AddChild("float32Max").SetFloat32(std::numeric_limits<float>::max());
+		document.GetRootNode().AddChild("float32Lowest").SetFloat32(std::numeric_limits<float>::lowest());
+		document.GetRootNode().AddChild("float64Inf").SetFloat64(std::numeric_limits<double>::infinity());
+		document.GetRootNode().AddChild("float64Max").SetFloat64(std::numeric_limits<double>::max());
+
+		MemoryStream       output;
+		DocumentWriterJson writer;
+		EXPECT_TRUE(writer.Write(document, output));
+
+		Document           readDocument;
+		DocumentReaderJson reader;
+		ASSERT_TRUE(reader.Read(readDocument, static_cast<const char*>(output.GetBuffer()), output.GetSize()));
+
+		DocumentNode& root = readDocument.GetRootNode();
+		EXPECT_EQ(root["float32Inf"].GetFloat32(), std::numeric_limits<float>::infinity());
+		EXPECT_EQ(root["float32NegInf"].GetFloat32(), -std::numeric_limits<float>::infinity());
+		EXPECT_EQ(root["float32Max"].GetFloat32(), std::numeric_limits<float>::max());
+		EXPECT_EQ(root["float32Lowest"].GetFloat32(), std::numeric_limits<float>::lowest());
+		EXPECT_EQ(root["float64Inf"].GetFloat64(), std::numeric_limits<double>::infinity());
+		EXPECT_EQ(root["float64Max"].GetFloat64(), std::numeric_limits<double>::max());
+	}
+
 	TEST(Document, JsonReader)
 	{
 		Document document;
