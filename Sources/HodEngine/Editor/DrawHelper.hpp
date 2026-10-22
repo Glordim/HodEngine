@@ -18,7 +18,8 @@ namespace hod::inline editor
     {
     public:
 
-        static bool				DrawVector2(Vector2& value, const char* labelX = "X", const char* labelY = "Y");
+        // enabledX/enabledY grey out one component (e.g. an axis the value is unused on)
+        static bool				DrawVector2(Vector2& value, const char* labelX = "X", const char* labelY = "Y", bool enabledX = true, bool enabledY = true);
         static bool				DrawVector4(Vector4& value, const char* labelX = "X", const char* labelY = "Y", const char* labelZ = "Z", const char* labelW = "W");
 
         /// @brief Draws a toggle button glued to a small arrow button, in one unified round rect (same look as DrawVector2):

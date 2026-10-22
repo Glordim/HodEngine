@@ -18,6 +18,7 @@ namespace hod::inline ui2
 	{
 		AddPropertyT(reflectionDescriptor, &BoxLayout::_axis, "Axis", &BoxLayout::SetAxis);
 		AddPropertyT(reflectionDescriptor, &BoxLayout::_spacing, "Spacing", &BoxLayout::SetSpacing);
+		AddPropertyT(reflectionDescriptor, &BoxLayout::_padding, "Padding", &BoxLayout::SetPadding);
 	}
 
 	/// @brief
@@ -28,8 +29,9 @@ namespace hod::inline ui2
 	{
 		bool isHorizontal = (_axis == Axis::Horizontal);
 
-		float mainAvailable = isHorizontal ? availableSize.GetX() : availableSize.GetY();
-		float crossAvailable = isHorizontal ? availableSize.GetY() : availableSize.GetX();
+		Vector2 paddingSize(_padding._left + _padding._right, _padding._top + _padding._bottom);
+		float   mainAvailable = std::max((isHorizontal ? availableSize.GetX() : availableSize.GetY()) - (isHorizontal ? paddingSize.GetX() : paddingSize.GetY()), 0.0f);
+		float   crossAvailable = std::max((isHorizontal ? availableSize.GetY() : availableSize.GetX()) - (isHorizontal ? paddingSize.GetY() : paddingSize.GetX()), 0.0f);
 
 		float mainTotal = 0.0f;
 		float crossMax = 0.0f;
@@ -46,7 +48,7 @@ namespace hod::inline ui2
 			BoxLayoutParams* boxLayoutParams = LayoutParams::Cast<BoxLayoutParams>(childLayoutParams);
 			bool             isFill = (boxLayoutParams != nullptr && boxLayoutParams->GetRule() == BoxLayoutParams::Rule::Fill);
 
-			Margin margin = childLayoutParams != nullptr ? childLayoutParams->GetMargin() : Margin();
+			Margin margin = boxLayoutParams != nullptr ? boxLayoutParams->GetMargin() : Margin();
 			float  marginMain = isHorizontal ? (margin._left + margin._right) : (margin._top + margin._bottom);
 			float  marginCross = isHorizontal ? (margin._top + margin._bottom) : (margin._left + margin._right);
 
@@ -74,15 +76,18 @@ namespace hod::inline ui2
 			first = false;
 		}
 
-		return isHorizontal ? Vector2(mainTotal, crossMax) : Vector2(crossMax, mainTotal);
+		return (isHorizontal ? Vector2(mainTotal, crossMax) : Vector2(crossMax, mainTotal)) + paddingSize;
 	}
 
 	/// @brief
 	/// @param owner
-	/// @param contentRect
-	void BoxLayout::Arrange(Node& owner, const Rect& contentRect)
+	/// @param ownerContentRect
+	void BoxLayout::Arrange(Node& owner, const Rect& ownerContentRect)
 	{
 		bool isHorizontal = (_axis == Axis::Horizontal);
+
+		Rect contentRect = ownerContentRect.Inset(_padding);
+		contentRect._size = Vector2(std::max(contentRect._size.GetX(), 0.0f), std::max(contentRect._size.GetY(), 0.0f));
 
 		float mainStart = isHorizontal ? contentRect._position.GetX() : contentRect._position.GetY();
 		float mainAvailable = isHorizontal ? contentRect._size.GetX() : contentRect._size.GetY();
@@ -113,7 +118,7 @@ namespace hod::inline ui2
 			}
 			else
 			{
-				Margin margin = childLayoutParams != nullptr ? childLayoutParams->GetMargin() : Margin();
+				Margin margin = boxLayoutParams != nullptr ? boxLayoutParams->GetMargin() : Margin();
 				float  marginMain = isHorizontal ? (margin._left + margin._right) : (margin._top + margin._bottom);
 				autoMainTotal += (isHorizontal ? child->GetMeasuredSize().GetX() : child->GetMeasuredSize().GetY()) + marginMain;
 			}
@@ -142,7 +147,7 @@ namespace hod::inline ui2
 			BoxLayoutParams* boxLayoutParams = LayoutParams::Cast<BoxLayoutParams>(childLayoutParams);
 			bool             isFill = (boxLayoutParams != nullptr && boxLayoutParams->GetRule() == BoxLayoutParams::Rule::Fill);
 
-			Margin margin = childLayoutParams != nullptr ? childLayoutParams->GetMargin() : Margin();
+			Margin margin = boxLayoutParams != nullptr ? boxLayoutParams->GetMargin() : Margin();
 			float  marginMainStart = isHorizontal ? margin._left : margin._bottom;
 			float  marginMainEnd = isHorizontal ? margin._right : margin._top;
 			float  marginCrossStart = isHorizontal ? margin._bottom : margin._left;
@@ -165,8 +170,8 @@ namespace hod::inline ui2
 
 			Vector2 minSize = childLayoutParams != nullptr ? childLayoutParams->GetMinSize() : Vector2::Zero;
 			Vector2 maxSize = childLayoutParams != nullptr ? childLayoutParams->GetMaxSize() : Vector2::Infinity;
-			uint8_t crossAlign = isHorizontal ? (uint8_t)(childLayoutParams != nullptr ? childLayoutParams->GetVAlign() : LayoutParams::VAlign::Stretch)
-			                                   : (uint8_t)(childLayoutParams != nullptr ? childLayoutParams->GetHAlign() : LayoutParams::HAlign::Stretch);
+			uint8_t crossAlign = isHorizontal ? (uint8_t)(boxLayoutParams != nullptr ? boxLayoutParams->GetVAlign() : BoxLayoutParams::VAlign::Stretch)
+			                                   : (uint8_t)(boxLayoutParams != nullptr ? boxLayoutParams->GetHAlign() : BoxLayoutParams::HAlign::Stretch);
 			float   crossDesired = isHorizontal ? child->GetMeasuredSize().GetY() : child->GetMeasuredSize().GetX();
 			float   crossMinExtent = isHorizontal ? minSize.GetY() : minSize.GetX();
 			float   crossMaxExtent = isHorizontal ? maxSize.GetY() : maxSize.GetX();
@@ -213,6 +218,20 @@ namespace hod::inline ui2
 		if (_spacing != spacing)
 		{
 			_spacing = spacing;
+			MarkOwnerMeasureAsDirty();
+		}
+	}
+
+	const Padding& BoxLayout::GetPadding() const
+	{
+		return _padding;
+	}
+
+	void BoxLayout::SetPadding(const Padding& padding)
+	{
+		if (!(_padding == padding))
+		{
+			_padding = padding;
 			MarkOwnerMeasureAsDirty();
 		}
 	}

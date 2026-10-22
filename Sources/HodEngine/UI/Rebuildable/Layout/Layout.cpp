@@ -111,14 +111,14 @@ namespace hod::inline ui
 
 	/// @brief
 	/// @return
-	const Padding& Layout::GetPadding() const
+	const LegacyPadding& Layout::GetPadding() const
 	{
 		return _padding;
 	}
 
 	/// @brief
 	/// @param padding
-	void Layout::SetPadding(const Padding& padding)
+	void Layout::SetPadding(const LegacyPadding& padding)
 	{
 		if (_padding._vector4 != padding._vector4)
 		{

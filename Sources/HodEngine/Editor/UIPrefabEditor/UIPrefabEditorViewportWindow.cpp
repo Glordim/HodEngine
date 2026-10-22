@@ -932,12 +932,10 @@ namespace hod::inline editor
 		return GizmoHandle::None;
 	}
 
-	/// @brief Drives the move/resize drag state machine and, while dragging, writes the result
-	/// straight to the node's AnchoredLayoutParams offset / Node desired size. Same math as
-	/// NodeCustomComponentDrawer::OnDrawGizmo (Position/DeltaSize there map 1:1 to
-	/// AnchoredLayoutParams::Offset/Node::DesiredSize here, see AnchoredLayoutParams::ComputePosition
-	/// vs. the old UI Node::ComputeLocalMatrix), minus the old code's leftover "* 100.0f" unit hack:
-	/// this viewport's canvas-space mouse delta is already in the same units as the node's own size.
+	/// @brief Drives the move/resize drag state machine and, while dragging, moves/resizes the node's rect as
+	/// it was when the drag started, then places the node on it (AnchoredLayoutParams::PlaceRect: offset and
+	/// size, a delta on the stretched axes). The canvas-space mouse delta is taken as is in
+	/// the parent's space: the viewport draws every node axis-aligned and unscaled.
 	/// @param node
 	/// @param canvasMousePosition
 	/// @param scale pixels per canvas unit
@@ -963,7 +961,9 @@ namespace hod::inline editor
 			if (ImGui::IsKeyPressed(ImGuiKey_Escape))
 			{
 				layoutParams->SetOffset(_gizmoDragStartOffset);
-				node->SetDesiredSize(_gizmoDragStartDesiredSize);
+				layoutParams->SetSize(_gizmoDragStartOwnSize);
+				layoutParams->SetWidthMode(_gizmoDragStartWidthMode);
+				layoutParams->SetHeightMode(_gizmoDragStartHeightMode);
 				_draggedGizmoHandle = GizmoHandle::None;
 				GetOwner()->MarkAsDirty();
 				return;
@@ -971,57 +971,37 @@ namespace hod::inline editor
 
 			Vector2 delta = canvasMousePosition - _gizmoDragStartMousePosition;
 
-			if (_draggedGizmoHandle == GizmoHandle::Move)
-			{
-				layoutParams->SetOffset(_gizmoDragStartOffset + delta);
-			}
-			else
-			{
-				Vector2 pivot = layoutParams->GetPivot();
-				Vector2 sizeDelta = Vector2::Zero;
-				Vector2 reverse = Vector2::Zero;
+			// The edges of the start rect, the dragged ones following the mouse (Move: all of them)
+			Vector2 halfSize = _gizmoDragStartSize * 0.5f;
+			float   left = _gizmoDragStartCenter.GetX() - halfSize.GetX();
+			float   right = _gizmoDragStartCenter.GetX() + halfSize.GetX();
+			float   bottom = _gizmoDragStartCenter.GetY() - halfSize.GetY();
+			float   top = _gizmoDragStartCenter.GetY() + halfSize.GetY();
 
-				switch (_draggedGizmoHandle)
-				{
-					case GizmoHandle::Top:
-						sizeDelta = Vector2(0.0f, delta.GetY());
-						reverse = Vector2(0.0f, 0.0f);
-						break;
-					case GizmoHandle::Bottom:
-						sizeDelta = Vector2(0.0f, -delta.GetY());
-						reverse = Vector2(0.0f, 1.0f);
-						break;
-					case GizmoHandle::Left:
-						sizeDelta = Vector2(-delta.GetX(), 0.0f);
-						reverse = Vector2(1.0f, 0.0f);
-						break;
-					case GizmoHandle::Right:
-						sizeDelta = Vector2(delta.GetX(), 0.0f);
-						reverse = Vector2(0.0f, 0.0f);
-						break;
-					case GizmoHandle::TopLeft:
-						sizeDelta = Vector2(-delta.GetX(), delta.GetY());
-						reverse = Vector2(1.0f, 0.0f);
-						break;
-					case GizmoHandle::TopRight:
-						sizeDelta = Vector2(delta.GetX(), delta.GetY());
-						reverse = Vector2(0.0f, 0.0f);
-						break;
-					case GizmoHandle::BottomLeft:
-						sizeDelta = Vector2(-delta.GetX(), -delta.GetY());
-						reverse = Vector2(1.0f, 1.0f);
-						break;
-					case GizmoHandle::BottomRight:
-						sizeDelta = Vector2(delta.GetX(), -delta.GetY());
-						reverse = Vector2(0.0f, 1.0f);
-						break;
-					default: break;
-				}
-
-				Vector2 newDesiredSize = _gizmoDragStartDesiredSize + sizeDelta;
-				layoutParams->SetOffset(_gizmoDragStartOffset - sizeDelta * (reverse - pivot));
-				node->SetDesiredSize(newDesiredSize);
+			GizmoHandle handle = _draggedGizmoHandle;
+			if (handle == GizmoHandle::Move || handle == GizmoHandle::Left || handle == GizmoHandle::TopLeft || handle == GizmoHandle::BottomLeft)
+			{
+				left += delta.GetX();
 			}
+			if (handle == GizmoHandle::Move || handle == GizmoHandle::Right || handle == GizmoHandle::TopRight || handle == GizmoHandle::BottomRight)
+			{
+				right += delta.GetX();
+			}
+			if (handle == GizmoHandle::Move || handle == GizmoHandle::Bottom || handle == GizmoHandle::BottomLeft || handle == GizmoHandle::BottomRight)
+			{
+				bottom += delta.GetY();
+			}
+			if (handle == GizmoHandle::Move || handle == GizmoHandle::Top || handle == GizmoHandle::TopLeft || handle == GizmoHandle::TopRight)
+			{
+				top += delta.GetY();
+			}
+
+			// An edge dragged past the opposite one stops on it: no negative size
+			right = Max(right, left);
+			top = Max(top, bottom);
+
+			Vector2 parentSize = node->GetParent() != nullptr ? node->GetParent()->GetSize() : Vector2::Zero;
+			layoutParams->PlaceRect(parentSize, Vector2((left + right) * 0.5f, (bottom + top) * 0.5f), Vector2(right - left, top - bottom));
 
 			GetOwner()->MarkAsDirty();
 			return;
@@ -1039,8 +1019,12 @@ namespace hod::inline editor
 		{
 			_draggedGizmoHandle = _hoveredGizmoHandle;
 			_gizmoDragStartMousePosition = canvasMousePosition;
+			_gizmoDragStartCenter = node->GetPosition();
+			_gizmoDragStartSize = node->GetSize();
 			_gizmoDragStartOffset = layoutParams->GetOffset();
-			_gizmoDragStartDesiredSize = node->GetDesiredSize();
+			_gizmoDragStartOwnSize = layoutParams->GetSize();
+			_gizmoDragStartWidthMode = layoutParams->GetWidthMode();
+			_gizmoDragStartHeightMode = layoutParams->GetHeightMode();
 		}
 	}
 }

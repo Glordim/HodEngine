@@ -69,9 +69,6 @@ namespace hod::inline ui2
 		const Vector2&				GetOrigin() const;
 		void						SetOrigin(const Vector2& origin);
 
-		const Vector2&				GetDesiredSize() const;
-		void						SetDesiredSize(const Vector2& desiredSize);
-
 		void						SetZOrder(int32_t zOrder);
 		int32_t						GetZOrder() const;
 		int32_t						ComputeZOrder();
@@ -86,23 +83,23 @@ namespace hod::inline ui2
 		//
 		// Measure: given the space this node's parent is willing to offer, returns (and caches as
 		// GetMeasuredSize()) the size this node wants. When a Layout is attached, delegates to it;
-		// otherwise, if this node has children, measures each and returns the max of their margined
-		// sizes (an implicit "ContentLayout"); otherwise returns MeasureContent(availableSize).
+		// otherwise, if this node has children, measures each and returns the max of their sizes (an
+		// implicit "ContentLayout"); otherwise returns MeasureContent(availableSize).
 		//
 		// Arrange: given the final rect this node's parent decided to grant it (in the PARENT's own
 		// local space, i.e. relative to the parent's own origin), stores this node's resulting local
 		// position/size and arranges children within its own content rect — via the attached Layout
-		// if any, otherwise per each child's LayoutParams margin/HAlign/VAlign (or lets the
-		// LayoutParams position it outright, e.g. AnchoredLayoutParams).
+		// if any, otherwise by letting each child's LayoutParams position it (e.g. AnchoredLayoutParams).
 		Vector2						Measure(const Vector2& availableSize);
 		void						Arrange(const Rect& finalRect);
 
 		// Leaf content sizing hook: this node's own natural size when it has neither an attached
-		// Layout nor children (e.g. a future TextNode measuring its own text bounds). Default
-		// implementation returns GetDesiredSize().
+		// Layout nor children (e.g. TextNode's text bounds, ImageNode's texture size), used on the
+		// axes its LayoutParams size from the content (LayoutParams::SizeMode::Content). Default
+		// implementation returns zero: a plain node has no content of its own.
 		virtual Vector2				MeasureContent(const Vector2& availableSize) const;
 
-		// Cached result of the last Measure() call (this node's desired size, independent of the
+		// Cached result of the last Measure() call (the size this node wants, independent of the
 		// final size Arrange may actually grant it — e.g. a Stretch-aligned child's GetSize() can
 		// end up larger than its GetMeasuredSize()).
 		const Vector2&				GetMeasuredSize() const;
@@ -130,7 +127,7 @@ namespace hod::inline ui2
 
 		// Puts replacement (a freshly created node of any Node type, parentless and childless) in this
 		// node's place: it takes this node's base Node properties (name, local id — so references to the
-		// node still resolve —, transform, desired size, z-order), its Layout, its children, its LayoutParams
+		// node still resolve —, transform, z-order), its Layout, its children, its LayoutParams
 		// and its place among its siblings. Properties specific to this node's own type are not carried over.
 		// This node is left detached and empty, for the caller to delete.
 		void						ReplaceWith(Node* replacement);
@@ -176,7 +173,7 @@ namespace hod::inline ui2
 
 		// Computes the aligned+clamped [offset, extent] of a child along one axis. alignIndex 0/2 are
 		// the two "edge" alignments (startIsIndex0 says which one sits at availableStart), 1 is
-		// centered, 3 stretches to fill availableExtent. LayoutParams::HAlign and LayoutParams::VAlign
+		// centered, 3 stretches to fill availableExtent. BoxLayoutParams::HAlign and BoxLayoutParams::VAlign
 		// share this same 4-value layout (Stretch is always index 3), so both can drive this helper.
 		// Public and static (no instance state) so a Layout implementation can reuse it for its own
 		// cross-axis placement (see BoxLayout).
@@ -215,8 +212,8 @@ namespace hod::inline ui2
 
 		// Places one child within parentContentRect (expressed in this node's own local space):
 		// defers to the child's LayoutParams::TryComputePosition (e.g. AnchoredLayoutParams) when
-		// available, otherwise falls back to generic margin/HAlign/VAlign placement of the child's
-		// measured size. This is Node's default (content-layout) per-child placement, used only when
+		// available, otherwise stretches the child over parentContentRect (within its min/max size).
+		// This is Node's default (content-layout) per-child placement, used only when
 		// no Layout is attached.
 		static void					ArrangeChildInRect(Node* child, const Rect& parentContentRect);
 
@@ -231,8 +228,6 @@ namespace hod::inline ui2
 		float						_rotation = 0.0f;
 		Vector2						_scale = Vector2::One;
 		Vector2						_origin = Vector2(0.5f, 0.5f);
-
-		Vector2						_desiredSize = Vector2(100.0f, 100.0f);
 
 		Vector2						_measuredSize = Vector2::Zero;
 

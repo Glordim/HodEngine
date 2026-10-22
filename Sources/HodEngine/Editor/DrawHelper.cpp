@@ -18,7 +18,7 @@
 
 namespace hod::inline editor
 {
-	bool DrawHelper::DrawVector2(Vector2& value, const char* labelX, const char* labelY)
+	bool DrawHelper::DrawVector2(Vector2& value, const char* labelX, const char* labelY, bool enabledX, bool enabledY)
 	{
 		bool changed = false;
 		float x = value.GetX();
@@ -31,6 +31,7 @@ namespace hod::inline editor
 		availableWidth -= CalculateButtonSize(labelY).x;
 		availableWidth -= ImGui::GetStyle().ItemSpacing.x - 2;
 		
+		ImGui::BeginDisabled(enabledX == false);
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.5f, 0.0f, 0.0f, 1.0f));
 		FramedText(labelX, ImDrawFlags_RoundLeft);
 		ImGui::PopStyleColor();
@@ -38,9 +39,11 @@ namespace hod::inline editor
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
 		ImGui::SetNextItemWidth(availableWidth * 0.5f);
 		changed |= DragScalar("##x", ImGuiDataType_Float, &x, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundRight);
+		ImGui::EndDisabled();
 
 		ImGui::SameLine();
 
+		ImGui::BeginDisabled(enabledY == false);
 		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.0f, 0.5f, 0.0f, 1.0f));
 		FramedText(labelY, ImDrawFlags_RoundLeft);
 		ImGui::PopStyleColor();
@@ -48,6 +51,7 @@ namespace hod::inline editor
 		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
 		ImGui::SetNextItemWidth(availableWidth * 0.5f);
 		changed |= DragScalar("##y", ImGuiDataType_Float, &y, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundRight);
+		ImGui::EndDisabled();
 
 		ImGui::PopID();
 

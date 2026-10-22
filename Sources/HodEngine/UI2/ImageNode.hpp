@@ -9,7 +9,7 @@
 namespace hod::inline ui2
 {
 	/// @brief Draws a texture stretched over the node's rect, multiplied by a color. Without a texture it
-	/// draws the rect filled with the color alone.
+	/// draws the rect filled with the color alone. Its natural size (see MeasureContent) is its texture's.
 	class HOD_UI2_API ImageNode : public Node
 	{
 		REFLECTED_CLASS(ImageNode, Node)
@@ -21,6 +21,8 @@ namespace hod::inline ui2
 
 		const Color&							GetColor() const;
 		void									SetColor(const Color& color);
+
+		Vector2									MeasureContent(const Vector2& availableSize) const override;
 
 	protected:
 

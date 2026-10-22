@@ -3,7 +3,7 @@
 
 #include "HodEngine/UI/Rebuildable/Layout/LayoutElement.hpp"
 #include "HodEngine/UI/Node.hpp"
-#include "HodEngine/UI/Padding.hpp"
+#include "HodEngine/UI/LegacyPadding.hpp"
 #include "HodEngine/UI/Rebuildable/Rebuildable.hpp"
 
 #include <HodEngine/Math/Vector2.hpp>
@@ -51,8 +51,8 @@ namespace hod::inline ui
 	public:
 		Layout();
 
-		const Padding& GetPadding() const;
-		void           SetPadding(const Padding& padding);
+		const LegacyPadding& GetPadding() const;
+		void           SetPadding(const LegacyPadding& padding);
 
 		Alignment GetAlignment() const;
 		void      SetAlignment(Alignment alignment);
@@ -82,7 +82,7 @@ namespace hod::inline ui
 		void SetTotalSizeY(float minSize, float preferredSize, float flexibleSize);
 
 	protected:
-		Padding   _padding;
+		LegacyPadding   _padding;
 		Alignment _alignment;
 
 	private:

@@ -1,6 +1,6 @@
 #include "HodEngine/Math/Pch.hpp"
 #include "HodEngine/Math/Rect.hpp"
-#include "HodEngine/Math/Margin.hpp"
+#include "HodEngine/Math/RectOffsets.hpp"
 
 namespace hod::inline math
 {
@@ -11,13 +11,13 @@ namespace hod::inline math
 	}
 
 	/// @brief
-	/// @param margin
+	/// @param offsets
 	/// @return
-	Rect Rect::Inset(const Margin& margin) const
+	Rect Rect::Inset(const RectOffsets& offsets) const
 	{
 		Rect result;
-		result._position = _position + Vector2(margin._left, margin._bottom);
-		result._size = _size - Vector2(margin._left + margin._right, margin._top + margin._bottom);
+		result._position = _position + Vector2(offsets._left, offsets._bottom);
+		result._size = _size - Vector2(offsets._left + offsets._right, offsets._top + offsets._bottom);
 		return result;
 	}
 }

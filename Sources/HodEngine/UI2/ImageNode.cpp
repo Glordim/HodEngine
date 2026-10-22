@@ -9,6 +9,7 @@
 #include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/MaterialInstance.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
+#include <HodEngine/RHI/Texture.hpp>
 
 #include "HodEngine/Core/StaticArray.hpp"
 
@@ -36,6 +37,7 @@ namespace hod::inline ui2
 		if (_texture != texture)
 		{
 			_texture = texture;
+			MarkMeasureAsDirty(); // the natural size is the texture's
 			GetPropertyChangedEvent().Emit();
 		}
 	}
@@ -56,6 +58,22 @@ namespace hod::inline ui2
 			_color = color;
 			GetPropertyChangedEvent().Emit();
 		}
+	}
+
+	/// @brief The texture's size once it is loaded, none before that.
+	/// @param availableSize
+	/// @return
+	Vector2 ImageNode::MeasureContent(const Vector2& availableSize) const
+	{
+		(void)availableSize;
+
+		std::shared_ptr<TextureResource> textureResource = _texture.Lock();
+		Texture*                         texture = textureResource != nullptr ? textureResource->GetTexture() : nullptr;
+		if (texture == nullptr)
+		{
+			return Vector2::Zero;
+		}
+		return Vector2((float)texture->GetWidth(), (float)texture->GetHeight());
 	}
 
 	/// @brief

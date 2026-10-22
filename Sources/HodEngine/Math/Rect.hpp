@@ -7,7 +7,7 @@
 
 namespace hod::inline math
 {
-	struct Margin;
+	struct RectOffsets;
 
 	//-----------------------------------------------------------------------------
 	//! @brief
@@ -22,7 +22,7 @@ namespace hod::inline math
 
 		bool operator==(const Rect& right) const = default;
 
-		// Shrinks this rect by the given margin (left/right reduce width, top/bottom reduce height).
-		Rect Inset(const Margin& margin) const;
+		// Shrinks this rect by the given offsets (left/right reduce width, top/bottom reduce height).
+		Rect Inset(const RectOffsets& offsets) const;
 	};
 }

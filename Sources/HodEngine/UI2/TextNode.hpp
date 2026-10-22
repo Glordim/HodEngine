@@ -10,7 +10,8 @@
 namespace hod::inline ui2
 {
 	/// @brief Draws a single line of text, aligned within the node's rect. Its natural size (see
-	/// MeasureContent) is the text's bounds, so under a Layout it fits its text unless stretched.
+	/// MeasureContent) is the text's bounds: the node fits its text on the axes its LayoutParams size
+	/// from the content (LayoutParams::SizeMode::Content).
 	class HOD_UI2_API TextNode : public Node
 	{
 		REFLECTED_CLASS(TextNode, Node)

@@ -9,6 +9,8 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
+#include <HodEngine/UI2/LayoutParams.hpp>
+
 namespace hod::inline ui2
 {
 	class Node;
@@ -117,7 +119,13 @@ namespace hod::inline editor
 		GizmoHandle _hoveredGizmoHandle = GizmoHandle::None;
 		GizmoHandle _draggedGizmoHandle = GizmoHandle::None;
 		Vector2     _gizmoDragStartMousePosition = Vector2::Zero;
-		Vector2     _gizmoDragStartOffset = Vector2::Zero;
-		Vector2     _gizmoDragStartDesiredSize = Vector2::Zero;
+		// The node's rect when the drag started (center in its parent's space), which the drag moves/resizes
+		Vector2     _gizmoDragStartCenter = Vector2::Zero;
+		Vector2     _gizmoDragStartSize = Vector2::Zero;
+		// What placed it then, restored by Escape (a drag may turn a Content axis into a Fixed one, see AnchoredLayoutParams::PlaceRect)
+		Vector2                     _gizmoDragStartOffset = Vector2::Zero;
+		Vector2                     _gizmoDragStartOwnSize = Vector2::Zero;
+		ui2::LayoutParams::SizeMode _gizmoDragStartWidthMode = ui2::LayoutParams::SizeMode::Fixed;
+		ui2::LayoutParams::SizeMode _gizmoDragStartHeightMode = ui2::LayoutParams::SizeMode::Fixed;
 	};
 }

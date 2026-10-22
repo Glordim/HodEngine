@@ -3,7 +3,6 @@
 #include "HodEngine/UI2/Export.hpp"
 
 #include <HodEngine/Math/Vector2.hpp>
-#include <HodEngine/Math/Margin.hpp>
 
 namespace hod::inline math
 {
@@ -29,11 +28,12 @@ namespace hod::inline ui2
 
 	public:
 
-		enum class HAlign : uint8_t { Left, Center, Right, Stretch };
-		REFLECTED_ENUM(HOD_UI2_API, HAlign);
-
-		enum class VAlign : uint8_t { Top, Center, Bottom, Stretch };
-		REFLECTED_ENUM(HOD_UI2_API, VAlign);
+		// Where the governed child's size comes from on one axis, when its parent's layout doesn't
+		// impose it (stretched anchors, BoxLayoutParams::Rule::Fill, BoxLayoutParams' Stretch alignment...):
+		// - Fixed: GetSize() on that axis
+		// - Content: what the child measures (its children, its Layout, its text...), see Node::Measure
+		enum class SizeMode : uint8_t { Fixed, Content };
+		REFLECTED_ENUM(HOD_UI2_API, SizeMode);
 
 	public:
 
@@ -45,34 +45,41 @@ namespace hod::inline ui2
 		template<typename _LayoutParams_>
 		static _LayoutParams_*		Cast(LayoutParams* layoutParams);
 
-		const Margin&				GetMargin() const;
-		void						SetMargin(const Margin& margin);
+		SizeMode					GetWidthMode() const;
+		void						SetWidthMode(SizeMode widthMode);
 
-		HAlign						GetHAlign() const;
-		void						SetHAlign(HAlign hAlign);
+		SizeMode					GetHeightMode() const;
+		void						SetHeightMode(SizeMode heightMode);
 
-		VAlign						GetVAlign() const;
-		void						SetVAlign(VAlign vAlign);
+		// The child's size on its Fixed axes; unused on its Content ones. A delta on AnchoredLayoutParams' stretched axes.
+		const Vector2&				GetSize() const;
+		void						SetSize(const Vector2& size);
 
+		// Bounds of the child's size, whatever it comes from (Fixed, Content or imposed by the parent).
 		const Vector2&				GetMinSize() const;
 		void						SetMinSize(const Vector2& minSize);
 
 		const Vector2&				GetMaxSize() const;
 		void						SetMaxSize(const Vector2& maxSize);
 
+		/// @brief The child's own size: GetSize() on its Fixed axes, contentSize on its Content ones,
+		/// clamped to [GetMinSize(), GetMaxSize()].
+		Vector2						ResolveSize(const Vector2& contentSize) const;
+
 		/// @brief Whether the governed child's size depends on its parent's size (used to decide
 		/// dirty-flag propagation when the parent is arranged again).
 		virtual bool				DependsOnParentSize() const;
 
-		/// @brief Optional escape hatch for a LayoutParams type that determines its own child size
-		/// outright (e.g. AnchoredLayoutParams), instead of the generic min/max-clamped desired size
-		/// a container would otherwise use. Base implementation declines (returns false).
-		virtual bool				TryComputeSize(const Vector2& availableSize, const Vector2& desiredSize, Vector2& outSize) const;
+		/// @brief The size the child measures, given the space its parent offers. Base implementation:
+		/// ResolveSize(contentSize). Overridden by a type whose parent imposes the size on some axes
+		/// (e.g. AnchoredLayoutParams' stretched anchors); a Layout may still impose another one at
+		/// Arrange (e.g. BoxLayout's Fill rule or Stretch alignment).
+		virtual Vector2				ComputeSize(const Vector2& availableSize, const Vector2& contentSize) const;
 
 		/// @brief Optional escape hatch for a LayoutParams type that positions its child outright
-		/// within the parent's content rect (e.g. AnchoredLayoutParams), instead of the generic
-		/// margin/HAlign/VAlign placement a container would otherwise use. Base implementation
-		/// declines (returns false).
+		/// within the parent's content rect (e.g. AnchoredLayoutParams), when no Layout is attached
+		/// to the parent. Base implementation declines (returns false): the child is then stretched
+		/// over the parent's content rect.
 		virtual bool				TryComputePosition(const Rect& parentContentRect, const Vector2& size, Vector2& outPosition) const;
 
 	protected:
@@ -80,11 +87,14 @@ namespace hod::inline ui2
 		void						MarkOwnerMeasureAsDirty();
 		void						MarkOwnerArrangeAsDirty();
 
+		// The governed child, null until the LayoutParams is given to it (see Node::AddChild).
+		Node*						GetNode() const;
+
 	private:
 
-		Margin						_margin;
-		HAlign						_hAlign = HAlign::Stretch;
-		VAlign						_vAlign = VAlign::Stretch;
+		SizeMode					_widthMode = SizeMode::Fixed;
+		SizeMode					_heightMode = SizeMode::Fixed;
+		Vector2						_size = Vector2(100.0f, 100.0f);
 		Vector2						_minSize = Vector2::Zero;
 		Vector2						_maxSize = Vector2::Infinity;
 

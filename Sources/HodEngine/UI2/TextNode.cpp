@@ -110,7 +110,7 @@ namespace hod::inline ui2
 		}
 	}
 
-	/// @brief The text's bounds once a font is set, the desired size before that.
+	/// @brief The text's bounds once a font is set, none before that.
 	/// @param availableSize
 	/// @return
 	Vector2 TextNode::MeasureContent(const Vector2& availableSize) const

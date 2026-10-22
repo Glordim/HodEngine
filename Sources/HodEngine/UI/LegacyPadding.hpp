@@ -5,9 +5,9 @@
 
 namespace hod::inline ui
 {
-	class HOD_UI_API Padding final
+	class HOD_UI_API LegacyPadding final
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(Padding)
+		REFLECTED_CLASS_NO_VIRTUAL(LegacyPadding)
 
 	public:
 		

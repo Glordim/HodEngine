@@ -33,16 +33,14 @@ namespace hod::inline ui2
 		AddPropertyT(reflectionDescriptor, &Node::_rotation, "Rotation", &Node::SetRotation);
 		AddPropertyT(reflectionDescriptor, &Node::_scale, "Scale", &Node::SetScale);
 		AddPropertyT(reflectionDescriptor, &Node::_origin, "Origin", &Node::SetOrigin);
-
-		AddPropertyT(reflectionDescriptor, &Node::_desiredSize, "DesiredSize", &Node::SetDesiredSize);
 	}
 
 	namespace
 	{
 		/// @brief Which LayoutParams a child must end up with, given the one it has (may be null) and a freshly
 		/// created default one of the type its (new) parent expects: the current one if it already is of that
-		/// type, otherwise the fresh one, carrying over the common fields every LayoutParams shares (margin,
-		/// alignment, min/max size). Destroys whichever of the two is not returned.
+		/// type, otherwise the fresh one, carrying over the common fields every LayoutParams shares (size
+		/// modes, size, min/max size). Destroys whichever of the two is not returned.
 		LayoutParams* AdaptLayoutParams(LayoutParams* current, LayoutParams* freshDefault)
 		{
 			if (current != nullptr && current->GetReflectionDescriptorV().GetType() == freshDefault->GetReflectionDescriptorV().GetType())
@@ -53,9 +51,9 @@ namespace hod::inline ui2
 
 			if (current != nullptr)
 			{
-				freshDefault->SetMargin(current->GetMargin());
-				freshDefault->SetHAlign(current->GetHAlign());
-				freshDefault->SetVAlign(current->GetVAlign());
+				freshDefault->SetWidthMode(current->GetWidthMode());
+				freshDefault->SetHeightMode(current->GetHeightMode());
+				freshDefault->SetSize(current->GetSize());
 				freshDefault->SetMinSize(current->GetMinSize());
 				freshDefault->SetMaxSize(current->GetMaxSize());
 				DefaultAllocator::GetInstance().Delete(current);
@@ -212,7 +210,6 @@ namespace hod::inline ui2
 		replacement->_rotation = _rotation;
 		replacement->_scale = _scale;
 		replacement->_origin = _origin;
-		replacement->_desiredSize = _desiredSize;
 
 		// Moved as is rather than through SetLayout: the children's LayoutParams already are of the type it expects.
 		DefaultAllocator::GetInstance().Delete(replacement->_layout);
@@ -322,26 +319,6 @@ namespace hod::inline ui2
 		{
 			_origin = origin;
 			MarkArrangeAsDirty();
-
-			_propertyChangedEvent.Emit();
-		}
-	}
-
-	/// @brief
-	/// @return
-	const Vector2& Node::GetDesiredSize() const
-	{
-		return _desiredSize;
-	}
-
-	/// @brief
-	/// @param desiredSize
-	void Node::SetDesiredSize(const Vector2& desiredSize)
-	{
-		if (_desiredSize != desiredSize)
-		{
-			_desiredSize = desiredSize;
-			MarkMeasureAsDirty();
 
 			_propertyChangedEvent.Emit();
 		}
@@ -470,12 +447,7 @@ namespace hod::inline ui2
 					continue;
 				}
 
-				Margin  childMargin = child->_layoutParams != nullptr ? child->_layoutParams->GetMargin() : Margin();
-				Vector2 marginSize(childMargin._left + childMargin._right, childMargin._top + childMargin._bottom);
-
-				Vector2 childAvailable(std::max(availableSize.GetX() - marginSize.GetX(), 0.0f), std::max(availableSize.GetY() - marginSize.GetY(), 0.0f));
-
-				Vector2 childSize = child->Measure(childAvailable) + marginSize;
+				Vector2 childSize = child->Measure(availableSize);
 
 				maxChildSize = Vector2(std::max(maxChildSize.GetX(), childSize.GetX()), std::max(maxChildSize.GetY(), childSize.GetY()));
 			}
@@ -497,20 +469,12 @@ namespace hod::inline ui2
 	/// @return
 	Vector2 Node::ResolveMeasuredSize(const Vector2& availableSize, const Vector2& contentDerivedSize) const
 	{
-		Vector2 measuredSize;
-		if (_layoutParams != nullptr && _layoutParams->TryComputeSize(availableSize, _desiredSize, measuredSize))
+		// Without LayoutParams (the canvas' root), the node is whatever its parent grants it at Arrange.
+		if (_layoutParams == nullptr)
 		{
-			return measuredSize;
+			return contentDerivedSize;
 		}
-
-		measuredSize = contentDerivedSize;
-		if (_layoutParams != nullptr)
-		{
-			const Vector2& minSize = _layoutParams->GetMinSize();
-			const Vector2& maxSize = _layoutParams->GetMaxSize();
-			measuredSize = Vector2(std::clamp(measuredSize.GetX(), minSize.GetX(), maxSize.GetX()), std::clamp(measuredSize.GetY(), minSize.GetY(), maxSize.GetY()));
-		}
-		return measuredSize;
+		return _layoutParams->ComputeSize(availableSize, contentDerivedSize);
 	}
 
 	/// @brief
@@ -519,7 +483,7 @@ namespace hod::inline ui2
 	Vector2 Node::MeasureContent(const Vector2& availableSize) const
 	{
 		(void)availableSize;
-		return _desiredSize;
+		return Vector2::Zero;
 	}
 
 	/// @brief
@@ -576,17 +540,16 @@ namespace hod::inline ui2
 			return;
 		}
 
-		Margin  margin = childLayoutParams != nullptr ? childLayoutParams->GetMargin() : Margin();
-		Vector2 minSize = childLayoutParams != nullptr ? childLayoutParams->GetMinSize() : Vector2::Zero;
-		Vector2 maxSize = childLayoutParams != nullptr ? childLayoutParams->GetMaxSize() : Vector2::Infinity;
-		uint8_t hAlign = (uint8_t)(childLayoutParams != nullptr ? childLayoutParams->GetHAlign() : LayoutParams::HAlign::Stretch);
-		uint8_t vAlign = (uint8_t)(childLayoutParams != nullptr ? childLayoutParams->GetVAlign() : LayoutParams::VAlign::Stretch);
-
-		Rect insetRect = parentContentRect.Inset(margin);
+		// LayoutParams that don't place their child: stretched over the parent's content rect, within its min/max size
+		constexpr uint8_t stretchIndex = 3;
+		Vector2           minSize = childLayoutParams != nullptr ? childLayoutParams->GetMinSize() : Vector2::Zero;
+		Vector2           maxSize = childLayoutParams != nullptr ? childLayoutParams->GetMaxSize() : Vector2::Infinity;
 
 		float x, width, y, height;
-		ComputeAlignedExtent(insetRect._position.GetX(), insetRect._size.GetX(), child->_measuredSize.GetX(), minSize.GetX(), maxSize.GetX(), hAlign, true, x, width);
-		ComputeAlignedExtent(insetRect._position.GetY(), insetRect._size.GetY(), child->_measuredSize.GetY(), minSize.GetY(), maxSize.GetY(), vAlign, false, y, height);
+		ComputeAlignedExtent(parentContentRect._position.GetX(), parentContentRect._size.GetX(), child->_measuredSize.GetX(), minSize.GetX(), maxSize.GetX(), stretchIndex, true, x,
+		                     width);
+		ComputeAlignedExtent(parentContentRect._position.GetY(), parentContentRect._size.GetY(), child->_measuredSize.GetY(), minSize.GetY(), maxSize.GetY(), stretchIndex, false, y,
+		                     height);
 
 		Rect childFinalRect;
 		childFinalRect._position = Vector2(x, y);

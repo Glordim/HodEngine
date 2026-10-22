@@ -93,12 +93,11 @@ namespace hod::inline editor
 			return;
 		}
 
-		// Legacy prefab: stretched over the container with a zero size delta, the wrapper is exactly
+		// Legacy prefab: stretched over the container without margin, the wrapper is exactly
 		// the rect its children used to be placed in.
 		ui2::AnchoredLayoutParams* layoutParams = DefaultAllocator::GetInstance().New<ui2::AnchoredLayoutParams>();
 		layoutParams->SetAnchorMin(Vector2::Zero);
 		layoutParams->SetAnchorMax(Vector2::One);
-		prefabRoot->SetDesiredSize(Vector2::Zero);
 		container->AddChild(prefabRoot, layoutParams);
 
 		while (container->GetChildren().Size() > 1)

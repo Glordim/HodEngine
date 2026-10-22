@@ -54,6 +54,33 @@ public:                                                                         
 		CLASS::FillReflectionDescriptor(reflectionDescriptor);                                       \
 	}
 
+// REFLECTED_CLASS_NO_VIRTUAL for a class deriving from another REFLECTED_CLASS_NO_VIRTUAL one: the parent's
+// properties are reflected as well, still without any vtable.
+#define REFLECTED_CLASS_NO_VIRTUAL_WITH_PARENT(CLASS, PARENT)                                                \
+public:                                                                                                      \
+	static void FillReflectionDescriptor(hod::ReflectionDescriptor& reflectionDescriptor)                    \
+	{                                                                                                        \
+		reflectionDescriptor.Init(hod::ReflectionDescriptor::GenerateReflectionData<CLASS, PARENT>(#CLASS)); \
+		FillReflectionDescriptorUser(reflectionDescriptor);                                                  \
+	}                                                                                                        \
+                                                                                                             \
+	static void FillReflectionDescriptorUser(hod::ReflectionDescriptor& reflectionDescriptor);               \
+                                                                                                             \
+	static hod::ReflectionDescriptor& GetReflectionDescriptor()                                              \
+	{                                                                                                        \
+		return hod::ReflectedClass<CLASS>::GetReflectionDescriptor();                                        \
+	}                                                                                                        \
+                                                                                                             \
+	hod::ReflectionDescriptor& GetReflectionDescriptorV() const                                              \
+	{                                                                                                        \
+		return hod::ReflectedClass<CLASS>::GetReflectionDescriptor();                                        \
+	}                                                                                                        \
+                                                                                                             \
+	friend void DescribeClass(hod::ReflectionDescriptor& reflectionDescriptor, const CLASS*)                 \
+	{                                                                                                        \
+		CLASS::FillReflectionDescriptor(reflectionDescriptor);                                               \
+	}
+
 #define REFLECTED_CLASS(CLASS, PARENT)                                                                       \
 public:                                                                                                      \
 	static void FillReflectionDescriptor(hod::ReflectionDescriptor& reflectionDescriptor)                    \

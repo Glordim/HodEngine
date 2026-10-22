@@ -2,72 +2,64 @@
 #include "HodEngine/UI2/LayoutParams.hpp"
 #include "HodEngine/UI2/Node.hpp"
 
+#include <HodEngine/Core/Math.hpp>
+
 namespace hod::inline ui2
 {
-	DESCRIBE_REFLECTED_ENUM(LayoutParams::HAlign, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(LayoutParams::SizeMode, reflectionDescriptor)
 	{
-		reflectionDescriptor.AddEnumValue(LayoutParams::HAlign::Left, "Left");
-		reflectionDescriptor.AddEnumValue(LayoutParams::HAlign::Center, "Center");
-		reflectionDescriptor.AddEnumValue(LayoutParams::HAlign::Right, "Right");
-		reflectionDescriptor.AddEnumValue(LayoutParams::HAlign::Stretch, "Stretch");
-	}
-
-	DESCRIBE_REFLECTED_ENUM(LayoutParams::VAlign, reflectionDescriptor)
-	{
-		reflectionDescriptor.AddEnumValue(LayoutParams::VAlign::Top, "Top");
-		reflectionDescriptor.AddEnumValue(LayoutParams::VAlign::Center, "Center");
-		reflectionDescriptor.AddEnumValue(LayoutParams::VAlign::Bottom, "Bottom");
-		reflectionDescriptor.AddEnumValue(LayoutParams::VAlign::Stretch, "Stretch");
+		reflectionDescriptor.AddEnumValue(LayoutParams::SizeMode::Fixed, "Fixed");
+		reflectionDescriptor.AddEnumValue(LayoutParams::SizeMode::Content, "Content");
 	}
 
 	DESCRIBE_REFLECTED_CLASS(LayoutParams, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &LayoutParams::_margin, "Margin", &LayoutParams::SetMargin);
-		AddPropertyT(reflectionDescriptor, &LayoutParams::_hAlign, "HAlign", &LayoutParams::SetHAlign);
-		AddPropertyT(reflectionDescriptor, &LayoutParams::_vAlign, "VAlign", &LayoutParams::SetVAlign);
+		AddPropertyT(reflectionDescriptor, &LayoutParams::_widthMode, "WidthMode", &LayoutParams::SetWidthMode);
+		AddPropertyT(reflectionDescriptor, &LayoutParams::_heightMode, "HeightMode", &LayoutParams::SetHeightMode);
+		AddPropertyT(reflectionDescriptor, &LayoutParams::_size, "Size", &LayoutParams::SetSize);
 		AddPropertyT(reflectionDescriptor, &LayoutParams::_minSize, "MinSize", &LayoutParams::SetMinSize);
 		AddPropertyT(reflectionDescriptor, &LayoutParams::_maxSize, "MaxSize", &LayoutParams::SetMaxSize);
 	}
 
-	const Margin& LayoutParams::GetMargin() const
+	LayoutParams::SizeMode LayoutParams::GetWidthMode() const
 	{
-		return _margin;
+		return _widthMode;
 	}
 
-	void LayoutParams::SetMargin(const Margin& margin)
+	void LayoutParams::SetWidthMode(SizeMode widthMode)
 	{
-		if (!(_margin == margin))
+		if (_widthMode != widthMode)
 		{
-			_margin = margin;
+			_widthMode = widthMode;
 			MarkOwnerMeasureAsDirty();
 		}
 	}
 
-	LayoutParams::HAlign LayoutParams::GetHAlign() const
+	LayoutParams::SizeMode LayoutParams::GetHeightMode() const
 	{
-		return _hAlign;
+		return _heightMode;
 	}
 
-	void LayoutParams::SetHAlign(HAlign hAlign)
+	void LayoutParams::SetHeightMode(SizeMode heightMode)
 	{
-		if (_hAlign != hAlign)
+		if (_heightMode != heightMode)
 		{
-			_hAlign = hAlign;
-			MarkOwnerArrangeAsDirty();
+			_heightMode = heightMode;
+			MarkOwnerMeasureAsDirty();
 		}
 	}
 
-	LayoutParams::VAlign LayoutParams::GetVAlign() const
+	const Vector2& LayoutParams::GetSize() const
 	{
-		return _vAlign;
+		return _size;
 	}
 
-	void LayoutParams::SetVAlign(VAlign vAlign)
+	void LayoutParams::SetSize(const Vector2& size)
 	{
-		if (_vAlign != vAlign)
+		if (_size != size)
 		{
-			_vAlign = vAlign;
-			MarkOwnerArrangeAsDirty();
+			_size = size;
+			MarkOwnerMeasureAsDirty();
 		}
 	}
 
@@ -104,12 +96,24 @@ namespace hod::inline ui2
 		return false;
 	}
 
-	bool LayoutParams::TryComputeSize(const Vector2& availableSize, const Vector2& desiredSize, Vector2& outSize) const
+	/// @brief
+	/// @param contentSize
+	/// @return
+	Vector2 LayoutParams::ResolveSize(const Vector2& contentSize) const
+	{
+		float width = _widthMode == SizeMode::Fixed ? _size.GetX() : contentSize.GetX();
+		float height = _heightMode == SizeMode::Fixed ? _size.GetY() : contentSize.GetY();
+		return Vector2(Clamp(width, _minSize.GetX(), _maxSize.GetX()), Clamp(height, _minSize.GetY(), _maxSize.GetY()));
+	}
+
+	/// @brief
+	/// @param availableSize
+	/// @param contentSize
+	/// @return
+	Vector2 LayoutParams::ComputeSize(const Vector2& availableSize, const Vector2& contentSize) const
 	{
 		(void)availableSize;
-		(void)desiredSize;
-		(void)outSize;
-		return false;
+		return ResolveSize(contentSize);
 	}
 
 	bool LayoutParams::TryComputePosition(const Rect& parentContentRect, const Vector2& size, Vector2& outPosition) const
@@ -126,6 +130,11 @@ namespace hod::inline ui2
 		{
 			_node->MarkMeasureAsDirty();
 		}
+	}
+
+	Node* LayoutParams::GetNode() const
+	{
+		return _node;
 	}
 
 	void LayoutParams::MarkOwnerArrangeAsDirty()
