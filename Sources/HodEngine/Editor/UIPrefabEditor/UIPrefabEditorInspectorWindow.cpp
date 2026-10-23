@@ -8,10 +8,14 @@
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 
+#include <HodEngine/Core/Reflection/EnumDescriptor.hpp>
+#include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
 #include <HodEngine/Core/Reflection/ReflectionProperty.hpp>
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
+#include <HodEngine/ImGui/Helper.hpp>
+#include <HodEngine/ImGui/Widgets.hpp>
 
 #include <HodEngine/UI2/AnchoredLayoutParams.hpp>
 #include <HodEngine/UI2/Node.hpp>
@@ -61,6 +65,107 @@ namespace hod::inline editor
 				}
 			}
 			return false;
+		}
+
+		// LayoutParams' WidthMode/HeightMode, drawn together on one Size Mode row (see DrawSizeModeRow)
+		constexpr std::string_view WidthModeProperty = "WidthMode";
+		constexpr std::string_view HeightModeProperty = "HeightMode";
+
+		/// @brief One component of the Size Mode row: a framed axis label glued to the enum combo, same look as DrawHelper::DrawVector2's components.
+		/// Right-clicking the combo opens the property's own context menu (Revert, Reset).
+		/// @return true if the value was edited
+		bool DrawSizeModeComponent(EditorReflectedProperty& property, const char* axisLabel, const ImVec4& axisColor, float width, bool used, const char* unusedReason)
+		{
+			bool changed = false;
+
+			ImGui::PushID(property.GetReflectionProperty());
+			ImGui::BeginDisabled(used == false);
+			ImGui::PushStyleColor(ImGuiCol_FrameBg, axisColor);
+			FramedText(axisLabel, ImDrawFlags_RoundLeft);
+			ImGui::PopStyleColor();
+			ImGui::SameLine(0.0f, 0.0f);
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
+
+			// Same lookup as PropertyDrawer's enum combo (SizeMode is reflected as a UInt8)
+			EnumDescriptor* enumDescriptor = static_cast<ReflectionPropertyVariable*>(property.GetReflectionProperty())->GetEnumDescriptor();
+			uint8_t         value = property.GetValue<uint8_t>();
+			const char*     valueLabel = "NotFound";
+			for (const std::pair<uint64_t, String>& enumValue : enumDescriptor->GetValues())
+			{
+				if (static_cast<uint8_t>(enumValue.first) == value)
+				{
+					valueLabel = enumValue.second.CStr();
+					break;
+				}
+			}
+
+			ImGui::SetNextItemWidth(width);
+			// No preview text from BeginCombo: drawn centered below, as the Vector2 fields' values are
+			if (ImGui::BeginCombo("##Mode", nullptr))
+			{
+				for (const std::pair<uint64_t, String>& enumValue : enumDescriptor->GetValues())
+				{
+					if (ImGui::MenuItem(enumValue.second.CStr()) && static_cast<uint8_t>(enumValue.first) != value)
+					{
+						property.SetValue<uint8_t>(static_cast<uint8_t>(enumValue.first));
+						changed = true;
+					}
+				}
+				ImGui::EndCombo();
+			}
+			if (ImGui::BeginComboPreview())
+			{
+				const ImRect& previewRect = ImGui::GetCurrentContext()->ComboPreviewData.PreviewRect;
+				ImGui::RenderTextClipped(previewRect.Min, previewRect.Max, valueLabel, nullptr, nullptr, ImVec2(0.5f, 0.5f));
+				ImGui::EndComboPreview();
+			}
+			ImGui::EndDisabled();
+			if (used == false)
+			{
+				ImGui::SetItemTooltip("%s", unusedReason);
+			}
+			changed |= PropertyDrawer::DrawContextMenu(property);
+			ImGui::PopID();
+
+			return changed;
+		}
+
+		/// @brief WidthMode and HeightMode on a single Size Mode row, as the X/Y components of a Vector2 (they go with Size, drawn the same way).
+		/// @param usedX/usedY grey out an axis the mode is unused on
+		/// @return true if one of them was edited
+		bool DrawSizeModeRow(EditorReflectedObject& layoutParamsObject, bool usedX, bool usedY, const char* unusedReasonX, const char* unusedReasonY)
+		{
+			EditorReflectedProperty* widthMode = layoutParamsObject.FindProperty(WidthModeProperty);
+			EditorReflectedProperty* heightMode = layoutParamsObject.FindProperty(HeightModeProperty);
+			if (widthMode == nullptr || heightMode == nullptr)
+			{
+				return false;
+			}
+
+			// The override marker of PropertyDrawer::BeginProperty, for either axis
+			if (widthMode->IsOverride() || heightMode->IsOverride())
+			{
+				float height = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2;
+				ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetWindowPos().x, ImGui::GetCursorScreenPos().y),
+				                                          ImVec2(ImGui::GetWindowPos().x + 2.0f, ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
+			}
+
+			ImGui::BeginDisabled(usedX == false && usedY == false);
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted("Size Mode");
+			ImGui::EndDisabled();
+			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+
+			// Same split as DrawHelper::DrawVector2, for the combos to line up with the Size row's fields
+			float availableWidth = ImGui::GetColumnWidth();
+			availableWidth -= CalculateButtonSize("X").x;
+			availableWidth -= CalculateButtonSize("Y").x;
+			availableWidth -= ImGui::GetStyle().ItemSpacing.x - 2;
+
+			bool changed = DrawSizeModeComponent(*widthMode, "X", ImVec4(0.5f, 0.0f, 0.0f, 1.0f), availableWidth * 0.5f, usedX, unusedReasonX);
+			ImGui::SameLine();
+			changed |= DrawSizeModeComponent(*heightMode, "Y", ImVec4(0.0f, 0.5f, 0.0f, 1.0f), availableWidth * 0.5f, usedY, unusedReasonY);
+			return changed;
 		}
 	}
 
@@ -167,8 +272,20 @@ namespace hod::inline editor
 			}
 			else if (layoutParams != nullptr)
 			{
+				// In declaration order, WidthMode/HeightMode merged into one row where WidthMode is
 				EditorReflectedObject layoutParamsObject(layoutParams, &layoutParams->GetReflectionDescriptorV(), nullptr, this);
-				changed |= PropertyDrawer::DrawDescriptor(layoutParamsObject);
+				for (EditorReflectedProperty* property : layoutParamsObject.GetProperties())
+				{
+					std::string_view name = property->GetReflectionProperty()->GetName();
+					if (name == WidthModeProperty)
+					{
+						changed |= DrawSizeModeRow(layoutParamsObject, true, true, "", "");
+					}
+					else if (name != HeightModeProperty)
+					{
+						changed |= PropertyDrawer::DrawProperty(*property);
+					}
+				}
 			}
 
 			// In GeometryProperties' order, not the declaration's one.
@@ -190,7 +307,7 @@ namespace hod::inline editor
 	///    any of them keeps the node where it is (AnchoredLayoutParams::PlaceRect), as picking a preset does.
 	/// 2. the rect relative to the anchors: Offset, then the size (mode + Size, a delta on a stretched axis),
 	///    then its bounds.
-	/// A field unused with the current anchors is greyed out (WidthMode on a stretched width...).
+	/// A field unused with the current anchors is greyed out (the X Size Mode on a stretched width...).
 	/// @return true if something was edited
 	bool UIPrefabEditorInspectorWindow::DrawAnchoredPlacement(ui2::Node* node, ui2::AnchoredLayoutParams* layoutParams)
 	{
@@ -257,8 +374,8 @@ namespace hod::inline editor
 		bool fixedY = stretchedY == false && layoutParams->GetHeightMode() == ui2::LayoutParams::SizeMode::Fixed;
 
 		changed |= drawProperty("Offset", true, "");
-		changed |= drawProperty("WidthMode", stretchedX == false, "Unused: the width is stretched, the anchors and the size delta give it");
-		changed |= drawProperty("HeightMode", stretchedY == false, "Unused: the height is stretched, the anchors and the size delta give it");
+		changed |= DrawSizeModeRow(layoutParamsObject, stretchedX == false, stretchedY == false, "Unused: the width is stretched, the anchors and the size delta give it",
+		                           "Unused: the height is stretched, the anchors and the size delta give it");
 
 		// Size, by hand rather than reflected to tell its components apart: a delta added to the anchors' span on a stretched axis (dX/dY), the node's own size on the others
 		if (EditorReflectedProperty* sizeProperty = layoutParamsObject.FindProperty("Size"))
