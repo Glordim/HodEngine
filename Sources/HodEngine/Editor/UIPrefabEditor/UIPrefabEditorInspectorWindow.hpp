@@ -7,6 +7,7 @@
 namespace hod::inline ui2
 {
 	class Node;
+	class LayoutParams;
 	class AnchoredLayoutParams;
 }
 
@@ -16,8 +17,9 @@ namespace hod::inline editor
 
 	/// @brief Draws a UIPrefabEditorTab's selected ui2::Node: its name on top, then three blocks, one
 	/// question each, from the most to the least often edited:
-	/// 1. Placement: where the node is and how big (its LayoutParams, dictated by its parent's layout,
-	///    plus the Node's own transform: Rotation, Scale, Pivot)
+	/// 1. Placement: where the node is and how big, in three sections: the fields of its LayoutParams' type
+	///    (dictated by its parent's layout), the size fields every LayoutParams shares, then the Node's own
+	///    transform (Rotation, Scale, Pivot)
 	/// 2. Content: what the node's type adds (Text, Image...), with the Convert To action
 	/// 3. Children Layout: how it arranges its children (add / transform / remove)
 	/// all via the engine's generic reflected-property drawer. With the canvas selected (see
@@ -40,7 +42,8 @@ namespace hod::inline editor
 
 		bool		DrawNameRow(ui2::Node* node, EditorReflectedObject& nodeObject);
 		bool		DrawPlacementBlock(ui2::Node* node, EditorReflectedObject& nodeObject);
-		bool		DrawAnchoredPlacement(ui2::Node* node, ui2::AnchoredLayoutParams* layoutParams);
+		bool		DrawAnchoredFields(ui2::Node* node, ui2::AnchoredLayoutParams* layoutParams, EditorReflectedObject& layoutParamsObject);
+		bool		DrawSizeFields(ui2::LayoutParams* layoutParams, EditorReflectedObject& layoutParamsObject);
 		bool		DrawContentBlock(ui2::Node* node, EditorReflectedObject& nodeObject, const ReflectionDescriptor*& convertDescriptor);
 		bool		DrawLayoutBlock(ui2::Node* node);
 		bool		DrawCanvasBlock(ui2::Canvas& canvas);

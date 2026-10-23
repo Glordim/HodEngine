@@ -71,6 +71,47 @@ namespace hod::inline editor
 		constexpr std::string_view WidthModeProperty = "WidthMode";
 		constexpr std::string_view HeightModeProperty = "HeightMode";
 
+		// Declared by LayoutParams itself, hence shared by every LayoutParams type: drawn in their own section (see DrawSizeFields)
+		constexpr std::string_view CommonLayoutParamsProperties[] = {WidthModeProperty, HeightModeProperty, "Size", "MinSize", "MaxSize"};
+
+		bool IsCommonLayoutParamsProperty(std::string_view name)
+		{
+			for (std::string_view commonProperty : CommonLayoutParamsProperties)
+			{
+				if (name == commonProperty)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		/// @brief A reflected property of the LayoutParams, greyed out (with unusedReason as tooltip) when it is unused with the current settings.
+		/// @return true if it was edited
+		bool DrawLayoutParamsProperty(EditorReflectedObject& layoutParamsObject, std::string_view name, bool used = true, const char* unusedReason = "")
+		{
+			EditorReflectedProperty* property = layoutParamsObject.FindProperty(name);
+			if (property == nullptr)
+			{
+				return false;
+			}
+			ImGui::BeginDisabled(used == false);
+			bool changed = PropertyDrawer::DrawProperty(*property);
+			ImGui::EndDisabled();
+			if (used == false)
+			{
+				ImGui::SetItemTooltip("%s", unusedReason);
+			}
+			return changed;
+		}
+
+		void DrawSectionSeparator()
+		{
+			ImGui::Spacing();
+			ImGui::Separator();
+			ImGui::Spacing();
+		}
+
 		/// @brief One component of the Size Mode row: a framed axis label glued to the enum combo, same look as DrawHelper::DrawVector2's components.
 		/// Right-clicking the combo opens the property's own context menu (Revert, Reset).
 		/// @return true if the value was edited
@@ -243,8 +284,10 @@ namespace hod::inline editor
 		return changed;
 	}
 
-	/// @brief How the node is placed within its parent: its LayoutParams, whose type depends on the parent's
-	/// layout (anchors without one), then the node's own geometry.
+	/// @brief How the node is placed within its parent, in three sections:
+	/// 1. the fields of its LayoutParams' type, which depends on the parent's layout (anchors without one, see DrawAnchoredFields)
+	/// 2. the size fields every LayoutParams shares (see DrawSizeFields)
+	/// 3. the node's own transform (Rotation, Scale, Pivot), purely visual
 	/// @return true if something was edited
 	bool UIPrefabEditorInspectorWindow::DrawPlacementBlock(ui2::Node* node, EditorReflectedObject& nodeObject)
 	{
@@ -266,29 +309,40 @@ namespace hod::inline editor
 
 		if (DrawHelper::BeginInspectorBlock((const void*)BlockLayoutParams, ICON_MDI_ANCHOR, title.CStr()))
 		{
-			if (ui2::AnchoredLayoutParams* anchoredLayoutParams = ui2::LayoutParams::Cast<ui2::AnchoredLayoutParams>(layoutParams))
+			if (layoutParams != nullptr)
 			{
-				changed |= DrawAnchoredPlacement(node, anchoredLayoutParams);
-			}
-			else if (layoutParams != nullptr)
-			{
-				// In declaration order, WidthMode/HeightMode merged into one row where WidthMode is
 				EditorReflectedObject layoutParamsObject(layoutParams, &layoutParams->GetReflectionDescriptorV(), nullptr, this);
-				for (EditorReflectedProperty* property : layoutParamsObject.GetProperties())
+
+				// 1. The type's own fields
+				if (ui2::AnchoredLayoutParams* anchoredLayoutParams = ui2::LayoutParams::Cast<ui2::AnchoredLayoutParams>(layoutParams))
 				{
-					std::string_view name = property->GetReflectionProperty()->GetName();
-					if (name == WidthModeProperty)
+					changed |= DrawAnchoredFields(node, anchoredLayoutParams, layoutParamsObject);
+					DrawSectionSeparator();
+				}
+				else
+				{
+					// In declaration order
+					bool anyOwnField = false;
+					for (EditorReflectedProperty* property : layoutParamsObject.GetProperties())
 					{
-						changed |= DrawSizeModeRow(layoutParamsObject, true, true, "", "");
+						if (IsCommonLayoutParamsProperty(property->GetReflectionProperty()->GetName()) == false)
+						{
+							changed |= PropertyDrawer::DrawProperty(*property);
+							anyOwnField = true;
+						}
 					}
-					else if (name != HeightModeProperty)
+					if (anyOwnField)
 					{
-						changed |= PropertyDrawer::DrawProperty(*property);
+						DrawSectionSeparator();
 					}
 				}
+
+				// 2. The shared size fields
+				changed |= DrawSizeFields(layoutParams, layoutParamsObject);
+				DrawSectionSeparator();
 			}
 
-			// In GeometryProperties' order, not the declaration's one.
+			// 3. The node's own transform. In GeometryProperties' order, not the declaration's one.
 			for (std::string_view geometryProperty : GeometryProperties)
 			{
 				if (EditorReflectedProperty* property = nodeObject.FindProperty(geometryProperty))
@@ -302,36 +356,15 @@ namespace hod::inline editor
 		return changed;
 	}
 
-	/// @brief AnchoredLayoutParams' fields, grouped by what they do rather than in declaration order:
-	/// 1. the anchors: the preset picker, then the fields it sets (AnchorMin/Max, Alignment) right below. Editing
-	///    any of them keeps the node where it is (AnchoredLayoutParams::PlaceRect), as picking a preset does.
-	/// 2. the rect relative to the anchors: Offset, then the size (mode + Size, a delta on a stretched axis),
-	///    then its bounds.
-	/// A field unused with the current anchors is greyed out (the X Size Mode on a stretched width...).
+	/// @brief AnchoredLayoutParams' own fields, grouped by what they do rather than in declaration order: the anchor
+	/// preset picker, then the fields it sets (AnchorMin/Max, Alignment) right below, then Offset. Editing the anchors
+	/// keeps the node where it is (AnchoredLayoutParams::PlaceRect), as picking a preset does.
 	/// @return true if something was edited
-	bool UIPrefabEditorInspectorWindow::DrawAnchoredPlacement(ui2::Node* node, ui2::AnchoredLayoutParams* layoutParams)
+	bool UIPrefabEditorInspectorWindow::DrawAnchoredFields(ui2::Node* node, ui2::AnchoredLayoutParams* layoutParams, EditorReflectedObject& layoutParamsObject)
 	{
-		bool                  changed = false;
-		EditorReflectedObject layoutParamsObject(layoutParams, &layoutParams->GetReflectionDescriptorV(), nullptr, this);
+		bool changed = false;
 
-		auto drawProperty = [&](std::string_view name, bool used, const char* unusedReason) -> bool
-		{
-			EditorReflectedProperty* property = layoutParamsObject.FindProperty(name);
-			if (property == nullptr)
-			{
-				return false;
-			}
-			ImGui::BeginDisabled(used == false);
-			bool propertyChanged = PropertyDrawer::DrawProperty(*property);
-			ImGui::EndDisabled();
-			if (used == false)
-			{
-				ImGui::SetItemTooltip("%s", unusedReason);
-			}
-			return propertyChanged;
-		};
-
-		// 1. Anchors. Where the node is before any change, to keep it there.
+		// Where the node is before any change, to keep it there.
 		ui2::Node* parent = node->GetParent();
 		Vector2    parentSize = parent != nullptr ? parent->GetSize() : Vector2::Zero;
 		Vector2    center = node->GetPosition();
@@ -353,9 +386,9 @@ namespace hod::inline editor
 			layoutParams->SetAlignment(alignment);
 			anchorsChanged = true;
 		}
-		anchorsChanged |= drawProperty("AnchorMin", true, "");
-		anchorsChanged |= drawProperty("AnchorMax", true, "");
-		anchorsChanged |= drawProperty("Alignment", true, "");
+		anchorsChanged |= DrawLayoutParamsProperty(layoutParamsObject, "AnchorMin");
+		anchorsChanged |= DrawLayoutParamsProperty(layoutParamsObject, "AnchorMax");
+		anchorsChanged |= DrawLayoutParamsProperty(layoutParamsObject, "Alignment");
 
 		if (anchorsChanged)
 		{
@@ -363,17 +396,25 @@ namespace hod::inline editor
 			changed = true;
 		}
 
-		ImGui::Spacing();
-		ImGui::Separator();
-		ImGui::Spacing();
+		changed |= DrawLayoutParamsProperty(layoutParamsObject, "Offset");
 
-		// 2. The rect relative to the anchors
-		bool stretchedX = layoutParams->IsStretchedX();
-		bool stretchedY = layoutParams->IsStretchedY();
-		bool fixedX = stretchedX == false && layoutParams->GetWidthMode() == ui2::LayoutParams::SizeMode::Fixed;
-		bool fixedY = stretchedY == false && layoutParams->GetHeightMode() == ui2::LayoutParams::SizeMode::Fixed;
+		return changed;
+	}
 
-		changed |= drawProperty("Offset", true, "");
+	/// @brief The size fields every LayoutParams shares: the mode (Fixed/Content), Size, then its bounds. Under AnchoredLayoutParams,
+	/// a field unused with the current anchors is greyed out (the X Size Mode on a stretched width...), and Size is a delta
+	/// (dX/dY) on a stretched axis.
+	/// @return true if something was edited
+	bool UIPrefabEditorInspectorWindow::DrawSizeFields(ui2::LayoutParams* layoutParams, EditorReflectedObject& layoutParamsObject)
+	{
+		bool changed = false;
+
+		ui2::AnchoredLayoutParams* anchoredLayoutParams = ui2::LayoutParams::Cast<ui2::AnchoredLayoutParams>(layoutParams);
+		bool                       stretchedX = anchoredLayoutParams != nullptr && anchoredLayoutParams->IsStretchedX();
+		bool                       stretchedY = anchoredLayoutParams != nullptr && anchoredLayoutParams->IsStretchedY();
+		bool                       fixedX = stretchedX == false && layoutParams->GetWidthMode() == ui2::LayoutParams::SizeMode::Fixed;
+		bool                       fixedY = stretchedY == false && layoutParams->GetHeightMode() == ui2::LayoutParams::SizeMode::Fixed;
+
 		changed |= DrawSizeModeRow(layoutParamsObject, stretchedX == false, stretchedY == false, "Unused: the width is stretched, the anchors and the size delta give it",
 		                           "Unused: the height is stretched, the anchors and the size delta give it");
 
@@ -406,8 +447,8 @@ namespace hod::inline editor
 			ImGui::PopID();
 		}
 
-		changed |= drawProperty("MinSize", true, "");
-		changed |= drawProperty("MaxSize", true, "");
+		changed |= DrawLayoutParamsProperty(layoutParamsObject, "MinSize");
+		changed |= DrawLayoutParamsProperty(layoutParamsObject, "MaxSize");
 
 		return changed;
 	}
@@ -501,23 +542,30 @@ namespace hod::inline editor
 			ReflectionDescriptor& currentDescriptor = layout->GetReflectionDescriptorV();
 
 			String layoutTitle = String("Children Layout: ") + currentDescriptor.GetDisplayName();
-			if (DrawHelper::BeginInspectorBlock((const void*)BlockLayout, ICON_MDI_VIEW_QUILT, layoutTitle.CStr(), nullptr, &removeLayout))
+			bool   convertRequested = false;
+			bool   blockOpened = DrawHelper::BeginInspectorBlock((const void*)BlockLayout, ICON_MDI_VIEW_QUILT, layoutTitle.CStr(), nullptr, &removeLayout,
+			                                                     ICON_MDI_SWAP_HORIZONTAL, "Convert To", &convertRequested);
+			// Same popup as the node's Convert To: picking another type converts the layout, keeping what the two types share (see Node::ConvertLayout)
+			if (convertRequested)
 			{
-				// Picking another type transforms the layout; picking the current one is a no-op.
-				ImGui::SetNextItemWidth(-1.0f);
-				if (ImGui::BeginCombo("##LayoutType", currentDescriptor.GetDisplayName().CStr()))
+				ImGui::OpenPopup("UIPrefabConvertLayout");
+			}
+			if (ImGui::BeginPopup("UIPrefabConvertLayout"))
+			{
+				ImGui::TextDisabled("Convert To");
+				ImGui::Separator();
+				for (const auto& descriptorPair : layoutDescriptors)
 				{
-					for (const auto& descriptorPair : layoutDescriptors)
+					bool isCurrent = (descriptorPair.second->GetType() == currentDescriptor.GetType());
+					if (ImGui::MenuItem(descriptorPair.second->GetDisplayName().CStr(), nullptr, isCurrent, isCurrent == false))
 					{
-						bool isCurrent = (descriptorPair.second->GetType() == currentDescriptor.GetType());
-						if (ImGui::Selectable(descriptorPair.second->GetDisplayName().CStr(), isCurrent) && isCurrent == false)
-						{
-							newLayoutDescriptor = descriptorPair.second;
-						}
+						newLayoutDescriptor = descriptorPair.second;
 					}
-					ImGui::EndCombo();
 				}
-
+				ImGui::EndPopup();
+			}
+			if (blockOpened)
+			{
 				EditorReflectedObject layoutObject(layout, &currentDescriptor, nullptr, this);
 				changed |= PropertyDrawer::DrawDescriptor(layoutObject);
 			}
@@ -553,7 +601,7 @@ namespace hod::inline editor
 		}
 		else if (newLayoutDescriptor != nullptr)
 		{
-			node->SetLayout(newLayoutDescriptor->CreateInstance<ui2::Layout>());
+			node->ConvertLayout(*newLayoutDescriptor);
 			changed = true;
 		}
 

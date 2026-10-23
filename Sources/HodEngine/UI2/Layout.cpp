@@ -9,6 +9,11 @@ namespace hod::inline ui2
 		(void)reflectionDescriptor; // abstract interface, no own serializable fields
 	}
 
+	void Layout::CarryOverFrom(const Layout& previous)
+	{
+		(void)previous;
+	}
+
 	void Layout::MarkOwnerMeasureAsDirty()
 	{
 		if (_node != nullptr)

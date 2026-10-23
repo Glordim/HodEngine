@@ -32,6 +32,13 @@ namespace hod::inline ui2
 		// Reflection-based equivalent of dynamic_cast<_Layout_*>(layout) — see LayoutParams::Cast.
 		template<typename _Layout_>
 		static _Layout_*			Cast(Layout* layout);
+		template<typename _Layout_>
+		static const _Layout_*		Cast(const Layout* layout);
+
+		/// @brief Called on a Layout replacing `previous`, of another type, on the same node (see Node::ConvertLayout): the
+		/// reflected properties of the types both derive from are already copied over. Carries what that copy can't express,
+		/// e.g. a field each type names after its own axis.
+		virtual void				CarryOverFrom(const Layout& previous);
 
 		// Returns the size this layout's content wants, given the space owner's parent is willing to
 		// offer. Must measure every child of `owner` exactly once (via child->Measure(...)), even one
@@ -69,5 +76,11 @@ namespace hod::inline ui2
 			return static_cast<_Layout_*>(layout);
 		}
 		return nullptr;
+	}
+
+	template<typename _Layout_>
+	const _Layout_* Layout::Cast(const Layout* layout)
+	{
+		return Cast<_Layout_>(const_cast<Layout*>(layout));
 	}
 }

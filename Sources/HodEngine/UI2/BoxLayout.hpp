@@ -6,14 +6,15 @@
 
 namespace hod::inline ui2
 {
-	/// @brief Lays a node's children out sequentially along one axis (Horizontal or Vertical),
-	/// sharing a single algorithm indexed by axis rather than two separate implementations. Each
-	/// child's BoxLayoutParams::Rule picks whether it takes exactly its own measured extent along
-	/// the main axis (Auto) or shares whatever space is left over, proportionally to its weight
-	/// (Fill); cross-axis placement uses BoxLayoutParams' HAlign/VAlign/margin and the min-max size
-	/// every LayoutParams has. The padding insets the owner's content rect before any of it: the space
-	/// kept inside the owner, around all its children (where a child's margin is around that child only).
-	/// Attach to any Node via Node::SetLayout<BoxLayout>().
+	/// @brief Base of the layouts laying a node's children out one after the other along one axis (see HorizontalLayout,
+	/// VerticalLayout): a single algorithm indexed by axis rather than two separate implementations. Each child's
+	/// BoxLayoutParams::Rule picks whether it takes exactly its own measured extent along the main axis (Own Size) or shares
+	/// whatever space is left over, proportionally to its weight (Fill); its cross-axis placement uses its alignment
+	/// (HorizontalLayoutParams' VerticalAlign, VerticalLayoutParams' HorizontalAlign), its margin and the min-max size every LayoutParams has.
+	/// When no child fills the main axis, the children as a group are put on it by the layout's own alignment.
+	/// The padding insets the owner's content rect before any of it: the space kept inside the owner, around all its
+	/// children (where a child's margin is around that child only).
+	/// The flow goes left to right (HorizontalLayout) or top to bottom (VerticalLayout).
 	class HOD_UI2_API BoxLayout : public Layout
 	{
 		REFLECTED_CLASS(BoxLayout, Layout)
@@ -21,17 +22,15 @@ namespace hod::inline ui2
 	public:
 
 		enum class Axis : uint8_t { Horizontal, Vertical };
-		REFLECTED_ENUM(HOD_UI2_API, Axis);
 
 	public:
 
 		Vector2						Measure(Node& owner, const Vector2& availableSize) override;
 		void						Arrange(Node& owner, const Rect& contentRect) override;
 
-		LayoutParams*				CreateDefaultLayoutParams() const override;
+		void						CarryOverFrom(const Layout& previous) override;
 
 		Axis						GetAxis() const;
-		void						SetAxis(Axis axis);
 
 		float						GetSpacing() const;
 		void						SetSpacing(float spacing);
@@ -39,10 +38,75 @@ namespace hod::inline ui2
 		const Padding&				GetPadding() const;
 		void						SetPadding(const Padding& padding);
 
+		// Where the children, as a group, go along the main axis when none of them fills it, whatever the axis:
+		// 0 at the flow's start (left / top), 1 centered, 2 at its end (right / bottom)
+		virtual uint8_t				GetMainAlignIndex() const = 0;
+		virtual void				SetMainAlignIndex(uint8_t mainAlignIndex) = 0;
+
+	protected:
+
+		explicit					BoxLayout(Axis axis);
+
 	private:
 
-		Axis						_axis = Axis::Horizontal;
+		Axis						_axis;
 		float						_spacing = 0.0f;
 		Padding						_padding;
+	};
+
+	/// @brief Lays the children out in a row, left to right (see BoxLayout). Its children get HorizontalLayoutParams.
+	class HOD_UI2_API HorizontalLayout : public BoxLayout
+	{
+		REFLECTED_CLASS(HorizontalLayout, BoxLayout)
+
+	public:
+
+		enum class Alignment : uint8_t { Left, Center, Right };
+		REFLECTED_ENUM(HOD_UI2_API, Alignment);
+
+	public:
+
+									HorizontalLayout();
+
+		LayoutParams*				CreateDefaultLayoutParams() const override;
+
+		// Where the row goes when it doesn't fill the width
+		Alignment					GetAlignment() const;
+		void						SetAlignment(Alignment alignment);
+
+		uint8_t						GetMainAlignIndex() const override;
+		void						SetMainAlignIndex(uint8_t mainAlignIndex) override;
+
+	private:
+
+		Alignment					_alignment = Alignment::Left;
+	};
+
+	/// @brief Lays the children out in a column, top to bottom (see BoxLayout). Its children get VerticalLayoutParams.
+	class HOD_UI2_API VerticalLayout : public BoxLayout
+	{
+		REFLECTED_CLASS(VerticalLayout, BoxLayout)
+
+	public:
+
+		enum class Alignment : uint8_t { Top, Center, Bottom };
+		REFLECTED_ENUM(HOD_UI2_API, Alignment);
+
+	public:
+
+									VerticalLayout();
+
+		LayoutParams*				CreateDefaultLayoutParams() const override;
+
+		// Where the column goes when it doesn't fill the height
+		Alignment					GetAlignment() const;
+		void						SetAlignment(Alignment alignment);
+
+		uint8_t						GetMainAlignIndex() const override;
+		void						SetMainAlignIndex(uint8_t mainAlignIndex) override;
+
+	private:
+
+		Alignment					_alignment = Alignment::Top;
 	};
 }

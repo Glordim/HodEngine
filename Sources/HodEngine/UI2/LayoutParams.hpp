@@ -44,6 +44,13 @@ namespace hod::inline ui2
 		// one safely. Null-safe and returns nullptr on a type mismatch, exactly like dynamic_cast.
 		template<typename _LayoutParams_>
 		static _LayoutParams_*		Cast(LayoutParams* layoutParams);
+		template<typename _LayoutParams_>
+		static const _LayoutParams_*	Cast(const LayoutParams* layoutParams);
+
+		/// @brief Called on a LayoutParams replacing `previous`, of another type, on the same child (its parent's layout changed,
+		/// see Node::SetLayout, or the child moved to another parent): the reflected properties of the types both derive from
+		/// are already copied over. Carries what that copy can't express, e.g. a field each type names after its own axis.
+		virtual void				CarryOverFrom(const LayoutParams& previous);
 
 		SizeMode					GetWidthMode() const;
 		void						SetWidthMode(SizeMode widthMode);
@@ -119,5 +126,11 @@ namespace hod::inline ui2
 			return static_cast<_LayoutParams_*>(layoutParams);
 		}
 		return nullptr;
+	}
+
+	template<typename _LayoutParams_>
+	const _LayoutParams_* LayoutParams::Cast(const LayoutParams* layoutParams)
+	{
+		return Cast<_LayoutParams_>(const_cast<LayoutParams*>(layoutParams));
 	}
 }

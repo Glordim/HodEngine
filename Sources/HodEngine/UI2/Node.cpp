@@ -12,6 +12,7 @@
 
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
+#include <HodEngine/Core/Reflection/ReflectionProperty.hpp>
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
@@ -37,10 +38,30 @@ namespace hod::inline ui2
 
 	namespace
 	{
+		/// @brief Copies, from source to destination, the reflected properties of every type both derive from: those of their
+		/// closest common ancestor and of its own ancestors (e.g. BoxLayoutParams' and LayoutParams' between a HorizontalLayoutParams
+		/// and a VerticalLayoutParams, only LayoutParams' between an AnchoredLayoutParams and either). Straight copies, no setter called.
+		void CopyCommonProperties(const ReflectionDescriptor& sourceDescriptor, const void* source, const ReflectionDescriptor& destinationDescriptor, void* destination)
+		{
+			const ReflectionDescriptor* commonDescriptor = &sourceDescriptor;
+			while (commonDescriptor != nullptr && destinationDescriptor.IsCompatible(*commonDescriptor) == false)
+			{
+				commonDescriptor = commonDescriptor->GetParent();
+			}
+
+			for (; commonDescriptor != nullptr; commonDescriptor = commonDescriptor->GetParent())
+			{
+				for (ReflectionProperty* property : commonDescriptor->GetProperties())
+				{
+					property->Copy(source, destination);
+				}
+			}
+		}
+
 		/// @brief Which LayoutParams a child must end up with, given the one it has (may be null) and a freshly
 		/// created default one of the type its (new) parent expects: the current one if it already is of that
-		/// type, otherwise the fresh one, carrying over the common fields every LayoutParams shares (size
-		/// modes, size, min/max size). Destroys whichever of the two is not returned.
+		/// type, otherwise the fresh one, carrying over what the two types share (see CopyCommonProperties and
+		/// LayoutParams::CarryOverFrom). Destroys whichever of the two is not returned.
 		LayoutParams* AdaptLayoutParams(LayoutParams* current, LayoutParams* freshDefault)
 		{
 			if (current != nullptr && current->GetReflectionDescriptorV().GetType() == freshDefault->GetReflectionDescriptorV().GetType())
@@ -51,11 +72,8 @@ namespace hod::inline ui2
 
 			if (current != nullptr)
 			{
-				freshDefault->SetWidthMode(current->GetWidthMode());
-				freshDefault->SetHeightMode(current->GetHeightMode());
-				freshDefault->SetSize(current->GetSize());
-				freshDefault->SetMinSize(current->GetMinSize());
-				freshDefault->SetMaxSize(current->GetMaxSize());
+				CopyCommonProperties(current->GetReflectionDescriptorV(), current, freshDefault->GetReflectionDescriptorV(), freshDefault);
+				freshDefault->CarryOverFrom(*current);
 				DefaultAllocator::GetInstance().Delete(current);
 			}
 			return freshDefault;
@@ -730,7 +748,7 @@ namespace hod::inline ui2
 
 		// Each child's LayoutParams must be of the type the (new) layout expects (e.g. BoxLayoutParams
 		// under a BoxLayout, AnchoredLayoutParams under none): convert the ones that aren't, carrying
-		// over the common fields every LayoutParams shares (margin, alignment, min/max size).
+		// over what the two types share (see AdaptLayoutParams).
 		for (Node* child : _children)
 		{
 			LayoutParams* oldLayoutParams = child->_layoutParams;
@@ -750,6 +768,20 @@ namespace hod::inline ui2
 		// and how its children end up placed, even when that size doesn't change.
 		MarkMeasureAsDirty();
 		MarkArrangeAsDirty();
+	}
+
+	/// @brief Replaces the layout by a new one of the given type, carrying over what the two types share (see
+	/// CopyCommonProperties and Layout::CarryOverFrom), e.g. the spacing and padding from a HorizontalLayout to a
+	/// VerticalLayout. Without a current layout, attaches a default one of that type.
+	void Node::ConvertLayout(const ReflectionDescriptor& layoutDescriptor)
+	{
+		Layout* layout = layoutDescriptor.CreateInstance<Layout>();
+		if (_layout != nullptr)
+		{
+			CopyCommonProperties(_layout->GetReflectionDescriptorV(), _layout, layout->GetReflectionDescriptorV(), layout);
+			layout->CarryOverFrom(*_layout);
+		}
+		SetLayout(layout);
 	}
 
 	Layout* Node::GetLayout() const

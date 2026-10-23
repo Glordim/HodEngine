@@ -91,6 +91,11 @@ namespace hod::inline ui2
 		}
 	}
 
+	void LayoutParams::CarryOverFrom(const LayoutParams& previous)
+	{
+		(void)previous;
+	}
+
 	bool LayoutParams::DependsOnParentSize() const
 	{
 		return DependsOnParentWidth() || DependsOnParentHeight();

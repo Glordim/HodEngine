@@ -151,6 +151,8 @@ namespace hod::inline ui2
 		template<typename _Layout_, typename... Args>
 		_Layout_&					SetLayout(Args&&... args);
 		void						SetLayout(Layout* layout);
+		// Another type of layout keeping what it shares with the current one (e.g. a row turned into a column)
+		void						ConvertLayout(const ReflectionDescriptor& layoutDescriptor);
 		template<typename _Layout_>
 		_Layout_*					GetLayout() const;
 		Layout*						GetLayout() const;
@@ -173,7 +175,7 @@ namespace hod::inline ui2
 
 		// Computes the aligned+clamped [offset, extent] of a child along one axis. alignIndex 0/2 are
 		// the two "edge" alignments (startIsIndex0 says which one sits at availableStart), 1 is
-		// centered, 3 stretches to fill availableExtent. BoxLayoutParams::HAlign and BoxLayoutParams::VAlign
+		// centered, 3 stretches to fill availableExtent. VerticalLayoutParams::HorizontalAlign and HorizontalLayoutParams::VerticalAlign
 		// share this same 4-value layout (Stretch is always index 3), so both can drive this helper.
 		// Public and static (no instance state) so a Layout implementation can reuse it for its own
 		// cross-axis placement (see BoxLayout).

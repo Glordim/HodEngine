@@ -20,7 +20,8 @@ namespace hod::inline ui2
 	{
 		LayoutParamsFactory* layoutParamsFactory = LayoutParamsFactory::GetInstance();
 		layoutParamsFactory->Register<AnchoredLayoutParams>();
-		layoutParamsFactory->Register<BoxLayoutParams>();
+		layoutParamsFactory->Register<HorizontalLayoutParams>();
+		layoutParamsFactory->Register<VerticalLayoutParams>();
 
 		NodeFactory* nodeFactory = NodeFactory::GetInstance();
 		nodeFactory->Register<Node>();
@@ -29,6 +30,7 @@ namespace hod::inline ui2
 		nodeFactory->Register<MaskNode>();
 
 		LayoutFactory* layoutFactory = LayoutFactory::GetInstance();
-		layoutFactory->Register<BoxLayout>();
+		layoutFactory->Register<HorizontalLayout>();
+		layoutFactory->Register<VerticalLayout>();
 	}
 }
