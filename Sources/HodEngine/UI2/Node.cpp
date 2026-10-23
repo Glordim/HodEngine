@@ -449,6 +449,20 @@ namespace hod::inline ui2
 
 				Vector2 childSize = child->Measure(availableSize);
 
+				// A child sized from this node on an axis (stretched anchors) can't size it back: only its MinSize counts there,
+				// it spans whatever the other children give once arranged (see ArrangeChildInRect).
+				if (const LayoutParams* childLayoutParams = child->_layoutParams)
+				{
+					if (childLayoutParams->DependsOnParentWidth())
+					{
+						childSize.SetX(childLayoutParams->GetMinSize().GetX());
+					}
+					if (childLayoutParams->DependsOnParentHeight())
+					{
+						childSize.SetY(childLayoutParams->GetMinSize().GetY());
+					}
+				}
+
 				maxChildSize = Vector2(std::max(maxChildSize.GetX(), childSize.GetX()), std::max(maxChildSize.GetY(), childSize.GetY()));
 			}
 
@@ -636,7 +650,9 @@ namespace hod::inline ui2
 		Matrix4 rotation = Matrix4::Rotation(_rotation);
 		Matrix4 scaling = Matrix4::Scale(_scale);
 
-		localMatrix = inverseAnchor * scaling * rotation * anchor * translation * inverseAnchor;
+		// Column vectors (M * v, the rightmost matrix applies first): scaled then rotated around the origin's point, then moved to the node's center.
+		// Purely visual: the layout (sizes, positions) never sees the scale or the rotation.
+		localMatrix = translation * anchor * rotation * scaling * inverseAnchor;
 	}
 
 	/// @brief
@@ -647,7 +663,8 @@ namespace hod::inline ui2
 		{
 			if (_parent != nullptr)
 			{
-				_canvasMatrix = _localMatrix * _parent->ComputeCanvasMatrix();
+				// The parent's transform applies after the node's own one (column vectors)
+				_canvasMatrix = _parent->ComputeCanvasMatrix() * _localMatrix;
 			}
 			else
 			{

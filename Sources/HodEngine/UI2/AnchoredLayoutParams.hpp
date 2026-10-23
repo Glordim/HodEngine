@@ -24,7 +24,8 @@ namespace hod::inline ui2
 
 	public:
 
-		bool						DependsOnParentSize() const override;
+		bool						DependsOnParentWidth() const override;
+		bool						DependsOnParentHeight() const override;
 		Vector2						ComputeSize(const Vector2& availableSize, const Vector2& contentSize) const override;
 		bool						TryComputePosition(const Rect& parentContentRect, const Vector2& size, Vector2& outPosition) const override;
 

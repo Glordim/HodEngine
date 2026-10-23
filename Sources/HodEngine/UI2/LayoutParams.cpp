@@ -93,6 +93,16 @@ namespace hod::inline ui2
 
 	bool LayoutParams::DependsOnParentSize() const
 	{
+		return DependsOnParentWidth() || DependsOnParentHeight();
+	}
+
+	bool LayoutParams::DependsOnParentWidth() const
+	{
+		return false;
+	}
+
+	bool LayoutParams::DependsOnParentHeight() const
+	{
 		return false;
 	}
 

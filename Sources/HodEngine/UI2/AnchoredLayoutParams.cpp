@@ -78,9 +78,14 @@ namespace hod::inline ui2
 		}
 	}
 
-	bool AnchoredLayoutParams::DependsOnParentSize() const
+	bool AnchoredLayoutParams::DependsOnParentWidth() const
 	{
-		return _anchorMin != _anchorMax;
+		return IsStretchedX();
+	}
+
+	bool AnchoredLayoutParams::DependsOnParentHeight() const
+	{
+		return IsStretchedY();
 	}
 
 	bool AnchoredLayoutParams::IsStretchedX() const

@@ -67,8 +67,13 @@ namespace hod::inline ui2
 		Vector2						ResolveSize(const Vector2& contentSize) const;
 
 		/// @brief Whether the governed child's size depends on its parent's size (used to decide
-		/// dirty-flag propagation when the parent is arranged again).
-		virtual bool				DependsOnParentSize() const;
+		/// dirty-flag propagation when the parent is arranged again): DependsOnParentWidth() || DependsOnParentHeight().
+		bool						DependsOnParentSize() const;
+
+		/// @brief Whether the governed child's size depends on its parent's on one axis (e.g. AnchoredLayoutParams' stretched anchors).
+		/// Such a child doesn't count in its parent's content size on that axis (see Node::Measure): the parent can't be sized from it.
+		virtual bool				DependsOnParentWidth() const;
+		virtual bool				DependsOnParentHeight() const;
 
 		/// @brief The size the child measures, given the space its parent offers. Base implementation:
 		/// ResolveSize(contentSize). Overridden by a type whose parent imposes the size on some axes
