@@ -47,31 +47,51 @@ namespace hod::inline editor
 			CenterV = (1 << 5),
 		};
 
-		void DrawAchorPresetParentBounds(ImDrawList* drawList, ImVec2 pos, ImVec2 Size, uint8_t coloredEdges)
+		// The preset drawings are laid out on whole pixels: an odd extent, so a 1 pixel wide line (AddLineH/AddLineV and AddRect strokes
+		// stay inside the pixels they are given, since ImGui 1.93) has as many pixels on each side of the middle one.
+		float SnapToOddPixels(float extent)
+		{
+			float pixels = std::floor(extent);
+			return std::fmod(pixels, 2.0f) == 0.0f ? pixels - 1.0f : pixels;
+		}
+
+		/// @param pos top-left pixel, whole
+		/// @param size odd number of pixels on each axis: the edges are the first and last pixel rows/columns, the center ones the middle
+		void DrawAchorPresetParentBounds(ImDrawList* drawList, ImVec2 pos, ImVec2 size, uint8_t coloredEdges)
 		{
 			ImU32 normalColor = IM_COL32(100, 100, 100, 255);
 			ImU32 highlightColor = IM_COL32(255, 100, 100, 255);
 
-			float thickness = 1.0f;
+			ImVec2 end = pos + size;
+			ImVec2 last = end - ImVec2(1.0f, 1.0f);
+			ImVec2 middle = pos + (size - ImVec2(1.0f, 1.0f)) * 0.5f;
 
-			ImVec2 topLeft = pos;
-			ImVec2 topRight = pos + ImVec2(Size.x, 0.0f);
-			ImVec2 bottomLeft = pos + ImVec2(0, Size.y);
-			ImVec2 bottomRight = pos + ImVec2(Size.x, Size.y);
+			drawList->AddRect(pos, end, normalColor);
 
-			drawList->AddLine(topLeft, topRight, coloredEdges & Edge::Top ? highlightColor : normalColor, thickness);
-			drawList->AddLine(topLeft, bottomLeft, coloredEdges & Edge::Left ? highlightColor : normalColor, thickness);
-			drawList->AddLine(bottomLeft, bottomRight, coloredEdges & Edge::Bottom ? highlightColor : normalColor, thickness);
-			drawList->AddLine(bottomRight, topRight, coloredEdges & Edge::Right ? highlightColor : normalColor, thickness);
-
+			// Highlighted ones on top of the normal outline
+			if (coloredEdges & Edge::Top)
+			{
+				drawList->AddLineH(pos.x, end.x, pos.y, highlightColor);
+			}
+			if (coloredEdges & Edge::Bottom)
+			{
+				drawList->AddLineH(pos.x, end.x, last.y, highlightColor);
+			}
+			if (coloredEdges & Edge::Left)
+			{
+				drawList->AddLineV(pos.x, pos.y, end.y, highlightColor);
+			}
+			if (coloredEdges & Edge::Right)
+			{
+				drawList->AddLineV(last.x, pos.y, end.y, highlightColor);
+			}
 			if (coloredEdges & Edge::CenterH)
 			{
-				drawList->AddLine(pos + ImVec2(0, Size.y * 0.5f), pos + ImVec2(Size.x, Size.y * 0.5f), highlightColor, thickness);
+				drawList->AddLineH(pos.x, end.x, middle.y, highlightColor);
 			}
-
 			if (coloredEdges & Edge::CenterV)
 			{
-				drawList->AddLine(pos + ImVec2(Size.x * 0.5f, 0.0f), pos + ImVec2(Size.x * 0.5f, Size.y), highlightColor, thickness);
+				drawList->AddLineV(middle.x, pos.y, end.y, highlightColor);
 			}
 		}
 
@@ -88,49 +108,26 @@ namespace hod::inline editor
 			BottomRight = (1 << 8),
 		};
 
-		void DrawAchorPresetParentAnchor(ImDrawList* drawList, ImVec2 pos, ImVec2 Size, uint16_t coloredAnchors)
+		/// @brief The anchor dots, centered on the pixels of the matching edges (see DrawAchorPresetParentBounds)
+		void DrawAchorPresetParentAnchor(ImDrawList* drawList, ImVec2 pos, ImVec2 size, uint16_t coloredAnchors)
 		{
 			ImU32 color = IM_COL32(200, 200, 0, 255);
-
 			float radius = 3.0f;
 
-			if (coloredAnchors & Anchor::TopLeft)
-			{
-				drawList->AddCircleFilled(pos + ImVec2(Size.x * 0.0f, 0.0f), radius, color);
-			}
-			if (coloredAnchors & Anchor::TopCenter)
-			{
-				drawList->AddCircleFilled(pos + ImVec2(Size.x * 0.5f, 0.0f), radius, color);
-			}
-			if (coloredAnchors & Anchor::TopRight)
-			{
-				drawList->AddCircleFilled(pos + ImVec2(Size.x * 1.0f, 0.0f), radius, color);
-			}
+			// Centers of the first, middle and last pixel columns/rows
+			ImVec2 first = pos + ImVec2(0.5f, 0.5f);
+			ImVec2 middle = pos + size * 0.5f;
+			ImVec2 last = pos + size - ImVec2(0.5f, 0.5f);
 
-			if (coloredAnchors & Anchor::MiddleLeft)
+			const float xs[3] = {first.x, middle.x, last.x};
+			const float ys[3] = {first.y, middle.y, last.y};
+			// Anchor bits go row by row from the top-left: TopLeft, TopCenter, TopRight, MiddleLeft...
+			for (uint32_t index = 0; index < 9; ++index)
 			{
-				drawList->AddCircleFilled(pos + ImVec2(Size.x * 0.0f, Size.y * 0.5f), radius, color);
-			}
-			if (coloredAnchors & Anchor::MiddleCenter)
-			{
-				drawList->AddCircleFilled(pos + ImVec2(Size.x * 0.5f, Size.y * 0.5f), radius, color);
-			}
-			if (coloredAnchors & Anchor::MiddleRight)
-			{
-				drawList->AddCircleFilled(pos + ImVec2(Size.x * 1.0f, Size.y * 0.5f), radius, color);
-			}
-
-			if (coloredAnchors & Anchor::BottomLeft)
-			{
-				drawList->AddCircleFilled(pos + ImVec2(Size.x * 0.0f, Size.y), radius, color);
-			}
-			if (coloredAnchors & Anchor::BottomCenter)
-			{
-				drawList->AddCircleFilled(pos + ImVec2(Size.x * 0.5f, Size.y), radius, color);
-			}
-			if (coloredAnchors & Anchor::BottomRight)
-			{
-				drawList->AddCircleFilled(pos + ImVec2(Size.x * 1.0f, Size.y), radius, color);
+				if (coloredAnchors & (1 << index))
+				{
+					drawList->AddCircleFilled(ImVec2(xs[index % 3], ys[index / 3]), radius, color);
+				}
 			}
 		}
 
@@ -140,37 +137,53 @@ namespace hod::inline editor
 			Vertical = (1 << 1),
 		};
 
-		void DrawAchorPresetChildBounds(ImDrawList* drawList, ImVec2 pos, ImVec2 Size, uint8_t expandArrows)
+		/// @brief The child's rect and its expand arrows, on whole pixels as the parent's (see DrawAchorPresetParentBounds): each shaft is the
+		/// middle pixel row/column, each arrow head is centered on it and points at the rect's outer edge. Heads in clockwise order (on screen,
+		/// Y down) as ImGui expects for a filled shape: otherwise its anti-aliasing fringe goes inward and the head looks thinner.
+		void DrawAchorPresetChildBounds(ImDrawList* drawList, ImVec2 pos, ImVec2 size, uint8_t expandArrows)
 		{
 			ImU32 boundsColor = IM_COL32(200, 200, 200, 255);
 			ImU32 expandArrowColor = IM_COL32(100, 200, 255, 255);
 
-			float thickness = 1.0f;
+			drawList->AddRect(pos, pos + size, boundsColor);
 
-			drawList->AddRect(pos, pos + Size, boundsColor, 0.0f, thickness, 0);
-
-			float arrowWidth = 8.0f;
-			float arrowHeight = 4.0f;
+			ImVec2 end = pos + size;
+			ImVec2 middle = pos + (size - ImVec2(1.0f, 1.0f)) * 0.5f; // Middle pixel row/column
+			ImVec2 center = middle + ImVec2(0.5f, 0.5f);               // Its center
+			float  arrowHalfWidth = 4.0f;
+			float  arrowLength = 4.0f;
 
 			if (expandArrows & Horizontal)
 			{
-				ImVec2 leftArrow = pos + ImVec2(0.0f, Size.y * 0.5f);
-				ImVec2 rightArrow = pos + ImVec2(Size.x, Size.y * 0.5f);
-				drawList->AddLine(leftArrow, rightArrow, expandArrowColor, thickness);
-				drawList->AddTriangleFilled(ImFloor(leftArrow), ImFloor(leftArrow + ImVec2(arrowHeight, -arrowWidth * 0.5f)),
-				                            ImFloor(leftArrow + ImVec2(arrowHeight, arrowWidth * 0.5f)), expandArrowColor);
-				drawList->AddTriangleFilled(rightArrow, rightArrow + ImVec2(-arrowHeight, -arrowWidth * 0.5f), rightArrow + ImVec2(-arrowHeight, arrowWidth * 0.5f), expandArrowColor);
+				drawList->AddLineH(pos.x, end.x, middle.y, expandArrowColor);
+				drawList->AddTriangleFilled(ImVec2(pos.x, center.y), ImVec2(pos.x + arrowLength, center.y - arrowHalfWidth), ImVec2(pos.x + arrowLength, center.y + arrowHalfWidth),
+				                            expandArrowColor);
+				drawList->AddTriangleFilled(ImVec2(end.x, center.y), ImVec2(end.x - arrowLength, center.y + arrowHalfWidth), ImVec2(end.x - arrowLength, center.y - arrowHalfWidth),
+				                            expandArrowColor);
 			}
 
 			if (expandArrows & Vertical)
 			{
-				ImVec2 topArrow = pos + ImVec2(Size.x * 0.5f, 0.0f);
-				ImVec2 bottomArrow = pos + ImVec2(Size.x * 0.5f, Size.y);
-				drawList->AddLine(topArrow, bottomArrow, expandArrowColor, thickness);
-				drawList->AddTriangleFilled(topArrow, topArrow + ImVec2(-arrowWidth * 0.5f, arrowHeight), topArrow + ImVec2(arrowWidth * 0.5f, arrowHeight), expandArrowColor);
-				drawList->AddTriangleFilled(ImFloor(bottomArrow), ImFloor(bottomArrow + ImVec2(-arrowWidth * 0.5f, -arrowHeight)),
-				                            ImFloor(bottomArrow + ImVec2(arrowWidth * 0.5f, -arrowHeight)), expandArrowColor);
+				drawList->AddLineV(middle.x, pos.y, end.y, expandArrowColor);
+				drawList->AddTriangleFilled(ImVec2(center.x, pos.y), ImVec2(center.x + arrowHalfWidth, pos.y + arrowLength), ImVec2(center.x - arrowHalfWidth, pos.y + arrowLength),
+				                            expandArrowColor);
+				drawList->AddTriangleFilled(ImVec2(center.x, end.y), ImVec2(center.x - arrowHalfWidth, end.y - arrowLength), ImVec2(center.x + arrowHalfWidth, end.y - arrowLength),
+				                            expandArrowColor);
 			}
+		}
+
+		/// @brief A whole preset drawing in the given area: the parent's bounds and anchors, the child's bounds and arrows in its middle.
+		/// Snapped to whole pixels (see SnapToOddPixels), so every preset is drawn the same wherever it lands.
+		void DrawAnchorPreset(ImDrawList* drawList, ImVec2 pos, ImVec2 size, uint8_t edges, uint16_t anchors, uint8_t expandArrows)
+		{
+			pos = ImFloor(pos);
+			ImVec2 parentSize(SnapToOddPixels(size.x), SnapToOddPixels(size.y));
+			ImVec2 childSize(SnapToOddPixels(parentSize.x * 0.5f), SnapToOddPixels(parentSize.y * 0.5f));
+			ImVec2 childPos = pos + (parentSize - childSize) * 0.5f; // Whole: both sizes are odd
+
+			DrawAchorPresetParentBounds(drawList, pos, parentSize, edges);
+			DrawAchorPresetParentAnchor(drawList, pos, parentSize, anchors);
+			DrawAchorPresetChildBounds(drawList, childPos, childSize, expandArrows);
 		}
 
 		bool DrawPresetButton(const char* id, const ImVec2& Size, uint8_t edge, uint16_t anchors, uint8_t expandArrows, Vector2& anchorMin, Vector2& anchorMax, Vector2& pivot,
@@ -178,7 +191,6 @@ namespace hod::inline editor
 		{
 			(void)pivot; // TODO
 
-			ImVec2 childSize = Size * 0.5f;
 			ImVec2 pos = ImGui::GetCursorScreenPos();
 
 			ImGui::PushStyleVar(ImGuiStyleVar_FrameBorderSize, 0);
@@ -194,9 +206,7 @@ namespace hod::inline editor
 			}
 			ImGui::PopStyleVar(2);
 
-			DrawAchorPresetParentBounds(ImGui::GetWindowDrawList(), pos, Size, edge);
-			DrawAchorPresetParentAnchor(ImGui::GetWindowDrawList(), pos, Size, anchors);
-			DrawAchorPresetChildBounds(ImGui::GetWindowDrawList(), pos + childSize * 0.5f, childSize, expandArrows);
+			DrawAnchorPreset(ImGui::GetWindowDrawList(), pos, Size, edge, anchors, expandArrows);
 
 			if (clicked)
 			{
@@ -349,14 +359,11 @@ namespace hod::inline editor
 		ImGui::SetCursorPos(cursorPos + ImVec2(ImGui::GetTextLineHeightWithSpacing(), ImGui::GetTextLineHeightWithSpacing()));
 
 		ImVec2 presetSize = ImVec2(buttonSize.x - 24, buttonSize.y - 24);
-		ImVec2 childSize = presetSize * 0.5f;
 
 		ImVec2 presetButtonScreenPosition = ImGui::GetCursorScreenPos();
 		bool   clicked = ImGui::Button("##AnchorPresets", buttonSize);
 		ImVec2 pos = presetButtonScreenPosition + ImVec2(12, 12);
-		DrawAchorPresetParentBounds(ImGui::GetWindowDrawList(), pos, presetSize, edges);
-		DrawAchorPresetParentAnchor(ImGui::GetWindowDrawList(), pos, presetSize, anchors);
-		DrawAchorPresetChildBounds(ImGui::GetWindowDrawList(), pos + childSize * 0.5f, childSize, expandArrows);
+		DrawAnchorPreset(ImGui::GetWindowDrawList(), pos, presetSize, edges, anchors, expandArrows);
 
 		if (clicked)
 		{
