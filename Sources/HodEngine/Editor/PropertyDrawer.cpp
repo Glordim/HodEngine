@@ -569,6 +569,23 @@ namespace hod::inline editor
 		return root->GetReflectionDescriptor();
 	}
 
+	/// @brief Copies the property's value from source to destination through its set method, when it has one, so the owner
+	/// reacts as to any edit (e.g. a ui2 node marked for a new layout pass). ReflectionPropertyObject::Copy writes the object
+	/// in place, bypassing it.
+	static void CopyThroughSetter(ReflectionProperty* reflectionProperty, const void* source, void* destination)
+	{
+		if (reflectionProperty->GetRttiType() == ReflectionPropertyObject::GetRttiTypeStatic())
+		{
+			ReflectionPropertyObject* objectProperty = static_cast<ReflectionPropertyObject*>(reflectionProperty);
+			if (objectProperty->HasSetMethod())
+			{
+				objectProperty->SetValue(destination, objectProperty->GetValue(source));
+				return;
+			}
+		}
+		reflectionProperty->Copy(source, destination); // ReflectionPropertyVariable::Copy already goes through SetValue
+	}
+
 	/// @brief Reset the property to the value it has in a default constructed root object
 	/// Starting from the root keeps the defaults set by the owning type (ex: a Node anchor) instead of the ones of the nested type (a zero Vector2)
 	static bool ResetToDefault(EditorReflectedProperty& editorReflectedProperty)
@@ -590,7 +607,7 @@ namespace hod::inline editor
 		ReflectionProperty* reflectionProperty = editorReflectedProperty.GetReflectionProperty();
 		for (void* instance : editorReflectedProperty.GetInstances())
 		{
-			reflectionProperty->Copy(defaultOwner, instance);
+			CopyThroughSetter(reflectionProperty, defaultOwner, instance);
 		}
 
 		rootDescriptor->DeleteInstance(defaultRoot);
@@ -605,7 +622,7 @@ namespace hod::inline editor
 			if (ImGui::MenuItem("Revert", nullptr, false, editorReflectedProperty.IsOverride()) == true)
 			{
 				ReflectionProperty* reflectionProperty = editorReflectedProperty.GetReflectionProperty();
-				reflectionProperty->Copy(editorReflectedProperty.GetSourceInstance(), editorReflectedProperty.GetInstance());
+				CopyThroughSetter(reflectionProperty, editorReflectedProperty.GetSourceInstance(), editorReflectedProperty.GetInstance());
 				changed = true;
 			}
 
