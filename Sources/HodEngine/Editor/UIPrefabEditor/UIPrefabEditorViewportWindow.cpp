@@ -12,6 +12,8 @@
 #include <HodEngine/Core/Math.hpp>
 
 #include <HodEngine/UI2/AnchoredLayoutParams.hpp>
+#include <HodEngine/UI2/BoxLayout.hpp>
+#include <HodEngine/UI2/BoxLayoutParams.hpp>
 #include <HodEngine/UI2/LayoutParams.hpp>
 #include <HodEngine/UI2/Node.hpp>
 #include <HodEngine/UI2/NodeFactory.hpp>
@@ -340,6 +342,11 @@ namespace hod::inline editor
 
 		// Only the prefab root's subtree: `root` is the hidden container, whose rect is the design resolution, not part of the prefab.
 		DrawNode(tab->GetPrefabRoot(), *renderView);
+
+		if (selectedNode != nullptr)
+		{
+			DrawSpacing(selectedNode, *renderView);
+		}
 
 		if (selectedNode != nullptr && LayoutParams::Cast<AnchoredLayoutParams>(selectedNode->GetLayoutParams()) != nullptr)
 		{
@@ -746,6 +753,35 @@ namespace hod::inline editor
 		for (ui2::Node* child : node->GetChildren())
 		{
 			DrawNode(child, renderView);
+		}
+	}
+
+	/// @brief The selected node's spacing, filled as in a browser's inspector: its padding (inside its rect, around its children)
+	/// in green when it has a BoxLayout, its margin (outside its rect, pushing its neighbours away) in orange when its parent has one.
+	/// Axis-aligned, as the outlines (see DrawNode).
+	/// @param node
+	/// @param renderView
+	void UIPrefabEditorViewportWindow::DrawSpacing(ui2::Node* node, RenderView& renderView)
+	{
+		Rect rect;
+		rect._size = node->GetSize();
+		rect._position = node->ComputeCanvasMatrix().GetTranslation() - rect._size * 0.5f;
+
+		if (const ui2::BoxLayout* boxLayout = node->GetLayout<ui2::BoxLayout>())
+		{
+			Rect inner = rect.Inset(boxLayout->GetPadding());
+			Gizmos::FilledFrame(Matrix4::Identity, rect._position, rect._size, inner._position, inner._size, Color(147.0f / 255.0f, 196.0f / 255.0f, 125.0f / 255.0f, 0.55f),
+			                    renderView);
+		}
+
+		if (const ui2::BoxLayoutParams* boxLayoutParams = LayoutParams::Cast<ui2::BoxLayoutParams>(node->GetLayoutParams()))
+		{
+			const ui2::Margin& margin = boxLayoutParams->GetMargin();
+			Rect               outer;
+			outer._position = rect._position - Vector2(margin._left, margin._bottom);
+			outer._size = rect._size + Vector2(margin._left + margin._right, margin._bottom + margin._top);
+			Gizmos::FilledFrame(Matrix4::Identity, outer._position, outer._size, rect._position, rect._size, Color(246.0f / 255.0f, 178.0f / 255.0f, 107.0f / 255.0f, 0.55f),
+			                    renderView);
 		}
 	}
 

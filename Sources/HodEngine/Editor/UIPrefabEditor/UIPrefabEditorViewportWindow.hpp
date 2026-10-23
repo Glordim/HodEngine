@@ -72,6 +72,7 @@ namespace hod::inline editor
 		Vector2		GetDeviceFrameSize() const;
 		void		DrawGrid(const Vector2& origin, const Vector2& viewCenter, float worldHalfWidth, float worldHalfHeight, float scale, RenderView& renderView);
 		void		DrawNode(ui2::Node* node, RenderView& renderView);
+		void		DrawSpacing(ui2::Node* node, RenderView& renderView);
 		ui2::Node*	PickNode(ui2::Node* node, const Vector2& canvasPosition);
 
 		// Manipulation gizmo drawn over the selected node, mirroring UIEditor's

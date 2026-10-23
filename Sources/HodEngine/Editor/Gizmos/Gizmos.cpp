@@ -165,6 +165,38 @@ namespace hod::inline editor
 		renderView.DeleteAfter(materialInstance);
 	}
 
+	void Gizmos::FilledFrame(const Matrix4& worldMatrix, const Vector2& outerPosition, const Vector2& outerSize, const Vector2& innerPosition, const Vector2& innerSize,
+	                         const Color& color, RenderView& renderView, uint32_t order)
+	{
+		Vector2 outerMax = outerPosition + outerSize;
+		Vector2 innerMax = innerPosition + innerSize;
+
+		// Counter-clockwise from the bottom-left corner: outer ring then inner ring
+		StaticArray<Vector2, 8> vertices = {
+			outerPosition,
+			Vector2(outerMax.GetX(), outerPosition.GetY()),
+			outerMax,
+			Vector2(outerPosition.GetX(), outerMax.GetY()),
+			innerPosition,
+			Vector2(innerMax.GetX(), innerPosition.GetY()),
+			innerMax,
+			Vector2(innerPosition.GetX(), innerMax.GetY()),
+		};
+		// One quad per side (bottom, right, top, left), between corner i and i + 1 of each ring
+		static const StaticArray<uint16_t, 24> indices = {
+			0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5, 2, 3, 7, 2, 7, 6, 3, 0, 4, 3, 4, 7,
+		};
+
+		MaterialInstance* materialInstance =
+			MaterialInstance::Create(BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
+		materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
+
+		RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
+			vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), indices.Data(), (uint32_t)indices.Size(), worldMatrix, materialInstance, order);
+		renderView.PushRenderCommand(renderMeshCommand);
+		renderView.DeleteAfter(materialInstance);
+	}
+
 	void Gizmos::Line(const Matrix4& worldMatrix, const Vector2& start, const Vector2& end, const Color& color, RenderView& renderView, uint32_t order)
 	{
 		StaticArray<Vector2, 2> vertices {start, end};
