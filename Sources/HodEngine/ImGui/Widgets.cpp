@@ -248,6 +248,312 @@ namespace hod::inline imgui
 		return value_changed;
 	}
 
+	namespace
+	{
+		constexpr int RecentColorCount = 10;
+
+		/// @brief Only one color popup can be open at a time, so its state is shared
+		struct ColorFieldState
+		{
+			ImGuiID popupId = 0;
+			float   original[4] = {};
+			bool    displayFloat = false;
+			ImVec4  recents[RecentColorCount];
+			int     recentCount = 0;
+		};
+
+		ColorFieldState gColorFieldState;
+
+		void PushRecentColor(const float* col, int componentCount)
+		{
+			ImVec4 color(col[0], col[1], col[2], componentCount == 4 ? col[3] : 1.0f);
+
+			int index = 0;
+			while (index < gColorFieldState.recentCount && memcmp(&gColorFieldState.recents[index], &color, sizeof(ImVec4)) != 0)
+			{
+				++index;
+			}
+			if (index == gColorFieldState.recentCount)
+			{
+				index = ImMin(gColorFieldState.recentCount, RecentColorCount - 1);
+				gColorFieldState.recentCount = ImMin(gColorFieldState.recentCount + 1, RecentColorCount);
+			}
+			memmove(&gColorFieldState.recents[1], &gColorFieldState.recents[0], index * sizeof(ImVec4));
+			gColorFieldState.recents[0] = color;
+		}
+
+		bool ParseHexColor(const char* text, float* col, int componentCount)
+		{
+			if (text == nullptr)
+			{
+				return false;
+			}
+			while (*text == ' ' || *text == '#')
+			{
+				++text;
+			}
+
+			// "RRGGBB" keeps the current alpha, "RRGGBBAA" overrides it
+			unsigned int rgba[4] = {};
+			const int    parsedCount = sscanf(text, "%02X%02X%02X%02X", &rgba[0], &rgba[1], &rgba[2], &rgba[3]);
+			if (parsedCount < 3)
+			{
+				return false;
+			}
+			for (int index = 0; index < ImMin(parsedCount, componentCount); ++index)
+			{
+				col[index] = rgba[index] / 255.0f;
+			}
+			return true;
+		}
+
+		void FormatHexColor(char* buffer, size_t bufferSize, const float* col, bool hasAlpha)
+		{
+			if (hasAlpha)
+			{
+				ImFormatString(buffer, bufferSize, "#%02X%02X%02X%02X", IM_F32_TO_INT8_SAT(col[0]), IM_F32_TO_INT8_SAT(col[1]), IM_F32_TO_INT8_SAT(col[2]), IM_F32_TO_INT8_SAT(col[3]));
+			}
+			else
+			{
+				ImFormatString(buffer, bufferSize, "#%02X%02X%02X", IM_F32_TO_INT8_SAT(col[0]), IM_F32_TO_INT8_SAT(col[1]), IM_F32_TO_INT8_SAT(col[2]));
+			}
+		}
+
+		/// @return true when the clipboard holds a hex color (and col was updated)
+		bool PasteHexColor(float* col, int componentCount)
+		{
+			float pasted[4];
+			memcpy(pasted, col, componentCount * sizeof(float));
+			if (ParseHexColor(ImGui::GetClipboardText(), pasted, componentCount) == false || memcmp(pasted, col, componentCount * sizeof(float)) == 0)
+			{
+				return false;
+			}
+			memcpy(col, pasted, componentCount * sizeof(float));
+			return true;
+		}
+	}
+
+	bool ColorField(const char* label, float* col, ImGuiColorEditFlags flags)
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		if (window->SkipItems)
+		{
+			return false;
+		}
+
+		ImGuiContext&     g = *GImGui;
+		const ImGuiStyle& style = g.Style;
+		const ImGuiID     id = window->GetID(label);
+		const bool        hasAlpha = (flags & ImGuiColorEditFlags_NoAlpha) == 0;
+		const int         componentCount = hasAlpha ? 4 : 3;
+
+		char hex[16];
+		FormatHexColor(hex, sizeof(hex), col, hasAlpha);
+
+		// Hex input on the right of the swatch, dropped when there is not enough room
+		const float totalWidth = ImGui::CalcItemWidth();
+		const float hexWidth = ImGui::CalcTextSize(hasAlpha ? "#DDDDDDDD" : "#DDDDDD").x + style.FramePadding.x * 3.0f;
+		const bool  showHex = (flags & ImGuiColorEditFlags_NoInputs) == 0 && totalWidth >= hexWidth * 2.0f;
+		const float swatchWidth = showHex ? totalWidth - hexWidth - style.ItemInnerSpacing.x : totalWidth;
+
+		const ImVec2 pos = window->DC.CursorPos;
+		const ImRect bb(pos, pos + ImVec2(swatchWidth, ImGui::GetFrameHeight()));
+		ImGui::ItemSize(bb, style.FramePadding.y);
+		if (!ImGui::ItemAdd(bb, id))
+		{
+			return false;
+		}
+
+		bool       hovered = false;
+		bool       held = false;
+		const bool pressed = ImGui::ButtonBehavior(bb, id, &hovered, &held);
+		bool       changed = false;
+
+		// Swatch: opaque color on top, alpha as a white (alpha) / black (1 - alpha) strip at the bottom
+		ImDrawList* drawList = window->DrawList;
+		const float rounding = style.FrameRounding;
+		const ImU32 opaqueColor = ImGui::ColorConvertFloat4ToU32(ImVec4(col[0], col[1], col[2], 1.0f));
+		if (hasAlpha)
+		{
+			const float splitY = bb.Max.y - ImMax(2.0f, IM_TRUNC(bb.GetHeight() * 0.2f));
+			const float alphaX = IM_TRUNC(ImLerp(bb.Min.x, bb.Max.x, ImSaturate(col[3])));
+			drawList->AddRectFilled(bb.Min, ImVec2(bb.Max.x, splitY), opaqueColor, rounding, ImDrawFlags_RoundTop);
+			drawList->AddRectFilled(ImVec2(bb.Min.x, splitY), bb.Max, IM_COL32_BLACK, rounding, ImDrawFlags_RoundBottom);
+			drawList->PushClipRect(ImVec2(bb.Min.x, splitY), ImVec2(alphaX, bb.Max.y), true);
+			drawList->AddRectFilled(ImVec2(bb.Min.x, splitY), bb.Max, IM_COL32_WHITE, rounding, ImDrawFlags_RoundBottom);
+			drawList->PopClipRect();
+		}
+		else
+		{
+			drawList->AddRectFilled(bb.Min, bb.Max, opaqueColor, rounding);
+		}
+		const ImU32 borderColor = ImGui::GetColorU32(held ? ImGuiCol_ButtonActive : hovered ? ImGuiCol_ButtonHovered : ImGuiCol_Border);
+		drawList->AddRect(bb.Min, bb.Max, borderColor, rounding, ImMax(1.0f, style.FrameBorderSize));
+		ImGui::RenderNavCursor(bb, id);
+
+		ImGui::PushID(label);
+		const ImGuiID popupId = window->GetID("##ColorFieldPopup");
+
+		if ((flags & ImGuiColorEditFlags_NoDragDrop) == 0)
+		{
+			if (g.ActiveId == id && ImGui::BeginDragDropSource())
+			{
+				ImGui::SetDragDropPayload(hasAlpha ? IMGUI_PAYLOAD_TYPE_COLOR_4F : IMGUI_PAYLOAD_TYPE_COLOR_3F, col, componentCount * sizeof(float), ImGuiCond_Once);
+				ImGui::ColorButton("##preview", ImVec4(col[0], col[1], col[2], hasAlpha ? col[3] : 1.0f), flags & ImGuiColorEditFlags_AlphaMask_);
+				ImGui::SameLine();
+				ImGui::TextUnformatted("Color");
+				ImGui::EndDragDropSource();
+			}
+			if (ImGui::BeginDragDropTarget())
+			{
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_3F))
+				{
+					memcpy(col, payload->Data, 3 * sizeof(float));
+					changed = true;
+				}
+				if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(IMGUI_PAYLOAD_TYPE_COLOR_4F))
+				{
+					memcpy(col, payload->Data, componentCount * sizeof(float));
+					changed = true;
+				}
+				ImGui::EndDragDropTarget();
+			}
+		}
+
+		if (gColorFieldState.popupId != popupId && hovered && !held && (flags & ImGuiColorEditFlags_NoTooltip) == 0 && ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+		{
+			ImGui::ColorTooltip(label, col, flags & (ImGuiColorEditFlags_AlphaMask_ | ImGuiColorEditFlags_HDR));
+		}
+
+		if ((flags & ImGuiColorEditFlags_NoOptions) == 0)
+		{
+			if (hovered && g.ActiveId == 0)
+			{
+				if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_C))
+				{
+					ImGui::SetClipboardText(hex);
+				}
+				if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_V))
+				{
+					changed |= PasteHexColor(col, componentCount);
+				}
+			}
+
+			if (ImGui::BeginPopupContextItem("##ColorFieldContext"))
+			{
+				if (ImGui::MenuItem("Copy hex", "Ctrl+C"))
+				{
+					ImGui::SetClipboardText(hex);
+				}
+				float      pasted[4];
+				const bool canPaste = ParseHexColor(ImGui::GetClipboardText(), pasted, componentCount);
+				if (ImGui::MenuItem("Paste hex", "Ctrl+V", false, canPaste))
+				{
+					changed |= PasteHexColor(col, componentCount);
+				}
+				ImGui::EndPopup();
+			}
+		}
+
+		if (showHex)
+		{
+			ImGui::SameLine(0.0f, style.ItemInnerSpacing.x);
+			ImGui::SetNextItemWidth(hexWidth);
+			ImGui::InputText("##hex", hex, sizeof(hex), ImGuiInputTextFlags_CharsUppercase | ImGuiInputTextFlags_CharsNoBlank | ImGuiInputTextFlags_AutoSelectAll);
+			// Applied on Enter / focus loss only, so partial input does not make the color jump while typing
+			if (ImGui::IsItemDeactivatedAfterEdit())
+			{
+				float parsed[4];
+				memcpy(parsed, col, componentCount * sizeof(float));
+				if (ParseHexColor(hex, parsed, componentCount) && memcmp(parsed, col, componentCount * sizeof(float)) != 0)
+				{
+					memcpy(col, parsed, componentCount * sizeof(float));
+					changed = true;
+				}
+			}
+		}
+
+		// Popup closed since last frame (click outside, Escape, ...)
+		if (gColorFieldState.popupId == popupId && !ImGui::IsPopupOpen(popupId, ImGuiPopupFlags_None))
+		{
+			gColorFieldState.popupId = 0;
+			if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
+			{
+				changed |= memcmp(col, gColorFieldState.original, componentCount * sizeof(float)) != 0;
+				memcpy(col, gColorFieldState.original, componentCount * sizeof(float));
+			}
+			else if (memcmp(col, gColorFieldState.original, componentCount * sizeof(float)) != 0)
+			{
+				PushRecentColor(col, componentCount);
+			}
+		}
+
+		if (pressed)
+		{
+			gColorFieldState.popupId = popupId;
+			memcpy(gColorFieldState.original, col, componentCount * sizeof(float));
+			ImGui::OpenPopupEx(popupId);
+			ImGui::SetNextWindowPos(ImVec2(bb.Min.x, bb.Max.y + style.ItemSpacing.y));
+		}
+
+		if (ImGui::BeginPopupEx(popupId, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings))
+		{
+			// Escape reverts (when not consumed by an active input), whether or not keyboard navigation would close the popup itself
+			if (ImGui::IsKeyPressed(ImGuiKey_Escape, false) && g.ActiveId == 0 && g.ActiveIdPreviousFrame == 0)
+			{
+				changed |= memcmp(col, gColorFieldState.original, componentCount * sizeof(float)) != 0;
+				memcpy(col, gColorFieldState.original, componentCount * sizeof(float));
+				gColorFieldState.popupId = 0;
+				ImGui::CloseCurrentPopup();
+			}
+
+			if (FramedButton("0-1", gColorFieldState.displayFloat, ImDrawFlags_RoundLeft))
+			{
+				gColorFieldState.displayFloat = true;
+			}
+			ImGui::SameLine(0.0f, 0.0f);
+			if (FramedButton("0-255", !gColorFieldState.displayFloat, ImDrawFlags_RoundRight))
+			{
+				gColorFieldState.displayFloat = false;
+			}
+
+			ImGuiColorEditFlags pickerFlags = (flags & (ImGuiColorEditFlags_NoAlpha | ImGuiColorEditFlags_HDR)) | ImGuiColorEditFlags_AlphaBar | ImGuiColorEditFlags_DisplayRGB |
+			                                  ImGuiColorEditFlags_DisplayHSV | ImGuiColorEditFlags_DisplayHex;
+			if (gColorFieldState.displayFloat)
+			{
+				pickerFlags |= ImGuiColorEditFlags_Float;
+			}
+			ImGui::SetNextItemWidth(ImGui::GetFrameHeight() * 12.0f);
+			changed |= ImGui::ColorPicker4("##picker", col, pickerFlags, gColorFieldState.original);
+
+			if (gColorFieldState.recentCount > 0)
+			{
+				ImGui::Separator();
+				ImGui::TextUnformatted("Recent");
+				const float swatchSize = ImGui::GetFrameHeight();
+				for (int index = 0; index < gColorFieldState.recentCount; ++index)
+				{
+					if (index > 0)
+					{
+						ImGui::SameLine(0.0f, style.ItemInnerSpacing.x);
+					}
+					ImGui::PushID(index);
+					if (ImGui::ColorButton("##recent", gColorFieldState.recents[index], flags & ImGuiColorEditFlags_NoAlpha, ImVec2(swatchSize, swatchSize)))
+					{
+						memcpy(col, &gColorFieldState.recents[index], componentCount * sizeof(float));
+						changed = true;
+					}
+					ImGui::PopID();
+				}
+			}
+
+			ImGui::EndPopup();
+		}
+
+		ImGui::PopID();
+		return changed;
+	}
+
 	void PreserveAspectImage(ImTextureID image, ImVec2 imageSize, ImVec2 resizedSize)
 	{
 		ImGuiWindow* window = ImGui::GetCurrentWindow();

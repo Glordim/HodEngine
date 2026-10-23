@@ -39,85 +39,17 @@ namespace hod::inline editor
 	/// @return
 	bool ColorCustomPropertyDrawer::Draw(Color& value)
 	{
-		bool  changed = false;
-		float r = value.r;
-		float g = value.g;
-		float b = value.b;
-		float a = value.a;
+		float rgba[4] = {value.r, value.g, value.b, value.a};
 
 		ImGui::PushID(&value);
-
-		/*
-		float availableWidth = ImGui::GetColumnWidth();
-		availableWidth -= CalculateButtonSize("R").x;
-		availableWidth -= CalculateButtonSize("G").x;
-		availableWidth -= CalculateButtonSize("B").x;
-		availableWidth -= CalculateButtonSize("A").x;
-		availableWidth -= ImGui::GetStyle().ItemSpacing.x - 2;
-
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.5f, 0.0f, 0.0f, 1.0f));
-		FramedText("R", ImDrawFlags_RoundCornersLeft);
-		ImGui::PopStyleColor();
-		ImGui::SameLine(0.0f, 0.0f);
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
-		ImGui::SetNextItemWidth(availableWidth * 0.24f);
-		changed |= DragScalar("##r", ImGuiDataType_Float, &r, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundCornersRight);
-
-		ImGui::SameLine();
-
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.0f, 0.5f, 0.0f, 1.0f));
-		FramedText("G", ImDrawFlags_RoundCornersLeft);
-		ImGui::PopStyleColor();
-		ImGui::SameLine(0.0f, 0.0f);
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
-		ImGui::SetNextItemWidth(availableWidth * 0.24f);
-		changed |= DragScalar("##g", ImGuiDataType_Float, &g, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundCornersRight);
-
-		ImGui::SameLine();
-
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
-		FramedText("B", ImDrawFlags_RoundCornersLeft);
-		ImGui::PopStyleColor();
-		ImGui::SameLine(0.0f, 0.0f);
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
-		ImGui::SetNextItemWidth(availableWidth * 0.24f);
-		changed |= DragScalar("##b", ImGuiDataType_Float, &b, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundCornersRight);
-
-		ImGui::SameLine();
-
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-		FramedText("A", ImDrawFlags_RoundCornersLeft);
-		ImGui::PopStyleColor();
-		ImGui::SameLine(0.0f, 0.0f);
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
-		ImGui::SetNextItemWidth(availableWidth * 0.24f);
-		changed |= DragScalar("##a", ImGuiDataType_Float, &a, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundCornersRight);
-		*/
 		ImGui::SetNextItemWidth(-1);
-		float rgba[4];
-		rgba[0] = r;
-		rgba[1] = g;
-		rgba[2] = b;
-		rgba[3] = a;
-		if (ImGui::ColorEdit4("#color", rgba, ImGuiColorEditFlags_AlphaPreviewHalf))
-		{
-			changed = true;
-			r = rgba[0];
-			g = rgba[1];
-			b = rgba[2];
-			a = rgba[3];
-		}
-
+		const bool changed = ColorField("##color", rgba);
 		ImGui::PopID();
 
 		if (changed)
 		{
-			value.r = r;
-			value.g = g;
-			value.b = b;
-			value.a = a;
+			value = Color(rgba[0], rgba[1], rgba[2], rgba[3]);
 		}
-
 		return changed;
 	}
 }

@@ -10,6 +10,7 @@
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/Helper.hpp>
 #include <HodEngine/ImGui/ImGuiManager.hpp>
+#include <HodEngine/ImGui/Widgets.hpp>
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Editor.hpp"
@@ -56,7 +57,7 @@ namespace hod::inline editor
 
 		float rgba[4] = {value.GetX(), value.GetY(), value.GetZ(), value.GetW()};
 		ImGui::SetNextItemWidth(-1);
-		if (ImGui::ColorEdit4("##color", rgba, ImGuiColorEditFlags_AlphaPreviewHalf) == false)
+		if (ColorField("##color", rgba) == false)
 		{
 			return false;
 		}

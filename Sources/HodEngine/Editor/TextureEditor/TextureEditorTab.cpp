@@ -13,6 +13,7 @@
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/ImGuiManager.hpp>
+#include <HodEngine/ImGui/Widgets.hpp>
 
 #include "HodEngine/Editor/DrawHelper.hpp"
 
@@ -270,7 +271,8 @@ namespace hod::inline editor
 			{
 				ImGui::SameLine();
 				float color[3] = {_gridSettings._color.r, _gridSettings._color.g, _gridSettings._color.b};
-				if (ImGui::ColorEdit3("##Color", color, ImGuiColorEditFlags_NoInputs | ImGuiColorEditFlags_NoLabel))
+				ImGui::SetNextItemWidth(ImGui::GetFrameHeight() * 2.0f);
+				if (ColorField("##Color", color, ImGuiColorEditFlags_NoAlpha))
 				{
 					_gridSettings._color = Color(color[0], color[1], color[2], 1.0f);
 				}
