@@ -76,7 +76,7 @@ namespace hod::inline editor
 
 		drawList->AddRectFilled(nodeMin, nodeMax, ImGui::GetColorU32(ImGuiCol_Button), ImGui::GetStyle().FrameRounding);
 		drawList->AddRect(nodeMin, nodeMax, lineColor, ImGui::GetStyle().FrameRounding);
-		const char* nodeLabel = isPadding ? "Child" : "Node";
+		const char* nodeLabel = isPadding ? "Child" : "Self";
 		ImVec2      nodeLabelSize = ImGui::CalcTextSize(nodeLabel);
 		drawList->AddText(ImVec2(centerX - nodeLabelSize.x * 0.5f, middleLineY - nodeLabelSize.y * 0.5f), lineColor, nodeLabel);
 
