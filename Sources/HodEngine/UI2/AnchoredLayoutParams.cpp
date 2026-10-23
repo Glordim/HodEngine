@@ -13,7 +13,7 @@ namespace hod::inline ui2
 	{
 		AddPropertyT(reflectionDescriptor, &AnchoredLayoutParams::_anchorMin, "AnchorMin", &AnchoredLayoutParams::SetAnchorMin);
 		AddPropertyT(reflectionDescriptor, &AnchoredLayoutParams::_anchorMax, "AnchorMax", &AnchoredLayoutParams::SetAnchorMax);
-		AddPropertyT(reflectionDescriptor, &AnchoredLayoutParams::_pivot, "Pivot", &AnchoredLayoutParams::SetPivot);
+		AddPropertyT(reflectionDescriptor, &AnchoredLayoutParams::_alignment, "Alignment", &AnchoredLayoutParams::SetAlignment);
 		AddPropertyT(reflectionDescriptor, &AnchoredLayoutParams::_offset, "Offset", &AnchoredLayoutParams::SetOffset);
 	}
 
@@ -24,7 +24,7 @@ namespace hod::inline ui2
 		{
 			float _anchorMin;
 			float _anchorMax;
-			float _pivot;
+			float _alignment;
 			float _offset;
 			float _sizeDelta; // Size on that axis, only read when it is stretched
 
@@ -44,10 +44,10 @@ namespace hod::inline ui2
 				return (_anchorMax - 0.5f) * parentSize;
 			}
 
-			// Where the pivot goes before Offset: the anchor point, or the pivot's point between the anchors when stretched
-			float PivotPosition(float parentSize) const
+			// Where the Alignment point goes before Offset: the anchor point, or the same point between the anchors when stretched
+			float AlignmentPosition(float parentSize) const
 			{
-				return AnchorMinPosition(parentSize) + (AnchorMaxPosition(parentSize) - AnchorMinPosition(parentSize)) * _pivot;
+				return AnchorMinPosition(parentSize) + (AnchorMaxPosition(parentSize) - AnchorMinPosition(parentSize)) * _alignment;
 			}
 
 			// Stretched: the anchors' span grown by the size delta
@@ -61,20 +61,20 @@ namespace hod::inline ui2
 			{
 				if (IsStretched())
 				{
-					return PivotPosition(parentSize) + _offset - (_pivot - 0.5f) * StretchedSize(parentSize);
+					return AlignmentPosition(parentSize) + _offset - (_alignment - 0.5f) * StretchedSize(parentSize);
 				}
-				return PivotPosition(parentSize) + _offset - (_pivot - 0.5f) * size;
+				return AlignmentPosition(parentSize) + _offset - (_alignment - 0.5f) * size;
 			}
 		};
 
-		Axis MakeAxisX(const Vector2& anchorMin, const Vector2& anchorMax, const Vector2& pivot, const Vector2& offset, const Vector2& size)
+		Axis MakeAxisX(const Vector2& anchorMin, const Vector2& anchorMax, const Vector2& alignment, const Vector2& offset, const Vector2& size)
 		{
-			return Axis {anchorMin.GetX(), anchorMax.GetX(), pivot.GetX(), offset.GetX(), size.GetX()};
+			return Axis {anchorMin.GetX(), anchorMax.GetX(), alignment.GetX(), offset.GetX(), size.GetX()};
 		}
 
-		Axis MakeAxisY(const Vector2& anchorMin, const Vector2& anchorMax, const Vector2& pivot, const Vector2& offset, const Vector2& size)
+		Axis MakeAxisY(const Vector2& anchorMin, const Vector2& anchorMax, const Vector2& alignment, const Vector2& offset, const Vector2& size)
 		{
-			return Axis {anchorMin.GetY(), anchorMax.GetY(), pivot.GetY(), offset.GetY(), size.GetY()};
+			return Axis {anchorMin.GetY(), anchorMax.GetY(), alignment.GetY(), offset.GetY(), size.GetY()};
 		}
 	}
 
@@ -107,8 +107,8 @@ namespace hod::inline ui2
 	{
 		Vector2 size = ResolveSize(contentSize);
 
-		Axis x = MakeAxisX(_anchorMin, _anchorMax, _pivot, _offset, GetSize());
-		Axis y = MakeAxisY(_anchorMin, _anchorMax, _pivot, _offset, GetSize());
+		Axis x = MakeAxisX(_anchorMin, _anchorMax, _alignment, _offset, GetSize());
+		Axis y = MakeAxisY(_anchorMin, _anchorMax, _alignment, _offset, GetSize());
 		if (x.IsStretched())
 		{
 			size.SetX(Clamp(x.StretchedSize(availableSize.GetX()), GetMinSize().GetX(), GetMaxSize().GetX()));
@@ -122,8 +122,8 @@ namespace hod::inline ui2
 
 	bool AnchoredLayoutParams::TryComputePosition(const Rect& parentContentRect, const Vector2& size, Vector2& outPosition) const
 	{
-		Axis x = MakeAxisX(_anchorMin, _anchorMax, _pivot, _offset, GetSize());
-		Axis y = MakeAxisY(_anchorMin, _anchorMax, _pivot, _offset, GetSize());
+		Axis x = MakeAxisX(_anchorMin, _anchorMax, _alignment, _offset, GetSize());
+		Axis y = MakeAxisY(_anchorMin, _anchorMax, _alignment, _offset, GetSize());
 
 		Vector2 parentCenter = parentContentRect._position + parentContentRect._size * 0.5f;
 		outPosition = parentCenter + Vector2(x.Center(parentContentRect._size.GetX(), size.GetX()), y.Center(parentContentRect._size.GetY(), size.GetY()));
@@ -153,7 +153,7 @@ namespace hod::inline ui2
 				outMode = SizeMode::Fixed;
 				outOwnSize = sizeValue;
 			}
-			outOffset = centerValue - axis.PivotPosition(parentExtent) + (axis._pivot - 0.5f) * sizeValue;
+			outOffset = centerValue - axis.AlignmentPosition(parentExtent) + (axis._alignment - 0.5f) * sizeValue;
 		};
 
 		Vector2 currentSize = node != nullptr ? node->GetSize() : Vector2(-1.0f, -1.0f);
@@ -162,9 +162,9 @@ namespace hod::inline ui2
 		float    ownSizeX = ownSize.GetX(), ownSizeY = ownSize.GetY();
 		SizeMode widthMode = GetWidthMode(), heightMode = GetHeightMode();
 
-		place(MakeAxisX(_anchorMin, _anchorMax, _pivot, _offset, ownSize), parentSize.GetX(), center.GetX(), size.GetX(), currentSize.GetX(), widthMode, offsetX,
+		place(MakeAxisX(_anchorMin, _anchorMax, _alignment, _offset, ownSize), parentSize.GetX(), center.GetX(), size.GetX(), currentSize.GetX(), widthMode, offsetX,
 		      ownSizeX, widthMode);
-		place(MakeAxisY(_anchorMin, _anchorMax, _pivot, _offset, ownSize), parentSize.GetY(), center.GetY(), size.GetY(), currentSize.GetY(), heightMode, offsetY,
+		place(MakeAxisY(_anchorMin, _anchorMax, _alignment, _offset, ownSize), parentSize.GetY(), center.GetY(), size.GetY(), currentSize.GetY(), heightMode, offsetY,
 		      ownSizeY, heightMode);
 
 		SetWidthMode(widthMode);
@@ -203,16 +203,16 @@ namespace hod::inline ui2
 		}
 	}
 
-	const Vector2& AnchoredLayoutParams::GetPivot() const
+	const Vector2& AnchoredLayoutParams::GetAlignment() const
 	{
-		return _pivot;
+		return _alignment;
 	}
 
-	void AnchoredLayoutParams::SetPivot(const Vector2& pivot)
+	void AnchoredLayoutParams::SetAlignment(const Vector2& alignment)
 	{
-		if (_pivot != pivot)
+		if (_alignment != alignment)
 		{
-			_pivot = pivot;
+			_alignment = alignment;
 			MarkOwnerArrangeAsDirty();
 		}
 	}

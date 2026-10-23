@@ -42,9 +42,8 @@ namespace hod::inline editor
 	/// ui2::CanvasScaler), so anchors and layouts can be checked on other aspect ratios. Switching device eases the
 	/// resolution towards the new one, so the layout morphs progressively. The device's frame is outlined and labeled.
 	/// Never saved in the prefab: the devices, the active one and the grid settings are persisted per user.
-	/// Known simplifications: rotation is ignored (boxes are drawn axis-aligned), and a node's box
-	/// is centered on its computed canvas-space position, which is only exact for the default
-	/// (centered) Origin.
+	/// Known simplification: rotation and scale are ignored (boxes are drawn axis-aligned, at the layout size,
+	/// centered on the node's computed canvas-space center).
 	class HOD_EDITOR_API UIPrefabEditorViewportWindow : public EditorTabWindow
 	{
 		REFLECTED_CLASS(UIPrefabEditorViewportWindow, EditorTabWindow)

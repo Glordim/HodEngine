@@ -32,7 +32,7 @@ namespace hod::inline ui2
 
 		AddPropertyT(reflectionDescriptor, &Node::_rotation, "Rotation", &Node::SetRotation);
 		AddPropertyT(reflectionDescriptor, &Node::_scale, "Scale", &Node::SetScale);
-		AddPropertyT(reflectionDescriptor, &Node::_origin, "Origin", &Node::SetOrigin);
+		AddPropertyT(reflectionDescriptor, &Node::_pivot, "Pivot", &Node::SetPivot);
 	}
 
 	namespace
@@ -209,7 +209,7 @@ namespace hod::inline ui2
 		replacement->_zOrder = _zOrder;
 		replacement->_rotation = _rotation;
 		replacement->_scale = _scale;
-		replacement->_origin = _origin;
+		replacement->_pivot = _pivot;
 
 		// Moved as is rather than through SetLayout: the children's LayoutParams already are of the type it expects.
 		DefaultAllocator::GetInstance().Delete(replacement->_layout);
@@ -306,18 +306,18 @@ namespace hod::inline ui2
 
 	/// @brief
 	/// @return
-	const Vector2& Node::GetOrigin() const
+	const Vector2& Node::GetPivot() const
 	{
-		return _origin;
+		return _pivot;
 	}
 
 	/// @brief
-	/// @param origin
-	void Node::SetOrigin(const Vector2& origin)
+	/// @param pivot
+	void Node::SetPivot(const Vector2& pivot)
 	{
-		if (_origin != origin)
+		if (_pivot != pivot)
 		{
-			_origin = origin;
+			_pivot = pivot;
 			MarkArrangeAsDirty();
 
 			_propertyChangedEvent.Emit();
@@ -641,18 +641,18 @@ namespace hod::inline ui2
 	/// @param localMatrix
 	void Node::ComputeLocalMatrix(const Vector2& position, const Vector2& size, Matrix4& localMatrix) const
 	{
-		const Vector2& pixelPivot = (_origin - Vector2(0.5f, 0.5f)) * size;
+		const Vector2& pixelPivot = (_pivot - Vector2(0.5f, 0.5f)) * size;
 
-		Matrix4 anchor = Matrix4::Translation(pixelPivot);
-		Matrix4 inverseAnchor = Matrix4::Translation(-pixelPivot);
+		Matrix4 toPivot = Matrix4::Translation(pixelPivot);
+		Matrix4 fromPivot = Matrix4::Translation(-pixelPivot);
 
 		Matrix4 translation = Matrix4::Translation(position);
 		Matrix4 rotation = Matrix4::Rotation(_rotation);
 		Matrix4 scaling = Matrix4::Scale(_scale);
 
-		// Column vectors (M * v, the rightmost matrix applies first): scaled then rotated around the origin's point, then moved to the node's center.
+		// Column vectors (M * v, the rightmost matrix applies first): scaled then rotated around the pivot point, then moved to the node's center.
 		// Purely visual: the layout (sizes, positions) never sees the scale or the rotation.
-		localMatrix = translation * anchor * rotation * scaling * inverseAnchor;
+		localMatrix = translation * toPivot * rotation * scaling * fromPivot;
 	}
 
 	/// @brief

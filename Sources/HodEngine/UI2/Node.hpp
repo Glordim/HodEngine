@@ -63,11 +63,11 @@ namespace hod::inline ui2
 		const Vector2&				GetScale() const;
 		void						SetScale(const Vector2& scale);
 
-		// Point of this node's own rect around which its local rotation/scale is applied
-		// (akin to CSS transform-origin). Independent of any anchor pivot a LayoutParams may
-		// define for positioning: the two can differ on purpose.
-		const Vector2&				GetOrigin() const;
-		void						SetOrigin(const Vector2& origin);
+		// Point of this node's own rect (0..1) around which its local rotation/scale is applied
+		// (akin to CSS transform-origin). Purely visual, independent of where a LayoutParams puts
+		// the node (e.g. AnchoredLayoutParams' Alignment): the two can differ on purpose.
+		const Vector2&				GetPivot() const;
+		void						SetPivot(const Vector2& pivot);
 
 		void						SetZOrder(int32_t zOrder);
 		int32_t						GetZOrder() const;
@@ -227,7 +227,7 @@ namespace hod::inline ui2
 
 		float						_rotation = 0.0f;
 		Vector2						_scale = Vector2::One;
-		Vector2						_origin = Vector2(0.5f, 0.5f);
+		Vector2						_pivot = Vector2(0.5f, 0.5f);
 
 		Vector2						_measuredSize = Vector2::Zero;
 

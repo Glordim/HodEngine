@@ -12,9 +12,9 @@ namespace hod::inline ui2
 	///
 	/// Each axis is either:
 	/// - anchored on a point (AnchorMin == AnchorMax on that axis): the child's size is its own
-	///   (LayoutParams' SizeMode/Size), and its Pivot is put on the anchor point, moved by Offset.
+	///   (LayoutParams' SizeMode/Size), and its Alignment point is put on the anchor point, moved by Offset.
 	/// - stretched (AnchorMin != AnchorMax): the child spans its anchors, grown by Size on that axis
-	///   (a delta, like Unity's sizeDelta) around its Pivot, put on the matching point between the
+	///   (a delta, like Unity's sizeDelta) around its Alignment point, put on the matching point between the
 	///   anchors and moved by Offset. SizeMode is unused on that axis.
 	/// No margin: Offset and the size delta already express any inset (a margin only means something
 	/// in a flow container, see BoxLayoutParams).
@@ -38,9 +38,10 @@ namespace hod::inline ui2
 		const Vector2&				GetAnchorMax() const;
 		void						SetAnchorMax(const Vector2& anchorMax);
 
-		// Point of the child put on its anchor point, or on the same point between its anchors on a stretched axis.
-		const Vector2&				GetPivot() const;
-		void						SetPivot(const Vector2& pivot);
+		// Point of the child put on its anchor point, or on the same point between its anchors on a stretched axis
+		// (0..1 in the child's rect, so also the side it grows from). Placement only: the rotation/scale point is Node::GetPivot().
+		const Vector2&				GetAlignment() const;
+		void						SetAlignment(const Vector2& alignment);
 
 		// Translation applied on top of the anchor-computed position, in the same spirit as Unity's
 		// RectTransform.anchoredPosition.
@@ -48,7 +49,7 @@ namespace hod::inline ui2
 		void						SetOffset(const Vector2& offset);
 
 		/// @brief Sets Offset and Size (a delta on the stretched axes) so that the child ends up on the
-		/// given rect, with the current anchors and pivot. A Content
+		/// given rect, with the current anchors and alignment. A Content
 		/// axis anchored on a point whose size changes becomes Fixed: the size is the author's from then on.
 		/// @param parentSize size of the parent's content rect
 		/// @param center the rect's center, in the parent's local space (see Node::GetPosition)
@@ -59,7 +60,7 @@ namespace hod::inline ui2
 
 		Vector2						_anchorMin = Vector2(0.5f, 0.5f);
 		Vector2						_anchorMax = Vector2(0.5f, 0.5f);
-		Vector2						_pivot = Vector2(0.5f, 0.5f);
+		Vector2						_alignment = Vector2(0.5f, 0.5f);
 		Vector2						_offset = Vector2::Zero;
 	};
 }

@@ -17,7 +17,7 @@ namespace hod::inline editor
 	/// @brief Draws a UIPrefabEditorTab's selected ui2::Node: its name on top, then three blocks, one
 	/// question each, from the most to the least often edited:
 	/// 1. Placement: where the node is and how big (its LayoutParams, dictated by its parent's layout,
-	///    plus the Node's own transform: Rotation, Scale, Origin)
+	///    plus the Node's own transform: Rotation, Scale, Pivot)
 	/// 2. Content: what the node's type adds (Text, Image...), with the Convert To action
 	/// 3. Children Layout: how it arranges its children (add / transform / remove)
 	/// all via the engine's generic reflected-property drawer. With the canvas selected (see

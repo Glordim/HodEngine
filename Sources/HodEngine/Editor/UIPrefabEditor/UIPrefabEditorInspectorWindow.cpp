@@ -53,7 +53,7 @@ namespace hod::inline editor
 		// Node properties that are not drawn among the node's content: the name has its own row on top, the
 		// transform goes with the LayoutParams in the Placement block.
 		constexpr std::string_view NameProperty = "Name";
-		constexpr std::string_view GeometryProperties[] = {"Rotation", "Scale", "Origin"};
+		constexpr std::string_view GeometryProperties[] = {"Rotation", "Scale", "Pivot"};
 
 		bool IsGeometryProperty(std::string_view name)
 		{
@@ -303,7 +303,7 @@ namespace hod::inline editor
 	}
 
 	/// @brief AnchoredLayoutParams' fields, grouped by what they do rather than in declaration order:
-	/// 1. the anchors: the preset picker, then the fields it sets (AnchorMin/Max, Pivot) right below. Editing
+	/// 1. the anchors: the preset picker, then the fields it sets (AnchorMin/Max, Alignment) right below. Editing
 	///    any of them keeps the node where it is (AnchoredLayoutParams::PlaceRect), as picking a preset does.
 	/// 2. the rect relative to the anchors: Offset, then the size (mode + Size, a delta on a stretched axis),
 	///    then its bounds.
@@ -339,23 +339,23 @@ namespace hod::inline editor
 
 		Vector2 anchorMin = layoutParams->GetAnchorMin();
 		Vector2 anchorMax = layoutParams->GetAnchorMax();
-		Vector2 pivot = layoutParams->GetPivot();
+		Vector2 alignment = layoutParams->GetAlignment();
 		bool    anchorsChanged = false;
 
 		// A row like the properties' ones (see PropertyDrawer::BeginProperty): its label, then the fixed size picker in the value column
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted("Anchor Preset");
 		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
-		if (AnchorPresetsDrawer::Draw(ImVec2(100.0f, 100.0f), anchorMin, anchorMax, pivot))
+		if (AnchorPresetsDrawer::Draw(ImVec2(100.0f, 100.0f), anchorMin, anchorMax, alignment))
 		{
 			layoutParams->SetAnchorMin(anchorMin);
 			layoutParams->SetAnchorMax(anchorMax);
-			layoutParams->SetPivot(pivot);
+			layoutParams->SetAlignment(alignment);
 			anchorsChanged = true;
 		}
 		anchorsChanged |= drawProperty("AnchorMin", true, "");
 		anchorsChanged |= drawProperty("AnchorMax", true, "");
-		anchorsChanged |= drawProperty("Pivot", true, "");
+		anchorsChanged |= drawProperty("Alignment", true, "");
 
 		if (anchorsChanged)
 		{
@@ -393,7 +393,7 @@ namespace hod::inline editor
 			}
 			else if (stretchedX || stretchedY)
 			{
-				ImGui::SetItemTooltip("dX/dY: added to the anchors' span on a stretched axis, around the pivot");
+				ImGui::SetItemTooltip("dX/dY: added to the anchors' span on a stretched axis, around the alignment point");
 			}
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 			Vector2 sizeValue = *sizeProperty->GetObject<Vector2>();
