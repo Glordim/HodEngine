@@ -39,7 +39,8 @@ namespace hod::inline ui2
 		void						SetPadding(const Padding& padding);
 
 		// Where the children, as a group, go along the main axis when none of them fills it, whatever the axis:
-		// 0 at the flow's start (left / top), 1 centered, 2 at its end (right / bottom)
+		// 0 at the flow's start (left / top), 1 centered, 2 at its end (right / bottom), or spread over it, the free space added to the spacing:
+		// 3 between the children only (none on the edges), 4 around each child (half a gap on the edges), 5 evenly (a whole gap on the edges)
 		virtual uint8_t				GetMainAlignIndex() const = 0;
 		virtual void				SetMainAlignIndex(uint8_t mainAlignIndex) = 0;
 
@@ -61,7 +62,7 @@ namespace hod::inline ui2
 
 	public:
 
-		enum class Alignment : uint8_t { Left, Center, Right };
+		enum class Alignment : uint8_t { Left, Center, Right, SpaceBetween, SpaceAround, SpaceEvenly };
 		REFLECTED_ENUM(HOD_UI2_API, Alignment);
 
 	public:
@@ -70,7 +71,7 @@ namespace hod::inline ui2
 
 		LayoutParams*				CreateDefaultLayoutParams() const override;
 
-		// Where the row goes when it doesn't fill the width
+		// Where the children go when they don't fill the width: together (Left, Center, Right), or spread (see BoxLayout::GetMainAlignIndex)
 		Alignment					GetAlignment() const;
 		void						SetAlignment(Alignment alignment);
 
@@ -89,7 +90,7 @@ namespace hod::inline ui2
 
 	public:
 
-		enum class Alignment : uint8_t { Top, Center, Bottom };
+		enum class Alignment : uint8_t { Top, Center, Bottom, SpaceBetween, SpaceAround, SpaceEvenly };
 		REFLECTED_ENUM(HOD_UI2_API, Alignment);
 
 	public:
@@ -98,7 +99,7 @@ namespace hod::inline ui2
 
 		LayoutParams*				CreateDefaultLayoutParams() const override;
 
-		// Where the column goes when it doesn't fill the height
+		// Where the children go when they don't fill the height: together (Top, Center, Bottom), or spread (see BoxLayout::GetMainAlignIndex)
 		Alignment					GetAlignment() const;
 		void						SetAlignment(Alignment alignment);
 

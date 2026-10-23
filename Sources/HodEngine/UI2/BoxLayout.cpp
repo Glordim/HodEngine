@@ -126,11 +126,35 @@ namespace hod::inline ui2
 		float spacingTotal = childCount > 0 ? _spacing * (float)(childCount - 1) : 0.0f;
 		float remainingForFill = std::max(mainAvailable - autoMainTotal - spacingTotal, 0.0f);
 
-		// What no child takes (none fills), split around the children as a group by the layout's alignment
-		float   leftover = fillWeightTotal > 0.0f ? 0.0f : remainingForFill;
-		uint8_t mainAlignIndex = GetMainAlignIndex();
-		float   flowCursor = mainAlignIndex == 1 ? leftover * 0.5f : (mainAlignIndex == 2 ? leftover : 0.0f);
-		bool    first = true;
+		// What no child takes (none fills), put by the layout's alignment before the children (flowCursor) and between them (extraGap, on top of the spacing)
+		float leftover = fillWeightTotal > 0.0f ? 0.0f : remainingForFill;
+		float flowCursor = 0.0f;
+		float extraGap = 0.0f;
+		switch (GetMainAlignIndex())
+		{
+			case 1: flowCursor = leftover * 0.5f; break; // Center
+			case 2: flowCursor = leftover; break;        // End
+			case 3:                                      // Space between: none on the edges. A single child is centered, there is nothing to space.
+				if (childCount > 1)
+				{
+					extraGap = leftover / (float)(childCount - 1);
+				}
+				else
+				{
+					flowCursor = leftover * 0.5f;
+				}
+				break;
+			case 4: // Space around: as much on each side of every child, so half a gap on the edges
+				extraGap = childCount > 0 ? leftover / (float)childCount : 0.0f;
+				flowCursor = extraGap * 0.5f;
+				break;
+			case 5: // Space evenly: the same gap everywhere, edges included
+				extraGap = leftover / (float)(childCount + 1);
+				flowCursor = extraGap;
+				break;
+			default: break; // Start
+		}
+		bool first = true;
 
 		for (Node* child : children)
 		{
@@ -141,7 +165,7 @@ namespace hod::inline ui2
 
 			if (first == false)
 			{
-				flowCursor += _spacing;
+				flowCursor += _spacing + extraGap;
 			}
 			first = false;
 
@@ -240,6 +264,9 @@ namespace hod::inline ui2
 		reflectionDescriptor.AddEnumValue(HorizontalLayout::Alignment::Left, "Left");
 		reflectionDescriptor.AddEnumValue(HorizontalLayout::Alignment::Center, "Center");
 		reflectionDescriptor.AddEnumValue(HorizontalLayout::Alignment::Right, "Right");
+		reflectionDescriptor.AddEnumValue(HorizontalLayout::Alignment::SpaceBetween, "Space Between");
+		reflectionDescriptor.AddEnumValue(HorizontalLayout::Alignment::SpaceAround, "Space Around");
+		reflectionDescriptor.AddEnumValue(HorizontalLayout::Alignment::SpaceEvenly, "Space Evenly");
 	}
 
 	DESCRIBE_REFLECTED_CLASS(HorizontalLayout, reflectionDescriptor)
@@ -286,6 +313,9 @@ namespace hod::inline ui2
 		reflectionDescriptor.AddEnumValue(VerticalLayout::Alignment::Top, "Top");
 		reflectionDescriptor.AddEnumValue(VerticalLayout::Alignment::Center, "Center");
 		reflectionDescriptor.AddEnumValue(VerticalLayout::Alignment::Bottom, "Bottom");
+		reflectionDescriptor.AddEnumValue(VerticalLayout::Alignment::SpaceBetween, "Space Between");
+		reflectionDescriptor.AddEnumValue(VerticalLayout::Alignment::SpaceAround, "Space Around");
+		reflectionDescriptor.AddEnumValue(VerticalLayout::Alignment::SpaceEvenly, "Space Evenly");
 	}
 
 	DESCRIBE_REFLECTED_CLASS(VerticalLayout, reflectionDescriptor)
