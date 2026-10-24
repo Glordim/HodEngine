@@ -21,6 +21,8 @@ namespace hod::inline window
 
 		Cursor* CreateBuiltinCursor(BuiltinCursor builtinCursor) override;
 
+		Vector<Monitor> GetMonitors() const override;
+
 	private:
 		void CocoaInit();
 
