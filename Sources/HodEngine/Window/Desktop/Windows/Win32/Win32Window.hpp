@@ -44,6 +44,7 @@ namespace hod::inline window
 		void UnlockSize();
 
 		void SetVisible(bool visible) override;
+		void ShowWithoutActivation() override;
 
 		void SetTitle(const char* title) override;
 		void SetDecoration(bool decoration) override;
@@ -59,6 +60,9 @@ namespace hod::inline window
 	private:
 		LRESULT InternalWindowProc(UINT msg, WPARAM wParam, LPARAM lParam);
 
+		void OnMouseButtonDown(MouseButton button);
+		void OnMouseButtonUp(MouseButton button);
+
 	private:
 		HINSTANCE _hInstance = nullptr;
 		HWND      _hWnd = nullptr;
@@ -72,5 +76,8 @@ namespace hod::inline window
 
 		bool _hidden = false;
 		bool _customTitleBar = false;
+
+		// Buttons currently held, to capture the mouse while any is down: a drag keeps receiving events outside the window
+		uint32_t _mouseButtonsDown = 0;
 	};
 }

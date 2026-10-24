@@ -79,7 +79,15 @@ namespace hod::inline imgui
 	void ImGuiManager::PlatformShowWindow(ImGuiViewport* vp)
 	{
 		DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(vp->PlatformHandle);
-		desktopWindow->SetVisible(true);
+		// Set e.g. on the viewport of a window being dragged out of its parent: activating it would break the ongoing drag
+		if ((vp->Flags & ImGuiViewportFlags_NoFocusOnAppearing) != 0)
+		{
+			desktopWindow->ShowWithoutActivation();
+		}
+		else
+		{
+			desktopWindow->SetVisible(true);
+		}
 	}
 
 	void ImGuiManager::PlatformSetWindowPos(ImGuiViewport* vp, ImVec2 pos)

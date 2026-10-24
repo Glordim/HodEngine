@@ -326,7 +326,6 @@ MacOsWindow::MacOsWindow(bool hidden) : DesktopWindow() {
 
   [_window setDelegate:_delegate];
   [_window setTitle:@"Hod Engine"];
-  [_window makeKeyAndOrderFront:(nil)];
 
   CustomView *customView = [[CustomView alloc] initWithFrame:frame window:this];
   _view = customView;
@@ -397,6 +396,12 @@ void MacOsWindow::SetVisible(bool visible) {
       [_window makeKeyAndOrderFront:nil];
     });
   }
+}
+
+void MacOsWindow::ShowWithoutActivation() {
+  RunOnMainThread([this]() {
+    [_window orderFront:nil];
+  });
 }
 
 float MacOsWindow::GetScaleFactor() const {

@@ -57,6 +57,7 @@ namespace hod::inline window
 		void								Maximize() override;
 
 		void								SetVisible(bool visible) override;
+		void								ShowWithoutActivation() override;
 
 		void								SetTitle(const char* title) override;
 		void								SetDecoration(bool decoration) override;

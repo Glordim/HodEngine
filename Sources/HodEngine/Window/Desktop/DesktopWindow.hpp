@@ -31,6 +31,8 @@ namespace hod::inline window
 		virtual bool IsWindowMaximized() const { return false; }
 
 		virtual void SetVisible(bool visible) = 0;
+		// Shows the window without making it the active/key one (e.g. a window appearing under a drag must not steal it)
+		virtual void ShowWithoutActivation() { SetVisible(true); }
 
 		bool IsFocused() const;
 

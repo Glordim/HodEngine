@@ -85,32 +85,32 @@ namespace hod::inline window
 		}
 		else if (msg == WM_LBUTTONDOWN)
 		{
-			EmitMouseButtonPressed(MouseButton::Left);
+			OnMouseButtonDown(MouseButton::Left);
 			return 0;
 		}
 		else if (msg == WM_LBUTTONUP)
 		{
-			EmitMouseButtonReleased(MouseButton::Left);
+			OnMouseButtonUp(MouseButton::Left);
 			return 0;
 		}
 		else if (msg == WM_RBUTTONDOWN)
 		{
-			EmitMouseButtonPressed(MouseButton::Right);
+			OnMouseButtonDown(MouseButton::Right);
 			return 0;
 		}
 		else if (msg == WM_RBUTTONUP)
 		{
-			EmitMouseButtonReleased(MouseButton::Right);
+			OnMouseButtonUp(MouseButton::Right);
 			return 0;
 		}
 		else if (msg == WM_MBUTTONDOWN)
 		{
-			EmitMouseButtonPressed(MouseButton::Middle);
+			OnMouseButtonDown(MouseButton::Middle);
 			return 0;
 		}
 		else if (msg == WM_MBUTTONUP)
 		{
-			EmitMouseButtonReleased(MouseButton::Middle);
+			OnMouseButtonUp(MouseButton::Middle);
 			return 0;
 		}
 		else if (msg == WM_XBUTTONDOWN)
@@ -118,11 +118,11 @@ namespace hod::inline window
 			WORD xbtn = HIWORD(wParam);
 			if (xbtn == XBUTTON1)
 			{
-				EmitMouseButtonPressed(MouseButton::Backward);
+				OnMouseButtonDown(MouseButton::Backward);
 			}
 			else
 			{
-				EmitMouseButtonPressed(MouseButton::Forward);
+				OnMouseButtonDown(MouseButton::Forward);
 			}
 			return 0;
 		}
@@ -131,11 +131,11 @@ namespace hod::inline window
 			WORD xbtn = HIWORD(wParam);
 			if (xbtn == XBUTTON1)
 			{
-				EmitMouseButtonReleased(MouseButton::Backward);
+				OnMouseButtonUp(MouseButton::Backward);
 			}
 			else
 			{
-				EmitMouseButtonReleased(MouseButton::Forward);
+				OnMouseButtonUp(MouseButton::Forward);
 			}
 			return 0;
 		}
@@ -161,6 +161,14 @@ namespace hod::inline window
 			int   delta = GET_WHEEL_DELTA_WPARAM(wParam);
 			float scroll = (float)delta / (float)WHEEL_DELTA;
 			EmitMouseHorizontalScroll(scroll);
+			return 0;
+		}
+		else if (msg == WM_CAPTURECHANGED)
+		{
+			if (reinterpret_cast<HWND>(lParam) != _hWnd)
+			{
+				_mouseButtonsDown = 0;
+			}
 			return 0;
 		}
 		else if (msg == WM_SETFOCUS)
@@ -474,6 +482,35 @@ namespace hod::inline window
 					ShowWindow(_hWnd, SW_HIDE);
 				}
 			});
+	}
+
+	void Win32Window::ShowWithoutActivation()
+	{
+		RunOnWin32Thread([this]() { ShowWindow(_hWnd, SW_SHOWNA); });
+	}
+
+	/// @brief Captures the mouse on the first button down, released with the last button up
+	/// @param button
+	void Win32Window::OnMouseButtonDown(MouseButton button)
+	{
+		if (_mouseButtonsDown == 0 && ::GetCapture() == nullptr)
+		{
+			::SetCapture(_hWnd);
+		}
+		_mouseButtonsDown |= 1u << static_cast<uint32_t>(button);
+		EmitMouseButtonPressed(button);
+	}
+
+	/// @brief
+	/// @param button
+	void Win32Window::OnMouseButtonUp(MouseButton button)
+	{
+		_mouseButtonsDown &= ~(1u << static_cast<uint32_t>(button));
+		if (_mouseButtonsDown == 0 && ::GetCapture() == _hWnd)
+		{
+			::ReleaseCapture();
+		}
+		EmitMouseButtonReleased(button);
 	}
 
 	void Win32Window::SetTitle(const char* title)
