@@ -170,8 +170,14 @@ namespace hod::inline rhi
 	{
 		DefaultAllocator::GetInstance().Delete(_depthTexture);
 
+		Texture::CreateInfo depthCreateInfo;
+		depthCreateInfo._width = _width;
+		depthCreateInfo._height = _height;
+		depthCreateInfo._format = DepthFormat;
+		depthCreateInfo._usage = TextureUsage::RenderTarget;
+
 		_depthTexture = D3d12RhiDevice::GetInstance()->CreateTexture();
-		if (_depthTexture->BuildDepth(_width, _height, Texture::CreateInfo()) == false)
+		if (_depthTexture->Build(depthCreateInfo) == false)
 		{
 			DefaultAllocator::GetInstance().Delete(_depthTexture);
 			_depthTexture = nullptr;

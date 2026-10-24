@@ -16,7 +16,7 @@ namespace hod::inline rhi
 		VulkanRenderTarget();
 		~VulkanRenderTarget() override;
 
-		bool Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo, PixelFormat colorFormat = PixelFormat::R8G8B8A8_UNorm,
+		bool Init(uint32_t width, uint32_t height, bool readback = false, PixelFormat colorFormat = PixelFormat::R8G8B8A8_UNorm,
 		          PixelFormat depthFormat = PixelFormat::D16_UNorm) override;
 
 		VkRenderPass  GetRenderPass() const;

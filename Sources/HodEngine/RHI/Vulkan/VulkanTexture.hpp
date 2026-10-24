@@ -19,10 +19,6 @@ namespace hod::inline rhi
 		VulkanTexture();
 		~VulkanTexture() override;
 
-		bool BuildColor(uint32_t width, uint32_t height, const CreateInfo& createInfo) override;
-		bool BuildDepth(uint32_t width, uint32_t height, const CreateInfo& createInfo) override;
-		bool BuildBuffer(uint32_t width, uint32_t height, const uint8_t* buffer, const CreateInfo& createInfo) override;
-
 		Color ReadPixel(const Vector2& position) const override;
 		void  CaptureReadback(CommandBuffer* commandBuffer) override;
 
@@ -30,6 +26,7 @@ namespace hod::inline rhi
 		VkImageView GetTextureImageView() const;
 
 	protected:
+		bool BuildResource(const CreateInfo& createInfo, const uint8_t* pixels) override;
 		bool UploadRegion(uint32_t x, uint32_t y, uint32_t width, uint32_t height, const uint8_t* pixels, uint32_t mipLevel) override;
 
 	private:

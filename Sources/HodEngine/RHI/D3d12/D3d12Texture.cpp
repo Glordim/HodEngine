@@ -16,7 +16,7 @@ namespace hod::inline rhi
 {
 	namespace
 	{
-		constexpr uint32_t ColorPixelSize = 4; // the textures built with BuildColor, the only ones read back
+		constexpr uint32_t ColorPixelSize = 4; // the color RenderTarget textures, the only ones read back
 	}
 
 	//-----------------------------------------------------------------------------
@@ -69,12 +69,6 @@ namespace hod::inline rhi
 			rhiDevice->DeferRelease(std::move(_resource));
 			_resource = nullptr;
 		}
-
-		_width = 0;
-		_height = 0;
-		_mipLevelCount = 1;
-		_format = PixelFormat::None;
-		_builtFromBuffer = false;
 	}
 
 	/// @brief
@@ -139,20 +133,18 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool D3d12Texture::CreateResource(uint32_t width, uint32_t height, PixelFormat format, D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state, uint32_t mipLevelCount)
+	bool D3d12Texture::CreateResource(const CreateInfo& createInfo, D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state)
 	{
-		Release(); // A texture built again: the previous resource is kept until the GPU is done with it
-
 		D3D12_HEAP_PROPERTIES heapProperties = {};
 		heapProperties.Type = D3D12_HEAP_TYPE_DEFAULT;
 
 		D3D12_RESOURCE_DESC resourceDesc = {};
 		resourceDesc.Dimension = D3D12_RESOURCE_DIMENSION_TEXTURE2D;
-		resourceDesc.Width = width;
-		resourceDesc.Height = height;
+		resourceDesc.Width = createInfo._width;
+		resourceDesc.Height = createInfo._height;
 		resourceDesc.DepthOrArraySize = 1;
-		resourceDesc.MipLevels = (UINT16)mipLevelCount;
-		resourceDesc.Format = ToDxgiFormat(format);
+		resourceDesc.MipLevels = (UINT16)createInfo._mipLevelCount;
+		resourceDesc.Format = ToDxgiFormat(createInfo._format);
 		resourceDesc.SampleDesc.Count = 1;
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		resourceDesc.Flags = flags;
@@ -165,49 +157,6 @@ namespace hod::inline rhi
 		}
 
 		_state = state;
-		_width = width;
-		_height = height;
-		_mipLevelCount = mipLevelCount;
-		_format = format;
-		++_generation;
-		return true;
-	}
-
-	/// @brief An upload buffer, mapped, for the upload commands to copy from
-	/// @param size
-	/// @param uploadBuffer to DeferRelease once the copy is recorded
-	/// @param data
-	/// @return
-	bool D3d12Texture::CreateUploadBuffer(UINT64 size, ComPtr<ID3D12Resource>& uploadBuffer, void*& data)
-	{
-		D3D12_HEAP_PROPERTIES heapProperties = {};
-		heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
-
-		D3D12_RESOURCE_DESC bufferDesc = {};
-		bufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-		bufferDesc.Width = size;
-		bufferDesc.Height = 1;
-		bufferDesc.DepthOrArraySize = 1;
-		bufferDesc.MipLevels = 1;
-		bufferDesc.Format = DXGI_FORMAT_UNKNOWN;
-		bufferDesc.SampleDesc.Count = 1;
-		bufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-
-		ID3D12Device* device = D3d12RhiDevice::GetInstance()->GetDevice();
-		if (FAILED(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer))))
-		{
-			OUTPUT_ERROR("D3d12: Texture, unable to create upload buffer");
-			return false;
-		}
-
-		D3D12_RANGE readRange = {0, 0};
-		if (FAILED(uploadBuffer->Map(0, &readRange, &data)))
-		{
-			OUTPUT_ERROR("D3d12: Texture, unable to map memory");
-			uploadBuffer.Reset();
-			return false;
-		}
-
 		return true;
 	}
 
@@ -252,82 +201,118 @@ namespace hod::inline rhi
 		return true;
 	}
 
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	bool D3d12Texture::BuildDepth(uint32_t width, uint32_t height, const CreateInfo& /*createInfo*/)
+	/// @brief An upload buffer, mapped, for the upload commands to copy from
+	/// @param size
+	/// @param uploadBuffer to DeferRelease once the copy is recorded
+	/// @param data
+	/// @return
+	bool D3d12Texture::CreateUploadBuffer(UINT64 size, ComPtr<ID3D12Resource>& uploadBuffer, void*& data)
 	{
-		D3d12RhiDevice* rhiDevice = D3d12RhiDevice::GetInstance();
+		D3D12_HEAP_PROPERTIES heapProperties = {};
+		heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
 
-		// Only ever drawn into: it stays in the state that takes
-		if (CreateResource(width, height, PixelFormat::D16_UNorm, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE,
-		                   D3D12_RESOURCE_STATE_DEPTH_WRITE) == false)
+		D3D12_RESOURCE_DESC bufferDesc = {};
+		bufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		bufferDesc.Width = size;
+		bufferDesc.Height = 1;
+		bufferDesc.DepthOrArraySize = 1;
+		bufferDesc.MipLevels = 1;
+		bufferDesc.Format = DXGI_FORMAT_UNKNOWN;
+		bufferDesc.SampleDesc.Count = 1;
+		bufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+		ID3D12Device* device = D3d12RhiDevice::GetInstance()->GetDevice();
+		if (FAILED(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer))))
 		{
+			OUTPUT_ERROR("D3d12: Texture, unable to create upload buffer");
 			return false;
 		}
 
-		_depthStencilViewIndex = rhiDevice->GetDepthStencilViewHeap().Allocate();
-		if (_depthStencilViewIndex == D3d12DescriptorHeap::InvalidIndex)
+		D3D12_RANGE readRange = {0, 0};
+		if (FAILED(uploadBuffer->Map(0, &readRange, &data)))
 		{
-			OUTPUT_ERROR("D3d12: Texture, the depth stencil view heap is full");
-			Release();
-			return false;
-		}
-		rhiDevice->GetDevice()->CreateDepthStencilView(_resource.Get(), nullptr, GetDepthStencilView());
-
-		return true;
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	bool D3d12Texture::BuildColor(uint32_t width, uint32_t height, const CreateInfo& createInfo)
-	{
-		D3d12RhiDevice* rhiDevice = D3d12RhiDevice::GetInstance();
-
-		if (CreateResource(width, height, PixelFormat::R8G8B8A8_UNorm, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, ShaderResourceState) == false)
-		{
-			return false;
-		}
-
-		_renderTargetViewIndex = rhiDevice->GetRenderTargetViewHeap().Allocate();
-		if (_renderTargetViewIndex == D3d12DescriptorHeap::InvalidIndex)
-		{
-			OUTPUT_ERROR("D3d12: Texture, the render target view heap is full");
-			Release();
-			return false;
-		}
-		rhiDevice->GetDevice()->CreateRenderTargetView(_resource.Get(), nullptr, GetRenderTargetView());
-
-		// When _allowReadWrite is requested, readback goes through a separate persistently-mapped buffer
-		if (createInfo._allowReadWrite && CreateReadbackBuffer() == false)
-		{
-			Release();
+			OUTPUT_ERROR("D3d12: Texture, unable to map memory");
+			uploadBuffer.Reset();
 			return false;
 		}
 
 		return true;
 	}
 
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	bool D3d12Texture::BuildBuffer(uint32_t width, uint32_t height, const uint8_t* pixels, const CreateInfo& createInfo)
+	/// @brief The resource is created in the state it stays in: a depth one in the one drawing into it takes, a color one in ShaderResourceState,
+	/// a CopyDst one in the one of the upload commands that fill it.
+	/// @param createInfo
+	/// @param pixels
+	/// @return
+	bool D3d12Texture::BuildResource(const CreateInfo& createInfo, const uint8_t* pixels)
 	{
+		Release(); // A texture built again: the previous resource is kept until the GPU is done with it
+
 		D3d12RhiDevice* rhiDevice = D3d12RhiDevice::GetInstance();
 		ID3D12Device*   device = rhiDevice->GetDevice();
 
-		if (createInfo._format != PixelFormat::R8G8B8A8_UNorm && createInfo._format != PixelFormat::R8_UNorm)
+		const bool depth = IsDepthFormat(createInfo._format);
+		const bool renderTarget = (createInfo._usage & TextureUsage::RenderTarget) != TextureUsage::None;
+		const bool copyDst = (createInfo._usage & TextureUsage::CopyDst) != TextureUsage::None;
+
+		D3D12_RESOURCE_FLAGS flags = D3D12_RESOURCE_FLAG_NONE;
+		if (renderTarget)
 		{
-			OUTPUT_ERROR("D3d12: Texture, BuildBuffer only takes R8G8B8A8_UNorm or R8_UNorm pixels");
+			flags |= depth ? D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL : D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET;
+		}
+		if ((createInfo._usage & TextureUsage::Sampled) == TextureUsage::None)
+		{
+			flags |= D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE;
+		}
+
+		D3D12_RESOURCE_STATES state = ShaderResourceState;
+		if (depth)
+		{
+			state = D3D12_RESOURCE_STATE_DEPTH_WRITE;
+		}
+		else if (copyDst)
+		{
+			state = D3D12_RESOURCE_STATE_COPY_DEST;
+		}
+
+		if (CreateResource(createInfo, flags, state) == false)
+		{
 			return false;
 		}
-		const uint32_t pixelByteSize = GetPixelByteSize(createInfo._format);
 
-		const uint32_t mipLevelCount = Clamp(createInfo._mipLevelCount, 1u, ComputeMipLevelCount(width, height));
-		if (CreateResource(width, height, createInfo._format, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, mipLevelCount) == false)
+		if (renderTarget && depth)
 		{
+			_depthStencilViewIndex = rhiDevice->GetDepthStencilViewHeap().Allocate();
+			if (_depthStencilViewIndex == D3d12DescriptorHeap::InvalidIndex)
+			{
+				OUTPUT_ERROR("D3d12: Texture, the depth stencil view heap is full");
+				Release();
+				return false;
+			}
+			device->CreateDepthStencilView(_resource.Get(), nullptr, GetDepthStencilView());
+		}
+		else if (renderTarget)
+		{
+			_renderTargetViewIndex = rhiDevice->GetRenderTargetViewHeap().Allocate();
+			if (_renderTargetViewIndex == D3d12DescriptorHeap::InvalidIndex)
+			{
+				OUTPUT_ERROR("D3d12: Texture, the render target view heap is full");
+				Release();
+				return false;
+			}
+			device->CreateRenderTargetView(_resource.Get(), nullptr, GetRenderTargetView());
+		}
+
+		// Readback goes through a separate persistently-mapped buffer
+		if ((createInfo._usage & TextureUsage::Readback) != TextureUsage::None && CreateReadbackBuffer() == false)
+		{
+			Release();
 			return false;
+		}
+
+		if (copyDst == false)
+		{
+			return true;
 		}
 
 		// Filled by the upload commands, which the CPU does not wait for: before what is submitted next draws with it.
@@ -346,7 +331,7 @@ namespace hod::inline rhi
 		{
 			D3D12_RESOURCE_DESC textureDesc = _resource->GetDesc();
 			UINT64              uploadSize = 0;
-			device->GetCopyableFootprints(&textureDesc, 0, mipLevelCount, 0, uploadFootprints.Data(), nullptr, nullptr, &uploadSize);
+			device->GetCopyableFootprints(&textureDesc, 0, createInfo._mipLevelCount, 0, uploadFootprints.Data(), nullptr, nullptr, &uploadSize);
 
 			void* data = nullptr;
 			if (CreateUploadBuffer(uploadSize, uploadBuffer, data) == false)
@@ -356,12 +341,13 @@ namespace hod::inline rhi
 			}
 
 			// The rows of the upload buffer are further apart than the ones given, and each level is aligned
+			const uint32_t pixelByteSize = GetPixelByteSize(createInfo._format);
 			const uint8_t* mipPixels = pixels;
-			for (uint32_t mipLevel = 0; mipLevel < mipLevelCount; ++mipLevel)
+			for (uint32_t mipLevel = 0; mipLevel < createInfo._mipLevelCount; ++mipLevel)
 			{
 				const D3D12_PLACED_SUBRESOURCE_FOOTPRINT& uploadFootprint = uploadFootprints[mipLevel];
-				const uint32_t                            mipHeight = ComputeMipSize(height, mipLevel);
-				const uint32_t                            rowSize = ComputeMipSize(width, mipLevel) * pixelByteSize;
+				const uint32_t                            mipHeight = ComputeMipSize(createInfo._height, mipLevel);
+				const uint32_t                            rowSize = ComputeMipSize(createInfo._width, mipLevel) * pixelByteSize;
 				for (uint32_t row = 0; row < mipHeight; ++row)
 				{
 					std::memcpy(static_cast<uint8_t*>(data) + uploadFootprint.Offset + (size_t)row * uploadFootprint.Footprint.RowPitch, mipPixels + (size_t)row * rowSize,
@@ -370,11 +356,8 @@ namespace hod::inline rhi
 				mipPixels += (size_t)mipHeight * rowSize;
 			}
 			uploadBuffer->Unmap(0, nullptr);
-		}
 
-		if (uploadBuffer != nullptr)
-		{
-			for (uint32_t mipLevel = 0; mipLevel < mipLevelCount; ++mipLevel)
+			for (uint32_t mipLevel = 0; mipLevel < createInfo._mipLevelCount; ++mipLevel)
 			{
 				D3D12_TEXTURE_COPY_LOCATION destination = {};
 				destination.pResource = _resource.Get();
@@ -393,7 +376,6 @@ namespace hod::inline rhi
 		Transition(commandList, ShaderResourceState);
 
 		rhiDevice->DeferRelease(std::move(uploadBuffer));
-		_builtFromBuffer = true;
 		return true;
 	}
 
@@ -432,7 +414,7 @@ namespace hod::inline rhi
 			return false;
 		}
 
-		const uint32_t rowSize = width * GetPixelByteSize(_format);
+		const uint32_t rowSize = width * GetPixelByteSize(GetFormat());
 		for (uint32_t row = 0; row < height; ++row)
 		{
 			std::memcpy(static_cast<uint8_t*>(data) + uploadFootprint.Offset + (size_t)row * uploadFootprint.Footprint.RowPitch, pixels + (size_t)row * rowSize, rowSize);
@@ -462,7 +444,7 @@ namespace hod::inline rhi
 	/// @return
 	Color D3d12Texture::ReadPixel(const Vector2& position) const
 	{
-		if (position.GetX() < 0 || position.GetX() >= (float)_width || position.GetY() < 0 || position.GetY() >= (float)_height)
+		if (position.GetX() < 0 || position.GetX() >= (float)GetWidth() || position.GetY() < 0 || position.GetY() >= (float)GetHeight())
 		{
 			return Color(0.0f, 0.0f, 0.0f, 0.0f);
 		}
@@ -480,7 +462,7 @@ namespace hod::inline rhi
 
 	/// @brief Records, into commandBuffer, a copy of this texture's current content into its
 	/// persistently-mapped readback buffer, so a later ReadPixel() call can read it back for free.
-	/// No-op if this texture wasn't built with CreateInfo::_allowReadWrite.
+	/// No-op if this texture is not a Readback one.
 	/// @param commandBuffer
 	void D3d12Texture::CaptureReadback(CommandBuffer* commandBuffer)
 	{

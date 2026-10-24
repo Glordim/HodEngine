@@ -902,9 +902,10 @@ namespace hod::inline imgui
 					{
 						Texture*                 texture = RhiDevice::GetInstance()->CreateTexture();
 						hod::Texture::CreateInfo createInfo;
-						createInfo._allowReadWrite = false;
+						createInfo._width = textureData->Width;
+						createInfo._height = textureData->Height;
 						assert(textureData->Format == ImTextureFormat_RGBA32 && textureData->BytesPerPixel == 4);
-						if (texture->BuildBuffer(textureData->Width, textureData->Height, textureData->Pixels, createInfo) == false)
+						if (texture->Build(createInfo, textureData->Pixels) == false)
 						{
 							assert(false);
 						}
@@ -931,9 +932,10 @@ namespace hod::inline imgui
 
 						Texture*                 texture = RhiDevice::GetInstance()->CreateTexture();
 						hod::Texture::CreateInfo createInfo;
-						createInfo._allowReadWrite = false;
+						createInfo._width = textureData->Width;
+						createInfo._height = textureData->Height;
 						assert(textureData->Format == ImTextureFormat_RGBA32 && textureData->BytesPerPixel == 4);
-						if (texture->BuildBuffer(textureData->Width, textureData->Height, textureData->Pixels, createInfo) == false)
+						if (texture->Build(createInfo, textureData->Pixels) == false)
 						{
 							assert(false);
 						}

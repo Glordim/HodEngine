@@ -305,9 +305,7 @@ namespace hod::inline editor
 		RenderTarget* renderTarget = RhiDevice::GetInstance()->CreateRenderTarget();
 		ScopedGuard   deleteRenderTarget = [&]() { DefaultAllocator::GetInstance().Delete(renderTarget); };
 
-		Texture::CreateInfo createInfo;
-		createInfo._allowReadWrite = true;
-		if (renderTarget->Init(width, height, createInfo) == false || renderTarget->IsValid() == false)
+		if (renderTarget->Init(width, height, true) == false || renderTarget->IsValid() == false)
 		{
 			return;
 		}

@@ -33,7 +33,7 @@ namespace hod::inline rhi
 	/// @param width
 	/// @param height
 	/// @return
-	bool RenderTarget::Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo, PixelFormat colorFormat, PixelFormat depthFormat) // todo Vector2 Size
+	bool RenderTarget::Init(uint32_t width, uint32_t height, bool readback, PixelFormat colorFormat, PixelFormat depthFormat) // todo Vector2 Size
 	{
 		Clear();
 		if (width == 0 || height == 0)
@@ -53,8 +53,18 @@ namespace hod::inline rhi
 
 		if (colorFormat != PixelFormat::None)
 		{
+			Texture::CreateInfo createInfo;
+			createInfo._width = width;
+			createInfo._height = height;
+			createInfo._format = colorFormat;
+			createInfo._usage = TextureUsage::Sampled | TextureUsage::RenderTarget;
+			if (readback)
+			{
+				createInfo._usage = createInfo._usage | TextureUsage::Readback;
+			}
+
 			_colorTexture = RhiDevice::GetInstance()->CreateTexture();
-			if (_colorTexture->BuildColor(width, height, createInfo) == false)
+			if (_colorTexture->Build(createInfo) == false)
 			{
 				Clear();
 				return false;
@@ -63,8 +73,14 @@ namespace hod::inline rhi
 
 		if (depthFormat != PixelFormat::None)
 		{
+			Texture::CreateInfo createInfo;
+			createInfo._width = width;
+			createInfo._height = height;
+			createInfo._format = depthFormat;
+			createInfo._usage = TextureUsage::RenderTarget;
+
 			_depthTexture = RhiDevice::GetInstance()->CreateTexture();
-			if (_depthTexture->BuildDepth(width, height, createInfo) == false)
+			if (_depthTexture->Build(createInfo) == false)
 			{
 				Clear();
 				return false;

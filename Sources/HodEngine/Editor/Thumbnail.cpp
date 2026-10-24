@@ -20,7 +20,7 @@ namespace hod::inline editor
 {
 	static constexpr uint32_t SourceComponentCount = 4; // RGBA8
 	static constexpr uint32_t StoredComponentCount = 3; // RGB8, opaque
-	static constexpr uint32_t TextureComponentCount = 4; // RGBA8, what Texture::BuildBuffer() expects
+	static constexpr uint32_t TextureComponentCount = 4; // RGBA8, the default format of Texture::Build()
 
 	static constexpr uint32_t CheckerSquareCount = 16; // Along the largest side, whatever the thumbnail size
 
@@ -157,10 +157,11 @@ namespace hod::inline editor
 		DefaultAllocator::GetInstance().Free(rgbPixels);
 
 		Texture::CreateInfo createInfo;
-		createInfo._allowReadWrite = false;
+		createInfo._width = width;
+		createInfo._height = height;
 
 		Texture* texture = RhiDevice::GetInstance()->CreateTexture();
-		bool     built = texture->BuildBuffer(width, height, pixels, createInfo);
+		bool     built = texture->Build(createInfo, pixels);
 		DefaultAllocator::GetInstance().Free(pixels);
 
 		if (built == false)

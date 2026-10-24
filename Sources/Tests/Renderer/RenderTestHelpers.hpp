@@ -8,6 +8,8 @@
 #include <HodEngine/Math/Color.hpp>
 #include <HodEngine/Math/Vector4.hpp>
 
+#include <HodEngine/RHI/Texture.hpp>
+
 #include <cmath>
 #include <string>
 
@@ -31,6 +33,15 @@ inline const hod::Color FallbackColor(1.0f, 0.0f, 1.0f, 1.0f);
 inline bool IsBlended(const hod::Color& color)
 {
 	return color.r > 0.1f && color.r < 0.9f && color.g > 0.1f && color.g < 0.9f && color.b > 0.1f && color.b < 0.9f;
+}
+
+// A texture filled by the CPU, R8G8B8A8
+inline hod::Texture::CreateInfo TextureCreateInfo(uint32_t width, uint32_t height)
+{
+	hod::Texture::CreateInfo createInfo;
+	createInfo._width = width;
+	createInfo._height = height;
+	return createInfo;
 }
 
 inline hod::Vector4 ToVector4(const hod::Color& color)

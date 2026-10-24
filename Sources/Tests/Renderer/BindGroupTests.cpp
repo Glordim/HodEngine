@@ -55,10 +55,8 @@ protected:
 
 		RhiDevice* rhiDevice = RhiDevice::GetInstance();
 
-		Texture::CreateInfo createInfo;
-		createInfo._allowReadWrite = true;
 		_renderTarget = rhiDevice->CreateRenderTarget();
-		ASSERT_TRUE(_renderTarget->Init(DefaultTargetSize, DefaultTargetSize, createInfo));
+		ASSERT_TRUE(_renderTarget->Init(DefaultTargetSize, DefaultTargetSize, true));
 
 		_vertexShader = rhiDevice->CreateShader(Shader::ShaderType::Vertex);
 		ASSERT_TRUE(_vertexShader->LoadFromIR(BindGroupTest_Vertex, BindGroupTest_Vertex_size, BindGroupTest_Vertex_reflection, BindGroupTest_Vertex_reflection_size));
@@ -193,7 +191,7 @@ protected:
 		const uint8_t pixels[4 * 2 * 2] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
 
 		Texture* texture = RhiDevice::GetInstance()->CreateTexture();
-		EXPECT_TRUE(texture->BuildBuffer(2, 2, pixels, Texture::CreateInfo()));
+		EXPECT_TRUE(texture->Build(TextureCreateInfo(2, 2), pixels));
 		_textures.PushBack(texture);
 		return texture;
 	}
@@ -207,7 +205,7 @@ protected:
 		nearest._filterMode = FilterMode::Nearest;
 
 		Texture* texture = RhiDevice::GetInstance()->CreateTexture();
-		EXPECT_TRUE(texture->BuildBuffer(2, 2, pixels, Texture::CreateInfo()));
+		EXPECT_TRUE(texture->Build(TextureCreateInfo(2, 2), pixels));
 		texture->SetDefaultSampler(RhiDevice::GetInstance()->GetSampler(nearest));
 		_textures.PushBack(texture);
 		return texture;
@@ -234,14 +232,14 @@ protected:
 			}
 		}
 
-		Texture::CreateInfo createInfo;
+		Texture::CreateInfo createInfo = TextureCreateInfo(size, size);
 		createInfo._mipLevelCount = mipLevelCount;
 
 		Sampler::CreateInfo nearest;
 		nearest._filterMode = FilterMode::Nearest;
 
 		Texture* texture = RhiDevice::GetInstance()->CreateTexture();
-		EXPECT_TRUE(texture->BuildBuffer(size, size, pixels.Data(), createInfo));
+		EXPECT_TRUE(texture->Build(createInfo, pixels.Data()));
 		texture->SetDefaultSampler(RhiDevice::GetInstance()->GetSampler(nearest));
 		_textures.PushBack(texture);
 		return texture;
@@ -611,8 +609,7 @@ TEST_F(BindGroupRender, TextureBuiltAgainGetsItsNewMipLevels)
 
 	// The level 0 alone: what is drawn small reads it too
 	const uint8_t       greenPixels[4 * 2 * 2] = {0, 255, 0, 255, 0, 255, 0, 255, 0, 255, 0, 255, 0, 255, 0, 255};
-	Texture::CreateInfo createInfo;
-	ASSERT_TRUE(texture->BuildBuffer(2, 2, greenPixels, createInfo));
+	ASSERT_TRUE(texture->Build(TextureCreateInfo(2, 2), greenPixels));
 	EXPECT_NE(texture->GetGeneration(), firstGeneration);
 	EXPECT_EQ(texture->GetMipLevelCount(), 1u);
 	EXPECT_EQ(texture->GetWidth(), 2u);
@@ -798,7 +795,7 @@ TEST_F(BindGroupRender, ManyTexturesUploadedWithoutWaiting)
 		const uint8_t pixels[4 * 2 * 2] = {red, green, 0, 255, red, green, 0, 255, red, green, 0, 255, red, green, 0, 255};
 
 		Texture* texture = RhiDevice::GetInstance()->CreateTexture();
-		EXPECT_TRUE(texture->BuildBuffer(2, 2, pixels, Texture::CreateInfo()));
+		EXPECT_TRUE(texture->Build(TextureCreateInfo(2, 2), pixels));
 		_textures.PushBack(texture);
 		return texture;
 	};
@@ -831,7 +828,7 @@ TEST_F(BindGroupRender, TextureDeletedBeforeItsUploadIsSubmitted)
 	const uint8_t pixels[4 * 2 * 2] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
 
 	Texture* texture = RhiDevice::GetInstance()->CreateTexture();
-	ASSERT_TRUE(texture->BuildBuffer(2, 2, pixels, Texture::CreateInfo()));
+	ASSERT_TRUE(texture->Build(TextureCreateInfo(2, 2), pixels));
 	DefaultAllocator::GetInstance().Delete(texture);
 
 	BindGroup* global = CreateGlobalBindGroup(CreateColorBlocks({White}));
@@ -890,7 +887,7 @@ TEST_F(BindGroupRender, ResourcesReleasedEveryFrameWithoutWaitingForTheGpu)
 		Renderer::GetInstance()->AcquireNextFrame();
 
 		Texture* texture = rhiDevice->CreateTexture();
-		ASSERT_TRUE(texture->BuildBuffer(2, 2, pixels, Texture::CreateInfo()));
+		ASSERT_TRUE(texture->Build(TextureCreateInfo(2, 2), pixels));
 		Buffer* colors = createBuffer(Buffer::Usage::Uniform, &red, sizeof(red));
 
 		StaticArray<BindGroup::TextureBinding, 2> textureBindings;
@@ -1194,10 +1191,8 @@ protected:
 	{
 		DefaultAllocator::GetInstance().Delete(_renderTarget);
 
-		Texture::CreateInfo createInfo;
-		createInfo._allowReadWrite = true;
 		_renderTarget = RhiDevice::GetInstance()->CreateRenderTarget();
-		ASSERT_TRUE(_renderTarget->Init(DefaultTargetSize, DefaultTargetSize, createInfo, colorFormat, depthFormat));
+		ASSERT_TRUE(_renderTarget->Init(DefaultTargetSize, DefaultTargetSize, true, colorFormat, depthFormat));
 	}
 
 	GraphicsPipeline* CreatePipelineFor(PixelFormat colorFormat, PixelFormat depthFormat, bool depthWrite = false)
@@ -1301,7 +1296,7 @@ TEST_F(TargetFormatRender, DepthStatesNeedADepthFormat)
 TEST_F(TargetFormatRender, RenderTargetNeedsATexture)
 {
 	RenderTarget* renderTarget = RhiDevice::GetInstance()->CreateRenderTarget();
-	EXPECT_FALSE(renderTarget->Init(DefaultTargetSize, DefaultTargetSize, Texture::CreateInfo(), PixelFormat::None, PixelFormat::None));
+	EXPECT_FALSE(renderTarget->Init(DefaultTargetSize, DefaultTargetSize, false, PixelFormat::None, PixelFormat::None));
 	DefaultAllocator::GetInstance().Delete(renderTarget);
 
 	_expectedErrorCount = 1;

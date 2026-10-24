@@ -69,11 +69,13 @@ namespace hod::inline renderer
 		}
 
 		Texture::CreateInfo createInfo;
+		createInfo._width = _width;
+		createInfo._height = _height;
 		createInfo._mipLevelCount = _mipLevelCount;
 
 		_texture = RhiDevice::GetInstance()->CreateTexture();
 		SetSamplerStates(_filterMode, _wrapMode);
-		if (_texture->BuildBuffer(_width, _height, pixels, createInfo) == false)
+		if (_texture->Build(createInfo, pixels) == false)
 		{
 			OUTPUT_ERROR("TextureResource::Initialize: load texture failed");
 			DefaultAllocator::GetInstance().Delete(_texture);
@@ -122,8 +124,10 @@ namespace hod::inline renderer
 
 		// The same Texture, built again: what points to it stays valid, its default sampler is kept
 		Texture::CreateInfo createInfo;
+		createInfo._width = _width;
+		createInfo._height = _height;
 		createInfo._mipLevelCount = mipLevelCount;
-		if (_texture->BuildBuffer(_width, _height, pixels, createInfo) == false)
+		if (_texture->Build(createInfo, pixels) == false)
 		{
 			OUTPUT_ERROR("TextureResource::SetPixels: build texture failed");
 			return false;

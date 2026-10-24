@@ -27,8 +27,12 @@ namespace hod::inline rhi
 		// Magenta: a texture slot nobody set is an omission, it has to stand out
 		uint8_t pixels[4 * 2 * 2] = {255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255, 255, 0, 255, 255};
 
+		Texture::CreateInfo createInfo;
+		createInfo._width = 2;
+		createInfo._height = 2;
+
 		_fallbackTexture = CreateTexture();
-		if (_fallbackTexture == nullptr || _fallbackTexture->BuildBuffer(2, 2, pixels, Texture::CreateInfo()) == false)
+		if (_fallbackTexture == nullptr || _fallbackTexture->Build(createInfo, pixels) == false)
 		{
 			OUTPUT_ERROR("RhiDevice: Unable to create the fallback texture!");
 			return false;

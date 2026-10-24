@@ -93,7 +93,7 @@ protected:
 		nearest._filterMode = FilterMode::Nearest;
 
 		Texture* texture = RhiDevice::GetInstance()->CreateTexture();
-		EXPECT_TRUE(texture->BuildBuffer(2, 2, pixels, Texture::CreateInfo()));
+		EXPECT_TRUE(texture->Build(TextureCreateInfo(2, 2), pixels));
 		texture->SetDefaultSampler(RhiDevice::GetInstance()->GetSampler(nearest));
 		_textures.PushBack(texture);
 		return texture;
@@ -391,7 +391,7 @@ TEST_F(MaterialRender, TwoInstancesKeepTheirOwnTexture)
 	const uint8_t bluePixels[4 * 2 * 2] = {0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255};
 
 	Texture* blueTexture = RhiDevice::GetInstance()->CreateTexture();
-	ASSERT_TRUE(blueTexture->BuildBuffer(2, 2, bluePixels, Texture::CreateInfo()));
+	ASSERT_TRUE(blueTexture->Build(TextureCreateInfo(2, 2), bluePixels));
 	_textures.PushBack(blueTexture);
 
 	MaterialInstance* fourColorsInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
@@ -482,7 +482,7 @@ TEST_F(MaterialRender, TextureChangedBetweenFramesIsSeenByTheNextFrame)
 	const uint8_t bluePixels[4 * 2 * 2] = {0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255, 0, 0, 255, 255};
 
 	Texture* blueTexture = RhiDevice::GetInstance()->CreateTexture();
-	ASSERT_TRUE(blueTexture->BuildBuffer(2, 2, bluePixels, Texture::CreateInfo()));
+	ASSERT_TRUE(blueTexture->Build(TextureCreateInfo(2, 2), bluePixels));
 	_textures.PushBack(blueTexture);
 
 	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
@@ -552,12 +552,12 @@ TEST_F(MaterialRender, R8TextureIsSampledAsRed)
 	Sampler::CreateInfo nearest;
 	nearest._filterMode = FilterMode::Nearest;
 
-	Texture::CreateInfo createInfo;
+	Texture::CreateInfo createInfo = TextureCreateInfo(2, 2);
 	createInfo._format = PixelFormat::R8_UNorm;
 
 	Texture* texture = RhiDevice::GetInstance()->CreateTexture();
 	_textures.PushBack(texture);
-	ASSERT_TRUE(texture->BuildBuffer(2, 2, nullptr, createInfo));
+	ASSERT_TRUE(texture->Build(createInfo));
 	texture->SetDefaultSampler(RhiDevice::GetInstance()->GetSampler(nearest));
 	EXPECT_EQ(texture->GetFormat(), PixelFormat::R8_UNorm);
 
@@ -583,10 +583,49 @@ TEST_F(MaterialRender, UpdateRegionRejectsWhatItCannotCopy)
 	EXPECT_FALSE(texture->UpdateRegion(1, 1, 2, 1, pixels)); // out of the texture
 	EXPECT_FALSE(texture->UpdateRegion(0, 0, 1, 1, pixels, 1)); // no such level
 
-	// Drawn into, not built from pixels
+	// Drawn into, not CopyDst
 	EXPECT_FALSE(_renderTarget.GetColorTexture()->UpdateRegion(0, 0, 1, 1, pixels));
 
 	_expectedErrorCount = 3;
+}
+
+// A build refused leaves the texture as it was
+TEST_F(MaterialRender, BuildRejectsUnsupportedCombinations)
+{
+	const uint8_t pixels[4 * 2 * 2] = {};
+
+	Texture*       texture = CreateFourColorsTexture();
+	const uint32_t generation = texture->GetGeneration();
+
+	EXPECT_FALSE(texture->Build(TextureCreateInfo(0, 2))); // empty
+
+	Texture::CreateInfo createInfo = TextureCreateInfo(2, 2);
+	createInfo._format = PixelFormat::D16_UNorm; // CopyDst depth
+	EXPECT_FALSE(texture->Build(createInfo));
+
+	createInfo = TextureCreateInfo(2, 2);
+	createInfo._usage = TextureUsage::CopyDst; // never sampled
+	EXPECT_FALSE(texture->Build(createInfo));
+
+	createInfo = TextureCreateInfo(2, 2);
+	createInfo._format = PixelFormat::R8_UNorm;
+	createInfo._usage = TextureUsage::Sampled | TextureUsage::RenderTarget; // R8 render target
+	EXPECT_FALSE(texture->Build(createInfo));
+
+	createInfo._format = PixelFormat::R8G8B8A8_UNorm;
+	EXPECT_FALSE(texture->Build(createInfo, pixels)); // pixels for a texture drawn into
+
+	_expectedErrorCount = 5;
+
+	EXPECT_EQ(texture->GetGeneration(), generation);
+	EXPECT_TRUE(texture->HasUsage(TextureUsage::Sampled | TextureUsage::CopyDst));
+
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+	materialInstance->SetVec4("ubo.color", ToVector4(White));
+	materialInstance->SetTexture("image", texture);
+
+	RenderFrame([&]() { DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f, materialInstance); });
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, -0.5f), Red));
 }
 
 // ============================================================================

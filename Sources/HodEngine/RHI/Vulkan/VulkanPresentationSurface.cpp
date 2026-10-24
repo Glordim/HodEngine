@@ -425,8 +425,14 @@ namespace hod::inline rhi
 
 		// The previous one is released once the frames in flight are done with it
 		DefaultAllocator::GetInstance().Delete(_depthTexture);
+		Texture::CreateInfo depthCreateInfo;
+		depthCreateInfo._width = _swapChainExtent.width;
+		depthCreateInfo._height = _swapChainExtent.height;
+		depthCreateInfo._format = DepthFormat;
+		depthCreateInfo._usage = TextureUsage::RenderTarget;
+
 		_depthTexture = RhiDevice::GetInstance()->CreateTexture();
-		if (_depthTexture->BuildDepth(_swapChainExtent.width, _swapChainExtent.height, Texture::CreateInfo()) == false)
+		if (_depthTexture->Build(depthCreateInfo) == false)
 		{
 			OUTPUT_ERROR("Vulkan: Unable to create the depth buffer of the SwapChain !");
 			return false;

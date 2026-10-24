@@ -156,9 +156,7 @@ namespace hod::inline editor
 		const uint32_t resolutionHeight = Clamp((uint32_t)available.y, 2u, 16u * 1024u);
 		if (_renderTarget->GetResolution().GetX() != resolutionWidth || _renderTarget->GetResolution().GetY() != resolutionHeight)
 		{
-			Texture::CreateInfo createInfo;
-			createInfo._allowReadWrite = false;
-			_renderTarget->Init(resolutionWidth, resolutionHeight, createInfo);
+			_renderTarget->Init(resolutionWidth, resolutionHeight);
 		}
 		if (_renderTarget->IsValid() == false)
 		{

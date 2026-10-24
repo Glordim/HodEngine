@@ -28,11 +28,11 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool VulkanRenderTarget::Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo, PixelFormat colorFormat, PixelFormat depthFormat)
+	bool VulkanRenderTarget::Init(uint32_t width, uint32_t height, bool readback, PixelFormat colorFormat, PixelFormat depthFormat)
 	{
 		Clear();
 
-		if (RenderTarget::Init(width, height, createInfo, colorFormat, depthFormat) == false)
+		if (RenderTarget::Init(width, height, readback, colorFormat, depthFormat) == false)
 		{
 			return false;
 		}

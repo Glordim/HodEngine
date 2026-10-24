@@ -99,7 +99,12 @@ namespace hod::inline rhi
 			return;
 		}
 
-		if (_depthTexture->BuildDepth(drawableWidth, drawableHeight, Texture::CreateInfo()) == false)
+		Texture::CreateInfo depthCreateInfo;
+		depthCreateInfo._width = drawableWidth;
+		depthCreateInfo._height = drawableHeight;
+		depthCreateInfo._format = DepthFormat;
+		depthCreateInfo._usage = TextureUsage::RenderTarget;
+		if (_depthTexture->Build(depthCreateInfo) == false)
 		{
 			OUTPUT_ERROR("Metal: Unable to create the depth texture of the presentation surface!");
 		}

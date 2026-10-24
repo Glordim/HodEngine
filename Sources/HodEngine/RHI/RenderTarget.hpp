@@ -23,7 +23,8 @@ namespace hod::inline rhi
 		Vector2 GetResolution() const;
 
 		// PixelFormat::None for no texture of that kind, not for both. The pipelines drawn into it must be created for these formats.
-		virtual bool Init(uint32_t width, uint32_t height, const Texture::CreateInfo& createInfo, PixelFormat colorFormat = PixelFormat::R8G8B8A8_UNorm,
+		// readback: the color texture can be read by the CPU (TextureUsage::Readback)
+		virtual bool Init(uint32_t width, uint32_t height, bool readback = false, PixelFormat colorFormat = PixelFormat::R8G8B8A8_UNorm,
 		                  PixelFormat depthFormat = PixelFormat::D16_UNorm);
 
 		Texture* GetColorTexture() const;

@@ -177,8 +177,12 @@ namespace hod::inline renderer
 		{
 			uint8_t pixels[4 * 2 * 2] = {255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255};
 
+			Texture::CreateInfo createInfo;
+			createInfo._width = 2;
+			createInfo._height = 2;
+
 			_whiteTexture = RhiDevice::GetInstance()->CreateTexture();
-			_whiteTexture->BuildBuffer(2, 2, pixels, Texture::CreateInfo());
+			_whiteTexture->Build(createInfo, pixels);
 		}
 		return _whiteTexture;
 	}

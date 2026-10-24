@@ -21,9 +21,6 @@ namespace hod::inline renderer
 	{
 		Clear();
 
-		Texture::CreateInfo createInfo;
-		createInfo._allowReadWrite = true;
-
 		RhiDevice* rhiDevice = RhiDevice::GetInstance();
 
 		uint32_t frameInFlightCount = rhiDevice->GetFrameInFlightCount();
@@ -32,7 +29,7 @@ namespace hod::inline renderer
 			RenderTarget* renderTarget = rhiDevice->CreateRenderTarget();
 			_renderTargets.PushBack(renderTarget);
 
-			if (renderTarget->Init(width, height, createInfo) == false)
+			if (renderTarget->Init(width, height, true) == false)
 			{
 				Clear();
 				return false;

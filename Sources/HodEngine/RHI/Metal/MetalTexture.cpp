@@ -34,8 +34,8 @@ namespace hod::inline rhi
 			MetalRhiDevice::GetInstance()->DeferReleaseResident(_texture);
 			_texture = nullptr;
 		}
+		_readable = false;
 		_readbackReady = false;
-		_builtFromBuffer = false;
 	}
 
 	/// @brief
@@ -51,107 +51,81 @@ namespace hod::inline rhi
 		}
 	}
 
-	/// @brief Creates the texture from a descriptor holding its format, usage and storage mode
-	/// @param textureDescriptor released by this function
+	/// @brief
+	/// @param createInfo
+	/// @param pixels
 	/// @return
-	bool MetalTexture::Build(MTL::TextureDescriptor* textureDescriptor, uint32_t width, uint32_t height, const CreateInfo& createInfo)
+	bool MetalTexture::BuildResource(const CreateInfo& createInfo, const uint8_t* pixels)
 	{
 		Release();
 
-		textureDescriptor->setWidth(width);
-		textureDescriptor->setHeight(height);
+		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
+		textureDescriptor->setWidth(createInfo._width);
+		textureDescriptor->setHeight(createInfo._height);
 		textureDescriptor->setTextureType(MTL::TextureType2D);
+		textureDescriptor->setMipmapLevelCount(createInfo._mipLevelCount);
+
+		if ((createInfo._usage & TextureUsage::CopyDst) != TextureUsage::None)
+		{
+			// TODO Metal: R8_UNorm (MTL::PixelFormatR8Unorm), see the Vulkan/D3d12 backends
+			if (createInfo._format != PixelFormat::R8G8B8A8_UNorm)
+			{
+				OUTPUT_ERROR("Metal: Texture, a CopyDst texture is only R8G8B8A8_UNorm for now");
+				textureDescriptor->release();
+				return false;
+			}
+			textureDescriptor->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
+			textureDescriptor->setStorageMode(MTL::StorageModeShared); // filled by the CPU, see replaceRegion
+		}
+		else if (IsDepthFormat(createInfo._format))
+		{
+			// Like the other backends: no stencil, nothing uses it. Only drawn into: GPU memory only, the CPU never reads it
+			textureDescriptor->setPixelFormat((MTL::PixelFormat)ToMetalPixelFormat(createInfo._format));
+			textureDescriptor->setStorageMode(MTL::StorageModePrivate);
+		}
+		else
+		{
+			// Same format as the presentation surfaces: a MetalGraphicsPipeline is built for one format of color attachment
+			textureDescriptor->setPixelFormat((MTL::PixelFormat)ToMetalPixelFormat(createInfo._format));
+			textureDescriptor->setStorageMode(MTL::StorageModeShared); // read back by the CPU, see ReadPixel
+		}
+
+		MTL::TextureUsage usage = MTL::TextureUsageUnknown;
+		if ((createInfo._usage & TextureUsage::Sampled) != TextureUsage::None)
+		{
+			usage |= MTL::TextureUsageShaderRead;
+		}
+		if ((createInfo._usage & TextureUsage::RenderTarget) != TextureUsage::None)
+		{
+			usage |= MTL::TextureUsageRenderTarget;
+		}
+		textureDescriptor->setUsage(usage);
+
 		_texture = MetalRhiDevice::GetInstance()->GetDevice()->newTexture(textureDescriptor);
 		textureDescriptor->release();
 		if (_texture == nullptr)
 		{
-			OUTPUT_ERROR("Metal: Failed to create a {}x{} texture!", width, height);
+			OUTPUT_ERROR("Metal: Failed to create a {}x{} texture!", createInfo._width, createInfo._height);
 			return false;
 		}
 		MetalRhiDevice::GetInstance()->AddResourceToResidencySet(_texture);
 
-		_width = width;
-		_height = height;
-		_mipLevelCount = (uint32_t)_texture->mipmapLevelCount();
-		_readable = createInfo._allowReadWrite && _texture->storageMode() == MTL::StorageModeShared; // the depth is in GPU memory only
-		++_generation;
-
-		return true;
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief		
-	//-----------------------------------------------------------------------------
-	bool MetalTexture::BuildDepth(uint32_t width, uint32_t height, const CreateInfo& createInfo)
-	{
-		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
-		textureDescriptor->setPixelFormat((MTL::PixelFormat)ToMetalPixelFormat(PixelFormat::D16_UNorm)); // like the other backends: no stencil, nothing uses it
-		// Only drawn into, as on the other backends: GPU memory only, the CPU never reads it
-		textureDescriptor->setUsage(MTL::TextureUsageRenderTarget);
-		textureDescriptor->setStorageMode(MTL::StorageModePrivate);
-		if (Build(textureDescriptor, width, height, createInfo) == false)
-		{
-			return false;
-		}
-		_format = PixelFormat::D16_UNorm;
-		return true;
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	bool MetalTexture::BuildColor(uint32_t width, uint32_t height, const CreateInfo& createInfo)
-	{
-		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
-		// Same format as the presentation surfaces: a MetalGraphicsPipeline is built for one format of color attachment
-		textureDescriptor->setPixelFormat((MTL::PixelFormat)ToMetalPixelFormat(PixelFormat::R8G8B8A8_UNorm));
-		textureDescriptor->setUsage(MTL::TextureUsageRenderTarget | MTL::TextureUsageShaderRead);
-		textureDescriptor->setStorageMode(MTL::StorageModeShared); // read back by the CPU, see ReadPixel
-		if (Build(textureDescriptor, width, height, createInfo) == false)
-		{
-			return false;
-		}
-		_format = PixelFormat::R8G8B8A8_UNorm;
-		return true;
-	}
-
-	//-----------------------------------------------------------------------------
-	//! @brief
-	//-----------------------------------------------------------------------------
-	bool MetalTexture::BuildBuffer(uint32_t width, uint32_t height, const uint8_t* pixels, const CreateInfo& createInfo)
-	{
-		// TODO Metal: R8_UNorm (MTL::PixelFormatR8Unorm), see the Vulkan/D3d12 backends
-		if (createInfo._format != PixelFormat::R8G8B8A8_UNorm)
-		{
-			OUTPUT_ERROR("Metal: Texture, BuildBuffer only takes R8G8B8A8_UNorm pixels for now");
-			return false;
-		}
-
-		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
-		textureDescriptor->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
-		textureDescriptor->setUsage(MTL::TextureUsageShaderRead);
-		textureDescriptor->setStorageMode(MTL::StorageModeShared); // filled by the CPU, see replaceRegion
-		textureDescriptor->setMipmapLevelCount(Clamp(createInfo._mipLevelCount, 1u, ComputeMipLevelCount(width, height)));
-		if (Build(textureDescriptor, width, height, createInfo) == false)
-		{
-			return false;
-		}
+		_readable = (createInfo._usage & TextureUsage::Readback) != TextureUsage::None;
 
 		if (pixels != nullptr)
 		{
 			// The levels one after the other
+			const uint32_t pixelByteSize = GetPixelByteSize(createInfo._format);
 			const uint8_t* mipPixels = pixels;
-			for (uint32_t mipLevel = 0; mipLevel < _mipLevelCount; ++mipLevel)
+			for (uint32_t mipLevel = 0; mipLevel < createInfo._mipLevelCount; ++mipLevel)
 			{
-				const uint32_t mipWidth = ComputeMipSize(width, mipLevel);
-				const uint32_t mipHeight = ComputeMipSize(height, mipLevel);
-				_texture->replaceRegion(MTL::Region(0, 0, 0, mipWidth, mipHeight, 1), mipLevel, mipPixels, mipWidth * 4);
-				mipPixels += (size_t)mipWidth * mipHeight * 4;
+				const uint32_t mipWidth = ComputeMipSize(createInfo._width, mipLevel);
+				const uint32_t mipHeight = ComputeMipSize(createInfo._height, mipLevel);
+				_texture->replaceRegion(MTL::Region(0, 0, 0, mipWidth, mipHeight, 1), mipLevel, mipPixels, mipWidth * pixelByteSize);
+				mipPixels += (size_t)mipWidth * mipHeight * pixelByteSize;
 			}
 		}
 
-		_format = createInfo._format;
-		_builtFromBuffer = true;
 		return true;
 	}
 
@@ -169,7 +143,7 @@ namespace hod::inline rhi
 	/// @return 
 	Color MetalTexture::ReadPixel(const Vector2& position) const
 	{
-		if (position.GetX() < 0 || position.GetX() >= _width || position.GetY() < 0 || position.GetY() >= _height)
+		if (position.GetX() < 0 || position.GetX() >= GetWidth() || position.GetY() < 0 || position.GetY() >= GetHeight())
 		{
 			return Color(0.0f, 0.0f, 0.0f, 0.0f);
 		}
@@ -191,7 +165,7 @@ namespace hod::inline rhi
 	}
 
 	/// @brief Nothing to record: the texture is in memory shared with the CPU, which ReadPixel reads once the GPU is done with the frame.
-	/// No-op if this texture wasn't built with CreateInfo::_allowReadWrite.
+	/// No-op if this texture is not a Readback one.
 	/// @param commandBuffer
 	void MetalTexture::CaptureReadback(CommandBuffer* /*commandBuffer*/)
 	{

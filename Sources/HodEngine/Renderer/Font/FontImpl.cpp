@@ -216,8 +216,10 @@ namespace hod::inline renderer
 		}
 
 		Texture::CreateInfo createInfo;
+		createInfo._width = atlasWidth;
+		createInfo._height = atlasWidth;
 		texture = RhiDevice::GetInstance()->CreateTexture();
-		if (texture->BuildBuffer(atlasWidth, atlasWidth, (unsigned char*)atlas, createInfo) == false) // todo BuildBuffer doesn't take void* ?
+		if (texture->Build(createInfo, atlas) == false)
 		{
 			DefaultAllocator::GetInstance().Free(atlas);
 

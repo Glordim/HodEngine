@@ -107,10 +107,7 @@ namespace hod::inline editor
 
 				if (_renderTarget->GetResolution().GetX() != resolutionWidth || _renderTarget->GetResolution().GetY() != resolutionHeight)
 				{
-					Texture::CreateInfo createInfo;
-
-					createInfo._allowReadWrite = false;
-					_renderTarget->Init(resolutionWidth, resolutionHeight, createInfo); // todo error
+					_renderTarget->Init(resolutionWidth, resolutionHeight); // todo error
 				}
 
 				if (_renderTarget->IsValid() == true)

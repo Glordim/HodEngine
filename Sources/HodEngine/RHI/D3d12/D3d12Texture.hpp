@@ -23,19 +23,15 @@ namespace hod::inline rhi
 		D3d12Texture();
 		~D3d12Texture() override;
 
-		bool BuildColor(uint32_t width, uint32_t height, const CreateInfo& createInfo) override;
-		bool BuildDepth(uint32_t width, uint32_t height, const CreateInfo& createInfo) override;
-		bool BuildBuffer(uint32_t width, uint32_t height, const uint8_t* buffer, const CreateInfo& createInfo) override;
-
 		Color ReadPixel(const Vector2& position) const override;
 		void  CaptureReadback(CommandBuffer* commandBuffer) override;
 
 		ID3D12Resource* GetResource() const;
 
-		// Only for a texture built with BuildColor
+		// Only for a color RenderTarget texture
 		D3D12_CPU_DESCRIPTOR_HANDLE GetRenderTargetView() const;
 
-		// Only for a texture built with BuildDepth
+		// Only for a depth RenderTarget texture
 		D3D12_CPU_DESCRIPTOR_HANDLE GetDepthStencilView() const;
 
 		// The state of the texture is the one the last recorded command buffer leaves it in:
@@ -43,10 +39,11 @@ namespace hod::inline rhi
 		void Transition(ID3D12GraphicsCommandList* commandList, D3D12_RESOURCE_STATES state);
 
 	protected:
+		bool BuildResource(const CreateInfo& createInfo, const uint8_t* pixels) override;
 		bool UploadRegion(uint32_t x, uint32_t y, uint32_t width, uint32_t height, const uint8_t* pixels, uint32_t mipLevel) override;
 
 	private:
-		bool CreateResource(uint32_t width, uint32_t height, PixelFormat format, D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state, uint32_t mipLevelCount = 1);
+		bool CreateResource(const CreateInfo& createInfo, D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state);
 		bool CreateReadbackBuffer();
 		bool CreateUploadBuffer(UINT64 size, ComPtr<ID3D12Resource>& uploadBuffer, void*& data);
 		void Release();
