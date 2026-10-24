@@ -288,8 +288,11 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
   _window->Close();
 }
 
+// Resizing from the top/left edges, zooming or an animated setFrame: move
+// the origin too, without windowDidMove: being reliably sent.
 - (void)windowDidResize:(NSNotification *)notification {
   _window->ResizeContext();
+  _window->UpdatePositionFromNative();
 }
 
 - (void)windowDidMove:(NSNotification *)notification {
@@ -331,6 +334,7 @@ MacOsWindow::MacOsWindow(bool hidden) : DesktopWindow() {
 
   //[_window.contentView addSubview:customView];
   [_window setContentView:customView];
+  UpdatePositionFromNative();
 
   SetVisible(!hidden);
 
@@ -360,6 +364,7 @@ void MacOsWindow::SetSize(uint16_t width, uint16_t height) {
   RunOnMainThread([this, width, height]() {
     NSSize newSize = NSMakeSize(width, height);
     [_window setContentSize:newSize];
+    UpdatePositionFromNative();
   });
 }
 
@@ -367,15 +372,18 @@ void MacOsWindow::SetSize(uint16_t width, uint16_t height) {
 void MacOsWindow::CenterToScreen() {
   RunOnMainThread([this]() {
     [_window center];
+    UpdatePositionFromNative();
   });
 }
 
 /// @brief
 void MacOsWindow::Maximize() {
   RunOnMainThread([this]() {
-    NSScreen *screen = [NSScreen mainScreen];
-    NSRect screenRect = [screen frame];
+    // visibleFrame: the screen minus the menu bar and the Dock.
+    NSScreen *screen = [_window screen] != nil ? [_window screen] : [NSScreen mainScreen];
+    NSRect screenRect = [screen visibleFrame];
     [_window setFrame:screenRect display:YES animate:YES];
+    UpdatePositionFromNative();
   });
 }
 
@@ -422,6 +430,8 @@ void MacOsWindow::SetDecoration(bool decoration) {
       [_window setStyleMask:NSWindowStyleMaskTitled | NSWindowStyleMaskClosable |
                              NSWindowStyleMaskResizable];
     }
+    // The frame is kept, so the content rect (what _position tracks) moves by the title bar height.
+    UpdatePositionFromNative();
   });
 }
 
@@ -443,6 +453,7 @@ void MacOsWindow::SetPosition(const Vector2& position) {
     contentRect.origin = NSMakePoint(position.GetX(), screenHeight - position.GetY() - contentRect.size.height);
     NSRect newFrame = [_window frameRectForContentRect:contentRect];
     [_window setFrameOrigin:newFrame.origin];
+    UpdatePositionFromNative();
   });
 }
 
