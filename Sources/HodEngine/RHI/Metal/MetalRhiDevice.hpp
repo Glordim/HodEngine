@@ -23,6 +23,8 @@ namespace MTL4
 {
 	class CommandQueue;
 	class CommandAllocator;
+	class CommandBuffer;
+	class ComputeCommandEncoder;
 }
 
 namespace hod::inline rhi
@@ -80,6 +82,12 @@ namespace hod::inline rhi
 		// The same for a buffer or a texture, which stays in the residency set until then
 		void DeferReleaseResident(MTL::Allocation* allocation);
 
+		// Commands that upload data into resources (blits), recorded at any time without the CPU waiting for them: they are committed ahead of
+		// the next SubmitCommandBuffers, so that what they upload is ready for it. What is released meanwhile is kept until they are done.
+		MTL4::ComputeCommandEncoder* GetUploadEncoder();
+		// A buffer, in memory shared with the CPU, for an upload command to copy from. Released once the upload commands are done.
+		MTL::Buffer* CreateUploadBuffer(uint32_t size);
+
 	protected:
 		bool     InitDevice(uint32_t physicalDeviceIdentifier) override;
 		Sampler* CreateSampler(const Sampler::CreateInfo& createInfo) override;
@@ -93,6 +101,10 @@ namespace hod::inline rhi
 		void     ReleaseCompletedDeletions(uint64_t completedSubmissionIndex);
 
 		void CommitResidencySet();
+
+		// Ends the pending upload commands, for the caller to commit them now. Null when there are none.
+		MTL4::CommandBuffer* EndUploads();
+		void                 FlushUploads(); // commits them on their own, for WaitIdle
 
 	private:
 		// What the command buffers of a frame in flight are recorded with, reused once the GPU is done with them
@@ -127,6 +139,11 @@ namespace hod::inline rhi
 
 		Vector<Deferred<NS::Object*>>      _objectsToRelease;
 		Vector<Deferred<MTL::Allocation*>> _allocationsToRelease;
+
+		// Recording, until EndUploads. The allocator is the upload command buffer's own: released with it, whatever the frame it is committed with
+		MTL4::CommandAllocator*      _uploadCommandAllocator = nullptr;
+		MTL4::CommandBuffer*         _uploadCommandBuffer = nullptr;
+		MTL4::ComputeCommandEncoder* _uploadEncoder = nullptr;
 	};
 }
 

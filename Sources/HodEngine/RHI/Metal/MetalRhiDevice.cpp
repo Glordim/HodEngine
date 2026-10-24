@@ -91,6 +91,8 @@ namespace hod::inline rhi
 			return;
 		}
 
+		FlushUploads();
+
 		SignalSubmissionIndex();
 		_submissionEvent->waitUntilSignaledValue(_lastSubmissionIndex, UINT64_MAX);
 
@@ -161,16 +163,122 @@ namespace hod::inline rhi
 		}
 	}
 
+	/// @brief
+	/// @return null if it can't be recorded
+	MTL4::ComputeCommandEncoder* MetalRhiDevice::GetUploadEncoder()
+	{
+		if (_uploadEncoder != nullptr)
+		{
+			return _uploadEncoder;
+		}
+
+		MetalAutoreleaseScope autoreleaseScope;
+
+		_uploadCommandAllocator = _device->newCommandAllocator();
+		_uploadCommandBuffer = _device->newCommandBuffer();
+		if (_uploadCommandAllocator == nullptr || _uploadCommandBuffer == nullptr)
+		{
+			OUTPUT_ERROR("Metal: Unable to create the upload command buffer!");
+			if (_uploadCommandAllocator != nullptr)
+			{
+				_uploadCommandAllocator->release();
+				_uploadCommandAllocator = nullptr;
+			}
+			if (_uploadCommandBuffer != nullptr)
+			{
+				_uploadCommandBuffer->release();
+				_uploadCommandBuffer = nullptr;
+			}
+			return nullptr;
+		}
+		_uploadCommandBuffer->beginCommandBuffer(_uploadCommandAllocator);
+
+		_uploadEncoder = _uploadCommandBuffer->computeCommandEncoder(); // autoreleased, kept until EndUploads
+		_uploadEncoder->retain();
+
+		// Metal 4 does not track the hazards: the draws committed before, which may still read what is uploaded into, are done first.
+		// The render passes wait for the blits in turn, see MetalCommandBuffer::StartRenderPass
+		constexpr MTL::Stages renderStages = static_cast<MTL::Stages>(MTL::StageVertex | MTL::StageFragment);
+		_uploadEncoder->barrierAfterQueueStages(renderStages, MTL::StageBlit, MTL4::VisibilityOptionDevice);
+
+		return _uploadEncoder;
+	}
+
+	/// @brief
+	/// @param size
+	/// @return null if it can't be created
+	MTL::Buffer* MetalRhiDevice::CreateUploadBuffer(uint32_t size)
+	{
+		// Released once the next submission is done, the one that carries the upload commands
+		MTL::Buffer* buffer = _device->newBuffer(size, MTL::ResourceStorageModeShared);
+		if (buffer == nullptr)
+		{
+			OUTPUT_ERROR("Metal: Unable to create an upload buffer!");
+			return nullptr;
+		}
+
+		AddResourceToResidencySet(buffer);
+		DeferReleaseResident(buffer);
+		return buffer;
+	}
+
+	/// @brief
+	/// @return
+	MTL4::CommandBuffer* MetalRhiDevice::EndUploads()
+	{
+		if (_uploadEncoder == nullptr)
+		{
+			return nullptr;
+		}
+
+		_uploadEncoder->endEncoding();
+		_uploadEncoder->release();
+		_uploadEncoder = nullptr;
+
+		_uploadCommandBuffer->endCommandBuffer();
+
+		// Released once the submission that carries it is done: the next one
+		MTL4::CommandBuffer* commandBuffer = _uploadCommandBuffer;
+		DeferRelease(_uploadCommandBuffer);
+		DeferRelease(_uploadCommandAllocator);
+		_uploadCommandBuffer = nullptr;
+		_uploadCommandAllocator = nullptr;
+		return commandBuffer;
+	}
+
+	/// @brief
+	void MetalRhiDevice::FlushUploads()
+	{
+		MTL4::CommandBuffer* commandBuffer = EndUploads();
+		if (commandBuffer == nullptr)
+		{
+			return;
+		}
+
+		CommitResidencySet();
+		_commandQueue->commit(&commandBuffer, 1);
+		SignalSubmissionIndex();
+	}
+
 	bool MetalRhiDevice::SubmitCommandBuffers(CommandBuffer** commandBuffers, uint32_t commandBufferCount, const Semaphore* signalSemaphore, const Semaphore* waitSemaphore,
 												const Fence* fence)
 	{
 		MetalAutoreleaseScope autoreleaseScope;
 
-		MTL4::CommandBuffer** mtlCommandBuffers = (MTL4::CommandBuffer**)alloca(sizeof(MTL4::CommandBuffer*) * commandBufferCount);
+		MTL4::CommandBuffer** mtlCommandBuffers = (MTL4::CommandBuffer**)alloca(sizeof(MTL4::CommandBuffer*) * (commandBufferCount + 1));
+		uint32_t              mtlCommandBufferCount = 0;
+
+		// Ahead of what draws with what they upload: the barriers of the render passes order them before it, as it comes after them on the queue
+		MTL4::CommandBuffer* uploadCommandBuffer = EndUploads();
+		if (uploadCommandBuffer != nullptr)
+		{
+			mtlCommandBuffers[mtlCommandBufferCount++] = uploadCommandBuffer;
+		}
+
 		for (uint32_t commandBufferIndex = 0; commandBufferIndex < commandBufferCount; ++commandBufferIndex)
 		{
 			MetalCommandBuffer* commandBuffer = static_cast<MetalCommandBuffer*>(commandBuffers[commandBufferIndex]);
-			mtlCommandBuffers[commandBufferIndex] = commandBuffer->GetNativeCommandBuffer();
+			mtlCommandBuffers[mtlCommandBufferCount++] = commandBuffer->GetNativeCommandBuffer();
 		}
 
 		if (waitSemaphore != nullptr)
@@ -182,7 +290,7 @@ namespace hod::inline rhi
 		// What was added since the previous submission is resident for this one
 		CommitResidencySet();
 
-		_commandQueue->commit(mtlCommandBuffers, commandBufferCount);
+		_commandQueue->commit(mtlCommandBuffers, mtlCommandBufferCount);
 		SignalSubmissionIndex();
 
 		// Their command allocators and transient memory are in use until this submission is done

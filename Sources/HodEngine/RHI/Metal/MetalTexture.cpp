@@ -7,6 +7,7 @@
 
 #include <Metal/Metal.hpp>
 
+#include <cstring>
 #include <utility>
 
 namespace hod::inline rhi
@@ -47,6 +48,7 @@ namespace hod::inline rhi
 		{
 			case PixelFormat::R8G8B8A8_UNorm: return MTL::PixelFormatBGRA8Unorm;
 			case PixelFormat::D16_UNorm: return MTL::PixelFormatDepth16Unorm;
+			case PixelFormat::R8_UNorm: return MTL::PixelFormatR8Unorm;
 			default: return MTL::PixelFormatInvalid;
 		}
 	}
@@ -67,14 +69,8 @@ namespace hod::inline rhi
 
 		if ((createInfo._usage & TextureUsage::CopyDst) != TextureUsage::None)
 		{
-			// TODO Metal: R8_UNorm (MTL::PixelFormatR8Unorm), see the Vulkan/D3d12 backends
-			if (createInfo._format != PixelFormat::R8G8B8A8_UNorm)
-			{
-				OUTPUT_ERROR("Metal: Texture, a CopyDst texture is only R8G8B8A8_UNorm for now");
-				textureDescriptor->release();
-				return false;
-			}
-			textureDescriptor->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
+			// RGBA, not the BGRA of the render targets: the pixels are copied as they are. R8 is sampled as (r, 0, 0, 1), as on the other backends
+			textureDescriptor->setPixelFormat(createInfo._format == PixelFormat::R8_UNorm ? MTL::PixelFormatR8Unorm : MTL::PixelFormatRGBA8Unorm);
 			textureDescriptor->setStorageMode(MTL::StorageModeShared); // filled by the CPU, see replaceRegion
 		}
 		else if (IsDepthFormat(createInfo._format))
@@ -129,13 +125,38 @@ namespace hod::inline rhi
 		return true;
 	}
 
-	/// @brief TODO Metal: see the Vulkan/D3d12 backends. replaceRegion writes at once, while the frames in flight may still read
-	/// the texture: the copy has to go through a blit of the upload commands, ahead of what is submitted next.
+	/// @brief The region is copied by a blit of the upload commands, not by replaceRegion: that one writes at once, while the frames in flight
+	/// may still read the texture. The upload commands wait for them first.
+	/// @param x
+	/// @param y
+	/// @param width
+	/// @param height
+	/// @param pixels
+	/// @param mipLevel
 	/// @return
-	bool MetalTexture::UploadRegion(uint32_t /*x*/, uint32_t /*y*/, uint32_t /*width*/, uint32_t /*height*/, const uint8_t* /*pixels*/, uint32_t /*mipLevel*/)
+	bool MetalTexture::UploadRegion(uint32_t x, uint32_t y, uint32_t width, uint32_t height, const uint8_t* pixels, uint32_t mipLevel)
 	{
-		OUTPUT_ERROR("Metal: Texture::UpdateRegion is not implemented yet");
-		return false;
+		MetalRhiDevice* rhiDevice = MetalRhiDevice::GetInstance();
+
+		MTL4::ComputeCommandEncoder* uploadEncoder = rhiDevice->GetUploadEncoder();
+		if (uploadEncoder == nullptr)
+		{
+			return false;
+		}
+
+		const uint32_t rowByteSize = width * GetPixelByteSize(GetFormat());
+		const uint32_t bufferSize = rowByteSize * height;
+
+		MTL::Buffer* uploadBuffer = rhiDevice->CreateUploadBuffer(bufferSize);
+		if (uploadBuffer == nullptr)
+		{
+			return false;
+		}
+		memcpy(uploadBuffer->contents(), pixels, bufferSize);
+
+		uploadEncoder->copyFromBuffer(uploadBuffer, 0, rowByteSize, bufferSize, MTL::Size(width, height, 1), _texture, 0, mipLevel, MTL::Origin(x, y, 0));
+
+		return true;
 	}
 
 	/// @brief 
