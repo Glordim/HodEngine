@@ -51,6 +51,14 @@ if(NOT APPLE)
 	)
 endif()
 
+if(NOT TARGET HarfBuzz::HarfBuzz)
+	add_library(HarfBuzz::HarfBuzz STATIC IMPORTED)
+	set_target_properties(HarfBuzz::HarfBuzz PROPERTIES
+		IMPORTED_LOCATION "${_HOD_DEPS_DIR}/lib/${CMAKE_STATIC_LIBRARY_PREFIX}harfbuzz${CMAKE_STATIC_LIBRARY_SUFFIX}"
+		INTERFACE_INCLUDE_DIRECTORIES "${_HOD_DEPS_DIR}/include/harfbuzz"
+	)
+endif()
+
 if(NOT TARGET Box2d::Box2d)
 	add_library(Box2d::Box2d STATIC IMPORTED)
 	set_target_properties(Box2d::Box2d PROPERTIES

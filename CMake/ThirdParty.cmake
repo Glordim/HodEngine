@@ -93,6 +93,29 @@ file(COPY "${THIRDPARTY_ROOT}/Freetype/include/"
 	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
 )
 
+# HarfBuzz
+# Not through its harfbuzzConfig.cmake: the include directory it exports is broken ("/harfbuzz").
+# Only the core library, the raster/vector/gpu ones are not used.
+add_library(HarfBuzz::HarfBuzz STATIC IMPORTED GLOBAL)
+set_target_properties(HarfBuzz::HarfBuzz PROPERTIES
+	IMPORTED_LOCATION "${THIRDPARTY_ROOT}/HarfBuzz/lib/${LIB_PREFIX}harfbuzz.${LIB_EXTENSION}"
+	INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/HarfBuzz/include/harfbuzz"
+	INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/HarfBuzz/include/harfbuzz"
+)
+
+install(FILES "${THIRDPARTY_ROOT}/HarfBuzz/lib/${LIB_PREFIX}harfbuzz.${LIB_EXTENSION}"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/lib"
+)
+install(DIRECTORY "${THIRDPARTY_ROOT}/HarfBuzz/include/"
+	DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include"
+)
+file(COPY "${THIRDPARTY_ROOT}/HarfBuzz/lib/${LIB_PREFIX}harfbuzz.${LIB_EXTENSION}"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/lib"
+)
+file(COPY "${THIRDPARTY_ROOT}/HarfBuzz/include/"
+	DESTINATION "${CMAKE_BINARY_DIR}/Output/${HOD_PLATFORM_SUBDIR}/deps/include"
+)
+
 # EnkiTS
 find_package(enkiTS REQUIRED CONFIG
 	PATHS "${THIRDPARTY_ROOT}/EnkiTS/lib/cmake"
