@@ -42,9 +42,13 @@ namespace hod::inline rhi
 		// command buffers have to be submitted in the order they are recorded
 		void Transition(ID3D12GraphicsCommandList* commandList, D3D12_RESOURCE_STATES state);
 
+	protected:
+		bool UploadRegion(uint32_t x, uint32_t y, uint32_t width, uint32_t height, const uint8_t* pixels, uint32_t mipLevel) override;
+
 	private:
-		bool CreateResource(uint32_t width, uint32_t height, DXGI_FORMAT format, D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state, uint32_t mipLevelCount = 1);
+		bool CreateResource(uint32_t width, uint32_t height, PixelFormat format, D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state, uint32_t mipLevelCount = 1);
 		bool CreateReadbackBuffer();
+		bool CreateUploadBuffer(UINT64 size, ComPtr<ID3D12Resource>& uploadBuffer, void*& data);
 		void Release();
 
 	private:

@@ -54,6 +54,7 @@ namespace hod::inline rhi
 		None, // no attachment of that kind
 		R8G8B8A8_UNorm,
 		D16_UNorm,
+		R8_UNorm, // textures only (BuildBuffer), not render targets: sampled as (r, 0, 0, 1)
 
 		Count,
 	};

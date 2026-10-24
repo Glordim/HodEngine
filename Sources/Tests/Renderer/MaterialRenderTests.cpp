@@ -502,6 +502,94 @@ TEST_F(MaterialRender, TextureChangedBetweenFramesIsSeenByTheNextFrame)
 }
 
 // ============================================================================
+// Texture regions and formats
+// ============================================================================
+
+TEST_F(MaterialRender, UpdateRegionReplacesOnlyThatRegion)
+{
+	const uint8_t whitePixel[4] = {255, 255, 255, 255};
+
+	Texture* texture = CreateFourColorsTexture();
+	ASSERT_TRUE(texture->UpdateRegion(1, 0, 1, 1, whitePixel)); // Green
+
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+	materialInstance->SetVec4("ubo.color", ToVector4(White));
+	materialInstance->SetTexture("image", texture);
+
+	RenderFrame([&]() { DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f, materialInstance); });
+
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, -0.5f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, -0.5f), White));
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, 0.5f), Blue));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.5f), Yellow));
+}
+
+// The texture was drawn by the frames before: the copy waits for them, the next frame sees it
+TEST_F(MaterialRender, UpdateRegionBetweenFramesIsSeenByTheNextFrame)
+{
+	const uint8_t whitePixel[4] = {255, 255, 255, 255};
+
+	Texture* texture = CreateFourColorsTexture();
+
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+	materialInstance->SetVec4("ubo.color", ToVector4(White));
+	materialInstance->SetTexture("image", texture);
+
+	RenderFrame([&]() { DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f, materialInstance); });
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, -0.5f), Red));
+
+	ASSERT_TRUE(texture->UpdateRegion(0, 0, 1, 1, whitePixel)); // Red
+	RenderFrame([&]() { DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f, materialInstance); });
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, -0.5f), White));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, -0.5f), Green));
+}
+
+// Built without pixels then filled region by region, as a font atlas is
+TEST_F(MaterialRender, R8TextureIsSampledAsRed)
+{
+	const uint8_t pixels[2 * 2] = {255, 0, 0, 255};
+
+	Sampler::CreateInfo nearest;
+	nearest._filterMode = FilterMode::Nearest;
+
+	Texture::CreateInfo createInfo;
+	createInfo._format = PixelFormat::R8_UNorm;
+
+	Texture* texture = RhiDevice::GetInstance()->CreateTexture();
+	_textures.PushBack(texture);
+	ASSERT_TRUE(texture->BuildBuffer(2, 2, nullptr, createInfo));
+	texture->SetDefaultSampler(RhiDevice::GetInstance()->GetSampler(nearest));
+	EXPECT_EQ(texture->GetFormat(), PixelFormat::R8_UNorm);
+
+	ASSERT_TRUE(texture->UpdateRegion(0, 0, 2, 2, pixels));
+
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit);
+	materialInstance->SetVec4("ubo.color", ToVector4(White));
+	materialInstance->SetTexture("image", texture);
+
+	RenderFrame([&]() { DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f, materialInstance); });
+
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, -0.5f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, -0.5f), Black));
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, 0.5f), Black));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.5f), Red));
+}
+
+TEST_F(MaterialRender, UpdateRegionRejectsWhatItCannotCopy)
+{
+	const uint8_t pixels[4 * 2 * 2] = {};
+
+	Texture* texture = CreateFourColorsTexture();
+	EXPECT_FALSE(texture->UpdateRegion(1, 1, 2, 1, pixels)); // out of the texture
+	EXPECT_FALSE(texture->UpdateRegion(0, 0, 1, 1, pixels, 1)); // no such level
+
+	// Drawn into, not built from pixels
+	EXPECT_FALSE(_renderTarget.GetColorTexture()->UpdateRegion(0, 0, 1, 1, pixels));
+
+	_expectedErrorCount = 3;
+}
+
+// ============================================================================
 // Missing textures
 // ============================================================================
 

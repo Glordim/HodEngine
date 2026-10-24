@@ -35,6 +35,10 @@ namespace hod::inline rhi
 
 		MTL::Texture*       GetNativeTexture() const;
 
+	protected:
+
+		bool			UploadRegion(uint32_t x, uint32_t y, uint32_t width, uint32_t height, const uint8_t* pixels, uint32_t mipLevel) override;
+
 	private:
 
 		bool			Build(MTL::TextureDescriptor* textureDescriptor, uint32_t width, uint32_t height, const CreateInfo& createInfo);

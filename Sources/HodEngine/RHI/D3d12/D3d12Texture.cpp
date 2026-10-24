@@ -16,8 +16,7 @@ namespace hod::inline rhi
 {
 	namespace
 	{
-		constexpr DXGI_FORMAT ColorFormat = DXGI_FORMAT_R8G8B8A8_UNORM;
-		constexpr uint32_t    ColorPixelSize = 4;
+		constexpr uint32_t ColorPixelSize = 4; // the textures built with BuildColor, the only ones read back
 	}
 
 	//-----------------------------------------------------------------------------
@@ -74,6 +73,8 @@ namespace hod::inline rhi
 		_width = 0;
 		_height = 0;
 		_mipLevelCount = 1;
+		_format = PixelFormat::None;
+		_builtFromBuffer = false;
 	}
 
 	/// @brief
@@ -85,6 +86,7 @@ namespace hod::inline rhi
 		{
 			case PixelFormat::R8G8B8A8_UNorm: return DXGI_FORMAT_R8G8B8A8_UNORM;
 			case PixelFormat::D16_UNorm: return DXGI_FORMAT_D16_UNORM;
+			case PixelFormat::R8_UNorm: return DXGI_FORMAT_R8_UNORM;
 			default: return DXGI_FORMAT_UNKNOWN;
 		}
 	}
@@ -137,7 +139,7 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	//! @brief
 	//-----------------------------------------------------------------------------
-	bool D3d12Texture::CreateResource(uint32_t width, uint32_t height, DXGI_FORMAT format, D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state, uint32_t mipLevelCount)
+	bool D3d12Texture::CreateResource(uint32_t width, uint32_t height, PixelFormat format, D3D12_RESOURCE_FLAGS flags, D3D12_RESOURCE_STATES state, uint32_t mipLevelCount)
 	{
 		Release(); // A texture built again: the previous resource is kept until the GPU is done with it
 
@@ -150,7 +152,7 @@ namespace hod::inline rhi
 		resourceDesc.Height = height;
 		resourceDesc.DepthOrArraySize = 1;
 		resourceDesc.MipLevels = (UINT16)mipLevelCount;
-		resourceDesc.Format = format;
+		resourceDesc.Format = ToDxgiFormat(format);
 		resourceDesc.SampleDesc.Count = 1;
 		resourceDesc.Layout = D3D12_TEXTURE_LAYOUT_UNKNOWN;
 		resourceDesc.Flags = flags;
@@ -166,7 +168,46 @@ namespace hod::inline rhi
 		_width = width;
 		_height = height;
 		_mipLevelCount = mipLevelCount;
+		_format = format;
 		++_generation;
+		return true;
+	}
+
+	/// @brief An upload buffer, mapped, for the upload commands to copy from
+	/// @param size
+	/// @param uploadBuffer to DeferRelease once the copy is recorded
+	/// @param data
+	/// @return
+	bool D3d12Texture::CreateUploadBuffer(UINT64 size, ComPtr<ID3D12Resource>& uploadBuffer, void*& data)
+	{
+		D3D12_HEAP_PROPERTIES heapProperties = {};
+		heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
+
+		D3D12_RESOURCE_DESC bufferDesc = {};
+		bufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
+		bufferDesc.Width = size;
+		bufferDesc.Height = 1;
+		bufferDesc.DepthOrArraySize = 1;
+		bufferDesc.MipLevels = 1;
+		bufferDesc.Format = DXGI_FORMAT_UNKNOWN;
+		bufferDesc.SampleDesc.Count = 1;
+		bufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
+
+		ID3D12Device* device = D3d12RhiDevice::GetInstance()->GetDevice();
+		if (FAILED(device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer))))
+		{
+			OUTPUT_ERROR("D3d12: Texture, unable to create upload buffer");
+			return false;
+		}
+
+		D3D12_RANGE readRange = {0, 0};
+		if (FAILED(uploadBuffer->Map(0, &readRange, &data)))
+		{
+			OUTPUT_ERROR("D3d12: Texture, unable to map memory");
+			uploadBuffer.Reset();
+			return false;
+		}
+
 		return true;
 	}
 
@@ -219,7 +260,7 @@ namespace hod::inline rhi
 		D3d12RhiDevice* rhiDevice = D3d12RhiDevice::GetInstance();
 
 		// Only ever drawn into: it stays in the state that takes
-		if (CreateResource(width, height, ToDxgiFormat(PixelFormat::D16_UNorm), D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE,
+		if (CreateResource(width, height, PixelFormat::D16_UNorm, D3D12_RESOURCE_FLAG_ALLOW_DEPTH_STENCIL | D3D12_RESOURCE_FLAG_DENY_SHADER_RESOURCE,
 		                   D3D12_RESOURCE_STATE_DEPTH_WRITE) == false)
 		{
 			return false;
@@ -244,7 +285,7 @@ namespace hod::inline rhi
 	{
 		D3d12RhiDevice* rhiDevice = D3d12RhiDevice::GetInstance();
 
-		if (CreateResource(width, height, ColorFormat, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, ShaderResourceState) == false)
+		if (CreateResource(width, height, PixelFormat::R8G8B8A8_UNorm, D3D12_RESOURCE_FLAG_ALLOW_RENDER_TARGET, ShaderResourceState) == false)
 		{
 			return false;
 		}
@@ -276,8 +317,15 @@ namespace hod::inline rhi
 		D3d12RhiDevice* rhiDevice = D3d12RhiDevice::GetInstance();
 		ID3D12Device*   device = rhiDevice->GetDevice();
 
+		if (createInfo._format != PixelFormat::R8G8B8A8_UNorm && createInfo._format != PixelFormat::R8_UNorm)
+		{
+			OUTPUT_ERROR("D3d12: Texture, BuildBuffer only takes R8G8B8A8_UNorm or R8_UNorm pixels");
+			return false;
+		}
+		const uint32_t pixelByteSize = GetPixelByteSize(createInfo._format);
+
 		const uint32_t mipLevelCount = Clamp(createInfo._mipLevelCount, 1u, ComputeMipLevelCount(width, height));
-		if (CreateResource(width, height, ColorFormat, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, mipLevelCount) == false)
+		if (CreateResource(width, height, createInfo._format, D3D12_RESOURCE_FLAG_NONE, D3D12_RESOURCE_STATE_COPY_DEST, mipLevelCount) == false)
 		{
 			return false;
 		}
@@ -300,32 +348,9 @@ namespace hod::inline rhi
 			UINT64              uploadSize = 0;
 			device->GetCopyableFootprints(&textureDesc, 0, mipLevelCount, 0, uploadFootprints.Data(), nullptr, nullptr, &uploadSize);
 
-			D3D12_HEAP_PROPERTIES heapProperties = {};
-			heapProperties.Type = D3D12_HEAP_TYPE_UPLOAD;
-
-			D3D12_RESOURCE_DESC bufferDesc = {};
-			bufferDesc.Dimension = D3D12_RESOURCE_DIMENSION_BUFFER;
-			bufferDesc.Width = uploadSize;
-			bufferDesc.Height = 1;
-			bufferDesc.DepthOrArraySize = 1;
-			bufferDesc.MipLevels = 1;
-			bufferDesc.Format = DXGI_FORMAT_UNKNOWN;
-			bufferDesc.SampleDesc.Count = 1;
-			bufferDesc.Layout = D3D12_TEXTURE_LAYOUT_ROW_MAJOR;
-
-			if (FAILED(
-					device->CreateCommittedResource(&heapProperties, D3D12_HEAP_FLAG_NONE, &bufferDesc, D3D12_RESOURCE_STATE_GENERIC_READ, nullptr, IID_PPV_ARGS(&uploadBuffer))))
+			void* data = nullptr;
+			if (CreateUploadBuffer(uploadSize, uploadBuffer, data) == false)
 			{
-				OUTPUT_ERROR("D3d12: Texture, unable to create upload buffer");
-				Release();
-				return false;
-			}
-
-			D3D12_RANGE readRange = {0, 0};
-			void*       data = nullptr;
-			if (FAILED(uploadBuffer->Map(0, &readRange, &data)))
-			{
-				OUTPUT_ERROR("D3d12: Texture, unable to map memory");
 				Release();
 				return false;
 			}
@@ -336,7 +361,7 @@ namespace hod::inline rhi
 			{
 				const D3D12_PLACED_SUBRESOURCE_FOOTPRINT& uploadFootprint = uploadFootprints[mipLevel];
 				const uint32_t                            mipHeight = ComputeMipSize(height, mipLevel);
-				const uint32_t                            rowSize = ComputeMipSize(width, mipLevel) * ColorPixelSize;
+				const uint32_t                            rowSize = ComputeMipSize(width, mipLevel) * pixelByteSize;
 				for (uint32_t row = 0; row < mipHeight; ++row)
 				{
 					std::memcpy(static_cast<uint8_t*>(data) + uploadFootprint.Offset + (size_t)row * uploadFootprint.Footprint.RowPitch, mipPixels + (size_t)row * rowSize,
@@ -365,6 +390,67 @@ namespace hod::inline rhi
 			}
 		}
 
+		Transition(commandList, ShaderResourceState);
+
+		rhiDevice->DeferRelease(std::move(uploadBuffer));
+		_builtFromBuffer = true;
+		return true;
+	}
+
+	/// @brief The region is copied by the upload commands, between two transitions: the draws submitted before are done with the texture first
+	/// @param x
+	/// @param y
+	/// @param width
+	/// @param height
+	/// @param pixels
+	/// @param mipLevel
+	/// @return
+	bool D3d12Texture::UploadRegion(uint32_t x, uint32_t y, uint32_t width, uint32_t height, const uint8_t* pixels, uint32_t mipLevel)
+	{
+		D3d12RhiDevice* rhiDevice = D3d12RhiDevice::GetInstance();
+
+		ID3D12GraphicsCommandList* commandList = rhiDevice->GetUploadCommandList();
+		if (commandList == nullptr)
+		{
+			return false;
+		}
+
+		// The footprint of a texture of the size of the region: its rows aligned as a copy needs them
+		D3D12_RESOURCE_DESC regionDesc = _resource->GetDesc();
+		regionDesc.Width = width;
+		regionDesc.Height = height;
+		regionDesc.MipLevels = 1;
+
+		D3D12_PLACED_SUBRESOURCE_FOOTPRINT uploadFootprint = {};
+		UINT64                             uploadSize = 0;
+		rhiDevice->GetDevice()->GetCopyableFootprints(&regionDesc, 0, 1, 0, &uploadFootprint, nullptr, nullptr, &uploadSize);
+
+		ComPtr<ID3D12Resource> uploadBuffer;
+		void*                  data = nullptr;
+		if (CreateUploadBuffer(uploadSize, uploadBuffer, data) == false)
+		{
+			return false;
+		}
+
+		const uint32_t rowSize = width * GetPixelByteSize(_format);
+		for (uint32_t row = 0; row < height; ++row)
+		{
+			std::memcpy(static_cast<uint8_t*>(data) + uploadFootprint.Offset + (size_t)row * uploadFootprint.Footprint.RowPitch, pixels + (size_t)row * rowSize, rowSize);
+		}
+		uploadBuffer->Unmap(0, nullptr);
+
+		D3D12_TEXTURE_COPY_LOCATION destination = {};
+		destination.pResource = _resource.Get();
+		destination.Type = D3D12_TEXTURE_COPY_TYPE_SUBRESOURCE_INDEX;
+		destination.SubresourceIndex = mipLevel;
+
+		D3D12_TEXTURE_COPY_LOCATION source = {};
+		source.pResource = uploadBuffer.Get();
+		source.Type = D3D12_TEXTURE_COPY_TYPE_PLACED_FOOTPRINT;
+		source.PlacedFootprint = uploadFootprint;
+
+		Transition(commandList, D3D12_RESOURCE_STATE_COPY_DEST);
+		commandList->CopyTextureRegion(&destination, x, y, 0, &source, nullptr);
 		Transition(commandList, ShaderResourceState);
 
 		rhiDevice->DeferRelease(std::move(uploadBuffer));

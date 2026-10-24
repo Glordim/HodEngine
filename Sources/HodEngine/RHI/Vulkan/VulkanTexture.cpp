@@ -63,6 +63,7 @@ namespace hod::inline rhi
 		}
 		_readbackMappedData = nullptr;
 		_readbackReady = false;
+		_builtFromBuffer = false;
 	}
 
 	/// @brief
@@ -74,6 +75,7 @@ namespace hod::inline rhi
 		{
 			case PixelFormat::R8G8B8A8_UNorm: return VK_FORMAT_R8G8B8A8_UNORM;
 			case PixelFormat::D16_UNorm: return VK_FORMAT_D16_UNORM;
+			case PixelFormat::R8_UNorm: return VK_FORMAT_R8_UNORM;
 			default: return VK_FORMAT_UNDEFINED;
 		}
 	}
@@ -150,6 +152,8 @@ namespace hod::inline rhi
 			_width = width;
 			_height = height;
 			_mipLevelCount = 1;
+			_format = PixelFormat::D16_UNorm;
+			_builtFromBuffer = false;
 			++_generation;
 		}
 
@@ -264,6 +268,8 @@ namespace hod::inline rhi
 			_width = width;
 			_height = height;
 			_mipLevelCount = 1;
+			_format = PixelFormat::R8G8B8A8_UNorm;
+			_builtFromBuffer = false;
 			++_generation;
 		}
 
@@ -275,6 +281,14 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	bool VulkanTexture::BuildBuffer(uint32_t width, uint32_t height, const uint8_t* pixels, const CreateInfo& createInfo)
 	{
+		if (createInfo._format != PixelFormat::R8G8B8A8_UNorm && createInfo._format != PixelFormat::R8_UNorm)
+		{
+			OUTPUT_ERROR("Vulkan: Texture, BuildBuffer only takes R8G8B8A8_UNorm or R8_UNorm pixels");
+			return false;
+		}
+		const VkFormat format = ToVkFormat(createInfo._format);
+		const uint32_t pixelByteSize = GetPixelByteSize(createInfo._format);
+
 		Release(); // A texture built again: the previous image is kept until the GPU is done with it
 
 		VulkanRhiDevice* rhiDevice = (VulkanRhiDevice*)RhiDevice::GetInstance();
@@ -285,7 +299,7 @@ namespace hod::inline rhi
 
 		// A linear image may have a single level: the next ones of the buffer are ignored
 		const uint32_t mipLevelCount = createInfo._allowReadWrite ? 1u : Clamp(createInfo._mipLevelCount, 1u, ComputeMipLevelCount(width, height));
-		VkDeviceSize   bufferSize = ComputeMipChainByteSize(width, height, mipLevelCount);
+		VkDeviceSize   bufferSize = ComputeMipChainByteSize(width, height, mipLevelCount, createInfo._format);
 
 		VkBuffer uploadBuffer = VK_NULL_HANDLE;
 		if (pixels != nullptr)
@@ -298,13 +312,13 @@ namespace hod::inline rhi
 			memcpy(uploadData, pixels, static_cast<size_t>(bufferSize));
 		}
 
-		if (rhiDevice->CreateImage(width, height, VK_FORMAT_R8G8B8A8_UNORM, imageTiling, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, memoryPropertyFlags,
-		                           &_textureImage, &_textureImageMemory, mipLevelCount) == false)
+		if (rhiDevice->CreateImage(width, height, format, imageTiling, VK_IMAGE_USAGE_TRANSFER_DST_BIT | VK_IMAGE_USAGE_SAMPLED_BIT, memoryPropertyFlags, &_textureImage,
+		                           &_textureImageMemory, mipLevelCount) == false)
 		{
 			return false;
 		}
 
-		if (rhiDevice->CreateImageView(_textureImage, VK_FORMAT_R8G8B8A8_UNORM, VK_IMAGE_ASPECT_COLOR_BIT, &_textureImageView, mipLevelCount) == false)
+		if (rhiDevice->CreateImageView(_textureImage, format, VK_IMAGE_ASPECT_COLOR_BIT, &_textureImageView, mipLevelCount) == false)
 		{
 			// Nothing uses it yet
 			vmaDestroyImage(rhiDevice->GetVmaAllocator(), _textureImage, _textureImageMemory);
@@ -341,7 +355,7 @@ namespace hod::inline rhi
 				region.imageSubresource.layerCount = 1;
 				region.imageExtent = {mipWidth, mipHeight, 1};
 
-				bufferOffset += (VkDeviceSize)mipWidth * mipHeight * 4;
+				bufferOffset += (VkDeviceSize)mipWidth * mipHeight * pixelByteSize;
 			}
 			vkCmdCopyBufferToImage(commandBuffer, uploadBuffer, _textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, mipLevelCount, regions.Data());
 		}
@@ -352,7 +366,55 @@ namespace hod::inline rhi
 		_width = width;
 		_height = height;
 		_mipLevelCount = mipLevelCount;
+		_format = createInfo._format;
+		_builtFromBuffer = true;
 		++_generation;
+		return true;
+	}
+
+	/// @brief The region is copied by the upload commands, between two layout transitions: the draws submitted before are done with the image first
+	/// @param x
+	/// @param y
+	/// @param width
+	/// @param height
+	/// @param pixels
+	/// @param mipLevel
+	/// @return
+	bool VulkanTexture::UploadRegion(uint32_t x, uint32_t y, uint32_t width, uint32_t height, const uint8_t* pixels, uint32_t mipLevel)
+	{
+		VulkanRhiDevice* rhiDevice = (VulkanRhiDevice*)RhiDevice::GetInstance();
+
+		const VkDeviceSize bufferSize = (VkDeviceSize)width * height * GetPixelByteSize(_format);
+
+		VkBuffer uploadBuffer = VK_NULL_HANDLE;
+		void*    uploadData = nullptr;
+		if (rhiDevice->CreateUploadBuffer(bufferSize, &uploadBuffer, &uploadData) == false)
+		{
+			return false;
+		}
+		memcpy(uploadData, pixels, static_cast<size_t>(bufferSize));
+
+		VkCommandBuffer commandBuffer = rhiDevice->GetUploadCommandBuffer();
+		if (commandBuffer == VK_NULL_HANDLE)
+		{
+			return false;
+		}
+
+		rhiDevice->TransitionImageLayout(commandBuffer, _textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL,
+		                                 _mipLevelCount);
+
+		VkBufferImageCopy region = {};
+		region.bufferOffset = 0;
+		region.imageSubresource.aspectMask = VK_IMAGE_ASPECT_COLOR_BIT;
+		region.imageSubresource.mipLevel = mipLevel;
+		region.imageSubresource.layerCount = 1;
+		region.imageOffset = {(int32_t)x, (int32_t)y, 0};
+		region.imageExtent = {width, height, 1};
+		vkCmdCopyBufferToImage(commandBuffer, uploadBuffer, _textureImage, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, 1, &region);
+
+		rhiDevice->TransitionImageLayout(commandBuffer, _textureImage, VK_IMAGE_ASPECT_COLOR_BIT, VK_IMAGE_LAYOUT_TRANSFER_DST_OPTIMAL, VK_IMAGE_LAYOUT_SHADER_READ_ONLY_OPTIMAL,
+		                                 _mipLevelCount);
+
 		return true;
 	}
 

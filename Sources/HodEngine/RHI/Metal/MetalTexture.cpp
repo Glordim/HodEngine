@@ -35,6 +35,7 @@ namespace hod::inline rhi
 			_texture = nullptr;
 		}
 		_readbackReady = false;
+		_builtFromBuffer = false;
 	}
 
 	/// @brief
@@ -88,7 +89,12 @@ namespace hod::inline rhi
 		// Only drawn into, as on the other backends: GPU memory only, the CPU never reads it
 		textureDescriptor->setUsage(MTL::TextureUsageRenderTarget);
 		textureDescriptor->setStorageMode(MTL::StorageModePrivate);
-		return Build(textureDescriptor, width, height, createInfo);
+		if (Build(textureDescriptor, width, height, createInfo) == false)
+		{
+			return false;
+		}
+		_format = PixelFormat::D16_UNorm;
+		return true;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -101,7 +107,12 @@ namespace hod::inline rhi
 		textureDescriptor->setPixelFormat((MTL::PixelFormat)ToMetalPixelFormat(PixelFormat::R8G8B8A8_UNorm));
 		textureDescriptor->setUsage(MTL::TextureUsageRenderTarget | MTL::TextureUsageShaderRead);
 		textureDescriptor->setStorageMode(MTL::StorageModeShared); // read back by the CPU, see ReadPixel
-		return Build(textureDescriptor, width, height, createInfo);
+		if (Build(textureDescriptor, width, height, createInfo) == false)
+		{
+			return false;
+		}
+		_format = PixelFormat::R8G8B8A8_UNorm;
+		return true;
 	}
 
 	//-----------------------------------------------------------------------------
@@ -109,6 +120,13 @@ namespace hod::inline rhi
 	//-----------------------------------------------------------------------------
 	bool MetalTexture::BuildBuffer(uint32_t width, uint32_t height, const uint8_t* pixels, const CreateInfo& createInfo)
 	{
+		// TODO Metal: R8_UNorm (MTL::PixelFormatR8Unorm), see the Vulkan/D3d12 backends
+		if (createInfo._format != PixelFormat::R8G8B8A8_UNorm)
+		{
+			OUTPUT_ERROR("Metal: Texture, BuildBuffer only takes R8G8B8A8_UNorm pixels for now");
+			return false;
+		}
+
 		MTL::TextureDescriptor* textureDescriptor = MTL::TextureDescriptor::alloc()->init();
 		textureDescriptor->setPixelFormat(MTL::PixelFormatRGBA8Unorm);
 		textureDescriptor->setUsage(MTL::TextureUsageShaderRead);
@@ -132,7 +150,18 @@ namespace hod::inline rhi
 			}
 		}
 
+		_format = createInfo._format;
+		_builtFromBuffer = true;
 		return true;
+	}
+
+	/// @brief TODO Metal: see the Vulkan/D3d12 backends. replaceRegion writes at once, while the frames in flight may still read
+	/// the texture: the copy has to go through a blit of the upload commands, ahead of what is submitted next.
+	/// @return
+	bool MetalTexture::UploadRegion(uint32_t /*x*/, uint32_t /*y*/, uint32_t /*width*/, uint32_t /*height*/, const uint8_t* /*pixels*/, uint32_t /*mipLevel*/)
+	{
+		OUTPUT_ERROR("Metal: Texture::UpdateRegion is not implemented yet");
+		return false;
 	}
 
 	/// @brief 
