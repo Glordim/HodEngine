@@ -124,6 +124,7 @@ namespace hod::inline imgui
 		Shader*   _fragmentShader = nullptr;
 
 		window::Window* _mainWindow = nullptr;
+		bool            _appFocused = true;
 
 		ImGuiID _centralDockSpace;
 

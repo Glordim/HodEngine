@@ -40,6 +40,7 @@ namespace hod::inline window
         static void EmitMouseHorizontalScroll(MacOsWindow* window, float scroll);
 
 		static void EmitResize(MacOsWindow* window, float x, float y);
+		static void EmitFocus(MacOsWindow* window, bool focused);
     };
 
 	/// @brief 

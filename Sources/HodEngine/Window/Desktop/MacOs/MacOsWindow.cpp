@@ -61,4 +61,9 @@ namespace hod::inline window
     {
         window->ResizeInternal(static_cast<uint16_t>(x), static_cast<uint16_t>(y));
     }
+
+    void MacOsWindowEventCaller::EmitFocus(MacOsWindow* window, bool focused)
+    {
+        window->SetFocusedInternal(focused);
+    }
 }

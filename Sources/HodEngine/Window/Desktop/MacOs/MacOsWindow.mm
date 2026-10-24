@@ -295,6 +295,15 @@ static const NSRange kEmptyRange = {NSNotFound, 0};
 - (void)windowDidMove:(NSNotification *)notification {
   _window->UpdatePositionFromNative();
 }
+
+// Key window == the one receiving keyboard events, i.e. the focused one.
+- (void)windowDidBecomeKey:(NSNotification *)notification {
+  hod::MacOsWindowEventCaller::EmitFocus(_window, true);
+}
+
+- (void)windowDidResignKey:(NSNotification *)notification {
+  hod::MacOsWindowEventCaller::EmitFocus(_window, false);
+}
 @end
 
 namespace hod::inline window {

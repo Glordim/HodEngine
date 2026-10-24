@@ -634,6 +634,24 @@ namespace hod::inline imgui
 			ProcessWindowEvent(static_cast<window::Window*>(viewport->PlatformHandle));
 		}
 
+		// AddFocusEvent is about the application as a whole: forwarding per-window FocusGained/FocusLost would report a focus
+		// loss when switching between two viewport windows (depending on the order viewports are processed), clearing inputs.
+		bool appFocused = false;
+		for (int i = 0; i < platformIO.Viewports.Size; i++)
+		{
+			DesktopWindow* desktopWindow = static_cast<DesktopWindow*>(platformIO.Viewports[i]->PlatformHandle);
+			if (desktopWindow != nullptr && desktopWindow->IsFocused())
+			{
+				appFocused = true;
+				break;
+			}
+		}
+		if (appFocused != _appFocused)
+		{
+			_appFocused = appFocused;
+			io.AddFocusEvent(appFocused);
+		}
+
 		// Monitors can be plugged, moved, or have their taskbar moved at any time: refreshed regularly, not every frame.
 		static SystemTime::TimeStamp lastMonitorsUpdate = now;
 		if (SystemTime::ElapsedTimeInSeconds(lastMonitorsUpdate, now) >= 1.0)
@@ -872,14 +890,6 @@ namespace hod::inline imgui
 			else if (event.type == EventType::Char)
 			{
 				io.AddInputCharacter(event.data.character.c);
-			}
-			else if (event.type == EventType::FocusGained)
-			{
-				io.AddFocusEvent(true);
-			}
-			else if (event.type == EventType::FocusLost)
-			{
-				io.AddFocusEvent(false);
 			}
 		}
 	}
