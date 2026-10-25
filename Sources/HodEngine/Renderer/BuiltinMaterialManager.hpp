@@ -39,6 +39,7 @@ namespace hod::inline renderer
 			P2fC4f_Unlit_Line_TriangleFan,
 			P2fC4f_Unlit_Line_Line,
 			P2f_Unlit_Triangle_Opaque, // replaces what is drawn under it, alpha included: what the picking pass writes ids with
+			P2fT2f_Text_Bitmap,        // ubo.color, its alpha times the coverage the red channel of "image" holds: the glyphs of a GlyphCache page
 
 			Count,
 		};

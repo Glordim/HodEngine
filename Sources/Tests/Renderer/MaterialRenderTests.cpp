@@ -26,14 +26,22 @@
 #include <HodEngine/RHI/Sampler.hpp>
 #include <HodEngine/RHI/PresentationSurface.hpp>
 #include <HodEngine/RHI/Texture.hpp>
+#include <HodEngine/Renderer/Text/GlyphCache.hpp>
+#include <HodEngine/Renderer/Text/TextMesh.hpp>
+#include <HodEngine/Text/FontFace.hpp>
+#include <HodEngine/Text/TextLayout.hpp>
+#include <HodEngine/Text/TextShaper.hpp>
 
 #include <HodEngine/Window/Desktop/DesktopWindow.hpp>
 #include <HodEngine/Window/DisplayManager.hpp>
 
 #include <chrono>
 #include <cmath>
+#include <fstream>
 #include <functional>
+#include <iterator>
 #include <string>
+#include <vector>
 
 using namespace hod;
 
@@ -656,4 +664,56 @@ TEST_F(MaterialRender, NeverSetTextureFallsBackAndIsReported)
 	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), FallbackColor));
 
 	_expectedWarningCount = 1;
+}
+
+// ============================================================================
+// Text
+// ============================================================================
+
+// An "I" in bitmap glyphs, through TextMesh and the P2fT2f_Text_Bitmap material: its stem has the color, beside it is the background
+TEST_F(MaterialRender, TextBitmapDrawsTheCoverageOfTheGlyphs)
+{
+	std::ifstream     file(std::string(TESTS_TEXT_FIXTURES_DIR) + "/Fonts/NotoSans-Regular.ttf", std::ios::binary);
+	std::vector<char> data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	FontFace          face;
+	ASSERT_TRUE(face.LoadFromMemory(data.data(), (uint32_t)data.size()));
+
+	// One unit is one pixel of the target
+	const float halfSize = (float)_targetSize * 0.5f;
+	_projection = Matrix4::OrthogonalProjection(-halfSize, halfSize, -halfSize, halfSize, -1024.0f, 1024.0f);
+
+	constexpr float fontSize = 48.0f;
+	const FontFace* faces[] = {&face};
+	TextShaper      shaper;
+	TextLayout      layout;
+	ASSERT_TRUE(shaper.Shape("I", faces, fontSize, layout));
+
+	GlyphCache glyphCache;
+	ASSERT_TRUE(glyphCache.Init());
+
+	// Centered: the capital is about 0.7 em high
+	TextMesh mesh;
+	ASSERT_TRUE(mesh.Build(layout, faces, fontSize, Vector2(-layout._width * 0.5f, -fontSize * 0.35f), glyphCache, GlyphCache::Mode::Bitmap));
+	ASSERT_EQ(mesh._batches.Size(), 1u);
+
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Text_Bitmap);
+	materialInstance->SetVec4("ubo.color", ToVector4(Red));
+	materialInstance->SetTexture("image", glyphCache.GetPage(mesh._batches[0]._pageIndex));
+
+	RenderFrame(
+		[&]()
+		{
+			const TextMesh::Batch& batch = mesh._batches[0];
+			_renderView->PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(batch._positions.Data(), batch._uvs.Data(), nullptr,
+			                                                                                     batch._positions.Size(), batch._indices.Data(), batch._indices.Size(),
+			                                                                                     Matrix4::Identity, materialInstance, 0, 0, true));
+		});
+
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.4f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.0f), Background));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.8f), Background)); // above the capital
+
+	RhiDevice::GetInstance()->WaitIdle();
+	glyphCache.Clear();
 }

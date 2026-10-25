@@ -1,0 +1,49 @@
+import Attributes;
+
+struct PushMatrices
+{
+	float4x4 mvp;
+};
+[PushConstant]
+[[vk::push_constant]]
+ConstantBuffer<PushMatrices> pc;
+
+struct VS_IN
+{
+	float2 position : POSITION;
+	float2 uv : TEXTCOORD;
+};
+
+struct VS_OUT
+{
+	float4 position : SV_Position;
+	float2 uv : TEXTCOORD;
+};
+
+VS_OUT VertexMain(VS_IN input)
+{
+	VS_OUT output;
+	output.position = mul(pc.mvp, float4(input.position, 0.0, 1.0));
+	output.uv = input.uv;
+	return output;
+}
+
+struct UBO
+{
+	float4 color;
+};
+
+struct Material
+{
+	ConstantBuffer<UBO> ubo;
+	Texture2D           image;
+	SamplerState        imageSampler;
+};
+ParameterBlock<Material> material;
+
+float4 FragmentMain(VS_OUT input) : SV_Target
+{
+	// The coverage of the glyph, in the red channel of an R8 atlas page
+	float coverage = material.image.Sample(material.imageSampler, input.uv).r;
+	return float4(material.ubo.color.rgb, material.ubo.color.a * coverage);
+}

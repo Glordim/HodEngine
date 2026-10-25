@@ -6,7 +6,6 @@
 #include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
 #include "HodEngine/RHI/RhiDevice.hpp"
 #include "HodEngine/Renderer/RenderView.hpp"
-#include <HodEngine/Renderer/Font/Font.hpp>
 
 #include <HodEngine/Game/Entity.hpp>
 #include <HodEngine/Game/World.hpp>
@@ -41,6 +40,10 @@ namespace hod::inline ui
 
 	void Text::PushRenderCommand(RenderView& renderView, RenderView::RenderQueueType renderQueueType)
 	{
+		// TODO: not drawn since the text rendering moved to Text/GlyphCache, see UI2 TextNode for how to draw it again
+		(void)renderView;
+		(void)renderQueueType;
+#if 0
 		if (_node.Get() && _font.Lock())
 		{
 			Vector2 Size = _node->ComputeSize();
@@ -133,6 +136,7 @@ namespace hod::inline ui
 				                             renderQueueType);
 			}
 		}
+#endif
 	}
 
 	/// @brief
@@ -170,12 +174,15 @@ namespace hod::inline ui
 
 	Vector2 Text::GetContentSize() const
 	{
+		// TODO: see PushRenderCommand
 		Vector2 requiredSize;
+#if 0
 		if (_font.Lock())
 		{
 			Font* font = _font.Lock()->GetFont();
 			requiredSize = font->ComputeRequiredSize(_value);
 		}
+#endif
 		return requiredSize;
 	}
 

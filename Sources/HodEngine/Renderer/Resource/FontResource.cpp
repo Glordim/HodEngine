@@ -1,6 +1,6 @@
 #include "HodEngine/Renderer/Pch.hpp"
-#include "HodEngine/Renderer/Font/Font.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
+#include "HodEngine/Renderer/Text/GlyphCache.hpp"
 #include "HodEngine/Renderer/Resource/FontResource.hpp"
 
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
@@ -23,7 +23,17 @@ namespace hod::inline renderer
 	/// @brief
 	FontResource::~FontResource()
 	{
-		DefaultAllocator::GetInstance().Delete(_font);
+		ForgetGlyphs();
+	}
+
+	/// @brief The ones of the face as it is: before it is destroyed or loaded again
+	void FontResource::ForgetGlyphs()
+	{
+		Renderer* renderer = Renderer::GetInstance();
+		if (renderer != nullptr && renderer->GetGlyphCache() != nullptr)
+		{
+			renderer->GetGlyphCache()->Forget(_fontFace);
+		}
 	}
 
 	/// @brief
@@ -47,21 +57,21 @@ namespace hod::inline renderer
 			return false;
 		}
 
-		_font = DefaultAllocator::GetInstance().New<Font>();
-		if (_font->LoadFromMemory(buffer, ttfDataBlock->_uncompressedSize) == false)
+		ForgetGlyphs();
+		const bool loaded = _fontFace.LoadFromMemory(buffer, ttfDataBlock->_uncompressedSize); // copies it
+		DefaultAllocator::GetInstance().Free(buffer);
+		if (loaded == false)
 		{
 			OUTPUT_ERROR("FontResource::Initialize: load font failed");
-			DefaultAllocator::GetInstance().Delete(_font);
-			_font = nullptr;
-			DefaultAllocator::GetInstance().Free(buffer);
 			return false;
 		}
-		DefaultAllocator::GetInstance().Free(buffer);
 		return true;
 	}
 
-	Font* FontResource::GetFont() const
+	/// @brief
+	/// @return
+	const FontFace& FontResource::GetFontFace() const
 	{
-		return _font;
+		return _fontFace;
 	}
 }

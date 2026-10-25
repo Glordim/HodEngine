@@ -52,6 +52,7 @@ target_link_libraries(TestsRenderer
 target_compile_definitions(TestsRenderer
 	PUBLIC ${HOD_PLATFORM_DEFINE}
 	PRIVATE TESTS_RENDERER_FIXTURES_DIR="${PROJECT_SOURCE_DIR}/Fixtures"
+	PRIVATE TESTS_TEXT_FIXTURES_DIR="${PROJECT_SOURCE_DIR}/../Text/Fixtures" # the fonts
 )
 
 # These tests need a Vulkan/Metal capable device, so they are discovered at test time

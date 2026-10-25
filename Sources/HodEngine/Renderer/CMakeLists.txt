@@ -38,7 +38,7 @@ target_include_directories(Renderer PUBLIC
 target_precompile_headers(Renderer PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 target_link_libraries(Renderer
-	PUBLIC Core Math Window GameSystems RHI
+	PUBLIC Core Math Window GameSystems RHI Text
 	PRIVATE Freetype::Freetype
 )
 

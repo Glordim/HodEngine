@@ -39,6 +39,7 @@ set_property(GLOBAL PROPERTY USE_FOLDERS ON)
 
 add_subdirectory("Sources/HodEngine/Core")
 add_subdirectory("Sources/HodEngine/Math")
+add_subdirectory("Sources/HodEngine/Text")
 add_subdirectory("Sources/HodEngine/GameSystems")
 add_subdirectory("Sources/HodEngine/Window")
 add_subdirectory("Sources/HodEngine/RHI")
@@ -74,9 +75,11 @@ if (BUILD_UNIT_TESTS AND NOT ANDROID)
 	enable_testing()
 	add_subdirectory("Sources/Tests/Core")
 	add_subdirectory("Sources/Tests/Renderer")
+	add_subdirectory("Sources/Tests/Text")
 
 	set_target_properties(TestsCore PROPERTIES FOLDER "Test/")
 	set_target_properties(TestsRenderer PROPERTIES FOLDER "Test/")
+	set_target_properties(TestsText PROPERTIES FOLDER "Test/")
 endif()
 
 install(EXPORT HodEngineTargets

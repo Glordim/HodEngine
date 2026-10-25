@@ -4,7 +4,6 @@
 #include "HodEngine/Game/Entity.hpp"
 
 #include <HodEngine/Math/Color.hpp>
-#include <HodEngine/Renderer/Font/Font.hpp>
 #include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/P2fC4f.hpp>
 #include <HodEngine/Renderer/P2fT2f.hpp>
@@ -168,21 +167,6 @@ namespace hod::inline game
 	/// @param texture
 	void TextRendererComponent::SetFont(const WeakResource<FontResource>& font)
 	{
-		_fontResource = font;
-
-		Texture*                      texture = nullptr;
-		std::shared_ptr<FontResource> fontResource = _fontResource.Lock();
-		if (fontResource != nullptr)
-		{
-			Font* font = fontResource->GetFont();
-			if (font != nullptr)
-			{
-				texture = font->GetTexture();
-			}
-		}
-		else
-		{
-		}
-		_materialInstance->SetTexture("image", texture);
+		_fontResource = font; // TODO: drawn as UI2 TextNode is, see PushRenderCommand
 	}
 }

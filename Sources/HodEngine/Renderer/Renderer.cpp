@@ -2,7 +2,7 @@
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
 
-#include "HodEngine/Renderer/Font/FontManager.hpp"
+#include "HodEngine/Renderer/Text/GlyphCache.hpp"
 #include "HodEngine/Renderer/BuiltinMaterialManager.hpp"
 #include "HodEngine/Renderer/PickingManager.hpp"
 #include "HodEngine/Renderer/RenderView.hpp"
@@ -18,6 +18,7 @@
 
 #include "HodEngine/Renderer/FrameResources.hpp"
 
+#include <HodEngine/Text/TextShaper.hpp>
 #include <HodEngine/Window/Window.hpp>
 #include <algorithm>
 
@@ -30,8 +31,10 @@ namespace hod::inline renderer
 
 		BuiltinMaterialManager::CreateInstance();
 		PickingManager::CreateInstance();
-		FontManager::CreateInstance();
-		FontManager::GetInstance()->Init(); // todo catch error ?
+
+		_glyphCache = DefaultAllocator::GetInstance().New<GlyphCache>();
+		_glyphCache->Init(); // todo catch error ?
+		_textShaper = DefaultAllocator::GetInstance().New<TextShaper>();
 
 		_frameResources.Resize(RhiDevice::GetInstance()->GetFrameInFlightCount());
 	}
@@ -41,7 +44,10 @@ namespace hod::inline renderer
 	//-----------------------------------------------------------------------------
 	Renderer::~Renderer()
 	{
-		FontManager::DestroyInstance();
+		DefaultAllocator::GetInstance().Delete(_textShaper);
+		_textShaper = nullptr;
+		DefaultAllocator::GetInstance().Delete(_glyphCache); // its pages are released by Clear
+		_glyphCache = nullptr;
 		PickingManager::DestroyInstance();
 		BuiltinMaterialManager::DestroyInstance();
 
@@ -79,6 +85,8 @@ namespace hod::inline renderer
 
 		DefaultAllocator::GetInstance().Delete(_whiteTexture);
 		_whiteTexture = nullptr;
+
+		_glyphCache->Clear();
 
 		_mainPresentationSurface = nullptr; // released with the others by the device
 		RhiDevice::GetInstance()->Clear();
@@ -185,6 +193,20 @@ namespace hod::inline renderer
 			_whiteTexture->Build(createInfo, pixels);
 		}
 		return _whiteTexture;
+	}
+
+	/// @brief
+	/// @return
+	GlyphCache* Renderer::GetGlyphCache() const
+	{
+		return _glyphCache;
+	}
+
+	/// @brief
+	/// @return
+	TextShaper* Renderer::GetTextShaper() const
+	{
+		return _textShaper;
 	}
 
 	/*

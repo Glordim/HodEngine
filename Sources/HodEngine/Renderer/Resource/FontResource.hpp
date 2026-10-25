@@ -4,15 +4,11 @@
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
-#include "HodEngine/RHI/Texture.hpp"
-#include "HodEngine/Core/Vector.hpp"
-
-struct FT_FaceRec_;
+#include <HodEngine/Text/FontFace.hpp>
 
 namespace hod::inline renderer
 {
-	class Font;
-
+	/// @brief A font file, read once into a FontFace. Its glyphs rasterized in the GlyphCache of the Renderer are forgotten with it.
 	class HOD_RENDERER_API FontResource : public Resource
 	{
 		REFLECTED_CLASS(FontResource, Resource)
@@ -31,10 +27,14 @@ namespace hod::inline renderer
 
 		bool				Initialize(const ResourceContainer& resourceContainer) override;
 
-		Font*				GetFont() const;
+		const FontFace&		GetFontFace() const;
 
 	private:
 
-		Font*				_font = nullptr;
+		void				ForgetGlyphs();
+
+	private:
+
+		FontFace			_fontFace;
 	};
 }

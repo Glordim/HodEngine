@@ -6,10 +6,12 @@
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/Math/Vector4.hpp>
-#include <HodEngine/Renderer/Font/Font.hpp>
 #include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/MaterialInstance.hpp>
-#include <HodEngine/RHI/RhiDevice.hpp>
+#include <HodEngine/Renderer/Renderer.hpp>
+#include <HodEngine/Renderer/Text/GlyphCache.hpp>
+#include <HodEngine/Text/FontFace.hpp>
+#include <HodEngine/Text/TextShaper.hpp>
 
 namespace hod::inline ui2
 {
@@ -32,6 +34,7 @@ namespace hod::inline ui2
 
 		AddPropertyT(reflectionDescriptor, &TextNode::_font, "Font", &TextNode::SetFont);
 		AddPropertyT(reflectionDescriptor, &TextNode::_value, "Value", &TextNode::SetValue);
+		AddPropertyT(reflectionDescriptor, &TextNode::_fontSize, "FontSize", &TextNode::SetFontSize);
 		AddPropertyT(reflectionDescriptor, &TextNode::_alignment, "Alignment", &TextNode::SetAlignment);
 		AddPropertyT(reflectionDescriptor, &TextNode::_color, "Color", &TextNode::SetColor);
 	}
@@ -50,6 +53,7 @@ namespace hod::inline ui2
 		if (_font != font)
 		{
 			_font = font;
+			_layoutDirty = true;
 			MarkMeasureAsDirty(); // the text bounds depend on the font
 			GetPropertyChangedEvent().Emit();
 		}
@@ -69,7 +73,28 @@ namespace hod::inline ui2
 		if (_value != value)
 		{
 			_value = value;
+			_layoutDirty = true;
 			MarkMeasureAsDirty(); // the text bounds depend on the text
+			GetPropertyChangedEvent().Emit();
+		}
+	}
+
+	/// @brief
+	/// @return
+	float TextNode::GetFontSize() const
+	{
+		return _fontSize;
+	}
+
+	/// @brief
+	/// @param fontSize
+	void TextNode::SetFontSize(float fontSize)
+	{
+		if (_fontSize != fontSize)
+		{
+			_fontSize = fontSize;
+			_layoutDirty = true;
+			MarkMeasureAsDirty(); // the text bounds depend on the size
 			GetPropertyChangedEvent().Emit();
 		}
 	}
@@ -110,37 +135,65 @@ namespace hod::inline ui2
 		}
 	}
 
+	/// @brief The font face is followed by its id: a font reloaded is shaped again
+	/// @return
+	const TextLayout* TextNode::UpdateLayout() const
+	{
+		std::shared_ptr<FontResource> fontResource = _font.Lock();
+		if (fontResource == nullptr || fontResource->GetFontFace().IsLoaded() == false || _fontSize <= 0.0f)
+		{
+			return nullptr;
+		}
+
+		const FontFace& fontFace = fontResource->GetFontFace();
+		if (_layoutDirty || _layoutFontFaceId != fontFace.GetId())
+		{
+			const FontFace* faces[] = {&fontFace};
+			if (Renderer::GetInstance()->GetTextShaper()->Shape(_value, faces, _fontSize, _layout) == false)
+			{
+				_layout.Clear();
+			}
+			_layoutFontFaceId = fontFace.GetId();
+			_layoutDirty = false;
+			_meshDirty = true;
+		}
+		return &_layout;
+	}
+
+	/// @brief
+	/// @return
+	Vector2 TextNode::GetLayoutSize() const
+	{
+		return Vector2(_layout._width, _layout._ascender - _layout._descender);
+	}
+
 	/// @brief The text's bounds once a font is set, none before that.
 	/// @param availableSize
 	/// @return
 	Vector2 TextNode::MeasureContent(const Vector2& availableSize) const
 	{
-		std::shared_ptr<FontResource> fontResource = _font.Lock();
-		if (fontResource == nullptr || fontResource->GetFont() == nullptr)
+		if (UpdateLayout() == nullptr)
 		{
 			return Node::MeasureContent(availableSize);
 		}
 
-		return fontResource->GetFont()->ComputeRequiredSize(_value);
+		return GetLayoutSize();
 	}
 
 	/// @brief
 	/// @param drawContext
 	void TextNode::DrawSelf(DrawContext& drawContext)
 	{
-		std::shared_ptr<FontResource> fontResource = _font.Lock();
-		if (fontResource == nullptr || fontResource->GetFont() == nullptr || _value.Empty())
+		const TextLayout* layout = UpdateLayout();
+		if (layout == nullptr || layout->_glyphs.Empty())
 		{
 			return;
 		}
 
-		Font*          font = fontResource->GetFont();
 		const Vector2& size = GetSize();
+		const Vector2  requiredSize = GetLayoutSize();
 
-		Vector2 requiredSize = font->ComputeRequiredSize(_value);
-
-		// Node-local space is centered on the node and Y-up: the line's top-left corner is the origin
-		// the glyph geometry is expressed from.
+		// Node-local space is centered on the node and Y-up: the line's top-left corner, then the start of its baseline
 		Vector2 lineTopLeftCorner;
 		switch (_alignment)
 		{
@@ -156,53 +209,30 @@ namespace hod::inline ui2
 			case Alignment::BottomCenter: lineTopLeftCorner = Vector2(-requiredSize.GetX() * 0.5f, -size.GetY() * 0.5f + requiredSize.GetY()); break;
 			case Alignment::BottomRight: lineTopLeftCorner = Vector2(size.GetX() * 0.5f - requiredSize.GetX(), -size.GetY() * 0.5f + requiredSize.GetY()); break;
 		}
+		const Vector2 baselineOrigin = lineTopLeftCorner - Vector2(0.0f, layout->_ascender);
 
-		Vector<Font::GlyphGeometry> glyphGeometries;
-		font->BuildTextGeometry(_value, glyphGeometries);
-
-		Vector<Vector2>  positions;
-		Vector<Vector2>  uvs;
-		Vector<uint16_t> indices;
-		positions.Reserve(glyphGeometries.Size() * 4);
-		uvs.Reserve(glyphGeometries.Size() * 4);
-		indices.Reserve(glyphGeometries.Size() * 6);
-
-		for (const Font::GlyphGeometry& glyphGeometry : glyphGeometries)
+		GlyphCache* glyphCache = Renderer::GetInstance()->GetGlyphCache();
+		if (_meshDirty || (_meshOrigin == baselineOrigin) == false)
 		{
-			uint16_t vertexCount = (uint16_t)positions.Size();
-
-			Vector2 halfSize = glyphGeometry._posSize * 0.5f;
-			Vector2 center = lineTopLeftCorner + glyphGeometry._posCenter;
-
-			positions.PushBack(center + Vector2(-halfSize.GetX(), halfSize.GetY()));
-			positions.PushBack(center + Vector2(halfSize.GetX(), halfSize.GetY()));
-			positions.PushBack(center + Vector2(-halfSize.GetX(), -halfSize.GetY()));
-			positions.PushBack(center + Vector2(halfSize.GetX(), -halfSize.GetY()));
-
-			uvs.PushBack(glyphGeometry._uvPos);
-			uvs.PushBack(glyphGeometry._uvPos + Vector2(glyphGeometry._uvSize.GetX(), 0.0f));
-			uvs.PushBack(glyphGeometry._uvPos + Vector2(0.0f, glyphGeometry._uvSize.GetY()));
-			uvs.PushBack(glyphGeometry._uvPos + Vector2(glyphGeometry._uvSize.GetX(), glyphGeometry._uvSize.GetY()));
-
-			indices.PushBack((uint16_t)(vertexCount + 1));
-			indices.PushBack((uint16_t)(vertexCount + 0));
-			indices.PushBack((uint16_t)(vertexCount + 2));
-
-			indices.PushBack((uint16_t)(vertexCount + 1));
-			indices.PushBack((uint16_t)(vertexCount + 2));
-			indices.PushBack((uint16_t)(vertexCount + 3));
+			std::shared_ptr<FontResource> fontResource = _font.Lock();
+			const FontFace*               faces[] = {&fontResource->GetFontFace()};
+			_mesh.Build(*layout, faces, _fontSize, baselineOrigin, *glyphCache, GlyphCache::Mode::Bitmap);
+			_meshOrigin = baselineOrigin;
+			_meshDirty = false;
 		}
 
-		if (positions.Empty())
+		const Material* material = BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Text_Bitmap);
+		const Matrix4   canvasMatrix = ComputeCanvasMatrix();
+
+		// One draw per atlas page the glyphs are in
+		for (const TextMesh::Batch& batch : _mesh._batches)
 		{
-			return;
+			MaterialInstance* materialInstance = MaterialInstance::Create(material);
+			materialInstance->SetTexture("image", glyphCache->GetPage(batch._pageIndex));
+			materialInstance->SetVec4("ubo.color", Vector4(_color.r, _color.g, _color.b, _color.a));
+
+			drawContext.PushMesh(batch._positions.Data(), batch._uvs.Data(), batch._positions.Size(), batch._indices.Data(), batch._indices.Size(), canvasMatrix,
+			                     materialInstance);
 		}
-
-		MaterialInstance* materialInstance =
-			MaterialInstance::Create(BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color));
-		materialInstance->SetTexture("image", font->GetTexture());
-		materialInstance->SetVec4("ubo.color", Vector4(_color.r, _color.g, _color.b, _color.a));
-
-		drawContext.PushMesh(positions.Data(), uvs.Data(), positions.Size(), indices.Data(), indices.Size(), ComputeCanvasMatrix(), materialInstance);
 	}
 }
