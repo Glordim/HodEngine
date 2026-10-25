@@ -2,6 +2,7 @@
 #include "HodEngine/UI2/TextNode.hpp"
 #include "HodEngine/UI2/DrawContext.hpp"
 
+#include <HodEngine/Core/Math.hpp>
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
@@ -12,20 +13,34 @@
 #include <HodEngine/Renderer/Text/GlyphCache.hpp>
 #include <HodEngine/Text/FontFace.hpp>
 #include <HodEngine/Text/TextShaper.hpp>
+#include <HodEngine/UI2/LayoutParams.hpp>
+
+#include <cmath>
+#include <limits>
 
 namespace hod::inline ui2
 {
-	DESCRIBE_REFLECTED_ENUM(TextNode::Alignment, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(TextNode::HorizontalAlignment, reflectionDescriptor)
 	{
-		reflectionDescriptor.AddEnumValue(TextNode::Alignment::TopLeft, "TopLeft");
-		reflectionDescriptor.AddEnumValue(TextNode::Alignment::TopCenter, "TopCenter");
-		reflectionDescriptor.AddEnumValue(TextNode::Alignment::TopRight, "TopRight");
-		reflectionDescriptor.AddEnumValue(TextNode::Alignment::MiddleLeft, "MiddleLeft");
-		reflectionDescriptor.AddEnumValue(TextNode::Alignment::MiddleCenter, "MiddleCenter");
-		reflectionDescriptor.AddEnumValue(TextNode::Alignment::MiddleRight, "MiddleRight");
-		reflectionDescriptor.AddEnumValue(TextNode::Alignment::BottomLeft, "BottomLeft");
-		reflectionDescriptor.AddEnumValue(TextNode::Alignment::BottomCenter, "BottomCenter");
-		reflectionDescriptor.AddEnumValue(TextNode::Alignment::BottomRight, "BottomRight");
+		reflectionDescriptor.AddEnumValue(TextNode::HorizontalAlignment::Left, "Left");
+		reflectionDescriptor.AddEnumValue(TextNode::HorizontalAlignment::Center, "Center");
+		reflectionDescriptor.AddEnumValue(TextNode::HorizontalAlignment::Right, "Right");
+	}
+
+	DESCRIBE_REFLECTED_ENUM(TextNode::VerticalAlignment, reflectionDescriptor)
+	{
+		reflectionDescriptor.AddEnumValue(TextNode::VerticalAlignment::Top, "Top");
+		reflectionDescriptor.AddEnumValue(TextNode::VerticalAlignment::Middle, "Middle");
+		reflectionDescriptor.AddEnumValue(TextNode::VerticalAlignment::Capline, "Capline");
+		reflectionDescriptor.AddEnumValue(TextNode::VerticalAlignment::Bottom, "Bottom");
+	}
+
+	DESCRIBE_REFLECTED_ENUM(TextNode::Overflow, reflectionDescriptor)
+	{
+		reflectionDescriptor.AddEnumValue(TextNode::Overflow::Overflow, "Overflow");
+		reflectionDescriptor.AddEnumValue(TextNode::Overflow::Clip, "Clip");
+		reflectionDescriptor.AddEnumValue(TextNode::Overflow::Ellipsis, "Ellipsis");
+		reflectionDescriptor.AddEnumValue(TextNode::Overflow::Shrink, "Shrink");
 	}
 
 	DESCRIBE_REFLECTED_CLASS(TextNode, reflectionDescriptor)
@@ -35,7 +50,11 @@ namespace hod::inline ui2
 		AddPropertyT(reflectionDescriptor, &TextNode::_font, "Font", &TextNode::SetFont);
 		AddPropertyT(reflectionDescriptor, &TextNode::_value, "Value", &TextNode::SetValue);
 		AddPropertyT(reflectionDescriptor, &TextNode::_fontSize, "FontSize", &TextNode::SetFontSize);
-		AddPropertyT(reflectionDescriptor, &TextNode::_alignment, "Alignment", &TextNode::SetAlignment);
+		AddPropertyT(reflectionDescriptor, &TextNode::_horizontalAlignment, "HorizontalAlignment", &TextNode::SetHorizontalAlignment);
+		AddPropertyT(reflectionDescriptor, &TextNode::_verticalAlignment, "VerticalAlignment", &TextNode::SetVerticalAlignment);
+		AddPropertyT(reflectionDescriptor, &TextNode::_alignByGeometry, "AlignByGeometry", &TextNode::SetAlignByGeometry);
+		AddPropertyT(reflectionDescriptor, &TextNode::_overflow, "Overflow", &TextNode::SetOverflow);
+		AddPropertyT(reflectionDescriptor, &TextNode::_minFontSize, "MinFontSize", &TextNode::SetMinFontSize);
 		AddPropertyT(reflectionDescriptor, &TextNode::_color, "Color", &TextNode::SetColor);
 	}
 
@@ -101,18 +120,92 @@ namespace hod::inline ui2
 
 	/// @brief
 	/// @return
-	TextNode::Alignment TextNode::GetAlignment() const
+	TextNode::HorizontalAlignment TextNode::GetHorizontalAlignment() const
 	{
-		return _alignment;
+		return _horizontalAlignment;
 	}
 
 	/// @brief
-	/// @param alignment
-	void TextNode::SetAlignment(Alignment alignment)
+	/// @param horizontalAlignment
+	void TextNode::SetHorizontalAlignment(HorizontalAlignment horizontalAlignment)
 	{
-		if (_alignment != alignment)
+		if (_horizontalAlignment != horizontalAlignment)
 		{
-			_alignment = alignment;
+			_horizontalAlignment = horizontalAlignment;
+			GetPropertyChangedEvent().Emit();
+		}
+	}
+
+	/// @brief
+	/// @return
+	TextNode::VerticalAlignment TextNode::GetVerticalAlignment() const
+	{
+		return _verticalAlignment;
+	}
+
+	/// @brief
+	/// @param verticalAlignment
+	void TextNode::SetVerticalAlignment(VerticalAlignment verticalAlignment)
+	{
+		if (_verticalAlignment != verticalAlignment)
+		{
+			_verticalAlignment = verticalAlignment;
+			GetPropertyChangedEvent().Emit();
+		}
+	}
+
+	/// @brief
+	/// @return
+	bool TextNode::GetAlignByGeometry() const
+	{
+		return _alignByGeometry;
+	}
+
+	/// @brief
+	/// @param alignByGeometry
+	void TextNode::SetAlignByGeometry(bool alignByGeometry)
+	{
+		if (_alignByGeometry != alignByGeometry)
+		{
+			_alignByGeometry = alignByGeometry;
+			GetPropertyChangedEvent().Emit();
+		}
+	}
+
+	/// @brief
+	/// @return
+	TextNode::Overflow TextNode::GetOverflow() const
+	{
+		return _overflow;
+	}
+
+	/// @brief
+	/// @param overflow
+	void TextNode::SetOverflow(Overflow overflow)
+	{
+		if (_overflow != overflow)
+		{
+			_overflow = overflow;
+			_fittedDirty = true;
+			GetPropertyChangedEvent().Emit();
+		}
+	}
+
+	/// @brief
+	/// @return
+	float TextNode::GetMinFontSize() const
+	{
+		return _minFontSize;
+	}
+
+	/// @brief
+	/// @param minFontSize
+	void TextNode::SetMinFontSize(float minFontSize)
+	{
+		if (_minFontSize != minFontSize)
+		{
+			_minFontSize = minFontSize;
+			_fittedDirty = true;
 			GetPropertyChangedEvent().Emit();
 		}
 	}
@@ -155,16 +248,94 @@ namespace hod::inline ui2
 			}
 			_layoutFontFaceId = fontFace.GetId();
 			_layoutDirty = false;
-			_meshDirty = true;
+			_fittedDirty = true;
 		}
 		return &_layout;
 	}
 
-	/// @brief
+	/// @brief On the axes sized from the content the rect is the size of the text: it fits there whatever Overflow says
+	/// @param size of the rect
 	/// @return
-	Vector2 TextNode::GetLayoutSize() const
+	const TextLayout* TextNode::UpdateFittedLayout(const Vector2& size)
 	{
-		return Vector2(_layout._width, _layout._ascender - _layout._descender);
+		const TextLayout* layout = UpdateLayout();
+		if (layout == nullptr)
+		{
+			return nullptr;
+		}
+
+		if (_fittedDirty == false && _fittedSize == size)
+		{
+			return &_fittedLayout;
+		}
+		_fittedDirty = false;
+		_fittedSize = size;
+		_meshDirty = true;
+
+		_fittedLayout = *layout;
+		_fittedFontSize = _fontSize;
+		if (_overflow != Overflow::Ellipsis && _overflow != Overflow::Shrink)
+		{
+			return &_fittedLayout;
+		}
+
+		const LayoutParams* layoutParams = GetLayoutParams();
+		const bool          widthFromContent = layoutParams != nullptr && layoutParams->GetWidthMode() == LayoutParams::SizeMode::Content;
+		const bool          heightFromContent = layoutParams != nullptr && layoutParams->GetHeightMode() == LayoutParams::SizeMode::Content;
+		const float         maxWidth = widthFromContent ? std::numeric_limits<float>::max() : size.GetX();
+		const float         maxHeight = heightFromContent ? std::numeric_limits<float>::max() : size.GetY();
+
+		std::shared_ptr<FontResource> fontResource = _font.Lock();
+		const FontFace*               faces[] = {&fontResource->GetFontFace()};
+		TextShaper*                   textShaper = Renderer::GetInstance()->GetTextShaper();
+
+		if (_overflow == Overflow::Shrink)
+		{
+			// The positions scale with the size: the size that fits is known from the layout at FontSize
+			const Vector2 layoutSize = GetLayoutSize(*layout);
+			float         scale = 1.0f;
+			if (layoutSize.GetX() > maxWidth)
+			{
+				scale = Min(scale, maxWidth / layoutSize.GetX());
+			}
+			if (layoutSize.GetY() > maxHeight)
+			{
+				scale = Min(scale, maxHeight / layoutSize.GetY());
+			}
+			if (scale >= 1.0f)
+			{
+				return &_fittedLayout;
+			}
+
+			// A whole pixel size below the exact one: it fits for sure (the exact one may be a hair wider once rounded), and is rasterized as is.
+			// Only what does not fit even at MinFontSize gets an ellipsis
+			const float minFontSize = Min(_minFontSize, _fontSize);
+			const float fittingFontSize = _fontSize * scale;
+			if (fittingFontSize >= minFontSize)
+			{
+				_fittedFontSize = Max(minFontSize, std::floor(fittingFontSize));
+				if (textShaper->Shape(_value, faces, _fittedFontSize, _fittedLayout) == false)
+				{
+					_fittedLayout.Clear();
+				}
+				return &_fittedLayout;
+			}
+			_fittedFontSize = minFontSize;
+		}
+
+		if (textShaper->ShapeEllipsized(_value, faces, _fittedFontSize, maxWidth, _fittedLayout) == false)
+		{
+			_fittedLayout.Clear();
+		}
+		return &_fittedLayout;
+	}
+
+	/// @brief
+	/// @param layout
+	/// @return
+	Vector2 TextNode::GetLayoutSize(const TextLayout& layout)
+	{
+		return Vector2(layout._width, layout._ascender - layout._descender);
 	}
 
 	/// @brief The text's bounds once a font is set, none before that.
@@ -177,52 +348,73 @@ namespace hod::inline ui2
 			return Node::MeasureContent(availableSize);
 		}
 
-		return GetLayoutSize();
+		return GetLayoutSize(_layout);
 	}
 
 	/// @brief
 	/// @param drawContext
 	void TextNode::DrawSelf(DrawContext& drawContext)
 	{
-		const TextLayout* layout = UpdateLayout();
+		const Vector2&    size = GetSize();
+		const TextLayout* layout = UpdateFittedLayout(size);
 		if (layout == nullptr || layout->_glyphs.Empty())
 		{
 			return;
 		}
 
-		const Vector2& size = GetSize();
-		const Vector2  requiredSize = GetLayoutSize();
-
-		// Node-local space is centered on the node and Y-up: the line's top-left corner, then the start of its baseline
-		Vector2 lineTopLeftCorner;
-		switch (_alignment)
-		{
-			case Alignment::TopLeft: lineTopLeftCorner = Vector2(-size.GetX() * 0.5f, size.GetY() * 0.5f); break;
-			case Alignment::TopCenter: lineTopLeftCorner = Vector2(-requiredSize.GetX() * 0.5f, size.GetY() * 0.5f); break;
-			case Alignment::TopRight: lineTopLeftCorner = Vector2(size.GetX() * 0.5f - requiredSize.GetX(), size.GetY() * 0.5f); break;
-
-			case Alignment::MiddleLeft: lineTopLeftCorner = Vector2(-size.GetX() * 0.5f, requiredSize.GetY() * 0.5f); break;
-			case Alignment::MiddleCenter: lineTopLeftCorner = Vector2(-requiredSize.GetX() * 0.5f, requiredSize.GetY() * 0.5f); break;
-			case Alignment::MiddleRight: lineTopLeftCorner = Vector2(size.GetX() * 0.5f - requiredSize.GetX(), requiredSize.GetY() * 0.5f); break;
-
-			case Alignment::BottomLeft: lineTopLeftCorner = Vector2(-size.GetX() * 0.5f, -size.GetY() * 0.5f + requiredSize.GetY()); break;
-			case Alignment::BottomCenter: lineTopLeftCorner = Vector2(-requiredSize.GetX() * 0.5f, -size.GetY() * 0.5f + requiredSize.GetY()); break;
-			case Alignment::BottomRight: lineTopLeftCorner = Vector2(size.GetX() * 0.5f - requiredSize.GetX(), -size.GetY() * 0.5f + requiredSize.GetY()); break;
-		}
-		const Vector2 baselineOrigin = lineTopLeftCorner - Vector2(0.0f, layout->_ascender);
+		const Vector2 requiredSize = GetLayoutSize(*layout);
 
 		GlyphCache* glyphCache = Renderer::GetInstance()->GetGlyphCache();
-		if (_meshDirty || (_meshOrigin == baselineOrigin) == false)
+		if (_meshDirty)
 		{
 			std::shared_ptr<FontResource> fontResource = _font.Lock();
 			const FontFace*               faces[] = {&fontResource->GetFontFace()};
-			_mesh.Build(*layout, faces, _fontSize, baselineOrigin, *glyphCache, GlyphCache::Mode::Bitmap);
-			_meshOrigin = baselineOrigin;
+			_mesh.Build(*layout, faces, _fittedFontSize, Vector2(0.0f, 0.0f), *glyphCache, GlyphCache::Mode::Bitmap);
 			_meshDirty = false;
 		}
 
+		// What is aligned, from the start of the baseline: the line, or the ink of the text
+		float left = 0.0f;
+		float right = layout->_width;
+		float bottom = layout->_descender;
+		float top = layout->_ascender;
+		if (_alignByGeometry && _mesh.HasInk())
+		{
+			left = _mesh._inkMin.GetX();
+			right = _mesh._inkMax.GetX();
+			bottom = _mesh._inkMin.GetY();
+			top = _mesh._inkMax.GetY();
+		}
+
+		// Node-local space is centered on the node and Y-up: where the start of the baseline goes
+		const Vector2 halfSize = size * 0.5f;
+		Vector2       baselineOrigin;
+		switch (_horizontalAlignment)
+		{
+			case HorizontalAlignment::Left: baselineOrigin.SetX(-halfSize.GetX() - left); break;
+			case HorizontalAlignment::Center: baselineOrigin.SetX(-(left + right) * 0.5f); break;
+			case HorizontalAlignment::Right: baselineOrigin.SetX(halfSize.GetX() - right); break;
+		}
+		switch (_verticalAlignment)
+		{
+			case VerticalAlignment::Top: baselineOrigin.SetY(halfSize.GetY() - top); break;
+			case VerticalAlignment::Middle: baselineOrigin.SetY(-(bottom + top) * 0.5f); break;
+			case VerticalAlignment::Capline: baselineOrigin.SetY(_alignByGeometry ? -(bottom + top) * 0.5f : -layout->_capHeight * 0.5f); break;
+			case VerticalAlignment::Bottom: baselineOrigin.SetY(-halfSize.GetY() - bottom); break;
+		}
+		// Bitmap: the glyphs are on whole pixels from the origin, the origin is too
+		baselineOrigin = Vector2(std::round(baselineOrigin.GetX()), std::round(baselineOrigin.GetY()));
+
 		const Material* material = BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Text_Bitmap);
-		const Matrix4   canvasMatrix = ComputeCanvasMatrix();
+		const Matrix4&  canvasMatrix = ComputeCanvasMatrix();
+		const Matrix4   meshMatrix = canvasMatrix * Matrix4::Translation(baselineOrigin);
+
+		// Clip: the rect of the node. Shrink: what does not fit even at MinFontSize, in the height (the width has an ellipsis)
+		const bool clip = _overflow == Overflow::Clip || (_overflow == Overflow::Shrink && requiredSize.GetY() > size.GetY());
+		if (clip)
+		{
+			drawContext.PushClipRect(canvasMatrix, size);
+		}
 
 		// One draw per atlas page the glyphs are in
 		for (const TextMesh::Batch& batch : _mesh._batches)
@@ -231,8 +423,13 @@ namespace hod::inline ui2
 			materialInstance->SetTexture("image", glyphCache->GetPage(batch._pageIndex));
 			materialInstance->SetVec4("ubo.color", Vector4(_color.r, _color.g, _color.b, _color.a));
 
-			drawContext.PushMesh(batch._positions.Data(), batch._uvs.Data(), batch._positions.Size(), batch._indices.Data(), batch._indices.Size(), canvasMatrix,
+			drawContext.PushMesh(batch._positions.Data(), batch._uvs.Data(), batch._positions.Size(), batch._indices.Data(), batch._indices.Size(), meshMatrix,
 			                     materialInstance);
+		}
+
+		if (clip)
+		{
+			drawContext.PopClipRect();
 		}
 	}
 }

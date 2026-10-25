@@ -31,8 +31,13 @@ namespace hod::inline renderer
 
 		Vector<Batch>	_batches;
 
+		// The bounds of what is drawn (the outlines of the glyphs), in the space of the positions. Empty when nothing is drawn
+		Vector2			_inkMin;
+		Vector2			_inkMax;
+		bool			HasInk() const;
+
 		// faces: the ones the layout was shaped with, in the same order. The glyphs are rasterized in the cache when they are not yet.
-		// Bitmap: rasterized at the size rounded to a pixel
+		// Bitmap: rasterized at the size rounded to a pixel, each glyph on whole units of the layout (pixels when the layout is drawn 1:1)
 		bool			Build(const TextLayout& layout, ArrayView<const FontFace*> faces, float size, const Vector2& origin, GlyphCache& glyphCache, GlyphCache::Mode mode);
 		void			Clear();
 	};

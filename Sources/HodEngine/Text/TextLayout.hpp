@@ -28,6 +28,7 @@ namespace hod::inline text
 		float			_ascender = 0.0f;  // the largest of the faces used (the first one included), positive
 		float			_descender = 0.0f; // the lowest of the faces used (the first one included), negative
 		float			_lineGap = 0.0f;   // the largest of the faces used (the first one included)
+		float			_capHeight = 0.0f; // the one of the first face
 
 		float			GetLineHeight() const; // from the ascender to the descender, the line gap included
 

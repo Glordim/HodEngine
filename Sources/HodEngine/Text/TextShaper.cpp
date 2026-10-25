@@ -8,6 +8,8 @@
 
 #include <hb.h>
 
+#include <cstring>
+
 namespace hod::inline text
 {
 	/// @brief
@@ -80,6 +82,7 @@ namespace hod::inline text
 			usedFaces[shapedGlyph._faceIndex] = true;
 		}
 		layout._width = penX;
+		layout._capHeight = (float)faces[0]->GetCapHeight() * size / (float)faces[0]->GetUnitsPerEm();
 
 		for (uint32_t faceIndex = 0; faceIndex < faces.Size(); ++faceIndex)
 		{
@@ -201,6 +204,79 @@ namespace hod::inline text
 
 			ShapeRange(text, textStart, textEnd - textStart, faces, nextFaceIndex, nextFaceIndex != 0, shapedGlyphs);
 			glyphIndex = runEnd;
+		}
+	}
+
+	/// @brief
+	/// @param text
+	/// @param faces
+	/// @param size
+	/// @param maxWidth
+	/// @param layout
+	/// @return
+	bool TextShaper::ShapeEllipsized(StringView text, ArrayView<const FontFace*> faces, float size, float maxWidth, TextLayout& layout)
+	{
+		if (Shape(text, faces, size, layout) == false)
+		{
+			return false;
+		}
+		if (layout._width <= maxWidth)
+		{
+			return true;
+		}
+
+		// The ellipsis character, or three dots when none of the faces has it
+		StringView ellipsis = "\xE2\x80\xA6"; // U+2026
+		TextLayout ellipsisLayout;
+		Shape(ellipsis, faces, size, ellipsisLayout);
+		if (ellipsisLayout._glyphs.Empty() || ellipsisLayout._glyphs[0]._glyphId == 0)
+		{
+			ellipsis = "...";
+			Shape(ellipsis, faces, size, ellipsisLayout);
+		}
+
+		// Where the text can be cut: the start of each cluster, with the width of what is before it
+		Vector<uint32_t> cuts;
+		Vector<float>    cutWidths;
+		float            width = 0.0f;
+		for (const TextLayout::Glyph& glyph : layout._glyphs)
+		{
+			if (cuts.Empty() || cuts.Back() != glyph._cluster)
+			{
+				cuts.PushBack(glyph._cluster);
+				cutWidths.PushBack(width);
+			}
+			width += glyph._advance;
+		}
+
+		// The last cut that leaves room for the ellipsis, measured on the text shaped whole: shaped again cut, it may be a little wider (kerning)
+		uint32_t cutIndex = 0;
+		while (cutIndex + 1 < cuts.Size() && cutWidths[cutIndex + 1] + ellipsisLayout._width <= maxWidth)
+		{
+			++cutIndex;
+		}
+
+		while (true)
+		{
+			uint32_t textEnd = cuts[cutIndex];
+			while (textEnd > 0 && text[textEnd - 1] == ' ')
+			{
+				--textEnd;
+			}
+
+			_ellipsizedText.Resize(textEnd + ellipsis.Size());
+			std::memcpy(_ellipsizedText.Data(), text.Data(), textEnd);
+			std::memcpy(_ellipsizedText.Data() + textEnd, ellipsis.Data(), ellipsis.Size());
+
+			if (Shape(StringView(_ellipsizedText.Data(), _ellipsizedText.Size()), faces, size, layout) == false)
+			{
+				return false;
+			}
+			if (layout._width <= maxWidth || cutIndex == 0)
+			{
+				return true; // the ellipsis alone when nothing fits
+			}
+			--cutIndex;
 		}
 	}
 }

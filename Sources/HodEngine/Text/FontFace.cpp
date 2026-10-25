@@ -37,6 +37,7 @@ namespace hod::inline text
 		_ascender = 0;
 		_descender = 0;
 		_lineGap = 0;
+		_capHeight = 0;
 	}
 
 	/// @brief
@@ -81,6 +82,8 @@ namespace hod::inline text
 		_descender = position;
 		hb_ot_metrics_get_position_with_fallback(_hbFont, HB_OT_METRICS_TAG_HORIZONTAL_LINE_GAP, &position);
 		_lineGap = position;
+		hb_ot_metrics_get_position_with_fallback(_hbFont, HB_OT_METRICS_TAG_CAP_HEIGHT, &position);
+		_capHeight = position;
 
 		_id = nextFontFaceId++;
 		return true;
@@ -147,6 +150,13 @@ namespace hod::inline text
 	int32_t FontFace::GetLineGap() const
 	{
 		return _lineGap;
+	}
+
+	/// @brief
+	/// @return
+	int32_t FontFace::GetCapHeight() const
+	{
+		return _capHeight;
 	}
 
 	/// @brief

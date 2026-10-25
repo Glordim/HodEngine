@@ -34,6 +34,11 @@ namespace hod::inline text
 		// size: of the em, in the unit of the layout (pixels...). Invalid UTF-8 is shaped as U+FFFD.
 		bool			Shape(StringView text, ArrayView<const FontFace*> faces, float size, TextLayout& layout);
 
+		// Shape, when the line fits in maxWidth. Otherwise cut after the last character that fits with an ellipsis ("…", or "..." when no face has it) after it.
+		// Cut between clusters (a letter keeps its marks, a ligature is kept whole), the spaces before the cut dropped. Left to right text.
+		// The clusters of the glyphs before the cut are the ones of the text, the ones of the ellipsis start where the text is cut.
+		bool			ShapeEllipsized(StringView text, ArrayView<const FontFace*> faces, float size, float maxWidth, TextLayout& layout);
+
 	private:
 
 		// In the font units of its face
@@ -58,5 +63,6 @@ namespace hod::inline text
 
 		hb_buffer_t*		_hbBuffer = nullptr;
 		Vector<ShapedGlyph>	_shapedGlyphs;
+		Vector<char>		_ellipsizedText;
 	};
 }

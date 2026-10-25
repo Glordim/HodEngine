@@ -14,6 +14,15 @@ namespace hod::inline renderer
 	void TextMesh::Clear()
 	{
 		_batches.Clear();
+		_inkMin = Vector2(0.0f, 0.0f);
+		_inkMax = Vector2(0.0f, 0.0f);
+	}
+
+	/// @brief
+	/// @return
+	bool TextMesh::HasInk() const
+	{
+		return _inkMax.GetX() > _inkMin.GetX() && _inkMax.GetY() > _inkMin.GetY();
 	}
 
 	/// @brief
@@ -31,6 +40,7 @@ namespace hod::inline renderer
 		const uint32_t pixelSize = (mode == GlyphCache::Mode::Bitmap) ? (uint32_t)Max(1.0f, std::round(size)) : 0;
 
 		bool built = true;
+		bool firstInk = true;
 		for (const TextLayout::Glyph& layoutGlyph : layout._glyphs)
 		{
 			if (layoutGlyph._faceIndex >= faces.Size() || faces[layoutGlyph._faceIndex] == nullptr)
@@ -71,9 +81,30 @@ namespace hod::inline renderer
 				continue;
 			}
 
-			const Vector2  glyphOrigin = origin + layoutGlyph._position;
-			const Vector2  quadMin = glyphOrigin + glyph->_boundsMin * size;
-			const Vector2  quadMax = glyphOrigin + glyph->_boundsMax * size;
+			// Bitmap: the texels of the glyph on whole pixels, at the size they are rasterized at, not stretched nor filtered across two pixels
+			Vector2 glyphOrigin = origin + layoutGlyph._position;
+			float   quadScale = size;
+			if (mode == GlyphCache::Mode::Bitmap)
+			{
+				glyphOrigin = Vector2(std::round(glyphOrigin.GetX()), std::round(glyphOrigin.GetY()));
+				quadScale = (float)pixelSize;
+			}
+			const Vector2 quadMin = glyphOrigin + glyph->_boundsMin * quadScale;
+			const Vector2 quadMax = glyphOrigin + glyph->_boundsMax * quadScale;
+
+			const Vector2 inkMin = glyphOrigin + glyph->_inkMin * quadScale;
+			const Vector2 inkMax = glyphOrigin + glyph->_inkMax * quadScale;
+			if (firstInk)
+			{
+				firstInk = false;
+				_inkMin = inkMin;
+				_inkMax = inkMax;
+			}
+			else
+			{
+				_inkMin = Vector2(Min(_inkMin.GetX(), inkMin.GetX()), Min(_inkMin.GetY(), inkMin.GetY()));
+				_inkMax = Vector2(Max(_inkMax.GetX(), inkMax.GetX()), Max(_inkMax.GetY(), inkMax.GetY()));
+			}
 			const uint16_t vertexIndex = (uint16_t)batch->_positions.Size();
 
 			// The top of the glyph is the top of its texels: v goes down

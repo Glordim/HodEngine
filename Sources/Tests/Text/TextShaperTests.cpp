@@ -86,14 +86,18 @@ TEST_F(TextShaperTest, FaceHasItsMetrics)
 	EXPECT_GT(_sans->GetAscender(), 0);
 	EXPECT_LT(_sans->GetDescender(), 0);
 	EXPECT_EQ(_sans->GetDataSize(), (uint32_t)ReadFixture("NotoSans-Regular.ttf").size());
+
+	// The flat capitals are below the ascender, which leaves room for their accents
+	EXPECT_GT(_sans->GetCapHeight(), 600);
+	EXPECT_LT(_sans->GetCapHeight(), _sans->GetAscender());
 }
 
 TEST_F(TextShaperTest, FaceKnowsTheCharactersItHas)
 {
 	EXPECT_TRUE(_sans->HasGlyph(U'A'));
-	EXPECT_TRUE(_sans->HasGlyph(U'é')); // é
-	EXPECT_FALSE(_sans->HasGlyph(U'中')); // 中
-	EXPECT_TRUE(_sc->HasGlyph(U'中'));
+	EXPECT_TRUE(_sans->HasGlyph(0x00E9)); // é
+	EXPECT_FALSE(_sans->HasGlyph(0x4E2D)); // 中
+	EXPECT_TRUE(_sc->HasGlyph(0x4E2D));
 }
 
 TEST(FontFace, RejectsWhatIsNotAFont)
@@ -267,4 +271,88 @@ TEST_F(TextShaperTest, RejectsWhatItCannotShapeWith)
 	FontFace        notLoaded;
 	const FontFace* notLoadedFaces[] = {&notLoaded};
 	EXPECT_FALSE(_shaper.Shape("A", notLoadedFaces, Size, layout));
+}
+
+// ============================================================================
+// Ellipsis
+// ============================================================================
+
+TEST_F(TextShaperTest, EllipsizedLeavesWhatFits)
+{
+	const FontFace* faces[] = {_sans, _sc};
+	TextLayout      whole = Shape("Hello world");
+	TextLayout      layout;
+	ASSERT_TRUE(_shaper.ShapeEllipsized("Hello world", faces, Size, whole._width, layout));
+
+	ASSERT_EQ(layout._glyphs.Size(), whole._glyphs.Size());
+	EXPECT_FLOAT_EQ(layout._width, whole._width);
+}
+
+TEST_F(TextShaperTest, EllipsizedCutsAndEndsWithTheEllipsis)
+{
+	const FontFace* faces[] = {_sans, _sc};
+	TextLayout      whole = Shape("Hello world");
+	const float     maxWidth = whole._width * 0.6f;
+
+	TextLayout layout;
+	ASSERT_TRUE(_shaper.ShapeEllipsized("Hello world", faces, Size, maxWidth, layout));
+
+	EXPECT_LE(layout._width, maxWidth);
+	ASSERT_LT(layout._glyphs.Size(), whole._glyphs.Size());
+
+	// The same glyphs, then the ellipsis
+	TextLayout ellipsis = Shape("\xE2\x80\xA6");
+	ASSERT_EQ(ellipsis._glyphs.Size(), 1u);
+	EXPECT_NE(ellipsis._glyphs[0]._glyphId, 0u);
+	for (uint32_t glyphIndex = 0; glyphIndex + 1 < layout._glyphs.Size(); ++glyphIndex)
+	{
+		EXPECT_EQ(layout._glyphs[glyphIndex]._glyphId, whole._glyphs[glyphIndex]._glyphId);
+	}
+	EXPECT_EQ(layout._glyphs.Back()._glyphId, ellipsis._glyphs[0]._glyphId);
+	EXPECT_EQ(layout._glyphs.Back()._cluster, layout._glyphs.Size() - 1); // one byte per character before it
+}
+
+// "Hello …" would not fit where "Hello…" does: the space before the cut goes
+TEST_F(TextShaperTest, EllipsizedDropsTheSpacesBeforeTheCut)
+{
+	const FontFace* faces[] = {_sans, _sc};
+	TextLayout      expected = Shape("Hello\xE2\x80\xA6");
+
+	TextLayout layout;
+	ASSERT_TRUE(_shaper.ShapeEllipsized("Hello world", faces, Size, expected._width + 1.0f, layout));
+
+	ASSERT_EQ(layout._glyphs.Size(), expected._glyphs.Size());
+	for (uint32_t glyphIndex = 0; glyphIndex < layout._glyphs.Size(); ++glyphIndex)
+	{
+		EXPECT_EQ(layout._glyphs[glyphIndex]._glyphId, expected._glyphs[glyphIndex]._glyphId);
+	}
+}
+
+// An accented letter written as e + combining acute is cut whole
+TEST_F(TextShaperTest, EllipsizedKeepsALetterWithItsMarks)
+{
+	const FontFace* faces[] = {_sans, _sc};
+	const char*     text = "e\xCC\x81" "e\xCC\x81" "e\xCC\x81" "e\xCC\x81" "e\xCC\x81";
+	TextLayout      whole = Shape(text);
+
+	TextLayout layout;
+	ASSERT_TRUE(_shaper.ShapeEllipsized(text, faces, Size, whole._width * 0.7f, layout));
+
+	// Clusters 0, 3, 6...: never inside a letter
+	for (const TextLayout::Glyph& glyph : layout._glyphs)
+	{
+		EXPECT_EQ(glyph._cluster % 3, 0u);
+	}
+}
+
+TEST_F(TextShaperTest, EllipsizedLeavesTheEllipsisWhenNothingFits)
+{
+	const FontFace* faces[] = {_sans, _sc};
+	TextLayout      layout;
+	ASSERT_TRUE(_shaper.ShapeEllipsized("Hello world", faces, Size, 1.0f, layout));
+
+	TextLayout ellipsis = Shape("\xE2\x80\xA6");
+	ASSERT_EQ(layout._glyphs.Size(), 1u);
+	ASSERT_EQ(ellipsis._glyphs.Size(), 1u);
+	EXPECT_EQ(layout._glyphs[0]._glyphId, ellipsis._glyphs[0]._glyphId);
 }

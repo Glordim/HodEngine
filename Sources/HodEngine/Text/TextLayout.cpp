@@ -18,5 +18,6 @@ namespace hod::inline text
 		_ascender = 0.0f;
 		_descender = 0.0f;
 		_lineGap = 0.0f;
+		_capHeight = 0.0f;
 	}
 }

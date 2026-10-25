@@ -43,6 +43,7 @@ namespace hod::inline text
 		int32_t			GetAscender() const;  // above the baseline, positive
 		int32_t			GetDescender() const; // below the baseline, negative
 		int32_t			GetLineGap() const;   // between the descender of a line and the ascender of the next one
+		int32_t			GetCapHeight() const; // the top of the flat capitals (H), above the baseline
 
 		bool			HasGlyph(char32_t codepoint) const;
 
@@ -67,5 +68,6 @@ namespace hod::inline text
 		int32_t			_ascender = 0;
 		int32_t			_descender = 0;
 		int32_t			_lineGap = 0;
+		int32_t			_capHeight = 0;
 	};
 }

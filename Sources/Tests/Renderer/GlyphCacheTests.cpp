@@ -180,6 +180,29 @@ TEST_F(GlyphCacheTest, SdfGoesPastTheOutline)
 	EXPECT_NEAR(sdf->_boundsMax.GetY(), bitmap->_boundsMax.GetY() + spread, 2.0f * pixel);
 }
 
+// The ink is the outline: the same in both modes, inside the quad, the SDF quad SdfSpread pixels around it
+TEST_F(GlyphCacheTest, InkIsTheOutline)
+{
+	const uint32_t           glyphId = GlyphIdOf("H");
+	const GlyphCache::Glyph* sdf = _cache.GetGlyph(*_face, glyphId, GlyphCache::Mode::Sdf);
+	const GlyphCache::Glyph* bitmap = _cache.GetGlyph(*_face, glyphId, GlyphCache::Mode::Bitmap, GlyphCache::SdfEmSize);
+	ASSERT_NE(sdf, nullptr);
+	ASSERT_NE(bitmap, nullptr);
+
+	const float pixel = 1.0f / (float)GlyphCache::SdfEmSize;
+	EXPECT_NEAR(sdf->_inkMin.GetX(), bitmap->_inkMin.GetX(), pixel);
+	EXPECT_NEAR(sdf->_inkMax.GetX(), bitmap->_inkMax.GetX(), pixel);
+	EXPECT_NEAR(sdf->_inkMax.GetY(), bitmap->_inkMax.GetY(), pixel);
+
+	// H stands on the baseline, as high as the capitals
+	EXPECT_NEAR(sdf->_inkMin.GetY(), 0.0f, pixel);
+	EXPECT_NEAR(sdf->_inkMax.GetY(), (float)_face->GetCapHeight() / (float)_face->GetUnitsPerEm(), pixel);
+
+	const float spread = (float)GlyphCache::SdfSpread / (float)GlyphCache::SdfEmSize;
+	EXPECT_NEAR(sdf->_boundsMin.GetX(), sdf->_inkMin.GetX() - spread, 2.0f * pixel);
+	EXPECT_NEAR(sdf->_boundsMax.GetY(), sdf->_inkMax.GetY() + spread, 2.0f * pixel);
+}
+
 TEST_F(GlyphCacheTest, BitmapIsPerSizeSdfIsNot)
 {
 	const uint32_t glyphId = GlyphIdOf("A");

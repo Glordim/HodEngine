@@ -268,6 +268,11 @@ namespace hod::inline renderer
 
 		Glyph glyph;
 
+		// 26.6 fixed point pixels, at emPixelSize
+		const float metricsToEms = 1.0f / (64.0f * (float)emPixelSize);
+		glyph._inkMin = Vector2((float)slot->metrics.horiBearingX, (float)(slot->metrics.horiBearingY - slot->metrics.height)) * metricsToEms;
+		glyph._inkMax = Vector2((float)(slot->metrics.horiBearingX + slot->metrics.width), (float)slot->metrics.horiBearingY) * metricsToEms;
+
 		const bool emptyOutline = slot->format == FT_GLYPH_FORMAT_OUTLINE && slot->outline.n_points == 0;
 		if (emptyOutline == false && FT_Render_Glyph(slot, (mode == Mode::Sdf) ? FT_RENDER_MODE_SDF : FT_RENDER_MODE_NORMAL) != 0)
 		{

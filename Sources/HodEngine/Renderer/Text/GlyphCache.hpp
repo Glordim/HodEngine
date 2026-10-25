@@ -47,7 +47,9 @@ namespace hod::inline renderer
 			Vector2		_uvMax;
 			Vector2		_boundsMin; // of its quad, from the origin of the glyph, in ems (x right, y up): the quad at a size is bounds * size
 			Vector2		_boundsMax;
-			bool		_empty = false; // nothing to draw (a space): no quad, nothing in the atlas
+			Vector2		_inkMin; // of the outline (what is drawn, without the SDF spread), from the origin of the glyph, in ems
+			Vector2		_inkMax;
+			bool		_empty = false; // nothing to draw (a space): no quad, nothing in the atlas, no ink
 		};
 
 	public:
