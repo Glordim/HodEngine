@@ -2,7 +2,6 @@
 #include "HodEngine/Renderer/Text/TextMesh.hpp"
 
 #include <HodEngine/Core/Math.hpp>
-#include <HodEngine/Text/FontFace.hpp>
 #include <HodEngine/Text/TextLayout.hpp>
 
 #include <cmath>
@@ -25,17 +24,29 @@ namespace hod::inline renderer
 		return _inkMax.GetX() > _inkMin.GetX() && _inkMax.GetY() > _inkMin.GetY();
 	}
 
-	/// @brief
+	/// @brief The caches it is built from are still alive: the ones of the fonts the text is drawn with
+	/// @return
+	bool TextMesh::IsOutdated() const
+	{
+		for (const Batch& batch : _batches)
+		{
+			if (batch._glyphCache->GetGeneration() != batch._glyphCacheGeneration)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/// @brief The glyphs are asked for first, all of them: a page that grows for one changes the uvs of the ones before it
 	/// @param layout
-	/// @param faces
+	/// @param glyphCaches
 	/// @param size
 	/// @param origin
-	/// @param glyphCache
 	/// @param mode
 	/// @param pixelSize Pixel only: the size of the grid of the font
 	/// @return false when a glyph can't be rasterized: the others are drawn all the same
-	bool TextMesh::Build(const TextLayout& layout, ArrayView<const FontFace*> faces, float size, const Vector2& origin, GlyphCache& glyphCache, GlyphCache::Mode mode,
-	                     uint32_t pixelSize)
+	bool TextMesh::Build(const TextLayout& layout, ArrayView<GlyphCache*> glyphCaches, float size, const Vector2& origin, GlyphCache::Mode mode, uint32_t pixelSize)
 	{
 		Clear();
 
@@ -44,31 +55,40 @@ namespace hod::inline renderer
 			pixelSize = (uint32_t)Max(1.0f, std::round(size));
 		}
 
-		bool built = true;
-		bool firstInk = true;
-		for (const TextLayout::Glyph& layoutGlyph : layout._glyphs)
+		bool                             built = true;
+		Vector<const GlyphCache::Glyph*> glyphs;
+		glyphs.Resize(layout._glyphs.Size(), nullptr);
+		for (uint32_t glyphIndex = 0; glyphIndex < layout._glyphs.Size(); ++glyphIndex)
 		{
-			if (layoutGlyph._faceIndex >= faces.Size() || faces[layoutGlyph._faceIndex] == nullptr)
+			const TextLayout::Glyph& layoutGlyph = layout._glyphs[glyphIndex];
+			if (layoutGlyph._faceIndex >= glyphCaches.Size() || glyphCaches[layoutGlyph._faceIndex] == nullptr)
 			{
 				built = false;
 				continue;
 			}
 
-			const GlyphCache::Glyph* glyph = glyphCache.GetGlyph(*faces[layoutGlyph._faceIndex], layoutGlyph._glyphId, mode, pixelSize);
-			if (glyph == nullptr)
+			glyphs[glyphIndex] = glyphCaches[layoutGlyph._faceIndex]->GetGlyph(layoutGlyph._glyphId, mode, pixelSize);
+			if (glyphs[glyphIndex] == nullptr)
 			{
 				built = false;
-				continue;
 			}
-			if (glyph->_empty)
+		}
+
+		bool firstInk = true;
+		for (uint32_t glyphIndex = 0; glyphIndex < layout._glyphs.Size(); ++glyphIndex)
+		{
+			const TextLayout::Glyph& layoutGlyph = layout._glyphs[glyphIndex];
+			const GlyphCache::Glyph* glyph = glyphs[glyphIndex];
+			if (glyph == nullptr || glyph->_empty)
 			{
 				continue;
 			}
 
-			Batch* batch = nullptr;
+			GlyphCache* glyphCache = glyphCaches[layoutGlyph._faceIndex];
+			Batch*      batch = nullptr;
 			for (Batch& candidate : _batches)
 			{
-				if (candidate._pageIndex == glyph->_pageIndex)
+				if (candidate._glyphCache == glyphCache && candidate._pageIndex == glyph->_pageIndex)
 				{
 					batch = &candidate;
 					break;
@@ -77,6 +97,8 @@ namespace hod::inline renderer
 			if (batch == nullptr)
 			{
 				batch = &_batches.EmplaceBack();
+				batch->_glyphCache = glyphCache;
+				batch->_glyphCacheGeneration = glyphCache->GetGeneration();
 				batch->_pageIndex = glyph->_pageIndex;
 			}
 

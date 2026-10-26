@@ -1,6 +1,5 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
-#include "HodEngine/Renderer/Text/GlyphCache.hpp"
 #include "HodEngine/Renderer/Resource/FontResource.hpp"
 
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
@@ -32,17 +31,7 @@ namespace hod::inline renderer
 	/// @brief
 	FontResource::~FontResource()
 	{
-		ForgetGlyphs();
-	}
-
-	/// @brief The ones of the face as it is: before it is destroyed or loaded again
-	void FontResource::ForgetGlyphs()
-	{
-		Renderer* renderer = Renderer::GetInstance();
-		if (renderer != nullptr && renderer->GetGlyphCache() != nullptr)
-		{
-			renderer->GetGlyphCache()->Forget(_fontFace);
-		}
+		_glyphCache.Clear(); // before the face it reads
 	}
 
 	/// @brief
@@ -74,7 +63,7 @@ namespace hod::inline renderer
 			return false;
 		}
 
-		ForgetGlyphs();
+		_glyphCache.Clear(); // before the face it reads is loaded again
 		const bool loaded = _fontFace.LoadFromMemory(buffer, ttfDataBlock->_uncompressedSize); // copies it
 		DefaultAllocator::GetInstance().Free(buffer);
 		if (loaded == false)
@@ -82,7 +71,7 @@ namespace hod::inline renderer
 			OUTPUT_ERROR("FontResource::Initialize: load font failed");
 			return false;
 		}
-		return true;
+		return _glyphCache.Init(_fontFace);
 	}
 
 	/// @brief
@@ -90,6 +79,13 @@ namespace hod::inline renderer
 	const FontFace& FontResource::GetFontFace() const
 	{
 		return _fontFace;
+	}
+
+	/// @brief
+	/// @return
+	GlyphCache& FontResource::GetGlyphCache()
+	{
+		return _glyphCache;
 	}
 
 	/// @brief
@@ -103,7 +99,11 @@ namespace hod::inline renderer
 	/// @param renderMode
 	void FontResource::SetRenderMode(RenderMode renderMode)
 	{
-		_renderMode = renderMode;
+		if (_renderMode != renderMode)
+		{
+			_renderMode = renderMode;
+			_glyphCache.Reset(); // the glyphs of the other mode are not drawn anymore
+		}
 	}
 
 	/// @brief
@@ -117,7 +117,14 @@ namespace hod::inline renderer
 	/// @param pixelSize
 	void FontResource::SetPixelSize(uint32_t pixelSize)
 	{
-		_pixelSize = pixelSize;
+		if (_pixelSize != pixelSize)
+		{
+			_pixelSize = pixelSize;
+			if (_renderMode == RenderMode::PixelArt)
+			{
+				_glyphCache.Reset(); // rasterized on another grid
+			}
+		}
 	}
 
 	/// @brief

@@ -26,6 +26,7 @@ namespace hod::inline editor
 
 		void		DrawSettings();
 		void		DrawInformation();
+		bool		DetectPixelSize(); // into the settings, true when found
 
 	private:
 

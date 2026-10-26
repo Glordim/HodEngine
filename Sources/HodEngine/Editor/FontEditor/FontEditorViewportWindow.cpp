@@ -77,7 +77,7 @@ namespace hod::inline editor
 	/// @brief The sizes a text is often drawn at, or the first multiples of the grid of a pixel art font
 	/// @param font
 	/// @param text
-	void FontEditorViewportWindow::BuildLines(const FontResource& font, const char* text)
+	void FontEditorViewportWindow::BuildLines(FontResource& font, const char* text)
 	{
 		_lines.Clear();
 
@@ -102,7 +102,7 @@ namespace hod::inline editor
 		}
 
 		TextShaper*            textShaper = Renderer::GetInstance()->GetTextShaper();
-		GlyphCache*            glyphCache = Renderer::GetInstance()->GetGlyphCache();
+		GlyphCache*            glyphCaches[] = {&font.GetGlyphCache()};
 		const GlyphCache::Mode mode = _pixelArt ? GlyphCache::Mode::Pixel : GlyphCache::Mode::Bitmap;
 
 		float top = 0.0f;
@@ -120,7 +120,7 @@ namespace hod::inline editor
 			// On whole pixels: the glyphs are, from it
 			line._baseline = std::round(top - line._layout._ascender);
 			line._xHeight = (float)face.GetXHeight() * fontSize / (float)face.GetUnitsPerEm();
-			line._mesh.Build(line._layout, faces, fontSize, Vector2(LabelColumnWidth, line._baseline), *glyphCache, mode, font.GetPixelSize());
+			line._mesh.Build(line._layout, glyphCaches, fontSize, Vector2(LabelColumnWidth, line._baseline), mode, font.GetPixelSize());
 
 			top = line._baseline + line._layout._descender - line._layout._lineGap - LineSpacing;
 		}
@@ -246,11 +246,24 @@ namespace hod::inline editor
 		HandleInput(viewportPosition, viewportSize);
 
 		// A font reloaded has another face: laid out again
-		if (_builtPreviewVersion != fontEditorTab->GetPreviewVersion() || _builtFontFaceId != font->GetFontFace().GetId())
+		// Laid out again when the atlas of the font grew (a line, a text node...): the uvs of its glyphs changed
+		bool outdated = _builtPreviewVersion != fontEditorTab->GetPreviewVersion() || _builtFontFaceId != font->GetFontFace().GetId();
+		for (const PreviewLine& line : _lines)
+		{
+			outdated |= (outdated == false && line._mesh.IsOutdated());
+		}
+		// A line may make the atlas grow under the ones before it: built again then, every glyph already in the atlas
+		for (uint32_t attempt = 0; outdated && attempt < 3; ++attempt)
 		{
 			BuildLines(*font, fontEditorTab->GetPreviewText());
 			_builtPreviewVersion = fontEditorTab->GetPreviewVersion();
 			_builtFontFaceId = font->GetFontFace().GetId();
+
+			outdated = false;
+			for (const PreviewLine& line : _lines)
+			{
+				outdated |= line._mesh.IsOutdated();
+			}
 		}
 
 		FrameResources& frameResources = Renderer::GetInstance()->GetCurrentFrameResources();
@@ -275,7 +288,6 @@ namespace hod::inline editor
 		Sampler::CreateInfo samplerCreateInfo;
 		samplerCreateInfo._filterMode = (_pixelArt || zoomFactor > 1.0f) ? FilterMode::Nearest : FilterMode::Linear;
 		const Sampler*  sampler = RhiDevice::GetInstance()->GetSampler(samplerCreateInfo);
-		GlyphCache*     glyphCache = Renderer::GetInstance()->GetGlyphCache();
 		const Material* material = BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Text_Bitmap);
 
 		for (const PreviewLine& line : _lines)
@@ -284,7 +296,7 @@ namespace hod::inline editor
 			{
 				// One per frame: the one of the previous frame may still be in use by the GPU
 				MaterialInstance* materialInstance = MaterialInstance::Create(material);
-				materialInstance->SetTexture("image", glyphCache->GetPage(batch._pageIndex));
+				materialInstance->SetTexture("image", batch._glyphCache->GetPage(batch._pageIndex));
 				materialInstance->SetSampler("imageSampler", sampler);
 				materialInstance->SetVec4("ubo.color", Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 				frameResources.DeleteAfter(materialInstance);

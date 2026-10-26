@@ -1,5 +1,6 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/FontEditor/FontEditorTab.hpp"
+#include "HodEngine/Editor/FontEditor/FontEditorAtlasWindow.hpp"
 #include "HodEngine/Editor/FontEditor/FontEditorPropertiesWindow.hpp"
 #include "HodEngine/Editor/FontEditor/FontEditorViewportWindow.hpp"
 
@@ -155,6 +156,7 @@ namespace hod::inline editor
 	{
 		FontEditorPropertiesWindow* propertiesWindow = OpenWindow<FontEditorPropertiesWindow>();
 		FontEditorViewportWindow*   viewportWindow = OpenWindow<FontEditorViewportWindow>();
+		FontEditorAtlasWindow*      atlasWindow = OpenWindow<FontEditorAtlasWindow>();
 
 		ImGui::DockBuilderRemoveNode(_dockSpaceId);
 		ImGui::DockBuilderRemoveNodeChildNodes(_dockSpaceId);
@@ -165,11 +167,12 @@ namespace hod::inline editor
 		ImGuiID opposite = _dockSpaceId;
 		ImGuiID dockRight = ImGui::DockBuilderSplitNode(_dockSpaceId, ImGuiDir_Right, 0.25f, nullptr, &opposite);
 
+		// The preview and the atlas, two tabs of the same node: the preview in front
 		ImGui::DockBuilderDockWindow(propertiesWindow->GetIdentifier(), dockRight);
 		ImGui::DockBuilderDockWindow(viewportWindow->GetIdentifier(), opposite);
-		ImGuiDockNode* viewportNode = ImGui::DockBuilderGetNode(opposite);
-		viewportNode->SetLocalFlags(viewportNode->LocalFlags | ImGuiDockNodeFlags_HiddenTabBar);
+		ImGui::DockBuilderDockWindow(atlasWindow->GetIdentifier(), opposite);
 		ImGui::DockBuilderFinish(_dockSpaceId);
+		ImGui::SetWindowFocus(viewportWindow->GetIdentifier());
 	}
 
 	/// @brief

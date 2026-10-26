@@ -18,6 +18,9 @@ namespace hod::inline renderer
 		// False when it does not fit anymore
 		bool			Pack(uint32_t width, uint32_t height, uint32_t& x, uint32_t& y);
 
+		// A larger area, from the same top left: the rectangles placed stay where they are
+		void			Grow(uint32_t width, uint32_t height);
+
 		uint32_t		GetWidth() const;
 		uint32_t		GetHeight() const;
 

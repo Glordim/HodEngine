@@ -4,12 +4,14 @@
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 
+#include "HodEngine/Renderer/Text/GlyphCache.hpp"
+
 #include <HodEngine/Text/FontFace.hpp>
 
 namespace hod::inline renderer
 {
 	/// @brief A font file, read once into a FontFace, and how its glyphs are drawn.
-	/// Its glyphs rasterized in the GlyphCache of the Renderer are forgotten with it.
+	/// Its glyphs drawn so far are in its own GlyphCache (its atlas), which goes with it.
 	class HOD_RENDERER_API FontResource : public Resource
 	{
 		REFLECTED_CLASS(FontResource, Resource)
@@ -38,11 +40,13 @@ namespace hod::inline renderer
 		bool				Initialize(const ResourceContainer& resourceContainer) override;
 
 		const FontFace&		GetFontFace() const;
+		GlyphCache&			GetGlyphCache(); // of its face
 
+		// Changed: its atlas is emptied, its glyphs are drawn otherwise
 		RenderMode			GetRenderMode() const;
 		void				SetRenderMode(RenderMode renderMode);
 
-		// PixelArt only: the size the font is drawn for, in pixels an em (Silkscreen: 8). 0 when not known
+		// PixelArt only: the size the font is drawn for, in pixels an em (Silkscreen: 8). 0 when not known. Changed in PixelArt: its atlas is emptied
 		uint32_t			GetPixelSize() const;
 		void				SetPixelSize(uint32_t pixelSize);
 
@@ -51,11 +55,8 @@ namespace hod::inline renderer
 
 	private:
 
-		void				ForgetGlyphs();
-
-	private:
-
 		FontFace			_fontFace;
+		GlyphCache			_glyphCache; // after the face: it reads it, it goes first
 		RenderMode			_renderMode = RenderMode::Smooth;
 		uint32_t			_pixelSize = 0;
 	};

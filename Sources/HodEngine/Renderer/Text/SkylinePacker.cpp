@@ -17,6 +17,29 @@ namespace hod::inline renderer
 		_nodes.PushBack(node);
 	}
 
+	/// @brief The skyline goes on to the new width, at the top
+	/// @param width at least the current one
+	/// @param height at least the current one
+	void SkylinePacker::Grow(uint32_t width, uint32_t height)
+	{
+		if (width > _width)
+		{
+			if (_nodes.Back()._y == 0)
+			{
+				_nodes.Back()._width += width - _width;
+			}
+			else
+			{
+				Node node;
+				node._x = _width;
+				node._width = width - _width;
+				_nodes.PushBack(node);
+			}
+			_width = width;
+		}
+		_height = Max(_height, height);
+	}
+
 	/// @brief
 	/// @return
 	uint32_t SkylinePacker::GetWidth() const

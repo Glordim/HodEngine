@@ -24,8 +24,10 @@ namespace hod::inline renderer
 {
 	class SkylinePacker;
 
-	/// @brief The glyphs drawn so far, rasterized by FreeType into the pages of an R8 atlas, the first time they are asked for.
-	/// Kept by the id of their FontFace: Forget it before the face is destroyed or loaded again.
+	/// @brief The glyphs of a font drawn so far, rasterized by FreeType into its own R8 atlas, the first time they are asked for.
+	/// One per font (a FontResource has its own): it lives, and its memory goes, with the font.
+	/// The atlas is one page as long as it can: it starts small and doubles, its glyphs copied, up to MaxPageSize, a text of the font drawn in one batch.
+	/// Only then another page is added (thousands of glyphs: CJK).
 	class HOD_RENDERER_API GlyphCache final
 	{
 	public:
@@ -37,7 +39,8 @@ namespace hod::inline renderer
 			Pixel,  // pixel art: on or off, rasterized at the size the font is drawn for (its pixel grid), drawn at whole multiples of it with a Nearest filter
 		};
 
-		static constexpr uint32_t PageSize = 1024;
+		static constexpr uint32_t InitialPageSize = 256;
+		static constexpr uint32_t MaxPageSize = 2048;
 		static constexpr uint32_t SdfEmSize = 48; // the em, in pixels, the SDF glyphs are rasterized at
 		static constexpr uint32_t SdfSpread = 6;  // the distance, in pixels at SdfEmSize, the SDF goes to on each side of the outline
 		// Empty texels around each glyph, in its quad: a linear filter fades its edges out instead of the quad cutting them
@@ -46,7 +49,7 @@ namespace hod::inline renderer
 		struct Glyph
 		{
 			uint32_t	_pageIndex = 0;
-			Vector2		_uvMin; // in the page: (0, 0) its first texel, v down
+			Vector2		_uvMin; // in the page: (0, 0) its first texel, v down. Change when the page grows, see GetGeneration
 			Vector2		_uvMax;
 			Vector2		_boundsMin; // of its quad (its border included), from the origin of the glyph, in ems (x right, y up): the quad at a size is bounds * size
 			Vector2		_boundsMax;
@@ -67,44 +70,58 @@ namespace hod::inline renderer
 
 	public:
 
-		bool			Init();
-		void			Clear(); // every glyph, page, and face
+		// The face is read where it is: it outlives the cache, or the cache is cleared first
+		bool			Init(const FontFace& face);
+		void			Clear(); // every glyph and page, the face
+		// Every glyph and page, the face kept: drawn otherwise from now on (another mode...). While a frame is recorded: its pages are kept until its end
+		void			Reset();
 
 		// pixelSize: the em in pixels, Bitmap and Pixel only (Pixel: the one of the grid of the font). Null when it can't be rasterized.
-		// Valid until the face is forgotten or the cache cleared.
-		const Glyph*	GetGlyph(const FontFace& face, uint32_t glyphId, Mode mode, uint32_t pixelSize = 0);
-
-		// The space of its glyphs in the atlas is not given back
-		void			Forget(const FontFace& face);
+		// Valid until the cache is cleared
+		const Glyph*	GetGlyph(uint32_t glyphId, Mode mode, uint32_t pixelSize = 0);
 
 		uint32_t		GetPageCount() const;
-		Texture*		GetPage(uint32_t pageIndex) const;
+		rhi::Texture*	GetPage(uint32_t pageIndex) const; // a page that grows is another texture
+		uint32_t		GetPageSize(uint32_t pageIndex) const;
+
+		// Unique to the state of the pages: changes when one grows (the uvs of its glyphs change, its texture too) or the cache is cleared.
+		// What is made from the glyphs (meshes...) is made again then
+		uint32_t		GetGeneration() const;
 
 		uint32_t		GetRasterizedGlyphCount() const; // since Init: how many times FreeType was asked to rasterize
 
+		// Every glyph rasterized so far, in every mode and size (an atlas viewer...). Valid until the cache is cleared
+		void			GetGlyphs(Vector<const Glyph*>& glyphs) const;
+
 	private:
 
+		// Its pixels kept on the CPU too: copied into the larger texture when it grows
 		struct Page
 		{
-			Texture*		_texture = nullptr;
+			rhi::Texture*	_texture = nullptr;
 			SkylinePacker*	_packer = nullptr;
+			uint32_t		_size = 0;
+			Vector<uint8_t>	_pixels;
 		};
 
 	private:
 
-		FT_FaceRec_*	GetFtFace(const FontFace& face);
 		bool			Allocate(uint32_t width, uint32_t height, uint32_t& pageIndex, uint32_t& x, uint32_t& y);
-		bool			AddPage();
+		bool			AddPage(uint32_t size);
+		bool			GrowPage(uint32_t pageIndex);
+		void			ReleasePages(bool untilTheEndOfTheFrame);
+		rhi::Texture*	CreatePageTexture(uint32_t size, const uint8_t* pixels);
 
 	private:
 
-		FT_LibraryRec_*								_ftLibrary = nullptr;
-		std::unordered_map<uint32_t, FT_FaceRec_*>	_ftFaces; // by FontFace id
+		FT_LibraryRec_*						_ftLibrary = nullptr;
+		FT_FaceRec_*						_ftFace = nullptr;
 
-		std::unordered_map<uint64_t, Glyph>			_glyphs;
-		Vector<Page>								_pages;
+		std::unordered_map<uint64_t, Glyph>	_glyphs;
+		Vector<Page>						_pages;
+		uint32_t							_generation = 0;
 
-		Vector<uint8_t>								_pixels; // of the glyph being copied into a page
-		uint32_t									_rasterizedGlyphCount = 0;
+		Vector<uint8_t>						_pixels; // of the glyph being copied into a page
+		uint32_t							_rasterizedGlyphCount = 0;
 	};
 }

@@ -2,6 +2,10 @@
 #include "HodEngine/Renderer/Text/GlyphCache.hpp"
 #include "HodEngine/Renderer/Text/SkylinePacker.hpp"
 
+#include "HodEngine/Renderer/FrameResources.hpp"
+#include "HodEngine/Renderer/Renderer.hpp"
+
+#include <HodEngine/Core/Math.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/RHI/Texture.hpp>
 #include <HodEngine/Text/FontFace.hpp>
@@ -9,46 +13,61 @@
 #include <freetype/freetype.h>
 #include <freetype/ftmodapi.h>
 
+#include <atomic>
 #include <cstring>
 
 namespace hod::inline renderer
 {
 	namespace
 	{
+		constexpr uint32_t MaxPixelSize = 0x3FFF;
 
 		/// @brief
-		/// @param faceId
 		/// @param glyphId at most 0xFFFF in an OpenType font
 		/// @param mode
 		/// @param pixelSize Bitmap and Pixel only, at most MaxPixelSize
 		/// @return
-		uint64_t MakeKey(uint32_t faceId, uint32_t glyphId, GlyphCache::Mode mode, uint32_t pixelSize)
+		uint64_t MakeKey(uint32_t glyphId, GlyphCache::Mode mode, uint32_t pixelSize)
 		{
-			return ((uint64_t)faceId << 32) | ((uint64_t)(glyphId & 0xFFFF) << 16) | ((uint64_t)mode << 14) | (uint64_t)(pixelSize & 0x3FFF);
+			return ((uint64_t)(glyphId & 0xFFFF) << 16) | ((uint64_t)mode << 14) | (uint64_t)(pixelSize & 0x3FFF);
 		}
 
-		constexpr uint32_t MaxPixelSize = 0x3FFF;
+		// Unique among all the caches: a cache made at the address of another one has other generations
+		std::atomic<uint32_t> nextGeneration = 1;
+
+		/// @brief A page grown may be in a material instance of the frame being recorded (a text drawn before it grew): deleted with it
+		/// @param texture
+		void DeletePageTexture(Texture* texture)
+		{
+			Renderer* renderer = Renderer::GetInstance();
+			if (renderer != nullptr)
+			{
+				renderer->GetCurrentFrameResources().DeleteAfter(texture);
+			}
+			else
+			{
+				DefaultAllocator::GetInstance().Delete(texture);
+			}
+		}
 	}
 
 	/// @brief
 	GlyphCache::~GlyphCache()
 	{
 		Clear();
-
-		if (_ftLibrary != nullptr)
-		{
-			FT_Done_FreeType(_ftLibrary);
-			_ftLibrary = nullptr;
-		}
 	}
 
 	/// @brief
+	/// @param face
 	/// @return
-	bool GlyphCache::Init()
+	bool GlyphCache::Init(const FontFace& face)
 	{
-		if (_ftLibrary != nullptr)
+		Clear();
+
+		if (face.IsLoaded() == false)
 		{
-			return true;
+			OUTPUT_ERROR("GlyphCache::Init: the face is not loaded");
+			return false;
 		}
 
 		FT_Library ftLibrary = nullptr;
@@ -64,6 +83,15 @@ namespace hod::inline renderer
 		FT_Property_Set(_ftLibrary, "sdf", "spread", &spread);
 		FT_Property_Set(_ftLibrary, "bsdf", "spread", &spread);
 
+		FT_Face ftFace = nullptr;
+		if (FT_New_Memory_Face(_ftLibrary, face.GetData(), (FT_Long)face.GetDataSize(), (FT_Long)face.GetFaceIndex(), &ftFace) != 0)
+		{
+			OUTPUT_ERROR("GlyphCache: FreeType can't read the face");
+			Clear();
+			return false;
+		}
+		_ftFace = ftFace;
+
 		_rasterizedGlyphCount = 0;
 		return true;
 	}
@@ -71,50 +99,47 @@ namespace hod::inline renderer
 	/// @brief
 	void GlyphCache::Clear()
 	{
+		ReleasePages(false); // kept until the GPU is done with them, as any texture of a resource released
+
+		if (_ftFace != nullptr)
+		{
+			FT_Done_Face(_ftFace);
+			_ftFace = nullptr;
+		}
+		if (_ftLibrary != nullptr)
+		{
+			FT_Done_FreeType(_ftLibrary);
+			_ftLibrary = nullptr;
+		}
+	}
+
+	/// @brief
+	void GlyphCache::Reset()
+	{
+		ReleasePages(true);
+		_rasterizedGlyphCount = 0;
+	}
+
+	/// @brief Every glyph and page
+	/// @param untilTheEndOfTheFrame a page may be in a material instance of the frame being recorded
+	void GlyphCache::ReleasePages(bool untilTheEndOfTheFrame)
+	{
 		_glyphs.clear();
 
 		for (Page& page : _pages)
 		{
-			DefaultAllocator::GetInstance().Delete(page._texture);
-			DefaultAllocator::GetInstance().Delete(page._packer);
-		}
-		_pages.Clear();
-
-		for (auto& [faceId, ftFace] : _ftFaces)
-		{
-			FT_Done_Face(ftFace);
-		}
-		_ftFaces.clear();
-	}
-
-	/// @brief
-	/// @param face
-	void GlyphCache::Forget(const FontFace& face)
-	{
-		const uint32_t faceId = face.GetId();
-		if (faceId == 0)
-		{
-			return;
-		}
-
-		for (auto it = _glyphs.begin(); it != _glyphs.end();)
-		{
-			if ((uint32_t)(it->first >> 32) == faceId)
+			if (untilTheEndOfTheFrame)
 			{
-				it = _glyphs.erase(it);
+				DeletePageTexture(page._texture);
 			}
 			else
 			{
-				++it;
+				DefaultAllocator::GetInstance().Delete(page._texture);
 			}
+			DefaultAllocator::GetInstance().Delete(page._packer);
 		}
-
-		auto ftFaceIt = _ftFaces.find(faceId);
-		if (ftFaceIt != _ftFaces.end())
-		{
-			FT_Done_Face(ftFaceIt->second);
-			_ftFaces.erase(ftFaceIt);
-		}
+		_pages.Clear();
+		_generation = nextGeneration++;
 	}
 
 	/// @brief
@@ -133,57 +158,113 @@ namespace hod::inline renderer
 	}
 
 	/// @brief
+	/// @param pageIndex
+	/// @return
+	uint32_t GlyphCache::GetPageSize(uint32_t pageIndex) const
+	{
+		return _pages[pageIndex]._size;
+	}
+
+	/// @brief
+	/// @return
+	uint32_t GlyphCache::GetGeneration() const
+	{
+		return _generation;
+	}
+
+	/// @brief
 	/// @return
 	uint32_t GlyphCache::GetRasterizedGlyphCount() const
 	{
 		return _rasterizedGlyphCount;
 	}
 
-	/// @brief Reads the data of the FontFace, where it is
-	/// @param face
-	/// @return
-	FT_FaceRec_* GlyphCache::GetFtFace(const FontFace& face)
+	/// @brief
+	/// @param glyphs appended to
+	void GlyphCache::GetGlyphs(Vector<const Glyph*>& glyphs) const
 	{
-		auto it = _ftFaces.find(face.GetId());
-		if (it != _ftFaces.end())
+		for (const auto& [key, glyph] : _glyphs)
 		{
-			return it->second;
+			glyphs.PushBack(&glyph);
 		}
+	}
 
-		FT_Face ftFace = nullptr;
-		if (FT_New_Memory_Face(_ftLibrary, face.GetData(), (FT_Long)face.GetDataSize(), (FT_Long)face.GetFaceIndex(), &ftFace) != 0)
+	/// @brief
+	/// @param size
+	/// @param pixels size x size
+	/// @return null when it can't be created
+	Texture* GlyphCache::CreatePageTexture(uint32_t size, const uint8_t* pixels)
+	{
+		Texture* texture = RhiDevice::GetInstance()->CreateTexture();
+		if (texture->Build({._width = size, ._height = size, ._format = PixelFormat::R8_UNorm}, pixels) == false)
 		{
-			OUTPUT_ERROR("GlyphCache: FreeType can't read the face");
+			OUTPUT_ERROR("GlyphCache: unable to create an atlas page of {}x{}", size, size);
+			DefaultAllocator::GetInstance().Delete(texture);
 			return nullptr;
 		}
-
-		_ftFaces.emplace(face.GetId(), ftFace);
-		return ftFace;
+		return texture;
 	}
 
 	/// @brief A page, cleared: what a filter reads around a glyph is empty
+	/// @param size
 	/// @return
-	bool GlyphCache::AddPage()
+	bool GlyphCache::AddPage(uint32_t size)
 	{
-		Vector<uint8_t> emptyPixels;
-		emptyPixels.Resize(PageSize * PageSize, 0);
-
-		Texture* texture = RhiDevice::GetInstance()->CreateTexture();
-		if (texture->Build({._width = PageSize, ._height = PageSize, ._format = PixelFormat::R8_UNorm}, emptyPixels.Data()) == false)
+		Page page;
+		page._size = size;
+		page._pixels.Resize(size * size, 0);
+		page._texture = CreatePageTexture(size, page._pixels.Data());
+		if (page._texture == nullptr)
 		{
-			OUTPUT_ERROR("GlyphCache: unable to create an atlas page");
-			DefaultAllocator::GetInstance().Delete(texture);
 			return false;
 		}
-
-		Page page;
-		page._texture = texture;
-		page._packer = DefaultAllocator::GetInstance().New<SkylinePacker>(PageSize, PageSize);
-		_pages.PushBack(page);
+		page._packer = DefaultAllocator::GetInstance().New<SkylinePacker>(size, size);
+		_pages.PushBack(std::move(page));
 		return true;
 	}
 
-	/// @brief In the last page, or a new one when it is full
+	/// @brief Twice as large, its glyphs where they are: their uvs halved
+	/// @param pageIndex
+	/// @return
+	bool GlyphCache::GrowPage(uint32_t pageIndex)
+	{
+		Page&          page = _pages[pageIndex];
+		const uint32_t size = page._size * 2;
+
+		Vector<uint8_t> pixels;
+		pixels.Resize(size * size, 0);
+		for (uint32_t row = 0; row < page._size; ++row)
+		{
+			std::memcpy(pixels.Data() + row * size, page._pixels.Data() + row * page._size, page._size);
+		}
+
+		Texture* texture = CreatePageTexture(size, pixels.Data());
+		if (texture == nullptr)
+		{
+			return false;
+		}
+
+		DeletePageTexture(page._texture);
+		page._texture = texture;
+		page._pixels = std::move(pixels);
+		page._packer->Grow(size, size);
+
+		const float scale = (float)page._size / (float)size;
+		for (auto& [key, glyph] : _glyphs)
+		{
+			if (glyph._empty == false && glyph._pageIndex == pageIndex)
+			{
+				glyph._uvMin = glyph._uvMin * scale;
+				glyph._uvMax = glyph._uvMax * scale;
+			}
+		}
+		page._size = size;
+
+		_generation = nextGeneration++;
+		return true;
+	}
+
+	/// @brief In the last page, grown when it is full, or a new one when it can't grow anymore
 	/// @param width
 	/// @param height
 	/// @param pageIndex
@@ -192,37 +273,49 @@ namespace hod::inline renderer
 	/// @return
 	bool GlyphCache::Allocate(uint32_t width, uint32_t height, uint32_t& pageIndex, uint32_t& x, uint32_t& y)
 	{
-		if (width > PageSize || height > PageSize)
+		if (width > MaxPageSize || height > MaxPageSize)
 		{
 			OUTPUT_ERROR("GlyphCache: a {}x{} glyph is larger than a page", width, height);
 			return false;
 		}
 
-		if (_pages.Empty() == false && _pages.Back()._packer->Pack(width, height, x, y))
-		{
-			pageIndex = _pages.Size() - 1;
-			return true;
-		}
-
-		if (AddPage() == false)
+		if (_pages.Empty() && AddPage(InitialPageSize) == false)
 		{
 			return false;
 		}
+
 		pageIndex = _pages.Size() - 1;
-		return _pages.Back()._packer->Pack(width, height, x, y);
+		while (_pages[pageIndex]._packer->Pack(width, height, x, y) == false)
+		{
+			if (_pages[pageIndex]._size < MaxPageSize)
+			{
+				if (GrowPage(pageIndex) == false)
+				{
+					return false;
+				}
+			}
+			else
+			{
+				if (AddPage(MaxPageSize) == false)
+				{
+					return false;
+				}
+				pageIndex = _pages.Size() - 1;
+			}
+		}
+		return true;
 	}
 
 	/// @brief
-	/// @param face
 	/// @param glyphId
 	/// @param mode
 	/// @param pixelSize
 	/// @return
-	const GlyphCache::Glyph* GlyphCache::GetGlyph(const FontFace& face, uint32_t glyphId, Mode mode, uint32_t pixelSize)
+	const GlyphCache::Glyph* GlyphCache::GetGlyph(uint32_t glyphId, Mode mode, uint32_t pixelSize)
 	{
-		if (_ftLibrary == nullptr || face.IsLoaded() == false)
+		if (_ftFace == nullptr)
 		{
-			OUTPUT_ERROR("GlyphCache::GetGlyph: not initialized, or the face is not loaded");
+			OUTPUT_ERROR("GlyphCache::GetGlyph: not initialized");
 			return nullptr;
 		}
 
@@ -236,21 +329,15 @@ namespace hod::inline renderer
 			return nullptr;
 		}
 
-		const uint64_t key = MakeKey(face.GetId(), glyphId, mode, pixelSize);
+		const uint64_t key = MakeKey(glyphId, mode, pixelSize);
 		auto           it = _glyphs.find(key);
 		if (it != _glyphs.end())
 		{
 			return &it->second;
 		}
 
-		FT_Face ftFace = GetFtFace(face);
-		if (ftFace == nullptr)
-		{
-			return nullptr;
-		}
-
 		const uint32_t emPixelSize = (mode == Mode::Sdf) ? SdfEmSize : pixelSize;
-		if (FT_Set_Pixel_Sizes(ftFace, 0, emPixelSize) != 0)
+		if (FT_Set_Pixel_Sizes(_ftFace, 0, emPixelSize) != 0)
 		{
 			OUTPUT_ERROR("GlyphCache::GetGlyph: FT_Set_Pixel_Sizes {} failed", emPixelSize);
 			return nullptr;
@@ -270,13 +357,13 @@ namespace hod::inline renderer
 			loadFlags = FT_LOAD_NO_HINTING | FT_LOAD_TARGET_MONO;
 			renderMode = FT_RENDER_MODE_MONO;
 		}
-		if (FT_Load_Glyph(ftFace, glyphId, loadFlags) != 0)
+		if (FT_Load_Glyph(_ftFace, glyphId, loadFlags) != 0)
 		{
 			OUTPUT_ERROR("GlyphCache::GetGlyph: FT_Load_Glyph {} failed", glyphId);
 			return nullptr;
 		}
 
-		FT_GlyphSlot slot = ftFace->glyph;
+		FT_GlyphSlot slot = _ftFace->glyph;
 		++_rasterizedGlyphCount;
 
 		Glyph glyph;
@@ -316,9 +403,11 @@ namespace hod::inline renderer
 		{
 			return nullptr;
 		}
+		Page& page = _pages[pageIndex];
 
 		// The rows of the bitmap may be further apart, or go up: the pitch goes down one row.
-		// 1 bit (Pixel): 8 pixels a byte, the leftmost in the highest bit, on is full coverage
+		// 1 bit (Pixel): 8 pixels a byte, the leftmost in the highest bit, on is full coverage.
+		// Into the page on the CPU too, for it to be copied when it grows
 		_pixels.Resize(bitmap.width * bitmap.rows);
 		for (uint32_t row = 0; row < bitmap.rows; ++row)
 		{
@@ -335,13 +424,14 @@ namespace hod::inline renderer
 			{
 				std::memcpy(pixelRow, bitmapRow, bitmap.width);
 			}
+			std::memcpy(page._pixels.Data() + (y + GlyphBorder + row) * page._size + x + GlyphBorder, pixelRow, bitmap.width);
 		}
-		if (_pages[pageIndex]._texture->UpdateRegion(x + GlyphBorder, y + GlyphBorder, bitmap.width, bitmap.rows, _pixels.Data()) == false)
+		if (page._texture->UpdateRegion(x + GlyphBorder, y + GlyphBorder, bitmap.width, bitmap.rows, _pixels.Data()) == false)
 		{
 			return nullptr;
 		}
 
-		const float pageSize = (float)PageSize;
+		const float pageSize = (float)page._size;
 		glyph._pageIndex = pageIndex;
 		glyph._uvMin = Vector2((float)x / pageSize, (float)y / pageSize);
 		glyph._uvMax = Vector2((float)(x + width) / pageSize, (float)(y + height) / pageSize);

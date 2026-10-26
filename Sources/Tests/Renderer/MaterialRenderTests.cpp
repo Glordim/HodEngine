@@ -689,11 +689,20 @@ TEST_F(MaterialRender, TextBitmapDrawsTheCoverageOfTheGlyphs)
 	ASSERT_TRUE(shaper.Shape("I", faces, fontSize, layout));
 
 	GlyphCache glyphCache;
-	ASSERT_TRUE(glyphCache.Init());
+	ASSERT_TRUE(glyphCache.Init(face));
+
+	// The I first, then enough glyphs for the page to grow: the I drawn is the one copied into the larger page
+	ASSERT_NE(glyphCache.GetGlyph(layout._glyphs[0]._glyphId, GlyphCache::Mode::Bitmap, (uint32_t)fontSize), nullptr);
+	for (uint32_t glyphId = 1; glyphId < 2000 && glyphCache.GetPageSize(0) == GlyphCache::InitialPageSize; ++glyphId)
+	{
+		ASSERT_NE(glyphCache.GetGlyph(glyphId, GlyphCache::Mode::Bitmap, (uint32_t)fontSize), nullptr);
+	}
+	ASSERT_GT(glyphCache.GetPageSize(0), GlyphCache::InitialPageSize);
 
 	// Centered: the capital is about 0.7 em high
-	TextMesh mesh;
-	ASSERT_TRUE(mesh.Build(layout, faces, fontSize, Vector2(-layout._width * 0.5f, -fontSize * 0.35f), glyphCache, GlyphCache::Mode::Bitmap));
+	GlyphCache* glyphCaches[] = {&glyphCache};
+	TextMesh    mesh;
+	ASSERT_TRUE(mesh.Build(layout, glyphCaches, fontSize, Vector2(-layout._width * 0.5f, -fontSize * 0.35f), GlyphCache::Mode::Bitmap));
 	ASSERT_EQ(mesh._batches.Size(), 1u);
 
 	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Text_Bitmap);
@@ -738,10 +747,11 @@ TEST_F(MaterialRender, TextPixelHasNoPixelBetweenTheColorAndTheBackground)
 	ASSERT_TRUE(shaper.Shape("Hi", faces, fontSize, layout));
 
 	GlyphCache glyphCache;
-	ASSERT_TRUE(glyphCache.Init());
+	ASSERT_TRUE(glyphCache.Init(face));
 
-	TextMesh mesh;
-	ASSERT_TRUE(mesh.Build(layout, faces, fontSize, Vector2(-std::round(layout._width * 0.5f), -12.0f), glyphCache, GlyphCache::Mode::Pixel, gridSize));
+	GlyphCache* glyphCaches[] = {&glyphCache};
+	TextMesh    mesh;
+	ASSERT_TRUE(mesh.Build(layout, glyphCaches, fontSize, Vector2(-std::round(layout._width * 0.5f), -12.0f), GlyphCache::Mode::Pixel, gridSize));
 	ASSERT_EQ(mesh._batches.Size(), 1u);
 
 	Sampler::CreateInfo nearest;

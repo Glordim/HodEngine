@@ -32,7 +32,7 @@ namespace hod::inline text
 		bool			LoadFromMemory(const void* data, uint32_t size, uint32_t faceIndex = 0);
 		bool			IsLoaded() const;
 
-		// Unique to each load, 0 when not loaded: what is made from a face (its rasterized glyphs...) is kept by its id
+		// Unique to each load, 0 when not loaded: what is made from a face (its layouts...) is made again when it changes
 		uint32_t		GetId() const;
 
 		// The font file, for the rasterizer to read the same face

@@ -2,7 +2,6 @@
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/Renderer/Renderer.hpp"
 
-#include "HodEngine/Renderer/Text/GlyphCache.hpp"
 #include "HodEngine/Renderer/BuiltinMaterialManager.hpp"
 #include "HodEngine/Renderer/PickingManager.hpp"
 #include "HodEngine/Renderer/RenderView.hpp"
@@ -32,8 +31,6 @@ namespace hod::inline renderer
 		BuiltinMaterialManager::CreateInstance();
 		PickingManager::CreateInstance();
 
-		_glyphCache = DefaultAllocator::GetInstance().New<GlyphCache>();
-		_glyphCache->Init(); // todo catch error ?
 		_textShaper = DefaultAllocator::GetInstance().New<TextShaper>();
 
 		_frameResources.Resize(RhiDevice::GetInstance()->GetFrameInFlightCount());
@@ -46,8 +43,6 @@ namespace hod::inline renderer
 	{
 		DefaultAllocator::GetInstance().Delete(_textShaper);
 		_textShaper = nullptr;
-		DefaultAllocator::GetInstance().Delete(_glyphCache); // its pages are released by Clear
-		_glyphCache = nullptr;
 		PickingManager::DestroyInstance();
 		BuiltinMaterialManager::DestroyInstance();
 
@@ -85,8 +80,6 @@ namespace hod::inline renderer
 
 		DefaultAllocator::GetInstance().Delete(_whiteTexture);
 		_whiteTexture = nullptr;
-
-		_glyphCache->Clear();
 
 		_mainPresentationSurface = nullptr; // released with the others by the device
 		RhiDevice::GetInstance()->Clear();
@@ -193,13 +186,6 @@ namespace hod::inline renderer
 			_whiteTexture->Build(createInfo, pixels);
 		}
 		return _whiteTexture;
-	}
-
-	/// @brief
-	/// @return
-	GlyphCache* Renderer::GetGlyphCache() const
-	{
-		return _glyphCache;
 	}
 
 	/// @brief

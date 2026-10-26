@@ -19,7 +19,6 @@ namespace hod::inline text
 
 namespace hod::inline renderer
 {
-	class GlyphCache;
 	class Material;
 	class MaterialInstance;
 }
@@ -79,8 +78,7 @@ namespace hod::inline renderer
 		// What a MaterialInstance draws for a texture set to null
 		Texture* GetWhiteTexture();
 
-		// The glyphs of the text drawn, and the shaper the main thread lays text out with
-		GlyphCache* GetGlyphCache() const;
+		// The shaper the main thread lays text out with
 		TextShaper* GetTextShaper() const;
 
 	private:
@@ -106,7 +104,6 @@ namespace hod::inline renderer
 
 		Texture* _whiteTexture = nullptr;
 
-		GlyphCache* _glyphCache = nullptr;
 		TextShaper* _textShaper = nullptr;
 
 		Vector<FrameResources> _frameResources;

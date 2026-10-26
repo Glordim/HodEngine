@@ -379,13 +379,13 @@ namespace hod::inline ui2
 
 		const Vector2 requiredSize = GetLayoutSize(*layout);
 
-		GlyphCache* glyphCache = Renderer::GetInstance()->GetGlyphCache();
-		if (_meshDirty)
+		// Built again too when the atlas of the font grew: the uvs of its glyphs changed
+		if (_meshDirty || _mesh.IsOutdated())
 		{
 			std::shared_ptr<FontResource> fontResource = _font.Lock();
-			const FontFace*               faces[] = {&fontResource->GetFontFace()};
-			const GlyphCache::Mode mode = IsPixelArt() ? GlyphCache::Mode::Pixel : GlyphCache::Mode::Bitmap;
-			_mesh.Build(*layout, faces, _fittedFontSize, Vector2(0.0f, 0.0f), *glyphCache, mode, _layoutPixelSize);
+			GlyphCache*                   glyphCaches[] = {&fontResource->GetGlyphCache()};
+			const GlyphCache::Mode        mode = IsPixelArt() ? GlyphCache::Mode::Pixel : GlyphCache::Mode::Bitmap;
+			_mesh.Build(*layout, glyphCaches, _fittedFontSize, Vector2(0.0f, 0.0f), mode, _layoutPixelSize);
 			_meshDirty = false;
 		}
 
@@ -440,7 +440,7 @@ namespace hod::inline ui2
 		for (const TextMesh::Batch& batch : _mesh._batches)
 		{
 			MaterialInstance* materialInstance = MaterialInstance::Create(material);
-			materialInstance->SetTexture("image", glyphCache->GetPage(batch._pageIndex));
+			materialInstance->SetTexture("image", batch._glyphCache->GetPage(batch._pageIndex));
 			if (IsPixelArt())
 			{
 				materialInstance->SetSampler("imageSampler", nearestSampler); // its texels are its pixels

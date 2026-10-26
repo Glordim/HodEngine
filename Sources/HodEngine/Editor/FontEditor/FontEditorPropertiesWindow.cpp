@@ -59,10 +59,17 @@ namespace hod::inline editor
 		{
 			for (uint8_t renderMode = 0; renderMode < std::size(renderModeLabels); ++renderMode)
 			{
-				if (ImGui::Selectable(renderModeLabels[renderMode], std::to_underlying(fontSettings._renderMode) == renderMode))
+				if (ImGui::Selectable(renderModeLabels[renderMode], std::to_underlying(fontSettings._renderMode) == renderMode) &&
+				    std::to_underlying(fontSettings._renderMode) != renderMode)
 				{
 					fontSettings._renderMode = static_cast<FontResource::RenderMode>(renderMode);
 					changed = true;
+
+					// Never set: the grid of the font, if it has one
+					if (fontSettings._renderMode == FontResource::RenderMode::PixelArt && fontSettings._pixelSize == 0)
+					{
+						DetectPixelSize();
+					}
 				}
 			}
 			ImGui::EndCombo();
@@ -93,18 +100,7 @@ namespace hod::inline editor
 			ImGui::SameLine();
 			if (ImGui::Button("Detect"))
 			{
-				std::shared_ptr<FontResource> font = fontEditorTab->GetFont();
-				const uint32_t                pixelSize = font != nullptr ? font->GetFontFace().DetectPixelGrid() : 0;
-				if (pixelSize != 0)
-				{
-					fontSettings._pixelSize = pixelSize;
-					changed = true;
-					_detectMessage = String::Format("A grid of %u pixels an em", pixelSize);
-				}
-				else
-				{
-					_detectMessage = "No pixel grid found: not a pixel art font?";
-				}
+				changed |= DetectPixelSize();
 			}
 			if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
 			{
@@ -131,6 +127,24 @@ namespace hod::inline editor
 			fontEditorTab->ApplySettings();
 			fontEditorTab->MarkAsDirty();
 		}
+	}
+
+	/// @brief The grid the outlines and advances of the glyphs are on, what was found shown under the pixel size
+	/// @return
+	bool FontEditorPropertiesWindow::DetectPixelSize()
+	{
+		FontEditorTab*                fontEditorTab = GetOwner<FontEditorTab>();
+		std::shared_ptr<FontResource> font = fontEditorTab->GetFont();
+		const uint32_t                pixelSize = font != nullptr ? font->GetFontFace().DetectPixelGrid() : 0;
+		if (pixelSize == 0)
+		{
+			_detectMessage = "No pixel grid found: not a pixel art font?";
+			return false;
+		}
+
+		fontEditorTab->GetFontSettings()._pixelSize = pixelSize;
+		_detectMessage = String::Format("A grid of %u pixels an em", pixelSize);
+		return true;
 	}
 
 	/// @brief Names, counts and metrics, in font units and in ems

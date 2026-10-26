@@ -58,7 +58,7 @@ namespace hod::inline editor
 
 	private:
 
-		void		BuildLines(const FontResource& font, const char* text);
+		void		BuildLines(FontResource& font, const char* text);
 		void		HandleInput(const Vector2& viewportPosition, const Vector2& viewportSize);
 		void		DrawMetrics(const Vector2& viewportPosition, const Vector2& viewportSize, const FontResource& font);
 

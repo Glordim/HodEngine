@@ -68,7 +68,7 @@ TEST(SkylinePacker, FillsTheAreaThenRefuses)
 }
 
 // ============================================================================
-// GlyphCache, on Noto Sans
+// GlyphCache, the one of Noto Sans
 // ============================================================================
 
 class GlyphCacheTest : public OutputCheckedTest
@@ -76,10 +76,7 @@ class GlyphCacheTest : public OutputCheckedTest
 protected:
 	static void SetUpTestSuite()
 	{
-		std::ifstream     file(std::string(TESTS_TEXT_FIXTURES_DIR) + "/Fonts/NotoSans-Regular.ttf", std::ios::binary);
-		std::vector<char> data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-		_face = new FontFace();
-		ASSERT_TRUE(_face->LoadFromMemory(data.data(), (uint32_t)data.size()));
+		_face = LoadFace("NotoSans-Regular.ttf");
 	}
 
 	static void TearDownTestSuite()
@@ -88,10 +85,19 @@ protected:
 		_face = nullptr;
 	}
 
+	static FontFace* LoadFace(const char* name)
+	{
+		std::ifstream     file(std::string(TESTS_TEXT_FIXTURES_DIR) + "/Fonts/" + name, std::ios::binary);
+		std::vector<char> data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+		FontFace*         face = new FontFace();
+		EXPECT_TRUE(face->LoadFromMemory(data.data(), (uint32_t)data.size()));
+		return face;
+	}
+
 	void SetUp() override
 	{
 		OutputCheckedTest::SetUp();
-		ASSERT_TRUE(_cache.Init());
+		ASSERT_TRUE(_cache.Init(*_face));
 	}
 
 	void TearDown() override
@@ -124,13 +130,15 @@ protected:
 
 TEST_F(GlyphCacheTest, SdfGlyphIsInAPage)
 {
-	const GlyphCache::Glyph* glyph = _cache.GetGlyph(*_face, GlyphIdOf("A"), GlyphCache::Mode::Sdf);
+	const GlyphCache::Glyph* glyph = _cache.GetGlyph(GlyphIdOf("A"), GlyphCache::Mode::Sdf);
 	ASSERT_NE(glyph, nullptr);
 
 	EXPECT_FALSE(glyph->_empty);
 	EXPECT_EQ(glyph->_pageIndex, 0u);
 	ASSERT_EQ(_cache.GetPageCount(), 1u);
 	EXPECT_EQ(_cache.GetPage(0)->GetFormat(), PixelFormat::R8_UNorm);
+	EXPECT_EQ(_cache.GetPageSize(0), GlyphCache::InitialPageSize);
+	EXPECT_EQ(_cache.GetPage(0)->GetWidth(), GlyphCache::InitialPageSize);
 
 	EXPECT_GE(glyph->_uvMin.GetX(), 0.0f);
 	EXPECT_GE(glyph->_uvMin.GetY(), 0.0f);
@@ -149,8 +157,8 @@ TEST_F(GlyphCacheTest, SdfGlyphIsInAPage)
 TEST_F(GlyphCacheTest, GlyphIsRasterizedOnce)
 {
 	const uint32_t           glyphId = GlyphIdOf("A");
-	const GlyphCache::Glyph* first = _cache.GetGlyph(*_face, glyphId, GlyphCache::Mode::Sdf);
-	const GlyphCache::Glyph* second = _cache.GetGlyph(*_face, glyphId, GlyphCache::Mode::Sdf);
+	const GlyphCache::Glyph* first = _cache.GetGlyph(glyphId, GlyphCache::Mode::Sdf);
+	const GlyphCache::Glyph* second = _cache.GetGlyph(glyphId, GlyphCache::Mode::Sdf);
 
 	EXPECT_EQ(first, second);
 	EXPECT_EQ(_cache.GetRasterizedGlyphCount(), 1u);
@@ -158,7 +166,7 @@ TEST_F(GlyphCacheTest, GlyphIsRasterizedOnce)
 
 TEST_F(GlyphCacheTest, SpaceHasNothingToDraw)
 {
-	const GlyphCache::Glyph* glyph = _cache.GetGlyph(*_face, GlyphIdOf(" "), GlyphCache::Mode::Sdf);
+	const GlyphCache::Glyph* glyph = _cache.GetGlyph(GlyphIdOf(" "), GlyphCache::Mode::Sdf);
 	ASSERT_NE(glyph, nullptr);
 	EXPECT_TRUE(glyph->_empty);
 	EXPECT_EQ(_cache.GetPageCount(), 0u);
@@ -168,8 +176,8 @@ TEST_F(GlyphCacheTest, SpaceHasNothingToDraw)
 TEST_F(GlyphCacheTest, SdfGoesPastTheOutline)
 {
 	const uint32_t           glyphId = GlyphIdOf("H");
-	const GlyphCache::Glyph* sdf = _cache.GetGlyph(*_face, glyphId, GlyphCache::Mode::Sdf);
-	const GlyphCache::Glyph* bitmap = _cache.GetGlyph(*_face, glyphId, GlyphCache::Mode::Bitmap, GlyphCache::SdfEmSize);
+	const GlyphCache::Glyph* sdf = _cache.GetGlyph(glyphId, GlyphCache::Mode::Sdf);
+	const GlyphCache::Glyph* bitmap = _cache.GetGlyph(glyphId, GlyphCache::Mode::Bitmap, GlyphCache::SdfEmSize);
 	ASSERT_NE(sdf, nullptr);
 	ASSERT_NE(bitmap, nullptr);
 
@@ -184,8 +192,8 @@ TEST_F(GlyphCacheTest, SdfGoesPastTheOutline)
 TEST_F(GlyphCacheTest, InkIsTheOutline)
 {
 	const uint32_t           glyphId = GlyphIdOf("H");
-	const GlyphCache::Glyph* sdf = _cache.GetGlyph(*_face, glyphId, GlyphCache::Mode::Sdf);
-	const GlyphCache::Glyph* bitmap = _cache.GetGlyph(*_face, glyphId, GlyphCache::Mode::Bitmap, GlyphCache::SdfEmSize);
+	const GlyphCache::Glyph* sdf = _cache.GetGlyph(glyphId, GlyphCache::Mode::Sdf);
+	const GlyphCache::Glyph* bitmap = _cache.GetGlyph(glyphId, GlyphCache::Mode::Bitmap, GlyphCache::SdfEmSize);
 	ASSERT_NE(sdf, nullptr);
 	ASSERT_NE(bitmap, nullptr);
 
@@ -212,8 +220,8 @@ TEST_F(GlyphCacheTest, BitmapIsPerSizeSdfIsNot)
 {
 	const uint32_t glyphId = GlyphIdOf("A");
 
-	const GlyphCache::Glyph* small = _cache.GetGlyph(*_face, glyphId, GlyphCache::Mode::Bitmap, 16);
-	const GlyphCache::Glyph* large = _cache.GetGlyph(*_face, glyphId, GlyphCache::Mode::Bitmap, 32);
+	const GlyphCache::Glyph* small = _cache.GetGlyph(glyphId, GlyphCache::Mode::Bitmap, 16);
+	const GlyphCache::Glyph* large = _cache.GetGlyph(glyphId, GlyphCache::Mode::Bitmap, 32);
 	ASSERT_NE(small, nullptr);
 	ASSERT_NE(large, nullptr);
 	EXPECT_NE(small, large);
@@ -222,8 +230,8 @@ TEST_F(GlyphCacheTest, BitmapIsPerSizeSdfIsNot)
 	// In ems, about the same glyph
 	EXPECT_NEAR(Width(*small), Width(*large), 2.0f / 16.0f);
 
-	const GlyphCache::Glyph* sdf = _cache.GetGlyph(*_face, glyphId, GlyphCache::Mode::Sdf, 16);
-	EXPECT_EQ(_cache.GetGlyph(*_face, glyphId, GlyphCache::Mode::Sdf, 32), sdf);
+	const GlyphCache::Glyph* sdf = _cache.GetGlyph(glyphId, GlyphCache::Mode::Sdf, 16);
+	EXPECT_EQ(_cache.GetGlyph(glyphId, GlyphCache::Mode::Sdf, 32), sdf);
 	EXPECT_EQ(_cache.GetRasterizedGlyphCount(), 3u);
 }
 
@@ -232,7 +240,7 @@ TEST_F(GlyphCacheTest, GlyphsDoNotOverlapInTheirPage)
 	Vector<const GlyphCache::Glyph*> glyphs;
 	for (const char* character : {"A", "B", "W", "g", "j", "@", "%", "Q"})
 	{
-		const GlyphCache::Glyph* glyph = _cache.GetGlyph(*_face, GlyphIdOf(character), GlyphCache::Mode::Sdf);
+		const GlyphCache::Glyph* glyph = _cache.GetGlyph(GlyphIdOf(character), GlyphCache::Mode::Sdf);
 		ASSERT_NE(glyph, nullptr);
 		glyphs.PushBack(glyph);
 	}
@@ -250,51 +258,97 @@ TEST_F(GlyphCacheTest, GlyphsDoNotOverlapInTheirPage)
 	}
 }
 
-TEST_F(GlyphCacheTest, FullPageOpensAnother)
+// The page doubles first, its glyphs where they were (their uvs halved): a text of the font stays one batch.
+// Only a page of MaxPageSize full opens another one
+TEST_F(GlyphCacheTest, PageGrowsBeforeAnotherOpens)
 {
-	for (uint32_t glyphId = 1; glyphId < 4000 && _cache.GetPageCount() < 2; ++glyphId)
+	const GlyphCache::Glyph* first = _cache.GetGlyph(GlyphIdOf("A"), GlyphCache::Mode::Sdf);
+	ASSERT_NE(first, nullptr);
+	const Vector2  firstUvMax = first->_uvMax;
+	const uint32_t generation = _cache.GetGeneration();
+
+	uint32_t glyphId = 1;
+	for (; glyphId < 6000 && _cache.GetPageSize(0) == GlyphCache::InitialPageSize; ++glyphId)
 	{
-		ASSERT_NE(_cache.GetGlyph(*_face, glyphId, GlyphCache::Mode::Sdf), nullptr) << glyphId;
+		ASSERT_NE(_cache.GetGlyph(glyphId, GlyphCache::Mode::Sdf), nullptr) << glyphId;
 	}
-	EXPECT_EQ(_cache.GetPageCount(), 2u);
-	EXPECT_EQ(_cache.GetPage(1)->GetWidth(), GlyphCache::PageSize);
+	ASSERT_EQ(_cache.GetPageCount(), 1u);
+	EXPECT_EQ(_cache.GetPageSize(0), 2 * GlyphCache::InitialPageSize);
+	EXPECT_EQ(_cache.GetPage(0)->GetWidth(), 2 * GlyphCache::InitialPageSize);
+	EXPECT_NE(_cache.GetGeneration(), generation);
+	EXPECT_EQ(_cache.GetGlyph(GlyphIdOf("A"), GlyphCache::Mode::Sdf), first);
+	EXPECT_FLOAT_EQ(first->_uvMax.GetX(), firstUvMax.GetX() * 0.5f);
+	EXPECT_FLOAT_EQ(first->_uvMax.GetY(), firstUvMax.GetY() * 0.5f);
+
+	// Bitmap at 96 pixels: larger glyphs, the page full sooner
+	for (glyphId = 1; glyphId < 6000 && _cache.GetPageCount() < 2; ++glyphId)
+	{
+		ASSERT_NE(_cache.GetGlyph(glyphId, GlyphCache::Mode::Bitmap, 96), nullptr) << glyphId;
+	}
+	ASSERT_EQ(_cache.GetPageCount(), 2u);
+	EXPECT_EQ(_cache.GetPageSize(0), GlyphCache::MaxPageSize);
+	EXPECT_EQ(_cache.GetPageSize(1), GlyphCache::MaxPageSize);
 }
 
-TEST_F(GlyphCacheTest, ForgottenFaceIsRasterizedAgain)
+// Drawn otherwise (another render mode): empty, the face kept, its glyphs rasterized again when asked for
+TEST_F(GlyphCacheTest, ResetEmptiesTheAtlas)
 {
 	const uint32_t glyphId = GlyphIdOf("A");
-	ASSERT_NE(_cache.GetGlyph(*_face, glyphId, GlyphCache::Mode::Sdf), nullptr);
+	ASSERT_NE(_cache.GetGlyph(glyphId, GlyphCache::Mode::Bitmap, 32), nullptr);
+	ASSERT_EQ(_cache.GetPageCount(), 1u);
+	const uint32_t generation = _cache.GetGeneration();
 
-	_cache.Forget(*_face);
-	ASSERT_NE(_cache.GetGlyph(*_face, glyphId, GlyphCache::Mode::Sdf), nullptr);
-	EXPECT_EQ(_cache.GetRasterizedGlyphCount(), 2u);
+	_cache.Reset();
+	EXPECT_EQ(_cache.GetPageCount(), 0u);
+	EXPECT_NE(_cache.GetGeneration(), generation);
+
+	Vector<const GlyphCache::Glyph*> glyphs;
+	_cache.GetGlyphs(glyphs);
+	EXPECT_TRUE(glyphs.Empty());
+
+	ASSERT_NE(_cache.GetGlyph(glyphId, GlyphCache::Mode::Pixel, 8), nullptr);
+	EXPECT_EQ(_cache.GetPageCount(), 1u);
+	EXPECT_EQ(_cache.GetRasterizedGlyphCount(), 1u);
 }
 
-TEST_F(GlyphCacheTest, BitmapNeedsASize)
+TEST_F(GlyphCacheTest, GlyphsAreListed)
 {
-	EXPECT_EQ(_cache.GetGlyph(*_face, GlyphIdOf("A"), GlyphCache::Mode::Bitmap), nullptr);
+	const GlyphCache::Glyph* a = _cache.GetGlyph(GlyphIdOf("A"), GlyphCache::Mode::Sdf);
+	const GlyphCache::Glyph* b = _cache.GetGlyph(GlyphIdOf("B"), GlyphCache::Mode::Bitmap, 16);
+
+	Vector<const GlyphCache::Glyph*> glyphs;
+	_cache.GetGlyphs(glyphs);
+	ASSERT_EQ(glyphs.Size(), 2u);
+	EXPECT_TRUE((glyphs[0] == a && glyphs[1] == b) || (glyphs[0] == b && glyphs[1] == a));
+}
+
+TEST_F(GlyphCacheTest, RejectsWhatItCannotRasterize)
+{
+	EXPECT_EQ(_cache.GetGlyph(GlyphIdOf("A"), GlyphCache::Mode::Bitmap), nullptr); // no size
+
+	GlyphCache notInitialized;
+	EXPECT_EQ(notInitialized.GetGlyph(1, GlyphCache::Mode::Sdf), nullptr);
 
 	FontFace notLoaded;
-	EXPECT_EQ(_cache.GetGlyph(notLoaded, 1, GlyphCache::Mode::Sdf), nullptr);
+	EXPECT_FALSE(notInitialized.Init(notLoaded));
 
-	_expectedErrorCount = 2;
+	_expectedErrorCount = 3;
 }
 
 // Silkscreen: a grid of 8 pixels an em. Its glyphs rasterized at 8 are on whole pixels of it
 TEST_F(GlyphCacheTest, PixelGlyphIsOnTheGridOfTheFont)
 {
-	std::ifstream     file(std::string(TESTS_TEXT_FIXTURES_DIR) + "/Fonts/Silkscreen-Regular.ttf", std::ios::binary);
-	std::vector<char> data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
-	FontFace          silkscreen;
-	ASSERT_TRUE(silkscreen.LoadFromMemory(data.data(), (uint32_t)data.size()));
+	FontFace*  silkscreen = LoadFace("Silkscreen-Regular.ttf");
+	GlyphCache silkscreenCache;
+	ASSERT_TRUE(silkscreenCache.Init(*silkscreen));
 
-	const FontFace* faces[] = {&silkscreen};
+	const FontFace* faces[] = {silkscreen};
 	TextShaper      shaper;
 	TextLayout      layout;
 	ASSERT_TRUE(shaper.Shape("H", faces, 8.0f, layout));
 	ASSERT_EQ(layout._glyphs.Size(), 1u);
 
-	const GlyphCache::Glyph* glyph = _cache.GetGlyph(silkscreen, layout._glyphs[0]._glyphId, GlyphCache::Mode::Pixel, 8);
+	const GlyphCache::Glyph* glyph = silkscreenCache.GetGlyph(layout._glyphs[0]._glyphId, GlyphCache::Mode::Pixel, 8);
 	ASSERT_NE(glyph, nullptr);
 	ASSERT_FALSE(glyph->_empty);
 
@@ -311,5 +365,7 @@ TEST_F(GlyphCacheTest, PixelGlyphIsOnTheGridOfTheFont)
 	EXPECT_NEAR(glyph->_boundsMin.GetX(), glyph->_inkMin.GetX() - 1.0f / 8.0f, 0.001f);
 	EXPECT_NEAR(glyph->_boundsMax.GetY(), glyph->_inkMax.GetY() + 1.0f / 8.0f, 0.001f);
 
-	_cache.Forget(silkscreen);
+	RhiDevice::GetInstance()->WaitIdle();
+	silkscreenCache.Clear(); // before the face it reads
+	delete silkscreen;
 }
