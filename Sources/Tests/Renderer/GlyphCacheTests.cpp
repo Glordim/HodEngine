@@ -198,9 +198,14 @@ TEST_F(GlyphCacheTest, InkIsTheOutline)
 	EXPECT_NEAR(sdf->_inkMin.GetY(), 0.0f, pixel);
 	EXPECT_NEAR(sdf->_inkMax.GetY(), (float)_face->GetCapHeight() / (float)_face->GetUnitsPerEm(), pixel);
 
-	const float spread = (float)GlyphCache::SdfSpread / (float)GlyphCache::SdfEmSize;
-	EXPECT_NEAR(sdf->_boundsMin.GetX(), sdf->_inkMin.GetX() - spread, 2.0f * pixel);
-	EXPECT_NEAR(sdf->_boundsMax.GetY(), sdf->_inkMax.GetY() + spread, 2.0f * pixel);
+	const float margin = (float)(GlyphCache::SdfSpread + GlyphCache::GlyphBorder) / (float)GlyphCache::SdfEmSize;
+	EXPECT_NEAR(sdf->_boundsMin.GetX(), sdf->_inkMin.GetX() - margin, pixel);
+	EXPECT_NEAR(sdf->_boundsMax.GetY(), sdf->_inkMax.GetY() + margin, pixel);
+
+	// The bitmap quad: its border around the ink
+	const float border = (float)GlyphCache::GlyphBorder / (float)GlyphCache::SdfEmSize;
+	EXPECT_NEAR(bitmap->_boundsMin.GetX(), bitmap->_inkMin.GetX() - border, pixel);
+	EXPECT_NEAR(bitmap->_boundsMax.GetY(), bitmap->_inkMax.GetY() + border, pixel);
 }
 
 TEST_F(GlyphCacheTest, BitmapIsPerSizeSdfIsNot)

@@ -15,7 +15,6 @@ namespace hod::inline renderer
 {
 	namespace
 	{
-		constexpr uint32_t GlyphPadding = 1; // texels between two glyphs of a page: what a linear filter reads past one is not the next
 
 		/// @brief
 		/// @param faceId
@@ -296,7 +295,10 @@ namespace hod::inline renderer
 		uint32_t pageIndex = 0;
 		uint32_t x = 0;
 		uint32_t y = 0;
-		if (Allocate(bitmap.width + GlyphPadding, bitmap.rows + GlyphPadding, pageIndex, x, y) == false)
+		// The glyph, its border around it: the page is cleared, the border is empty
+		const uint32_t width = bitmap.width + 2 * GlyphBorder;
+		const uint32_t height = bitmap.rows + 2 * GlyphBorder;
+		if (Allocate(width, height, pageIndex, x, y) == false)
 		{
 			return nullptr;
 		}
@@ -307,7 +309,7 @@ namespace hod::inline renderer
 		{
 			std::memcpy(_pixels.Data() + row * bitmap.width, bitmap.buffer + (ptrdiff_t)row * bitmap.pitch, bitmap.width);
 		}
-		if (_pages[pageIndex]._texture->UpdateRegion(x, y, bitmap.width, bitmap.rows, _pixels.Data()) == false)
+		if (_pages[pageIndex]._texture->UpdateRegion(x + GlyphBorder, y + GlyphBorder, bitmap.width, bitmap.rows, _pixels.Data()) == false)
 		{
 			return nullptr;
 		}
@@ -315,13 +317,13 @@ namespace hod::inline renderer
 		const float pageSize = (float)PageSize;
 		glyph._pageIndex = pageIndex;
 		glyph._uvMin = Vector2((float)x / pageSize, (float)y / pageSize);
-		glyph._uvMax = Vector2((float)(x + bitmap.width) / pageSize, (float)(y + bitmap.rows) / pageSize);
+		glyph._uvMax = Vector2((float)(x + width) / pageSize, (float)(y + height) / pageSize);
 
 		const float emSize = (float)emPixelSize;
-		const float left = (float)slot->bitmap_left / emSize;
-		const float top = (float)slot->bitmap_top / emSize;
-		glyph._boundsMin = Vector2(left, top - (float)bitmap.rows / emSize);
-		glyph._boundsMax = Vector2(left + (float)bitmap.width / emSize, top);
+		const float left = (float)((int32_t)slot->bitmap_left - (int32_t)GlyphBorder) / emSize;
+		const float top = (float)(slot->bitmap_top + (int32_t)GlyphBorder) / emSize;
+		glyph._boundsMin = Vector2(left, top - (float)height / emSize);
+		glyph._boundsMax = Vector2(left + (float)width / emSize, top);
 
 		return &_glyphs.emplace(key, glyph).first->second;
 	}

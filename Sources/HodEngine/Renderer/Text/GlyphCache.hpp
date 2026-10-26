@@ -39,13 +39,15 @@ namespace hod::inline renderer
 		static constexpr uint32_t PageSize = 1024;
 		static constexpr uint32_t SdfEmSize = 48; // the em, in pixels, the SDF glyphs are rasterized at
 		static constexpr uint32_t SdfSpread = 6;  // the distance, in pixels at SdfEmSize, the SDF goes to on each side of the outline
+		// Empty texels around each glyph, in its quad: a linear filter fades its edges out instead of the quad cutting them
+		static constexpr uint32_t GlyphBorder = 1;
 
 		struct Glyph
 		{
 			uint32_t	_pageIndex = 0;
 			Vector2		_uvMin; // in the page: (0, 0) its first texel, v down
 			Vector2		_uvMax;
-			Vector2		_boundsMin; // of its quad, from the origin of the glyph, in ems (x right, y up): the quad at a size is bounds * size
+			Vector2		_boundsMin; // of its quad (its border included), from the origin of the glyph, in ems (x right, y up): the quad at a size is bounds * size
 			Vector2		_boundsMax;
 			Vector2		_inkMin; // of the outline (what is drawn, without the SDF spread), from the origin of the glyph, in ems
 			Vector2		_inkMax;
