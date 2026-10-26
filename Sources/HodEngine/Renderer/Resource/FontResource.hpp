@@ -8,10 +8,20 @@
 
 namespace hod::inline renderer
 {
-	/// @brief A font file, read once into a FontFace. Its glyphs rasterized in the GlyphCache of the Renderer are forgotten with it.
+	/// @brief A font file, read once into a FontFace, and how its glyphs are drawn.
+	/// Its glyphs rasterized in the GlyphCache of the Renderer are forgotten with it.
 	class HOD_RENDERER_API FontResource : public Resource
 	{
 		REFLECTED_CLASS(FontResource, Resource)
+
+	public:
+
+		enum class RenderMode : uint8_t
+		{
+			Smooth,   // anti-aliased, rasterized at the size it is drawn at
+			PixelArt, // its glyphs on a grid of PixelSize pixels an em: drawn at whole multiples of it, sharp
+		};
+		REFLECTED_ENUM(HOD_RENDERER_API, RenderMode);
 
 	public:
 
@@ -29,6 +39,16 @@ namespace hod::inline renderer
 
 		const FontFace&		GetFontFace() const;
 
+		RenderMode			GetRenderMode() const;
+		void				SetRenderMode(RenderMode renderMode);
+
+		// PixelArt only: the size the font is drawn for, in pixels an em (Silkscreen: 8). 0 when not known
+		uint32_t			GetPixelSize() const;
+		void				SetPixelSize(uint32_t pixelSize);
+
+		// The size a text is drawn at for a size asked for: PixelArt, the closest whole multiple of PixelSize, at least once
+		float				GetDrawnFontSize(float fontSize) const;
+
 	private:
 
 		void				ForgetGlyphs();
@@ -36,5 +56,7 @@ namespace hod::inline renderer
 	private:
 
 		FontFace			_fontFace;
+		RenderMode			_renderMode = RenderMode::Smooth;
+		uint32_t			_pixelSize = 0;
 	};
 }

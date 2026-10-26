@@ -356,3 +356,28 @@ TEST_F(TextShaperTest, EllipsizedLeavesTheEllipsisWhenNothingFits)
 	ASSERT_EQ(ellipsis._glyphs.Size(), 1u);
 	EXPECT_EQ(layout._glyphs[0]._glyphId, ellipsis._glyphs[0]._glyphId);
 }
+
+// ============================================================================
+// Pixel art: Silkscreen, drawn on a grid of 8 pixels an em
+// ============================================================================
+
+TEST(PixelArtFont, AdvancesAreWholePixelsOfItsGrid)
+{
+	std::vector<char> data = ReadFixture("Silkscreen-Regular.ttf");
+	FontFace          face;
+	ASSERT_TRUE(face.LoadFromMemory(data.data(), (uint32_t)data.size()));
+	EXPECT_EQ(face.GetUnitsPerEm(), 1000u); // 125 units a pixel
+
+	const FontFace* faces[] = {&face};
+	TextShaper      shaper;
+	for (float size : {8.0f, 24.0f})
+	{
+		TextLayout layout;
+		ASSERT_TRUE(shaper.Shape("Hello, World!", faces, size, layout));
+		for (const TextLayout::Glyph& glyph : layout._glyphs)
+		{
+			const float gridPixels = glyph._position.GetX() * 8.0f / size;
+			EXPECT_FLOAT_EQ(gridPixels, std::round(gridPixels)) << size;
+		}
+	}
+}

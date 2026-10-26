@@ -33,7 +33,8 @@ namespace hod::inline renderer
 		enum class Mode : uint8_t
 		{
 			Sdf,    // a signed distance field: any size, effects (outline, glow...). 128 is the outline, more is inside
-			Bitmap, // coverage, rasterized at the size it is drawn at (small sizes, pixel art)
+			Bitmap, // coverage, rasterized at the size it is drawn at (small sizes)
+			Pixel,  // pixel art: on or off, rasterized at the size the font is drawn for (its pixel grid), drawn at whole multiples of it with a Nearest filter
 		};
 
 		static constexpr uint32_t PageSize = 1024;
@@ -69,7 +70,7 @@ namespace hod::inline renderer
 		bool			Init();
 		void			Clear(); // every glyph, page, and face
 
-		// pixelSize: the em in pixels, Bitmap only. Null when it can't be rasterized.
+		// pixelSize: the em in pixels, Bitmap and Pixel only (Pixel: the one of the grid of the font). Null when it can't be rasterized.
 		// Valid until the face is forgotten or the cache cleared.
 		const Glyph*	GetGlyph(const FontFace& face, uint32_t glyphId, Mode mode, uint32_t pixelSize = 0);
 

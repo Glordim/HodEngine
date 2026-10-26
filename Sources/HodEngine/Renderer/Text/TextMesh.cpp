@@ -32,12 +32,17 @@ namespace hod::inline renderer
 	/// @param origin
 	/// @param glyphCache
 	/// @param mode
+	/// @param pixelSize Pixel only: the size of the grid of the font
 	/// @return false when a glyph can't be rasterized: the others are drawn all the same
-	bool TextMesh::Build(const TextLayout& layout, ArrayView<const FontFace*> faces, float size, const Vector2& origin, GlyphCache& glyphCache, GlyphCache::Mode mode)
+	bool TextMesh::Build(const TextLayout& layout, ArrayView<const FontFace*> faces, float size, const Vector2& origin, GlyphCache& glyphCache, GlyphCache::Mode mode,
+	                     uint32_t pixelSize)
 	{
 		Clear();
 
-		const uint32_t pixelSize = (mode == GlyphCache::Mode::Bitmap) ? (uint32_t)Max(1.0f, std::round(size)) : 0;
+		if (mode == GlyphCache::Mode::Bitmap)
+		{
+			pixelSize = (uint32_t)Max(1.0f, std::round(size));
+		}
 
 		bool built = true;
 		bool firstInk = true;
@@ -81,12 +86,16 @@ namespace hod::inline renderer
 				continue;
 			}
 
-			// Bitmap: the texels of the glyph on whole pixels, at the size they are rasterized at, not stretched nor filtered across two pixels
+			// Bitmap: the texels of the glyph on whole pixels, at the size they are rasterized at, not stretched nor filtered across two pixels.
+			// Pixel: on whole pixels too, its texels as large as the size is a multiple of the grid
 			Vector2 glyphOrigin = origin + layoutGlyph._position;
 			float   quadScale = size;
-			if (mode == GlyphCache::Mode::Bitmap)
+			if (mode == GlyphCache::Mode::Bitmap || mode == GlyphCache::Mode::Pixel)
 			{
 				glyphOrigin = Vector2(std::round(glyphOrigin.GetX()), std::round(glyphOrigin.GetY()));
+			}
+			if (mode == GlyphCache::Mode::Bitmap)
+			{
 				quadScale = (float)pixelSize;
 			}
 			const Vector2 quadMin = glyphOrigin + glyph->_boundsMin * quadScale;

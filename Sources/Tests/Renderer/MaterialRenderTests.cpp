@@ -717,3 +717,70 @@ TEST_F(MaterialRender, TextBitmapDrawsTheCoverageOfTheGlyphs)
 	RhiDevice::GetInstance()->WaitIdle();
 	glyphCache.Clear();
 }
+
+// Silkscreen at 4 times its grid of 8 pixels, Pixel glyphs and a Nearest sampler: every pixel of the target is the color or the background, none between
+TEST_F(MaterialRender, TextPixelHasNoPixelBetweenTheColorAndTheBackground)
+{
+	std::ifstream     file(std::string(TESTS_TEXT_FIXTURES_DIR) + "/Fonts/Silkscreen-Regular.ttf", std::ios::binary);
+	std::vector<char> data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	FontFace          face;
+	ASSERT_TRUE(face.LoadFromMemory(data.data(), (uint32_t)data.size()));
+
+	// One unit is one pixel of the target
+	const float halfSize = (float)_targetSize * 0.5f;
+	_projection = Matrix4::OrthogonalProjection(-halfSize, halfSize, -halfSize, halfSize, -1024.0f, 1024.0f);
+
+	constexpr uint32_t gridSize = 8;
+	constexpr float    fontSize = 4.0f * gridSize;
+	const FontFace*    faces[] = {&face};
+	TextShaper         shaper;
+	TextLayout         layout;
+	ASSERT_TRUE(shaper.Shape("Hi", faces, fontSize, layout));
+
+	GlyphCache glyphCache;
+	ASSERT_TRUE(glyphCache.Init());
+
+	TextMesh mesh;
+	ASSERT_TRUE(mesh.Build(layout, faces, fontSize, Vector2(-std::round(layout._width * 0.5f), -12.0f), glyphCache, GlyphCache::Mode::Pixel, gridSize));
+	ASSERT_EQ(mesh._batches.Size(), 1u);
+
+	Sampler::CreateInfo nearest;
+	nearest._filterMode = FilterMode::Nearest;
+
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Text_Bitmap);
+	materialInstance->SetVec4("ubo.color", ToVector4(Red));
+	materialInstance->SetTexture("image", glyphCache.GetPage(mesh._batches[0]._pageIndex));
+	materialInstance->SetSampler("imageSampler", RhiDevice::GetInstance()->GetSampler(nearest));
+
+	RenderFrame(
+		[&]()
+		{
+			const TextMesh::Batch& batch = mesh._batches[0];
+			_renderView->PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(batch._positions.Data(), batch._uvs.Data(), nullptr,
+			                                                                                     batch._positions.Size(), batch._indices.Data(), batch._indices.Size(),
+			                                                                                     Matrix4::Identity, materialInstance, 0, 0, true));
+		});
+
+	uint32_t colorPixelCount = 0;
+	uint32_t blendedPixelCount = 0;
+	for (uint32_t y = 0; y < _targetSize; ++y)
+	{
+		for (uint32_t x = 0; x < _targetSize; ++x)
+		{
+			const Color pixel = _frameTexture->ReadPixel(Vector2((float)x, (float)y));
+			if (ColorNear(pixel, Red))
+			{
+				++colorPixelCount;
+			}
+			else if (ColorNear(pixel, Background) == false)
+			{
+				++blendedPixelCount;
+			}
+		}
+	}
+	EXPECT_GT(colorPixelCount, 0u);
+	EXPECT_EQ(blendedPixelCount, 0u);
+
+	RhiDevice::GetInstance()->WaitIdle();
+	glyphCache.Clear();
+}

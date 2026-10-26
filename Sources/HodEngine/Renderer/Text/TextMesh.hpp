@@ -37,8 +37,10 @@ namespace hod::inline renderer
 		bool			HasInk() const;
 
 		// faces: the ones the layout was shaped with, in the same order. The glyphs are rasterized in the cache when they are not yet.
-		// Bitmap: rasterized at the size rounded to a pixel, each glyph on whole units of the layout (pixels when the layout is drawn 1:1)
-		bool			Build(const TextLayout& layout, ArrayView<const FontFace*> faces, float size, const Vector2& origin, GlyphCache& glyphCache, GlyphCache::Mode mode);
+		// Bitmap: rasterized at the size rounded to a pixel, each glyph on whole units of the layout (pixels when the layout is drawn 1:1).
+		// Pixel: rasterized at pixelSize, the grid of the font, the size a whole multiple of it, each glyph on whole units of the layout
+		bool			Build(const TextLayout& layout, ArrayView<const FontFace*> faces, float size, const Vector2& origin, GlyphCache& glyphCache, GlyphCache::Mode mode,
+		                      uint32_t pixelSize = 0);
 		void			Clear();
 	};
 }

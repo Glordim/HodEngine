@@ -20,12 +20,14 @@ namespace hod::inline renderer
 		/// @param faceId
 		/// @param glyphId at most 0xFFFF in an OpenType font
 		/// @param mode
-		/// @param pixelSize Bitmap only
+		/// @param pixelSize Bitmap and Pixel only, at most MaxPixelSize
 		/// @return
 		uint64_t MakeKey(uint32_t faceId, uint32_t glyphId, GlyphCache::Mode mode, uint32_t pixelSize)
 		{
-			return ((uint64_t)faceId << 32) | ((uint64_t)(glyphId & 0xFFFF) << 16) | ((uint64_t)mode << 15) | (uint64_t)(pixelSize & 0x7FFF);
+			return ((uint64_t)faceId << 32) | ((uint64_t)(glyphId & 0xFFFF) << 16) | ((uint64_t)mode << 14) | (uint64_t)(pixelSize & 0x3FFF);
 		}
+
+		constexpr uint32_t MaxPixelSize = 0x3FFF;
 	}
 
 	/// @brief
@@ -228,9 +230,9 @@ namespace hod::inline renderer
 		{
 			pixelSize = 0; // one SDF glyph for every size
 		}
-		else if (pixelSize == 0 || pixelSize > 0x7FFF)
+		else if (pixelSize == 0 || pixelSize > MaxPixelSize)
 		{
-			OUTPUT_ERROR("GlyphCache::GetGlyph: a Bitmap glyph needs a size, in [1, 32767] pixels");
+			OUTPUT_ERROR("GlyphCache::GetGlyph: a Bitmap or Pixel glyph needs a size, in [1, {}] pixels", MaxPixelSize);
 			return nullptr;
 		}
 
@@ -254,8 +256,20 @@ namespace hod::inline renderer
 			return nullptr;
 		}
 
-		// No hinting for SDF: it is scaled. Light hinting for Bitmap: vertical only, the advances are the ones of the shaper
-		const FT_Int32 loadFlags = (mode == Mode::Sdf) ? FT_LOAD_NO_HINTING : FT_LOAD_TARGET_LIGHT;
+		// No hinting for SDF: it is scaled, nor for Pixel: its outlines are on its grid already.
+		// Light hinting for Bitmap: vertical only, the advances are the ones of the shaper
+		FT_Int32       loadFlags = FT_LOAD_NO_HINTING;
+		FT_Render_Mode renderMode = FT_RENDER_MODE_SDF;
+		if (mode == Mode::Bitmap)
+		{
+			loadFlags = FT_LOAD_TARGET_LIGHT;
+			renderMode = FT_RENDER_MODE_NORMAL;
+		}
+		else if (mode == Mode::Pixel)
+		{
+			loadFlags = FT_LOAD_NO_HINTING | FT_LOAD_TARGET_MONO;
+			renderMode = FT_RENDER_MODE_MONO;
+		}
 		if (FT_Load_Glyph(ftFace, glyphId, loadFlags) != 0)
 		{
 			OUTPUT_ERROR("GlyphCache::GetGlyph: FT_Load_Glyph {} failed", glyphId);
@@ -273,7 +287,7 @@ namespace hod::inline renderer
 		glyph._inkMax = Vector2((float)(slot->metrics.horiBearingX + slot->metrics.width), (float)slot->metrics.horiBearingY) * metricsToEms;
 
 		const bool emptyOutline = slot->format == FT_GLYPH_FORMAT_OUTLINE && slot->outline.n_points == 0;
-		if (emptyOutline == false && FT_Render_Glyph(slot, (mode == Mode::Sdf) ? FT_RENDER_MODE_SDF : FT_RENDER_MODE_NORMAL) != 0)
+		if (emptyOutline == false && FT_Render_Glyph(slot, renderMode) != 0)
 		{
 			OUTPUT_ERROR("GlyphCache::GetGlyph: FT_Render_Glyph {} failed", glyphId);
 			return nullptr;
@@ -286,9 +300,9 @@ namespace hod::inline renderer
 			return &_glyphs.emplace(key, glyph).first->second;
 		}
 
-		if (bitmap.pixel_mode != FT_PIXEL_MODE_GRAY)
+		if (bitmap.pixel_mode != FT_PIXEL_MODE_GRAY && bitmap.pixel_mode != FT_PIXEL_MODE_MONO)
 		{
-			OUTPUT_ERROR("GlyphCache::GetGlyph: glyph {} is not rasterized as 8 bits gray", glyphId);
+			OUTPUT_ERROR("GlyphCache::GetGlyph: glyph {} is not rasterized as 8 bits gray nor 1 bit", glyphId);
 			return nullptr;
 		}
 
@@ -303,11 +317,24 @@ namespace hod::inline renderer
 			return nullptr;
 		}
 
-		// The rows of the bitmap may be further apart, or go up: the pitch goes down one row
+		// The rows of the bitmap may be further apart, or go up: the pitch goes down one row.
+		// 1 bit (Pixel): 8 pixels a byte, the leftmost in the highest bit, on is full coverage
 		_pixels.Resize(bitmap.width * bitmap.rows);
 		for (uint32_t row = 0; row < bitmap.rows; ++row)
 		{
-			std::memcpy(_pixels.Data() + row * bitmap.width, bitmap.buffer + (ptrdiff_t)row * bitmap.pitch, bitmap.width);
+			const uint8_t* bitmapRow = bitmap.buffer + (ptrdiff_t)row * bitmap.pitch;
+			uint8_t*       pixelRow = _pixels.Data() + row * bitmap.width;
+			if (bitmap.pixel_mode == FT_PIXEL_MODE_MONO)
+			{
+				for (uint32_t column = 0; column < bitmap.width; ++column)
+				{
+					pixelRow[column] = ((bitmapRow[column / 8] >> (7 - column % 8)) & 1) ? 255 : 0;
+				}
+			}
+			else
+			{
+				std::memcpy(pixelRow, bitmapRow, bitmap.width);
+			}
 		}
 		if (_pages[pageIndex]._texture->UpdateRegion(x + GlyphBorder, y + GlyphBorder, bitmap.width, bitmap.rows, _pixels.Data()) == false)
 		{

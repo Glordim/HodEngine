@@ -57,7 +57,7 @@ namespace hod::inline ui2
 		const String&						GetValue() const;
 		void								SetValue(const String& value);
 
-		// Of the em, in pixels of the canvas
+		// Of the em, in pixels of the canvas. A PixelArt font is drawn at the closest whole multiple of its PixelSize
 		float								GetFontSize() const;
 		void								SetFontSize(float fontSize);
 
@@ -75,7 +75,7 @@ namespace hod::inline ui2
 		Overflow							GetOverflow() const;
 		void								SetOverflow(Overflow overflow);
 
-		// Overflow::Shrink only
+		// Overflow::Shrink only. A PixelArt font is shrunk by whole multiples of its PixelSize, down to the closest one to this
 		float								GetMinFontSize() const;
 		void								SetMinFontSize(float minFontSize);
 
@@ -96,6 +96,7 @@ namespace hod::inline ui2
 		const TextLayout*					UpdateFittedLayout(const Vector2& size);
 
 		static Vector2						GetLayoutSize(const TextLayout& layout); // of the line: its width, from its ascender to its descender
+		bool								IsPixelArt() const; // the font of the layout
 
 	private:
 
@@ -112,6 +113,9 @@ namespace hod::inline ui2
 		// Kept from one frame to the next, made again when what they are made from changes
 		mutable TextLayout					_layout;
 		mutable uint32_t					_layoutFontFaceId = 0;
+		mutable float						_layoutFontSize = 0.0f; // the one it is drawn at, see FontResource::GetDrawnFontSize
+		mutable FontResource::RenderMode	_layoutRenderMode = FontResource::RenderMode::Smooth;
+		mutable uint32_t					_layoutPixelSize = 0;
 		mutable bool						_layoutDirty = true;
 
 		TextLayout							_fittedLayout;

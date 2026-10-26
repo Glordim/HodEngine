@@ -279,3 +279,37 @@ TEST_F(GlyphCacheTest, BitmapNeedsASize)
 
 	_expectedErrorCount = 2;
 }
+
+// Silkscreen: a grid of 8 pixels an em. Its glyphs rasterized at 8 are on whole pixels of it
+TEST_F(GlyphCacheTest, PixelGlyphIsOnTheGridOfTheFont)
+{
+	std::ifstream     file(std::string(TESTS_TEXT_FIXTURES_DIR) + "/Fonts/Silkscreen-Regular.ttf", std::ios::binary);
+	std::vector<char> data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	FontFace          silkscreen;
+	ASSERT_TRUE(silkscreen.LoadFromMemory(data.data(), (uint32_t)data.size()));
+
+	const FontFace* faces[] = {&silkscreen};
+	TextShaper      shaper;
+	TextLayout      layout;
+	ASSERT_TRUE(shaper.Shape("H", faces, 8.0f, layout));
+	ASSERT_EQ(layout._glyphs.Size(), 1u);
+
+	const GlyphCache::Glyph* glyph = _cache.GetGlyph(silkscreen, layout._glyphs[0]._glyphId, GlyphCache::Mode::Pixel, 8);
+	ASSERT_NE(glyph, nullptr);
+	ASSERT_FALSE(glyph->_empty);
+
+	// In pixels of the grid: whole ones, the quad its border around the ink
+	auto isWhole = [](float ems)
+	{
+		const float pixels = ems * 8.0f;
+		return std::abs(pixels - std::round(pixels)) < 0.001f;
+	};
+	EXPECT_TRUE(isWhole(glyph->_inkMin.GetX()));
+	EXPECT_TRUE(isWhole(glyph->_inkMin.GetY()));
+	EXPECT_TRUE(isWhole(glyph->_inkMax.GetX()));
+	EXPECT_TRUE(isWhole(glyph->_inkMax.GetY()));
+	EXPECT_NEAR(glyph->_boundsMin.GetX(), glyph->_inkMin.GetX() - 1.0f / 8.0f, 0.001f);
+	EXPECT_NEAR(glyph->_boundsMax.GetY(), glyph->_inkMax.GetY() + 1.0f / 8.0f, 0.001f);
+
+	_cache.Forget(silkscreen);
+}

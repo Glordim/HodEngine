@@ -11,6 +11,8 @@
 #include <HodEngine/Renderer/MaterialInstance.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/Text/GlyphCache.hpp>
+#include <HodEngine/RHI/RhiDevice.hpp>
+#include <HodEngine/RHI/Sampler.hpp>
 #include <HodEngine/Text/FontFace.hpp>
 #include <HodEngine/Text/TextShaper.hpp>
 #include <HodEngine/UI2/LayoutParams.hpp>
@@ -228,7 +230,7 @@ namespace hod::inline ui2
 		}
 	}
 
-	/// @brief The font face is followed by its id: a font reloaded is shaped again
+	/// @brief The font face is followed by its id: a font reloaded is shaped again. So is its render mode
 	/// @return
 	const TextLayout* TextNode::UpdateLayout() const
 	{
@@ -239,18 +241,30 @@ namespace hod::inline ui2
 		}
 
 		const FontFace& fontFace = fontResource->GetFontFace();
-		if (_layoutDirty || _layoutFontFaceId != fontFace.GetId())
+		const float     drawnFontSize = fontResource->GetDrawnFontSize(_fontSize);
+		if (_layoutDirty || _layoutFontFaceId != fontFace.GetId() || _layoutFontSize != drawnFontSize || _layoutRenderMode != fontResource->GetRenderMode() ||
+		    _layoutPixelSize != fontResource->GetPixelSize())
 		{
 			const FontFace* faces[] = {&fontFace};
-			if (Renderer::GetInstance()->GetTextShaper()->Shape(_value, faces, _fontSize, _layout) == false)
+			if (Renderer::GetInstance()->GetTextShaper()->Shape(_value, faces, drawnFontSize, _layout) == false)
 			{
 				_layout.Clear();
 			}
 			_layoutFontFaceId = fontFace.GetId();
+			_layoutFontSize = drawnFontSize;
+			_layoutRenderMode = fontResource->GetRenderMode();
+			_layoutPixelSize = fontResource->GetPixelSize();
 			_layoutDirty = false;
 			_fittedDirty = true;
 		}
 		return &_layout;
+	}
+
+	/// @brief
+	/// @return
+	bool TextNode::IsPixelArt() const
+	{
+		return _layoutRenderMode == FontResource::RenderMode::PixelArt && _layoutPixelSize != 0;
 	}
 
 	/// @brief On the axes sized from the content the rect is the size of the text: it fits there whatever Overflow says
@@ -273,7 +287,7 @@ namespace hod::inline ui2
 		_meshDirty = true;
 
 		_fittedLayout = *layout;
-		_fittedFontSize = _fontSize;
+		_fittedFontSize = _layoutFontSize;
 		if (_overflow != Overflow::Ellipsis && _overflow != Overflow::Shrink)
 		{
 			return &_fittedLayout;
@@ -307,13 +321,14 @@ namespace hod::inline ui2
 				return &_fittedLayout;
 			}
 
-			// A whole pixel size below the exact one: it fits for sure (the exact one may be a hair wider once rounded), and is rasterized as is.
-			// Only what does not fit even at MinFontSize gets an ellipsis
-			const float minFontSize = Min(_minFontSize, _fontSize);
-			const float fittingFontSize = _fontSize * scale;
+			// A whole pixel size below the exact one (PixelArt: a whole multiple of its grid): it fits for sure (the exact one may be a hair wider
+			// once rounded), and is rasterized as is. Only what does not fit even at MinFontSize gets an ellipsis
+			const float step = IsPixelArt() ? (float)_layoutPixelSize : 1.0f;
+			const float minFontSize = Min(fontResource->GetDrawnFontSize(_minFontSize), _layoutFontSize);
+			const float fittingFontSize = _layoutFontSize * scale;
 			if (fittingFontSize >= minFontSize)
 			{
-				_fittedFontSize = Max(minFontSize, std::floor(fittingFontSize));
+				_fittedFontSize = Max(minFontSize, std::floor(fittingFontSize / step) * step);
 				if (textShaper->Shape(_value, faces, _fittedFontSize, _fittedLayout) == false)
 				{
 					_fittedLayout.Clear();
@@ -369,7 +384,8 @@ namespace hod::inline ui2
 		{
 			std::shared_ptr<FontResource> fontResource = _font.Lock();
 			const FontFace*               faces[] = {&fontResource->GetFontFace()};
-			_mesh.Build(*layout, faces, _fittedFontSize, Vector2(0.0f, 0.0f), *glyphCache, GlyphCache::Mode::Bitmap);
+			const GlyphCache::Mode mode = IsPixelArt() ? GlyphCache::Mode::Pixel : GlyphCache::Mode::Bitmap;
+			_mesh.Build(*layout, faces, _fittedFontSize, Vector2(0.0f, 0.0f), *glyphCache, mode, _layoutPixelSize);
 			_meshDirty = false;
 		}
 
@@ -416,11 +432,19 @@ namespace hod::inline ui2
 			drawContext.PushClipRect(canvasMatrix, size);
 		}
 
+		Sampler::CreateInfo nearestSamplerCreateInfo;
+		nearestSamplerCreateInfo._filterMode = FilterMode::Nearest;
+		const Sampler* nearestSampler = RhiDevice::GetInstance()->GetSampler(nearestSamplerCreateInfo);
+
 		// One draw per atlas page the glyphs are in
 		for (const TextMesh::Batch& batch : _mesh._batches)
 		{
 			MaterialInstance* materialInstance = MaterialInstance::Create(material);
 			materialInstance->SetTexture("image", glyphCache->GetPage(batch._pageIndex));
+			if (IsPixelArt())
+			{
+				materialInstance->SetSampler("imageSampler", nearestSampler); // its texels are its pixels
+			}
 			materialInstance->SetVec4("ubo.color", Vector4(_color.r, _color.g, _color.b, _color.a));
 
 			drawContext.PushMesh(batch._positions.Data(), batch._uvs.Data(), batch._positions.Size(), batch._indices.Data(), batch._indices.Size(), meshMatrix,

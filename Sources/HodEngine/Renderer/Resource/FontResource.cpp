@@ -10,14 +10,23 @@
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 #include "HodEngine/GameSystems/Resource/ResourceContainer.hpp"
 
+#include <HodEngine/Core/Math.hpp>
+
 #include <cmath>
 #include <cstring>
 
 namespace hod::inline renderer
 {
+	DESCRIBE_REFLECTED_ENUM(FontResource::RenderMode, reflectionDescriptor)
+	{
+		reflectionDescriptor.AddEnumValue(FontResource::RenderMode::Smooth, "Smooth");
+		reflectionDescriptor.AddEnumValue(FontResource::RenderMode::PixelArt, "PixelArt");
+	}
+
 	DESCRIBE_REFLECTED_CLASS(FontResource, reflectionDescriptor)
 	{
-		(void)reflectionDescriptor;
+		AddPropertyT(reflectionDescriptor, &FontResource::_renderMode, "RenderMode", &FontResource::SetRenderMode);
+		AddPropertyT(reflectionDescriptor, &FontResource::_pixelSize, "PixelSize", &FontResource::SetPixelSize);
 	}
 
 	/// @brief
@@ -42,6 +51,14 @@ namespace hod::inline renderer
 	/// @return
 	bool FontResource::Initialize(const ResourceContainer& resourceContainer)
 	{
+		// How it is drawn: written by the cooker from the settings of the asset. Smooth without it
+		const ResourceContainer::DataBlockInfo* infoDataBlock = resourceContainer.FindDataBlock("Info");
+		if (infoDataBlock != nullptr)
+		{
+			infoDataBlock->_stream->Read(&_renderMode, sizeof(_renderMode));
+			infoDataBlock->_stream->Read(&_pixelSize, sizeof(_pixelSize));
+		}
+
 		const ResourceContainer::DataBlockInfo* ttfDataBlock = resourceContainer.FindDataBlock("ttf");
 		if (ttfDataBlock == nullptr)
 		{
@@ -73,5 +90,47 @@ namespace hod::inline renderer
 	const FontFace& FontResource::GetFontFace() const
 	{
 		return _fontFace;
+	}
+
+	/// @brief
+	/// @return
+	FontResource::RenderMode FontResource::GetRenderMode() const
+	{
+		return _renderMode;
+	}
+
+	/// @brief
+	/// @param renderMode
+	void FontResource::SetRenderMode(RenderMode renderMode)
+	{
+		_renderMode = renderMode;
+	}
+
+	/// @brief
+	/// @return
+	uint32_t FontResource::GetPixelSize() const
+	{
+		return _pixelSize;
+	}
+
+	/// @brief
+	/// @param pixelSize
+	void FontResource::SetPixelSize(uint32_t pixelSize)
+	{
+		_pixelSize = pixelSize;
+	}
+
+	/// @brief
+	/// @param fontSize
+	/// @return
+	float FontResource::GetDrawnFontSize(float fontSize) const
+	{
+		if (_renderMode != RenderMode::PixelArt || _pixelSize == 0)
+		{
+			return fontSize;
+		}
+
+		const float pixelSize = (float)_pixelSize;
+		return Max(1.0f, std::round(fontSize / pixelSize)) * pixelSize;
 	}
 }
