@@ -84,6 +84,7 @@
 #include "HodEngine/Game/SceneResource.hpp"
 
 #include "HodEngine/Editor/FontEditor/FontCooker.hpp"
+#include "HodEngine/Editor/FontEditor/FontEditorTab.hpp"
 #include "HodEngine/Editor/FontEditor/FontImporter.hpp"
 #include "HodEngine/Renderer/Resource/FontResource.hpp"
 
@@ -354,6 +355,7 @@ namespace hod::inline editor
 		AssetDatabase::GetInstance()->RegisterImporter<FontImporter>("ttf");
 		AssetDatabase::GetInstance()->RegisterCooker<FontCooker>("Font");
 		AssetDatabase::GetInstance()->RegisterResource<FontResource>("Font");
+		RegisterEditorTab<FontEditorTab>("Font");
 
 		AssetDatabase::GetInstance()->RegisterCooker<SceneCooker>("Scene");
 		AssetDatabase::GetInstance()->RegisterResource<SceneResource>("Scene");

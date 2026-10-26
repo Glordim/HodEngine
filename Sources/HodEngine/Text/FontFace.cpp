@@ -5,6 +5,8 @@
 #include <hb.h>
 
 #include <atomic>
+#include <cmath>
+#include <cstdlib>
 #include <cstring>
 
 namespace hod::inline text
@@ -38,6 +40,7 @@ namespace hod::inline text
 		_descender = 0;
 		_lineGap = 0;
 		_capHeight = 0;
+		_xHeight = 0;
 	}
 
 	/// @brief
@@ -84,6 +87,8 @@ namespace hod::inline text
 		_lineGap = position;
 		hb_ot_metrics_get_position_with_fallback(_hbFont, HB_OT_METRICS_TAG_CAP_HEIGHT, &position);
 		_capHeight = position;
+		hb_ot_metrics_get_position_with_fallback(_hbFont, HB_OT_METRICS_TAG_X_HEIGHT, &position);
+		_xHeight = position;
 
 		_id = nextFontFaceId++;
 		return true;
@@ -157,6 +162,117 @@ namespace hod::inline text
 	int32_t FontFace::GetCapHeight() const
 	{
 		return _capHeight;
+	}
+
+	/// @brief
+	/// @return
+	int32_t FontFace::GetXHeight() const
+	{
+		return _xHeight;
+	}
+
+	/// @brief
+	/// @return
+	uint32_t FontFace::GetGlyphCount() const
+	{
+		return _hbFace != nullptr ? hb_face_get_glyph_count(_hbFace) : 0;
+	}
+
+	namespace
+	{
+		/// @brief The typographic name (16, 17) when the font has one: it groups more styles than the legacy one (1, 2)
+		String GetName(hb_face_t* face, hb_ot_name_id_t typographicNameId, hb_ot_name_id_t nameId)
+		{
+			if (face == nullptr)
+			{
+				return String();
+			}
+
+			for (hb_ot_name_id_t id : {typographicNameId, nameId})
+			{
+				char         name[256] = {};
+				unsigned int nameSize = sizeof(name);
+				if (hb_ot_name_get_utf8(face, id, HB_LANGUAGE_INVALID, &nameSize, name) > 0)
+				{
+					return String(name);
+				}
+			}
+			return String();
+		}
+	}
+
+	/// @brief
+	/// @return
+	String FontFace::GetFamilyName() const
+	{
+		return GetName(_hbFace, HB_OT_NAME_ID_TYPOGRAPHIC_FAMILY, HB_OT_NAME_ID_FONT_FAMILY);
+	}
+
+	/// @brief
+	/// @return
+	String FontFace::GetStyleName() const
+	{
+		return GetName(_hbFace, HB_OT_NAME_ID_TYPOGRAPHIC_SUBFAMILY, HB_OT_NAME_ID_FONT_SUBFAMILY);
+	}
+
+	/// @brief The coarsest grid, from 4 to 64 cells an em, the bounds and advances of the glyphs are on, in font units.
+	/// Nearly all of them: a pixel font may have a few glyphs off its grid (marks drawn between two pixels...), an outline font has a few on any grid
+	/// @return
+	uint32_t FontFace::DetectPixelGrid() const
+	{
+		if (_hbFont == nullptr || _unitsPerEm == 0)
+		{
+			return 0;
+		}
+
+		// Not 0: on every grid, it tells none apart
+		Vector<int32_t> values;
+		const uint32_t  glyphCount = GetGlyphCount();
+		for (uint32_t glyphId = 0; glyphId < glyphCount; ++glyphId)
+		{
+			hb_glyph_extents_t extents = {};
+			if (hb_font_get_glyph_extents(_hbFont, glyphId, &extents))
+			{
+				for (int32_t value : {extents.x_bearing, extents.y_bearing, extents.width, extents.height})
+				{
+					if (value != 0)
+					{
+						values.PushBack(std::abs(value));
+					}
+				}
+			}
+
+			const int32_t advance = std::abs((int32_t)hb_font_get_glyph_h_advance(_hbFont, glyphId));
+			if (advance != 0)
+			{
+				values.PushBack(advance);
+			}
+		}
+		if (values.Empty())
+		{
+			return 0;
+		}
+
+		constexpr float onGridRatio = 0.95f;
+		for (uint32_t pixelSize = 4; pixelSize <= 64; ++pixelSize)
+		{
+			const float cell = (float)_unitsPerEm / (float)pixelSize;
+
+			uint32_t onGridCount = 0;
+			for (int32_t value : values)
+			{
+				const float cells = (float)value / cell;
+				if (std::abs(cells - std::round(cells)) * cell <= 1.0f) // a font unit of rounding
+				{
+					++onGridCount;
+				}
+			}
+			if ((float)onGridCount >= onGridRatio * (float)values.Size())
+			{
+				return pixelSize;
+			}
+		}
+		return 0;
 	}
 
 	/// @brief

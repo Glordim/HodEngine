@@ -361,6 +361,30 @@ TEST_F(TextShaperTest, EllipsizedLeavesTheEllipsisWhenNothingFits)
 // Pixel art: Silkscreen, drawn on a grid of 8 pixels an em
 // ============================================================================
 
+TEST_F(TextShaperTest, FaceHasItsNamesAndCounts)
+{
+	EXPECT_EQ(_sans->GetFamilyName(), String("Noto Sans"));
+	EXPECT_EQ(_sans->GetStyleName(), String("Regular"));
+	EXPECT_GT(_sans->GetGlyphCount(), 1000u);
+	EXPECT_GT(_sans->GetXHeight(), 400);
+	EXPECT_LT(_sans->GetXHeight(), _sans->GetCapHeight());
+}
+
+TEST_F(TextShaperTest, OutlineFontHasNoPixelGrid)
+{
+	EXPECT_EQ(_sans->DetectPixelGrid(), 0u);
+}
+
+TEST(PixelArtFont, DetectsItsPixelGrid)
+{
+	std::vector<char> data = ReadFixture("Silkscreen-Regular.ttf");
+	FontFace          face;
+	ASSERT_TRUE(face.LoadFromMemory(data.data(), (uint32_t)data.size()));
+
+	EXPECT_EQ(face.DetectPixelGrid(), 8u);
+	EXPECT_EQ(face.GetFamilyName(), String("Silkscreen"));
+}
+
 TEST(PixelArtFont, AdvancesAreWholePixelsOfItsGrid)
 {
 	std::vector<char> data = ReadFixture("Silkscreen-Regular.ttf");

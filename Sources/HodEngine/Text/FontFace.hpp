@@ -1,6 +1,7 @@
 #pragma once
 #include "HodEngine/Text/Export.hpp"
 
+#include <HodEngine/Core/String.hpp>
 #include <HodEngine/Core/Vector.hpp>
 
 #include <cstdint>
@@ -44,6 +45,14 @@ namespace hod::inline text
 		int32_t			GetDescender() const; // below the baseline, negative
 		int32_t			GetLineGap() const;   // between the descender of a line and the ascender of the next one
 		int32_t			GetCapHeight() const; // the top of the flat capitals (H), above the baseline
+		int32_t			GetXHeight() const;   // the top of the flat lowercase letters (x), above the baseline
+
+		uint32_t		GetGlyphCount() const;
+		String			GetFamilyName() const; // "Noto Sans", empty when the font has none
+		String			GetStyleName() const;  // "Regular", "Bold Italic"..., empty when the font has none
+
+		// Pixel art: the pixels an em of the grid every glyph is drawn on (outlines and advances on whole cells of it), 0 when there is none
+		uint32_t		DetectPixelGrid() const;
 
 		bool			HasGlyph(char32_t codepoint) const;
 
@@ -69,5 +78,6 @@ namespace hod::inline text
 		int32_t			_descender = 0;
 		int32_t			_lineGap = 0;
 		int32_t			_capHeight = 0;
+		int32_t			_xHeight = 0;
 	};
 }
