@@ -162,7 +162,8 @@ namespace hod::inline editor
 
 		ImGui::Spacing();
 
-		if (ImGui::BeginTable("##Metrics", 3, ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingStretchProp))
+		// PadOuterX: without the outer borders, ImGui gives the first and last columns no padding on their outer side
+		if (ImGui::BeginTable("##Metrics", 3, ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerV | ImGuiTableFlags_SizingStretchProp | ImGuiTableFlags_PadOuterX))
 		{
 			ImGui::TableSetupColumn("Metric", ImGuiTableColumnFlags_WidthStretch, 2.0f);
 			ImGui::TableSetupColumn("Units", ImGuiTableColumnFlags_WidthStretch, 1.0f);

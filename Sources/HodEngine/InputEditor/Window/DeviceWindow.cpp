@@ -71,7 +71,7 @@ namespace hod::inline editor
 				ImGui::NewLine();
 			}
 		}
-		if (ImGui::BeginTable("InputTable", 7, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_RowBg))
+		if (ImGui::BeginTable("InputTable", 7, ImGuiTableFlags_BordersOuter | ImGuiTableFlags_RowBg | ImGuiTableFlags_PadOuterX))
 		{
 			ImGui::TableSetupColumn("Name");
 			ImGui::TableSetupColumn("Display Name");

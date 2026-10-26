@@ -403,7 +403,7 @@ namespace hod::inline editor
 		uint32_t elementCount = editorReflectedProperty.GetArraySize();
 
 		ImGui::PushID(property);
-		if (elementCount > 0 && ImGui::BeginTable("Items", 2) == true)
+		if (elementCount > 0 && ImGui::BeginTable("Items", 2, ImGuiTableFlags_PadOuterX) == true)
 		{
 			ImGui::TableSetupColumn("Index", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoResize);
 			ImGui::TableSetupColumn("Value", ImGuiTableColumnFlags_WidthStretch | ImGuiTableColumnFlags_NoResize);

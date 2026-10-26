@@ -66,7 +66,7 @@ namespace hod::inline editor
 		if (reflectionDescriptor != nullptr)
 		{
 			uint32_t columnCount = 1 + reflectionDescriptor->GetProperties().Size();
-			if (ImGui::BeginTable("DataTableRows", columnCount, ImGuiTableFlags_Sortable | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders) == true)
+			if (ImGui::BeginTable("DataTableRows", columnCount, ImGuiTableFlags_Sortable | ImGuiTableFlags_RowBg | ImGuiTableFlags_Borders | ImGuiTableFlags_PadOuterX) == true)
 			{
 				ImGui::TableSetupColumn("Key", ImGuiTableColumnFlags_WidthStretch);
 				for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
