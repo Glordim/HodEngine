@@ -3,6 +3,8 @@
 #include "HodEngine/Editor/FontEditor/FontEditorAtlasWindow.hpp"
 #include "HodEngine/Editor/FontEditor/FontEditorPropertiesWindow.hpp"
 #include "HodEngine/Editor/FontEditor/FontEditorViewportWindow.hpp"
+#include "HodEngine/Editor/FontEditor/FontThumbnail.hpp"
+#include "HodEngine/Editor/Thumbnail.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
@@ -197,6 +199,16 @@ namespace hod::inline editor
 		if (documentWriter.Write(settingsDocument, settingsStream) == false)
 		{
 			return false;
+		}
+
+		// As the font is drawn with its settings: sharp pixels for pixel art
+		Vector<uint8_t> thumbnailPixels;
+		Vector<uint8_t> thumbnail;
+		if (_font != nullptr && FontThumbnail::Generate(_font->GetFontFace(), _fontSettings._renderMode, _fontSettings._pixelSize, thumbnailPixels) &&
+		    Thumbnail::Encode(thumbnailPixels.Data(), FontThumbnail::Size, FontThumbnail::Size, thumbnail))
+		{
+			const bool pixelArt = _fontSettings._renderMode == FontResource::RenderMode::PixelArt && _fontSettings._pixelSize != 0;
+			_assetContainer.SetThumbnail(std::move(thumbnail), pixelArt ? FilterMode::Nearest : FilterMode::Linear);
 		}
 
 		_savedSettings = _fontSettings;

@@ -290,6 +290,25 @@ namespace hod::inline text
 	}
 
 	/// @brief
+	/// @param codepoints appended to
+	void FontFace::GetCodepoints(Vector<char32_t>& codepoints) const
+	{
+		if (_hbFace == nullptr)
+		{
+			return;
+		}
+
+		hb_set_t* set = hb_set_create();
+		hb_face_collect_unicodes(_hbFace, set);
+		hb_codepoint_t codepoint = HB_SET_VALUE_INVALID;
+		while (hb_set_next(set, &codepoint))
+		{
+			codepoints.PushBack((char32_t)codepoint);
+		}
+		hb_set_destroy(set);
+	}
+
+	/// @brief
 	/// @return
 	hb_font_t* FontFace::GetHbFont() const
 	{

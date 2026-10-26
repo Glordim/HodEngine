@@ -1,5 +1,6 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/Text/GlyphCache.hpp"
+#include "HodEngine/Renderer/Text/FreeTypeGlyph.hpp"
 #include "HodEngine/Renderer/Text/SkylinePacker.hpp"
 
 #include "HodEngine/Renderer/FrameResources.hpp"
@@ -343,20 +344,9 @@ namespace hod::inline renderer
 			return nullptr;
 		}
 
-		// No hinting for SDF: it is scaled, nor for Pixel: its outlines are on its grid already.
-		// Light hinting for Bitmap: vertical only, the advances are the ones of the shaper
-		FT_Int32       loadFlags = FT_LOAD_NO_HINTING;
-		FT_Render_Mode renderMode = FT_RENDER_MODE_SDF;
-		if (mode == Mode::Bitmap)
-		{
-			loadFlags = FT_LOAD_TARGET_LIGHT;
-			renderMode = FT_RENDER_MODE_NORMAL;
-		}
-		else if (mode == Mode::Pixel)
-		{
-			loadFlags = FT_LOAD_NO_HINTING | FT_LOAD_TARGET_MONO;
-			renderMode = FT_RENDER_MODE_MONO;
-		}
+		FT_Int32       loadFlags = 0;
+		FT_Render_Mode renderMode = FT_RENDER_MODE_NORMAL;
+		freetype::GetFlags(mode, loadFlags, renderMode);
 		if (FT_Load_Glyph(_ftFace, glyphId, loadFlags) != 0)
 		{
 			OUTPUT_ERROR("GlyphCache::GetGlyph: FT_Load_Glyph {} failed", glyphId);
@@ -405,25 +395,12 @@ namespace hod::inline renderer
 		}
 		Page& page = _pages[pageIndex];
 
-		// The rows of the bitmap may be further apart, or go up: the pitch goes down one row.
-		// 1 bit (Pixel): 8 pixels a byte, the leftmost in the highest bit, on is full coverage.
 		// Into the page on the CPU too, for it to be copied when it grows
 		_pixels.Resize(bitmap.width * bitmap.rows);
 		for (uint32_t row = 0; row < bitmap.rows; ++row)
 		{
-			const uint8_t* bitmapRow = bitmap.buffer + (ptrdiff_t)row * bitmap.pitch;
-			uint8_t*       pixelRow = _pixels.Data() + row * bitmap.width;
-			if (bitmap.pixel_mode == FT_PIXEL_MODE_MONO)
-			{
-				for (uint32_t column = 0; column < bitmap.width; ++column)
-				{
-					pixelRow[column] = ((bitmapRow[column / 8] >> (7 - column % 8)) & 1) ? 255 : 0;
-				}
-			}
-			else
-			{
-				std::memcpy(pixelRow, bitmapRow, bitmap.width);
-			}
+			uint8_t* pixelRow = _pixels.Data() + row * bitmap.width;
+			freetype::CopyRow(bitmap, row, pixelRow);
 			std::memcpy(page._pixels.Data() + (y + GlyphBorder + row) * page._size + x + GlyphBorder, pixelRow, bitmap.width);
 		}
 		if (page._texture->UpdateRegion(x + GlyphBorder, y + GlyphBorder, bitmap.width, bitmap.rows, _pixels.Data()) == false)

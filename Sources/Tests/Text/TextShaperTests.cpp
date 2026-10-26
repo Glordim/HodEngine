@@ -2,6 +2,7 @@
 
 #include <HodEngine/Core/StaticArray.hpp>
 #include <HodEngine/Text/FontFace.hpp>
+#include <HodEngine/Text/SampleText.hpp>
 #include <HodEngine/Text/TextLayout.hpp>
 #include <HodEngine/Text/TextShaper.hpp>
 
@@ -368,6 +369,49 @@ TEST_F(TextShaperTest, FaceHasItsNamesAndCounts)
 	EXPECT_GT(_sans->GetGlyphCount(), 1000u);
 	EXPECT_GT(_sans->GetXHeight(), 400);
 	EXPECT_LT(_sans->GetXHeight(), _sans->GetCapHeight());
+}
+
+TEST_F(TextShaperTest, FaceListsItsCodepoints)
+{
+	Vector<char32_t> codepoints;
+	_sans->GetCodepoints(codepoints);
+
+	ASSERT_GT(codepoints.Size(), 100u);
+	bool hasA = false;
+	bool hasCjk = false;
+	for (uint32_t index = 0; index < codepoints.Size(); ++index)
+	{
+		hasA |= codepoints[index] == U'A';
+		hasCjk |= codepoints[index] == 0x4E2D;
+		if (index > 0)
+		{
+			EXPECT_LT(codepoints[index - 1], codepoints[index]);
+		}
+	}
+	EXPECT_TRUE(hasA);
+	EXPECT_FALSE(hasCjk);
+}
+
+// ============================================================================
+// Sample text
+// ============================================================================
+
+TEST_F(TextShaperTest, SampleTextOfALatinFont)
+{
+	EXPECT_EQ(GetSampleText(*_sans), String("Aa"));
+}
+
+// A CJK font has Latin letters too: its thousands of ideographs win, its name tells Chinese
+TEST_F(TextShaperTest, SampleTextOfACjkFont)
+{
+	EXPECT_TRUE(_sc->HasGlyph(U'A'));
+	EXPECT_EQ(GetSampleText(*_sc), String("\xE4\xB8\xAD\xE6\x96\x87")); // 中文
+}
+
+TEST_F(TextShaperTest, SampleTextOfNoFont)
+{
+	FontFace notLoaded;
+	EXPECT_TRUE(GetSampleText(notLoaded).Empty());
 }
 
 TEST_F(TextShaperTest, OutlineFontHasNoPixelGrid)

@@ -55,6 +55,7 @@ namespace hod::inline text
 		uint32_t		DetectPixelGrid() const;
 
 		bool			HasGlyph(char32_t codepoint) const;
+		void			GetCodepoints(Vector<char32_t>& codepoints) const; // the ones it has a glyph for, in order
 
 		// Scaled in font units: the positions it gives are in font units
 		hb_font_t*		GetHbFont() const;
