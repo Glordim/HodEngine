@@ -56,6 +56,8 @@ namespace hod::inline text
 
 		bool			HasGlyph(char32_t codepoint) const;
 		void			GetCodepoints(Vector<char32_t>& codepoints) const; // the ones it has a glyph for, in order
+		uint32_t		GetGlyphId(char32_t codepoint) const;              // 0 when it has none for it
+		int32_t			GetGlyphAdvance(uint32_t glyphId) const;           // in font units
 
 		// Scaled in font units: the positions it gives are in font units
 		hb_font_t*		GetHbFont() const;

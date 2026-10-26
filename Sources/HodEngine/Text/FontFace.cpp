@@ -290,6 +290,27 @@ namespace hod::inline text
 	}
 
 	/// @brief
+	/// @param codepoint
+	/// @return
+	uint32_t FontFace::GetGlyphId(char32_t codepoint) const
+	{
+		hb_codepoint_t glyph = 0;
+		if (_hbFont == nullptr || hb_font_get_nominal_glyph(_hbFont, codepoint, &glyph) == 0)
+		{
+			return 0;
+		}
+		return glyph;
+	}
+
+	/// @brief
+	/// @param glyphId
+	/// @return
+	int32_t FontFace::GetGlyphAdvance(uint32_t glyphId) const
+	{
+		return _hbFont != nullptr ? hb_font_get_glyph_h_advance(_hbFont, glyphId) : 0;
+	}
+
+	/// @brief
 	/// @param codepoints appended to
 	void FontFace::GetCodepoints(Vector<char32_t>& codepoints) const
 	{

@@ -5,6 +5,7 @@
 #include <HodEngine/Text/SampleText.hpp>
 #include <HodEngine/Text/TextLayout.hpp>
 #include <HodEngine/Text/TextShaper.hpp>
+#include <HodEngine/Text/Unicode.hpp>
 
 #include <cmath>
 #include <fstream>
@@ -412,6 +413,58 @@ TEST_F(TextShaperTest, SampleTextOfNoFont)
 {
 	FontFace notLoaded;
 	EXPECT_TRUE(GetSampleText(notLoaded).Empty());
+}
+
+TEST_F(TextShaperTest, FaceMapsItsCharactersToGlyphs)
+{
+	const uint32_t   glyphId = _sans->GetGlyphId(U'A');
+	const TextLayout layout = Shape("A");
+	ASSERT_EQ(layout._glyphs.Size(), 1u);
+	EXPECT_NE(glyphId, 0u);
+	EXPECT_EQ(glyphId, layout._glyphs[0]._glyphId);
+	EXPECT_EQ(_sans->GetGlyphId(0x4E2D), 0u);
+
+	// The advance of the shaper, without kerning: one glyph
+	EXPECT_FLOAT_EQ((float)_sans->GetGlyphAdvance(glyphId) * Size / (float)_sans->GetUnitsPerEm(), layout._width);
+}
+
+TEST(Unicode, DrawnCharacters)
+{
+	EXPECT_TRUE(IsDrawnCharacter(U'A'));
+	EXPECT_TRUE(IsDrawnCharacter(0x4E2D));  // 中
+	EXPECT_TRUE(IsDrawnCharacter(0xE000));  // private use: what an icon font draws
+	EXPECT_FALSE(IsDrawnCharacter(U' '));   // space
+	EXPECT_FALSE(IsDrawnCharacter(0x0009)); // tab, a control
+	EXPECT_FALSE(IsDrawnCharacter(0x200B)); // zero width space, a format character
+	EXPECT_FALSE(IsDrawnCharacter(0x0378)); // unassigned, in the Greek block
+}
+
+TEST(Unicode, Utf8BothWays)
+{
+	for (char32_t codepoint : {(char32_t)U'A', (char32_t)0x00E9, (char32_t)0x4E2D, (char32_t)0x1F600})
+	{
+		char             utf8[4] = {};
+		const uint32_t   length = EncodeUtf8(codepoint, utf8);
+		Vector<char32_t> decoded;
+		DecodeUtf8(StringView(utf8, length), decoded);
+		ASSERT_EQ(decoded.Size(), 1u);
+		EXPECT_EQ(decoded[0], codepoint);
+	}
+}
+
+TEST(Unicode, InvalidUtf8IsReplaced)
+{
+	Vector<char32_t> decoded;
+	DecodeUtf8("a\xFF" "b\xC3", decoded); // a byte that starts nothing, a sequence cut short
+	ASSERT_EQ(decoded.Size(), 4u);
+	EXPECT_EQ(decoded[0], (char32_t)U'a');
+	EXPECT_EQ(decoded[1], (char32_t)0xFFFD);
+	EXPECT_EQ(decoded[2], (char32_t)U'b');
+	EXPECT_EQ(decoded[3], (char32_t)0xFFFD);
+
+	decoded.Clear();
+	DecodeUtf8("\xC0\xAF", decoded); // "/" overlong: two replacements
+	EXPECT_EQ(decoded.Size(), 2u);
 }
 
 TEST_F(TextShaperTest, OutlineFontHasNoPixelGrid)

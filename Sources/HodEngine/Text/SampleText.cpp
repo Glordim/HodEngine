@@ -2,6 +2,7 @@
 #include "HodEngine/Text/SampleText.hpp"
 
 #include "HodEngine/Text/FontFace.hpp"
+#include "HodEngine/Text/Unicode.hpp"
 
 #include <HodEngine/Core/Vector.hpp>
 
@@ -140,37 +141,6 @@ namespace hod::inline text
 			}
 			hb_blob_destroy(blob);
 			return language;
-		}
-
-		/// @brief
-		/// @param codepoint
-		/// @param utf8 at least 4 bytes
-		/// @return the bytes written
-		uint32_t EncodeUtf8(char32_t codepoint, char* utf8)
-		{
-			if (codepoint < 0x80)
-			{
-				utf8[0] = (char)codepoint;
-				return 1;
-			}
-			if (codepoint < 0x800)
-			{
-				utf8[0] = (char)(0xC0 | (codepoint >> 6));
-				utf8[1] = (char)(0x80 | (codepoint & 0x3F));
-				return 2;
-			}
-			if (codepoint < 0x10000)
-			{
-				utf8[0] = (char)(0xE0 | (codepoint >> 12));
-				utf8[1] = (char)(0x80 | ((codepoint >> 6) & 0x3F));
-				utf8[2] = (char)(0x80 | (codepoint & 0x3F));
-				return 3;
-			}
-			utf8[0] = (char)(0xF0 | (codepoint >> 18));
-			utf8[1] = (char)(0x80 | ((codepoint >> 12) & 0x3F));
-			utf8[2] = (char)(0x80 | ((codepoint >> 6) & 0x3F));
-			utf8[3] = (char)(0x80 | (codepoint & 0x3F));
-			return 4;
 		}
 
 		/// @brief Its first two characters that are not spaces nor controls
