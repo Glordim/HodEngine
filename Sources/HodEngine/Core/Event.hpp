@@ -131,6 +131,8 @@ namespace hod::inline core
 	template<typename... Types>
 	void Event<Types...>::Connect(Slot& slot)
 	{
+		slot.Disconnect();
+		slot._event = this;
 		_slots.push_back(&slot);
 	}
 
