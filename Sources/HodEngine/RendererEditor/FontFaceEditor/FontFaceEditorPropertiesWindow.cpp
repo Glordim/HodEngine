@@ -122,7 +122,7 @@ namespace hod::inline editor
 
 		const float valuePos = ImGui::GetContentRegionAvail().x * 0.4f;
 
-		static const char* renderModeLabels[] = {"Smooth", "Pixel Art"};
+		static const char* renderModeLabels[] = {"Smooth", "Pixel Art", "SDF"};
 
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted("Render Mode");
@@ -149,7 +149,8 @@ namespace hod::inline editor
 		}
 		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
 		{
-			ImGui::SetTooltip("Smooth: anti-aliased, rasterized at the size it is drawn at.\nPixel Art: on its grid of Pixel Size pixels an em, drawn at whole multiples of it, sharp.");
+			ImGui::SetTooltip("Smooth: anti-aliased, rasterized at the size it is drawn at.\nPixel Art: on its grid of Pixel Size pixels an em, drawn at whole multiples of it, sharp."
+			                  "\nSDF: a distance field of its glyphs, rasterized once: sharp at any size, scale or zoom, a little softer than Smooth at small sizes.");
 		}
 
 		if (fontSettings._renderMode == FontFaceResource::RenderMode::PixelArt)

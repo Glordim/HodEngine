@@ -16,6 +16,7 @@ namespace hod::inline renderer
 	{
 		reflectionDescriptor.AddEnumValue(FontFaceResource::RenderMode::Smooth, "Smooth");
 		reflectionDescriptor.AddEnumValue(FontFaceResource::RenderMode::PixelArt, "PixelArt");
+		reflectionDescriptor.AddEnumValue(FontFaceResource::RenderMode::Sdf, "Sdf");
 	}
 
 	DESCRIBE_REFLECTED_CLASS(FontFaceResource, reflectionDescriptor)
@@ -140,6 +141,10 @@ namespace hod::inline renderer
 	/// @return
 	GlyphCache::Mode FontFaceResource::GetGlyphMode() const
 	{
+		if (_renderMode == RenderMode::Sdf)
+		{
+			return GlyphCache::Mode::Sdf;
+		}
 		return (_renderMode == RenderMode::PixelArt && _pixelSize != 0) ? GlyphCache::Mode::Pixel : GlyphCache::Mode::Bitmap;
 	}
 }

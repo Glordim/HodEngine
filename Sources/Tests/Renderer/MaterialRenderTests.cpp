@@ -727,6 +727,71 @@ TEST_F(MaterialRender, TextBitmapDrawsTheCoverageOfTheGlyphs)
 	glyphCache.Clear();
 }
 
+// An "I" in Sdf glyphs, drawn larger than they are rasterized at, through TextMesh::GetMaterial (P2fT2f_Text_Sdf): its stem has the color, beside it is the background,
+// and its edge is smoothed over about a pixel, not stretched over the texels magnified
+TEST_F(MaterialRender, TextSdfDrawsTheInsideOfTheOutline)
+{
+	std::ifstream     file(std::string(TESTS_TEXT_FIXTURES_DIR) + "/Fonts/NotoSans-Regular.ttf", std::ios::binary);
+	std::vector<char> data((std::istreambuf_iterator<char>(file)), std::istreambuf_iterator<char>());
+	FontFace          face;
+	ASSERT_TRUE(face.LoadFromMemory(data.data(), (uint32_t)data.size()));
+
+	// One unit is one pixel of the target
+	const float halfSize = (float)_targetSize * 0.5f;
+	_projection = Matrix4::OrthogonalProjection(-halfSize, halfSize, -halfSize, halfSize, -1024.0f, 1024.0f);
+
+	constexpr float fontSize = 1.25f * GlyphCache::SdfEmSize; // in the target, magnified all the same
+	const FontFace* faces[] = {&face};
+	TextShaper      shaper;
+	TextLayout      layout;
+	ASSERT_TRUE(shaper.Shape("I", faces, fontSize, layout));
+
+	GlyphCache glyphCache;
+	ASSERT_TRUE(glyphCache.Init(face));
+
+	// Centered: the capital is about 0.7 em high
+	TextMesh::Font fonts[] = {{&glyphCache, GlyphCache::Mode::Sdf}};
+	TextMesh       mesh;
+	ASSERT_TRUE(mesh.Build(layout, fonts, fontSize, Vector2(-layout._width * 0.5f, -fontSize * 0.35f)));
+	ASSERT_EQ(mesh._batches.Size(), 1u);
+	ASSERT_EQ(mesh._batches[0]._mode, GlyphCache::Mode::Sdf);
+
+	ASSERT_EQ(TextMesh::GetMaterial(GlyphCache::Mode::Sdf), BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Text_Sdf));
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Text_Sdf);
+	materialInstance->SetVec4("ubo.color", ToVector4(Red));
+	materialInstance->SetTexture("image", glyphCache.GetPage(mesh._batches[0]._pageIndex));
+
+	RenderFrame(
+		[&]()
+		{
+			const TextMesh::Batch& batch = mesh._batches[0];
+			_renderView->PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(batch._positions.Data(), batch._uvs.Data(), nullptr,
+			                                                                                     batch._positions.Size(), batch._indices.Data(), batch._indices.Size(),
+			                                                                                     Matrix4::Identity, materialInstance, 0, 0, true));
+		});
+
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.4f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.0f), Background));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.8f), Background)); // above the capital
+
+	// Across the middle row: the pixels between the color and the background are the edges of the stem, a couple on each side
+	uint32_t       blendedPixelCount = 0;
+	const uint32_t row = _targetSize / 2;
+	for (uint32_t x = 0; x < _targetSize; ++x)
+	{
+		const Color pixel = _frameTexture->ReadPixel(Vector2((float)x, (float)row));
+		if (ColorNear(pixel, Red) == false && ColorNear(pixel, Background) == false)
+		{
+			++blendedPixelCount;
+		}
+	}
+	EXPECT_LE(blendedPixelCount, 4u);
+
+	RhiDevice::GetInstance()->WaitIdle();
+	glyphCache.Clear();
+}
+
 // Silkscreen at 4 times its grid of 8 pixels, Pixel glyphs and a Nearest sampler: every pixel of the target is the color or the background, none between
 TEST_F(MaterialRender, TextPixelHasNoPixelBetweenTheColorAndTheBackground)
 {

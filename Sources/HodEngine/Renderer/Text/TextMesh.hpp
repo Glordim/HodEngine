@@ -16,6 +16,8 @@ namespace hod::inline text
 
 namespace hod::inline renderer
 {
+	class Material;
+
 	/// @brief The quads that draw a TextLayout, one batch per atlas page they read (one per font, but for thousands of glyphs):
 	/// a mesh, and a material instance with its page, per batch.
 	/// Positions in the space of the layout (x right, y up), from an origin on the baseline of the start of the line.
@@ -49,11 +51,15 @@ namespace hod::inline renderer
 
 		// fonts: the ones of the faces the layout was shaped with, in the same order, each drawn its own way. The glyphs are rasterized in their caches when they are not yet.
 		// Bitmap: rasterized at the size rounded to a pixel, each glyph on whole units of the layout (pixels when the layout is drawn 1:1).
-		// Pixel: rasterized at the grid of its font, the size a whole multiple of it, each glyph on whole units of the layout
+		// Pixel: rasterized at the grid of its font, the size a whole multiple of it, each glyph on whole units of the layout.
+		// Sdf: one glyph for every size, scaled to it, where the layout puts it
 		bool			Build(const TextLayout& layout, ArrayView<Font> fonts, float size, const Vector2& origin);
 		void			Clear();
 
 		// A page it reads grew since it was built (or its cache was cleared): to build again. Its caches are to be alive
 		bool			IsOutdated() const;
+
+		// The builtin material a batch of a mode is drawn with: the distance field for Sdf, the coverage otherwise
+		static const Material*	GetMaterial(GlyphCache::Mode mode);
 	};
 }

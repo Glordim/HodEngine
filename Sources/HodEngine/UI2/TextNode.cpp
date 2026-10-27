@@ -462,7 +462,6 @@ namespace hod::inline ui2
 		// Bitmap: the glyphs are on whole pixels from the origin, the origin is too
 		baselineOrigin = Vector2(std::round(baselineOrigin.GetX()), std::round(baselineOrigin.GetY()));
 
-		const Material* material = BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Text_Bitmap);
 		const Matrix4&  canvasMatrix = ComputeCanvasMatrix();
 		const Matrix4   meshMatrix = canvasMatrix * Matrix4::Translation(baselineOrigin);
 
@@ -480,7 +479,7 @@ namespace hod::inline ui2
 		// One draw per atlas page the glyphs are in, each font drawn its own way
 		for (const TextMesh::Batch& batch : _mesh._batches)
 		{
-			MaterialInstance* materialInstance = MaterialInstance::Create(material);
+			MaterialInstance* materialInstance = MaterialInstance::Create(TextMesh::GetMaterial(batch._mode));
 			materialInstance->SetTexture("image", batch._glyphCache->GetPage(batch._pageIndex));
 			if (batch._mode == GlyphCache::Mode::Pixel)
 			{

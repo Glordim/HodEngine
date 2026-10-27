@@ -281,23 +281,36 @@ namespace hod::inline editor
 		const float   zoomFactor = fontPreviewTab->GetZoomFactor();
 		const Matrix4 modelMatrix = Matrix4::Translation(Vector2(std::round(panOffset.GetX()), std::round(panOffset.GetY()))) * Matrix4::Scale(Vector2(zoomFactor, zoomFactor));
 
-		// Magnified, the texels are shown as they are: the pixels the text is drawn with. Pixel glyphs always (a fallback may be Smooth)
+		// Magnified, the texels are shown as they are: the pixels the text is drawn with. Pixel glyphs always (a fallback may be Smooth).
+		// Sdf glyphs are drawn from their distance field, filtered, at any zoom: sharp as the text is at that size
 		Sampler::CreateInfo nearestSamplerCreateInfo;
 		nearestSamplerCreateInfo._filterMode = FilterMode::Nearest;
+		Sampler::CreateInfo bitmapSamplerCreateInfo;
+		bitmapSamplerCreateInfo._filterMode = zoomFactor > 1.0f ? FilterMode::Nearest : FilterMode::Linear;
 		Sampler::CreateInfo linearSamplerCreateInfo;
-		linearSamplerCreateInfo._filterMode = zoomFactor > 1.0f ? FilterMode::Nearest : FilterMode::Linear;
-		const Sampler*  nearestSampler = RhiDevice::GetInstance()->GetSampler(nearestSamplerCreateInfo);
-		const Sampler*  linearSampler = RhiDevice::GetInstance()->GetSampler(linearSamplerCreateInfo);
-		const Material* material = BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Text_Bitmap);
+		linearSamplerCreateInfo._filterMode = FilterMode::Linear;
+		const Sampler* nearestSampler = RhiDevice::GetInstance()->GetSampler(nearestSamplerCreateInfo);
+		const Sampler* bitmapSampler = RhiDevice::GetInstance()->GetSampler(bitmapSamplerCreateInfo);
+		const Sampler* linearSampler = RhiDevice::GetInstance()->GetSampler(linearSamplerCreateInfo);
 
 		for (const PreviewLine& line : _lines)
 		{
 			for (const TextMesh::Batch& batch : line._mesh._batches)
 			{
+				const Sampler* sampler = bitmapSampler;
+				if (batch._mode == GlyphCache::Mode::Pixel)
+				{
+					sampler = nearestSampler;
+				}
+				else if (batch._mode == GlyphCache::Mode::Sdf)
+				{
+					sampler = linearSampler;
+				}
+
 				// One per frame: the one of the previous frame may still be in use by the GPU
-				MaterialInstance* materialInstance = MaterialInstance::Create(material);
+				MaterialInstance* materialInstance = MaterialInstance::Create(TextMesh::GetMaterial(batch._mode));
 				materialInstance->SetTexture("image", batch._glyphCache->GetPage(batch._pageIndex));
-				materialInstance->SetSampler("imageSampler", batch._mode == GlyphCache::Mode::Pixel ? nearestSampler : linearSampler);
+				materialInstance->SetSampler("imageSampler", sampler);
 				materialInstance->SetVec4("ubo.color", Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 				frameResources.DeleteAfter(materialInstance);
 

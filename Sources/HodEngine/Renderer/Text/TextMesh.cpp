@@ -1,6 +1,8 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/Text/TextMesh.hpp"
 
+#include "HodEngine/Renderer/BuiltinMaterialManager.hpp"
+
 #include <HodEngine/Core/Math.hpp>
 #include <HodEngine/Text/TextLayout.hpp>
 
@@ -36,6 +38,15 @@ namespace hod::inline renderer
 			}
 		}
 		return false;
+	}
+
+	/// @brief
+	/// @param mode
+	/// @return
+	const Material* TextMesh::GetMaterial(GlyphCache::Mode mode)
+	{
+		return BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(mode == GlyphCache::Mode::Sdf ? BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Text_Sdf
+		                                                                                             : BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Text_Bitmap);
 	}
 
 	/// @brief The glyphs are asked for first, all of them: a page that grows for one changes the uvs of the ones before it

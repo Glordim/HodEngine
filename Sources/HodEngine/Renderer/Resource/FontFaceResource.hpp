@@ -22,6 +22,7 @@ namespace hod::inline renderer
 		{
 			Smooth,   // anti-aliased, rasterized at the size it is drawn at
 			PixelArt, // its glyphs on a grid of PixelSize pixels an em: drawn at whole multiples of it, sharp
+			Sdf,      // a signed distance field of its glyphs, rasterized once: sharp at any size and scale (zoom, world space...), softer than Smooth at small sizes
 		};
 		REFLECTED_ENUM(HOD_RENDERER_API, RenderMode);
 
@@ -53,7 +54,7 @@ namespace hod::inline renderer
 		// The size a text is drawn at for a size asked for: PixelArt, the closest whole multiple of PixelSize, at least once
 		float				GetDrawnFontSize(float fontSize) const;
 
-		// How its glyphs are rasterized: Pixel when PixelArt with a PixelSize, Bitmap otherwise
+		// How its glyphs are rasterized: Pixel when PixelArt with a PixelSize, Sdf when Sdf, Bitmap otherwise
 		GlyphCache::Mode	GetGlyphMode() const;
 
 	private:

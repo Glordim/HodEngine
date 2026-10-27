@@ -12,6 +12,8 @@
 #include "Shader/P2fT2f_Texture_Unlit_Vertex.hpp"
 #include "Shader/P2fT2f_Text_Bitmap_Fragment.hpp"
 #include "Shader/P2fT2f_Text_Bitmap_Vertex.hpp"
+#include "Shader/P2fT2f_Text_Sdf_Fragment.hpp"
+#include "Shader/P2fT2f_Text_Sdf_Vertex.hpp"
 
 #include "Shader/P2fC4f_Unlit_Fragment.hpp"
 #include "Shader/P2fC4f_Unlit_Vertex.hpp"
@@ -167,10 +169,17 @@ namespace hod::inline renderer
 		                                                {VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32_SFloat)},
 		                                                Material::PolygonMode::Fill, Material::Topology::TRIANGLE);
 
+		static BuiltinMaterialSource P2fT2f_Text_Sdf(P2fT2f_Text_Sdf_Vertex, P2fT2f_Text_Sdf_Vertex_size, P2fT2f_Text_Sdf_Vertex_reflection, P2fT2f_Text_Sdf_Vertex_reflection_size,
+		                                             P2fT2f_Text_Sdf_Fragment, P2fT2f_Text_Sdf_Fragment_size, P2fT2f_Text_Sdf_Fragment_reflection,
+		                                             P2fT2f_Text_Sdf_Fragment_reflection_size,
+		                                             {VertexInput(0, 0, VertexInput::Format::R32G32_SFloat), VertexInput(1, 8, VertexInput::Format::R32G32_SFloat)},
+		                                             Material::PolygonMode::Fill, Material::Topology::TRIANGLE);
+
 		static StaticArray<const BuiltinMaterialSource*, std::to_underlying(BuiltinMaterialManager::BuiltinMaterial::Count)> _builtinMaterialSources = {
 			&P2f_Unlit_Line,         &P2f_Unlit_Triangle,         &P2f_Unlit_TriangleFan,      &P2f_Unlit_Line_TriangleFan,    &P2f_Unlit_Line_LineStrip,
 			&P2fT2f_Texture_Unlit,   &P2fT2f_Texture_Unlit_Color, &P2fC4f_Unlit_Fill_Triangle, &P2fC4f_Unlit_Fill_TriangleFan, &P2fC4f_Unlit_Line_TriangleFan,
 			&P2fC4f_Unlit_Line_Line, &P2f_Unlit_Triangle_Opaque,  &P2fT2f_Text_Bitmap,
+			&P2fT2f_Text_Sdf,
 		};
 
 		return *_builtinMaterialSources[static_cast<uint32_t>(buildMaterial)]; // c++23 std::to_underlying

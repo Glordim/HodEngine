@@ -404,11 +404,10 @@ namespace hod::inline editor
 		linearSamplerCreateInfo._filterMode = FilterMode::Linear;
 		const Sampler*  nearestSampler = RhiDevice::GetInstance()->GetSampler(nearestSamplerCreateInfo);
 		const Sampler*  linearSampler = RhiDevice::GetInstance()->GetSampler(linearSamplerCreateInfo);
-		const Material* material = BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Text_Bitmap);
 		for (const TextMesh::Batch& batch : _mesh._batches)
 		{
 			// One per frame: the one of the previous frame may still be in use by the GPU
-			MaterialInstance* materialInstance = MaterialInstance::Create(material);
+			MaterialInstance* materialInstance = MaterialInstance::Create(TextMesh::GetMaterial(batch._mode));
 			materialInstance->SetTexture("image", batch._glyphCache->GetPage(batch._pageIndex));
 			materialInstance->SetSampler("imageSampler", batch._mode == GlyphCache::Mode::Pixel ? nearestSampler : linearSampler);
 			materialInstance->SetVec4("ubo.color", Vector4(1.0f, 1.0f, 1.0f, 1.0f));
