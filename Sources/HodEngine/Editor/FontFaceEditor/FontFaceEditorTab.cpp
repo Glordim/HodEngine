@@ -123,14 +123,17 @@ namespace hod::inline editor
 
 		ImGuiID opposite = _dockSpaceId;
 		ImGuiID dockRight = ImGui::DockBuilderSplitNode(_dockSpaceId, ImGuiDir_Right, 0.25f, nullptr, &opposite);
+		ImGuiID dockTop = opposite;
+		ImGuiID dockBottom = ImGui::DockBuilderSplitNode(opposite, ImGuiDir_Down, 0.35f, nullptr, &dockTop);
+		ImGuiID dockTopLeft = dockTop;
+		ImGuiID dockTopRight = ImGui::DockBuilderSplitNode(dockTop, ImGuiDir_Right, 0.4f, nullptr, &dockTopLeft);
 
-		// The preview, the glyphs and the atlas, tabs of the same node: the preview in front
+		// The preview and the atlas side by side, the glyphs below them
 		ImGui::DockBuilderDockWindow(propertiesWindow->GetIdentifier(), dockRight);
-		ImGui::DockBuilderDockWindow(viewportWindow->GetIdentifier(), opposite);
-		ImGui::DockBuilderDockWindow(glyphsWindow->GetIdentifier(), opposite);
-		ImGui::DockBuilderDockWindow(atlasWindow->GetIdentifier(), opposite);
+		ImGui::DockBuilderDockWindow(viewportWindow->GetIdentifier(), dockTopLeft);
+		ImGui::DockBuilderDockWindow(atlasWindow->GetIdentifier(), dockTopRight);
+		ImGui::DockBuilderDockWindow(glyphsWindow->GetIdentifier(), dockBottom);
 		ImGui::DockBuilderFinish(_dockSpaceId);
-		ImGui::SetWindowFocus(viewportWindow->GetIdentifier());
 	}
 
 	/// @brief
