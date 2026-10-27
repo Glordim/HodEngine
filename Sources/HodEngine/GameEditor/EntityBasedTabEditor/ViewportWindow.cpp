@@ -88,13 +88,7 @@ namespace hod::inline editor
 		if (visible)
 		{
 			DrawDockTabContextMenu();
-			ImRect cliprect = ImGui::GetCurrentWindow()->ClipRect;
-			cliprect.Min.x -= ImGui::GetStyle().WindowPadding.x * 0.5f;
-			cliprect.Min.y -= ImGui::GetStyle().WindowPadding.y * 0.5f;
-			cliprect.Max.x += ImGui::GetStyle().WindowPadding.x * 0.5f;
-			cliprect.Max.y += ImGui::GetStyle().WindowPadding.y * 0.5f;
-			ImGui::PopClipRect();
-			ImGui::PushClipRect(cliprect.Min, cliprect.Max, false);
+			ExtendClipRectToWindowLeftEdge();
 			DrawContent();
 			DrawHelper::DrawHiddenTabBarButton();
 		}

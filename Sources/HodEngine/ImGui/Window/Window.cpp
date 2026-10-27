@@ -39,13 +39,7 @@ namespace hod::inline imgui
 		if (visible)
 		{
 			DrawDockTabContextMenu();
-			ImRect cliprect = ImGui::GetCurrentWindow()->ClipRect;
-			cliprect.Min.x -= ImGui::GetStyle().WindowPadding.x * 0.5f;
-			cliprect.Min.y -= ImGui::GetStyle().WindowPadding.y * 0.5f;
-			cliprect.Max.x += ImGui::GetStyle().WindowPadding.x * 0.5f;
-			cliprect.Max.y += ImGui::GetStyle().WindowPadding.y * 0.5f;
-			ImGui::PopClipRect();
-			ImGui::PushClipRect(cliprect.Min, cliprect.Max, false);
+			ExtendClipRectToWindowLeftEdge();
 			DrawContent();
 		}
 		if (open == false)
@@ -88,6 +82,17 @@ namespace hod::inline imgui
 			}
 			ImGui::EndPopup();
 		}
+	}
+
+	/// @brief The inner clip rect starts after the left border: let the content draw up to the window edge (override markers of the inspectors),
+	/// never outside the window. Must be called right after ImGui::Begin()
+	void Window::ExtendClipRectToWindowLeftEdge()
+	{
+		ImGuiWindow* window = ImGui::GetCurrentWindow();
+		ImRect       cliprect = window->ClipRect;
+		cliprect.Min.x = window->Pos.x;
+		ImGui::PopClipRect();
+		ImGui::PushClipRect(cliprect.Min, cliprect.Max, false);
 	}
 
 	/// @brief

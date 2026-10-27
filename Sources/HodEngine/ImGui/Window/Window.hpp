@@ -51,6 +51,8 @@ namespace hod::inline imgui
 	protected:
 		void DrawDockTabContextMenu();
 
+		static void ExtendClipRectToWindowLeftEdge();
+
 	private:
 		bool _closed = false;
 
