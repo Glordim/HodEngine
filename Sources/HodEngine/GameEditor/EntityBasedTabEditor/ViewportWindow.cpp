@@ -1,10 +1,10 @@
-#include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/GameEditor/Pch.hpp"
 #include "HodEngine/Core/Hash.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/EntityBasedTabEditor/EntityEditorTab.hpp"
-#include "HodEngine/Editor/ViewportWindow.hpp"
+#include "HodEngine/GameEditor/EntityBasedTabEditor/EntityEditorTab.hpp"
+#include "HodEngine/GameEditor/EntityBasedTabEditor/ViewportWindow.hpp"
 
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/ImGuiManager.hpp>
@@ -34,7 +34,7 @@
 #include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawer.hpp"
 #include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
 
-#include "HodEngine/Editor/PhysicsDebugDrawer.hpp"
+#include "HodEngine/GameEditor/EntityBasedTabEditor/PhysicsDebugDrawer.hpp"
 #include <HodEngine/Physics/DebugDrawer.hpp>
 #include <HodEngine/Physics/World.hpp>
 

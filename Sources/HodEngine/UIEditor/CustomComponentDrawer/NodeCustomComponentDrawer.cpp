@@ -2,7 +2,7 @@
 #include "HodEngine/Editor/AnchorPresetsDrawer.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/ViewportWindow.hpp"
+#include "HodEngine/Editor/Gizmos/GizmoViewport.hpp"
 #include "HodEngine/UIEditor/CustomComponentDrawer/NodeCustomComponentDrawer.hpp"
 #include <HodEngine/Game/Entity.hpp>
 #include <HodEngine/UI/Node.hpp>
@@ -18,7 +18,6 @@
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
-#include "HodEngine/Editor/ViewportWindow.hpp"
 
 #undef max
 
@@ -119,7 +118,7 @@ namespace hod::inline editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool NodeCustomComponentDrawer::OnDrawGizmo(Component* component, ViewportWindow& viewport, bool selected)
+	bool NodeCustomComponentDrawer::OnDrawGizmo(Component* component, GizmoViewport& viewport, bool selected)
 	{
 		Node* node = static_cast<Node*>(component);
 		if (node == nullptr)

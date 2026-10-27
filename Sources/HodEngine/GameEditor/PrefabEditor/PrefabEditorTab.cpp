@@ -2,10 +2,10 @@
 #include "HodEngine/GameEditor/PrefabEditor/PrefabEditorTab.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
-#include "HodEngine/Editor/HierachyWindow.hpp"
-#include "HodEngine/Editor/InspectorWindow.hpp"
+#include "HodEngine/GameEditor/EntityBasedTabEditor/HierachyWindow.hpp"
+#include "HodEngine/GameEditor/EntityBasedTabEditor/InspectorWindow.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
-#include "HodEngine/Editor/ViewportWindow.hpp"
+#include "HodEngine/GameEditor/EntityBasedTabEditor/ViewportWindow.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>

@@ -15,13 +15,10 @@
 #include <HodEngine/ImGui/Helper.hpp>
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include "HodEngine/Editor/HierachyWindow.hpp"
-#include "HodEngine/Editor/InspectorWindow.hpp"
 #include "HodEngine/Editor/ProjectBrowser.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/TaskTracker/TaskTrackerWindow.hpp"
 #include "HodEngine/Editor/TitleBar.hpp"
-#include "HodEngine/Editor/ViewportWindow.hpp"
 
 #include "HodEngine/Core/ArgumentParser.hpp"
 #include "HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp"
@@ -42,7 +39,6 @@
 
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
-#include "HodEngine/Editor/ViewportWindow.hpp"
 #include "HodEngine/ImGui/ImGuiManager.hpp"
 
 #include "HodEngine/RHI/RhiDevice.hpp"
@@ -402,18 +398,6 @@ namespace hod::inline editor
 						{
 							ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
 						}
-						if (ImGui::MenuItem("Inspector") == true)
-						{
-							ImGuiManager::GetInstance()->OpenWindow<InspectorWindow>();
-						}
-						if (ImGui::MenuItem("Viewport") == true)
-						{
-							ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>();
-						}
-						if (ImGui::MenuItem("Hierachy") == true)
-						{
-							ImGuiManager::GetInstance()->OpenWindow<HierachyWindow>();
-						}
 						if (ImGui::MenuItem("ImGui demo"))
 						{
 							ImguiDemo = !ImguiDemo;
@@ -609,12 +593,6 @@ namespace hod::inline editor
 		// OpenEditorTab<SceneEditorTab>();
 		_showFloatingAssetBrowser = true;
 		_focusFloatingAssetBrowserWindow = true;
-		/*
-		        ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
-		        ImGuiManager::GetInstance()->OpenWindow<HierachyWindow>();
-		        ImGuiManager::GetInstance()->OpenWindow<InspectorWindow>();
-		*/
-		// ImGuiManager::GetInstance()->OpenWindow<ViewportWindow>();
 
 		DesktopWindow* mainWindow = static_cast<DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow());
 		mainWindow->Maximize();

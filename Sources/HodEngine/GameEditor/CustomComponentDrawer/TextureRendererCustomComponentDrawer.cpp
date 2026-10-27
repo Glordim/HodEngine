@@ -1,5 +1,5 @@
 #include "HodEngine/GameEditor/Pch.hpp"
-#include "HodEngine/Editor/ViewportWindow.hpp"
+#include "HodEngine/Editor/Gizmos/GizmoViewport.hpp"
 #include "HodEngine/GameEditor/CustomComponentDrawer/TextureRendererCustomComponentDrawer.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -39,7 +39,7 @@ namespace hod::inline editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool TextureRendererCustomComponentDrawer::OnDrawGizmo(Component* component, ViewportWindow& viewport, bool selected)
+	bool TextureRendererCustomComponentDrawer::OnDrawGizmo(Component* component, GizmoViewport& viewport, bool selected)
 	{
 		if (selected == false)
 		{

@@ -1,7 +1,8 @@
 #pragma once
-#include "HodEngine/Editor/Export.hpp"
+#include "HodEngine/GameEditor/Export.hpp"
 
 #include "HodEngine/Editor/EditorTabWindow.hpp"
+#include "HodEngine/Editor/Gizmos/GizmoViewport.hpp"
 
 #include <HodEngine/Math/Matrix4.hpp>
 #include <HodEngine/Math/Vector2.hpp>
@@ -24,7 +25,7 @@ namespace hod::inline editor
 	class PhysicsDebugDrawer;
 
 	/// @brief
-	class HOD_EDITOR_API ViewportWindow : public EditorTabWindow
+	class HOD_GAME_EDITOR_API ViewportWindow : public EditorTabWindow, public GizmoViewport
 	{
 		REFLECTED_CLASS(ViewportWindow, EditorTabWindow)
 
@@ -37,16 +38,16 @@ namespace hod::inline editor
 		bool Draw() override;
 		void DrawContent() override;
 
-		RenderView*   GetRenderView();
-		ReadbackRenderTarget* GetPickingRenderTarget() const;
-		const Matrix4&          GetProjectionMatrix() const;
-		const Matrix4&          GetViewMatrix() const;
-		float                   GetCameraSize() const;
+		RenderView*   GetRenderView() override;
+		ReadbackRenderTarget* GetPickingRenderTarget() const override;
+		const Matrix4&          GetProjectionMatrix() const override;
+		const Matrix4&          GetViewMatrix() const override;
+		float                   GetCameraSize() const override;
 
-		const Vector2& GetPlayRatio() const;
+		const Vector2& GetPlayRatio() const override;
 
 		/// @brief true while the mouse is used by the toolbar floating over the viewport, the viewport and its gizmos must then ignore it
-		bool IsMouseOverToolbar() const;
+		bool IsMouseOverToolbar() const override;
 
 	private:
 		void DrawToolbar();

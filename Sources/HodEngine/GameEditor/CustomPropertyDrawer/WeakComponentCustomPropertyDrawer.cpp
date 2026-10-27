@@ -16,7 +16,7 @@
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/EditorTabWindow.hpp"
-#include "HodEngine/Editor/EntityBasedTabEditor/EntityEditorTab.hpp"
+#include "HodEngine/GameEditor/EntityBasedTabEditor/EntityEditorTab.hpp"
 
 #include "HodEngine/RHI/Texture.hpp"
 

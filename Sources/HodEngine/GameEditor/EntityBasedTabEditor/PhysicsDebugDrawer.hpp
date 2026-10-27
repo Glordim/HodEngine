@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/Editor/Export.hpp"
+#include "HodEngine/GameEditor/Export.hpp"
 #include "HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp"
 #include "HodEngine/Math/Vector4.hpp"
 
@@ -23,7 +23,7 @@ namespace hod::inline physics
 namespace hod::inline editor
 {
 	/// @brief 
-	class HOD_EDITOR_API PhysicsDebugDrawer
+	class HOD_GAME_EDITOR_API PhysicsDebugDrawer
 	{
 	public:
 												PhysicsDebugDrawer();
@@ -42,7 +42,7 @@ namespace hod::inline editor
 		MaterialInstance*		_solidPolygonMaterialInstance = nullptr;
 	};
 
-	class HOD_EDITOR_API RenderCommandPhysicsDrawer : public RenderCommandMesh
+	class HOD_GAME_EDITOR_API RenderCommandPhysicsDrawer : public RenderCommandMesh
 	{
 	public:
 

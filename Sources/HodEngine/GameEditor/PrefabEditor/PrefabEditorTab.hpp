@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/GameEditor/Export.hpp"
 
-#include "HodEngine/Editor/EntityBasedTabEditor/EntityEditorTab.hpp"
+#include "HodEngine/GameEditor/EntityBasedTabEditor/EntityEditorTab.hpp"
 
 namespace hod::inline editor
 {

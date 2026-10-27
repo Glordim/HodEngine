@@ -19,7 +19,7 @@ namespace hod::inline renderer
 
 namespace hod::inline editor
 {
-	class ViewportWindow;
+	class GizmoViewport;
 
 	struct HOD_EDITOR_API Handle
 	{
@@ -40,11 +40,11 @@ namespace hod::inline editor
 	public:
 
 		static Handle 	GenerateHandle();
-		static float	GetHandleSize(float size, ViewportWindow& viewport);
+		static float	GetHandleSize(float size, GizmoViewport& viewport);
 
-		static bool FreeMoveCircle(Handle& handle, const Matrix4& worldMatrix, const Vector2& position, float radius, const Color& color, const Color& highlightColor, ViewportWindow& viewport);
-		static bool FreeMoveRect(Handle& handle, const Matrix4& worldMatrix, const Vector2& position, const Vector2& size, const Color& color, const Color& highlightColor, ViewportWindow& viewport);
-		static bool FreeMoveMesh(Handle& handle, const Matrix4& worldMatrix, const Vector2* vertices, uint32_t vertexCount, const Color& color, const Color& highlightColor, ViewportWindow& viewport);
+		static bool FreeMoveCircle(Handle& handle, const Matrix4& worldMatrix, const Vector2& position, float radius, const Color& color, const Color& highlightColor, GizmoViewport& viewport);
+		static bool FreeMoveRect(Handle& handle, const Matrix4& worldMatrix, const Vector2& position, const Vector2& size, const Color& color, const Color& highlightColor, GizmoViewport& viewport);
+		static bool FreeMoveMesh(Handle& handle, const Matrix4& worldMatrix, const Vector2* vertices, uint32_t vertexCount, const Color& color, const Color& highlightColor, GizmoViewport& viewport);
 
 		static void Rect(const Matrix4& worldMatrix, const Vector2& size, const Color& color, RenderView& renderView);
 		// Fills the band between two axis-aligned rects (outer contains inner), e.g. a padding or a margin. Rects as {bottom-left corner, size}.
@@ -55,7 +55,7 @@ namespace hod::inline editor
 
 	private:
 
-		static bool FreeMoveBehavior(Handle& handle, ViewportWindow& viewport);
-		static Vector2 GetMouseWorldPos(const Vector2& mousePosition, const ViewportWindow& viewport);
+		static bool FreeMoveBehavior(Handle& handle, GizmoViewport& viewport);
+		static Vector2 GetMouseWorldPos(const Vector2& mousePosition, const GizmoViewport& viewport);
 	};
 }

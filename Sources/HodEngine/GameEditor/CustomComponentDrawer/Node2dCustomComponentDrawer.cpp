@@ -1,6 +1,6 @@
 #include "HodEngine/GameEditor/Pch.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/ViewportWindow.hpp"
+#include "HodEngine/Editor/Gizmos/GizmoViewport.hpp"
 #include "HodEngine/GameEditor/CustomComponentDrawer/Node2dCustomComponentDrawer.hpp"
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 
@@ -12,7 +12,6 @@
 #include <HodEngine/Renderer/MaterialInstance.hpp>
 #include <HodEngine/RHI/RenderTarget.hpp>
 
-#include "HodEngine/Editor/ViewportWindow.hpp"
 #include "HodEngine/Core/StaticArray.hpp"
 
 #undef max
@@ -34,7 +33,7 @@ namespace hod::inline editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool Node2dCustomComponentDrawer::OnDrawGizmo(Component* component, ViewportWindow& viewport, bool selected)
+	bool Node2dCustomComponentDrawer::OnDrawGizmo(Component* component, GizmoViewport& viewport, bool selected)
 	{
 		if (selected == false)
 		{

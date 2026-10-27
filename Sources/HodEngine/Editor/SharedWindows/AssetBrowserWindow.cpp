@@ -8,7 +8,6 @@
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
-#include "HodEngine/Editor/HierachyWindow.hpp"
 
 #define IMGUI_DEFINE_MATH_OPERATORS
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -22,20 +21,9 @@
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Project.hpp"
 
-#include <HodEngine/Core/Document/DocumentWriterJson.hpp>
-
 #include "HodEngine/RHI/Texture.hpp"
 
 #include <HodEngine/Window/Dialog/PlatformDialog.hpp>
-
-#include "HodEngine/Game/Prefab.hpp"
-#include "HodEngine/Game/PrefabResource.hpp"
-#include "HodEngine/Game/Scene.hpp"
-#include "HodEngine/Game/SceneSerializer.hpp"
-#include "HodEngine/Game/World.hpp"
-
-#include <HodEngine/Core/Serialization/Serializer.hpp>
-#include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 
 #include <HodEngine/Core/OS.hpp>
 
@@ -919,67 +907,6 @@ namespace hod::inline editor
 					AssetDatabase::GetInstance()->Delete(*itemToDelete);
 				}
 			}
-		}
-
-		ImRect backgroundRect(ImGui::GetWindowPos(), ImGui::GetWindowPos() + ImGui::GetWindowSize());
-		if (ImGui::BeginDragDropTargetCustom(backgroundRect, ImGui::GetID("BackgroundDropTarget")) == true)
-		{
-			const ImGuiPayload* payload = ImGui::GetDragDropPayload();
-			if (payload->IsDataType("EntityId") == true)
-			{
-				payload = ImGui::AcceptDragDropPayload("EntityId");
-				if (payload != nullptr)
-				{
-					EntityDragAndDropPayload* payloadData = static_cast<EntityDragAndDropPayload*>(payload->Data);
-					Entity*                   dropEntityLock = payloadData->_entity;
-					if (dropEntityLock != nullptr)
-					{
-						std::shared_ptr<PrefabResource> prefabResource = dropEntityLock->GetPrefabResource();
-						if (prefabResource != nullptr)
-						{
-							dropEntityLock->SetPrefabResource(nullptr); // Invalid reference to PrefabResource to avoid serialization as PrefabInstance
-						}
-
-						Document prefabDocument;
-						prefabDocument.GetRootNode().AddChild("Name").SetString(dropEntityLock->GetName());
-						uint64_t        nextLocalId = 1; // todo
-						SceneSerializer sceneSerializer;
-						if (sceneSerializer.SerializeEntity(dropEntityLock, true, prefabDocument.GetRootNode().AddChild("Entities"), nextLocalId) == false)
-						{
-							// todo output
-						}
-						else
-						{
-							Prefab prefab;
-							if (Serializer::Deserialize(prefab, prefabDocument.GetRootNode()) == false)
-							{
-								// todo output
-							}
-							else
-							{
-								Path newAssetPath; // TODO
-								// Path                              newAssetPath = AssetDatabase::GetInstance()->CreateAsset<Prefab, PrefabImporter>(_currentFolderTreeNode->_path
-								// /
-								//                                                                                                                    (dropEntityLock->GetName() +
-								//                                                                                                                    ".asset").CStr());
-								AssetDatabase::FileSystemMapping* newAssetNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(newAssetPath);
-								if (newAssetNode != nullptr)
-								{
-									newAssetNode->_asset->Save(&prefab, &prefab.GetReflectionDescriptorV());
-									// AssetDatabase::GetInstance()->Import(newAssetPath); TODO
-									dropEntityLock->SetPrefabResource(ResourceManager::GetInstance()->GetResource<PrefabResource>(newAssetNode->_asset->GetUid()));
-									payloadData->_hierarchyWindow->GetOwner()->MarkAsDirty();
-								}
-								else
-								{
-									// todo output
-								}
-							}
-						}
-					}
-				}
-			}
-			ImGui::EndDragDropTarget();
 		}
 
 		// On the void: the menu is about the current folder (Create, Import...), not about the selection

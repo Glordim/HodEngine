@@ -1,8 +1,8 @@
-#include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/InspectorWindow.hpp"
+#include "HodEngine/GameEditor/Pch.hpp"
+#include "HodEngine/GameEditor/EntityBasedTabEditor/InspectorWindow.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
-#include "HodEngine/Editor/EntityBasedTabEditor/EntityEditorTab.hpp"
+#include "HodEngine/GameEditor/EntityBasedTabEditor/EntityEditorTab.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 

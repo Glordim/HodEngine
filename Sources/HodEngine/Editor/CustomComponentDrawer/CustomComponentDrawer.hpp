@@ -15,7 +15,7 @@ namespace hod::inline game
 
 namespace hod::inline editor
 {
-	class ViewportWindow;
+	class GizmoViewport;
 
 	///@brief 
 	class HOD_EDITOR_API CustomComponentDrawer
@@ -33,6 +33,6 @@ namespace hod::inline editor
 	public:
 
 		virtual bool				OnDrawInspector(EditorReflectedObject &reflectedObject);
-		virtual bool				OnDrawGizmo(Component* component, ViewportWindow& viewport, bool selected);
+		virtual bool				OnDrawGizmo(Component* component, GizmoViewport& viewport, bool selected);
 	};
 }

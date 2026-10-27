@@ -1,11 +1,12 @@
 #include "HodEngine/UIEditor/Pch.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/ViewportWindow.hpp"
+#include "HodEngine/Editor/Gizmos/GizmoViewport.hpp"
 #include "HodEngine/UIEditor/CustomComponentDrawer/CanvasCustomComponentDrawer.hpp"
 #include <HodEngine/UI/Canvas.hpp>
 #include <HodEngine/UI/Node.hpp>
 
 #include <HodEngine/Game/Entity.hpp>
+#include <HodEngine/ImGui/DearImGui/imgui.h>
 
 #include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/PickingManager.hpp>
@@ -18,7 +19,6 @@
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
-#include "HodEngine/Editor/ViewportWindow.hpp"
 #include "HodEngine/Core/StaticArray.hpp"
 
 #undef max
@@ -66,7 +66,7 @@ namespace hod::inline editor
 	/// @param view
 	/// @param operation
 	/// @return
-	bool CanvasCustomComponentDrawer::OnDrawGizmo(Component* component, ViewportWindow& viewport, bool selected)
+	bool CanvasCustomComponentDrawer::OnDrawGizmo(Component* component, GizmoViewport& viewport, bool selected)
 	{
 		static_cast<Canvas*>(component)->DoRebuild();
 

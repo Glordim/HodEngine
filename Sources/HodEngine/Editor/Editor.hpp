@@ -36,7 +36,6 @@ namespace hod::inline editor
 	class MainBar;
 	class Project;
 	class Asset;
-	class ViewportWindow;
 	class EditorTab;
 	class AssetBrowserWindow;
 	class TaskTrackerWindow;
