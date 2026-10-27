@@ -27,12 +27,15 @@ namespace hod::inline editor
 
 		void		DrawSettings();
 		void		DrawFallbacks();
+		void		DrawStyles();
 		void		DrawInformation();
 		bool		DetectPixelSize(); // into the settings, true when found
+		bool		DetectStyles();    // into the settings, true when some were added
 
 	private:
 
 		String		_detectMessage; // what the last "Detect" of the pixel size found, shown under it
+		String		_detectStylesMessage; // what the last "Detect" of the styles found, shown under it
 		FontChain	_fontChain; // the one shown under the fallbacks
 	};
 }

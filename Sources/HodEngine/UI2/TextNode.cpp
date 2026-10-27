@@ -52,6 +52,8 @@ namespace hod::inline ui2
 		AddPropertyT(reflectionDescriptor, &TextNode::_font, "Font", &TextNode::SetFont);
 		AddPropertyT(reflectionDescriptor, &TextNode::_value, "Value", &TextNode::SetValue);
 		AddPropertyT(reflectionDescriptor, &TextNode::_fontSize, "FontSize", &TextNode::SetFontSize);
+		AddPropertyT(reflectionDescriptor, &TextNode::_fontWeight, "FontWeight", &TextNode::SetFontWeight);
+		AddPropertyT(reflectionDescriptor, &TextNode::_italic, "Italic", &TextNode::SetItalic);
 		AddPropertyT(reflectionDescriptor, &TextNode::_horizontalAlignment, "HorizontalAlignment", &TextNode::SetHorizontalAlignment);
 		AddPropertyT(reflectionDescriptor, &TextNode::_verticalAlignment, "VerticalAlignment", &TextNode::SetVerticalAlignment);
 		AddPropertyT(reflectionDescriptor, &TextNode::_alignByGeometry, "AlignByGeometry", &TextNode::SetAlignByGeometry);
@@ -116,6 +118,46 @@ namespace hod::inline ui2
 			_fontSize = fontSize;
 			_layoutDirty = true;
 			MarkMeasureAsDirty(); // the text bounds depend on the size
+			GetPropertyChangedEvent().Emit();
+		}
+	}
+
+	/// @brief
+	/// @return
+	FontResource::Weight TextNode::GetFontWeight() const
+	{
+		return _fontWeight;
+	}
+
+	/// @brief
+	/// @param fontWeight
+	void TextNode::SetFontWeight(FontResource::Weight fontWeight)
+	{
+		if (_fontWeight != fontWeight)
+		{
+			_fontWeight = fontWeight;
+			_layoutDirty = true;
+			MarkMeasureAsDirty(); // another font maybe
+			GetPropertyChangedEvent().Emit();
+		}
+	}
+
+	/// @brief
+	/// @return
+	bool TextNode::IsItalic() const
+	{
+		return _italic;
+	}
+
+	/// @brief
+	/// @param italic
+	void TextNode::SetItalic(bool italic)
+	{
+		if (_italic != italic)
+		{
+			_italic = italic;
+			_layoutDirty = true;
+			MarkMeasureAsDirty(); // another font maybe
 			GetPropertyChangedEvent().Emit();
 		}
 	}
@@ -230,19 +272,18 @@ namespace hod::inline ui2
 		}
 	}
 
-	/// @brief The font and its fallbacks are followed: shaped again when one of them is reloaded (another face), drawn otherwise, added or removed
+	/// @brief The font, its style and their fallbacks are followed: shaped again when one of them is reloaded (another face), drawn otherwise, added or removed
 	/// @return
 	const TextLayout* TextNode::UpdateLayout() const
 	{
-		std::shared_ptr<FontResource> fontResource = _font.Lock();
-		const bool                    chainChanged = _fontChain.Update(fontResource);
-		if (_fontChain.Empty() || _fontChain.GetFonts()[0] != fontResource || _fontSize <= 0.0f)
+		const bool chainChanged = _fontChain.Update(_font.Lock(), _fontWeight, _italic);
+		if (_fontChain.Empty() || _fontSize <= 0.0f)
 		{
 			return nullptr;
 		}
 
-		// The size is the one of the font: its fallbacks are drawn at it
-		const float drawnFontSize = fontResource->GetDrawnFontSize(_fontSize);
+		// The size is the one of the font drawn (the style): its fallbacks are drawn at it
+		const float drawnFontSize = _fontChain.GetFonts()[0]->GetDrawnFontSize(_fontSize);
 		if (_layoutDirty || chainChanged || _layoutFontSize != drawnFontSize)
 		{
 			if (Renderer::GetInstance()->GetTextShaper()->Shape(_value, _fontChain.GetFaces(), drawnFontSize, _layout) == false)

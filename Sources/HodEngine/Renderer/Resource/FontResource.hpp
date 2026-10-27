@@ -25,6 +25,29 @@ namespace hod::inline renderer
 		};
 		REFLECTED_ENUM(HOD_RENDERER_API, RenderMode);
 
+		/// @brief The weights of CSS (and of the OS/2 table of a font file)
+		enum class Weight : uint16_t
+		{
+			Thin = 100,
+			ExtraLight = 200,
+			Light = 300,
+			Regular = 400,
+			Medium = 500,
+			SemiBold = 600,
+			Bold = 700,
+			ExtraBold = 800,
+			Black = 900,
+		};
+		REFLECTED_ENUM(HOD_RENDERER_API, Weight);
+
+		/// @brief The font of the family drawn for a text asking for this style: another one, or the font itself
+		struct Style
+		{
+			UID		_font;
+			Weight	_weight = Weight::Regular;
+			bool	_italic = false;
+		};
+
 	public:
 
 							FontResource() = default;
@@ -60,6 +83,14 @@ namespace hod::inline renderer
 		const Vector<UID>&	GetFallbacks() const;
 		void				SetFallbacks(const Vector<UID>& fallbacks);
 
+		// Its family: the font drawn for each style, the same one for several maybe, the font itself among them maybe. None: the font itself for all.
+		// Read on each font of a chain, not on a font one of them is drawn with for a style: see FontChain
+		const Vector<Style>&	GetStyles() const;
+		void				SetStyles(const Vector<Style>& styles);
+
+		// The font of its styles closest to a style, as CSS matches it: the italic first, then the weight. An invalid UID without styles
+		UID					FindStyle(Weight weight, bool italic) const;
+
 	private:
 
 		FontFace			_fontFace;
@@ -67,5 +98,6 @@ namespace hod::inline renderer
 		RenderMode			_renderMode = RenderMode::Smooth;
 		uint32_t			_pixelSize = 0;
 		Vector<UID>			_fallbacks; // not locked here: fonts falling back on each other would keep each other alive
+		Vector<Style>		_styles; // not locked either: only the one drawn is loaded
 	};
 }

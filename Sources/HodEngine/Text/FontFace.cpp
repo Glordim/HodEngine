@@ -178,6 +178,27 @@ namespace hod::inline text
 		return _hbFace != nullptr ? hb_face_get_glyph_count(_hbFace) : 0;
 	}
 
+	/// @brief Of the instance of a variable font
+	/// @return
+	uint32_t FontFace::GetWeight() const
+	{
+		return _hbFont != nullptr ? (uint32_t)std::lround(hb_style_get_value(_hbFont, HB_STYLE_TAG_WEIGHT)) : 0;
+	}
+
+	/// @brief
+	/// @return
+	bool FontFace::IsItalic() const
+	{
+		return _hbFont != nullptr && (hb_style_get_value(_hbFont, HB_STYLE_TAG_ITALIC) != 0.0f || hb_style_get_value(_hbFont, HB_STYLE_TAG_SLANT_ANGLE) != 0.0f);
+	}
+
+	/// @brief
+	/// @return
+	float FontFace::GetWidth() const
+	{
+		return _hbFont != nullptr ? hb_style_get_value(_hbFont, HB_STYLE_TAG_WIDTH) : 0.0f;
+	}
+
 	namespace
 	{
 		/// @brief The typographic name (16, 17) when the font has one: it groups more styles than the legacy one (1, 2)

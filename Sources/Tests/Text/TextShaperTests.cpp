@@ -367,6 +367,8 @@ TEST_F(TextShaperTest, FaceHasItsNamesAndCounts)
 {
 	EXPECT_EQ(_sans->GetFamilyName(), String("Noto Sans"));
 	EXPECT_EQ(_sans->GetStyleName(), String("Regular"));
+	EXPECT_EQ(_sans->GetWeight(), 400u);
+	EXPECT_FALSE(_sans->IsItalic());
 	EXPECT_GT(_sans->GetGlyphCount(), 1000u);
 	EXPECT_GT(_sans->GetXHeight(), 400);
 	EXPECT_LT(_sans->GetXHeight(), _sans->GetCapHeight());

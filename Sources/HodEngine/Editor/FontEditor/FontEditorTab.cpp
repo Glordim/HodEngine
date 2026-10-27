@@ -111,6 +111,19 @@ namespace hod::inline editor
 				}
 			}
 			_font->SetFallbacks(fallbacks);
+
+			Vector<FontResource::Style> styles;
+			for (const FontSettings::Style& style : _fontSettings._styles)
+			{
+				if (style._font.GetUid().IsValid())
+				{
+					FontResource::Style& fontStyle = styles.EmplaceBack();
+					fontStyle._font = style._font.GetUid();
+					fontStyle._weight = style._weight;
+					fontStyle._italic = style._italic;
+				}
+			}
+			_font->SetStyles(styles);
 		}
 		++_previewVersion;
 	}

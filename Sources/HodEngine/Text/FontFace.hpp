@@ -50,6 +50,9 @@ namespace hod::inline text
 		uint32_t		GetGlyphCount() const;
 		String			GetFamilyName() const; // "Noto Sans", empty when the font has none
 		String			GetStyleName() const;  // "Regular", "Bold Italic"..., empty when the font has none
+		uint32_t		GetWeight() const;     // its usWeightClass (OS/2), 100 to 900 for most: 400 Regular, 700 Bold. 0 when not loaded
+		bool			IsItalic() const;      // italic or oblique, as its OS/2 and post tables say
+		float			GetWidth() const;      // its usWidthClass (OS/2), in percents of the normal width: 100, 75 Condensed... 0 when not loaded
 
 		// Pixel art: the pixels an em of the grid every glyph is drawn on (outlines and advances on whole cells of it), 0 when there is none
 		uint32_t		DetectPixelGrid() const;

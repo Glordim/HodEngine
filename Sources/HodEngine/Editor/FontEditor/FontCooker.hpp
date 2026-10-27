@@ -14,9 +14,24 @@ namespace hod::inline editor
 		REFLECTED_CLASS_NO_VIRTUAL(FontSettings)
 
 	public:
+		/// @brief See FontResource::Style
+		struct Style
+		{
+			REFLECTED_CLASS_NO_VIRTUAL(Style)
+
+			WeakResource<FontResource>	_font;
+			FontResource::Weight		_weight = FontResource::Weight::Regular;
+			bool						_italic = false;
+		};
+
+	public:
 		FontResource::RenderMode	_renderMode = FontResource::RenderMode::Smooth;
 		uint32_t					_pixelSize = 0; // PixelArt only, see FontResource::GetPixelSize
 		Vector<WeakResource<FontResource>>	_fallbacks; // see FontResource::GetFallbacks
+		Vector<Style>				_styles; // see FontResource::GetStyles
+
+		// The weight and the italic a face says it has (OS/2), the font not set
+		static Style				DetectStyle(const FontFace& face);
 	};
 
 	class HOD_EDITOR_API FontCooker : public Cooker

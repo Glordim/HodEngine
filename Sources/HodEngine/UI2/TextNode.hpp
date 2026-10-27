@@ -62,6 +62,12 @@ namespace hod::inline ui2
 		float								GetFontSize() const;
 		void								SetFontSize(float fontSize);
 
+		// The style drawn: the font of the family of the font closest to it (see FontResource::FindStyle), the font itself without one
+		FontResource::Weight				GetFontWeight() const;
+		void								SetFontWeight(FontResource::Weight fontWeight);
+		bool								IsItalic() const;
+		void								SetItalic(bool italic);
+
 		HorizontalAlignment					GetHorizontalAlignment() const;
 		void								SetHorizontalAlignment(HorizontalAlignment horizontalAlignment);
 
@@ -97,7 +103,7 @@ namespace hod::inline ui2
 		const TextLayout*					UpdateFittedLayout(const Vector2& size);
 
 		static Vector2						GetLayoutSize(const TextLayout& layout); // of the line: its width, from its ascender to its descender
-		bool								IsPixelArt() const;   // the font of the layout (not its fallbacks)
+		bool								IsPixelArt() const;   // the font of the layout, its style (not its fallbacks)
 		uint32_t							GetPixelSize() const; // its grid, PixelArt
 
 	private:
@@ -105,6 +111,8 @@ namespace hod::inline ui2
 		WeakResource<FontResource>			_font;
 		String								_value;
 		float								_fontSize = 48.0f;
+		FontResource::Weight				_fontWeight = FontResource::Weight::Regular;
+		bool								_italic = false;
 		HorizontalAlignment					_horizontalAlignment = HorizontalAlignment::Center;
 		VerticalAlignment					_verticalAlignment = VerticalAlignment::Middle;
 		bool								_alignByGeometry = false;
@@ -113,7 +121,7 @@ namespace hod::inline ui2
 		Color								_color = Color(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// Kept from one frame to the next, made again when what they are made from changes
-		mutable FontChain					_fontChain; // the font, its fallbacks: the layout is shaped with it
+		mutable FontChain					_fontChain; // the font (its style), its fallbacks: the layout is shaped with it
 		mutable TextLayout					_layout;
 		mutable float						_layoutFontSize = 0.0f; // the one it is drawn at, see FontResource::GetDrawnFontSize
 		mutable bool						_layoutDirty = true;
