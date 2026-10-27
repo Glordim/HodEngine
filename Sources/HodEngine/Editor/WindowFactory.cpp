@@ -8,6 +8,39 @@
 
 namespace hod::inline editor
 {
+	namespace
+	{
+		/// @brief Removes the window type from the route and its children, and the children left empty
+		/// @return If the route is empty now
+		bool RemoveFromRoute(WindowFactory::Route& route, ReflectionDescriptor* reflectionDescriptor)
+		{
+			for (uint32_t index = 0; index < route._windowReflectionDescriptors.Size(); ++index)
+			{
+				if (route._windowReflectionDescriptors[index] == reflectionDescriptor)
+				{
+					route._windowReflectionDescriptors.Erase(index);
+					break;
+				}
+			}
+
+			uint32_t index = 0;
+			while (index < route._children.Size())
+			{
+				if (RemoveFromRoute(*route._children[index], reflectionDescriptor))
+				{
+					DefaultAllocator::GetInstance().Delete(route._children[index]);
+					route._children.Erase(index);
+				}
+				else
+				{
+					++index;
+				}
+			}
+
+			return route._windowReflectionDescriptors.Empty() && route._children.Empty();
+		}
+	}
+
 	_SingletonConstructor(WindowFactory) {}
 
 	const WindowFactory::Route& WindowFactory::GetRootRoute() const
@@ -59,6 +92,12 @@ namespace hod::inline editor
 		}
 
 		route->_windowReflectionDescriptors.push_back(&reflectionDescriptor);
+	}
+
+	void WindowFactory::Unregister(ReflectionDescriptor& reflectionDescriptor)
+	{
+		RemoveFromRoute(_rootRoute, &reflectionDescriptor);
+		ImGuiManager::GetInstance()->DestroyWindows(reflectionDescriptor);
 	}
 
 	void WindowFactory::Draw()

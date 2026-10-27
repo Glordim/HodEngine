@@ -30,6 +30,8 @@ namespace hod::inline editor
 		template<typename _Window_>
 		void	Register(const String& route);
 		void	Register(const String& route, ReflectionDescriptor& reflectionDescriptor);
+		/// @brief By the editor modules when they unload: from all the routes, destroying the open windows of this type
+		void	Unregister(ReflectionDescriptor& reflectionDescriptor);
 
 		const Route&	GetRootRoute() const;
 

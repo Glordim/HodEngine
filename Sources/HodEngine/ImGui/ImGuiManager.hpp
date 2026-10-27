@@ -71,6 +71,8 @@ namespace hod::inline imgui
 
 		void CloseAllWindow();
 		void DestroyAllWindow();
+		/// @brief Right away, not at the end of the frame like Close: their code can go away with a module (outside of the windows Draw)
+		void DestroyWindows(ReflectionDescriptor& windowDescription);
 
 		Material* GetMaterial() const;
 

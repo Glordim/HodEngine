@@ -6,11 +6,10 @@
 #include "HodEngine/UI/Node.hpp"
 #include "HodEngine/UI/LegacyPadding.hpp"
 
-#include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
+#include "HodEngine/Editor/EditorModuleRegistration.hpp"
 #include "HodEngine/UIEditor/CustomComponentDrawer/CanvasCustomComponentDrawer.hpp"
 #include "HodEngine/UIEditor/CustomComponentDrawer/NodeCustomComponentDrawer.hpp"
 
-#include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawerRegistry.hpp"
 #include "HodEngine/UIEditor/CustomPropertyDrawer/LegacyPaddingCustomPropertyDrawer.hpp"
 
 
@@ -20,22 +19,22 @@ using namespace hod;
 using namespace hod::game;
 using namespace hod::editor;
 
+namespace
+{
+	EditorModuleRegistration registration;
+}
+
 HOD_STARTUP_MODULE(UIEditor)
 {
-	hod::CustomComponentDrawerRegistry::Register<Canvas, CanvasCustomComponentDrawer>();
-	hod::CustomComponentDrawerRegistry::Register<Node, NodeCustomComponentDrawer>();
+	registration.RegisterCustomComponentDrawer<Canvas, CanvasCustomComponentDrawer>();
+	registration.RegisterCustomComponentDrawer<Node, NodeCustomComponentDrawer>();
 
-	hod::CustomPropertyDrawerRegistry::Register<LegacyPadding, LegacyPaddingCustomPropertyDrawer>();
-	
+	registration.RegisterCustomPropertyDrawer<LegacyPadding, LegacyPaddingCustomPropertyDrawer>();
 	return 0;
 }
 
 HOD_SHUTDOWN_MODULE(UIEditor)
 {
-	hod::CustomComponentDrawerRegistry::Unregister<Canvas>();
-	hod::CustomComponentDrawerRegistry::Unregister<Node>();
-
-	hod::CustomPropertyDrawerRegistry::Unregister<LegacyPadding>();
-
+	registration.UnregisterAll();
 	return 0;
 }

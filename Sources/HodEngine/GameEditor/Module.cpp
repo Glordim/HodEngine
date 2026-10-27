@@ -2,8 +2,7 @@
 #include "HodEngine/GameEditor/Module.hpp"
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
-#include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawerRegistry.hpp"
-#include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
+#include "HodEngine/Editor/EditorModuleRegistration.hpp"
 
 #include "HodEngine/Game/WeakComponent.hpp"
 #include "HodEngine/Game/Components/CameraComponent.hpp"
@@ -46,36 +45,29 @@ using namespace hod;
 using namespace hod::game;
 using namespace hod::editor;
 
+namespace
+{
+	EditorModuleRegistration registration;
+}
+
 HOD_STARTUP_MODULE(GameEditor)
 {
-	hod::CustomPropertyDrawerRegistry::Register<ZOrder, ZOrderCustomPropertyDrawer>();
-	hod::CustomPropertyDrawerRegistry::Register<WeakComponentBase, WeakComponentCustomPropertyDrawer>();
-	
-	hod::CustomComponentDrawerRegistry::Register<Node2dComponent, Node2dCustomComponentDrawer>();
-	hod::CustomComponentDrawerRegistry::Register<CameraComponent, CameraCustomComponentDrawer>();
-	hod::CustomComponentDrawerRegistry::Register<TextureRendererComponent, TextureRendererCustomComponentDrawer>();
-	hod::CustomComponentDrawerRegistry::Register<BoxCollider2dComponent, BoxCollider2dCustomComponentDrawer>();
-	hod::CustomComponentDrawerRegistry::Register<CircleCollider2dComponent, CircleCollider2dCustomComponentDrawer>();
-	hod::CustomComponentDrawerRegistry::Register<CapsuleCollider2dComponent, CapsuleCollider2dCustomComponentDrawer>();
-	hod::CustomComponentDrawerRegistry::Register<EdgeCollider2dComponent, EdgeCollider2dCustomComponentDrawer>();
-	hod::CustomComponentDrawerRegistry::Register<MultiShapeCollider2dComponent, MultiShapeCollider2dCustomComponentDrawer>();
-	
+	registration.RegisterCustomPropertyDrawer<ZOrder, ZOrderCustomPropertyDrawer>();
+	registration.RegisterCustomPropertyDrawer<WeakComponentBase, WeakComponentCustomPropertyDrawer>();
+
+	registration.RegisterCustomComponentDrawer<Node2dComponent, Node2dCustomComponentDrawer>();
+	registration.RegisterCustomComponentDrawer<CameraComponent, CameraCustomComponentDrawer>();
+	registration.RegisterCustomComponentDrawer<TextureRendererComponent, TextureRendererCustomComponentDrawer>();
+	registration.RegisterCustomComponentDrawer<BoxCollider2dComponent, BoxCollider2dCustomComponentDrawer>();
+	registration.RegisterCustomComponentDrawer<CircleCollider2dComponent, CircleCollider2dCustomComponentDrawer>();
+	registration.RegisterCustomComponentDrawer<CapsuleCollider2dComponent, CapsuleCollider2dCustomComponentDrawer>();
+	registration.RegisterCustomComponentDrawer<EdgeCollider2dComponent, EdgeCollider2dCustomComponentDrawer>();
+	registration.RegisterCustomComponentDrawer<MultiShapeCollider2dComponent, MultiShapeCollider2dCustomComponentDrawer>();
 	return 0;
 }
 
 HOD_SHUTDOWN_MODULE(GameEditor)
 {
-	hod::CustomPropertyDrawerRegistry::Unregister<ZOrder>();
-	hod::CustomPropertyDrawerRegistry::Unregister<WeakComponentBase>();
-	
-	hod::CustomComponentDrawerRegistry::Unregister<Node2dComponent>();
-	hod::CustomComponentDrawerRegistry::Unregister<CameraComponent>();
-	hod::CustomComponentDrawerRegistry::Unregister<TextureRendererComponent>();
-	hod::CustomComponentDrawerRegistry::Unregister<BoxCollider2dComponent>();
-	hod::CustomComponentDrawerRegistry::Unregister<CircleCollider2dComponent>();
-	hod::CustomComponentDrawerRegistry::Unregister<CapsuleCollider2dComponent>();
-	hod::CustomComponentDrawerRegistry::Unregister<EdgeCollider2dComponent>();
-	hod::CustomComponentDrawerRegistry::Unregister<MultiShapeCollider2dComponent>();
-
+	registration.UnregisterAll();
 	return 0;
 }

@@ -7,7 +7,7 @@
 #include "HodEngine/Math/Vector4.hpp"
 #include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 
-#include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawerRegistry.hpp"
+#include "HodEngine/Editor/EditorModuleRegistration.hpp"
 #include "HodEngine/CoreEditor/CustomPropertyDrawer/ColorCustomPropertyDrawer.hpp"
 #include "HodEngine/CoreEditor/CustomPropertyDrawer/Vector2CustomPropertyDrawer.hpp"
 #include "HodEngine/CoreEditor/CustomPropertyDrawer/Vector4CustomPropertyDrawer.hpp"
@@ -18,20 +18,22 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 using namespace hod;
 using namespace hod::editor;
 
+namespace
+{
+	EditorModuleRegistration registration;
+}
+
 HOD_STARTUP_MODULE(CoreEditor)
 {
-	hod::CustomPropertyDrawerRegistry::Register<Color, ColorCustomPropertyDrawer>();
-	hod::CustomPropertyDrawerRegistry::Register<Vector2, Vector2CustomPropertyDrawer>();
-	hod::CustomPropertyDrawerRegistry::Register<Vector4, Vector4CustomPropertyDrawer>();
-	hod::CustomPropertyDrawerRegistry::Register<WeakResourceBase, WeakResourceCustomPropertyDrawer>();
+	registration.RegisterCustomPropertyDrawer<Color, ColorCustomPropertyDrawer>();
+	registration.RegisterCustomPropertyDrawer<Vector2, Vector2CustomPropertyDrawer>();
+	registration.RegisterCustomPropertyDrawer<Vector4, Vector4CustomPropertyDrawer>();
+	registration.RegisterCustomPropertyDrawer<WeakResourceBase, WeakResourceCustomPropertyDrawer>();
 	return 0;
 }
 
 HOD_SHUTDOWN_MODULE(CoreEditor)
 {
-	hod::CustomPropertyDrawerRegistry::Unregister<Color>();
-	hod::CustomPropertyDrawerRegistry::Unregister<Vector2>();
-	hod::CustomPropertyDrawerRegistry::Unregister<Vector4>();
-	hod::CustomPropertyDrawerRegistry::Unregister<WeakResourceBase>();
+	registration.UnregisterAll();
 	return 0;
 }

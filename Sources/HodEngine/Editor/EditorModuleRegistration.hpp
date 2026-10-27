@@ -8,12 +8,22 @@
 #include <HodEngine/Core/String.hpp>
 #include <HodEngine/Core/Vector.hpp>
 
+#include <HodEngine/Core/Memory/DefaultAllocator.hpp>
+
 #include <cstdint>
 #include <string_view>
 
+namespace hod::inline core
+{
+	class ReflectionDescriptor;
+}
+
 namespace hod::inline editor
 {
-	/// @brief What an editor module adds to the editor (importers, cookers, resources, tabs, asset browser actions).
+	class CustomPropertyDrawer;
+	class CustomComponentDrawer;
+
+	/// @brief What an editor module adds to the editor (importers, cookers, resources, tabs, asset browser actions, drawers, windows).
 	/// Registered through it in HOD_STARTUP_MODULE, all of it is unregistered by UnregisterAll in HOD_SHUTDOWN_MODULE
 	/// (or the destructor): the module code goes away on unload, "Hot Reload" included.
 	class HOD_EDITOR_API EditorModuleRegistration
@@ -42,6 +52,19 @@ namespace hod::inline editor
 
 		void RegisterContextualMenuAction(AssetBrowserWindow::ContextualMenuAction contextualMenuAction);
 
+		template<typename _Type_, typename _Drawer_>
+		void RegisterCustomPropertyDrawer();
+		void RegisterCustomPropertyDrawer(const ReflectionDescriptor& descriptor, CustomPropertyDrawer* drawer);
+
+		template<typename _Type_, typename _Drawer_>
+		void RegisterCustomComponentDrawer();
+		void RegisterCustomComponentDrawer(const ReflectionDescriptor& descriptor, CustomComponentDrawer* drawer);
+
+		/// @brief In the "Window" menu, under route
+		template<typename _Window_>
+		void RegisterWindow(const String& route);
+		void RegisterWindow(const String& route, ReflectionDescriptor& descriptor);
+
 		/// @brief In the reverse order of the registrations
 		void UnregisterAll();
 
@@ -51,6 +74,10 @@ namespace hod::inline editor
 		Vector<String>     _resourceAssetTypes;
 		Vector<String>     _editorTabAssetTypes;
 		Vector<uint32_t>   _contextualMenuActionIds;
+
+		Vector<const ReflectionDescriptor*> _customPropertyDrawerDescriptors;
+		Vector<const ReflectionDescriptor*> _customComponentDrawerDescriptors;
+		Vector<ReflectionDescriptor*>       _windowDescriptors;
 	};
 
 	template<typename _Importer_, typename... Args>
@@ -79,5 +106,23 @@ namespace hod::inline editor
 	{
 		Editor::GetInstance()->RegisterEditorTab<_EditorTabType_>(assetType);
 		_editorTabAssetTypes.PushBack(String(assetType));
+	}
+
+	template<typename _Type_, typename _Drawer_>
+	void EditorModuleRegistration::RegisterCustomPropertyDrawer()
+	{
+		RegisterCustomPropertyDrawer(_Type_::GetReflectionDescriptor(), DefaultAllocator::GetInstance().New<_Drawer_>());
+	}
+
+	template<typename _Type_, typename _Drawer_>
+	void EditorModuleRegistration::RegisterCustomComponentDrawer()
+	{
+		RegisterCustomComponentDrawer(_Type_::GetReflectionDescriptor(), DefaultAllocator::GetInstance().New<_Drawer_>());
+	}
+
+	template<typename _Window_>
+	void EditorModuleRegistration::RegisterWindow(const String& route)
+	{
+		RegisterWindow(route, _Window_::GetReflectionDescriptor());
 	}
 }

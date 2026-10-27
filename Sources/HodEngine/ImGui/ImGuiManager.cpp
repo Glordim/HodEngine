@@ -589,6 +589,25 @@ namespace hod::inline imgui
 		_windows.Clear();
 	}
 
+	/// @brief
+	/// @param windowDescription
+	void ImGuiManager::DestroyWindows(ReflectionDescriptor& windowDescription)
+	{
+		uint32_t index = 0;
+		while (index < _windows.Size())
+		{
+			if (&_windows[index]->GetReflectionDescriptorV() == &windowDescription)
+			{
+				DefaultAllocator::GetInstance().Delete(_windows[index]);
+				_windows.Erase(index);
+			}
+			else
+			{
+				++index;
+			}
+		}
+	}
+
 	/// @brief Gives ImGui the actual monitors: it keeps popups, tooltips and menus inside their work area (the screen minus
 	/// the taskbar), and places floating windows on them. Falls back on a single monitor covering the main window when the
 	/// platform doesn't report its monitors.

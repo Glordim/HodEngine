@@ -1,5 +1,8 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/EditorModuleRegistration.hpp"
+#include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
+#include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawerRegistry.hpp"
+#include "HodEngine/Editor/WindowFactory.hpp"
 
 namespace hod::inline editor
 {
@@ -17,8 +20,53 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @param descriptor
+	/// @param drawer Owned by the registry
+	void EditorModuleRegistration::RegisterCustomPropertyDrawer(const ReflectionDescriptor& descriptor, CustomPropertyDrawer* drawer)
+	{
+		CustomPropertyDrawerRegistry::Register(descriptor, drawer);
+		_customPropertyDrawerDescriptors.PushBack(&descriptor);
+	}
+
+	/// @brief
+	/// @param descriptor
+	/// @param drawer Owned by the registry
+	void EditorModuleRegistration::RegisterCustomComponentDrawer(const ReflectionDescriptor& descriptor, CustomComponentDrawer* drawer)
+	{
+		CustomComponentDrawerRegistry::Register(descriptor, drawer);
+		_customComponentDrawerDescriptors.PushBack(&descriptor);
+	}
+
+	/// @brief
+	/// @param route
+	/// @param descriptor
+	void EditorModuleRegistration::RegisterWindow(const String& route, ReflectionDescriptor& descriptor)
+	{
+		WindowFactory::GetInstance()->Register(route, descriptor);
+		_windowDescriptors.PushBack(&descriptor);
+	}
+
+	/// @brief
 	void EditorModuleRegistration::UnregisterAll()
 	{
+		for (ReflectionDescriptor* descriptor : _windowDescriptors)
+		{
+			WindowFactory::GetInstance()->Unregister(*descriptor);
+		}
+		_windowDescriptors.Clear();
+
+		for (const ReflectionDescriptor* descriptor : _customComponentDrawerDescriptors)
+		{
+			CustomComponentDrawerRegistry::Unregister(*descriptor);
+		}
+		_customComponentDrawerDescriptors.Clear();
+
+		for (const ReflectionDescriptor* descriptor : _customPropertyDrawerDescriptors)
+		{
+			CustomPropertyDrawerRegistry::Unregister(*descriptor);
+		}
+		_customPropertyDrawerDescriptors.Clear();
+
 		for (uint32_t contextualMenuActionId : _contextualMenuActionIds)
 		{
 			AssetBrowserWindow::UnregisterContextualMenuAction(contextualMenuActionId);

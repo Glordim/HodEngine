@@ -4,23 +4,26 @@
 
 #include "HodEngine/InputEditor/Window/InputManagerWindow.hpp"
 
-#include <HodEngine/Editor/WindowFactory.hpp>
+#include "HodEngine/Editor/EditorModuleRegistration.hpp"
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
 using namespace hod;
 using namespace hod::editor;
 
+namespace
+{
+	EditorModuleRegistration registration;
+}
+
 HOD_STARTUP_MODULE(InputEditor)
 {
-	WindowFactory::GetInstance()->Register<InputManagerWindow>("");
-
+	registration.RegisterWindow<InputManagerWindow>("");
 	return 0;
 }
 
 HOD_SHUTDOWN_MODULE(InputEditor)
 {
-	//WindowFactory::GetInstance()->Register<>(); // todo
-
+	registration.UnregisterAll();
 	return 0;
 }
