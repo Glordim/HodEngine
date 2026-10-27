@@ -88,6 +88,8 @@ namespace hod::inline editor
 
 		template<typename _EditorTabType_>
 		void RegisterEditorTab(std::string_view name);
+		/// @brief By the editor modules when they unload: closes the tabs of this asset type, their code goes with the module (unsaved changes are lost)
+		void UnregisterEditorTab(std::string_view name);
 
 		void PingAsset(std::shared_ptr<Asset> asset);
 

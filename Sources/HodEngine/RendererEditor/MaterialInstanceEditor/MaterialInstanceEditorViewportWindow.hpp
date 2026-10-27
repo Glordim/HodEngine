@@ -1,0 +1,47 @@
+#pragma once
+#include "HodEngine/Editor/EditorTabWindow.hpp"
+#include "HodEngine/RendererEditor/Export.hpp"
+
+#include "HodEngine/Editor/AssetDatabase.hpp"
+
+#include <HodEngine/Math/Matrix4.hpp>
+
+#include <memory>
+
+namespace hod::inline core
+{
+	class ReflectionDescriptor;
+}
+
+namespace hod::inline rhi
+{
+	class RenderTarget;
+}
+
+namespace hod::inline editor
+{
+	class EditorReflectedObject;
+
+	/// @brief
+	class HOD_RENDERER_EDITOR_API MaterialInstanceEditorViewportWindow : public EditorTabWindow
+	{
+		REFLECTED_CLASS(MaterialInstanceEditorViewportWindow, EditorTabWindow)
+
+	public:
+		MaterialInstanceEditorViewportWindow() = default;
+		MaterialInstanceEditorViewportWindow(EditorTab* editorTab);
+		~MaterialInstanceEditorViewportWindow() override;
+
+	public:
+		bool Draw() override;
+		void DrawContent() override;
+
+	private:
+		RenderTarget* _renderTarget = nullptr;
+
+		Matrix4 _projection;
+		Matrix4 _view;
+
+		float _size = 5.0f;
+	};
+}

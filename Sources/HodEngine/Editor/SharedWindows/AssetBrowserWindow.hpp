@@ -42,8 +42,10 @@ namespace hod::inline editor
 			String group;
 			std::function<bool(const Context&)> available;
 			std::function<void(const Context&)> execute;
+			uint32_t id = 0; // Given by RegisterContextualMenuAction, 0 for the ones of the editor itself (PopulateContextualMenuActions)
 		};
 
+		/// @brief By the editor modules (registered again when they reload): kept when the actions of the editor are populated again
 		static uint32_t RegisterContextualMenuAction(ContextualMenuAction contextualMenuAction);
 		static void UnregisterContextualMenuAction(uint32_t contextualMenuActionId);
 
@@ -133,6 +135,8 @@ namespace hod::inline editor
 		float                             _pingAnimValue;
 
 		static Vector<ContextualMenuAction> _contextualMenuActions;
+		static uint32_t                     _nextContextualMenuActionId;
+		static bool                         _populatingContextualMenuActions;
 
 		struct ContextualMenuItem
 		{

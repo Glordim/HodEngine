@@ -599,6 +599,57 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @param assetType
+	void AssetDatabase::UnregisterCooker(std::string_view assetType)
+	{
+		const uint64_t type = Hash::ComputeXxh3_64(assetType);
+		for (uint32_t index = 0; index < _cookerEntries.Size(); ++index)
+		{
+			if (_cookerEntries[index]->_assetType == type)
+			{
+				DefaultAllocator::GetInstance().Delete(_cookerEntries[index]);
+				_cookerEntries.Erase(index);
+				return;
+			}
+		}
+	}
+
+	/// @brief
+	/// @param extension
+	void AssetDatabase::UnregisterImporter(std::string_view extension)
+	{
+		const String extensionLower = ToLowerCopy(extension);
+		for (uint32_t index = 0; index < _importerEntries.Size(); ++index)
+		{
+			for (const String& supportedExtension : _importerEntries[index]->_extensions)
+			{
+				if (supportedExtension == extensionLower)
+				{
+					DefaultAllocator::GetInstance().Delete(_importerEntries[index]);
+					_importerEntries.Erase(index);
+					return;
+				}
+			}
+		}
+	}
+
+	/// @brief
+	/// @param assetType
+	void AssetDatabase::UnregisterResource(std::string_view assetType)
+	{
+		const uint64_t type = Hash::ComputeXxh3_64(assetType);
+		for (uint32_t index = 0; index < _resourceEntries.Size(); ++index)
+		{
+			if (_resourceEntries[index]->_assetType == type)
+			{
+				DefaultAllocator::GetInstance().Delete(_resourceEntries[index]);
+				_resourceEntries.Erase(index);
+				return;
+			}
+		}
+	}
+
+	/// @brief
 	/// @param result
 	/// @param from
 	/// @param resourceDescriptor

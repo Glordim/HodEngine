@@ -9,8 +9,6 @@
 
 #include "HodEngine/GameSystems/Job/JobScheduler.hpp"
 #include "HodEngine/ImGui/DearImGui/imgui.h"
-#include "HodEngine/Renderer/Resource/FontResource.hpp"
-#include "HodEngine/Renderer/Resource/MaterialResource.hpp"
 #include "TaskTracker/TaskTracker.hpp"
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
@@ -83,13 +81,6 @@
 #include "HodEngine/Editor/SceneEditor/SceneCooker.hpp"
 #include "HodEngine/Game/SceneResource.hpp"
 
-#include "HodEngine/Editor/FontEditor/FontCooker.hpp"
-#include "HodEngine/Editor/FontEditor/FontEditorTab.hpp"
-#include "HodEngine/Editor/FontFaceEditor/FontFaceCooker.hpp"
-#include "HodEngine/Editor/FontFaceEditor/FontFaceEditorTab.hpp"
-#include "HodEngine/Editor/FontFaceEditor/FontFaceImporter.hpp"
-#include "HodEngine/Renderer/Resource/FontFaceResource.hpp"
-#include "HodEngine/Renderer/Resource/FontResource.hpp"
 
 #include "HodEngine/Editor/DataItemEditor/DataItemEditorTab.hpp"
 #include "HodEngine/Editor/DataItemEditor/DataItemCooker.hpp"
@@ -99,23 +90,12 @@
 #include "HodEngine/Editor/DataTableEditor/DataTableCooker.hpp"
 #include "HodEngine/Game/DataStruct/DataTableResource.hpp"
 
-#include "HodEngine/Editor/MaterialEditor/MaterialEditorTab.hpp"
-#include "HodEngine/Editor/MaterialEditor/MaterialCooker.hpp"
-#include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
-#include "HodEngine/Renderer/Resource/MaterialResource.hpp"
 
-#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorTab.hpp"
-#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceCooker.hpp"
-#include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
 
 #include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
 #include "HodEngine/Editor/UIPrefabEditor/UIPrefabCooker.hpp"
 #include "HodEngine/UI2/UIPrefabResource.hpp"
 
-#include "HodEngine/Editor/TextureEditor/TextureEditorTab.hpp"
-#include "HodEngine/Editor/TextureEditor/TextureCooker.hpp"
-#include "HodEngine/Editor/TextureEditor/TextureImporter.hpp"
-#include "HodEngine/Renderer/Resource/TextureResource.hpp"
 #include "HodEngine/Core/StaticArray.hpp"
 
 #include <utility>
@@ -177,6 +157,7 @@ namespace hod::inline editor
 		Project::GetInstance()->GetOnModulesReloadedEvent().Connect(_onProjectModulesReloadedSlot);
 
 		WindowFactory::CreateInstance();
+		AssetDatabase::CreateInstance(); // Before the editor modules: they register their asset types into it
 
 		if (LoadEditorModules() == false)
 		{
@@ -274,7 +255,7 @@ namespace hod::inline editor
 	/// @return
 	bool Editor::LoadEditorModules()
 	{
-		StaticArray<const char*, 5> editorModules = {"CoreEditor", "InputEditor", "GameEditor", "UIEditor", "UI2Editor"};
+		StaticArray<const char*, 6> editorModules = {"CoreEditor", "InputEditor", "GameEditor", "UIEditor", "UI2Editor", "RendererEditor"};
 
 		for (const char* moduleName : editorModules)
 		{
@@ -343,26 +324,11 @@ namespace hod::inline editor
 
 	bool Editor::LoadEditor()
 	{
-		AssetDatabase::CreateInstance();
-
+		// Created with the editor (Init): the editor modules register their asset types into it when they load
 		AssetDatabase::GetInstance()->RegisterImporter<AudioImporter>("wav");
 		AssetDatabase::GetInstance()->RegisterCooker<AudioCooker>("Audio");
 		AssetDatabase::GetInstance()->RegisterResource<AudioResource>("Audio");
 		RegisterEditorTab<AudioEditorTab>("Audio");
-
-		AssetDatabase::GetInstance()->RegisterImporter<TextureImporter>("png", "tga", "jpg", "bmp", "psd", "gif", "hdr", "pic");
-		AssetDatabase::GetInstance()->RegisterCooker<TextureCooker>("Texture");
-		AssetDatabase::GetInstance()->RegisterResource<TextureResource>("Texture");
-		RegisterEditorTab<TextureEditorTab>("Texture");
-
-		AssetDatabase::GetInstance()->RegisterImporter<FontFaceImporter>("ttf", "otf");
-		AssetDatabase::GetInstance()->RegisterCooker<FontFaceCooker>("FontFace");
-		AssetDatabase::GetInstance()->RegisterResource<FontFaceResource>("FontFace");
-		RegisterEditorTab<FontFaceEditorTab>("FontFace");
-
-		AssetDatabase::GetInstance()->RegisterCooker<FontCooker>("Font");
-		AssetDatabase::GetInstance()->RegisterResource<FontResource>("Font");
-		RegisterEditorTab<FontEditorTab>("Font");
 
 		AssetDatabase::GetInstance()->RegisterCooker<SceneCooker>("Scene");
 		AssetDatabase::GetInstance()->RegisterResource<SceneResource>("Scene");
@@ -379,15 +345,6 @@ namespace hod::inline editor
 		AssetDatabase::GetInstance()->RegisterCooker<DataTableCooker>("DataTable");
 		AssetDatabase::GetInstance()->RegisterResource<DataTableResource>("DataTable");
 		RegisterEditorTab<DataTableEditorTab>("DataTable");
-
-		AssetDatabase::GetInstance()->RegisterImporter<MaterialImporter>("slang");
-		AssetDatabase::GetInstance()->RegisterCooker<MaterialCooker>("Material");
-		AssetDatabase::GetInstance()->RegisterResource<MaterialResource>("Material");
-		RegisterEditorTab<MaterialEditorTab>("Material");
-
-		AssetDatabase::GetInstance()->RegisterCooker<MaterialInstanceCooker>("MaterialInstance");
-		AssetDatabase::GetInstance()->RegisterResource<MaterialInstanceResource>("MaterialInstance");
-		RegisterEditorTab<MaterialInstanceEditorTab>("MaterialInstance");
 
 		AssetDatabase::GetInstance()->RegisterCooker<UIPrefabCooker>("UIPrefab");
 		AssetDatabase::GetInstance()->RegisterResource<UIPrefabResource>("UIPrefab");
@@ -836,6 +793,28 @@ namespace hod::inline editor
 		// todo open it
 		*/
 		return true;
+	}
+
+	/// @brief
+	/// @param name
+	void Editor::UnregisterEditorTab(std::string_view name)
+	{
+		const uint64_t type = Hash::ComputeXxh3_64(name);
+		_editorTabFactory.erase(type);
+
+		uint32_t index = 0;
+		while (index < _editorTabs.Size())
+		{
+			if (_editorTabs[index]->GetAsset() != nullptr && _editorTabs[index]->GetAsset()->GetType() == type)
+			{
+				DefaultAllocator::GetInstance().Delete(_editorTabs[index]);
+				_editorTabs.Erase(index);
+			}
+			else
+			{
+				++index;
+			}
+		}
 	}
 
 	/// @brief

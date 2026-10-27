@@ -1,9 +1,6 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
-#include <HodEngine/Core/UID.hpp>
-#include <HodEngine/Core/Vector.hpp>
-
 namespace hod::inline core
 {
     class ReflectionDescriptor;
@@ -40,16 +37,5 @@ namespace hod::inline editor
 
         static bool     BeginProperty(EditorReflectedProperty& editorReflectedProperty);
         static bool     DrawContextMenu(EditorReflectedProperty& editorReflectedProperty);
-
-		/// @brief Left out of the resource pickers drawn until the pop (the font itself, the ones already in a list...). Not copied: alive until then
-		/// TODO: belongs to WeakResourceCustomPropertyDrawer (CoreEditor), the one that reads it. Here only because the font editors, its users, are still in Editor,
-		/// which CoreEditor depends on: to move there with them once they go to a RendererEditor module
-		static void     PushExcludedResources(const Vector<UID>& excludedResources);
-		static void     PopExcludedResources();
-		static bool     IsResourceExcluded(const UID& uid);
-
-	private:
-
-		static Vector<const Vector<UID>*> _excludedResources;
     };
 }

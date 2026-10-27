@@ -104,6 +104,11 @@ namespace hod::inline editor
 		template<typename _Resource_>
 		bool                   RegisterResource(std::string_view assetType);
 
+		// By the editor modules when they unload: their factories are in their code
+		void                   UnregisterCooker(std::string_view assetType);
+		void                   UnregisterImporter(std::string_view extension); // the importer of this extension, with all its extensions
+		void                   UnregisterResource(std::string_view assetType);
+
 		bool ReimportAssetIfNecessary(std::shared_ptr<Asset> asset);
 
 		/// @brief expectedSubType, when non-zero, additionally restricts the result to assets whose cooked
@@ -152,7 +157,7 @@ namespace hod::inline editor
 		/// @brief One entry per registered Cooker type. _assetType is cached at registration so matching a
 		/// type doesn't require an instance. Acquire allocates a fresh instance via _factory, Release
 		/// destroys it, so concurrent batch jobs on the same type never share an instance. _cookerEntries is
-		/// only appended to at startup (RegisterCooker), before any Cook job runs, so no locking is needed.
+		/// only changed at startup (RegisterCooker) and when an editor module unloads, while no Cook job runs, so no locking is needed.
 		struct CookerEntry
 		{
 			Cooker* (*_factory)() = nullptr;

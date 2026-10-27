@@ -22,10 +22,6 @@
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/FontEditor/FontHelper.hpp"
-#include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
-#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceCooker.hpp"
-#include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorTab.hpp"
 #include "HodEngine/Editor/Project.hpp"
 
 #include <HodEngine/Core/Document/DocumentWriterJson.hpp>
@@ -73,6 +69,8 @@ namespace ImGui
 namespace hod::inline editor
 {
 	Vector<AssetBrowserWindow::ContextualMenuAction> AssetBrowserWindow::_contextualMenuActions;
+	uint32_t                                         AssetBrowserWindow::_nextContextualMenuActionId = 1;
+	bool                                             AssetBrowserWindow::_populatingContextualMenuActions = false;
 
 	/// @brief Availability of the actions about an asset only (not a folder)
 	/// @param context
@@ -105,13 +103,21 @@ namespace hod::inline editor
 
 	uint32_t AssetBrowserWindow::RegisterContextualMenuAction(ContextualMenuAction contextualMenuAction)
 	{
+		contextualMenuAction.id = _populatingContextualMenuActions ? 0 : _nextContextualMenuActionId++;
 		_contextualMenuActions.PushBack(contextualMenuAction);
-		return _contextualMenuActions.Size() - 1;
+		return contextualMenuAction.id;
 	}
 
 	void AssetBrowserWindow::UnregisterContextualMenuAction(uint32_t contextualMenuActionId)
 	{
-		_contextualMenuActions.Erase(_contextualMenuActions.Begin() + contextualMenuActionId);
+		for (uint32_t index = 0; index < _contextualMenuActions.Size(); ++index)
+		{
+			if (_contextualMenuActions[index].id == contextualMenuActionId)
+			{
+				_contextualMenuActions.Erase(index);
+				return;
+			}
+		}
 	}
 
 	/// @brief
@@ -129,7 +135,17 @@ namespace hod::inline editor
 	/// from the project DLL, which may not be loaded yet at static-init time and can change on hot-reload.
 	void AssetBrowserWindow::PopulateContextualMenuActions()
 	{
+		// The ones of the modules after the ones of the editor
+		Vector<ContextualMenuAction> moduleActions;
+		for (const ContextualMenuAction& contextualMenuAction : _contextualMenuActions)
+		{
+			if (contextualMenuAction.id != 0)
+			{
+				moduleActions.PushBack(contextualMenuAction);
+			}
+		}
 		_contextualMenuActions.Clear();
+		_populatingContextualMenuActions = true;
 
 		RegisterContextualMenuAction({
 			.path = "Import",
@@ -243,90 +259,6 @@ namespace hod::inline editor
 					assetContainer.Save(assetPath);
 
 					context.assetBrowserWindow.Rename(assetPath);
-				},
-		});
-		RegisterContextualMenuAction({
-			.path = "Create/Material Instance",
-			.group = "New",
-			.available =
-				+[](const Context& context)
-				{
-					if (context.selectedItems.Size() == 1)
-					{
-						AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
-						if (asset != nullptr && asset->_asset != nullptr)
-						{
-							return asset->_asset->GetType() == Hash::ComputeXxh3_64("Material");
-						}
-					}
-					return false;
-				},
-			.execute =
-				+[](const Context& context)
-				{
-					AssetDatabase::FileSystemMapping* materialNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
-					if (materialNode == nullptr || materialNode->_asset == nullptr)
-					{
-						return;
-					}
-
-					Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / (materialNode->_asset->GetName() + ".materialinstance"));
-
-					MaterialInstanceSettings materialInstanceSettings;
-					materialInstanceSettings._material.SetUid(materialNode->_asset->GetUid());
-
-					Document settingsDocument;
-					Serializer::Serialize(materialInstanceSettings, settingsDocument.GetRootNode());
-
-					AssetContainer assetContainer;
-					assetContainer.SetAssetType(Hash::ComputeXxh3_64("MaterialInstance"));
-					assetContainer.SetUid(UID::GenerateUID());
-
-					Stream& settingsStream = assetContainer.AddDataBlock("Settings", false);
-					DocumentWriterJson documentWriter;
-					documentWriter.Write(settingsDocument, settingsStream);
-
-					assetContainer.Save(assetPath);
-
-					context.assetBrowserWindow.Rename(assetPath);
-				},
-		});
-		RegisterContextualMenuAction({
-			.path = "Create/Font",
-			.group = "New",
-			.available =
-				+[](const Context& context)
-				{
-					// From faces: a text is drawn with a font, the family they are styles of
-					for (const Path& selectedItem : context.selectedItems)
-					{
-						AssetDatabase::FileSystemMapping* node = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(selectedItem);
-						if (node == nullptr || node->_asset == nullptr || node->_asset->GetType() != Hash::ComputeXxh3_64("FontFace"))
-						{
-							return false;
-						}
-					}
-					return context.selectedItems.Empty() == false;
-				},
-			.execute =
-				+[](const Context& context)
-				{
-					Vector<std::shared_ptr<Asset>> faceAssets;
-					for (const Path& selectedItem : context.selectedItems)
-					{
-						AssetDatabase::FileSystemMapping* node = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(selectedItem);
-						if (node != nullptr && node->_asset != nullptr)
-						{
-							faceAssets.PushBack(node->_asset);
-						}
-					}
-
-					// Its styles detected from the faces, the ones of their family in their folder with them
-					const Path assetPath = FontHelper::CreateFont(faceAssets, context.currentDirectory);
-					if (assetPath.Empty() == false)
-					{
-						context.assetBrowserWindow.Rename(assetPath);
-					}
 				},
 		});
 		for (const auto& pair : DataStructFactory::GetInstance()->GetAllDescriptors())
@@ -449,6 +381,12 @@ namespace hod::inline editor
 					}
 				},
 		});
+		_populatingContextualMenuActions = false;
+
+		for (const ContextualMenuAction& moduleAction : moduleActions)
+		{
+			_contextualMenuActions.PushBack(moduleAction);
+		}
 	}
 
 	/// @brief

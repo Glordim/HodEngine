@@ -20,39 +20,6 @@
 
 namespace hod::inline editor
 {
-	Vector<const Vector<UID>*> PropertyDrawer::_excludedResources;
-
-	/// @brief
-	/// @param excludedResources
-	void PropertyDrawer::PushExcludedResources(const Vector<UID>& excludedResources)
-	{
-		_excludedResources.PushBack(&excludedResources);
-	}
-
-	/// @brief
-	void PropertyDrawer::PopExcludedResources()
-	{
-		_excludedResources.PopBack();
-	}
-
-	/// @brief
-	/// @param uid
-	/// @return
-	bool PropertyDrawer::IsResourceExcluded(const UID& uid)
-	{
-		for (const Vector<UID>* excludedResources : _excludedResources)
-		{
-			for (const UID& excludedResource : *excludedResources)
-			{
-				if (excludedResource == uid)
-				{
-					return true;
-				}
-			}
-		}
-		return false;
-	}
-
 	bool PropertyDrawer::DrawDescriptor(EditorReflectedObject& reflectedObject)
 	{
 		bool changed = false;

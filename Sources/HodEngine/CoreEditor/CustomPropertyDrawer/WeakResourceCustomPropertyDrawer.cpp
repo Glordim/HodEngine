@@ -31,6 +31,39 @@
 
 namespace hod::inline editor
 {
+	Vector<const Vector<UID>*> WeakResourceCustomPropertyDrawer::_excludedResources;
+
+	/// @brief
+	/// @param excludedResources
+	void WeakResourceCustomPropertyDrawer::PushExcludedResources(const Vector<UID>& excludedResources)
+	{
+		_excludedResources.PushBack(&excludedResources);
+	}
+
+	/// @brief
+	void WeakResourceCustomPropertyDrawer::PopExcludedResources()
+	{
+		_excludedResources.PopBack();
+	}
+
+	/// @brief
+	/// @param uid
+	/// @return
+	bool WeakResourceCustomPropertyDrawer::IsResourceExcluded(const UID& uid)
+	{
+		for (const Vector<UID>* excludedResources : _excludedResources)
+		{
+			for (const UID& excludedResource : *excludedResources)
+			{
+				if (excludedResource == uid)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
+	}
+
 	/// @brief
 	/// @param instance
 	/// @return
@@ -179,7 +212,7 @@ namespace hod::inline editor
 
 			for (AssetDatabase::FileSystemMapping* assetNode : assetList)
 			{
-				if (PropertyDrawer::IsResourceExcluded(assetNode->_asset->GetUid())) // TODO: the list should be here (see PropertyDrawer::PushExcludedResources)
+				if (IsResourceExcluded(assetNode->_asset->GetUid()))
 				{
 					continue;
 				}
