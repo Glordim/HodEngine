@@ -106,6 +106,9 @@ namespace hod::inline ui2
 		static Vector2						GetLayoutSize(const TextLayout& layout); // of the line: its width, from its ascender to its descender
 		bool								IsPixelArt() const;   // the font of the layout, its style (not its fallbacks)
 		uint32_t							GetPixelSize() const; // its grid, PixelArt
+		// A glyph of the layout is from a Bitmap or Pixel font: its glyphs on whole units. Sdf ones go anywhere, at any size.
+		// The faces of the chain the text does not use (fallbacks...) don't count
+		bool								IsDrawnOnPixels(const TextLayout& layout) const;
 
 	private:
 

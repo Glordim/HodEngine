@@ -311,6 +311,22 @@ namespace hod::inline ui2
 		return _fontChain.Empty() ? 0 : _fontChain.GetMeshFonts()[0]._pixelSize;
 	}
 
+	/// @brief
+	/// @param layout shaped with the faces of the chain
+	/// @return
+	bool TextNode::IsDrawnOnPixels(const TextLayout& layout) const
+	{
+		ArrayView<TextMesh::Font> fonts = _fontChain.GetMeshFonts();
+		for (const TextLayout::Glyph& glyph : layout._glyphs)
+		{
+			if (glyph._faceIndex < fonts.Size() && fonts[glyph._faceIndex]._mode != GlyphCache::Mode::Sdf)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
 	/// @brief On the axes sized from the content the rect is the size of the text: it fits there whatever Overflow says
 	/// @param size of the rect
 	/// @return
@@ -366,13 +382,21 @@ namespace hod::inline ui2
 			}
 
 			// A whole pixel size below the exact one (PixelArt: a whole multiple of its grid): it fits for sure (the exact one may be a hair wider
-			// once rounded), and is rasterized as is. Only what does not fit even at MinFontSize gets an ellipsis
-			const float step = IsPixelArt() ? (float)GetPixelSize() : 1.0f;
+			// once rounded), and is rasterized as is. Sdf only: the exact one, nothing is rounded.
+			// Only what does not fit even at MinFontSize gets an ellipsis
 			const float minFontSize = Min(fontResource.GetDrawnFontSize(_minFontSize), _layoutFontSize);
 			const float fittingFontSize = _layoutFontSize * scale;
 			if (fittingFontSize >= minFontSize)
 			{
-				_fittedFontSize = Max(minFontSize, std::floor(fittingFontSize / step) * step);
+				if (IsDrawnOnPixels(*layout))
+				{
+					const float step = IsPixelArt() ? (float)GetPixelSize() : 1.0f;
+					_fittedFontSize = Max(minFontSize, std::floor(fittingFontSize / step) * step);
+				}
+				else
+				{
+					_fittedFontSize = Max(minFontSize, fittingFontSize);
+				}
 				if (textShaper->Shape(_value, faces, _fittedFontSize, _fittedLayout) == false)
 				{
 					_fittedLayout.Clear();
@@ -459,8 +483,11 @@ namespace hod::inline ui2
 			case VerticalAlignment::Capline: baselineOrigin.SetY(_alignByGeometry ? -(bottom + top) * 0.5f : -layout->_capHeight * 0.5f); break;
 			case VerticalAlignment::Bottom: baselineOrigin.SetY(-halfSize.GetY() - bottom); break;
 		}
-		// Bitmap: the glyphs are on whole pixels from the origin, the origin is too
-		baselineOrigin = Vector2(std::round(baselineOrigin.GetX()), std::round(baselineOrigin.GetY()));
+		// Bitmap: the glyphs are on whole pixels from the origin, the origin is too. Sdf: where the alignment puts it, it grows with the size without a jump
+		if (IsDrawnOnPixels(*layout))
+		{
+			baselineOrigin = Vector2(std::round(baselineOrigin.GetX()), std::round(baselineOrigin.GetY()));
+		}
 
 		const Matrix4&  canvasMatrix = ComputeCanvasMatrix();
 		const Matrix4   meshMatrix = canvasMatrix * Matrix4::Translation(baselineOrigin);
