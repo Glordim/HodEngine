@@ -25,7 +25,7 @@ namespace hod::inline renderer
 	class SkylinePacker;
 
 	/// @brief The glyphs of a font drawn so far, rasterized by FreeType into its own R8 atlas, the first time they are asked for.
-	/// One per font (a FontResource has its own): it lives, and its memory goes, with the font.
+	/// One per font (a FontFaceResource has its own): it lives, and its memory goes, with the font.
 	/// The atlas is one page as long as it can: it starts small and doubles, its glyphs copied, up to MaxPageSize, a text of the font drawn in one batch.
 	/// Only then another page is added (thousands of glyphs: CJK).
 	class HOD_RENDERER_API GlyphCache final

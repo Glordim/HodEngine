@@ -11,7 +11,7 @@ namespace
 	FontResource::Style MakeStyle(uint64_t id, Weight weight, bool italic)
 	{
 		FontResource::Style style;
-		style._font = UID(id, 0);
+		style._face = UID(id, 0);
 		style._weight = weight;
 		style._italic = italic;
 		return style;

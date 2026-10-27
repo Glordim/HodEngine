@@ -1,10 +1,8 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
-#include "HodEngine/Editor/EditorTab.hpp"
 #include "HodEngine/Editor/FontEditor/FontCooker.hpp"
-
-#include <HodEngine/Math/Vector2.hpp>
+#include "HodEngine/Editor/FontEditor/FontPreviewTab.hpp"
 
 #include <memory>
 
@@ -15,15 +13,10 @@ namespace hod::inline renderer
 
 namespace hod::inline editor
 {
-	/// @brief The settings of a font (how its glyphs are drawn), its information, and a preview of its text as the engine draws it.
+	/// @brief The family of a font: its faces for each style, its fallbacks, and a preview of its text in a style as the engine draws it.
 	/// The settings are applied to the FontResource as they are edited: whatever uses it follows. Reverted if the tab is closed unsaved.
-	class HOD_EDITOR_API FontEditorTab : public EditorTab
+	class HOD_EDITOR_API FontEditorTab : public FontPreviewTab
 	{
-	public:
-
-		static constexpr float MinZoomFactor = 0.25f;
-		static constexpr float MaxZoomFactor = 32.0f; // the pixels of a pixel art font big enough to tell them apart
-
 	public:
 				FontEditorTab(std::shared_ptr<Asset> asset);
 				~FontEditorTab() override;
@@ -33,29 +26,14 @@ namespace hod::inline editor
 		FontSettings&					GetFontSettings();
 		void							ApplySettings(); // to the resource, wherever it is used
 
-		// Changes each time what the preview draws changes: its text, the settings
-		uint32_t						GetPreviewVersion() const;
-		const char*						GetPreviewText() const;
-
-		bool							IsShowingMetrics() const;
-
-		float							GetZoomFactor() const;
-		void							SetZoomFactor(float zoomFactor);
-		// Of the top left of the text, from the top left of the viewport, in its pixels (x right, y up)
-		const Vector2&					GetPanOffset() const;
-		void							SetPanOffset(const Vector2& panOffset);
+		bool							UpdateFontChain(FontChain& fontChain) const override; // the font in the style of the preview
 
 	protected:
 
 		void	CreateDefaultLayout() override;
 		bool	DrawContent() override;
-		void	DrawMenuBar() override;
-		void	DrawMenuBarPopups() override;
+		void	DrawMenuBarOptions() override;
 		bool	OnSave() override;
-
-	private:
-
-		static constexpr float DefaultMargin = 16.0f; // between the viewport and the text, in its pixels
 
 	private:
 
@@ -63,11 +41,7 @@ namespace hod::inline editor
 		FontSettings					_savedSettings; // what the resource is reverted to if the tab is closed with unsaved live edits
 		std::shared_ptr<FontResource>	_font;
 
-		char							_previewText[256] = "The quick brown fox jumps over the lazy dog";
-		uint32_t						_previewVersion = 0;
-		bool							_showMetrics = true;
-
-		float							_zoomFactor = 1.0f;
-		Vector2							_panOffset = Vector2(DefaultMargin, -DefaultMargin);
+		FontResource::Weight			_previewWeight = FontResource::Weight::Regular;
+		bool							_previewItalic = false;
 	};
 }

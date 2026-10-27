@@ -1,22 +1,25 @@
 #include "HodEngine/Renderer/Pch.hpp"
 #include "HodEngine/Renderer/Text/FontChain.hpp"
 
-#include "HodEngine/Renderer/Resource/FontResource.hpp"
+#include "HodEngine/Renderer/Resource/FontFaceResource.hpp"
 
 #include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 #include <HodEngine/Text/FontFace.hpp>
 
+#include <utility>
+
 namespace hod::inline renderer
 {
 	/// @brief
-	/// @param fonts
-	/// @param font
+	/// @param resources
+	/// @param resource
 	/// @return
-	static bool Contains(const Vector<std::shared_ptr<FontResource>>& fonts, const std::shared_ptr<FontResource>& font)
+	template<typename _Resource_>
+	static bool Contains(const Vector<std::shared_ptr<_Resource_>>& resources, const std::shared_ptr<_Resource_>& resource)
 	{
-		for (const std::shared_ptr<FontResource>& contained : fonts)
+		for (const std::shared_ptr<_Resource_>& contained : resources)
 		{
-			if (contained == font)
+			if (contained == resource)
 			{
 				return true;
 			}
@@ -24,55 +27,43 @@ namespace hod::inline renderer
 		return false;
 	}
 
-	/// @brief The fallbacks and the styles are loaded here, when the text is drawn: not by the font as it loads, a font falling back on it would be
-	/// loaded again, and only the styles drawn are
-	/// @param font
-	/// @param style null: the font itself
-	/// @param visited the fonts appended so far, the one of the style of each or itself: a cycle is cut
-	/// @param fonts
-	void FontChain::Append(const std::shared_ptr<FontResource>& font, const Style* style, Vector<std::shared_ptr<FontResource>>& visited,
-	                       Vector<std::shared_ptr<FontResource>>& fonts)
+	/// @brief Loaded here, when the text is drawn: only the faces drawn are
+	/// @param face
+	/// @param faces
+	void FontChain::AppendFace(const UID& face, Vector<std::shared_ptr<FontFaceResource>>& faces)
 	{
-		if (font == nullptr || font->GetFontFace().IsLoaded() == false || Contains(visited, font))
+		if (face.IsValid() == false)
 		{
 			return;
 		}
-		visited.PushBack(font);
-
-		// The font of the style and its fallbacks, then the font and its own: what the font of the style lacks is drawn as the font is
-		if (style != nullptr)
+		std::shared_ptr<FontFaceResource> faceResource = ResourceManager::GetInstance()->GetResource<FontFaceResource>(face);
+		if (faceResource != nullptr && faceResource->GetFontFace().IsLoaded() && Contains(faces, faceResource) == false)
 		{
-			const UID styleUid = font->FindStyle(style->_weight, style->_italic);
-			if (styleUid.IsValid() && styleUid != font->GetUid())
-			{
-				std::shared_ptr<FontResource> styleFont = ResourceManager::GetInstance()->GetResource<FontResource>(styleUid);
-				if (styleFont != nullptr && styleFont->GetFontFace().IsLoaded() && Contains(fonts, styleFont) == false) // not loaded: the font is drawn
-				{
-					fonts.PushBack(styleFont);
-					for (const UID& fallback : styleFont->GetFallbacks())
-					{
-						Append(ResourceManager::GetInstance()->GetResource<FontResource>(fallback), style, visited, fonts);
-					}
-				}
-			}
-		}
-
-		if (Contains(fonts, font) == false)
-		{
-			fonts.PushBack(font);
-		}
-		for (const UID& fallback : font->GetFallbacks())
-		{
-			Append(ResourceManager::GetInstance()->GetResource<FontResource>(fallback), style, visited, fonts);
+			faces.PushBack(faceResource);
 		}
 	}
 
-	/// @brief
+	/// @brief The fallbacks are loaded here, when the text is drawn: not by the font as it loads, a font falling back on it would be loaded again
 	/// @param font
-	/// @return
-	bool FontChain::Update(const std::shared_ptr<FontResource>& font)
+	/// @param weight
+	/// @param italic
+	/// @param fonts the ones appended so far: a cycle is cut
+	/// @param faces
+	void FontChain::Append(const std::shared_ptr<FontResource>& font, FontResource::Weight weight, bool italic, Vector<std::shared_ptr<FontResource>>& fonts,
+	                       Vector<std::shared_ptr<FontFaceResource>>& faces)
 	{
-		return UpdateChain(font, nullptr);
+		if (font == nullptr || Contains(fonts, font))
+		{
+			return;
+		}
+		fonts.PushBack(font);
+
+		AppendFace(font->FindStyle(weight, italic), faces);
+		AppendFace(font->FindStyle(FontResource::Weight::Regular, false), faces); // what the face of the style lacks, drawn as in the rest of the text
+		for (const UID& fallback : font->GetFallbacks())
+		{
+			Append(ResourceManager::GetInstance()->GetResource<FontResource>(fallback), weight, italic, fonts, faces);
+		}
 	}
 
 	/// @brief
@@ -82,46 +73,57 @@ namespace hod::inline renderer
 	/// @return
 	bool FontChain::Update(const std::shared_ptr<FontResource>& font, FontResource::Weight weight, bool italic)
 	{
-		const Style style = {weight, italic};
-		return UpdateChain(font, &style);
+		_updatedFonts.Clear();
+		_updatedFaces.Clear();
+		Append(font, weight, italic, _updatedFonts, _updatedFaces);
+		std::swap(_fonts, _updatedFonts); // the fallbacks not drawn anymore are let go of, after the faces they kept loaded are found again
+		return UpdateFaces();
 	}
 
 	/// @brief
-	/// @param font
-	/// @param style null: each font itself
+	/// @param face
 	/// @return
-	bool FontChain::UpdateChain(const std::shared_ptr<FontResource>& font, const Style* style)
+	bool FontChain::Update(const std::shared_ptr<FontFaceResource>& face)
 	{
-		_updatedFonts.Clear();
-		_visitedFonts.Clear();
-		Append(font, style, _visitedFonts, _updatedFonts);
-
-		bool changed = _updatedFonts.Size() != _fonts.Size();
-		for (uint32_t index = 0; changed == false && index < _updatedFonts.Size(); ++index)
+		_updatedFaces.Clear();
+		if (face != nullptr && face->GetFontFace().IsLoaded())
 		{
-			const FontResource& updatedFont = *_updatedFonts[index];
-			changed = _updatedFonts[index] != _fonts[index] || updatedFont.GetFontFace().GetId() != _faceIds[index] || updatedFont.GetGlyphMode() != _meshFonts[index]._mode ||
-			          updatedFont.GetPixelSize() != _meshFonts[index]._pixelSize;
+			_updatedFaces.PushBack(face);
+		}
+		_fonts.Clear();
+		return UpdateFaces();
+	}
+
+	/// @brief
+	/// @return
+	bool FontChain::UpdateFaces()
+	{
+		bool changed = _updatedFaces.Size() != _faceResources.Size();
+		for (uint32_t index = 0; changed == false && index < _updatedFaces.Size(); ++index)
+		{
+			const FontFaceResource& updatedFace = *_updatedFaces[index];
+			changed = _updatedFaces[index] != _faceResources[index] || updatedFace.GetFontFace().GetId() != _faceIds[index] ||
+			          updatedFace.GetGlyphMode() != _meshFonts[index]._mode || updatedFace.GetPixelSize() != _meshFonts[index]._pixelSize;
 		}
 		if (changed == false)
 		{
 			return false;
 		}
 
-		_fonts.Clear();
+		_faceResources.Clear();
 		_faces.Clear();
 		_meshFonts.Clear();
 		_faceIds.Clear();
-		for (const std::shared_ptr<FontResource>& updatedFont : _updatedFonts)
+		for (const std::shared_ptr<FontFaceResource>& updatedFace : _updatedFaces)
 		{
-			_fonts.PushBack(updatedFont);
-			_faces.PushBack(&updatedFont->GetFontFace());
-			_faceIds.PushBack(updatedFont->GetFontFace().GetId());
+			_faceResources.PushBack(updatedFace);
+			_faces.PushBack(&updatedFace->GetFontFace());
+			_faceIds.PushBack(updatedFace->GetFontFace().GetId());
 
 			TextMesh::Font& meshFont = _meshFonts.EmplaceBack();
-			meshFont._glyphCache = &updatedFont->GetGlyphCache();
-			meshFont._mode = updatedFont->GetGlyphMode();
-			meshFont._pixelSize = updatedFont->GetPixelSize();
+			meshFont._glyphCache = &updatedFace->GetGlyphCache();
+			meshFont._mode = updatedFace->GetGlyphMode();
+			meshFont._pixelSize = updatedFace->GetPixelSize();
 		}
 		return true;
 	}
@@ -129,26 +131,27 @@ namespace hod::inline renderer
 	/// @brief
 	void FontChain::Clear()
 	{
-		_fonts.Clear();
+		_faceResources.Clear();
 		_faces.Clear();
 		_meshFonts.Clear();
 		_faceIds.Clear();
+		_fonts.Clear();
+		_updatedFaces.Clear();
 		_updatedFonts.Clear();
-		_visitedFonts.Clear();
 	}
 
 	/// @brief
 	/// @return
 	bool FontChain::Empty() const
 	{
-		return _fonts.Empty();
+		return _faceResources.Empty();
 	}
 
 	/// @brief
 	/// @return
-	const Vector<std::shared_ptr<FontResource>>& FontChain::GetFonts() const
+	const Vector<std::shared_ptr<FontFaceResource>>& FontChain::GetFaceResources() const
 	{
-		return _fonts;
+		return _faceResources;
 	}
 
 	/// @brief

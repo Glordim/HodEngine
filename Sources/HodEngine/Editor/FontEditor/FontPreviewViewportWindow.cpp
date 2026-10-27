@@ -1,8 +1,8 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/FontEditor/FontEditorViewportWindow.hpp"
+#include "HodEngine/Editor/FontEditor/FontPreviewViewportWindow.hpp"
 
 #include "HodEngine/Editor/DrawHelper.hpp"
-#include "HodEngine/Editor/FontEditor/FontEditorTab.hpp"
+#include "HodEngine/Editor/FontEditor/FontPreviewTab.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
@@ -16,7 +16,7 @@
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
-#include <HodEngine/Renderer/Resource/FontResource.hpp>
+#include <HodEngine/Renderer/Resource/FontFaceResource.hpp>
 #include <HodEngine/Renderer/Text/GlyphCache.hpp>
 #include <HodEngine/RHI/RenderTarget.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
@@ -28,14 +28,14 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(FontEditorViewportWindow, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(FontPreviewViewportWindow, reflectionDescriptor)
 	{
 		(void)reflectionDescriptor;
 	}
 
 	/// @brief
 	/// @param editorTab
-	FontEditorViewportWindow::FontEditorViewportWindow(EditorTab* editorTab)
+	FontPreviewViewportWindow::FontPreviewViewportWindow(EditorTab* editorTab)
 	: EditorTabWindow(editorTab)
 	{
 		SetFlags(ImGuiWindowFlags_NoScrollbar);
@@ -45,13 +45,13 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	FontEditorViewportWindow::~FontEditorViewportWindow()
+	FontPreviewViewportWindow::~FontPreviewViewportWindow()
 	{
 		DefaultAllocator::GetInstance().Delete(_renderTarget);
 	}
 
 	/// @brief
-	bool FontEditorViewportWindow::Draw()
+	bool FontPreviewViewportWindow::Draw()
 	{
 		bool open = true;
 		PushDockTabStyle();
@@ -77,7 +77,7 @@ namespace hod::inline editor
 	/// @brief The sizes a text is often drawn at, or the first multiples of the grid of a pixel art font
 	/// @param font
 	/// @param text
-	void FontEditorViewportWindow::BuildLines(FontResource& font, const char* text)
+	void FontPreviewViewportWindow::BuildLines(FontFaceResource& font, const char* text)
 	{
 		_lines.Clear();
 
@@ -126,30 +126,30 @@ namespace hod::inline editor
 	/// @brief The wheel zooms around the cursor, a drag pans
 	/// @param viewportPosition
 	/// @param viewportSize
-	void FontEditorViewportWindow::HandleInput(const Vector2& viewportPosition, const Vector2& viewportSize)
+	void FontPreviewViewportWindow::HandleInput(const Vector2& viewportPosition, const Vector2& viewportSize)
 	{
-		FontEditorTab* fontEditorTab = GetOwner<FontEditorTab>();
+		FontPreviewTab* fontPreviewTab = GetOwner<FontPreviewTab>();
 		const ImGuiIO& io = ImGui::GetIO();
 
 		ImGui::SetCursorScreenPos(ImVec2(viewportPosition.GetX(), viewportPosition.GetY()));
 		ImGui::InvisibleButton("##Viewport", ImVec2(viewportSize.GetX(), viewportSize.GetY()), ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonMiddle);
 
-		Vector2 panOffset = fontEditorTab->GetPanOffset();
+		Vector2 panOffset = fontPreviewTab->GetPanOffset();
 		if (ImGui::IsItemActive() && (ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.0f) || ImGui::IsMouseDragging(ImGuiMouseButton_Middle, 0.0f)))
 		{
 			panOffset = panOffset + Vector2(io.MouseDelta.x, -io.MouseDelta.y); // y up
-			fontEditorTab->SetPanOffset(panOffset);
+			fontPreviewTab->SetPanOffset(panOffset);
 		}
 
 		if (ImGui::IsItemHovered() && io.MouseWheel != 0.0f)
 		{
 			// The point of the text under the cursor stays under it
-			const float   zoomFactor = fontEditorTab->GetZoomFactor();
+			const float   zoomFactor = fontPreviewTab->GetZoomFactor();
 			const Vector2 cursor(io.MousePos.x - viewportPosition.GetX(), -(io.MousePos.y - viewportPosition.GetY()));
 			const Vector2 pointUnderCursor = (cursor - panOffset) / zoomFactor;
 
-			fontEditorTab->SetZoomFactor(zoomFactor * std::pow(1.25f, io.MouseWheel));
-			fontEditorTab->SetPanOffset(cursor - pointUnderCursor * fontEditorTab->GetZoomFactor());
+			fontPreviewTab->SetZoomFactor(zoomFactor * std::pow(1.25f, io.MouseWheel));
+			fontPreviewTab->SetPanOffset(cursor - pointUnderCursor * fontPreviewTab->GetZoomFactor());
 		}
 	}
 
@@ -157,11 +157,11 @@ namespace hod::inline editor
 	/// @param viewportPosition
 	/// @param viewportSize
 	/// @param font
-	void FontEditorViewportWindow::DrawMetrics(const Vector2& viewportPosition, const Vector2& viewportSize, const FontResource& font)
+	void FontPreviewViewportWindow::DrawMetrics(const Vector2& viewportPosition, const Vector2& viewportSize, const FontFaceResource& font)
 	{
-		FontEditorTab* fontEditorTab = GetOwner<FontEditorTab>();
-		const float    zoomFactor = fontEditorTab->GetZoomFactor();
-		const Vector2& panOffset = fontEditorTab->GetPanOffset();
+		FontPreviewTab* fontPreviewTab = GetOwner<FontPreviewTab>();
+		const float    zoomFactor = fontPreviewTab->GetZoomFactor();
+		const Vector2& panOffset = fontPreviewTab->GetPanOffset();
 
 		// From the space of the lines (y up) to the screen (y down)
 		auto toScreen = [&](float x, float y)
@@ -181,7 +181,7 @@ namespace hod::inline editor
 			const ImVec2 labelPosition = toScreen(0.0f, line._baseline);
 			drawList->AddText(ImVec2(labelPosition.x, labelPosition.y - ImGui::GetTextLineHeight()), labelColor, line._label.CStr());
 
-			if (fontEditorTab->IsShowingMetrics() == false)
+			if (fontPreviewTab->IsShowingMetrics() == false)
 			{
 				continue;
 			}
@@ -213,15 +213,17 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	void FontEditorViewportWindow::DrawContent()
+	void FontPreviewViewportWindow::DrawContent()
 	{
-		FontEditorTab*                fontEditorTab = GetOwner<FontEditorTab>();
-		std::shared_ptr<FontResource> font = fontEditorTab->GetFont();
-		if (font == nullptr || font->GetFontFace().IsLoaded() == false)
+		// Laid out again when a face of the chain changed (reloaded, drawn otherwise, added...): see FontChain
+		FontPreviewTab* fontPreviewTab = GetOwner<FontPreviewTab>();
+		const bool      chainChanged = fontPreviewTab->UpdateFontChain(_fontChain);
+		if (_fontChain.Empty())
 		{
-			ImGui::TextDisabled("The font is not loaded");
+			ImGui::TextDisabled("Nothing to draw: no face loaded");
 			return;
 		}
+		FontFaceResource& font = *_fontChain.GetFaceResources()[0]; // the sizes are the ones of the face drawn for the style
 
 		const ImVec2   available = ImGui::GetContentRegionAvail();
 		const uint32_t resolutionWidth = Clamp((uint32_t)available.x, 2u, 16u * 1024u);
@@ -242,10 +244,8 @@ namespace hod::inline editor
 		// The input first, for the text to be drawn where it is this frame
 		HandleInput(viewportPosition, viewportSize);
 
-		// Laid out again when the font or a fallback changed (reloaded, drawn otherwise, added...): see FontChain
-		// Laid out again when the atlas of a font grew (a line, a text node...): the uvs of its glyphs changed
-		const bool chainChanged = _fontChain.Update(font);
-		bool       outdated = _builtPreviewVersion != fontEditorTab->GetPreviewVersion() || chainChanged;
+		// Laid out again when the atlas of a face grew (a line, a text node...): the uvs of its glyphs changed
+		bool outdated = _builtPreviewVersion != fontPreviewTab->GetPreviewVersion() || chainChanged;
 		for (const PreviewLine& line : _lines)
 		{
 			outdated |= (outdated == false && line._mesh.IsOutdated());
@@ -253,8 +253,8 @@ namespace hod::inline editor
 		// A line may make the atlas grow under the ones before it: built again then, every glyph already in the atlas
 		for (uint32_t attempt = 0; outdated && attempt < 3; ++attempt)
 		{
-			BuildLines(*font, fontEditorTab->GetPreviewText());
-			_builtPreviewVersion = fontEditorTab->GetPreviewVersion();
+			BuildLines(font, fontPreviewTab->GetPreviewText());
+			_builtPreviewVersion = fontPreviewTab->GetPreviewVersion();
 
 			outdated = false;
 			for (const PreviewLine& line : _lines)
@@ -277,8 +277,8 @@ namespace hod::inline editor
 		renderView->SetupCamera(projection, Matrix4::Identity, viewport);
 
 		// The pan on whole pixels: at 100%, the glyphs are on the pixels of the viewport
-		const Vector2 panOffset = fontEditorTab->GetPanOffset();
-		const float   zoomFactor = fontEditorTab->GetZoomFactor();
+		const Vector2 panOffset = fontPreviewTab->GetPanOffset();
+		const float   zoomFactor = fontPreviewTab->GetZoomFactor();
 		const Matrix4 modelMatrix = Matrix4::Translation(Vector2(std::round(panOffset.GetX()), std::round(panOffset.GetY()))) * Matrix4::Scale(Vector2(zoomFactor, zoomFactor));
 
 		// Magnified, the texels are shown as they are: the pixels the text is drawn with. Pixel glyphs always (a fallback may be Smooth)
@@ -308,6 +308,6 @@ namespace hod::inline editor
 		}
 
 		ImGui::GetWindowDrawList()->AddImage(_renderTarget->GetColorTexture(), cursorPosition, ImVec2(cursorPosition.x + viewportSize.GetX(), cursorPosition.y + viewportSize.GetY()));
-		DrawMetrics(viewportPosition, viewportSize, *font);
+		DrawMetrics(viewportPosition, viewportSize, font);
 	}
 }

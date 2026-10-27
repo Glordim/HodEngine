@@ -5,6 +5,7 @@
 #include <HodEngine/Core/String.hpp>
 #include <HodEngine/GameSystems/Resource/WeakResource.hpp>
 #include <HodEngine/Math/Color.hpp>
+#include <HodEngine/Renderer/Resource/FontFaceResource.hpp>
 #include <HodEngine/Renderer/Resource/FontResource.hpp>
 #include <HodEngine/Renderer/Text/FontChain.hpp>
 #include <HodEngine/Renderer/Text/TextMesh.hpp>
@@ -62,7 +63,7 @@ namespace hod::inline ui2
 		float								GetFontSize() const;
 		void								SetFontSize(float fontSize);
 
-		// The style drawn: the font of the family of the font closest to it (see FontResource::FindStyle), the font itself without one
+		// The style drawn: the face of the font closest to it (see FontResource::FindStyle)
 		FontResource::Weight				GetFontWeight() const;
 		void								SetFontWeight(FontResource::Weight fontWeight);
 		bool								IsItalic() const;
@@ -123,7 +124,7 @@ namespace hod::inline ui2
 		// Kept from one frame to the next, made again when what they are made from changes
 		mutable FontChain					_fontChain; // the font (its style), its fallbacks: the layout is shaped with it
 		mutable TextLayout					_layout;
-		mutable float						_layoutFontSize = 0.0f; // the one it is drawn at, see FontResource::GetDrawnFontSize
+		mutable float						_layoutFontSize = 0.0f; // the one it is drawn at, see FontFaceResource::GetDrawnFontSize
 		mutable bool						_layoutDirty = true;
 
 		TextLayout							_fittedLayout;

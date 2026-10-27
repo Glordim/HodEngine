@@ -26,15 +26,15 @@ namespace hod::inline editor
 	/// the ones a fallback draws apart from the ones none does.
 	/// Or the characters searched for: typed ("é", "中文"), or by their code ("U+00E9", "0x4E2D", "4E2D").
 	/// Drawn by the engine, as the font draws them
-	class HOD_EDITOR_API FontEditorGlyphsWindow : public EditorTabWindow
+	class HOD_EDITOR_API FontPreviewGlyphsWindow : public EditorTabWindow
 	{
-		REFLECTED_CLASS(FontEditorGlyphsWindow, EditorTabWindow)
+		REFLECTED_CLASS(FontPreviewGlyphsWindow, EditorTabWindow)
 
 	public:
 
-					FontEditorGlyphsWindow() = default;
-					FontEditorGlyphsWindow(EditorTab* editorTab);
-					~FontEditorGlyphsWindow() override;
+					FontPreviewGlyphsWindow() = default;
+					FontPreviewGlyphsWindow(EditorTab* editorTab);
+					~FontPreviewGlyphsWindow() override;
 
 	public:
 

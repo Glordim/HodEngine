@@ -1,7 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/FontEditor/FontEditorGlyphsWindow.hpp"
+#include "HodEngine/Editor/FontEditor/FontPreviewGlyphsWindow.hpp"
 
-#include "HodEngine/Editor/FontEditor/FontEditorTab.hpp"
+#include "HodEngine/Editor/FontEditor/FontPreviewTab.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
@@ -19,7 +19,7 @@
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
-#include <HodEngine/Renderer/Resource/FontResource.hpp>
+#include <HodEngine/Renderer/Resource/FontFaceResource.hpp>
 #include <HodEngine/RHI/RenderTarget.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/RHI/Sampler.hpp>
@@ -150,14 +150,14 @@ namespace hod::inline editor
 		}
 	}
 
-	DESCRIBE_REFLECTED_CLASS(FontEditorGlyphsWindow, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(FontPreviewGlyphsWindow, reflectionDescriptor)
 	{
 		(void)reflectionDescriptor;
 	}
 
 	/// @brief
 	/// @param editorTab
-	FontEditorGlyphsWindow::FontEditorGlyphsWindow(EditorTab* editorTab)
+	FontPreviewGlyphsWindow::FontPreviewGlyphsWindow(EditorTab* editorTab)
 	: EditorTabWindow(editorTab)
 	{
 		SetFlags(ImGuiWindowFlags_NoScrollbar);
@@ -167,14 +167,14 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	FontEditorGlyphsWindow::~FontEditorGlyphsWindow()
+	FontPreviewGlyphsWindow::~FontPreviewGlyphsWindow()
 	{
 		DefaultAllocator::GetInstance().Delete(_renderTarget);
 	}
 
 	/// @brief The characters of the set that are drawn (assigned, not controls nor spaces), the font has a glyph for, a fallback, or none.
 	/// Or the ones searched for, whatever they are: what is searched for is shown
-	void FontEditorGlyphsWindow::UpdateCells()
+	void FontPreviewGlyphsWindow::UpdateCells()
 	{
 		_cells.Clear();
 		_characterCount = 0;
@@ -248,7 +248,7 @@ namespace hod::inline editor
 	}
 
 	/// @brief The set, what the font has of it, the filter
-	void FontEditorGlyphsWindow::DrawToolbar()
+	void FontPreviewGlyphsWindow::DrawToolbar()
 	{
 		// The set does not count while searching: the combo says so
 		const bool searching = _search[0] != '\0';
@@ -298,18 +298,17 @@ namespace hod::inline editor
 	}
 
 	/// @brief The grid scrolls in a child window: only its visible rows are drawn, into a render target of the size of the view
-	void FontEditorGlyphsWindow::DrawContent()
+	void FontPreviewGlyphsWindow::DrawContent()
 	{
-		std::shared_ptr<FontResource> font = GetOwner<FontEditorTab>()->GetFont();
-		const bool                    chainChanged = _fontChain.Update(font);
-		if (_fontChain.Empty() || _fontChain.GetFonts()[0] != font)
+		const bool chainChanged = GetOwner<FontPreviewTab>()->UpdateFontChain(_fontChain);
+		if (_fontChain.Empty())
 		{
-			ImGui::TextDisabled("The font is not loaded");
+			ImGui::TextDisabled("Nothing to draw: no face loaded");
 			return;
 		}
-		const FontFace& face = font->GetFontFace();
+		const FontFace& face = *_fontChain.GetFaces()[0];
 
-		// Again when the font or a fallback changed: reloaded, added, removed...
+		// Again when a face of the chain changed: reloaded, added, removed...
 		if (chainChanged || _builtCharacterSetIndex != _characterSetIndex || _builtOnlyMissing != _onlyMissing || _builtSearch != String(_search))
 		{
 			UpdateCells();
@@ -355,7 +354,7 @@ namespace hod::inline editor
 		const uint32_t lastRow = Min(rowCount, (uint32_t)std::ceil((scroll + viewHeight) / CellSize));
 
 		// The glyphs of the visible cells, centered in their cell on a baseline that fits the line of the font. The ones of the fallbacks at its size
-		const float glyphSize = font->GetDrawnFontSize(GlyphSize);
+		const float glyphSize = _fontChain.GetFaceResources()[0]->GetDrawnFontSize(GlyphSize);
 		const float unitsToPixels = glyphSize / (float)face.GetUnitsPerEm();
 		const float lineHeight = (float)(face.GetAscender() - face.GetDescender()) * unitsToPixels;
 		const float baselineFromTop = std::round((CellSize - LabelHeight - lineHeight) * 0.5f + (float)face.GetAscender() * unitsToPixels);
@@ -469,15 +468,15 @@ namespace hod::inline editor
 					hovered = true;
 					if (cell._glyphId == 0)
 					{
-						ImGui::SetTooltip(_fontChain.GetFonts().Size() > 1 ? "U+%04X\nMissing from the font and its fallbacks" : "U+%04X\nMissing from the font",
+						ImGui::SetTooltip(_fontChain.GetFaces().Size() > 1 ? "U+%04X\nMissing from the font and its fallbacks" : "U+%04X\nMissing from the font",
 						                  (uint32_t)cell._codepoint);
 					}
 					else if (cell._fontIndex != 0)
 					{
-						const FontResource&    fallback = *_fontChain.GetFonts()[cell._fontIndex];
-						std::shared_ptr<Asset> fallbackAsset = AssetDatabase::GetInstance()->Find(fallback.GetUid());
-						const String           fallbackName = fallbackAsset != nullptr ? fallbackAsset->GetName() : fallback.GetUid().ToString();
-						ImGui::SetTooltip("U+%04X\nMissing from the font, drawn with the fallback %s\nGlyph %u\nAdvance %d units", (uint32_t)cell._codepoint, fallbackName.CStr(),
+						const FontFaceResource& fallback = *_fontChain.GetFaceResources()[cell._fontIndex];
+						std::shared_ptr<Asset>  fallbackAsset = AssetDatabase::GetInstance()->Find(fallback.GetUid());
+						const String            fallbackName = fallbackAsset != nullptr ? fallbackAsset->GetName() : fallback.GetUid().ToString();
+						ImGui::SetTooltip("U+%04X\nMissing from the first face, drawn with %s\nGlyph %u\nAdvance %d units", (uint32_t)cell._codepoint, fallbackName.CStr(),
 						                  cell._glyphId, fallback.GetFontFace().GetGlyphAdvance(cell._glyphId));
 					}
 					else

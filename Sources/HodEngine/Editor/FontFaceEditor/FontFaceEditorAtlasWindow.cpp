@@ -1,7 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/FontEditor/FontEditorAtlasWindow.hpp"
+#include "HodEngine/Editor/FontFaceEditor/FontFaceEditorAtlasWindow.hpp"
 
-#include "HodEngine/Editor/FontEditor/FontEditorTab.hpp"
+#include "HodEngine/Editor/FontFaceEditor/FontFaceEditorTab.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
@@ -17,7 +17,7 @@
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
-#include <HodEngine/Renderer/Resource/FontResource.hpp>
+#include <HodEngine/Renderer/Resource/FontFaceResource.hpp>
 #include <HodEngine/Renderer/Text/GlyphCache.hpp>
 #include <HodEngine/RHI/RenderTarget.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
@@ -28,14 +28,14 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(FontEditorAtlasWindow, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(FontFaceEditorAtlasWindow, reflectionDescriptor)
 	{
 		(void)reflectionDescriptor;
 	}
 
 	/// @brief
 	/// @param editorTab
-	FontEditorAtlasWindow::FontEditorAtlasWindow(EditorTab* editorTab)
+	FontFaceEditorAtlasWindow::FontFaceEditorAtlasWindow(EditorTab* editorTab)
 	: EditorTabWindow(editorTab)
 	{
 		SetFlags(ImGuiWindowFlags_NoScrollbar);
@@ -45,14 +45,14 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	FontEditorAtlasWindow::~FontEditorAtlasWindow()
+	FontFaceEditorAtlasWindow::~FontFaceEditorAtlasWindow()
 	{
 		DefaultAllocator::GetInstance().Delete(_renderTarget);
 	}
 
 	/// @brief The page shown, the outlines, the zoom
 	/// @param pageCount
-	void FontEditorAtlasWindow::DrawToolbar(uint32_t pageCount)
+	void FontFaceEditorAtlasWindow::DrawToolbar(uint32_t pageCount)
 	{
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted("Page");
@@ -92,7 +92,7 @@ namespace hod::inline editor
 	/// @brief The wheel zooms around the cursor, a drag pans
 	/// @param viewportPosition
 	/// @param viewportSize
-	void FontEditorAtlasWindow::HandleInput(const Vector2& viewportPosition, const Vector2& viewportSize)
+	void FontFaceEditorAtlasWindow::HandleInput(const Vector2& viewportPosition, const Vector2& viewportSize)
 	{
 		const ImGuiIO& io = ImGui::GetIO();
 
@@ -115,9 +115,9 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	void FontEditorAtlasWindow::DrawContent()
+	void FontFaceEditorAtlasWindow::DrawContent()
 	{
-		std::shared_ptr<FontResource> font = GetOwner<FontEditorTab>()->GetFont();
+		std::shared_ptr<FontFaceResource> font = GetOwner<FontFaceEditorTab>()->GetFontFace();
 		if (font == nullptr)
 		{
 			ImGui::TextDisabled("The font is not loaded");

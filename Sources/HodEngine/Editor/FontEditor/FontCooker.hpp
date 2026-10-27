@@ -3,12 +3,14 @@
 
 #include "HodEngine/Editor/Cooker/Cooker.hpp"
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
+#include "HodEngine/Renderer/Resource/FontFaceResource.hpp"
 #include "HodEngine/Renderer/Resource/FontResource.hpp"
 #include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 
 namespace hod::inline editor
 {
-	/// @brief How the glyphs of a font are drawn, set on its asset ("Settings" data block), cooked into its FontResource ("Info" data block)
+	/// @brief The family of a font: its faces for each style and its fallbacks, set on its asset ("Settings" data block), cooked into its FontResource
+	/// ("Info" data block)
 	class HOD_EDITOR_API FontSettings
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(FontSettings)
@@ -19,19 +21,19 @@ namespace hod::inline editor
 		{
 			REFLECTED_CLASS_NO_VIRTUAL(Style)
 
-			WeakResource<FontResource>	_font;
-			FontResource::Weight		_weight = FontResource::Weight::Regular;
-			bool						_italic = false;
+			WeakResource<FontFaceResource>	_face;
+			FontResource::Weight			_weight = FontResource::Weight::Regular;
+			bool							_italic = false;
 		};
 
 	public:
-		FontResource::RenderMode	_renderMode = FontResource::RenderMode::Smooth;
-		uint32_t					_pixelSize = 0; // PixelArt only, see FontResource::GetPixelSize
-		Vector<WeakResource<FontResource>>	_fallbacks; // see FontResource::GetFallbacks
-		Vector<Style>				_styles; // see FontResource::GetStyles
+		// The ones set: the ones the resource has
+		Vector<FontResource::Style>			GetStyles() const;
+		Vector<UID>							GetFallbacks(const UID& font) const; // but the font itself
 
-		// The weight and the italic a face says it has (OS/2), the font not set
-		static Style				DetectStyle(const FontFace& face);
+	public:
+		Vector<Style>						_styles;
+		Vector<WeakResource<FontResource>>	_fallbacks; // see FontResource::GetFallbacks
 	};
 
 	class HOD_EDITOR_API FontCooker : public Cooker

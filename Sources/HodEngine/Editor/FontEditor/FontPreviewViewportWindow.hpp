@@ -19,22 +19,22 @@ namespace hod::inline rhi
 
 namespace hod::inline renderer
 {
-	class FontResource;
+	class FontFaceResource;
 }
 
 namespace hod::inline editor
 {
 	/// @brief The text of the preview at a waterfall of sizes, drawn by the engine (TextShaper, GlyphCache, TextMesh) as a TextNode draws it,
 	/// with the settings being edited. Zoomed and panned like the texture viewer, to look at the pixels.
-	class HOD_EDITOR_API FontEditorViewportWindow : public EditorTabWindow
+	class HOD_EDITOR_API FontPreviewViewportWindow : public EditorTabWindow
 	{
-		REFLECTED_CLASS(FontEditorViewportWindow, EditorTabWindow)
+		REFLECTED_CLASS(FontPreviewViewportWindow, EditorTabWindow)
 
 	public:
 
-					FontEditorViewportWindow() = default;
-					FontEditorViewportWindow(EditorTab* editorTab);
-					~FontEditorViewportWindow() override;
+					FontPreviewViewportWindow() = default;
+					FontPreviewViewportWindow(EditorTab* editorTab);
+					~FontPreviewViewportWindow() override;
 
 	public:
 
@@ -59,16 +59,16 @@ namespace hod::inline editor
 
 	private:
 
-		void		BuildLines(FontResource& font, const char* text);
+		void		BuildLines(FontFaceResource& font, const char* text);
 		void		HandleInput(const Vector2& viewportPosition, const Vector2& viewportSize);
-		void		DrawMetrics(const Vector2& viewportPosition, const Vector2& viewportSize, const FontResource& font);
+		void		DrawMetrics(const Vector2& viewportPosition, const Vector2& viewportSize, const FontFaceResource& font);
 
 	private:
 
 		RenderTarget*		_renderTarget = nullptr;
 
 		Vector<PreviewLine>	_lines;
-		FontChain			_fontChain; // the font and its fallbacks: the lines are drawn with it
+		FontChain			_fontChain; // the lines are drawn with it, see FontPreviewTab::UpdateFontChain
 		uint32_t			_builtPreviewVersion = std::numeric_limits<uint32_t>::max();
 	};
 }

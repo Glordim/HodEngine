@@ -22,6 +22,7 @@
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/FontEditor/FontHelper.hpp"
 #include "HodEngine/Editor/MaterialEditor/MaterialImporter.hpp"
 #include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceCooker.hpp"
 #include "HodEngine/Editor/MaterialInstanceEditor/MaterialInstanceEditorTab.hpp"
@@ -288,6 +289,44 @@ namespace hod::inline editor
 					assetContainer.Save(assetPath);
 
 					context.assetBrowserWindow.Rename(assetPath);
+				},
+		});
+		RegisterContextualMenuAction({
+			.path = "Create/Font",
+			.group = "New",
+			.available =
+				+[](const Context& context)
+				{
+					// From faces: a text is drawn with a font, the family they are styles of
+					for (const Path& selectedItem : context.selectedItems)
+					{
+						AssetDatabase::FileSystemMapping* node = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(selectedItem);
+						if (node == nullptr || node->_asset == nullptr || node->_asset->GetType() != Hash::ComputeXxh3_64("FontFace"))
+						{
+							return false;
+						}
+					}
+					return context.selectedItems.Empty() == false;
+				},
+			.execute =
+				+[](const Context& context)
+				{
+					Vector<std::shared_ptr<Asset>> faceAssets;
+					for (const Path& selectedItem : context.selectedItems)
+					{
+						AssetDatabase::FileSystemMapping* node = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(selectedItem);
+						if (node != nullptr && node->_asset != nullptr)
+						{
+							faceAssets.PushBack(node->_asset);
+						}
+					}
+
+					// Its styles detected from the faces, the ones of their family in their folder with them
+					const Path assetPath = FontHelper::CreateFont(faceAssets, context.currentDirectory);
+					if (assetPath.Empty() == false)
+					{
+						context.assetBrowserWindow.Rename(assetPath);
+					}
 				},
 		});
 		for (const auto& pair : DataStructFactory::GetInstance()->GetAllDescriptors())
@@ -1432,7 +1471,7 @@ namespace hod::inline editor
 		{
 			return editor->GetMaterialTexture();
 		}
-		if (type == Hash::ComputeXxh3_64("Font"))
+		if (type == Hash::ComputeXxh3_64("Font") || type == Hash::ComputeXxh3_64("FontFace"))
 		{
 			return editor->GetFontTexture();
 		}

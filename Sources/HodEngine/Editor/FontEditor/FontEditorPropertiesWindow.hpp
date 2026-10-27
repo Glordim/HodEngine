@@ -8,7 +8,7 @@
 
 namespace hod::inline editor
 {
-	/// @brief The settings of the font (how its glyphs are drawn), then what the font file says about itself
+	/// @brief The family of the font: its faces for each style, its fallbacks, and the faces the preview is drawn with
 	class HOD_EDITOR_API FontEditorPropertiesWindow : public EditorTabWindow
 	{
 		REFLECTED_CLASS(FontEditorPropertiesWindow, EditorTabWindow)
@@ -25,17 +25,13 @@ namespace hod::inline editor
 
 	private:
 
-		void		DrawSettings();
-		void		DrawFallbacks();
 		void		DrawStyles();
-		void		DrawInformation();
-		bool		DetectPixelSize(); // into the settings, true when found
-		bool		DetectStyles();    // into the settings, true when some were added
+		void		DrawFallbacks();
+		void		DrawChain();
 
 	private:
 
-		String		_detectMessage; // what the last "Detect" of the pixel size found, shown under it
-		String		_detectStylesMessage; // what the last "Detect" of the styles found, shown under it
-		FontChain	_fontChain; // the one shown under the fallbacks
+		String		_detectMessage; // what the last "Detect" of the styles found, shown under it
+		FontChain	_fontChain;     // the one of the preview, shown at the bottom
 	};
 }

@@ -283,7 +283,7 @@ namespace hod::inline ui2
 		}
 
 		// The size is the one of the font drawn (the style): its fallbacks are drawn at it
-		const float drawnFontSize = _fontChain.GetFonts()[0]->GetDrawnFontSize(_fontSize);
+		const float drawnFontSize = _fontChain.GetFaceResources()[0]->GetDrawnFontSize(_fontSize);
 		if (_layoutDirty || chainChanged || _layoutFontSize != drawnFontSize)
 		{
 			if (Renderer::GetInstance()->GetTextShaper()->Shape(_value, _fontChain.GetFaces(), drawnFontSize, _layout) == false)
@@ -343,7 +343,7 @@ namespace hod::inline ui2
 		const float         maxWidth = widthFromContent ? std::numeric_limits<float>::max() : size.GetX();
 		const float         maxHeight = heightFromContent ? std::numeric_limits<float>::max() : size.GetY();
 
-		const FontResource&        fontResource = *_fontChain.GetFonts()[0];
+		const FontFaceResource&    fontResource = *_fontChain.GetFaceResources()[0];
 		ArrayView<const FontFace*> faces = _fontChain.GetFaces();
 		TextShaper*                textShaper = Renderer::GetInstance()->GetTextShaper();
 

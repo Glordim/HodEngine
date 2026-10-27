@@ -16,15 +16,15 @@ namespace hod::inline editor
 {
 	/// @brief The pages of the glyph atlas of the font: the glyphs rasterized so far, in every size and mode it was drawn in.
 	/// Zoomed and panned like the texture viewer
-	class HOD_EDITOR_API FontEditorAtlasWindow : public EditorTabWindow
+	class HOD_EDITOR_API FontFaceEditorAtlasWindow : public EditorTabWindow
 	{
-		REFLECTED_CLASS(FontEditorAtlasWindow, EditorTabWindow)
+		REFLECTED_CLASS(FontFaceEditorAtlasWindow, EditorTabWindow)
 
 	public:
 
-					FontEditorAtlasWindow() = default;
-					FontEditorAtlasWindow(EditorTab* editorTab);
-					~FontEditorAtlasWindow() override;
+					FontFaceEditorAtlasWindow() = default;
+					FontFaceEditorAtlasWindow(EditorTab* editorTab);
+					~FontFaceEditorAtlasWindow() override;
 
 	public:
 

@@ -85,7 +85,10 @@
 
 #include "HodEngine/Editor/FontEditor/FontCooker.hpp"
 #include "HodEngine/Editor/FontEditor/FontEditorTab.hpp"
-#include "HodEngine/Editor/FontEditor/FontImporter.hpp"
+#include "HodEngine/Editor/FontFaceEditor/FontFaceCooker.hpp"
+#include "HodEngine/Editor/FontFaceEditor/FontFaceEditorTab.hpp"
+#include "HodEngine/Editor/FontFaceEditor/FontFaceImporter.hpp"
+#include "HodEngine/Renderer/Resource/FontFaceResource.hpp"
 #include "HodEngine/Renderer/Resource/FontResource.hpp"
 
 #include "HodEngine/Editor/DataItemEditor/DataItemEditorTab.hpp"
@@ -352,7 +355,11 @@ namespace hod::inline editor
 		AssetDatabase::GetInstance()->RegisterResource<TextureResource>("Texture");
 		RegisterEditorTab<TextureEditorTab>("Texture");
 
-		AssetDatabase::GetInstance()->RegisterImporter<FontImporter>("ttf");
+		AssetDatabase::GetInstance()->RegisterImporter<FontFaceImporter>("ttf", "otf");
+		AssetDatabase::GetInstance()->RegisterCooker<FontFaceCooker>("FontFace");
+		AssetDatabase::GetInstance()->RegisterResource<FontFaceResource>("FontFace");
+		RegisterEditorTab<FontFaceEditorTab>("FontFace");
+
 		AssetDatabase::GetInstance()->RegisterCooker<FontCooker>("Font");
 		AssetDatabase::GetInstance()->RegisterResource<FontResource>("Font");
 		RegisterEditorTab<FontEditorTab>("Font");
