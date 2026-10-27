@@ -212,6 +212,22 @@ namespace hod::inline editor
 			// The parent of its elements (they reach the window through it), as the inspector makes it before drawing an array
 			fallbacksProperty->GetEditorReflectedObject();
 
+			// Not offered by the pickers: the font itself and the fallbacks already there
+			Vector<UID>            excludedFonts;
+			std::shared_ptr<Asset> fontAsset = fontEditorTab->GetAsset();
+			if (fontAsset != nullptr)
+			{
+				excludedFonts.PushBack(fontAsset->GetUid());
+			}
+			for (const WeakResource<FontResource>& fallback : fontSettings._fallbacks)
+			{
+				if (fallback.GetUid().IsValid())
+				{
+					excludedFonts.PushBack(fallback.GetUid());
+				}
+			}
+			PropertyDrawer::PushExcludedResources(excludedFonts);
+
 			const uint32_t fallbackCount = fontSettings._fallbacks.Size();
 			for (uint32_t index = 0; index < fallbackCount; ++index)
 			{
@@ -264,6 +280,7 @@ namespace hod::inline editor
 				}
 				ImGui::PopID();
 			}
+			PropertyDrawer::PopExcludedResources();
 			ImGui::EndTable();
 		}
 

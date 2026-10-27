@@ -179,6 +179,10 @@ namespace hod::inline editor
 
 			for (AssetDatabase::FileSystemMapping* assetNode : assetList)
 			{
+				if (PropertyDrawer::IsResourceExcluded(assetNode->_asset->GetUid())) // TODO: the list should be here (see PropertyDrawer::PushExcludedResources)
+				{
+					continue;
+				}
 				if (inputTextBuffer[0] == '\0' || assetNode->_asset->GetName().Find(inputTextBuffer) != String::Npos)
 				{
 					ImGui::PushID(assetNode);
