@@ -7,6 +7,7 @@
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
@@ -40,17 +41,29 @@ namespace hod::inline editor
 		SetTitle("Properties");
 	}
 
+	namespace
+	{
+		// Stable block ids, so a block's collapsed state survives reopening the tab
+		enum BlockId : uintptr_t
+		{
+			BlockStyles = 1,
+			BlockFallbacks,
+		};
+	}
+
 	/// @brief
 	void FontEditorPropertiesWindow::DrawContent()
 	{
-		if (ImGui::CollapsingHeader("Styles", ImGuiTreeNodeFlags_DefaultOpen))
+		if (DrawHelper::BeginInspectorBlock((const void*)BlockStyles, ICON_MDI_FORMAT_FONT, "Styles"))
 		{
 			DrawStyles();
 		}
-		if (ImGui::CollapsingHeader("Fallbacks", ImGuiTreeNodeFlags_DefaultOpen))
+		DrawHelper::EndInspectorBlock();
+		if (DrawHelper::BeginInspectorBlock((const void*)BlockFallbacks, ICON_MDI_FORMAT_LIST_NUMBERED, "Fallbacks"))
 		{
 			DrawFallbacks();
 		}
+		DrawHelper::EndInspectorBlock();
 		DrawChain();
 	}
 

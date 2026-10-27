@@ -5,6 +5,7 @@
 #include "HodEngine/RendererEditor/FontFaceEditor/FontFaceEditorTab.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/RendererEditor/FontEditor/FontHelper.hpp"
 
@@ -33,18 +34,30 @@ namespace hod::inline editor
 	}
 
 
+	namespace
+	{
+		// Stable block ids, so a block's collapsed state survives reopening the tab
+		enum BlockId : uintptr_t
+		{
+			BlockSettings = 1,
+			BlockInformation,
+		};
+	}
+
 	/// @brief
 	void FontFaceEditorPropertiesWindow::DrawContent()
 	{
 		DrawFonts();
-		if (ImGui::CollapsingHeader("Settings", ImGuiTreeNodeFlags_DefaultOpen))
+		if (DrawHelper::BeginInspectorBlock((const void*)BlockSettings, ICON_MDI_TUNE, "Settings"))
 		{
 			DrawSettings();
 		}
-		if (ImGui::CollapsingHeader("Information", ImGuiTreeNodeFlags_DefaultOpen))
+		DrawHelper::EndInspectorBlock();
+		if (DrawHelper::BeginInspectorBlock((const void*)BlockInformation, ICON_MDI_INFORMATION_OUTLINE, "Information"))
 		{
 			DrawInformation();
 		}
+		DrawHelper::EndInspectorBlock();
 	}
 
 	/// @brief A text is drawn with a font, not a face: the fonts the face is a style of, opened from here, or one made from it
