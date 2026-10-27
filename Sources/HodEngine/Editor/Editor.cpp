@@ -464,17 +464,19 @@ namespace hod::inline editor
 						ImGui::PopStyleVar();
 						if (visible)
 						{
-							auto it = _editorTabs.Begin();
-							while (it != _editorTabs.End())
+							// Index based: a tab can open another one while drawing (OpenAsset push_back may reallocate)
+							uint32_t index = 0;
+							while (index < _editorTabs.Size())
 							{
-								if ((*it)->Draw() == false)
+								EditorTab* editorTab = _editorTabs[index];
+								if (editorTab->Draw() == false)
 								{
-									DefaultAllocator::GetInstance().Delete(*it);
-									_editorTabs.Erase(it);
+									DefaultAllocator::GetInstance().Delete(editorTab);
+									_editorTabs.Erase(index);
 								}
 								else
 								{
-									++it;
+									++index;
 								}
 							}
 							ImGui::EndTabBar();
