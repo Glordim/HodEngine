@@ -1,6 +1,6 @@
-#include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/AudioEditor/AudioEditorTab.hpp"
-#include "HodEngine/Editor/AudioEditor/AudioEditorPropertiesWindow.hpp"
+#include "HodEngine/AudioEditor/Pch.hpp"
+#include "HodEngine/AudioEditor/AudioEditorTab.hpp"
+#include "HodEngine/AudioEditor/AudioEditorPropertiesWindow.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>

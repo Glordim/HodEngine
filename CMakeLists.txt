@@ -62,6 +62,7 @@ if (BUILD_EDITOR AND NOT ANDROID AND BUILD_SHARED_LIBS)
 	add_subdirectory("Sources/HodEngine/UI2Editor")
 	add_subdirectory("Sources/HodEngine/Editor")
 	add_subdirectory("Sources/HodEngine/RendererEditor")
+	add_subdirectory("Sources/HodEngine/AudioEditor")
 	add_subdirectory("Sources/HodEditor")
 endif()
 

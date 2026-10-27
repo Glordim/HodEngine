@@ -68,10 +68,6 @@
 
 #include "portable-file-dialogs.h"
 
-#include "HodEngine/Editor/AudioEditor/AudioEditorTab.hpp"
-#include "HodEngine/Editor/AudioEditor/AudioImporter.hpp"
-#include "HodEngine/Editor/AudioEditor/AudioCooker.hpp"
-#include "HodEngine/Audio/AudioResource.hpp"
 
 #include "HodEngine/Editor/PrefabEditor/PrefabEditorTab.hpp"
 #include "HodEngine/Editor/PrefabEditor/PrefabCooker.hpp"
@@ -255,7 +251,7 @@ namespace hod::inline editor
 	/// @return
 	bool Editor::LoadEditorModules()
 	{
-		StaticArray<const char*, 6> editorModules = {"CoreEditor", "InputEditor", "GameEditor", "UIEditor", "UI2Editor", "RendererEditor"};
+		StaticArray<const char*, 7> editorModules = {"CoreEditor", "InputEditor", "GameEditor", "UIEditor", "UI2Editor", "RendererEditor", "AudioEditor"};
 
 		for (const char* moduleName : editorModules)
 		{
@@ -325,11 +321,6 @@ namespace hod::inline editor
 	bool Editor::LoadEditor()
 	{
 		// Created with the editor (Init): the editor modules register their asset types into it when they load
-		AssetDatabase::GetInstance()->RegisterImporter<AudioImporter>("wav");
-		AssetDatabase::GetInstance()->RegisterCooker<AudioCooker>("Audio");
-		AssetDatabase::GetInstance()->RegisterResource<AudioResource>("Audio");
-		RegisterEditorTab<AudioEditorTab>("Audio");
-
 		AssetDatabase::GetInstance()->RegisterCooker<SceneCooker>("Scene");
 		AssetDatabase::GetInstance()->RegisterResource<SceneResource>("Scene");
 		RegisterEditorTab<SceneEditorTab>("Scene");

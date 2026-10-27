@@ -1,7 +1,7 @@
-#include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/AudioEditor/Pch.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
-#include "HodEngine/Editor/AudioEditor/AudioCooker.hpp"
+#include "HodEngine/AudioEditor/AudioCooker.hpp"
 #include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 

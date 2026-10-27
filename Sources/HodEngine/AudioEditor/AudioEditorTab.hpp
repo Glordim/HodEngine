@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/Editor/Export.hpp"
+#include "HodEngine/AudioEditor/Export.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
 
@@ -8,7 +8,7 @@
 namespace hod::inline editor
 {
 	/// @brief 
-	class HOD_EDITOR_API AudioEditorTab : public EditorTab
+	class HOD_AUDIO_EDITOR_API AudioEditorTab : public EditorTab
 	{
 	public:
 				AudioEditorTab(std::shared_ptr<Asset> asset);
