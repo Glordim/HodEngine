@@ -251,6 +251,17 @@ namespace hod::inline editor
 				{
 					ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1.0f), ICON_MDI_ALERT " The font itself: left out");
 				}
+				else if (uid.IsValid())
+				{
+					for (uint32_t previous = 0; previous < index; ++previous)
+					{
+						if (fontSettings._fallbacks[previous].GetUid() == uid)
+						{
+							ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1.0f), ICON_MDI_ALERT " Already fallback %u: left out", previous + 1);
+							break;
+						}
+					}
+				}
 				ImGui::PopID();
 			}
 			ImGui::EndTable();

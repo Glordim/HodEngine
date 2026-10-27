@@ -52,7 +52,16 @@ namespace hod::inline editor
 		Vector<UID> fallbacks;
 		for (const WeakResource<FontResource>& fallback : _fallbacks)
 		{
-			if (fallback.GetUid().IsValid() && fallback.GetUid() != font)
+			if (fallback.GetUid().IsValid() == false || fallback.GetUid() == font)
+			{
+				continue;
+			}
+			bool already = false;
+			for (const UID& previous : fallbacks)
+			{
+				already |= previous == fallback.GetUid();
+			}
+			if (already == false)
 			{
 				fallbacks.PushBack(fallback.GetUid());
 			}
