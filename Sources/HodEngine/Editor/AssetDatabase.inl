@@ -9,7 +9,7 @@ namespace hod::inline editor
 	{
 		// TODO check duplicate
 		ImporterEntry* entry = DefaultAllocator::GetInstance().New<ImporterEntry>();
-		entry->_factory = []() -> Importer* { return DefaultAllocator::GetInstance().New<_Importer_>(); };
+		entry->_factory = &NewImporter<_Importer_>;
 		for (const char* extension : {extensions...})
 		{
 			entry->_extensions.PushBack(String(extension));
@@ -17,6 +17,18 @@ namespace hod::inline editor
 
 		_importerEntries.PushBack(entry);
 		return true;
+	}
+
+	template<typename _Importer_>
+	void AssetDatabase::UnregisterImporter()
+	{
+		UnregisterImporter(&NewImporter<_Importer_>);
+	}
+
+	template<typename _Importer_>
+	Importer* AssetDatabase::NewImporter()
+	{
+		return DefaultAllocator::GetInstance().New<_Importer_>();
 	}
 
 	template<typename _Cooker_>

@@ -5,7 +5,7 @@
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
-#include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/EditorModuleRegistration.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include "HodEngine/RendererEditor/FontEditor/FontCooker.hpp"
@@ -41,12 +41,12 @@ using namespace hod::editor;
 
 namespace
 {
-	Vector<uint32_t> contextualMenuActionIds; // Of the actions registered in the asset browser, to unregister them
+	EditorModuleRegistration registration;
 
 	/// @brief "Create/Material Instance": of the selected material
 	void RegisterCreateMaterialInstance()
 	{
-		contextualMenuActionIds.PushBack(AssetBrowserWindow::RegisterContextualMenuAction({
+		registration.RegisterContextualMenuAction({
 			.path = "Create/Material Instance",
 			.group = "New",
 			.available =
@@ -91,13 +91,13 @@ namespace
 
 					context.assetBrowserWindow.Rename(assetPath);
 				},
-		}));
+		});
 	}
 
 	/// @brief "Create/Font": from the selected faces
 	void RegisterCreateFont()
 	{
-		contextualMenuActionIds.PushBack(AssetBrowserWindow::RegisterContextualMenuAction({
+		registration.RegisterContextualMenuAction({
 			.path = "Create/Font",
 			.group = "New",
 			.available =
@@ -134,37 +134,34 @@ namespace
 						context.assetBrowserWindow.Rename(assetPath);
 					}
 				},
-		}));
+		});
 	}
 }
 
 HOD_STARTUP_MODULE(RendererEditor)
 {
-	AssetDatabase* assetDatabase = AssetDatabase::GetInstance();
-	Editor*        editor = Editor::GetInstance();
+	registration.RegisterImporter<TextureImporter>("png", "tga", "jpg", "bmp", "psd", "gif", "hdr", "pic");
+	registration.RegisterCooker<TextureCooker>("Texture");
+	registration.RegisterResource<TextureResource>("Texture");
+	registration.RegisterEditorTab<TextureEditorTab>("Texture");
 
-	assetDatabase->RegisterImporter<TextureImporter>("png", "tga", "jpg", "bmp", "psd", "gif", "hdr", "pic");
-	assetDatabase->RegisterCooker<TextureCooker>("Texture");
-	assetDatabase->RegisterResource<TextureResource>("Texture");
-	editor->RegisterEditorTab<TextureEditorTab>("Texture");
+	registration.RegisterImporter<FontFaceImporter>("ttf", "otf");
+	registration.RegisterCooker<FontFaceCooker>("FontFace");
+	registration.RegisterResource<FontFaceResource>("FontFace");
+	registration.RegisterEditorTab<FontFaceEditorTab>("FontFace");
 
-	assetDatabase->RegisterImporter<FontFaceImporter>("ttf", "otf");
-	assetDatabase->RegisterCooker<FontFaceCooker>("FontFace");
-	assetDatabase->RegisterResource<FontFaceResource>("FontFace");
-	editor->RegisterEditorTab<FontFaceEditorTab>("FontFace");
+	registration.RegisterCooker<FontCooker>("Font");
+	registration.RegisterResource<FontResource>("Font");
+	registration.RegisterEditorTab<FontEditorTab>("Font");
 
-	assetDatabase->RegisterCooker<FontCooker>("Font");
-	assetDatabase->RegisterResource<FontResource>("Font");
-	editor->RegisterEditorTab<FontEditorTab>("Font");
+	registration.RegisterImporter<MaterialImporter>("slang");
+	registration.RegisterCooker<MaterialCooker>("Material");
+	registration.RegisterResource<MaterialResource>("Material");
+	registration.RegisterEditorTab<MaterialEditorTab>("Material");
 
-	assetDatabase->RegisterImporter<MaterialImporter>("slang");
-	assetDatabase->RegisterCooker<MaterialCooker>("Material");
-	assetDatabase->RegisterResource<MaterialResource>("Material");
-	editor->RegisterEditorTab<MaterialEditorTab>("Material");
-
-	assetDatabase->RegisterCooker<MaterialInstanceCooker>("MaterialInstance");
-	assetDatabase->RegisterResource<MaterialInstanceResource>("MaterialInstance");
-	editor->RegisterEditorTab<MaterialInstanceEditorTab>("MaterialInstance");
+	registration.RegisterCooker<MaterialInstanceCooker>("MaterialInstance");
+	registration.RegisterResource<MaterialInstanceResource>("MaterialInstance");
+	registration.RegisterEditorTab<MaterialInstanceEditorTab>("MaterialInstance");
 
 	RegisterCreateMaterialInstance();
 	RegisterCreateFont();
@@ -174,25 +171,6 @@ HOD_STARTUP_MODULE(RendererEditor)
 
 HOD_SHUTDOWN_MODULE(RendererEditor)
 {
-	for (uint32_t contextualMenuActionId : contextualMenuActionIds)
-	{
-		AssetBrowserWindow::UnregisterContextualMenuAction(contextualMenuActionId);
-	}
-	contextualMenuActionIds.Clear();
-
-	AssetDatabase* assetDatabase = AssetDatabase::GetInstance();
-	Editor*        editor = Editor::GetInstance();
-
-	for (std::string_view assetType : {"Texture", "FontFace", "Font", "Material", "MaterialInstance"})
-	{
-		editor->UnregisterEditorTab(assetType);
-		assetDatabase->UnregisterCooker(assetType);
-		assetDatabase->UnregisterResource(assetType);
-	}
-	for (std::string_view extension : {"png", "ttf", "slang"})
-	{
-		assetDatabase->UnregisterImporter(extension);
-	}
-
+	registration.UnregisterAll();
 	return 0;
 }

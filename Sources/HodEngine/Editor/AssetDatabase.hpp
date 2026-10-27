@@ -104,9 +104,10 @@ namespace hod::inline editor
 		template<typename _Resource_>
 		bool                   RegisterResource(std::string_view assetType);
 
-		// By the editor modules when they unload: their factories are in their code
+		// By the editor modules when they unload (through EditorModuleRegistration): their factories are in their code
 		void                   UnregisterCooker(std::string_view assetType);
-		void                   UnregisterImporter(std::string_view extension); // the importer of this extension, with all its extensions
+		template<typename _Importer_>
+		void                   UnregisterImporter();
 		void                   UnregisterResource(std::string_view assetType);
 
 		bool ReimportAssetIfNecessary(std::shared_ptr<Asset> asset);
@@ -152,6 +153,11 @@ namespace hod::inline editor
 		void FileSystemWatcherSourceOnChangeFile(const Path& path);
 
 		void ClearFilesystemMapping(FileSystemMapping& filesystemMapping);
+
+		/// @brief The factory of the entries of an importer type: identifies them to unregister it
+		template<typename _Importer_>
+		static Importer* NewImporter();
+		void             UnregisterImporter(Importer* (*factory)());
 
 	private:
 		/// @brief One entry per registered Cooker type. _assetType is cached at registration so matching a

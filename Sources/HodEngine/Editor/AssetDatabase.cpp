@@ -615,20 +615,16 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @param extension
-	void AssetDatabase::UnregisterImporter(std::string_view extension)
+	/// @param factory
+	void AssetDatabase::UnregisterImporter(Importer* (*factory)())
 	{
-		const String extensionLower = ToLowerCopy(extension);
 		for (uint32_t index = 0; index < _importerEntries.Size(); ++index)
 		{
-			for (const String& supportedExtension : _importerEntries[index]->_extensions)
+			if (_importerEntries[index]->_factory == factory)
 			{
-				if (supportedExtension == extensionLower)
-				{
-					DefaultAllocator::GetInstance().Delete(_importerEntries[index]);
-					_importerEntries.Erase(index);
-					return;
-				}
+				DefaultAllocator::GetInstance().Delete(_importerEntries[index]);
+				_importerEntries.Erase(index);
+				return;
 			}
 		}
 	}
