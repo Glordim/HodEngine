@@ -1,7 +1,7 @@
-#include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/GameEditor/Pch.hpp"
 #include "HodEngine/Core/Stream/SpillStream.hpp"
 #include "HodEngine/Editor/AssetContainer.hpp"
-#include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
+#include "HodEngine/GameEditor/SceneEditor/SceneEditorTab.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/HierachyWindow.hpp"

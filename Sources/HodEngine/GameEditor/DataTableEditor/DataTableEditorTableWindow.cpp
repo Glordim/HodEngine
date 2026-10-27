@@ -1,8 +1,8 @@
-#include "HodEngine/Editor/Pch.hpp"
+#include "HodEngine/GameEditor/Pch.hpp"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
-#include "HodEngine/Editor/DataTableEditor/DataTableEditorTab.hpp"
-#include "HodEngine/Editor/DataTableEditor/DataTableEditorTableWindow.hpp"
+#include "HodEngine/GameEditor/DataTableEditor/DataTableEditorTab.hpp"
+#include "HodEngine/GameEditor/DataTableEditor/DataTableEditorTableWindow.hpp"
 
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"

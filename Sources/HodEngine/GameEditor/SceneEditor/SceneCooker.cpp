@@ -1,5 +1,5 @@
-#include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/PrefabEditor/PrefabCooker.hpp"
+#include "HodEngine/GameEditor/Pch.hpp"
+#include "HodEngine/GameEditor/SceneEditor/SceneCooker.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetContainer.hpp"
@@ -9,7 +9,10 @@
 
 namespace hod::inline editor
 {
-	bool PrefabCooker::FillDataBlock(const Asset& asset, uint32_t /*platforms*/, uint8_t /*configs*/, uint32_t /*languages*/)
+	/// @brief 
+	/// @param path 
+	/// @return 
+	bool SceneCooker::FillDataBlock(const Asset& asset, uint32_t /*platforms*/, uint8_t /*configs*/, uint32_t /*languages*/)
 	{
 		AssetContainer assetContainer;
 		if (assetContainer.Load(asset.GetPath()) == false)

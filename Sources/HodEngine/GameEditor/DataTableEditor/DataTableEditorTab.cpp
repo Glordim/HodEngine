@@ -1,7 +1,7 @@
-#include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/DataTableEditor/DataTableEditorTab.hpp"
-#include "HodEngine/Editor/DataTableEditor/DataTableEditorTableWindow.hpp"
-#include "HodEngine/Editor/DataTableEditor/DataTableEditorPropertiesWindow.hpp"
+#include "HodEngine/GameEditor/Pch.hpp"
+#include "HodEngine/GameEditor/DataTableEditor/DataTableEditorTab.hpp"
+#include "HodEngine/GameEditor/DataTableEditor/DataTableEditorTableWindow.hpp"
+#include "HodEngine/GameEditor/DataTableEditor/DataTableEditorPropertiesWindow.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
 

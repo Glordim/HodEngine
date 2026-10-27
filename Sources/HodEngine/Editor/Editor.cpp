@@ -37,7 +37,6 @@
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/CMakeHelper.hpp"
 #include "HodEngine/Editor/Importer/ImportJob.hpp"
-#include "HodEngine/Editor/PrefabEditor/PrefabCooker.hpp"
 #include "HodEngine/Editor/RecentProjects.hpp"
 #include "HodEngine/Game/Scene.hpp"
 
@@ -69,22 +68,10 @@
 #include "portable-file-dialogs.h"
 
 
-#include "HodEngine/Editor/PrefabEditor/PrefabEditorTab.hpp"
-#include "HodEngine/Editor/PrefabEditor/PrefabCooker.hpp"
-#include "HodEngine/Game/PrefabResource.hpp"
-
-#include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
-#include "HodEngine/Editor/SceneEditor/SceneCooker.hpp"
-#include "HodEngine/Game/SceneResource.hpp"
 
 
-#include "HodEngine/Editor/DataItemEditor/DataItemEditorTab.hpp"
-#include "HodEngine/Editor/DataItemEditor/DataItemCooker.hpp"
-#include "HodEngine/Game/DataStruct/DataItemResource.hpp"
 
-#include "HodEngine/Editor/DataTableEditor/DataTableEditorTab.hpp"
-#include "HodEngine/Editor/DataTableEditor/DataTableCooker.hpp"
-#include "HodEngine/Game/DataStruct/DataTableResource.hpp"
+
 
 
 
@@ -321,22 +308,6 @@ namespace hod::inline editor
 	bool Editor::LoadEditor()
 	{
 		// Created with the editor (Init): the editor modules register their asset types into it when they load
-		AssetDatabase::GetInstance()->RegisterCooker<SceneCooker>("Scene");
-		AssetDatabase::GetInstance()->RegisterResource<SceneResource>("Scene");
-		RegisterEditorTab<SceneEditorTab>("Scene");
-
-		AssetDatabase::GetInstance()->RegisterCooker<PrefabCooker>("Prefab");
-		AssetDatabase::GetInstance()->RegisterResource<PrefabResource>("Prefab");
-		RegisterEditorTab<PrefabEditorTab>("Prefab");
-
-		AssetDatabase::GetInstance()->RegisterCooker<DataItemCooker>("DataItem");
-		AssetDatabase::GetInstance()->RegisterResource<DataItemResource>("DataItem");
-		RegisterEditorTab<DataItemEditorTab>("DataItem");
-
-		AssetDatabase::GetInstance()->RegisterCooker<DataTableCooker>("DataTable");
-		AssetDatabase::GetInstance()->RegisterResource<DataTableResource>("DataTable");
-		RegisterEditorTab<DataTableEditorTab>("DataTable");
-
 		AssetDatabase::GetInstance()->RegisterCooker<UIPrefabCooker>("UIPrefab");
 		AssetDatabase::GetInstance()->RegisterResource<UIPrefabResource>("UIPrefab");
 		RegisterEditorTab<UIPrefabEditorTab>("UIPrefab");

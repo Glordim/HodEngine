@@ -1,8 +1,8 @@
-#include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/DataTableEditor/DataTableEditorPropertiesWindow.hpp"
+#include "HodEngine/GameEditor/Pch.hpp"
+#include "HodEngine/GameEditor/DataTableEditor/DataTableEditorPropertiesWindow.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
-#include "HodEngine/Editor/DataTableEditor/DataTableEditorTab.hpp"
+#include "HodEngine/GameEditor/DataTableEditor/DataTableEditorTab.hpp"
 #include "HodEngine/Game/DataStruct/DataStruct.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>

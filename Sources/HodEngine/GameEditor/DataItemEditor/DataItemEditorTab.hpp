@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/Editor/Export.hpp"
+#include "HodEngine/GameEditor/Export.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
 
@@ -11,7 +11,7 @@
 namespace hod::inline editor
 {
 	/// @brief
-	class HOD_EDITOR_API DataItemEditorTab : public EditorTab
+	class HOD_GAME_EDITOR_API DataItemEditorTab : public EditorTab
 	{
 	public:
 				DataItemEditorTab(std::shared_ptr<Asset> asset);

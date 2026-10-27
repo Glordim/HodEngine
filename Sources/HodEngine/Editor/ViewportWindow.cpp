@@ -3,7 +3,7 @@
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
+#include "HodEngine/Editor/EntityBasedTabEditor/EntityEditorTab.hpp"
 #include "HodEngine/Editor/ViewportWindow.hpp"
 
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>

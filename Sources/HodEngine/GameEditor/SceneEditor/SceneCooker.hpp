@@ -1,11 +1,11 @@
 #pragma once
-#include "HodEngine/Editor/Export.hpp"
+#include "HodEngine/GameEditor/Export.hpp"
 
 #include "HodEngine/Editor/Cooker/Cooker.hpp"
 
 namespace hod::inline editor
 {
-	class HOD_EDITOR_API SceneCooker : public Cooker
+	class HOD_GAME_EDITOR_API SceneCooker : public Cooker
 	{
 	public:
 

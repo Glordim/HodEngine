@@ -5,8 +5,6 @@
 #include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Game/DataStruct/DataItemContainer.hpp"
-#include "HodEngine/Game/DataStruct/DataTableContainer.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
@@ -34,7 +32,6 @@
 #include "HodEngine/Game/PrefabResource.hpp"
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/SceneSerializer.hpp"
-#include "HodEngine/Game/DataStruct/DataStructFactory.hpp"
 #include "HodEngine/Game/World.hpp"
 
 #include <HodEngine/Core/Serialization/Serializer.hpp>
@@ -130,9 +127,9 @@ namespace hod::inline editor
 		ResyncFolderTree(&_folderTree);
 	}
 
-	/// @brief Rebuilds the contextual menu actions from scratch. Must be called whenever the project modules
-	/// (re)load, since some actions (eg. DataItem/DataTable creation) are derived from reflection descriptors coming
-	/// from the project DLL, which may not be loaded yet at static-init time and can change on hot-reload.
+	/// @brief Rebuilds the contextual menu actions of the editor itself, keeping the ones of the editor modules (called when
+	/// the project modules (re)load). The ones derived from the project DLL (eg. DataItem/DataTable creation, by GameEditor)
+	/// are registered again by their module then.
 	void AssetBrowserWindow::PopulateContextualMenuActions()
 	{
 		// The ones of the modules after the ones of the editor
@@ -211,40 +208,6 @@ namespace hod::inline editor
 				},
 		});
 		RegisterContextualMenuAction({
-			.path = "Create/Scene",
-			.group = "New",
-			.available = +[](const Context& context) { return context.selectedItems.Empty(); },
-			.execute =
-				+[](const Context& context)
-				{
-					Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / "NewScene.scene");
-
-					AssetContainer assetContainer;
-					assetContainer.SetAssetType(Hash::ComputeXxh3_64("Scene"));
-					assetContainer.SetUid(UID::GenerateUID());
-					assetContainer.Save(assetPath);
-
-					context.assetBrowserWindow.Rename(assetPath);
-				},
-		});
-		RegisterContextualMenuAction({
-			.path = "Create/Prefab",
-			.group = "New",
-			.available = +[](const Context& context) { return context.selectedItems.Empty(); },
-			.execute =
-				+[](const Context& context)
-				{
-					Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / "NewPrefab.prefab");
-
-					AssetContainer assetContainer;
-					assetContainer.SetAssetType(Hash::ComputeXxh3_64("Prefab"));
-					assetContainer.SetUid(UID::GenerateUID());
-					assetContainer.Save(assetPath);
-
-					context.assetBrowserWindow.Rename(assetPath);
-				},
-		});
-		RegisterContextualMenuAction({
 			.path = "Create/UI Prefab",
 			.group = "New",
 			.available = +[](const Context& context) { return context.selectedItems.Empty(); },
@@ -261,70 +224,6 @@ namespace hod::inline editor
 					context.assetBrowserWindow.Rename(assetPath);
 				},
 		});
-		for (const auto& pair : DataStructFactory::GetInstance()->GetAllDescriptors())
-		{
-			ReflectionDescriptor* descriptor = pair.second;
-			RegisterContextualMenuAction({
-				.path = String("Create/DataItem/") + descriptor->GetDisplayName(),
-				.group = "New",
-				.available = +[](const Context& context) { return context.selectedItems.Empty(); },
-				.execute =
-					[descriptor](const Context& context)
-					{
-						DataItemContainer dataItemContainer(descriptor->CreateInstance<DataStruct>());
-
-						Document settingsDocument;
-						Serializer::Serialize(dataItemContainer, settingsDocument.GetRootNode());
-
-						Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / (descriptor->GetDisplayName() + ".dataitem"));
-
-						AssetContainer assetContainer;
-						assetContainer.SetAssetType(Hash::ComputeXxh3_64("DataItem"));
-						assetContainer.SetSubType(descriptor->GetType());
-						assetContainer.SetUid(UID::GenerateUID());
-
-						Stream& settingsStream = assetContainer.AddDataBlock("Settings", false);
-						DocumentWriterJson documentWriter;
-						documentWriter.Write(settingsDocument, settingsStream);
-
-						assetContainer.Save(assetPath);
-
-						context.assetBrowserWindow.Rename(assetPath);
-					},
-			});
-		}
-		for (const auto& pair : DataStructFactory::GetInstance()->GetAllDescriptors())
-		{
-			ReflectionDescriptor* descriptor = pair.second;
-			RegisterContextualMenuAction({
-				.path = String("Create/DataTable/") + descriptor->GetDisplayName(),
-				.group = "New",
-				.available = +[](const Context& context) { return context.selectedItems.Empty(); },
-				.execute =
-					[descriptor](const Context& context)
-					{
-						DataTableContainer dataTableContainer(descriptor->GetType());
-
-						Document settingsDocument;
-						Serializer::Serialize(dataTableContainer, settingsDocument.GetRootNode());
-
-						Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / (descriptor->GetDisplayName() + ".datatable"));
-
-						AssetContainer assetContainer;
-						assetContainer.SetAssetType(Hash::ComputeXxh3_64("DataTable"));
-						assetContainer.SetSubType(descriptor->GetType());
-						assetContainer.SetUid(UID::GenerateUID());
-
-						Stream& settingsStream = assetContainer.AddDataBlock("Settings", false);
-						DocumentWriterJson documentWriter;
-						documentWriter.Write(settingsDocument, settingsStream);
-
-						assetContainer.Save(assetPath);
-
-						context.assetBrowserWindow.Rename(assetPath);
-					},
-			});
-		}
 		RegisterContextualMenuAction({
 			.path = "Reimport",
 			.group = "",
@@ -352,32 +251,6 @@ namespace hod::inline editor
 					if (asset != nullptr && asset->_asset != nullptr)
 					{
 						OpenExplorerAtPath(Project::GetInstance()->GetResourceDirPath() / (asset->_asset->GetUid().ToString() + ".dat").CStr());
-					}
-				},
-		});
-		RegisterContextualMenuAction({
-			.path = "Set as startup scene",
-			.group = "",
-			.available =
-				+[](const Context& context)
-				{
-					if (context.selectedItems.Size() == 1)
-					{
-						AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
-						if (asset != nullptr && asset->_asset != nullptr)
-						{
-							return asset->_asset->GetType() == Hash::ComputeXxh3_64("Scene");
-						}
-					}
-					return false;
-				},
-			.execute =
-				+[](const Context& context)
-				{
-					AssetDatabase::FileSystemMapping* asset = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(context.selectedItems[0]);
-					if (asset != nullptr && asset->_asset != nullptr)
-					{
-						Project::GetInstance()->SetStartupScene(asset->_asset);
 					}
 				},
 		});

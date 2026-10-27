@@ -1,5 +1,5 @@
-#include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/DataTableEditor/DataTableCooker.hpp"
+#include "HodEngine/GameEditor/Pch.hpp"
+#include "HodEngine/GameEditor/DataTableEditor/DataTableCooker.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetContainer.hpp"

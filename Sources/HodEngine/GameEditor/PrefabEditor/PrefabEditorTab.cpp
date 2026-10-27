@@ -1,5 +1,5 @@
-#include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/PrefabEditor/PrefabEditorTab.hpp"
+#include "HodEngine/GameEditor/Pch.hpp"
+#include "HodEngine/GameEditor/PrefabEditor/PrefabEditorTab.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/HierachyWindow.hpp"

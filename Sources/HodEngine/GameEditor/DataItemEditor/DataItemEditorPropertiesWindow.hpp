@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/Editor/Export.hpp"
+#include "HodEngine/GameEditor/Export.hpp"
 #include "HodEngine/Editor/EditorTabWindow.hpp"
 
 #include <HodEngine/ImGui/Window/Window.hpp>
@@ -18,7 +18,7 @@ namespace hod::inline editor
 	class EditorReflectedObject;
 
 	/// @brief
-	class HOD_EDITOR_API DataItemEditorPropertiesWindow : public EditorTabWindow
+	class HOD_GAME_EDITOR_API DataItemEditorPropertiesWindow : public EditorTabWindow
 	{
 		REFLECTED_CLASS(DataItemEditorPropertiesWindow, EditorTabWindow)
 

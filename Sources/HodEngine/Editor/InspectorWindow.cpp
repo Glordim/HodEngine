@@ -2,7 +2,7 @@
 #include "HodEngine/Editor/InspectorWindow.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
-#include "HodEngine/Editor/SceneEditor/SceneEditorTab.hpp"
+#include "HodEngine/Editor/EntityBasedTabEditor/EntityEditorTab.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
