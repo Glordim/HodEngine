@@ -46,6 +46,20 @@ namespace hod::inline renderer
 		{
 			infoDataBlock->_stream->Read(&_renderMode, sizeof(_renderMode));
 			infoDataBlock->_stream->Read(&_pixelSize, sizeof(_pixelSize));
+
+			uint32_t fallbackCount = 0;
+			if (infoDataBlock->_stream->Read(&fallbackCount, sizeof(fallbackCount)) == sizeof(fallbackCount))
+			{
+				_fallbacks.Clear();
+				for (uint32_t fallbackIndex = 0; fallbackIndex < fallbackCount; ++fallbackIndex)
+				{
+					uint64_t low = 0;
+					uint64_t high = 0;
+					infoDataBlock->_stream->Read(&low, sizeof(low));
+					infoDataBlock->_stream->Read(&high, sizeof(high));
+					_fallbacks.PushBack(UID(low, high));
+				}
+			}
 		}
 
 		const ResourceContainer::DataBlockInfo* ttfDataBlock = resourceContainer.FindDataBlock("ttf");
@@ -139,5 +153,26 @@ namespace hod::inline renderer
 
 		const float pixelSize = (float)_pixelSize;
 		return Max(1.0f, std::round(fontSize / pixelSize)) * pixelSize;
+	}
+
+	/// @brief
+	/// @return
+	GlyphCache::Mode FontResource::GetGlyphMode() const
+	{
+		return (_renderMode == RenderMode::PixelArt && _pixelSize != 0) ? GlyphCache::Mode::Pixel : GlyphCache::Mode::Bitmap;
+	}
+
+	/// @brief
+	/// @return
+	const Vector<UID>& FontResource::GetFallbacks() const
+	{
+		return _fallbacks;
+	}
+
+	/// @brief
+	/// @param fallbacks
+	void FontResource::SetFallbacks(const Vector<UID>& fallbacks)
+	{
+		_fallbacks = fallbacks;
 	}
 }

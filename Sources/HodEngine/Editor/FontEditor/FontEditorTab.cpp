@@ -101,6 +101,16 @@ namespace hod::inline editor
 		{
 			_font->SetRenderMode(_fontSettings._renderMode);
 			_font->SetPixelSize(_fontSettings._pixelSize);
+
+			Vector<UID> fallbacks;
+			for (const WeakResource<FontResource>& fallback : _fontSettings._fallbacks)
+			{
+				if (fallback.GetUid().IsValid())
+				{
+					fallbacks.PushBack(fallback.GetUid());
+				}
+			}
+			_font->SetFallbacks(fallbacks);
 		}
 		++_previewVersion;
 	}

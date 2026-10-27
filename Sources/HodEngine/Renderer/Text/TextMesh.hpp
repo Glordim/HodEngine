@@ -21,10 +21,19 @@ namespace hod::inline renderer
 	/// Positions in the space of the layout (x right, y up), from an origin on the baseline of the start of the line.
 	struct HOD_RENDERER_API TextMesh
 	{
+		// A font the layout was shaped with: how its glyphs are drawn
+		struct Font
+		{
+			GlyphCache*			_glyphCache = nullptr;
+			GlyphCache::Mode	_mode = GlyphCache::Mode::Bitmap;
+			uint32_t			_pixelSize = 0; // Pixel only: the size of the grid of the font
+		};
+
 		struct Batch
 		{
 			GlyphCache*			_glyphCache = nullptr; // the one of the font of its glyphs
 			uint32_t			_glyphCacheGeneration = 0;
+			GlyphCache::Mode	_mode = GlyphCache::Mode::Bitmap; // the one of its font: Pixel is drawn with a Nearest filter
 			uint32_t			_pageIndex = 0;
 			Vector<Vector2>		_positions;
 			Vector<Vector2>		_uvs;
@@ -38,10 +47,10 @@ namespace hod::inline renderer
 		Vector2			_inkMax;
 		bool			HasInk() const;
 
-		// glyphCaches: the ones of the faces the layout was shaped with, in the same order. The glyphs are rasterized in them when they are not yet.
+		// fonts: the ones of the faces the layout was shaped with, in the same order, each drawn its own way. The glyphs are rasterized in their caches when they are not yet.
 		// Bitmap: rasterized at the size rounded to a pixel, each glyph on whole units of the layout (pixels when the layout is drawn 1:1).
-		// Pixel: rasterized at pixelSize, the grid of the font, the size a whole multiple of it, each glyph on whole units of the layout
-		bool			Build(const TextLayout& layout, ArrayView<GlyphCache*> glyphCaches, float size, const Vector2& origin, GlyphCache::Mode mode, uint32_t pixelSize = 0);
+		// Pixel: rasterized at the grid of its font, the size a whole multiple of it, each glyph on whole units of the layout
+		bool			Build(const TextLayout& layout, ArrayView<Font> fonts, float size, const Vector2& origin);
 		void			Clear();
 
 		// A page it reads grew since it was built (or its cache was cleared): to build again. Its caches are to be alive

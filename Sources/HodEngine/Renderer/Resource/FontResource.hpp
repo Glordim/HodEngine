@@ -53,11 +53,19 @@ namespace hod::inline renderer
 		// The size a text is drawn at for a size asked for: PixelArt, the closest whole multiple of PixelSize, at least once
 		float				GetDrawnFontSize(float fontSize) const;
 
+		// How its glyphs are rasterized: Pixel when PixelArt with a PixelSize, Bitmap otherwise
+		GlyphCache::Mode	GetGlyphMode() const;
+
+		// The fonts the characters it lacks are drawn with, in the order they are looked into (their own fallbacks after each of them). See FontChain
+		const Vector<UID>&	GetFallbacks() const;
+		void				SetFallbacks(const Vector<UID>& fallbacks);
+
 	private:
 
 		FontFace			_fontFace;
 		GlyphCache			_glyphCache; // after the face: it reads it, it goes first
 		RenderMode			_renderMode = RenderMode::Smooth;
 		uint32_t			_pixelSize = 0;
+		Vector<UID>			_fallbacks; // not locked here: fonts falling back on each other would keep each other alive
 	};
 }

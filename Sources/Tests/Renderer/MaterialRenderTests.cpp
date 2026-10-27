@@ -700,9 +700,9 @@ TEST_F(MaterialRender, TextBitmapDrawsTheCoverageOfTheGlyphs)
 	ASSERT_GT(glyphCache.GetPageSize(0), GlyphCache::InitialPageSize);
 
 	// Centered: the capital is about 0.7 em high
-	GlyphCache* glyphCaches[] = {&glyphCache};
-	TextMesh    mesh;
-	ASSERT_TRUE(mesh.Build(layout, glyphCaches, fontSize, Vector2(-layout._width * 0.5f, -fontSize * 0.35f), GlyphCache::Mode::Bitmap));
+	TextMesh::Font fonts[] = {{&glyphCache, GlyphCache::Mode::Bitmap}};
+	TextMesh       mesh;
+	ASSERT_TRUE(mesh.Build(layout, fonts, fontSize, Vector2(-layout._width * 0.5f, -fontSize * 0.35f)));
 	ASSERT_EQ(mesh._batches.Size(), 1u);
 
 	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Text_Bitmap);
@@ -749,9 +749,9 @@ TEST_F(MaterialRender, TextPixelHasNoPixelBetweenTheColorAndTheBackground)
 	GlyphCache glyphCache;
 	ASSERT_TRUE(glyphCache.Init(face));
 
-	GlyphCache* glyphCaches[] = {&glyphCache};
-	TextMesh    mesh;
-	ASSERT_TRUE(mesh.Build(layout, glyphCaches, fontSize, Vector2(-std::round(layout._width * 0.5f), -12.0f), GlyphCache::Mode::Pixel, gridSize));
+	TextMesh::Font fonts[] = {{&glyphCache, GlyphCache::Mode::Pixel, gridSize}};
+	TextMesh       mesh;
+	ASSERT_TRUE(mesh.Build(layout, fonts, fontSize, Vector2(-std::round(layout._width * 0.5f), -12.0f)));
 	ASSERT_EQ(mesh._batches.Size(), 1u);
 
 	Sampler::CreateInfo nearest;

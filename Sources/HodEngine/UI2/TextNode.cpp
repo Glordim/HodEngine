@@ -230,30 +230,26 @@ namespace hod::inline ui2
 		}
 	}
 
-	/// @brief The font face is followed by its id: a font reloaded is shaped again. So is its render mode
+	/// @brief The font and its fallbacks are followed: shaped again when one of them is reloaded (another face), drawn otherwise, added or removed
 	/// @return
 	const TextLayout* TextNode::UpdateLayout() const
 	{
 		std::shared_ptr<FontResource> fontResource = _font.Lock();
-		if (fontResource == nullptr || fontResource->GetFontFace().IsLoaded() == false || _fontSize <= 0.0f)
+		const bool                    chainChanged = _fontChain.Update(fontResource);
+		if (_fontChain.Empty() || _fontChain.GetFonts()[0] != fontResource || _fontSize <= 0.0f)
 		{
 			return nullptr;
 		}
 
-		const FontFace& fontFace = fontResource->GetFontFace();
-		const float     drawnFontSize = fontResource->GetDrawnFontSize(_fontSize);
-		if (_layoutDirty || _layoutFontFaceId != fontFace.GetId() || _layoutFontSize != drawnFontSize || _layoutRenderMode != fontResource->GetRenderMode() ||
-		    _layoutPixelSize != fontResource->GetPixelSize())
+		// The size is the one of the font: its fallbacks are drawn at it
+		const float drawnFontSize = fontResource->GetDrawnFontSize(_fontSize);
+		if (_layoutDirty || chainChanged || _layoutFontSize != drawnFontSize)
 		{
-			const FontFace* faces[] = {&fontFace};
-			if (Renderer::GetInstance()->GetTextShaper()->Shape(_value, faces, drawnFontSize, _layout) == false)
+			if (Renderer::GetInstance()->GetTextShaper()->Shape(_value, _fontChain.GetFaces(), drawnFontSize, _layout) == false)
 			{
 				_layout.Clear();
 			}
-			_layoutFontFaceId = fontFace.GetId();
 			_layoutFontSize = drawnFontSize;
-			_layoutRenderMode = fontResource->GetRenderMode();
-			_layoutPixelSize = fontResource->GetPixelSize();
 			_layoutDirty = false;
 			_fittedDirty = true;
 		}
@@ -264,7 +260,14 @@ namespace hod::inline ui2
 	/// @return
 	bool TextNode::IsPixelArt() const
 	{
-		return _layoutRenderMode == FontResource::RenderMode::PixelArt && _layoutPixelSize != 0;
+		return _fontChain.Empty() == false && _fontChain.GetMeshFonts()[0]._mode == GlyphCache::Mode::Pixel;
+	}
+
+	/// @brief
+	/// @return
+	uint32_t TextNode::GetPixelSize() const
+	{
+		return _fontChain.Empty() ? 0 : _fontChain.GetMeshFonts()[0]._pixelSize;
 	}
 
 	/// @brief On the axes sized from the content the rect is the size of the text: it fits there whatever Overflow says
@@ -299,9 +302,9 @@ namespace hod::inline ui2
 		const float         maxWidth = widthFromContent ? std::numeric_limits<float>::max() : size.GetX();
 		const float         maxHeight = heightFromContent ? std::numeric_limits<float>::max() : size.GetY();
 
-		std::shared_ptr<FontResource> fontResource = _font.Lock();
-		const FontFace*               faces[] = {&fontResource->GetFontFace()};
-		TextShaper*                   textShaper = Renderer::GetInstance()->GetTextShaper();
+		const FontResource&        fontResource = *_fontChain.GetFonts()[0];
+		ArrayView<const FontFace*> faces = _fontChain.GetFaces();
+		TextShaper*                textShaper = Renderer::GetInstance()->GetTextShaper();
 
 		if (_overflow == Overflow::Shrink)
 		{
@@ -323,8 +326,8 @@ namespace hod::inline ui2
 
 			// A whole pixel size below the exact one (PixelArt: a whole multiple of its grid): it fits for sure (the exact one may be a hair wider
 			// once rounded), and is rasterized as is. Only what does not fit even at MinFontSize gets an ellipsis
-			const float step = IsPixelArt() ? (float)_layoutPixelSize : 1.0f;
-			const float minFontSize = Min(fontResource->GetDrawnFontSize(_minFontSize), _layoutFontSize);
+			const float step = IsPixelArt() ? (float)GetPixelSize() : 1.0f;
+			const float minFontSize = Min(fontResource.GetDrawnFontSize(_minFontSize), _layoutFontSize);
 			const float fittingFontSize = _layoutFontSize * scale;
 			if (fittingFontSize >= minFontSize)
 			{
@@ -379,13 +382,10 @@ namespace hod::inline ui2
 
 		const Vector2 requiredSize = GetLayoutSize(*layout);
 
-		// Built again too when the atlas of the font grew: the uvs of its glyphs changed
+		// Built again too when the atlas of a font grew: the uvs of its glyphs changed
 		if (_meshDirty || _mesh.IsOutdated())
 		{
-			std::shared_ptr<FontResource> fontResource = _font.Lock();
-			GlyphCache*                   glyphCaches[] = {&fontResource->GetGlyphCache()};
-			const GlyphCache::Mode        mode = IsPixelArt() ? GlyphCache::Mode::Pixel : GlyphCache::Mode::Bitmap;
-			_mesh.Build(*layout, glyphCaches, _fittedFontSize, Vector2(0.0f, 0.0f), mode, _layoutPixelSize);
+			_mesh.Build(*layout, _fontChain.GetMeshFonts(), _fittedFontSize, Vector2(0.0f, 0.0f));
 			_meshDirty = false;
 		}
 
@@ -436,12 +436,12 @@ namespace hod::inline ui2
 		nearestSamplerCreateInfo._filterMode = FilterMode::Nearest;
 		const Sampler* nearestSampler = RhiDevice::GetInstance()->GetSampler(nearestSamplerCreateInfo);
 
-		// One draw per atlas page the glyphs are in
+		// One draw per atlas page the glyphs are in, each font drawn its own way
 		for (const TextMesh::Batch& batch : _mesh._batches)
 		{
 			MaterialInstance* materialInstance = MaterialInstance::Create(material);
 			materialInstance->SetTexture("image", batch._glyphCache->GetPage(batch._pageIndex));
-			if (IsPixelArt())
+			if (batch._mode == GlyphCache::Mode::Pixel)
 			{
 				materialInstance->SetSampler("imageSampler", nearestSampler); // its texels are its pixels
 			}

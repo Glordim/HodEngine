@@ -82,11 +82,10 @@ namespace hod::inline editor
 		_lines.Clear();
 
 		const FontFace& face = font.GetFontFace();
-		const FontFace* faces[] = {&face};
-		_pixelArt = font.GetRenderMode() == FontResource::RenderMode::PixelArt && font.GetPixelSize() != 0;
+		const bool      pixelArt = font.GetGlyphMode() == GlyphCache::Mode::Pixel;
 
 		Vector<float> fontSizes;
-		if (_pixelArt)
+		if (pixelArt)
 		{
 			for (uint32_t multiple = 1; multiple <= 6; ++multiple)
 			{
@@ -101,18 +100,16 @@ namespace hod::inline editor
 			}
 		}
 
-		TextShaper*            textShaper = Renderer::GetInstance()->GetTextShaper();
-		GlyphCache*            glyphCaches[] = {&font.GetGlyphCache()};
-		const GlyphCache::Mode mode = _pixelArt ? GlyphCache::Mode::Pixel : GlyphCache::Mode::Bitmap;
+		TextShaper* textShaper = Renderer::GetInstance()->GetTextShaper();
 
 		float top = 0.0f;
 		for (float fontSize : fontSizes)
 		{
 			PreviewLine& line = _lines.EmplaceBack();
 			line._fontSize = fontSize;
-			line._label = _pixelArt ? String::Format("x%u  %u px", (uint32_t)fontSize / font.GetPixelSize(), (uint32_t)fontSize) : String::Format("%u px", (uint32_t)fontSize);
+			line._label = pixelArt ? String::Format("x%u  %u px", (uint32_t)fontSize / font.GetPixelSize(), (uint32_t)fontSize) : String::Format("%u px", (uint32_t)fontSize);
 
-			if (textShaper->Shape(text, faces, fontSize, line._layout) == false)
+			if (textShaper->Shape(text, _fontChain.GetFaces(), fontSize, line._layout) == false)
 			{
 				line._layout.Clear();
 			}
@@ -120,7 +117,7 @@ namespace hod::inline editor
 			// On whole pixels: the glyphs are, from it
 			line._baseline = std::round(top - line._layout._ascender);
 			line._xHeight = (float)face.GetXHeight() * fontSize / (float)face.GetUnitsPerEm();
-			line._mesh.Build(line._layout, glyphCaches, fontSize, Vector2(LabelColumnWidth, line._baseline), mode, font.GetPixelSize());
+			line._mesh.Build(line._layout, _fontChain.GetMeshFonts(), fontSize, Vector2(LabelColumnWidth, line._baseline));
 
 			top = line._baseline + line._layout._descender - line._layout._lineGap - LineSpacing;
 		}
@@ -245,9 +242,10 @@ namespace hod::inline editor
 		// The input first, for the text to be drawn where it is this frame
 		HandleInput(viewportPosition, viewportSize);
 
-		// A font reloaded has another face: laid out again
-		// Laid out again when the atlas of the font grew (a line, a text node...): the uvs of its glyphs changed
-		bool outdated = _builtPreviewVersion != fontEditorTab->GetPreviewVersion() || _builtFontFaceId != font->GetFontFace().GetId();
+		// Laid out again when the font or a fallback changed (reloaded, drawn otherwise, added...): see FontChain
+		// Laid out again when the atlas of a font grew (a line, a text node...): the uvs of its glyphs changed
+		const bool chainChanged = _fontChain.Update(font);
+		bool       outdated = _builtPreviewVersion != fontEditorTab->GetPreviewVersion() || chainChanged;
 		for (const PreviewLine& line : _lines)
 		{
 			outdated |= (outdated == false && line._mesh.IsOutdated());
@@ -257,7 +255,6 @@ namespace hod::inline editor
 		{
 			BuildLines(*font, fontEditorTab->GetPreviewText());
 			_builtPreviewVersion = fontEditorTab->GetPreviewVersion();
-			_builtFontFaceId = font->GetFontFace().GetId();
 
 			outdated = false;
 			for (const PreviewLine& line : _lines)
@@ -284,10 +281,13 @@ namespace hod::inline editor
 		const float   zoomFactor = fontEditorTab->GetZoomFactor();
 		const Matrix4 modelMatrix = Matrix4::Translation(Vector2(std::round(panOffset.GetX()), std::round(panOffset.GetY()))) * Matrix4::Scale(Vector2(zoomFactor, zoomFactor));
 
-		// Magnified, the texels are shown as they are: the pixels the text is drawn with
-		Sampler::CreateInfo samplerCreateInfo;
-		samplerCreateInfo._filterMode = (_pixelArt || zoomFactor > 1.0f) ? FilterMode::Nearest : FilterMode::Linear;
-		const Sampler*  sampler = RhiDevice::GetInstance()->GetSampler(samplerCreateInfo);
+		// Magnified, the texels are shown as they are: the pixels the text is drawn with. Pixel glyphs always (a fallback may be Smooth)
+		Sampler::CreateInfo nearestSamplerCreateInfo;
+		nearestSamplerCreateInfo._filterMode = FilterMode::Nearest;
+		Sampler::CreateInfo linearSamplerCreateInfo;
+		linearSamplerCreateInfo._filterMode = zoomFactor > 1.0f ? FilterMode::Nearest : FilterMode::Linear;
+		const Sampler*  nearestSampler = RhiDevice::GetInstance()->GetSampler(nearestSamplerCreateInfo);
+		const Sampler*  linearSampler = RhiDevice::GetInstance()->GetSampler(linearSamplerCreateInfo);
 		const Material* material = BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Text_Bitmap);
 
 		for (const PreviewLine& line : _lines)
@@ -297,7 +297,7 @@ namespace hod::inline editor
 				// One per frame: the one of the previous frame may still be in use by the GPU
 				MaterialInstance* materialInstance = MaterialInstance::Create(material);
 				materialInstance->SetTexture("image", batch._glyphCache->GetPage(batch._pageIndex));
-				materialInstance->SetSampler("imageSampler", sampler);
+				materialInstance->SetSampler("imageSampler", batch._mode == GlyphCache::Mode::Pixel ? nearestSampler : linearSampler);
 				materialInstance->SetVec4("ubo.color", Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 				frameResources.DeleteAfter(materialInstance);
 

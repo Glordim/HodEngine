@@ -40,20 +40,19 @@ namespace hod::inline renderer
 
 	/// @brief The glyphs are asked for first, all of them: a page that grows for one changes the uvs of the ones before it
 	/// @param layout
-	/// @param glyphCaches
+	/// @param fonts
 	/// @param size
 	/// @param origin
-	/// @param mode
-	/// @param pixelSize Pixel only: the size of the grid of the font
 	/// @return false when a glyph can't be rasterized: the others are drawn all the same
-	bool TextMesh::Build(const TextLayout& layout, ArrayView<GlyphCache*> glyphCaches, float size, const Vector2& origin, GlyphCache::Mode mode, uint32_t pixelSize)
+	bool TextMesh::Build(const TextLayout& layout, ArrayView<Font> fonts, float size, const Vector2& origin)
 	{
 		Clear();
 
-		if (mode == GlyphCache::Mode::Bitmap)
+		const uint32_t bitmapPixelSize = (uint32_t)Max(1.0f, std::round(size));
+		auto           getPixelSize = [bitmapPixelSize](const Font& font)
 		{
-			pixelSize = (uint32_t)Max(1.0f, std::round(size));
-		}
+			return font._mode == GlyphCache::Mode::Bitmap ? bitmapPixelSize : font._pixelSize;
+		};
 
 		bool                             built = true;
 		Vector<const GlyphCache::Glyph*> glyphs;
@@ -61,13 +60,14 @@ namespace hod::inline renderer
 		for (uint32_t glyphIndex = 0; glyphIndex < layout._glyphs.Size(); ++glyphIndex)
 		{
 			const TextLayout::Glyph& layoutGlyph = layout._glyphs[glyphIndex];
-			if (layoutGlyph._faceIndex >= glyphCaches.Size() || glyphCaches[layoutGlyph._faceIndex] == nullptr)
+			if (layoutGlyph._faceIndex >= fonts.Size() || fonts[layoutGlyph._faceIndex]._glyphCache == nullptr)
 			{
 				built = false;
 				continue;
 			}
 
-			glyphs[glyphIndex] = glyphCaches[layoutGlyph._faceIndex]->GetGlyph(layoutGlyph._glyphId, mode, pixelSize);
+			const Font& font = fonts[layoutGlyph._faceIndex];
+			glyphs[glyphIndex] = font._glyphCache->GetGlyph(layoutGlyph._glyphId, font._mode, getPixelSize(font));
 			if (glyphs[glyphIndex] == nullptr)
 			{
 				built = false;
@@ -84,11 +84,13 @@ namespace hod::inline renderer
 				continue;
 			}
 
-			GlyphCache* glyphCache = glyphCaches[layoutGlyph._faceIndex];
-			Batch*      batch = nullptr;
+			const Font&      font = fonts[layoutGlyph._faceIndex];
+			GlyphCache*      glyphCache = font._glyphCache;
+			GlyphCache::Mode mode = font._mode;
+			Batch*           batch = nullptr;
 			for (Batch& candidate : _batches)
 			{
-				if (candidate._glyphCache == glyphCache && candidate._pageIndex == glyph->_pageIndex)
+				if (candidate._glyphCache == glyphCache && candidate._mode == mode && candidate._pageIndex == glyph->_pageIndex)
 				{
 					batch = &candidate;
 					break;
@@ -99,6 +101,7 @@ namespace hod::inline renderer
 				batch = &_batches.EmplaceBack();
 				batch->_glyphCache = glyphCache;
 				batch->_glyphCacheGeneration = glyphCache->GetGeneration();
+				batch->_mode = mode;
 				batch->_pageIndex = glyph->_pageIndex;
 			}
 
@@ -118,7 +121,7 @@ namespace hod::inline renderer
 			}
 			if (mode == GlyphCache::Mode::Bitmap)
 			{
-				quadScale = (float)pixelSize;
+				quadScale = (float)bitmapPixelSize;
 			}
 			const Vector2 quadMin = glyphOrigin + glyph->_boundsMin * quadScale;
 			const Vector2 quadMax = glyphOrigin + glyph->_boundsMax * quadScale;

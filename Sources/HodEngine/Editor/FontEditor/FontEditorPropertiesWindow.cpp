@@ -4,6 +4,12 @@
 #include "HodEngine/Editor/FontEditor/FontCooker.hpp"
 #include "HodEngine/Editor/FontEditor/FontEditorTab.hpp"
 
+#include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/Editor/EditorReflectedObject.hpp"
+#include "HodEngine/Editor/EditorReflectedProperty.hpp"
+#include "HodEngine/Editor/PropertyDrawer.hpp"
+
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
@@ -11,6 +17,8 @@
 #include <HodEngine/Text/FontFace.hpp>
 
 #include <cinttypes>
+#include <limits>
+#include <utility>
 
 namespace hod::inline editor
 {
@@ -33,6 +41,10 @@ namespace hod::inline editor
 		if (ImGui::CollapsingHeader("Settings", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			DrawSettings();
+		}
+		if (ImGui::CollapsingHeader("Fallbacks", ImGuiTreeNodeFlags_DefaultOpen))
+		{
+			DrawFallbacks();
 		}
 		if (ImGui::CollapsingHeader("Information", ImGuiTreeNodeFlags_DefaultOpen))
 		{
@@ -126,6 +138,127 @@ namespace hod::inline editor
 		{
 			fontEditorTab->ApplySettings();
 			fontEditorTab->MarkAsDirty();
+		}
+	}
+
+	/// @brief The fonts the characters this one lacks are drawn with, in order: moved, removed, added. Applied as they are edited.
+	/// Under them, the whole chain a text is drawn with: their own fallbacks after each of them
+	void FontEditorPropertiesWindow::DrawFallbacks()
+	{
+		FontEditorTab* fontEditorTab = GetOwner<FontEditorTab>();
+		FontSettings&  fontSettings = fontEditorTab->GetFontSettings();
+		bool           changed = false;
+
+		ImGui::BeginDisabled();
+		ImGui::TextWrapped("The characters the font lacks are drawn with the first of these that has them.");
+		ImGui::EndDisabled();
+
+		// The picker of a resource, as the inspector draws it
+		EditorReflectedObject    reflectedObject(&fontSettings, &fontSettings.GetReflectionDescriptorV(), nullptr, this);
+		EditorReflectedProperty* fallbacksProperty = reflectedObject.FindProperty("Fallbacks");
+
+		uint32_t moveUp = std::numeric_limits<uint32_t>::max();
+		uint32_t moveDown = std::numeric_limits<uint32_t>::max();
+		uint32_t remove = std::numeric_limits<uint32_t>::max();
+		if (fallbacksProperty != nullptr && fontSettings._fallbacks.Empty() == false &&
+		    ImGui::BeginTable("##Fallbacks", 2, ImGuiTableFlags_PadOuterX | ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerH))
+		{
+			ImGui::TableSetupColumn("Order", ImGuiTableColumnFlags_WidthFixed);
+			ImGui::TableSetupColumn("Font", ImGuiTableColumnFlags_WidthStretch);
+
+			const uint32_t fallbackCount = fontSettings._fallbacks.Size();
+			for (uint32_t index = 0; index < fallbackCount; ++index)
+			{
+				ImGui::PushID((int)index);
+				ImGui::TableNextRow();
+
+				ImGui::TableNextColumn();
+				ImGui::AlignTextToFramePadding();
+				ImGui::Text("%u", index + 1);
+				ImGui::SameLine();
+				ImGui::BeginDisabled(index == 0);
+				if (ImGui::SmallButton(ICON_MDI_ARROW_UP))
+				{
+					moveUp = index;
+				}
+				ImGui::EndDisabled();
+				ImGui::SameLine(0.0f, 2.0f);
+				ImGui::BeginDisabled(index + 1 == fallbackCount);
+				if (ImGui::SmallButton(ICON_MDI_ARROW_DOWN))
+				{
+					moveDown = index;
+				}
+				ImGui::EndDisabled();
+				ImGui::SameLine(0.0f, 2.0f);
+				if (ImGui::SmallButton(ICON_MDI_CLOSE))
+				{
+					remove = index;
+				}
+
+				ImGui::TableNextColumn();
+				EditorReflectedProperty elementProperty = fallbacksProperty->GenerateElementProperty(index);
+				changed |= PropertyDrawer::DrawPropertyObject(elementProperty, true);
+
+				const UID& uid = fontSettings._fallbacks[index].GetUid();
+				std::shared_ptr<Asset> asset = fontEditorTab->GetAsset();
+				if (asset != nullptr && uid == asset->GetUid())
+				{
+					ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1.0f), ICON_MDI_ALERT " The font itself: left out");
+				}
+				ImGui::PopID();
+			}
+			ImGui::EndTable();
+		}
+
+		if (moveUp < fontSettings._fallbacks.Size())
+		{
+			std::swap(fontSettings._fallbacks[moveUp - 1], fontSettings._fallbacks[moveUp]);
+			changed = true;
+		}
+		if (moveDown < fontSettings._fallbacks.Size())
+		{
+			std::swap(fontSettings._fallbacks[moveDown], fontSettings._fallbacks[moveDown + 1]);
+			changed = true;
+		}
+		if (remove < fontSettings._fallbacks.Size())
+		{
+			fontSettings._fallbacks.Erase(remove);
+			changed = true;
+		}
+
+		if (ImGui::Button(ICON_MDI_PLUS " Add a fallback"))
+		{
+			fontSettings._fallbacks.EmplaceBack();
+			changed = true;
+		}
+
+		if (changed)
+		{
+			fontEditorTab->ApplySettings();
+			fontEditorTab->MarkAsDirty();
+		}
+
+		// What a text is drawn with: the fallbacks of the fallbacks included, each font once
+		std::shared_ptr<FontResource> font = fontEditorTab->GetFont();
+		if (font != nullptr && font->GetFallbacks().Empty() == false)
+		{
+			_fontChain.Update(font);
+
+			String chain;
+			for (const std::shared_ptr<FontResource>& chainFont : _fontChain.GetFonts())
+			{
+				std::shared_ptr<Asset> asset = AssetDatabase::GetInstance()->Find(chainFont->GetUid());
+				if (chain.Empty() == false)
+				{
+					chain += "  " ICON_MDI_ARROW_RIGHT "  ";
+				}
+				chain += asset != nullptr ? asset->GetName() : chainFont->GetUid().ToString();
+			}
+
+			ImGui::Spacing();
+			ImGui::BeginDisabled();
+			ImGui::TextWrapped("Drawn with: %s", chain.CStr());
+			ImGui::EndDisabled();
 		}
 	}
 

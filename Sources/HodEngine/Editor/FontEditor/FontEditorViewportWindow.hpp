@@ -5,6 +5,7 @@
 #include <HodEngine/Core/String.hpp>
 #include <HodEngine/Core/Vector.hpp>
 #include <HodEngine/ImGui/Window/Window.hpp>
+#include <HodEngine/Renderer/Text/FontChain.hpp>
 #include <HodEngine/Renderer/Text/TextMesh.hpp>
 #include <HodEngine/Text/TextLayout.hpp>
 
@@ -67,8 +68,7 @@ namespace hod::inline editor
 		RenderTarget*		_renderTarget = nullptr;
 
 		Vector<PreviewLine>	_lines;
-		bool				_pixelArt = false; // the lines are Pixel glyphs
+		FontChain			_fontChain; // the font and its fallbacks: the lines are drawn with it
 		uint32_t			_builtPreviewVersion = std::numeric_limits<uint32_t>::max();
-		uint32_t			_builtFontFaceId = 0;
 	};
 }

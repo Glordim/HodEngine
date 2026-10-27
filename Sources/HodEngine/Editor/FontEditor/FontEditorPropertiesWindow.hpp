@@ -4,6 +4,7 @@
 
 #include <HodEngine/Core/String.hpp>
 #include <HodEngine/ImGui/Window/Window.hpp>
+#include <HodEngine/Renderer/Text/FontChain.hpp>
 
 namespace hod::inline editor
 {
@@ -25,11 +26,13 @@ namespace hod::inline editor
 	private:
 
 		void		DrawSettings();
+		void		DrawFallbacks();
 		void		DrawInformation();
 		bool		DetectPixelSize(); // into the settings, true when found
 
 	private:
 
 		String		_detectMessage; // what the last "Detect" of the pixel size found, shown under it
+		FontChain	_fontChain; // the one shown under the fallbacks
 	};
 }

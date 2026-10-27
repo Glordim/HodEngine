@@ -4,6 +4,7 @@
 #include "HodEngine/Editor/Cooker/Cooker.hpp"
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 #include "HodEngine/Renderer/Resource/FontResource.hpp"
+#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 
 namespace hod::inline editor
 {
@@ -15,6 +16,7 @@ namespace hod::inline editor
 	public:
 		FontResource::RenderMode	_renderMode = FontResource::RenderMode::Smooth;
 		uint32_t					_pixelSize = 0; // PixelArt only, see FontResource::GetPixelSize
+		Vector<WeakResource<FontResource>>	_fallbacks; // see FontResource::GetFallbacks
 	};
 
 	class HOD_EDITOR_API FontCooker : public Cooker

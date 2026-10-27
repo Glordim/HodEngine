@@ -3,6 +3,9 @@
 
 #include "HodEngine/Editor/FontEditor/FontEditorTab.hpp"
 
+#include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
+
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
@@ -169,35 +172,51 @@ namespace hod::inline editor
 		DefaultAllocator::GetInstance().Delete(_renderTarget);
 	}
 
-	/// @brief The characters of the set that are drawn (assigned, not controls nor spaces), the font has a glyph for or not.
+	/// @brief The characters of the set that are drawn (assigned, not controls nor spaces), the font has a glyph for, a fallback, or none.
 	/// Or the ones searched for, whatever they are: what is searched for is shown
-	/// @param face
-	void FontEditorGlyphsWindow::UpdateCells(const FontFace& face)
+	void FontEditorGlyphsWindow::UpdateCells()
 	{
 		_cells.Clear();
 		_characterCount = 0;
+		_fallbackCount = 0;
 		_missingCount = 0;
 
-		const bool          searching = _search[0] != '\0';
-		const CharacterSet& characterSet = CharacterSets[_characterSetIndex];
-		auto                addCharacter = [&](char32_t codepoint)
+		const ArrayView<const FontFace*> faces = _fontChain.GetFaces();
+		const FontFace&                  face = *faces[0];
+		const bool                       searching = _search[0] != '\0';
+		const CharacterSet&              characterSet = CharacterSets[_characterSetIndex];
+		auto                             addCharacter = [&](char32_t codepoint)
 		{
 			if (searching == false && IsDrawnCharacter(codepoint) == false)
 			{
 				return;
 			}
 
+			// The first of the chain that has it, as a text is shaped
+			uint32_t glyphId = 0;
+			uint32_t fontIndex = 0;
+			for (uint32_t faceIndex = 0; faceIndex < faces.Size() && glyphId == 0; ++faceIndex)
+			{
+				glyphId = faces[faceIndex]->GetGlyphId(codepoint);
+				fontIndex = faceIndex;
+			}
+
 			++_characterCount;
-			const uint32_t glyphId = face.GetGlyphId(codepoint);
 			if (glyphId == 0)
 			{
 				++_missingCount;
 			}
-			if (_onlyMissing == false || glyphId == 0)
+			else if (fontIndex != 0)
+			{
+				++_fallbackCount;
+			}
+			// Missing from the font: a fallback has it or not
+			if (_onlyMissing == false || glyphId == 0 || fontIndex != 0)
 			{
 				Cell& cell = _cells.EmplaceBack();
 				cell._codepoint = codepoint;
 				cell._glyphId = glyphId;
+				cell._fontIndex = glyphId != 0 ? fontIndex : 0;
 			}
 		};
 
@@ -231,10 +250,11 @@ namespace hod::inline editor
 	/// @brief The set, what the font has of it, the filter
 	void FontEditorGlyphsWindow::DrawToolbar()
 	{
-		// The set does not count while searching
-		ImGui::BeginDisabled(_search[0] != '\0');
+		// The set does not count while searching: the combo says so
+		const bool searching = _search[0] != '\0';
+		ImGui::BeginDisabled(searching);
 		ImGui::SetNextItemWidth(220.0f);
-		if (ImGui::BeginCombo("##CharacterSet", CharacterSets[_characterSetIndex]._name))
+		if (ImGui::BeginCombo("##CharacterSet", searching ? "Search results" : CharacterSets[_characterSetIndex]._name))
 		{
 			for (uint32_t index = 0; index < std::size(CharacterSets); ++index)
 			{
@@ -257,7 +277,12 @@ namespace hod::inline editor
 
 		ImGui::SameLine(0.0f, 16.0f);
 		ImGui::AlignTextToFramePadding();
-		ImGui::Text("%u / %u", _characterCount - _missingCount, _characterCount);
+		ImGui::Text("%u / %u", _characterCount - _fallbackCount - _missingCount, _characterCount);
+		if (_fallbackCount != 0)
+		{
+			ImGui::SameLine();
+			ImGui::TextColored(ImVec4(1.0f, 0.7f, 0.3f, 1.0f), "%u from fallbacks", _fallbackCount);
+		}
 		if (_missingCount != 0)
 		{
 			ImGui::SameLine();
@@ -266,23 +291,28 @@ namespace hod::inline editor
 
 		ImGui::SameLine(0.0f, 16.0f);
 		ImGui::Checkbox("Only the missing", &_onlyMissing);
+		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+		{
+			ImGui::SetTooltip("The characters the font lacks, a fallback has them or not");
+		}
 	}
 
 	/// @brief The grid scrolls in a child window: only its visible rows are drawn, into a render target of the size of the view
 	void FontEditorGlyphsWindow::DrawContent()
 	{
 		std::shared_ptr<FontResource> font = GetOwner<FontEditorTab>()->GetFont();
-		if (font == nullptr || font->GetFontFace().IsLoaded() == false)
+		const bool                    chainChanged = _fontChain.Update(font);
+		if (_fontChain.Empty() || _fontChain.GetFonts()[0] != font)
 		{
 			ImGui::TextDisabled("The font is not loaded");
 			return;
 		}
 		const FontFace& face = font->GetFontFace();
 
-		if (_builtFontFaceId != face.GetId() || _builtCharacterSetIndex != _characterSetIndex || _builtOnlyMissing != _onlyMissing || _builtSearch != String(_search))
+		// Again when the font or a fallback changed: reloaded, added, removed...
+		if (chainChanged || _builtCharacterSetIndex != _characterSetIndex || _builtOnlyMissing != _onlyMissing || _builtSearch != String(_search))
 		{
-			UpdateCells(face);
-			_builtFontFaceId = face.GetId();
+			UpdateCells();
 			_builtCharacterSetIndex = _characterSetIndex;
 			_builtOnlyMissing = _onlyMissing;
 			_builtSearch = _search;
@@ -324,13 +354,11 @@ namespace hod::inline editor
 		const uint32_t firstRow = (uint32_t)(scroll / CellSize);
 		const uint32_t lastRow = Min(rowCount, (uint32_t)std::ceil((scroll + viewHeight) / CellSize));
 
-		// The glyphs of the visible cells, centered in their cell on a baseline that fits the line of the font
-		const bool             pixelArt = font->GetRenderMode() == FontResource::RenderMode::PixelArt && font->GetPixelSize() != 0;
-		const float            glyphSize = font->GetDrawnFontSize(GlyphSize);
-		const float            unitsToPixels = glyphSize / (float)face.GetUnitsPerEm();
-		const float            lineHeight = (float)(face.GetAscender() - face.GetDescender()) * unitsToPixels;
-		const float            baselineFromTop = std::round((CellSize - LabelHeight - lineHeight) * 0.5f + (float)face.GetAscender() * unitsToPixels);
-		const GlyphCache::Mode mode = pixelArt ? GlyphCache::Mode::Pixel : GlyphCache::Mode::Bitmap;
+		// The glyphs of the visible cells, centered in their cell on a baseline that fits the line of the font. The ones of the fallbacks at its size
+		const float glyphSize = font->GetDrawnFontSize(GlyphSize);
+		const float unitsToPixels = glyphSize / (float)face.GetUnitsPerEm();
+		const float lineHeight = (float)(face.GetAscender() - face.GetDescender()) * unitsToPixels;
+		const float baselineFromTop = std::round((CellSize - LabelHeight - lineHeight) * 0.5f + (float)face.GetAscender() * unitsToPixels);
 
 		TextLayout layout;
 		for (uint32_t row = firstRow; row < lastRow; ++row)
@@ -343,18 +371,20 @@ namespace hod::inline editor
 					continue;
 				}
 
-				const float advance = (float)face.GetGlyphAdvance(_cells[cellIndex]._glyphId) * unitsToPixels;
-				const float cellTop = (float)row * CellSize - scroll;
+				const Cell&     cell = _cells[cellIndex];
+				const FontFace& cellFace = *_fontChain.GetFaces()[cell._fontIndex];
+				const float     advance = (float)cellFace.GetGlyphAdvance(cell._glyphId) * glyphSize / (float)cellFace.GetUnitsPerEm();
+				const float     cellTop = (float)row * CellSize - scroll;
 
 				TextLayout::Glyph& glyph = layout._glyphs.EmplaceBack();
-				glyph._glyphId = _cells[cellIndex]._glyphId;
+				glyph._glyphId = cell._glyphId;
+				glyph._faceIndex = cell._fontIndex;
 				glyph._position = Vector2((float)column * CellSize + std::round((CellSize - advance) * 0.5f), -(std::round(cellTop) + baselineFromTop)); // y up
 				glyph._advance = advance;
 			}
 		}
 
-		GlyphCache* glyphCaches[] = {&font->GetGlyphCache()};
-		_mesh.Build(layout, glyphCaches, glyphSize, Vector2(0.0f, 0.0f), mode, font->GetPixelSize());
+		_mesh.Build(layout, _fontChain.GetMeshFonts(), glyphSize, Vector2(0.0f, 0.0f));
 
 		FrameResources& frameResources = Renderer::GetInstance()->GetCurrentFrameResources();
 		RenderView*     renderView = frameResources.CreateRenderView();
@@ -368,16 +398,20 @@ namespace hod::inline editor
 		// One unit per pixel, origin at the top left of the view, y up
 		renderView->SetupCamera(Matrix4::OrthogonalProjection(0.0f, (float)resolutionWidth, -(float)resolutionHeight, 0.0f, -1024, 1024), Matrix4::Identity, viewport);
 
-		Sampler::CreateInfo samplerCreateInfo;
-		samplerCreateInfo._filterMode = pixelArt ? FilterMode::Nearest : FilterMode::Linear;
-		const Sampler*  sampler = RhiDevice::GetInstance()->GetSampler(samplerCreateInfo);
+		// Each font drawn its own way: Pixel glyphs with a Nearest filter
+		Sampler::CreateInfo nearestSamplerCreateInfo;
+		nearestSamplerCreateInfo._filterMode = FilterMode::Nearest;
+		Sampler::CreateInfo linearSamplerCreateInfo;
+		linearSamplerCreateInfo._filterMode = FilterMode::Linear;
+		const Sampler*  nearestSampler = RhiDevice::GetInstance()->GetSampler(nearestSamplerCreateInfo);
+		const Sampler*  linearSampler = RhiDevice::GetInstance()->GetSampler(linearSamplerCreateInfo);
 		const Material* material = BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Text_Bitmap);
 		for (const TextMesh::Batch& batch : _mesh._batches)
 		{
 			// One per frame: the one of the previous frame may still be in use by the GPU
 			MaterialInstance* materialInstance = MaterialInstance::Create(material);
 			materialInstance->SetTexture("image", batch._glyphCache->GetPage(batch._pageIndex));
-			materialInstance->SetSampler("imageSampler", sampler);
+			materialInstance->SetSampler("imageSampler", batch._mode == GlyphCache::Mode::Pixel ? nearestSampler : linearSampler);
 			materialInstance->SetVec4("ubo.color", Vector4(1.0f, 1.0f, 1.0f, 1.0f));
 			frameResources.DeleteAfter(materialInstance);
 
@@ -389,10 +423,12 @@ namespace hod::inline editor
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
 		drawList->AddImage(_renderTarget->GetColorTexture(), viewPosition, ImVec2(viewPosition.x + (float)resolutionWidth, viewPosition.y + (float)resolutionHeight));
 
-		// The cells: their frame, the missing ones in red, the codepoints under them
+		// The cells: their frame, the ones from a fallback in orange, the missing ones in red, the codepoints under them
 		const ImU32 frameColor = IM_COL32(70, 70, 70, 255);
+		const ImU32 fallbackColor = IM_COL32(230, 150, 40, 60);
 		const ImU32 missingColor = IM_COL32(200, 60, 50, 90);
 		const ImU32 labelColor = IM_COL32(140, 140, 140, 255);
+		const ImU32 fallbackLabelColor = IM_COL32(255, 180, 80, 255);
 		const ImU32 missingLabelColor = IM_COL32(255, 120, 110, 255);
 		const ImVec2 mouse = ImGui::GetIO().MousePos;
 		bool         hovered = false;
@@ -415,12 +451,16 @@ namespace hod::inline editor
 				{
 					drawList->AddRectFilled(cellMin, cellMax, missingColor);
 				}
+				else if (cell._fontIndex != 0)
+				{
+					drawList->AddRectFilled(cellMin, cellMax, fallbackColor);
+				}
 				drawList->AddRect(cellMin, ImVec2(cellMax.x + 1.0f, cellMax.y + 1.0f), frameColor);
 
 				const String label = String::Format("%04X", (uint32_t)cell._codepoint);
 				const ImVec2 labelSize = ImGui::CalcTextSize(label.CStr());
 				drawList->AddText(ImVec2(cellMin.x + (CellSize - labelSize.x) * 0.5f, cellMax.y - LabelHeight + (LabelHeight - labelSize.y) * 0.5f),
-				                  cell._glyphId == 0 ? missingLabelColor : labelColor, label.CStr());
+				                  cell._glyphId == 0 ? missingLabelColor : (cell._fontIndex != 0 ? fallbackLabelColor : labelColor), label.CStr());
 
 				if (ImGui::IsWindowHovered() && mouse.x >= cellMin.x && mouse.x < cellMax.x && mouse.y >= cellMin.y && mouse.y < cellMax.y)
 				{
@@ -429,7 +469,16 @@ namespace hod::inline editor
 					hovered = true;
 					if (cell._glyphId == 0)
 					{
-						ImGui::SetTooltip("U+%04X\nMissing from the font", (uint32_t)cell._codepoint);
+						ImGui::SetTooltip(_fontChain.GetFonts().Size() > 1 ? "U+%04X\nMissing from the font and its fallbacks" : "U+%04X\nMissing from the font",
+						                  (uint32_t)cell._codepoint);
+					}
+					else if (cell._fontIndex != 0)
+					{
+						const FontResource&    fallback = *_fontChain.GetFonts()[cell._fontIndex];
+						std::shared_ptr<Asset> fallbackAsset = AssetDatabase::GetInstance()->Find(fallback.GetUid());
+						const String           fallbackName = fallbackAsset != nullptr ? fallbackAsset->GetName() : fallback.GetUid().ToString();
+						ImGui::SetTooltip("U+%04X\nMissing from the font, drawn with the fallback %s\nGlyph %u\nAdvance %d units", (uint32_t)cell._codepoint, fallbackName.CStr(),
+						                  cell._glyphId, fallback.GetFontFace().GetGlyphAdvance(cell._glyphId));
 					}
 					else
 					{

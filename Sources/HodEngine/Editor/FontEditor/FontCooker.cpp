@@ -18,12 +18,13 @@ namespace hod::inline editor
 	{
 		AddPropertyT(reflectionDescriptor, &FontSettings::_renderMode, "RenderMode");
 		AddPropertyT(reflectionDescriptor, &FontSettings::_pixelSize, "PixelSize");
+		AddPropertyT(reflectionDescriptor, &FontSettings::_fallbacks, "Fallbacks");
 	}
 
 	/// @brief
 	FontCooker::FontCooker()
 	{
-		SetCookerVersion(1); // 1: the Info data block
+		SetCookerVersion(2); // 1: the Info data block, 2: the fallbacks in it
 	}
 
 	bool FontCooker::FillDataBlock(const Asset& asset, uint32_t platforms, uint8_t configs, uint32_t languages)
@@ -66,6 +67,25 @@ namespace hod::inline editor
 		Stream& infoOutStream = AddDataBlockStream("Info", false, std::to_underlying(Platform::All), std::to_underlying(Config::All), std::to_underlying(ResourceVariant::Language::All));
 		infoOutStream.Write(&fontSettings._renderMode, sizeof(fontSettings._renderMode));
 		infoOutStream.Write(&fontSettings._pixelSize, sizeof(fontSettings._pixelSize));
+
+		// None set ("None" picked) are left out
+		Vector<UID> fallbacks;
+		for (const WeakResource<FontResource>& fallback : fontSettings._fallbacks)
+		{
+			if (fallback.GetUid().IsValid() && fallback.GetUid() != asset.GetUid())
+			{
+				fallbacks.PushBack(fallback.GetUid());
+			}
+		}
+		const uint32_t fallbackCount = fallbacks.Size();
+		infoOutStream.Write(&fallbackCount, sizeof(fallbackCount));
+		for (const UID& fallback : fallbacks)
+		{
+			const uint64_t low = fallback.GetLow();
+			const uint64_t high = fallback.GetHigh();
+			infoOutStream.Write(&low, sizeof(low));
+			infoOutStream.Write(&high, sizeof(high));
+		}
 
 		Stream& ttfOutStream = AddDataBlockStream("ttf", true, std::to_underlying(Platform::All), std::to_underlying(Config::All), std::to_underlying(ResourceVariant::Language::All));
 		if (ttfOutStream.Write(ttf.Data(), ttf.Size()) != ttf.Size())

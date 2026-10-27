@@ -6,6 +6,7 @@
 #include <HodEngine/GameSystems/Resource/WeakResource.hpp>
 #include <HodEngine/Math/Color.hpp>
 #include <HodEngine/Renderer/Resource/FontResource.hpp>
+#include <HodEngine/Renderer/Text/FontChain.hpp>
 #include <HodEngine/Renderer/Text/TextMesh.hpp>
 #include <HodEngine/Text/TextLayout.hpp>
 
@@ -96,7 +97,8 @@ namespace hod::inline ui2
 		const TextLayout*					UpdateFittedLayout(const Vector2& size);
 
 		static Vector2						GetLayoutSize(const TextLayout& layout); // of the line: its width, from its ascender to its descender
-		bool								IsPixelArt() const; // the font of the layout
+		bool								IsPixelArt() const;   // the font of the layout (not its fallbacks)
+		uint32_t							GetPixelSize() const; // its grid, PixelArt
 
 	private:
 
@@ -111,11 +113,9 @@ namespace hod::inline ui2
 		Color								_color = Color(1.0f, 1.0f, 1.0f, 1.0f);
 
 		// Kept from one frame to the next, made again when what they are made from changes
+		mutable FontChain					_fontChain; // the font, its fallbacks: the layout is shaped with it
 		mutable TextLayout					_layout;
-		mutable uint32_t					_layoutFontFaceId = 0;
 		mutable float						_layoutFontSize = 0.0f; // the one it is drawn at, see FontResource::GetDrawnFontSize
-		mutable FontResource::RenderMode	_layoutRenderMode = FontResource::RenderMode::Smooth;
-		mutable uint32_t					_layoutPixelSize = 0;
 		mutable bool						_layoutDirty = true;
 
 		TextLayout							_fittedLayout;

@@ -4,6 +4,7 @@
 
 #include <HodEngine/Renderer/Text/GlyphCache.hpp>
 #include <HodEngine/Renderer/Text/SkylinePacker.hpp>
+#include <HodEngine/Renderer/Text/TextMesh.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/RHI/Texture.hpp>
 #include <HodEngine/Text/FontFace.hpp>
@@ -368,4 +369,45 @@ TEST_F(GlyphCacheTest, PixelGlyphIsOnTheGridOfTheFont)
 	RhiDevice::GetInstance()->WaitIdle();
 	silkscreenCache.Clear(); // before the face it reads
 	delete silkscreen;
+}
+
+// A pixel art font, a smooth fallback for what it lacks: each font drawn its own way, in its own batch
+TEST_F(GlyphCacheTest, EachFontOfAMeshIsDrawnItsOwnWay)
+{
+	FontFace*  silkscreen = LoadFace("Silkscreen-Regular.ttf");
+	FontFace*  notoSansSc = LoadFace("NotoSansSC-Regular.ttf");
+	GlyphCache silkscreenCache;
+	GlyphCache notoSansScCache;
+	ASSERT_TRUE(silkscreenCache.Init(*silkscreen));
+	ASSERT_TRUE(notoSansScCache.Init(*notoSansSc));
+
+	// "H" then a CJK ideograph Silkscreen lacks
+	const FontFace* faces[] = {silkscreen, notoSansSc};
+	TextShaper      shaper;
+	TextLayout      layout;
+	ASSERT_TRUE(shaper.Shape("H\xE4\xB8\xAD", faces, 32.0f, layout));
+	ASSERT_EQ(layout._glyphs.Size(), 2u);
+	EXPECT_EQ(layout._glyphs[0]._faceIndex, 0u);
+	EXPECT_EQ(layout._glyphs[1]._faceIndex, 1u);
+
+	TextMesh::Font fonts[] = {{&silkscreenCache, GlyphCache::Mode::Pixel, 8}, {&notoSansScCache, GlyphCache::Mode::Bitmap}};
+	TextMesh       mesh;
+	ASSERT_TRUE(mesh.Build(layout, fonts, 32.0f, Vector2(0.0f, 0.0f)));
+	ASSERT_EQ(mesh._batches.Size(), 2u);
+	EXPECT_EQ(mesh._batches[0]._glyphCache, &silkscreenCache);
+	EXPECT_EQ(mesh._batches[0]._mode, GlyphCache::Mode::Pixel);
+	EXPECT_EQ(mesh._batches[1]._glyphCache, &notoSansScCache);
+	EXPECT_EQ(mesh._batches[1]._mode, GlyphCache::Mode::Bitmap);
+
+	// Silkscreen at its grid, the fallback at the size of the text: asked again, they are not rasterized again
+	EXPECT_NE(silkscreenCache.GetGlyph(layout._glyphs[0]._glyphId, GlyphCache::Mode::Pixel, 8), nullptr);
+	EXPECT_NE(notoSansScCache.GetGlyph(layout._glyphs[1]._glyphId, GlyphCache::Mode::Bitmap, 32), nullptr);
+	EXPECT_EQ(silkscreenCache.GetRasterizedGlyphCount(), 1u);
+	EXPECT_EQ(notoSansScCache.GetRasterizedGlyphCount(), 1u);
+
+	RhiDevice::GetInstance()->WaitIdle();
+	silkscreenCache.Clear(); // before the faces they read
+	notoSansScCache.Clear();
+	delete silkscreen;
+	delete notoSansSc;
 }
