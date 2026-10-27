@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/Editor/Export.hpp"
+#include "HodEngine/UI2Editor/Export.hpp"
 #include "HodEngine/Editor/EditorTab.hpp"
 
 #include <HodEngine/UI2/Canvas.hpp>
@@ -18,7 +18,7 @@ namespace hod::inline editor
 {
 	/// @brief Editor tab for a UIPrefabResource asset: a tree of ui2::Node edited directly (no
 	/// Entity/World involved), the UI2 counterpart of PrefabEditorTab.
-	class HOD_EDITOR_API UIPrefabEditorTab : public EditorTab
+	class HOD_UI2_EDITOR_API UIPrefabEditorTab : public EditorTab
 	{
 	public:
 

@@ -4,6 +4,7 @@
 #include "HodEngine/Editor/Cooker/Cooker.hpp"
 #include "HodEngine/Editor/Cooker/CookJob.hpp"
 #include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/EditorTab.hpp"
 
 #include "HodEngine/Editor/Project.hpp"
 
@@ -71,9 +72,6 @@
 
 
 
-#include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
-#include "HodEngine/Editor/UIPrefabEditor/UIPrefabCooker.hpp"
-#include "HodEngine/UI2/UIPrefabResource.hpp"
 
 #include "HodEngine/Core/StaticArray.hpp"
 
@@ -303,11 +301,6 @@ namespace hod::inline editor
 
 	bool Editor::LoadEditor()
 	{
-		// Created with the editor (Init): the editor modules register their asset types into it when they load
-		AssetDatabase::GetInstance()->RegisterCooker<UIPrefabCooker>("UIPrefab");
-		AssetDatabase::GetInstance()->RegisterResource<UIPrefabResource>("UIPrefab");
-		RegisterEditorTab<UIPrefabEditorTab>("UIPrefab");
-
 		if (Project::GetInstance()->ReloadProjectModules() == false)
 		{
 			return false;

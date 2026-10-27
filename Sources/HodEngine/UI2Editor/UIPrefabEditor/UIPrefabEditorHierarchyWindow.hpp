@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/Editor/Export.hpp"
+#include "HodEngine/UI2Editor/Export.hpp"
 #include "HodEngine/Editor/EditorTabWindow.hpp"
 
 namespace hod::inline ui2
@@ -13,7 +13,7 @@ namespace hod::inline editor
 	/// add/remove-child editing, drop target for nodes dragged from the Library, and reparenting by
 	/// dragging a node onto its new parent (added last among its children). The ui2::Node equivalent
 	/// of HierachyWindow, but self-contained (no World/Entity involved).
-	class HOD_EDITOR_API UIPrefabEditorHierarchyWindow : public EditorTabWindow
+	class HOD_UI2_EDITOR_API UIPrefabEditorHierarchyWindow : public EditorTabWindow
 	{
 		REFLECTED_CLASS(UIPrefabEditorHierarchyWindow, EditorTabWindow)
 

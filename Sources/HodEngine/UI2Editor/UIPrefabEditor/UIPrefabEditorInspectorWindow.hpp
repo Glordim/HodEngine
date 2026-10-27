@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/Editor/Export.hpp"
+#include "HodEngine/UI2Editor/Export.hpp"
 #include "HodEngine/Editor/EditorTabWindow.hpp"
 
 #include <HodEngine/UI2/Canvas.hpp>
@@ -24,7 +24,7 @@ namespace hod::inline editor
 	/// 3. Children Layout: how it arranges its children (add / transform / remove)
 	/// all via the engine's generic reflected-property drawer. With the canvas selected (see
 	/// UIPrefabEditorTab::SelectCanvas), draws its own settings (its CanvasScaler) instead.
-	class HOD_EDITOR_API UIPrefabEditorInspectorWindow : public EditorTabWindow
+	class HOD_UI2_EDITOR_API UIPrefabEditorInspectorWindow : public EditorTabWindow
 	{
 		REFLECTED_CLASS(UIPrefabEditorInspectorWindow, EditorTabWindow)
 

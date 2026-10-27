@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/Editor/Export.hpp"
+#include "HodEngine/UI2Editor/Export.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 
@@ -13,7 +13,7 @@ namespace hod::inline editor
 	/// @brief Per-user settings of the UIPrefabEditorViewportWindow (preview devices and grid), persisted in
 	/// the user settings directory (see FileSystem::GetUserSettingsPath), shared by every UI prefab
 	/// tab and independent of the project being edited.
-	struct HOD_EDITOR_API UIPrefabEditorViewportSettings
+	struct HOD_UI2_EDITOR_API UIPrefabEditorViewportSettings
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(UIPrefabEditorViewportSettings)
 

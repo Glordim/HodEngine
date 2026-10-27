@@ -1,8 +1,8 @@
 #pragma once
-#include "HodEngine/Editor/Export.hpp"
+#include "HodEngine/UI2Editor/Export.hpp"
 #include "HodEngine/Editor/EditorTabWindow.hpp"
 #include "HodEngine/Editor/Framing.hpp"
-#include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorViewportSettings.hpp"
+#include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorViewportSettings.hpp"
 
 #include <HodEngine/Math/Color.hpp>
 #include <HodEngine/Math/Vector2.hpp>
@@ -44,7 +44,7 @@ namespace hod::inline editor
 	/// Never saved in the prefab: the devices, the active one and the grid settings are persisted per user.
 	/// Known simplification: rotation and scale are ignored (boxes are drawn axis-aligned, at the layout size,
 	/// centered on the node's computed canvas-space center).
-	class HOD_EDITOR_API UIPrefabEditorViewportWindow : public EditorTabWindow
+	class HOD_UI2_EDITOR_API UIPrefabEditorViewportWindow : public EditorTabWindow
 	{
 		REFLECTED_CLASS(UIPrefabEditorViewportWindow, EditorTabWindow)
 

@@ -1,6 +1,6 @@
-#include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorHierarchyWindow.hpp"
-#include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
+#include "HodEngine/UI2Editor/Pch.hpp"
+#include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorHierarchyWindow.hpp"
+#include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>

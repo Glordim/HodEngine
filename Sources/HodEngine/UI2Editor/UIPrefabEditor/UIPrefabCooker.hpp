@@ -1,11 +1,11 @@
 #pragma once
-#include "HodEngine/Editor/Export.hpp"
+#include "HodEngine/UI2Editor/Export.hpp"
 
 #include "HodEngine/Editor/Cooker/Cooker.hpp"
 
 namespace hod::inline editor
 {
-	class HOD_EDITOR_API UIPrefabCooker : public Cooker
+	class HOD_UI2_EDITOR_API UIPrefabCooker : public Cooker
 	{
 	public:
 

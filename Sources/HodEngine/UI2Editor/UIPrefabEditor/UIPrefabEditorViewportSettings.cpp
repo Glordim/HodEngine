@@ -1,5 +1,5 @@
-#include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/UIPrefabEditor/UIPrefabEditorViewportSettings.hpp"
+#include "HodEngine/UI2Editor/Pch.hpp"
+#include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorViewportSettings.hpp"
 
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
