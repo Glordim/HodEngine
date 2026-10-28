@@ -345,7 +345,7 @@ namespace hod::inline editor
 			DrawSpacing(selectedNode, *renderView);
 		}
 
-		if (selectedNode != nullptr && LayoutParams::Cast<AnchoredLayoutParams>(selectedNode->GetLayoutParams()) != nullptr)
+		if (selectedNode != nullptr && GetGizmoAxes(*selectedNode).Any())
 		{
 			DrawSelectionGizmo(selectedNode, scale, *renderView);
 		}
@@ -812,6 +812,33 @@ namespace hod::inline editor
 		return picked;
 	}
 
+	/// @brief What the gizmo may do to the node, from what places it. AnchoredLayoutParams: everything. A BoxLayout's child: never moved
+	/// (the layout places it), resized on its main axis when it has its own size there (not Fill), on its cross axis when it is not stretched
+	/// @param node
+	/// @return
+	UIPrefabEditorViewportWindow::GizmoAxes UIPrefabEditorViewportWindow::GetGizmoAxes(const ui2::Node& node)
+	{
+		GizmoAxes           axes;
+		const LayoutParams* layoutParams = node.GetLayoutParams();
+		if (LayoutParams::Cast<AnchoredLayoutParams>(layoutParams) != nullptr)
+		{
+			axes._move = true;
+			axes._resizeX = true;
+			axes._resizeY = true;
+		}
+		else if (const ui2::HorizontalLayoutParams* horizontalLayoutParams = LayoutParams::Cast<ui2::HorizontalLayoutParams>(layoutParams))
+		{
+			axes._resizeX = horizontalLayoutParams->GetRule() == ui2::BoxLayoutParams::Rule::OwnSize;
+			axes._resizeY = horizontalLayoutParams->GetVerticalAlign() != ui2::HorizontalLayoutParams::VerticalAlign::Stretch;
+		}
+		else if (const ui2::VerticalLayoutParams* verticalLayoutParams = LayoutParams::Cast<ui2::VerticalLayoutParams>(layoutParams))
+		{
+			axes._resizeX = verticalLayoutParams->GetHorizontalAlign() != ui2::VerticalLayoutParams::HorizontalAlign::Stretch;
+			axes._resizeY = verticalLayoutParams->GetRule() == ui2::BoxLayoutParams::Rule::OwnSize;
+		}
+		return axes;
+	}
+
 	namespace
 	{
 		constexpr float gizmoCornerHandlePixelSize = 8.0f;
@@ -920,44 +947,50 @@ namespace hod::inline editor
 			return std::abs(canvasMousePosition.GetX() - corner.GetX()) <= cornerRadius && std::abs(canvasMousePosition.GetY() - corner.GetY()) <= cornerRadius;
 		};
 
-		if (withinCorner(topLeft))
+		// The corners as soon as an axis is resizable (they resize only those), the edges of the resizable axes, the body when it can move
+		const GizmoAxes axes = GetGizmoAxes(*node);
+
+		if (axes._resizeX || axes._resizeY)
 		{
-			return GizmoHandle::TopLeft;
-		}
-		if (withinCorner(topRight))
-		{
-			return GizmoHandle::TopRight;
-		}
-		if (withinCorner(bottomLeft))
-		{
-			return GizmoHandle::BottomLeft;
-		}
-		if (withinCorner(bottomRight))
-		{
-			return GizmoHandle::BottomRight;
+			if (withinCorner(topLeft))
+			{
+				return GizmoHandle::TopLeft;
+			}
+			if (withinCorner(topRight))
+			{
+				return GizmoHandle::TopRight;
+			}
+			if (withinCorner(bottomLeft))
+			{
+				return GizmoHandle::BottomLeft;
+			}
+			if (withinCorner(bottomRight))
+			{
+				return GizmoHandle::BottomRight;
+			}
 		}
 
 		bool withinX = canvasMousePosition.GetX() >= topLeft.GetX() && canvasMousePosition.GetX() <= topRight.GetX();
 		bool withinY = canvasMousePosition.GetY() >= bottomLeft.GetY() && canvasMousePosition.GetY() <= topLeft.GetY();
 
-		if (withinX && std::abs(canvasMousePosition.GetY() - topLeft.GetY()) <= edgeThickness)
+		if (axes._resizeY && withinX && std::abs(canvasMousePosition.GetY() - topLeft.GetY()) <= edgeThickness)
 		{
 			return GizmoHandle::Top;
 		}
-		if (withinX && std::abs(canvasMousePosition.GetY() - bottomLeft.GetY()) <= edgeThickness)
+		if (axes._resizeY && withinX && std::abs(canvasMousePosition.GetY() - bottomLeft.GetY()) <= edgeThickness)
 		{
 			return GizmoHandle::Bottom;
 		}
-		if (withinY && std::abs(canvasMousePosition.GetX() - topLeft.GetX()) <= edgeThickness)
+		if (axes._resizeX && withinY && std::abs(canvasMousePosition.GetX() - topLeft.GetX()) <= edgeThickness)
 		{
 			return GizmoHandle::Left;
 		}
-		if (withinY && std::abs(canvasMousePosition.GetX() - topRight.GetX()) <= edgeThickness)
+		if (axes._resizeX && withinY && std::abs(canvasMousePosition.GetX() - topRight.GetX()) <= edgeThickness)
 		{
 			return GizmoHandle::Right;
 		}
 
-		if (withinX && withinY)
+		if (axes._move && withinX && withinY)
 		{
 			return GizmoHandle::Move;
 		}
@@ -975,8 +1008,10 @@ namespace hod::inline editor
 	/// @param mouseAvailable whether the mouse is over this viewport's image and usable for a new hit-test
 	void UIPrefabEditorViewportWindow::UpdateGizmoDrag(ui2::Node* node, const Vector2& canvasMousePosition, float scale, bool mouseAvailable)
 	{
-		AnchoredLayoutParams* layoutParams = LayoutParams::Cast<AnchoredLayoutParams>(node->GetLayoutParams());
-		if (layoutParams == nullptr)
+		LayoutParams*         layoutParams = node->GetLayoutParams();
+		AnchoredLayoutParams* anchoredLayoutParams = LayoutParams::Cast<AnchoredLayoutParams>(layoutParams);
+		const GizmoAxes       axes = GetGizmoAxes(*node);
+		if (layoutParams == nullptr || axes.Any() == false)
 		{
 			_hoveredGizmoHandle = GizmoHandle::None;
 			_draggedGizmoHandle = GizmoHandle::None;
@@ -993,7 +1028,10 @@ namespace hod::inline editor
 
 			if (ImGui::IsKeyPressed(ImGuiKey_Escape))
 			{
-				layoutParams->SetOffset(_gizmoDragStartOffset);
+				if (anchoredLayoutParams != nullptr)
+				{
+					anchoredLayoutParams->SetOffset(_gizmoDragStartOffset);
+				}
 				layoutParams->SetSize(_gizmoDragStartOwnSize);
 				layoutParams->SetWidthMode(_gizmoDragStartWidthMode);
 				layoutParams->SetHeightMode(_gizmoDragStartHeightMode);
@@ -1033,8 +1071,27 @@ namespace hod::inline editor
 			right = Max(right, left);
 			top = Max(top, bottom);
 
-			Vector2 parentSize = node->GetParent() != nullptr ? node->GetParent()->GetSize() : Vector2::Zero;
-			layoutParams->PlaceRect(parentSize, Vector2((left + right) * 0.5f, (bottom + top) * 0.5f), Vector2(right - left, top - bottom));
+			if (anchoredLayoutParams != nullptr)
+			{
+				Vector2 parentSize = node->GetParent() != nullptr ? node->GetParent()->GetSize() : Vector2::Zero;
+				anchoredLayoutParams->PlaceRect(parentSize, Vector2((left + right) * 0.5f, (bottom + top) * 0.5f), Vector2(right - left, top - bottom));
+			}
+			else
+			{
+				// A BoxLayout's child: only its size, on the axes it owns (Fixed from then on), the layout places it
+				Vector2 size = layoutParams->GetSize();
+				if (axes._resizeX)
+				{
+					size.SetX(right - left);
+					layoutParams->SetWidthMode(LayoutParams::SizeMode::Fixed);
+				}
+				if (axes._resizeY)
+				{
+					size.SetY(top - bottom);
+					layoutParams->SetHeightMode(LayoutParams::SizeMode::Fixed);
+				}
+				layoutParams->SetSize(size);
+			}
 
 			GetOwner()->MarkAsDirty();
 			return;
@@ -1054,7 +1111,7 @@ namespace hod::inline editor
 			_gizmoDragStartMousePosition = canvasMousePosition;
 			_gizmoDragStartCenter = node->GetPosition();
 			_gizmoDragStartSize = node->GetSize();
-			_gizmoDragStartOffset = layoutParams->GetOffset();
+			_gizmoDragStartOffset = anchoredLayoutParams != nullptr ? anchoredLayoutParams->GetOffset() : Vector2::Zero;
 			_gizmoDragStartOwnSize = layoutParams->GetSize();
 			_gizmoDragStartWidthMode = layoutParams->GetWidthMode();
 			_gizmoDragStartHeightMode = layoutParams->GetHeightMode();

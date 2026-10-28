@@ -93,6 +93,18 @@ namespace hod::inline editor
 			BottomRight,
 		};
 
+		// What the gizmo may do to a node: its LayoutParams say what its parent leaves to it
+		struct GizmoAxes
+		{
+			bool _move = false;
+			bool _resizeX = false;
+			bool _resizeY = false;
+
+			bool Any() const { return _move || _resizeX || _resizeY; }
+		};
+
+		static GizmoAxes GetGizmoAxes(const ui2::Node& node);
+
 		void		DrawSelectionGizmo(ui2::Node* node, float scale, RenderView& renderView);
 		GizmoHandle	HitTestGizmoHandle(ui2::Node* node, const Vector2& canvasMousePosition, float scale) const;
 		void		UpdateGizmoDrag(ui2::Node* node, const Vector2& canvasMousePosition, float scale, bool mouseAvailable);
@@ -122,7 +134,8 @@ namespace hod::inline editor
 		// The node's rect when the drag started (center in its parent's space), which the drag moves/resizes
 		Vector2     _gizmoDragStartCenter = Vector2::Zero;
 		Vector2     _gizmoDragStartSize = Vector2::Zero;
-		// What placed it then, restored by Escape (a drag may turn a Content axis into a Fixed one, see AnchoredLayoutParams::PlaceRect)
+		// What placed it then, restored by Escape (a drag may turn a Content axis into a Fixed one, see AnchoredLayoutParams::PlaceRect).
+		// The offset is AnchoredLayoutParams' only
 		Vector2                     _gizmoDragStartOffset = Vector2::Zero;
 		Vector2                     _gizmoDragStartOwnSize = Vector2::Zero;
 		ui2::LayoutParams::SizeMode _gizmoDragStartWidthMode = ui2::LayoutParams::SizeMode::Fixed;
