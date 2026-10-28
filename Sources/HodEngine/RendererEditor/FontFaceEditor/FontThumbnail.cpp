@@ -13,8 +13,8 @@ namespace hod::inline editor
 {
 	namespace
 	{
-		constexpr float   InkRatio = 0.6f;    // of the thumbnail the ink covers, on its largest side
-		constexpr float   LineGapRatio = 0.08f; // of the thumbnail between two lines
+		constexpr float   InkRatio = 0.7f;  // of the thumbnail the ink covers, on its largest side
+		constexpr float   LineGapRatio = 0.06f; // of the thumbnail between two lines
 		constexpr uint8_t BackgroundColor = 40;
 		constexpr uint8_t TextColor = 235;
 	}
