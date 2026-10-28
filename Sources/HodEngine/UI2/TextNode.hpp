@@ -109,6 +109,8 @@ namespace hod::inline ui2
 		// A glyph of the layout is from a Bitmap or Pixel font: its glyphs on whole units. Sdf ones go anywhere, at any size.
 		// The faces of the chain the text does not use (fallbacks...) don't count
 		bool								IsDrawnOnPixels(const TextLayout& layout) const;
+		// Overflow::Shrink: the size the layout is shaped again at to fit, from the exact one
+		float								GetShrunkFontSize(const TextLayout& layout, float fittingFontSize) const;
 
 	private:
 

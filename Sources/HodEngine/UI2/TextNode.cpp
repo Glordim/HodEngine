@@ -381,29 +381,17 @@ namespace hod::inline ui2
 				return &_fittedLayout;
 			}
 
-			// A whole pixel size below the exact one (PixelArt: a whole multiple of its grid): it fits for sure (the exact one may be a hair wider
-			// once rounded), and is rasterized as is. Sdf only: the exact one, nothing is rounded.
 			// Only what does not fit even at MinFontSize gets an ellipsis
 			const float minFontSize = Min(fontResource.GetDrawnFontSize(_minFontSize), _layoutFontSize);
-			const float fittingFontSize = _layoutFontSize * scale;
-			if (fittingFontSize >= minFontSize)
+			_fittedFontSize = GetShrunkFontSize(*layout, _layoutFontSize * scale);
+			if (_layoutFontSize * scale >= minFontSize)
 			{
-				if (IsDrawnOnPixels(*layout))
-				{
-					const float step = IsPixelArt() ? (float)GetPixelSize() : 1.0f;
-					_fittedFontSize = Max(minFontSize, std::floor(fittingFontSize / step) * step);
-				}
-				else
-				{
-					_fittedFontSize = Max(minFontSize, fittingFontSize);
-				}
 				if (textShaper->Shape(_value, faces, _fittedFontSize, _fittedLayout) == false)
 				{
 					_fittedLayout.Clear();
 				}
 				return &_fittedLayout;
 			}
-			_fittedFontSize = minFontSize;
 		}
 
 		if (textShaper->ShapeEllipsized(_value, faces, _fittedFontSize, maxWidth, _fittedLayout) == false)
@@ -411,6 +399,22 @@ namespace hod::inline ui2
 			_fittedLayout.Clear();
 		}
 		return &_fittedLayout;
+	}
+
+	/// @brief A whole pixel size below the exact one (PixelArt: a whole multiple of its grid): it fits for sure (the exact one may be a hair wider
+	/// once rounded), and is rasterized as is. Sdf only: the exact one, nothing is rounded. Never below MinFontSize
+	/// @param layout shaped at FontSize
+	/// @param fittingFontSize the exact size the text fits at
+	/// @return
+	float TextNode::GetShrunkFontSize(const TextLayout& layout, float fittingFontSize) const
+	{
+		const float minFontSize = Min(_fontChain.GetFaceResources()[0]->GetDrawnFontSize(_minFontSize), _layoutFontSize);
+		if (IsDrawnOnPixels(layout))
+		{
+			const float step = IsPixelArt() ? (float)GetPixelSize() : 1.0f;
+			return Max(minFontSize, std::floor(fittingFontSize / step) * step);
+		}
+		return Max(minFontSize, fittingFontSize);
 	}
 
 	/// @brief
@@ -421,7 +425,8 @@ namespace hod::inline ui2
 		return Vector2(layout._width, layout._ascender - layout._descender);
 	}
 
-	/// @brief The text's bounds once a font is set, none before that.
+	/// @brief The text's bounds once a font is set, none before that. Shrink with a single axis from the content: the bounds once shrunk to fit the
+	/// other one, the rect follows the text instead of keeping the room of its FontSize
 	/// @param availableSize
 	/// @return
 	Vector2 TextNode::MeasureContent(const Vector2& availableSize) const
@@ -431,7 +436,32 @@ namespace hod::inline ui2
 			return Node::MeasureContent(availableSize);
 		}
 
-		return GetLayoutSize(_layout);
+		Vector2             layoutSize = GetLayoutSize(_layout);
+		const LayoutParams* layoutParams = GetLayoutParams();
+		if (_overflow == Overflow::Shrink && layoutParams != nullptr)
+		{
+			const bool widthFromContent = layoutParams->GetWidthMode() == LayoutParams::SizeMode::Content;
+			const bool heightFromContent = layoutParams->GetHeightMode() == LayoutParams::SizeMode::Content;
+			if (widthFromContent != heightFromContent)
+			{
+				const Vector2 size = layoutParams->ComputeSize(availableSize, layoutSize);
+				const float   available = widthFromContent ? size.GetY() : size.GetX();
+				const float   required = widthFromContent ? layoutSize.GetY() : layoutSize.GetX();
+				if (required > available && required > 0.0f)
+				{
+					const float scale = GetShrunkFontSize(_layout, _layoutFontSize * available / required) / _layoutFontSize;
+					if (widthFromContent)
+					{
+						layoutSize.SetX(std::ceil(layoutSize.GetX() * scale));
+					}
+					else
+					{
+						layoutSize.SetY(std::ceil(layoutSize.GetY() * scale));
+					}
+				}
+			}
+		}
+		return layoutSize;
 	}
 
 	/// @brief
