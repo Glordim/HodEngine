@@ -267,6 +267,18 @@ TEST_F(MaterialRender, UniformColor)
 	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.75f), Background));
 }
 
+// Half transparent over an opaque target: the color is blended, the target stays opaque. Its alpha blended like the color, it would
+// let what the target is drawn over show through (a dark fringe along antialiased edges in an editor viewport)
+TEST_F(MaterialRender, AlphaBlendKeepsAnOpaqueTargetOpaque)
+{
+	MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle);
+	materialInstance->SetVec4("ubo.color", Vector4(1.0f, 0.0f, 0.0f, 0.5f));
+
+	RenderFrame([&]() { DrawQuad(-1.0f, -1.0f, 1.0f, 1.0f, materialInstance); });
+
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Color(0.5f + 0.5f * Background.r, 0.5f * Background.g, 0.5f * Background.b, 1.0f)));
+}
+
 // The picking pass writes ids with it: what it draws replaces the target, alpha included
 TEST_F(MaterialRender, OpaqueBuiltinReplacesWhatIsUnder)
 {
@@ -858,4 +870,268 @@ TEST_F(MaterialRender, TextPixelHasNoPixelBetweenTheColorAndTheBackground)
 
 	RhiDevice::GetInstance()->WaitIdle();
 	glyphCache.Clear();
+}
+
+// ============================================================================
+// Shapes
+// ============================================================================
+
+// P2fT2f_Shape (what ui2::ShapeNode draws with), one unit per pixel of the target, the shape centered on it
+class ShapeRender : public MaterialRender
+{
+protected:
+	void SetUp() override
+	{
+		MaterialRender::SetUp();
+
+		const float halfSize = (float)_targetSize * 0.5f;
+		_projection = Matrix4::OrthogonalProjection(-halfSize, halfSize, -halfSize, halfSize, -1024.0f, 1024.0f);
+	}
+
+	MaterialInstance* CreateShape(const Vector2& halfSize, const Color& fillColor)
+	{
+		MaterialInstance* materialInstance = CreateMaterialInstance(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Shape);
+		materialInstance->SetVec4("ubo.fillColor", ToVector4(fillColor));
+		materialInstance->SetVec2("ubo.halfSize", halfSize);
+		return materialInstance;
+	}
+
+	// The whole target, its uvs the positions: the shader works relative to the center
+	void DrawShape(const MaterialInstance* materialInstance)
+	{
+		const float             halfSize = (float)_targetSize * 0.5f;
+		StaticArray<Vector2, 4> positions = {
+			Vector2(-halfSize, halfSize),
+			Vector2(halfSize, halfSize),
+			Vector2(halfSize, -halfSize),
+			Vector2(-halfSize, -halfSize),
+		};
+		StaticArray<uint16_t, 6> indices = {0, 1, 2, 0, 2, 3};
+
+		RenderFrame(
+			[&]()
+			{
+				_renderView->PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(positions.Data(), positions.Data(), nullptr, (uint32_t)positions.Size(),
+				                                                                                     indices.Data(), (uint32_t)indices.Size(), Matrix4::Identity, materialInstance,
+				                                                                                     0, 0, true));
+			});
+	}
+
+	// The pixel whose center is (x, y), in units from the center of the target (Y-up)
+	Color ReadUnitPixel(float x, float y) const
+	{
+		const float halfSize = (float)_targetSize * 0.5f;
+		return _frameTexture->ReadPixel(Vector2(halfSize + x, halfSize - y));
+	}
+};
+
+// A rounded square with a border: the fill in the middle, the border along its sides, nothing past its rounded corners
+TEST_F(ShapeRender, FillBorderAndRoundedCorners)
+{
+	MaterialInstance* materialInstance = CreateShape(Vector2(20.0f, 20.0f), Red);
+	materialInstance->SetVec4("ubo.cornerRadii", Vector4(10.0f, 10.0f, 10.0f, 10.0f));
+	materialInstance->SetFloat("ubo.borderWidth", 4.0f);
+	materialInstance->SetVec4("ubo.borderColor", ToVector4(Green));
+	DrawShape(materialInstance);
+
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(0.5f, 0.5f), Red));
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(-12.5f, 0.5f), Red));   // the fill ends 4 units in
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(-18.5f, 0.5f), Green)); // in the border, on the left side
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(0.5f, -18.5f), Green)); // in the border, on the bottom side
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(-24.5f, 0.5f), Background));
+
+	// In the rect, but past each rounded corner
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(-18.5f, 18.5f), Background));
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(18.5f, 18.5f), Background));
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(18.5f, -18.5f), Background));
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(-18.5f, -18.5f), Background));
+}
+
+// Each corner has its own radius, a radius larger than the shape is clamped to half of its shortest side
+TEST_F(ShapeRender, CornerRadiiAreIndependentAndClamped)
+{
+	MaterialInstance* materialInstance = CreateShape(Vector2(20.0f, 10.0f), Red);
+	materialInstance->SetVec4("ubo.cornerRadii", Vector4(100.0f, 0.0f, 0.0f, 0.0f)); // top left only
+	DrawShape(materialInstance);
+
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(-19.5f, 9.5f), Background)); // top left: rounded by 10
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(-12.5f, 0.5f), Red));        // the circle of the top left corner is centered on (-10, 0)
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(19.5f, 9.5f), Red));         // the other corners stay square
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(19.5f, -9.5f), Red));
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(-19.5f, -9.5f), Red));
+}
+
+// Without blur the shadow is the shape moved by the offset, under it
+TEST_F(ShapeRender, HardShadowIsTheShapeMoved)
+{
+	MaterialInstance* materialInstance = CreateShape(Vector2(12.0f, 12.0f), Red);
+	materialInstance->SetVec4("ubo.shadowColor", ToVector4(Black));
+	materialInstance->SetVec2("ubo.shadowOffset", Vector2(0.0f, -8.0f));
+	materialInstance->SetVec2("ubo.shadowBlur", Vector2(0.0f, 0.0f));
+	DrawShape(materialInstance);
+
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(0.5f, 0.5f), Red));          // the shape is over its shadow
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(0.5f, -16.5f), Black));      // below the shape
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(0.5f, -22.5f), Background)); // below the shadow
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(0.5f, 14.5f), Background));  // above the shape
+}
+
+// Not offset, the shadow is blurred both ways, as a regular blur: half of it on its edge, still a little a sigma past it
+TEST_F(ShapeRender, BlurredShadowFadesAcrossItsEdge)
+{
+	MaterialInstance* materialInstance = CreateShape(Vector2(12.0f, 12.0f), Red);
+	materialInstance->SetVec4("ubo.shadowColor", ToVector4(Black));
+	materialInstance->SetVec2("ubo.shadowOffset", Vector2(0.0f, 0.0f));
+	materialInstance->SetVec2("ubo.shadowBlur", Vector2(8.0f, 8.0f)); // sigma 4
+	DrawShape(materialInstance);
+
+	// The shadow's bottom edge is the shape's, at -12: about half the shadow over the background on the pixel just past it
+	const Color onEdge = ReadUnitPixel(0.5f, -12.5f);
+	EXPECT_GT(onEdge.r, 0.4f * Background.r);
+	EXPECT_LT(onEdge.r, 0.6f * Background.r);
+	// A sigma past it: about 16% of the shadow
+	const Color pastEdge = ReadUnitPixel(0.5f, -16.5f);
+	EXPECT_LT(pastEdge.r, Background.r - ColorTolerance);
+	EXPECT_GT(pastEdge.r, 0.5f * Background.r);
+}
+
+// A shape smaller than its blur: its shadow fades as a real blur would, not only around its edge
+TEST_F(ShapeRender, ShadowOfASmallShapeFades)
+{
+	MaterialInstance* materialInstance = CreateShape(Vector2(4.0f, 4.0f), Red);
+	materialInstance->SetVec4("ubo.shadowColor", ToVector4(Black));
+	materialInstance->SetVec2("ubo.shadowOffset", Vector2(0.0f, -20.0f));
+	materialInstance->SetVec2("ubo.shadowBlur", Vector2(8.0f, 8.0f)); // sigma 4: about 68% of the shadow on each axis at its center, 47% in all
+	DrawShape(materialInstance);
+
+	const Color center = ReadUnitPixel(0.5f, -19.5f);
+	EXPECT_GT(center.r, 0.35f * Background.r);
+	EXPECT_LT(center.r, 0.65f * Background.r);
+}
+
+// The spread grows the shadow on each side before its blur
+TEST_F(ShapeRender, ShadowSpreadGrowsTheShadow)
+{
+	MaterialInstance* materialInstance = CreateShape(Vector2(8.0f, 8.0f), Red);
+	materialInstance->SetVec4("ubo.shadowColor", ToVector4(Black));
+	materialInstance->SetVec2("ubo.shadowBlur", Vector2(0.0f, 0.0f));
+	materialInstance->SetFloat("ubo.shadowSpread", 6.0f);
+	DrawShape(materialInstance);
+
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(12.5f, 0.5f), Black));
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(15.5f, 0.5f), Background));
+}
+
+// Offset and blurred down only, the shadow stays under the shape: fading below it, nothing beside it. Blurred on both axes, it goes past its sides
+TEST_F(ShapeRender, ShadowBlurredOnOneAxisStaysWithinTheOther)
+{
+	MaterialInstance* materialInstance = CreateShape(Vector2(12.0f, 12.0f), Red);
+	materialInstance->SetVec4("ubo.shadowColor", ToVector4(Black));
+	materialInstance->SetVec2("ubo.shadowOffset", Vector2(0.0f, -8.0f));
+	materialInstance->SetVec2("ubo.shadowBlur", Vector2(0.0f, 12.0f));
+	DrawShape(materialInstance);
+
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(14.5f, -8.5f), Background)); // beside the shape, at the height of its shadow
+	EXPECT_LT(ReadUnitPixel(0.5f, -22.5f).r, Background.r - ColorTolerance); // past the bottom of the shadow, faded
+
+	materialInstance->SetVec2("ubo.shadowBlur", Vector2(12.0f, 12.0f));
+	DrawShape(materialInstance);
+
+	EXPECT_LT(ReadUnitPixel(14.5f, -8.5f).r, Background.r - ColorTolerance);
+}
+
+// Directed down, the shadow is blurred down only: it fades below the shape, and nothing of it shows above it
+TEST_F(ShapeRender, DropShadowOnlyShowsOnItsDirectionSide)
+{
+	MaterialInstance* materialInstance = CreateShape(Vector2(12.0f, 12.0f), Red);
+	materialInstance->SetVec4("ubo.shadowColor", ToVector4(Black));
+	materialInstance->SetVec2("ubo.shadowOffset", Vector2(0.0f, -4.0f));
+	materialInstance->SetVec2("ubo.shadowBlur", Vector2(0.0f, 16.0f));
+	materialInstance->SetVec2("ubo.shadowDirection", Vector2(0.0f, -1.0f));
+	DrawShape(materialInstance);
+
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(0.5f, 12.5f), Background));                // right above the shape
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(0.5f, -14.5f), Black));                     // under the shape moved down, at full strength
+	EXPECT_LT(ReadUnitPixel(0.5f, -22.5f).r, Background.r - ColorTolerance);        // below it, fading
+	EXPECT_GT(ReadUnitPixel(0.5f, -22.5f).r, ReadUnitPixel(0.5f, -16.5f).r);        // lighter further down
+}
+
+// Directed down without any offset: still nothing above the shape, and the shadow fading below it
+TEST_F(ShapeRender, DropShadowNeedsNoOffset)
+{
+	MaterialInstance* materialInstance = CreateShape(Vector2(12.0f, 12.0f), Red);
+	materialInstance->SetVec4("ubo.shadowColor", ToVector4(Black));
+	materialInstance->SetVec2("ubo.shadowBlur", Vector2(0.0f, 16.0f));
+	materialInstance->SetVec2("ubo.shadowDirection", Vector2(0.0f, -1.0f));
+	DrawShape(materialInstance);
+
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(0.5f, 12.5f), Background));
+	EXPECT_LT(ReadUnitPixel(0.5f, -14.5f).r, Background.r - ColorTolerance);
+}
+
+// The thickness is the shape swept down under itself, in its own color, and the shadow is cast by both
+TEST_F(ShapeRender, DepthSweepsTheShapeDown)
+{
+	MaterialInstance* materialInstance = CreateShape(Vector2(12.0f, 12.0f), Red);
+	materialInstance->SetVec4("ubo.cornerRadii", Vector4(4.0f, 4.0f, 4.0f, 4.0f));
+	materialInstance->SetFloat("ubo.depth", 6.0f);
+	materialInstance->SetVec4("ubo.depthColor", ToVector4(Green));
+	materialInstance->SetVec4("ubo.shadowColor", ToVector4(Black));
+	materialInstance->SetVec2("ubo.shadowBlur", Vector2(0.0f, 0.0f));
+	materialInstance->SetVec2("ubo.shadowOffset", Vector2(0.0f, -4.0f));
+	DrawShape(materialInstance);
+
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(0.5f, 0.5f), Red));          // the face over its thickness
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(0.5f, -15.5f), Green));      // the thickness under the face
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(-11.5f, -13.5f), Green));    // its sides go straight down, past the face's rounded corner
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(0.5f, -19.5f), Black));      // the shadow, under the thickness
+	EXPECT_TRUE(ColorNear(ReadUnitPixel(0.5f, -23.5f), Background)); // past the shadow of the thickness
+}
+
+// Where the face, its thickness and its shadow share their outline (the top of a shape with a drop shadow not offset), their
+// antialiasing must not add up: the pixels across it are between the face and the background, without any of the thickness or the
+// shadow in them
+TEST_F(ShapeRender, NoFringeWhereTheOutlinesMeet)
+{
+	MaterialInstance* materialInstance = CreateShape(Vector2(12.0f, 12.0f), Red);
+	materialInstance->SetVec4("ubo.cornerRadii", Vector4(8.0f, 8.0f, 8.0f, 8.0f));
+	materialInstance->SetFloat("ubo.depth", 4.0f);
+	materialInstance->SetVec4("ubo.depthColor", ToVector4(Green));
+	materialInstance->SetVec4("ubo.shadowColor", ToVector4(Blue));
+	materialInstance->SetVec2("ubo.shadowBlur", Vector2(0.0f, 16.0f));
+	materialInstance->SetVec2("ubo.shadowDirection", Vector2(0.0f, -1.0f));
+	DrawShape(materialInstance);
+
+	// Across the top left rounded corner, and the left side
+	for (float y : {11.5f, 9.5f, 7.5f, 4.5f, 0.5f})
+	{
+		for (float x = -14.5f; x < -4.0f; x += 1.0f)
+		{
+			const Color pixel = ReadUnitPixel(x, y);
+			EXPECT_LE(pixel.g, Background.g + ColorTolerance) << "thickness at (" << x << ", " << y << ")";
+			EXPECT_LE(pixel.b, Background.b + ColorTolerance) << "shadow at (" << x << ", " << y << ")";
+		}
+	}
+}
+
+// A drop shadow offset down: a copy of the shape moved down would show past its upper rounded corners, a thin crescent beside each.
+// Cast down, it is the shape swept down to the offset: nothing of it beside the corners
+TEST_F(ShapeRender, DropShadowOffsetDoesNotShowBesideTheUpperCorners)
+{
+	MaterialInstance* materialInstance = CreateShape(Vector2(12.0f, 12.0f), Red);
+	materialInstance->SetVec4("ubo.cornerRadii", Vector4(8.0f, 8.0f, 8.0f, 8.0f));
+	materialInstance->SetVec4("ubo.shadowColor", ToVector4(Blue));
+	materialInstance->SetVec2("ubo.shadowOffset", Vector2(0.0f, -6.0f));
+	materialInstance->SetVec2("ubo.shadowBlur", Vector2(0.0f, 16.0f));
+	materialInstance->SetVec2("ubo.shadowDirection", Vector2(0.0f, -1.0f));
+	DrawShape(materialInstance);
+
+	for (float y : {11.5f, 9.5f, 7.5f, 5.5f})
+	{
+		for (float x = -14.5f; x < -4.0f; x += 1.0f)
+		{
+			EXPECT_LE(ReadUnitPixel(x, y).b, Background.b + ColorTolerance) << "shadow at (" << x << ", " << y << ")";
+		}
+	}
+	EXPECT_GT(ReadUnitPixel(0.5f, -16.5f).b, Background.b + ColorTolerance); // under the shape, it is there
 }

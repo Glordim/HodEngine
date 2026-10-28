@@ -41,6 +41,7 @@ namespace hod::inline renderer
 			P2f_Unlit_Triangle_Opaque, // replaces what is drawn under it, alpha included: what the picking pass writes ids with
 			P2fT2f_Text_Bitmap,        // ubo.color, its alpha times the coverage the red channel of "image" holds: the glyphs of a GlyphCache page
 			P2fT2f_Text_Sdf,           // ubo.color, its alpha times the inside of the outline the red channel of "image" holds the distance to: the Sdf glyphs of a GlyphCache page
+			P2fT2f_Shape,              // a rounded rect with a border and a drop shadow, all its parameters in ubo; the uvs are the position relative to its center (see ui2::ShapeNode)
 
 			Count,
 		};

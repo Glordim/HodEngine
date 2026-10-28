@@ -419,11 +419,14 @@ namespace hod::inline rhi
 			colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
 			colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
 		}
-		else // Alpha, and what Opaque leaves unused
+		else
 		{
+		// Alpha, and what Opaque leaves unused. The alpha composites as "over" (source + destination * (1 - source)), not blended
+		// like the color: an opaque target stays opaque under antialiased edges, which shows when the target is itself drawn with
+		// its alpha (an editor viewport through ImGui::Image), as a dark fringe along those edges otherwise
 			colorBlendAttachment.srcColorBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
 			colorBlendAttachment.dstColorBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
-			colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_SRC_ALPHA;
+			colorBlendAttachment.srcAlphaBlendFactor = VK_BLEND_FACTOR_ONE;
 			colorBlendAttachment.dstAlphaBlendFactor = VK_BLEND_FACTOR_ONE_MINUS_SRC_ALPHA;
 		}
 		colorBlendAttachment.colorBlendOp = VK_BLEND_OP_ADD;

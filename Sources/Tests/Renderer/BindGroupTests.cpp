@@ -1020,8 +1020,8 @@ TEST_F(PipelineStateRender, BlendModeOpaqueReplacesTheTarget)
 
 TEST_F(PipelineStateRender, BlendModeAlpha)
 {
-	// The alpha is blended like the color: 0.5 * 0.5 + 1.0 * 0.5
-	EXPECT_TRUE(ColorNear(RenderOverBackground(BlendMode::Alpha), Color(0.45f, 0.25f, 0.05f, 0.75f)));
+	// The color blended by the source alpha, the alpha composited "over": 0.5 + 1.0 * 0.5, an opaque target stays opaque
+	EXPECT_TRUE(ColorNear(RenderOverBackground(BlendMode::Alpha), Color(0.45f, 0.25f, 0.05f, 1.0f)));
 }
 
 TEST_F(PipelineStateRender, BlendModePremultipliedAlpha)

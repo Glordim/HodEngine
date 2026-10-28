@@ -175,11 +175,14 @@ namespace hod::inline rhi
 			pipelineDescriptor->colorAttachments()->object(0)->setSourceAlphaBlendFactor(MTL::BlendFactorOne);
 			pipelineDescriptor->colorAttachments()->object(0)->setDestinationAlphaBlendFactor(MTL::BlendFactorOne);
 		}
-		else // Alpha, and what Opaque leaves unused. The alpha is blended like the color, as on the other backends
+		else
 		{
+		// Alpha, and what Opaque leaves unused. The alpha composites as "over" (source + destination * (1 - source)), not blended
+		// like the color: an opaque target stays opaque under antialiased edges, which shows when the target is itself drawn with
+		// its alpha (an editor viewport through ImGui::Image), as a dark fringe along those edges otherwise
 			pipelineDescriptor->colorAttachments()->object(0)->setSourceRGBBlendFactor(MTL::BlendFactorSourceAlpha);
 			pipelineDescriptor->colorAttachments()->object(0)->setDestinationRGBBlendFactor(MTL::BlendFactorOneMinusSourceAlpha);
-			pipelineDescriptor->colorAttachments()->object(0)->setSourceAlphaBlendFactor(MTL::BlendFactorSourceAlpha);
+			pipelineDescriptor->colorAttachments()->object(0)->setSourceAlphaBlendFactor(MTL::BlendFactorOne);
 			pipelineDescriptor->colorAttachments()->object(0)->setDestinationAlphaBlendFactor(MTL::BlendFactorOneMinusSourceAlpha);
 		}
 

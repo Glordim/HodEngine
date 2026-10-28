@@ -10,6 +10,7 @@
 #include "HodEngine/UI2/ImageNode.hpp"
 #include "HodEngine/UI2/TextNode.hpp"
 #include "HodEngine/UI2/MaskNode.hpp"
+#include "HodEngine/UI2/ShapeNode.hpp"
 
 #include "HodEngine/UI2/LayoutFactory.hpp"
 #include "HodEngine/UI2/BoxLayout.hpp"
@@ -28,6 +29,7 @@ namespace hod::inline ui2
 		nodeFactory->Register<ImageNode>();
 		nodeFactory->Register<TextNode>();
 		nodeFactory->Register<MaskNode>();
+		nodeFactory->Register<ShapeNode>();
 
 		LayoutFactory* layoutFactory = LayoutFactory::GetInstance();
 		layoutFactory->Register<HorizontalLayout>();

@@ -219,11 +219,14 @@ namespace hod::inline rhi
 			renderTargetBlend.SrcBlendAlpha = D3D12_BLEND_ONE;
 			renderTargetBlend.DestBlendAlpha = D3D12_BLEND_ONE;
 		}
-		else // Alpha, and what Opaque leaves unused
+		else
 		{
+		// Alpha, and what Opaque leaves unused. The alpha composites as "over" (source + destination * (1 - source)), not blended
+		// like the color: an opaque target stays opaque under antialiased edges, which shows when the target is itself drawn with
+		// its alpha (an editor viewport through ImGui::Image), as a dark fringe along those edges otherwise
 			renderTargetBlend.SrcBlend = D3D12_BLEND_SRC_ALPHA;
 			renderTargetBlend.DestBlend = D3D12_BLEND_INV_SRC_ALPHA;
-			renderTargetBlend.SrcBlendAlpha = D3D12_BLEND_SRC_ALPHA;
+			renderTargetBlend.SrcBlendAlpha = D3D12_BLEND_ONE;
 			renderTargetBlend.DestBlendAlpha = D3D12_BLEND_INV_SRC_ALPHA;
 		}
 		renderTargetBlend.BlendOp = D3D12_BLEND_OP_ADD;
