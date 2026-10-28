@@ -124,7 +124,7 @@ namespace hod::inline editor
 		Vector2 previewGoal = _settings.GetPreviewResolution();
 		if (previewGoal == Vector2::Zero)
 		{
-			previewGoal = tab->GetCanvas().GetScaler()._designResolution;
+			previewGoal = tab->GetCanvas().GetEffectiveScaler()._designResolution;
 		}
 		if (_previewResolution == Vector2::Zero)
 		{
@@ -172,7 +172,7 @@ namespace hod::inline editor
 		// Eased on its own instead, so the camera goes straight to the final framing while the layout morphs.
 		Vector2 goalLayoutSize;
 		float   goalScaleFactor = 1.0f;
-		tab->GetCanvas().GetScaler().Compute(previewGoal, goalLayoutSize, goalScaleFactor);
+		tab->GetCanvas().GetEffectiveScaler().Compute(previewGoal, goalLayoutSize, goalScaleFactor);
 		Vector2 goalFrameSize = previewGoal / goalScaleFactor;
 		float   goalBaseScale = Framing::ComputeScale(goalFrameSize, Vector2((float)resolutionWidth, (float)resolutionHeight));
 		if (_baseScale <= 0.0f || viewportResized)
@@ -450,7 +450,7 @@ namespace hod::inline editor
 		}
 
 		UIPrefabEditorTab*       tab = GetOwner<UIPrefabEditorTab>();
-		const ui2::CanvasScaler& scaler = tab->GetCanvas().GetScaler();
+		const ui2::CanvasScaler& scaler = tab->GetCanvas().GetEffectiveScaler();
 
 		constexpr float nameWidth = 140.0f;
 		constexpr float resolutionWidth = 170.0f;
@@ -474,7 +474,7 @@ namespace hod::inline editor
 		ImGui::EndDisabled();
 		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled))
 		{
-			ImGui::SetTooltip("Edited in the Canvas Scaler (select the Canvas in the hierarchy)");
+			ImGui::SetTooltip("The project's (Edit > Project Settings), or the Canvas Scaler's when the canvas overrides it (select the Canvas in the hierarchy)");
 		}
 		ImGui::PopID();
 
@@ -603,7 +603,7 @@ namespace hod::inline editor
 	/// @param scale pixels per canvas unit
 	void UIPrefabEditorViewportWindow::DrawPreviewLabels(const ImVec2& imagePos, const ImVec2& imageSize, float scale)
 	{
-		const ui2::CanvasScaler& scaler = GetOwner<UIPrefabEditorTab>()->GetCanvas().GetScaler();
+		const ui2::CanvasScaler& scaler = GetOwner<UIPrefabEditorTab>()->GetCanvas().GetEffectiveScaler();
 
 		// Canvas space is Y-up, screen space Y-down; the canvas point at the view's center is _camera.GetPosition().
 		auto canvasToScreen = [&](float x, float y) -> ImVec2

@@ -278,7 +278,7 @@ namespace hod::inline editor
 		// The preview device the viewport lays the canvas out for is only a view setting: the thumbnail
 		// shows the prefab as authored.
 		Vector2 previousTargetResolution = _canvas.GetTargetResolution();
-		_canvas.SetTargetResolution(_canvas.GetScaler()._designResolution);
+		_canvas.SetTargetResolution(_canvas.GetEffectiveScaler()._designResolution);
 		_canvas.UpdateLayout();
 		ScopedGuard restoreLayout = [&]()
 		{

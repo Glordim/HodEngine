@@ -4,6 +4,7 @@
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
+#include "HodEngine/GameSystems/ProjectSettings/ProjectSettingsManager.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
@@ -211,6 +212,8 @@ namespace hod::inline editor
 			return false;
 		}
 
+		_projectSettingsDirPath = _projectPath.ParentPath() / "ProjectSettings";
+
 		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath / CMakeHelper::GetCurrentPlatform() / ToString(Config::Debug)); // TODO uniformize Config and Platform setup
 		ResourceManager::GetInstance()->SetFileNotFoundCallback(+[](const UID& uid) {
 			std::shared_ptr<Asset> asset = AssetDatabase::GetInstance()->Find(uid);
@@ -283,6 +286,8 @@ namespace hod::inline editor
 		reader.Read(document, _projectPath);
 
 		Serializer::Deserialize(*this, document.GetRootNode());
+
+		ProjectSettingsManager::GetInstance()->Load(_projectSettingsDirPath);
 
 		return true;
 	}
@@ -360,6 +365,13 @@ namespace hod::inline editor
 	const Path& Project::GetTmpDirPath() const
 	{
 		return _tmpDirPath;
+	}
+
+	/// @brief
+	/// @return
+	const Path& Project::GetProjectSettingsDirPath() const
+	{
+		return _projectSettingsDirPath;
 	}
 
 	/// @brief

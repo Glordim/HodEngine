@@ -47,6 +47,7 @@ namespace hod::inline editor
 		const Path& GetCacheBuildDirPath() const;
 		const Path& GetBuildDirPath() const;
 		const Path& GetTmpDirPath() const;
+		const Path& GetProjectSettingsDirPath() const;
 
 		bool HasGameModule() const;
 		bool CanLoadProjectModules();
@@ -70,6 +71,7 @@ namespace hod::inline editor
 		Path _cacheBuildDirPath;
 		Path _buildDirPath;
 		Path _tmpDirPath;
+		Path _projectSettingsDirPath; // Of the ProjectSettingsManager
 
 		String _name;
 		UID    _startupScene;

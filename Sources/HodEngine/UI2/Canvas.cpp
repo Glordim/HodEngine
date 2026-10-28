@@ -3,6 +3,7 @@
 #include "HodEngine/UI2/Canvas.hpp"
 #include "HodEngine/UI2/Node.hpp"
 #include "HodEngine/UI2/DrawContext.hpp"
+#include "HodEngine/UI2/UISettings.hpp"
 
 #include <HodEngine/Core/Document/DocumentNode.hpp>
 #include <HodEngine/Core/Math.hpp>
@@ -96,6 +97,33 @@ namespace hod::inline ui2
 		}
 	}
 
+	bool Canvas::GetOverrideScaler() const
+	{
+		return _overrideScaler;
+	}
+
+	void Canvas::SetOverrideScaler(bool overrideScaler)
+	{
+		if (_overrideScaler != overrideScaler)
+		{
+			_overrideScaler = overrideScaler;
+			UpdateScaling();
+		}
+	}
+
+	const CanvasScaler& Canvas::GetEffectiveScaler() const
+	{
+		if (_overrideScaler == false)
+		{
+			const UISettings* uiSettings = UISettings::Get();
+			if (uiSettings != nullptr)
+			{
+				return uiSettings->_canvasScaler;
+			}
+		}
+		return _scaler;
+	}
+
 	const Vector2& Canvas::GetTargetResolution() const
 	{
 		return _targetResolution;
@@ -126,8 +154,10 @@ namespace hod::inline ui2
 	{
 		Vector2 previousLayoutSize = _layoutSize;
 
-		Vector2 targetResolution = (_targetResolution.GetX() > 0.0f && _targetResolution.GetY() > 0.0f) ? _targetResolution : _scaler._designResolution;
-		_scaler.Compute(targetResolution, _layoutSize, _scaleFactor);
+		const CanvasScaler& scaler = GetEffectiveScaler();
+
+		Vector2 targetResolution = (_targetResolution.GetX() > 0.0f && _targetResolution.GetY() > 0.0f) ? _targetResolution : scaler._designResolution;
+		scaler.Compute(targetResolution, _layoutSize, _scaleFactor);
 
 		if (_layoutSize != previousLayoutSize)
 		{
@@ -143,6 +173,7 @@ namespace hod::inline ui2
 			return false;
 		}
 
+		documentNode.AddChild("OverrideScaler").SetBool(_overrideScaler);
 		return Serializer::Serialize(_scaler, documentNode.AddChild("Scaler"));
 	}
 
@@ -165,6 +196,10 @@ namespace hod::inline ui2
 			SetScaler(scaler);
 		}
 
+		// Absent from prefabs saved before the project's UISettings existed: they follow them.
+		const DocumentNode* overrideScalerNode = documentNode.GetChild("OverrideScaler");
+		SetOverrideScaler(overrideScalerNode != nullptr && overrideScalerNode->GetBool());
+
 		return true;
 	}
 
@@ -175,6 +210,8 @@ namespace hod::inline ui2
 
 	void Canvas::UpdateLayout()
 	{
+		UpdateScaling();
+
 		_rootNode->Measure(_layoutSize);
 
 		Rect finalRect;

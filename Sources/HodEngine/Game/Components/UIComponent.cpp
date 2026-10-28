@@ -13,6 +13,7 @@ namespace hod::inline game
 	DESCRIBE_REFLECTED_CLASS(UIComponent, reflectionDescriptor)
 	{
 		//AddPropertyT(reflectionDescriptor, &UIComponent::_canvas, "Canvas");
+		AddPropertyT(reflectionDescriptor, &UIComponent::_overrideScaler, "_overrideScaler", &UIComponent::SetOverrideScaler);
 		AddPropertyT(reflectionDescriptor, &UIComponent::_scaler, "_scaler", &UIComponent::SetScaler);
 	}
 
@@ -30,6 +31,7 @@ namespace hod::inline game
 	{
 		_canvas = DefaultAllocator::GetInstance().New<ui2::Canvas>();
 		_canvas->SetScaler(_scaler);
+		_canvas->SetOverrideScaler(_overrideScaler);
 
 		_canvas->AddChild(DefaultAllocator::GetInstance().New<ui2::Node>());
 
@@ -77,13 +79,28 @@ namespace hod::inline game
 		return _scaler;
 	}
 
-	// May run before OnConstruct (deserialization): OnConstruct then applies _scaler to the new canvas.
+	// May run before OnConstruct (deserialization): OnConstruct then applies _scaler and _overrideScaler to the new canvas.
 	void UIComponent::SetScaler(const ui2::CanvasScaler& scaler)
 	{
 		_scaler = scaler;
 		if (_canvas != nullptr)
 		{
 			_canvas->SetScaler(_scaler);
+		}
+	}
+
+	bool UIComponent::GetOverrideScaler() const
+	{
+		return _overrideScaler;
+	}
+
+	// May run before OnConstruct (deserialization), see SetScaler.
+	void UIComponent::SetOverrideScaler(bool overrideScaler)
+	{
+		_overrideScaler = overrideScaler;
+		if (_canvas != nullptr)
+		{
+			_canvas->SetOverrideScaler(_overrideScaler);
 		}
 	}
 }

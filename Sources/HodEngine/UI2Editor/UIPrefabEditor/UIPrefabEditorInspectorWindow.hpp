@@ -48,10 +48,25 @@ namespace hod::inline editor
 		bool		DrawLayoutBlock(ui2::Node* node);
 		bool		DrawCanvasBlock(ui2::Canvas& canvas);
 
+	public:
+
+		/// @brief The canvas' scaling as edited in its block: whether it overrides the project's UISettings, then the
+		/// scaler fields (flattened, the project's greyed out when not overriding).
+		struct CanvasScalerFields
+		{
+			REFLECTED_CLASS_NO_VIRTUAL(CanvasScalerFields)
+
+		public:
+
+			bool						_overrideProjectSettings = false;
+			Vector2						_designResolution;
+			ui2::CanvasScaler::Mode		_mode = ui2::CanvasScaler::Mode::Expand;
+		};
+
 	private:
 
-		// Edited copy of the canvas' scaler, applied back through Canvas::SetScaler (which relayouts).
+		// Edited copy of the canvas' scaling, applied back through Canvas::SetOverrideScaler/SetScaler (which relayout).
 		// A member rather than a local so the drawn object keeps a stable address.
-		ui2::CanvasScaler	_canvasScaler;
+		CanvasScalerFields	_canvasScalerFields;
 	};
 }

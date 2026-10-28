@@ -15,6 +15,10 @@
 #include "HodEngine/UI2/LayoutFactory.hpp"
 #include "HodEngine/UI2/BoxLayout.hpp"
 
+#include "HodEngine/UI2/UISettings.hpp"
+
+#include <HodEngine/GameSystems/ProjectSettings/ProjectSettingsManager.hpp>
+
 namespace hod::inline ui2
 {
 	void RegisterBuiltin()
@@ -34,5 +38,7 @@ namespace hod::inline ui2
 		LayoutFactory* layoutFactory = LayoutFactory::GetInstance();
 		layoutFactory->Register<HorizontalLayout>();
 		layoutFactory->Register<VerticalLayout>();
+
+		ProjectSettingsManager::GetInstance()->Register<UISettings>();
 	}
 }

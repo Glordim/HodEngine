@@ -69,8 +69,16 @@ namespace hod::inline ui2
 
 		Node*	GetRootNode() const;
 
+		// The canvas' own scaler, only in effect when it overrides the project's (UISettings).
 		const CanvasScaler&	GetScaler() const;
 		void				SetScaler(const CanvasScaler& scaler);
+
+		// Off (the default): the canvas follows the project's UISettings, its own scaler is ignored.
+		bool				GetOverrideScaler() const;
+		void				SetOverrideScaler(bool overrideScaler);
+
+		// The scaler in effect: its own when overriding, the project's otherwise (its own when there is no UISettings).
+		const CanvasScaler&	GetEffectiveScaler() const;
 
 		// Resolution the canvas is displayed at: the render resolution in game, a preview device's in the
 		// editor. Zero (the default) means the design resolution.
@@ -85,6 +93,7 @@ namespace hod::inline ui2
 
 		// Drives the top-down Measure/Arrange pass over the whole node tree, using GetLayoutSize()
 		// as the root's available size. The only place Node::Measure/Node::Arrange are called from.
+		// Picks up the project's UISettings edited since the previous call.
 		void	UpdateLayout();
 
 		// Queues the whole node tree's drawing into renderView's queueType queue. Layout must be up to
@@ -106,6 +115,7 @@ namespace hod::inline ui2
 
 		Node*			_rootNode;
 		CanvasScaler	_scaler;
+		bool			_overrideScaler = false;
 		Vector2			_targetResolution = Vector2::Zero;
 
 		Vector2			_layoutSize = Vector2(1920.0f, 1080.0f);

@@ -17,6 +17,7 @@
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
 #include "HodEngine/Editor/ProjectBrowser.hpp"
+#include "HodEngine/Editor/ProjectSettingsWindow.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/TaskTracker/TaskTrackerWindow.hpp"
 #include "HodEngine/Editor/TitleBar.hpp"
@@ -382,6 +383,11 @@ namespace hod::inline editor
 						}
 						if (ImGui::MenuItem("Paste", "CTRL+V"))
 						{
+						}
+						ImGui::Separator();
+						if (ImGui::MenuItem("Project Settings") == true)
+						{
+							ProjectSettingsWindow::Open();
 						}
 						ImGui::EndMenu();
 					}
@@ -937,6 +943,15 @@ namespace hod::inline editor
 					std::filesystem::path destination = dataDirPath.GetString().CStr() / source.filename();
 					std::filesystem::copy(source, destination, std::filesystem::copy_options::overwrite_existing);
 				}
+			}
+
+			// Loaded by Application::BootGame, absent when every setting has its default value
+			Path projectSettingsDirPath = Project::GetInstance()->GetProjectSettingsDirPath();
+			if (FileSystem::GetInstance()->Exists(projectSettingsDirPath))
+			{
+				Path dataProjectSettingsDirPath = dataDirPath / "ProjectSettings";
+				std::filesystem::remove_all(dataProjectSettingsDirPath.GetString().CStr()); // Without the settings files removed since
+				std::filesystem::copy(projectSettingsDirPath.GetString().CStr(), dataProjectSettingsDirPath.GetString().CStr(), std::filesystem::copy_options::recursive);
 			}
 		}
 		catch (const std::exception& e)

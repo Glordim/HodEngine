@@ -6,6 +6,7 @@
 
 #include <HodEngine/GameSystems/Frame/FrameSequencer.hpp>
 #include <HodEngine/GameSystems/Job/JobScheduler.hpp>
+#include <HodEngine/GameSystems/ProjectSettings/ProjectSettingsManager.hpp>
 
 #include "HodEngine/Game/Builtin.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
@@ -73,11 +74,13 @@ namespace hod::inline application
 		JobScheduler::CreateInstance();
 		FrameSequencer::CreateInstance();
 		ResourceManager::CreateInstance();
+		ProjectSettingsManager::CreateInstance();
 		return true;
 	}
 
 	bool Application::TerminateGameSystems()
 	{
+		ProjectSettingsManager::DestroyInstance();
 		ResourceManager::DestroyInstance();
 		FrameSequencer::DestroyInstance();
 		JobScheduler::DestroyInstance();
@@ -125,6 +128,7 @@ namespace hod::inline application
 		*/
 
 		ResourceManager::GetInstance()->SetResourceDirectory(buildPath / "Datas");
+		ProjectSettingsManager::GetInstance()->Load(buildPath / "Datas" / "ProjectSettings"); // Before StartupModule: the game module registers its settings
 
 		StartupModule();
 

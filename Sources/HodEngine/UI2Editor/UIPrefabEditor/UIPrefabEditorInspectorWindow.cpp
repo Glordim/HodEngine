@@ -31,6 +31,13 @@ namespace hod::inline editor
 		(void)reflectionDescriptor;
 	}
 
+	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorInspectorWindow::CanvasScalerFields, reflectionDescriptor)
+	{
+		AddPropertyT(reflectionDescriptor, &CanvasScalerFields::_overrideProjectSettings, "OverrideProjectSettings");
+		AddPropertyT(reflectionDescriptor, &CanvasScalerFields::_designResolution, "DesignResolution");
+		AddPropertyT(reflectionDescriptor, &CanvasScalerFields::_mode, "Mode");
+	}
+
 	/// @brief
 	UIPrefabEditorInspectorWindow::UIPrefabEditorInspectorWindow(EditorTab* editorTab)
 	: EditorTabWindow(editorTab)
@@ -54,6 +61,9 @@ namespace hod::inline editor
 		// transform goes with the LayoutParams in the Placement block.
 		constexpr std::string_view NameProperty = "Name";
 		constexpr std::string_view GeometryProperties[] = {"Rotation", "Scale", "Pivot"};
+
+		// CanvasScalerFields' row toggling the other ones (see DrawCanvasBlock)
+		constexpr std::string_view OverrideProjectSettingsProperty = "OverrideProjectSettings";
 
 		bool IsGeometryProperty(std::string_view name)
 		{
@@ -501,21 +511,52 @@ namespace hod::inline editor
 		return changed;
 	}
 
-	/// @brief The canvas' scaler: design resolution and how it adapts to the display's ratio.
-	/// @return true if the scaler was edited
+	/// @brief The canvas' scaler: design resolution and how it adapts to the display's ratio, the project's
+	/// (UISettings, shown greyed out) unless the canvas overrides it.
+	/// @return true if the scaling was edited
 	bool UIPrefabEditorInspectorWindow::DrawCanvasBlock(ui2::Canvas& canvas)
 	{
 		bool changed = false;
 
 		if (DrawHelper::BeginInspectorBlock((const void*)BlockCanvas, ICON_MDI_MONITOR_SCREENSHOT, "Canvas Scaler"))
 		{
-			_canvasScaler = canvas.GetScaler();
+			const ui2::CanvasScaler& effectiveScaler = canvas.GetEffectiveScaler();
+			_canvasScalerFields._overrideProjectSettings = canvas.GetOverrideScaler();
+			_canvasScalerFields._designResolution = effectiveScaler._designResolution;
+			_canvasScalerFields._mode = effectiveScaler._mode;
 
-			EditorReflectedObject scalerObject(&_canvasScaler, &ui2::CanvasScaler::GetReflectionDescriptor(), nullptr, this);
-			if (PropertyDrawer::DrawDescriptor(scalerObject))
+			EditorReflectedObject fieldsObject(&_canvasScalerFields, &CanvasScalerFields::GetReflectionDescriptor(), nullptr, this);
+			for (EditorReflectedProperty* property : fieldsObject.GetProperties())
 			{
-				canvas.SetScaler(_canvasScaler);
-				changed = true;
+				if (property->GetReflectionProperty()->GetName() == OverrideProjectSettingsProperty)
+				{
+					if (PropertyDrawer::DrawProperty(*property))
+					{
+						if (_canvasScalerFields._overrideProjectSettings)
+						{
+							canvas.SetScaler(effectiveScaler); // Starts from the project's values
+						}
+						canvas.SetOverrideScaler(_canvasScalerFields._overrideProjectSettings);
+						changed = true;
+					}
+					if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+					{
+						ImGui::SetTooltip("Off: the canvas follows the project's UI settings (Edit > Project Settings)");
+					}
+				}
+				else
+				{
+					ImGui::BeginDisabled(canvas.GetOverrideScaler() == false);
+					if (PropertyDrawer::DrawProperty(*property))
+					{
+						ui2::CanvasScaler scaler;
+						scaler._designResolution = _canvasScalerFields._designResolution;
+						scaler._mode = _canvasScalerFields._mode;
+						canvas.SetScaler(scaler);
+						changed = true;
+					}
+					ImGui::EndDisabled();
+				}
 			}
 		}
 		DrawHelper::EndInspectorBlock();
