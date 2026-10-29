@@ -37,6 +37,8 @@ namespace hod::inline ui2
 
 	public:
 
+							ShapeNode();
+
 		const Color&		GetFillColor() const;
 		void				SetFillColor(const Color& fillColor);
 

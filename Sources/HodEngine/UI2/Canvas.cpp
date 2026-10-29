@@ -208,6 +208,28 @@ namespace hod::inline ui2
 		_rootNode->RemoveChild(node);
 	}
 
+	namespace
+	{
+		void UpdateInteractions(Node* node, float deltaTime)
+		{
+			if (Interaction* interaction = node->GetInteraction())
+			{
+				interaction->Update(deltaTime);
+			}
+			for (Node* child : node->GetChildren())
+			{
+				UpdateInteractions(child, deltaTime);
+			}
+		}
+	}
+
+	/// @brief
+	/// @param deltaTime
+	void Canvas::Update(float deltaTime)
+	{
+		UpdateInteractions(_rootNode, deltaTime);
+	}
+
 	void Canvas::UpdateLayout()
 	{
 		UpdateScaling();
@@ -229,5 +251,158 @@ namespace hod::inline ui2
 	Matrix4 Canvas::ComputeScaleMatrix() const
 	{
 		return Matrix4::Scale(Vector2(_scaleFactor, _scaleFactor));
+	}
+
+	namespace
+	{
+		/// @brief Whether node is root or one of its descendants. Compares addresses only: node may be a deleted one.
+		bool ContainsNode(const Node* root, const Node* node)
+		{
+			if (root == node)
+			{
+				return true;
+			}
+			for (const Node* child : root->GetChildren())
+			{
+				if (ContainsNode(child, node))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		/// @brief node or its closest ancestor having an Interaction, null if none.
+		Node* FindInteractive(Node* node)
+		{
+			while (node != nullptr && node->GetInteraction() == nullptr)
+			{
+				node = node->GetParent();
+			}
+			return node;
+		}
+	}
+
+	/// @brief
+	/// @param position
+	/// @param pressed
+	/// @return
+	bool Canvas::UpdatePointer(const Vector2& position, bool pressed)
+	{
+		ForgetRemovedNodes();
+
+		Node* hitNode = _rootNode->HitTest(position);
+
+		Node* hoveredNode = FindInteractive(hitNode);
+		if (hoveredNode != _hoveredNode)
+		{
+			Node* previousHoveredNode = _hoveredNode;
+			_hoveredNode = hoveredNode;
+			SendPointerEvent(previousHoveredNode, PointerEvent::Type::Exit, position);
+			SendPointerEvent(_hoveredNode, PointerEvent::Type::Enter, position);
+		}
+
+		if (pressed && _pointerPressed == false)
+		{
+			for (Node* node = hitNode; node != nullptr; node = node->GetParent())
+			{
+				if (SendPointerEvent(node, PointerEvent::Type::Press, position))
+				{
+					_pressedNode = node;
+					break;
+				}
+			}
+		}
+		else if (pressed == false && _pointerPressed && _pressedNode != nullptr)
+		{
+			Node* pressedNode = _pressedNode;
+			_pressedNode = nullptr;
+			SendPointerEvent(pressedNode, PointerEvent::Type::Release, position);
+			// The Release handler may have removed it
+			ForgetRemovedNodes();
+			if (ContainsNode(_rootNode, pressedNode) && hitNode != nullptr && (hitNode == pressedNode || hitNode->IsDescendantOf(pressedNode)))
+			{
+				SendPointerEvent(pressedNode, PointerEvent::Type::Click, position);
+			}
+		}
+		_pointerPressed = pressed;
+
+		return hitNode != nullptr;
+	}
+
+	/// @brief
+	void Canvas::ClearPointer()
+	{
+		ForgetRemovedNodes();
+
+		Node* hoveredNode = _hoveredNode;
+		Node* pressedNode = _pressedNode;
+		_hoveredNode = nullptr;
+		_pressedNode = nullptr;
+		_pointerPressed = false;
+
+		SendPointerEvent(hoveredNode, PointerEvent::Type::Exit, Vector2::Zero);
+		SendPointerEvent(pressedNode, PointerEvent::Type::Release, Vector2::Zero);
+	}
+
+	/// @brief
+	/// @return
+	Node* Canvas::GetHoveredNode() const
+	{
+		return _hoveredNode;
+	}
+
+	/// @brief
+	/// @return
+	Node* Canvas::GetPressedNode() const
+	{
+		return _pressedNode;
+	}
+
+	/// @brief
+	/// @return
+	Canvas::ActionEvent& Canvas::GetActionEvent()
+	{
+		return _actionEvent;
+	}
+
+	/// @brief
+	/// @param action
+	/// @param node
+	void Canvas::EmitAction(const String& action, Node& node)
+	{
+		_actionEvent.Emit(action, node);
+	}
+
+	/// @brief
+	/// @param node null sends nothing
+	/// @param type
+	/// @param position
+	/// @return whether node's Interaction handled it
+	bool Canvas::SendPointerEvent(Node* node, PointerEvent::Type type, const Vector2& position)
+	{
+		if (node == nullptr || node->GetInteraction() == nullptr)
+		{
+			return false;
+		}
+
+		PointerEvent event;
+		event._type = type;
+		event._position = position;
+		event._canvas = this;
+		return node->GetInteraction()->OnPointerEvent(event);
+	}
+
+	/// @brief
+	void Canvas::ForgetRemovedNodes()
+	{
+		if (_hoveredNode != nullptr && ContainsNode(_rootNode, _hoveredNode) == false)
+		{
+			_hoveredNode = nullptr;
+		}
+		if (_pressedNode != nullptr && ContainsNode(_rootNode, _pressedNode) == false)
+		{
+			_pressedNode = nullptr;
+		}
 	}
 }

@@ -37,6 +37,14 @@ namespace hod::inline editor
 	/// @brief
 	UIPrefabEditorTab::UIPrefabEditorTab(std::shared_ptr<Asset> asset)
 	: EditorTab(asset, ICON_MDI_VIEW_DASHBOARD)
+	, _onInteractionAction(
+		  [this](const String& action, ui2::Node& node)
+		  {
+			  InteractionLogEntry& entry = _interactionLog.EmplaceBack();
+			  entry._action = action;
+			  entry._nodeName = node.GetName();
+			  entry._time = ImGui::GetTime();
+		  })
 	{
 		if (asset != nullptr)
 		{
@@ -48,6 +56,299 @@ namespace hod::inline editor
 	/// @brief
 	UIPrefabEditorTab::~UIPrefabEditorTab()
 	{
+		SetInteracting(false);
+	}
+
+	/// @brief
+	void UIPrefabEditorTab::AssignLocalIds()
+	{
+		_canvas.GetRootNode()->AssignLocalIds(_nextLocalId);
+	}
+
+	/// @brief
+	/// @return
+	bool UIPrefabEditorTab::IsRecording() const
+	{
+		return _recordedNode != 0;
+	}
+
+	/// @brief
+	/// @param buttonNode
+	/// @param state
+	/// @return
+	bool UIPrefabEditorTab::IsRecording(const ui2::Node* buttonNode, ui2::Button::State state) const
+	{
+		return IsRecording() && buttonNode != nullptr && buttonNode->GetLocalId() == _recordedNode && state == _recordedState;
+	}
+
+	/// @brief
+	/// @return
+	const char* UIPrefabEditorTab::GetRecordedStateName() const
+	{
+		switch (_recordedState)
+		{
+			case ui2::Button::State::Normal: return "Normal";
+			case ui2::Button::State::Hovered: return "Hovered";
+			case ui2::Button::State::Pressed: return "Pressed";
+			case ui2::Button::State::Disabled: return "Disabled";
+		}
+		return "";
+	}
+
+	/// @brief
+	/// @param buttonNode
+	/// @param state
+	void UIPrefabEditorTab::StartRecording(ui2::Node* buttonNode, ui2::Button::State state)
+	{
+		StopRecording();
+
+		ui2::Button* button = (buttonNode != nullptr) ? buttonNode->GetInteraction<ui2::Button>() : nullptr;
+		if (button == nullptr || button->GetOverrides(state) == nullptr)
+		{
+			return;
+		}
+
+		// Every node needs an id: its properties are recorded by it
+		AssignLocalIds();
+
+		_recordedBase.Clear();
+		Vector<ui2::Node*> nodes = {GetPrefabRoot()};
+		for (uint32_t index = 0; index < nodes.Size(); ++index)
+		{
+			ui2::Node* node = nodes[index];
+			for (const ReflectionProperty* property : ui2::PropertyValue::GetOverridableProperties(*node))
+			{
+				RecordedBaseValue& baseValue = _recordedBase.EmplaceBack();
+				baseValue._target = node->GetLocalId();
+				baseValue._property = property->GetName();
+				ui2::PropertyValue::Read(*node, baseValue._property, baseValue._value);
+			}
+			for (ui2::Node* child : node->GetChildren())
+			{
+				nodes.PushBack(child);
+			}
+		}
+
+		_recordedNode = buttonNode->GetLocalId();
+		_recordedState = state;
+
+		// Shows the state as it is so far
+		ApplyRecordedOverrides();
+	}
+
+	/// @brief
+	void UIPrefabEditorTab::StopRecording()
+	{
+		if (IsRecording() == false)
+		{
+			return;
+		}
+
+		UpdateRecording();
+		RestoreRecordedBase();
+
+		_recordedNode = 0;
+		_recordedBase.Clear();
+	}
+
+	/// @brief
+	/// @param target
+	/// @param property
+	void UIPrefabEditorTab::RevertRecordedProperty(uint64_t target, const String& property)
+	{
+		ui2::Node* node = _canvas.GetRootNode()->FindByLocalId(target);
+		if (node == nullptr)
+		{
+			return;
+		}
+		for (const RecordedBaseValue& baseValue : _recordedBase)
+		{
+			if (baseValue._target == target && baseValue._property == property)
+			{
+				baseValue._value.Write(*node, property);
+				break;
+			}
+		}
+	}
+
+	/// @brief The recorded Button, null if it is gone (node deleted, interaction removed or replaced).
+	/// @return
+	ui2::Button* UIPrefabEditorTab::FindRecordedButton() const
+	{
+		ui2::Node* node = _canvas.GetRootNode()->FindByLocalId(_recordedNode);
+		return (node != nullptr) ? node->GetInteraction<ui2::Button>() : nullptr;
+	}
+
+	/// @brief Makes the recorded state's overrides what differs from the authored values: added or updated for the properties
+	/// edited since, removed for the ones back to their authored value. Overrides of properties recording doesn't know (nodes
+	/// added while recording, missing targets) are left as they are. Stops recording if the button is gone.
+	void UIPrefabEditorTab::UpdateRecording()
+	{
+		if (IsRecording() == false)
+		{
+			return;
+		}
+
+		ui2::Button* button = FindRecordedButton();
+		if (button == nullptr)
+		{
+			RestoreRecordedBase();
+			_recordedNode = 0;
+			_recordedBase.Clear();
+			return;
+		}
+
+		Vector<ui2::PropertyOverride>& overrides = *button->GetOverrides(_recordedState);
+		bool                           changed = false;
+		for (const RecordedBaseValue& baseValue : _recordedBase)
+		{
+			ui2::Node*         node = _canvas.GetRootNode()->FindByLocalId(baseValue._target);
+			ui2::PropertyValue value;
+			if (node == nullptr || ui2::PropertyValue::Read(*node, baseValue._property, value) == false)
+			{
+				continue;
+			}
+
+			int32_t overrideIndex = -1;
+			for (uint32_t index = 0; index < overrides.Size(); ++index)
+			{
+				if (overrides[index]._target == baseValue._target && overrides[index]._property == baseValue._property)
+				{
+					overrideIndex = (int32_t)index;
+					break;
+				}
+			}
+
+			if (value.Equals(baseValue._value))
+			{
+				if (overrideIndex >= 0)
+				{
+					overrides.Erase((uint32_t)overrideIndex);
+					changed = true;
+				}
+			}
+			else if (overrideIndex >= 0)
+			{
+				if (overrides[(uint32_t)overrideIndex]._value.Equals(value) == false)
+				{
+					overrides[(uint32_t)overrideIndex]._value = value;
+					changed = true;
+				}
+			}
+			else
+			{
+				ui2::PropertyOverride& propertyOverride = overrides.EmplaceBack();
+				propertyOverride._target = baseValue._target;
+				propertyOverride._property = baseValue._property;
+				propertyOverride._value = value;
+				changed = true;
+			}
+		}
+
+		if (changed)
+		{
+			MarkAsDirty();
+		}
+	}
+
+	/// @brief Puts the recorded properties back to their authored value.
+	void UIPrefabEditorTab::RestoreRecordedBase()
+	{
+		for (const RecordedBaseValue& baseValue : _recordedBase)
+		{
+			ui2::Node*         node = _canvas.GetRootNode()->FindByLocalId(baseValue._target);
+			ui2::PropertyValue value;
+			if (node != nullptr && ui2::PropertyValue::Read(*node, baseValue._property, value) && value.Equals(baseValue._value) == false)
+			{
+				baseValue._value.Write(*node, baseValue._property);
+			}
+		}
+	}
+
+	/// @brief Gives the nodes the recorded state's overrides: how they look in that state.
+	void UIPrefabEditorTab::ApplyRecordedOverrides()
+	{
+		ui2::Button* button = FindRecordedButton();
+		if (button == nullptr)
+		{
+			return;
+		}
+		for (const ui2::PropertyOverride& propertyOverride : *button->GetOverrides(_recordedState))
+		{
+			ui2::Node* node = _canvas.GetRootNode()->FindByLocalId(propertyOverride._target);
+			if (node != nullptr)
+			{
+				propertyOverride._value.Write(*node, propertyOverride._property);
+			}
+		}
+	}
+
+	/// @brief
+	/// @return
+	bool UIPrefabEditorTab::IsInteracting() const
+	{
+		return _interactionCanvas != nullptr;
+	}
+
+	/// @brief
+	/// @param interacting
+	void UIPrefabEditorTab::SetInteracting(bool interacting)
+	{
+		if (interacting == IsInteracting())
+		{
+			return;
+		}
+
+		if (interacting == false)
+		{
+			DefaultAllocator::GetInstance().Delete(_interactionCanvas); // Disconnects _onInteractionAction
+			_interactionCanvas = nullptr;
+			return;
+		}
+
+		// The copy must be the prefab as authored, not the recorded state's look
+		StopRecording();
+
+		// Copied through its document, as saved: the copy is what the prefab gives at runtime.
+		Document document;
+		if (_canvas.SerializeInDocument(document.GetRootNode()) == false)
+		{
+			return;
+		}
+
+		ui2::Canvas* interactionCanvas = DefaultAllocator::GetInstance().New<ui2::Canvas>();
+		if (interactionCanvas->DeserializeFromDocument(document.GetRootNode()) == false || interactionCanvas->GetRootNode()->GetChildren().Size() != 1)
+		{
+			DefaultAllocator::GetInstance().Delete(interactionCanvas);
+			return;
+		}
+		interactionCanvas->SetTargetResolution(_canvas.GetTargetResolution());
+
+		_interactionCanvas = interactionCanvas;
+		_interactionCanvas->GetActionEvent().Connect(_onInteractionAction);
+		_interactionLog.Clear();
+	}
+
+	/// @brief
+	/// @return
+	ui2::Canvas& UIPrefabEditorTab::GetDisplayedCanvas()
+	{
+		return _interactionCanvas != nullptr ? *_interactionCanvas : _canvas;
+	}
+
+	/// @brief
+	/// @return
+	ui2::Node* UIPrefabEditorTab::GetDisplayedPrefabRoot() const
+	{
+		const ui2::Canvas& canvas = _interactionCanvas != nullptr ? *_interactionCanvas : _canvas;
+		return canvas.GetRootNode()->GetChildren()[0];
+	}
+
+	/// @brief
+	/// @return
+	const Vector<UIPrefabEditorTab::InteractionLogEntry>& UIPrefabEditorTab::GetInteractionLog() const
+	{
+		return _interactionLog;
 	}
 
 	/// @brief
@@ -236,6 +537,7 @@ namespace hod::inline editor
 	/// @return
 	bool UIPrefabEditorTab::DrawContent()
 	{
+		UpdateRecording();
 		return true;
 	}
 
@@ -249,6 +551,17 @@ namespace hod::inline editor
 	bool UIPrefabEditorTab::OnSave()
 	{
 		_canvas.GetRootNode()->AssignLocalIds(_nextLocalId);
+
+		// Saved as authored (with the overrides recorded so far), then back to the recorded state's look
+		UpdateRecording();
+		RestoreRecordedBase();
+		ScopedGuard reapplyRecordedOverrides = [&]()
+		{
+			if (IsRecording())
+			{
+				ApplyRecordedOverrides();
+			}
+		};
 
 		Document document;
 		if (_canvas.SerializeInDocument(document.GetRootNode()) == false)

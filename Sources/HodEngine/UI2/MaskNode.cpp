@@ -21,4 +21,13 @@ namespace hod::inline ui2
 		Node::DrawChildren(drawContext);
 		drawContext.PopClipRect();
 	}
+
+	/// @brief
+	/// @return
+	bool MaskNode::ClipsChildren() const
+	{
+		// Same simplification as the drawing: the hit-test clips to the mask's rect itself (rotated with it), the scissor
+		// to its bounding box on screen, so a rotated mask's corners show children the pointer doesn't reach.
+		return true;
+	}
 }

@@ -26,10 +26,20 @@ namespace hod::inline ui2
 
 	void CanvasManager::Update()
 	{
+		SystemTime::TimeStamp now = SystemTime::Now();
+		float                 deltaTime = 0.0f;
+		if (_updatedOnce)
+		{
+			deltaTime = (float)SystemTime::ElapsedTimeInSeconds(_lastUpdateTimestamp, now);
+		}
+		_lastUpdateTimestamp = now;
+		_updatedOnce = true;
+
 		for (Canvas* canvas : _canvases)
 		{
 			if (canvas != nullptr)
 			{
+				canvas->Update(deltaTime);
 				canvas->UpdateLayout();
 			}
 		}

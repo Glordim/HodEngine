@@ -29,6 +29,12 @@ namespace hod::inline editor
 	void UIPrefabEditorHierarchyWindow::DrawContent()
 	{
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
+		if (tab->IsInteracting())
+		{
+			ImGui::TextDisabled("Editing suspended while interacting");
+			return;
+		}
+
 		// A newly selected node may sit under collapsed parents (picked in the viewport): for that one
 		// frame the ancestors are forced open and the node scrolled into view. Only on a change, so the
 		// user stays free to collapse them again afterwards.

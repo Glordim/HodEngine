@@ -27,6 +27,12 @@ namespace hod::inline ui2
 	}
 
 	/// @brief
+	ImageNode::ImageNode()
+	{
+		SetPointerTarget(true); // Fills its rect
+	}
+
+	/// @brief
 	/// @return
 	const WeakResource<TextureResource>& ImageNode::GetTexture() const
 	{

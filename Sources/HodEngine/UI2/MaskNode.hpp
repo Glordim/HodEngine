@@ -14,5 +14,6 @@ namespace hod::inline ui2
 	protected:
 
 		void	DrawChildren(DrawContext& drawContext) override;
+		bool	ClipsChildren() const override;
 	};
 }

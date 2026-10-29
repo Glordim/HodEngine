@@ -45,6 +45,12 @@ namespace hod::inline ui2
 	}
 
 	/// @brief
+	ShapeNode::ShapeNode()
+	{
+		SetPointerTarget(true); // Fills its rect
+	}
+
+	/// @brief
 	/// @return
 	const Color& ShapeNode::GetFillColor() const
 	{

@@ -21,6 +21,8 @@ namespace hod::inline ui2
 
 	public:
 
+												ImageNode();
+
 		const WeakResource<TextureResource>&	GetTexture() const;
 		void									SetTexture(const WeakResource<TextureResource>& texture);
 

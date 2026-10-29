@@ -14,6 +14,7 @@
 namespace hod::inline ui2
 {
 	class Node;
+	class Canvas;
 }
 
 namespace hod::inline rhi
@@ -42,6 +43,8 @@ namespace hod::inline editor
 	/// ui2::CanvasScaler), so anchors and layouts can be checked on other aspect ratios. Switching device eases the
 	/// resolution towards the new one, so the layout morphs progressively. The device's frame is outlined and labeled.
 	/// Never saved in the prefab: the devices, the active one and the grid settings are persisted per user.
+	/// The toolbar's Interact toggle switches to the interact mode (see UIPrefabEditorTab::SetInteracting): the mouse then drives
+	/// the prefab's Interactions instead of selecting and moving nodes, with what the pointer reaches outlined (see DrawInteractionOverlay).
 	/// Known simplification: rotation and scale are ignored (boxes are drawn axis-aligned, at the layout size,
 	/// centered on the node's computed canvas-space center).
 	class HOD_UI2_EDITOR_API UIPrefabEditorViewportWindow : public EditorTabWindow
@@ -74,6 +77,9 @@ namespace hod::inline editor
 		void		DrawNode(ui2::Node* node, RenderView& renderView);
 		void		DrawSpacing(ui2::Node* node, RenderView& renderView);
 		ui2::Node*	PickNode(ui2::Node* node, const Vector2& canvasPosition);
+
+		ui2::Node*	UpdateInteraction(ui2::Canvas& canvas, const Vector2& canvasMousePosition, bool mouseAvailable);
+		void		DrawInteractionOverlay(ui2::Canvas& canvas, ui2::Node* hitNode, RenderView& renderView);
 
 		// Manipulation gizmo drawn over the selected node, mirroring UIEditor's
 		// NodeCustomComponentDrawer (move via the node's body, resize via the 4 corners / 4 edges),
@@ -127,6 +133,9 @@ namespace hod::inline editor
 		// Zoom relative to _baseScale: the view draws at _baseScale * _camera.GetZoom() pixels per canvas unit.
 		FramingCamera _camera;
 		bool          _frameDeviceRequested = false; // a device was picked in the list: its frame is framed on the next frame
+
+		// Interact mode: whether the left button is down after a press started over the viewport (see UpdateInteraction)
+		bool _interactionPointerDown = false;
 
 		GizmoHandle _hoveredGizmoHandle = GizmoHandle::None;
 		GizmoHandle _draggedGizmoHandle = GizmoHandle::None;

@@ -15,6 +15,9 @@
 #include "HodEngine/UI2/LayoutFactory.hpp"
 #include "HodEngine/UI2/BoxLayout.hpp"
 
+#include "HodEngine/UI2/InteractionFactory.hpp"
+#include "HodEngine/UI2/Button.hpp"
+
 #include "HodEngine/UI2/UISettings.hpp"
 
 #include <HodEngine/GameSystems/ProjectSettings/ProjectSettingsManager.hpp>
@@ -38,6 +41,9 @@ namespace hod::inline ui2
 		LayoutFactory* layoutFactory = LayoutFactory::GetInstance();
 		layoutFactory->Register<HorizontalLayout>();
 		layoutFactory->Register<VerticalLayout>();
+
+		InteractionFactory* interactionFactory = InteractionFactory::GetInstance();
+		interactionFactory->Register<Button>();
 
 		ProjectSettingsManager::GetInstance()->Register<UISettings>();
 	}

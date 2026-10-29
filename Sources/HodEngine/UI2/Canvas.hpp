@@ -1,7 +1,10 @@
 #pragma once
 #include "HodEngine/UI2/Export.hpp"
+#include "HodEngine/UI2/PointerEvent.hpp"
 
+#include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
+#include <HodEngine/Core/String.hpp>
 #include <HodEngine/Math/Matrix4.hpp>
 #include <HodEngine/Math/Vector2.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
@@ -55,6 +58,10 @@ namespace hod::inline ui2
 	{
 	public:
 
+		using ActionEvent = Event<const String&, Node&>;
+
+	public:
+
 		Canvas();
 		Canvas(const Canvas&) = delete;
 		Canvas(Canvas&&) = delete;
@@ -91,6 +98,10 @@ namespace hod::inline ui2
 		// Pixels per canvas unit at the target resolution (see CanvasScaler).
 		float				GetScaleFactor() const;
 
+		// Advances what plays over time in the tree (the Interactions' state transitions, see Interaction::Update). Before
+		// UpdateLayout(): what it changes (sizes, scales...) is laid out in the same frame.
+		void	Update(float deltaTime);
+
 		// Drives the top-down Measure/Arrange pass over the whole node tree, using GetLayoutSize()
 		// as the root's available size. The only place Node::Measure/Node::Arrange are called from.
 		// Picks up the project's UISettings edited since the previous call.
@@ -107,9 +118,37 @@ namespace hod::inline ui2
 		bool	SerializeInDocument(DocumentNode& documentNode);
 		bool	DeserializeFromDocument(const DocumentNode& documentNode);
 
+		// Pointer input, already in canvas space: whoever owns the pointer converts it (the CanvasManager from the game's
+		// input, the UI editor from its viewport's mouse). Call it once per frame while the pointer is over the canvas, with
+		// the primary button's state: the canvas sends the hovered node's Interaction its Enter/Exit, and on the button's
+		// transitions the Press (bubbling from the hit node up to the first Interaction handling it), then Release and Click
+		// to that one (see PointerEvent). Layout must be up to date (UpdateLayout()).
+		// @return whether the pointer is over a node catching it (see Node::HitTest): the input is the UI's, not what is under it
+		bool	UpdatePointer(const Vector2& position, bool pressed);
+
+		// The pointer is not over the canvas anymore (out of the view, or taken by something above it): the hovered node gets
+		// its Exit, and a press in progress its Release, without Click.
+		void	ClearPointer();
+
+		// What the pointer is over (the node whose Interaction got Enter, null if none), and the node whose Interaction
+		// handled the press in progress (null if none).
+		Node*	GetHoveredNode() const;
+		Node*	GetPressedNode() const;
+
+		// Emitted by Interactions (see Button's Action): an action name set in the prefab, and the node emitting it. How gameplay
+		// listens to the UI without knowing its tree.
+		ActionEvent&	GetActionEvent();
+		void			EmitAction(const String& action, Node& node);
+
 	private:
 
 		void	UpdateScaling();
+
+		bool	SendPointerEvent(Node* node, PointerEvent::Type type, const Vector2& position);
+
+		// Drops the tracked nodes (hovered, pressed) that are not in the tree anymore: removed and deleted since the last
+		// pointer update. Only compares addresses, never reads a node that may be deleted.
+		void	ForgetRemovedNodes();
 
 	private:
 
@@ -120,5 +159,11 @@ namespace hod::inline ui2
 
 		Vector2			_layoutSize = Vector2(1920.0f, 1080.0f);
 		float			_scaleFactor = 1.0f;
+
+		Node*			_hoveredNode = nullptr;
+		Node*			_pressedNode = nullptr;
+		bool			_pointerPressed = false;
+
+		ActionEvent		_actionEvent;
 	};
 }

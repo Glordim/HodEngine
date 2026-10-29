@@ -14,6 +14,8 @@
 #include <HodEngine/UI2/AnchoredLayoutParams.hpp>
 #include <HodEngine/UI2/BoxLayout.hpp>
 #include <HodEngine/UI2/BoxLayoutParams.hpp>
+#include <HodEngine/UI2/Button.hpp>
+#include <HodEngine/UI2/Canvas.hpp>
 #include <HodEngine/UI2/LayoutParams.hpp>
 #include <HodEngine/UI2/Node.hpp>
 #include <HodEngine/UI2/NodeFactory.hpp>
@@ -117,14 +119,18 @@ namespace hod::inline editor
 	void UIPrefabEditorViewportWindow::DrawViewport(bool mouseOverToolbar)
 	{
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
-		ui2::Node*         root = tab->GetCanvas().GetRootNode();
+		// While interacting, the interact mode's copy (see UIPrefabEditorTab::SetInteracting): laid out, drawn and fed the pointer instead.
+		bool         interacting = tab->IsInteracting();
+		ui2::Canvas& canvas = tab->GetDisplayedCanvas();
+		ui2::Node*   root = canvas.GetRootNode();
+		ui2::Node*   prefabRoot = tab->GetDisplayedPrefabRoot();
 
 		// Laid out for the previewed device as it would be in game. Only the tab's runtime canvas state: never saved in the prefab.
 		// Eased towards the device's resolution rather than snapping to it, so switching device (or rotating it) morphs the layout progressively.
 		Vector2 previewGoal = _settings.GetPreviewResolution();
 		if (previewGoal == Vector2::Zero)
 		{
-			previewGoal = tab->GetCanvas().GetEffectiveScaler()._designResolution;
+			previewGoal = canvas.GetEffectiveScaler()._designResolution;
 		}
 		if (_previewResolution == Vector2::Zero)
 		{
@@ -139,8 +145,8 @@ namespace hod::inline editor
 				_previewResolution = previewGoal;
 			}
 		}
-		tab->GetCanvas().SetTargetResolution(_previewResolution);
-		tab->GetCanvas().UpdateLayout();
+		canvas.SetTargetResolution(_previewResolution);
+		canvas.UpdateLayout();
 		Vector2 canvasSize = root->GetSize();
 		ImVec2  available = ImGui::GetContentRegionAvail();
 		if (available.x <= 1.0f || available.y <= 1.0f || canvasSize.GetX() <= 0.0f || canvasSize.GetY() <= 0.0f)
@@ -172,7 +178,7 @@ namespace hod::inline editor
 		// Eased on its own instead, so the camera goes straight to the final framing while the layout morphs.
 		Vector2 goalLayoutSize;
 		float   goalScaleFactor = 1.0f;
-		tab->GetCanvas().GetEffectiveScaler().Compute(previewGoal, goalLayoutSize, goalScaleFactor);
+		canvas.GetEffectiveScaler().Compute(previewGoal, goalLayoutSize, goalScaleFactor);
 		Vector2 goalFrameSize = previewGoal / goalScaleFactor;
 		float   goalBaseScale = Framing::ComputeScale(goalFrameSize, Vector2((float)resolutionWidth, (float)resolutionHeight));
 		if (_baseScale <= 0.0f || viewportResized)
@@ -199,8 +205,8 @@ namespace hod::inline editor
 			frameSelection = true;
 		}
 		// Delete (here or in the hierarchy) removes the selected node. Before the selection is read below, nothing of it is drawn yet.
-		if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Delete, false) && ImGui::GetIO().WantTextInput == false &&
-		    tab->GetSelectedNode() != nullptr && _draggedGizmoHandle == GizmoHandle::None)
+		if (interacting == false && ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Delete, false) &&
+		    ImGui::GetIO().WantTextInput == false && tab->GetSelectedNode() != nullptr && _draggedGizmoHandle == GizmoHandle::None)
 		{
 			tab->DeleteNode(tab->GetSelectedNode());
 		}
@@ -209,7 +215,8 @@ namespace hod::inline editor
 		_frameDeviceRequested = false;
 
 		Vector2    viewSize((float)resolutionWidth, (float)resolutionHeight);
-		ui2::Node* selectedNode = tab->GetSelectedNode();
+		// The selection belongs to the edited canvas, not to the interact mode's copy: no selection while interacting.
+		ui2::Node* selectedNode = interacting ? nullptr : tab->GetSelectedNode();
 		if (frameSelection && frameDevice == false && selectedNode != nullptr)
 		{
 			_camera.Frame(selectedNode->ComputeCanvasMatrix().GetTranslation(), selectedNode->GetSize(), viewSize, baseScale, true);
@@ -224,7 +231,6 @@ namespace hod::inline editor
 			// The tab opens on the prefab root framed, already in place rather than animated there. Snapped again on each
 			// viewport resize until the camera is moved: the docked windows of a freshly opened tab only get their final
 			// size a few frames later, so the first frame's framing is computed for a viewport of another size.
-			ui2::Node* prefabRoot = tab->GetPrefabRoot();
 			_camera.Frame(prefabRoot->ComputeCanvasMatrix().GetTranslation(), prefabRoot->GetSize(), viewSize, baseScale, false);
 		}
 
@@ -278,6 +284,20 @@ namespace hod::inline editor
 		bool   mouseInsideImage =
 			mouseImagePos.x >= 0.0f && mouseImagePos.x < (float)resolutionWidth && mouseImagePos.y >= 0.0f && mouseImagePos.y < (float)resolutionHeight;
 		Vector2 mouseCanvasPos = screenToCanvas(ImGui::GetIO().MousePos);
+
+		ui2::Node* hitNode = nullptr;
+		if (interacting)
+		{
+			hitNode = UpdateInteraction(canvas, mouseCanvasPos, hovered && mouseInsideImage);
+
+			// The state transitions the pointer just started (or already playing), laid out again before drawing
+			canvas.Update(ImGui::GetIO().DeltaTime);
+			canvas.UpdateLayout();
+		}
+		else
+		{
+			_interactionPointerDown = false;
+		}
 
 		if (selectedNode != nullptr)
 		{
@@ -335,10 +355,18 @@ namespace hod::inline editor
 
 		// The actual content first: the outlines/gizmos below are pushed with a later (or the maximum)
 		// rendering order, so they stay on top of it.
-		tab->GetCanvas().PushRenderCommand(*renderView, RenderView::RenderQueueType::World);
+		canvas.PushRenderCommand(*renderView, RenderView::RenderQueueType::World);
 
-		// Only the prefab root's subtree: `root` is the hidden container, whose rect is the design resolution, not part of the prefab.
-		DrawNode(tab->GetPrefabRoot(), *renderView);
+		if (interacting)
+		{
+			// The prefab as it would look in game: no outlines, only what the pointer reaches
+			DrawInteractionOverlay(canvas, hitNode, *renderView);
+		}
+		else
+		{
+			// Only the prefab root's subtree: `root` is the hidden container, whose rect is the design resolution, not part of the prefab.
+			DrawNode(prefabRoot, *renderView);
+		}
 
 		if (selectedNode != nullptr)
 		{
@@ -351,14 +379,19 @@ namespace hod::inline editor
 		}
 
 		ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
+		if (tab->IsRecording())
+		{
+			// Framed in red as long as the edits record a state rather than change the prefab
+			ImGui::GetWindowDrawList()->AddRect(imagePos, imagePos + ImVec2((float)resolutionWidth, (float)resolutionHeight), IM_COL32(230, 60, 60, 255), 0.0f, 3.0f);
+		}
 		DrawPreviewLabels(imagePos, ImVec2((float)resolutionWidth, (float)resolutionHeight), scale);
 
-		if (hovered && mouseInsideImage && ImGui::IsMouseClicked(ImGuiMouseButton_Left) && _draggedGizmoHandle == GizmoHandle::None)
+		if (interacting == false && hovered && mouseInsideImage && ImGui::IsMouseClicked(ImGuiMouseButton_Left) && _draggedGizmoHandle == GizmoHandle::None)
 		{
-			tab->SetSelectedNode(PickNode(tab->GetPrefabRoot(), mouseCanvasPos));
+			tab->SetSelectedNode(PickNode(prefabRoot, mouseCanvasPos));
 		}
 
-		if (ImGui::BeginDragDropTarget())
+		if (interacting == false && ImGui::BeginDragDropTarget())
 		{
 			const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("UI2NodeLibraryDescriptor");
 			if (payload != nullptr)
@@ -427,6 +460,30 @@ namespace hod::inline editor
 
 		ImGui::SameLine();
 		_settingsDirty |= DrawHelper::DrawToggleWithSettings(ICON_MDI_GRID " Grid", "grid", "UIPrefabGrid", _settings._gridVisible);
+
+		ImGui::SameLine();
+		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
+		if (tab->IsRecording())
+		{
+			String label = String(ICON_MDI_STOP " Recording ") + tab->GetRecordedStateName();
+			ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 80, 80, 255));
+			if (FramedButton(label.CStr(), true))
+			{
+				tab->StopRecording();
+			}
+			ImGui::PopStyleColor();
+			ImGui::SetItemTooltip("Edits to colors, scales... record the state's overrides. Click to stop and go back to the prefab as authored");
+			ImGui::SameLine();
+		}
+		if (FramedButton(ICON_MDI_CURSOR_DEFAULT_CLICK " Interact", tab->IsInteracting()))
+		{
+			tab->SetInteracting(tab->IsInteracting() == false);
+		}
+		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+		{
+			ImGui::SetTooltip(tab->IsInteracting() ? "Back to editing (the interactions' state changes are dropped)"
+			                                       : "Try the interactions with the mouse, on a copy of the prefab (editing is suspended meanwhile)");
+		}
 
 		DrawDevicesPopup();
 		DrawGridSettingsPopup();
@@ -735,6 +792,73 @@ namespace hod::inline editor
 	/// @brief
 	/// @param node
 	/// @param renderView
+	/// @brief Feeds the interact mode's canvas the mouse, as the game's input would be. The button only counts as down for a press
+	/// started over the viewport (not one started elsewhere in the editor then dragged in), and the pointer stays tracked outside of
+	/// the viewport until it is released, as a game window captures the mouse.
+	/// @param canvas the interact mode's canvas, laid out
+	/// @param canvasMousePosition
+	/// @param mouseAvailable whether the mouse is over the viewport's image, and not used by the toolbar
+	/// @return the node the hit-test finds under the mouse, null if none or not over the viewport
+	ui2::Node* UIPrefabEditorViewportWindow::UpdateInteraction(ui2::Canvas& canvas, const Vector2& canvasMousePosition, bool mouseAvailable)
+	{
+		if (mouseAvailable && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+		{
+			_interactionPointerDown = true;
+		}
+		else if (ImGui::IsMouseDown(ImGuiMouseButton_Left) == false)
+		{
+			_interactionPointerDown = false;
+		}
+
+		if (mouseAvailable == false && _interactionPointerDown == false)
+		{
+			canvas.ClearPointer();
+			return nullptr;
+		}
+
+		canvas.UpdatePointer(canvasMousePosition, _interactionPointerDown);
+		return mouseAvailable ? canvas.GetRootNode()->HitTest(canvasMousePosition) : nullptr;
+	}
+
+	/// @brief Interact mode's overlay: what the pointer reaches. The node the hit-test finds under the mouse in white, and the
+	/// node whose Interaction gets the pointer (hovered, or holding the press) colored after its state when it is a Button.
+	/// Drawn with their canvas matrix: exactly the rect the hit-test uses, rotated and scaled, unlike the edit mode's outlines.
+	/// @param canvas the interact mode's canvas
+	/// @param hitNode
+	/// @param renderView
+	void UIPrefabEditorViewportWindow::DrawInteractionOverlay(ui2::Canvas& canvas, ui2::Node* hitNode, RenderView& renderView)
+	{
+		if (hitNode != nullptr)
+		{
+			Gizmos::Rect(hitNode->ComputeCanvasMatrix(), hitNode->GetSize(), Color(1.0f, 1.0f, 1.0f, 0.6f), renderView);
+		}
+
+		auto drawInteractive = [&](ui2::Node* node)
+		{
+			Color color(0.0f, 170.0f / 255.0f, 1.0f, 1.0f);
+			if (const ui2::Button* button = node->GetInteraction<ui2::Button>())
+			{
+				switch (button->GetState())
+				{
+					case ui2::Button::State::Normal: break;
+					case ui2::Button::State::Hovered: color = Color(1.0f, 200.0f / 255.0f, 50.0f / 255.0f, 1.0f); break;
+					case ui2::Button::State::Pressed: color = Color(80.0f / 255.0f, 220.0f / 255.0f, 100.0f / 255.0f, 1.0f); break;
+					case ui2::Button::State::Disabled: color = Color(0.5f, 0.5f, 0.5f, 1.0f); break;
+				}
+			}
+			Gizmos::Rect(node->ComputeCanvasMatrix(), node->GetSize(), color, renderView);
+		};
+
+		if (canvas.GetHoveredNode() != nullptr)
+		{
+			drawInteractive(canvas.GetHoveredNode());
+		}
+		if (canvas.GetPressedNode() != nullptr && canvas.GetPressedNode() != canvas.GetHoveredNode())
+		{
+			drawInteractive(canvas.GetPressedNode());
+		}
+	}
+
 	void UIPrefabEditorViewportWindow::DrawNode(ui2::Node* node, RenderView& renderView)
 	{
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();

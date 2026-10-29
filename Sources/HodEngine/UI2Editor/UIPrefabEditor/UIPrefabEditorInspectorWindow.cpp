@@ -22,6 +22,12 @@
 #include <HodEngine/UI2/LayoutParams.hpp>
 #include <HodEngine/UI2/Layout.hpp>
 #include <HodEngine/UI2/LayoutFactory.hpp>
+#include <HodEngine/UI2/Button.hpp>
+#include <HodEngine/UI2/Interaction.hpp>
+#include <HodEngine/UI2/InteractionFactory.hpp>
+#include <HodEngine/UI2/PropertyOverride.hpp>
+
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
 #include <HodEngine/UI2/NodeFactory.hpp>
 
 namespace hod::inline editor
@@ -55,11 +61,15 @@ namespace hod::inline editor
 			BlockLayout,
 			BlockLayoutParams,
 			BlockCanvas,
+			BlockInteraction,
 		};
 
 		// Node properties that are not drawn among the node's content: the name has its own row on top, the
 		// transform goes with the LayoutParams in the Placement block.
 		constexpr std::string_view NameProperty = "Name";
+
+		// Node property drawn greyed out when the node has an Interaction, which catches the pointer anyway
+		constexpr std::string_view PointerTargetProperty = "PointerTarget";
 		constexpr std::string_view GeometryProperties[] = {"Rotation", "Scale", "Pivot"};
 
 		// CanvasScalerFields' row toggling the other ones (see DrawCanvasBlock)
@@ -224,6 +234,12 @@ namespace hod::inline editor
 	void UIPrefabEditorInspectorWindow::DrawContent()
 	{
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
+		if (tab->IsInteracting())
+		{
+			DrawInteractingState(tab->GetDisplayedCanvas(), tab->GetInteractionLog());
+			return;
+		}
+
 		ui2::Node*         node = tab->GetSelectedNode();
 		if (tab->IsCanvasSelected())
 		{
@@ -252,7 +268,10 @@ namespace hod::inline editor
 		// 2. What the node's type adds
 		changed |= DrawContentBlock(node, nodeObject, convertDescriptor);
 
-		// 3. How the node arranges its own children: rarely added, so last
+		// 3. How the node reacts to the pointer
+		changed |= DrawInteractionBlock(node);
+
+		// 4. How the node arranges its own children: rarely added, so last
 		changed |= DrawLayoutBlock(node);
 
 		if (changed)
@@ -500,7 +519,19 @@ namespace hod::inline editor
 			for (EditorReflectedProperty* property : nodeObject.GetProperties())
 			{
 				std::string_view name = property->GetReflectionProperty()->GetName();
-				if (name != NameProperty && IsGeometryProperty(name) == false)
+				if (name == PointerTargetProperty)
+				{
+					bool hasInteraction = (node->GetInteraction() != nullptr);
+					ImGui::BeginDisabled(hasInteraction);
+					changed |= PropertyDrawer::DrawProperty(*property);
+					ImGui::EndDisabled();
+					if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled))
+					{
+						ImGui::SetTooltip(hasInteraction ? "Always on with an Interaction"
+						                                 : "Whether the pointer stops on this node: what is under it doesn't get it");
+					}
+				}
+				else if (name != NameProperty && IsGeometryProperty(name) == false)
 				{
 					changed |= PropertyDrawer::DrawProperty(*property);
 				}
@@ -562,6 +593,392 @@ namespace hod::inline editor
 		DrawHelper::EndInspectorBlock();
 
 		return changed;
+	}
+
+	/// @brief Interaction attached to `node` (how it reacts to the pointer). Shown as a block when one is attached, removable from
+	/// the header's close button, otherwise an "Add Interaction" button is shown.
+	/// @return true if the node's interaction was added, removed or edited
+	bool UIPrefabEditorInspectorWindow::DrawInteractionBlock(ui2::Node* node)
+	{
+		bool                  changed = false;
+		ReflectionDescriptor* newInteractionDescriptor = nullptr;
+		bool                  removeInteraction = false;
+
+		ui2::Interaction* interaction = node->GetInteraction();
+		if (interaction != nullptr)
+		{
+			ReflectionDescriptor& currentDescriptor = interaction->GetReflectionDescriptorV();
+
+			String title = String("Interaction: ") + currentDescriptor.GetDisplayName();
+			if (DrawHelper::BeginInspectorBlock((const void*)BlockInteraction, DrawHelper::GetTypeIcon(currentDescriptor, ICON_MDI_GESTURE_TAP), title.CStr(), nullptr,
+			                                    &removeInteraction))
+			{
+				EditorReflectedObject interactionObject(interaction, &currentDescriptor, nullptr, this);
+				changed |= PropertyDrawer::DrawDescriptor(interactionObject);
+
+				if (ui2::Button* button = ui2::Interaction::Cast<ui2::Button>(interaction))
+				{
+					changed |= DrawStateOverrides(node, *button);
+				}
+			}
+			DrawHelper::EndInspectorBlock();
+		}
+		else
+		{
+			ImVec2 addButtonSize = ImGui::CalcTextSize("  Add Interaction  ") + ImVec2(35.0f, 15.0f);
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x * 0.5f - addButtonSize.x * 0.5f));
+			if (ImGui::Button("  Add Interaction  ", addButtonSize))
+			{
+				ImGui::OpenPopup("UIPrefabAddInteraction");
+			}
+			if (ImGui::BeginPopup("UIPrefabAddInteraction"))
+			{
+				for (const auto& descriptorPair : ui2::InteractionFactory::GetInstance()->GetAllDescriptors())
+				{
+					String label = String(DrawHelper::GetTypeIcon(*descriptorPair.second)) + " " + descriptorPair.second->GetDisplayName();
+					if (ImGui::MenuItem(label.CStr()))
+					{
+						newInteractionDescriptor = descriptorPair.second;
+					}
+				}
+				ImGui::EndPopup();
+			}
+			ImGui::Spacing();
+		}
+
+		// Applied once everything referencing the current interaction has been drawn: SetInteraction destroys it.
+		if (removeInteraction)
+		{
+			node->SetInteraction(nullptr);
+			changed = true;
+		}
+		else if (newInteractionDescriptor != nullptr)
+		{
+			node->SetInteraction(newInteractionDescriptor->CreateInstance<ui2::Interaction>());
+			changed = true;
+		}
+
+		return changed;
+	}
+
+	namespace
+	{
+		/// @brief The property a new override of node targets first: its first color (what a state changes the most), otherwise its first overridable one.
+		/// @return empty if node has none
+		String GetDefaultOverrideProperty(const ui2::Node& node)
+		{
+			Vector<const ReflectionProperty*> properties = ui2::PropertyValue::GetOverridableProperties(node);
+			for (const ReflectionProperty* property : properties)
+			{
+				ui2::PropertyValue::Type type;
+				if (ui2::PropertyValue::GetType(*property, type) && type == ui2::PropertyValue::Type::Color)
+				{
+					return property->GetName();
+				}
+			}
+			return properties.Empty() ? String() : String(properties[0]->GetName());
+		}
+
+		/// @brief A node of the prefab, as listed in the override target picker: its icon and name.
+		String GetNodeLabel(const ui2::Node& node)
+		{
+			String name = node.GetName().Empty() ? String("(unnamed)") : node.GetName();
+			return String(DrawHelper::GetTypeIcon(node.GetReflectionDescriptorV(), ICON_MDI_VECTOR_SQUARE)) + " " + name;
+		}
+
+		/// @brief Target picker entries: node then its descendants, indented by depth as in the hierarchy.
+		/// @return true if one was picked (outPicked)
+		bool DrawTargetItems(ui2::Node& node, uint32_t depth, const ui2::Node* current, ui2::Node*& outPicked)
+		{
+			ImGui::PushID(&node);
+			String label = String(std::string(depth * 2, ' ').c_str()) + GetNodeLabel(node);
+			bool   picked = false;
+			if (ImGui::Selectable(label.CStr(), &node == current))
+			{
+				outPicked = &node;
+				picked = true;
+			}
+			ImGui::PopID();
+
+			for (ui2::Node* child : node.GetChildren())
+			{
+				picked |= DrawTargetItems(*child, depth + 1, current, outPicked);
+			}
+			return picked;
+		}
+	}
+
+	/// @brief A Button's look per state: for Hovered, Pressed and Disabled, the list of property overrides applied in that state
+	/// (Normal is the prefab as authored), each a target node, one of its properties and the value it takes. Seen in interact mode.
+	/// Each state can be recorded (see UIPrefabEditorTab::StartRecording): its overrides then follow the edits of the nodes, and are
+	/// only removable here (which puts the property back). The other states can't be edited meanwhile.
+	/// @return true if an override was added, removed or edited
+	bool UIPrefabEditorInspectorWindow::DrawStateOverrides(ui2::Node* node, ui2::Button& button)
+	{
+		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
+		bool               changed = false;
+
+		struct StateEntry
+		{
+			ui2::Button::State _state;
+			const char*        _label;
+		};
+		constexpr StateEntry states[] = {
+			{ui2::Button::State::Hovered, "Hovered"},
+			{ui2::Button::State::Pressed, "Pressed"},
+			{ui2::Button::State::Disabled, "Disabled"},
+		};
+
+		for (const StateEntry& stateEntry : states)
+		{
+			ImGui::PushID(stateEntry._label);
+
+			bool recording = tab->IsRecording(node, stateEntry._state);
+			bool otherRecorded = tab->IsRecording() && recording == false;
+
+			if (recording)
+			{
+				ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 80, 80, 255));
+			}
+			ImGui::SeparatorText(recording ? (String(stateEntry._label) + " (recording)").CStr() : stateEntry._label);
+			if (recording)
+			{
+				ImGui::PopStyleColor();
+			}
+
+			ImGui::BeginDisabled(otherRecorded);
+
+			Vector<ui2::PropertyOverride>& overrides = *button.GetOverrides(stateEntry._state);
+			int32_t                        removeIndex = -1;
+			for (uint32_t index = 0; index < overrides.Size(); ++index)
+			{
+				ImGui::PushID((int)index);
+				bool removeRequested = false;
+				changed |= DrawPropertyOverride(node, overrides[index], recording, removeRequested);
+				if (removeRequested)
+				{
+					removeIndex = (int32_t)index;
+				}
+				ImGui::PopID();
+			}
+
+			if (removeIndex >= 0)
+			{
+				if (recording)
+				{
+					// The recording drops the override once the property is back to its authored value
+					tab->RevertRecordedProperty(overrides[(uint32_t)removeIndex]._target, overrides[(uint32_t)removeIndex]._property);
+				}
+				else
+				{
+					overrides.Erase((uint32_t)removeIndex);
+					changed = true;
+				}
+			}
+
+			if (recording)
+			{
+				ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 80, 80, 255));
+			}
+			if (ImGui::SmallButton(recording ? ICON_MDI_STOP " Stop Recording" : ICON_MDI_RECORD " Record"))
+			{
+				if (recording)
+				{
+					tab->StopRecording();
+				}
+				else
+				{
+					tab->StartRecording(node, stateEntry._state);
+				}
+			}
+			if (recording)
+			{
+				ImGui::PopStyleColor();
+			}
+			ImGui::SetItemTooltip(recording ? "Back to the prefab as authored"
+			                                : "Show this state, and record the colors, scales... edited on any node (inspector) as its overrides");
+
+			// Starts on the button's own node, with its current value: the state then looks the same until edited
+			ImGui::SameLine();
+			if (recording == false && ImGui::SmallButton(ICON_MDI_PLUS " Add Override"))
+			{
+				tab->AssignLocalIds();
+
+				ui2::PropertyOverride propertyOverride;
+				propertyOverride._target = node->GetLocalId();
+				propertyOverride._property = GetDefaultOverrideProperty(*node);
+				ui2::PropertyValue::Read(*node, propertyOverride._property, propertyOverride._value);
+				overrides.PushBack(propertyOverride);
+				changed = true;
+			}
+
+			ImGui::EndDisabled();
+			ImGui::PopID();
+		}
+
+		return changed;
+	}
+
+	/// @brief One override: the target node and its property on a first row (pickers), the value on a second one.
+	/// @param owner the node of the Button the override belongs to
+	/// @param propertyOverride
+	/// @param recording whether its state is being recorded: read-only then (the recording sets it), except its remove button
+	/// @param removeRequested set when its remove button is clicked
+	/// @return true if edited
+	bool UIPrefabEditorInspectorWindow::DrawPropertyOverride(ui2::Node* owner, ui2::PropertyOverride& propertyOverride, bool recording, bool& removeRequested)
+	{
+		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
+		bool               changed = false;
+
+		ui2::Node* target = tab->GetCanvas().GetRootNode()->FindByLocalId(propertyOverride._target);
+
+		float removeWidth = ImGui::CalcTextSize(ICON_MDI_CLOSE).x + ImGui::GetStyle().FramePadding.x * 2.0f;
+		float pickerWidth = (ImGui::GetContentRegionAvail().x - removeWidth - ImGui::GetStyle().ItemSpacing.x * 2.0f) * 0.5f;
+
+		ImGui::BeginDisabled(recording);
+		ImGui::SetNextItemWidth(pickerWidth);
+		String targetLabel = (target != nullptr) ? GetNodeLabel(*target) : String(ICON_MDI_ALERT " Missing node");
+		if (ImGui::BeginCombo("##Target", targetLabel.CStr(), ImGuiComboFlags_HeightLarge))
+		{
+			ui2::Node* picked = nullptr;
+			if (DrawTargetItems(*tab->GetPrefabRoot(), 0, target, picked) && picked != target)
+			{
+				tab->AssignLocalIds();
+				target = picked;
+				propertyOverride._target = picked->GetLocalId();
+
+				// Keeps the property when the new target has it too (e.g. one shape's color for another's)
+				ui2::PropertyValue value;
+				if (ui2::PropertyValue::Read(*target, propertyOverride._property, value) == false || value._type != propertyOverride._value._type)
+				{
+					propertyOverride._property = GetDefaultOverrideProperty(*target);
+					ui2::PropertyValue::Read(*target, propertyOverride._property, propertyOverride._value);
+				}
+				changed = true;
+			}
+			ImGui::EndCombo();
+		}
+		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+		{
+			ImGui::SetTooltip(target == owner ? "The button's own node" : "Node of the prefab whose property the state changes");
+		}
+
+		ImGui::SameLine();
+		ImGui::SetNextItemWidth(pickerWidth);
+		ImGui::BeginDisabled(target == nullptr);
+		if (ImGui::BeginCombo("##Property", propertyOverride._property.Empty() ? "None" : propertyOverride._property.CStr()))
+		{
+			if (target != nullptr)
+			{
+				for (const ReflectionProperty* property : ui2::PropertyValue::GetOverridableProperties(*target))
+				{
+					bool isCurrent = (propertyOverride._property == property->GetName());
+					if (ImGui::Selectable(property->GetName(), isCurrent) && isCurrent == false)
+					{
+						propertyOverride._property = property->GetName();
+						ui2::PropertyValue::Read(*target, propertyOverride._property, propertyOverride._value);
+						changed = true;
+					}
+				}
+			}
+			ImGui::EndCombo();
+		}
+		ImGui::EndDisabled();
+
+		ImGui::EndDisabled(); // recording
+
+		ImGui::SameLine();
+		if (ImGui::Button(ICON_MDI_CLOSE))
+		{
+			removeRequested = true;
+		}
+		ImGui::SetItemTooltip(recording ? "Remove (puts the property back to its authored value)" : "Remove");
+
+		ImGui::BeginDisabled(recording);
+
+		ui2::PropertyValue& value = propertyOverride._value;
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		switch (value._type)
+		{
+			case ui2::PropertyValue::Type::Float:
+			{
+				changed |= ImGui::DragFloat("##Value", &value._float, 0.01f);
+			}
+			break;
+
+			case ui2::PropertyValue::Type::Vector2:
+			{
+				float components[2] = {value._vector2.GetX(), value._vector2.GetY()};
+				if (ImGui::DragFloat2("##Value", components, 0.01f))
+				{
+					value._vector2 = Vector2(components[0], components[1]);
+					changed = true;
+				}
+			}
+			break;
+
+			case ui2::PropertyValue::Type::Color:
+			{
+				float components[4] = {value._color.r, value._color.g, value._color.b, value._color.a};
+				if (ImGui::ColorEdit4("##Value", components, ImGuiColorEditFlags_AlphaBar))
+				{
+					value._color = Color(components[0], components[1], components[2], components[3]);
+					changed = true;
+				}
+			}
+			break;
+		}
+		ImGui::EndDisabled(); // recording
+		ImGui::Spacing();
+
+		return changed;
+	}
+
+	/// @brief Interact mode's state, in place of the selection (editing is suspended): the node whose Interaction gets the pointer
+	/// and the one holding the press, with their Button state, then the actions emitted, most recent first.
+	/// @param canvas the interact mode's canvas
+	/// @param log
+	void UIPrefabEditorInspectorWindow::DrawInteractingState(ui2::Canvas& canvas, const Vector<UIPrefabEditorTab::InteractionLogEntry>& log)
+	{
+		ImGui::TextDisabled("Editing suspended while interacting");
+		ImGui::Spacing();
+
+		auto drawNodeRow = [](const char* label, ui2::Node* node)
+		{
+			ImGui::TextUnformatted(label);
+			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+			if (node == nullptr)
+			{
+				ImGui::TextDisabled("None");
+				return;
+			}
+
+			String text = String(DrawHelper::GetTypeIcon(node->GetReflectionDescriptorV(), ICON_MDI_VECTOR_SQUARE)) + " " + node->GetName();
+			if (const ui2::Button* button = node->GetInteraction<ui2::Button>())
+			{
+				constexpr const char* stateNames[] = {"Normal", "Hovered", "Pressed", "Disabled"};
+				text += String(" (") + stateNames[(uint8_t)button->GetState()] + ")";
+			}
+			ImGui::TextUnformatted(text.CStr());
+		};
+
+		drawNodeRow("Hovered", canvas.GetHoveredNode());
+		drawNodeRow("Pressed", canvas.GetPressedNode());
+
+		ImGui::Spacing();
+		ImGui::SeparatorText("Actions");
+		if (log.Empty())
+		{
+			ImGui::TextDisabled("No action emitted yet");
+			return;
+		}
+		for (uint32_t index = log.Size(); index > 0; --index)
+		{
+			const UIPrefabEditorTab::InteractionLogEntry& entry = log[index - 1];
+			ImGui::Text("%s", entry._action.CStr());
+			ImGui::SameLine();
+			ImGui::TextDisabled("from %s, %.1fs ago", entry._nodeName.CStr(), (float)(ImGui::GetTime() - entry._time));
+		}
 	}
 
 	/// @brief Layout attached to `node` (how its own children are arranged). Shown as a block when

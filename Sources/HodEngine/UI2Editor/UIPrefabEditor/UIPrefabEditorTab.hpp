@@ -2,7 +2,9 @@
 #include "HodEngine/UI2Editor/Export.hpp"
 #include "HodEngine/Editor/EditorTab.hpp"
 
+#include <HodEngine/UI2/Button.hpp>
 #include <HodEngine/UI2/Canvas.hpp>
+#include <HodEngine/UI2/PropertyOverride.hpp>
 
 namespace hod::inline core
 {
@@ -56,6 +58,43 @@ namespace hod::inline editor
 		// @return false for the prefab root, which can't be deleted
 		bool			DeleteNode(ui2::Node* node);
 
+		// Gives a local id to the nodes that have none yet (they are otherwise given on save): for something to reference
+		// them right away, e.g. a property override's target.
+		void			AssignLocalIds();
+
+		// Record mode: the prefab shows a Button's state (its overrides applied), and editing the nodes' overridable properties
+		// (colors, scales...: see ui2::PropertyValue) records the state's overrides instead of changing the prefab: the state's
+		// overrides are kept equal to what differs from the prefab as authored, until StopRecording() puts that back. Other
+		// edits (texts, placement, nodes added...) still change the prefab itself. Saving while recording saves the prefab as
+		// authored, plus the overrides recorded so far, and keeps recording.
+		bool			IsRecording() const;
+		bool			IsRecording(const ui2::Node* buttonNode, ui2::Button::State state) const;
+		const char*		GetRecordedStateName() const;
+		void			StartRecording(ui2::Node* buttonNode, ui2::Button::State state);
+		void			StopRecording();
+
+		// While recording, the override of that property is removed by putting the property back to its authored value.
+		void			RevertRecordedProperty(uint64_t target, const String& property);
+
+		// Interact mode (toggled from the viewport's toolbar): the viewport's pointer drives the prefab's Interactions, to check
+		// hit-tests and state changes. Played on a copy of the canvas, made when entering it and dropped when leaving it, so
+		// nothing the Interactions change ends up in the prefab. Editing is suspended meanwhile.
+		bool			IsInteracting() const;
+		void			SetInteracting(bool interacting);
+
+		// The canvas the viewport shows: the interact mode's copy while interacting, the edited canvas otherwise.
+		ui2::Canvas&	GetDisplayedCanvas();
+		ui2::Node*		GetDisplayedPrefabRoot() const;
+
+		// The actions the interact mode's canvas emitted (see ui2::Canvas::GetActionEvent), most recent last. Cleared on entering it.
+		struct InteractionLogEntry
+		{
+			String		_action;
+			String		_nodeName;
+			double		_time = 0.0; // ImGui::GetTime() when emitted
+		};
+		const Vector<InteractionLogEntry>& GetInteractionLog() const;
+
 	protected:
 
 		void	CreateDefaultLayout() override;
@@ -75,6 +114,12 @@ namespace hod::inline editor
 
 		void	GenerateThumbnail();
 
+		// Record mode (see StartRecording)
+		ui2::Button*	FindRecordedButton() const;
+		void			UpdateRecording();
+		void			RestoreRecordedBase();
+		void			ApplyRecordedOverrides();
+
 	private:
 
 		ui2::Canvas	_canvas;
@@ -85,5 +130,21 @@ namespace hod::inline editor
 		// Counter the nodes' local ids are taken from (see ui2::Node::GetLocalId). Persisted next to the
 		// nodes in the asset's document: it belongs to the authored prefab, not to the canvas.
 		uint64_t	_nextLocalId = 1;
+
+		// Record mode: the recorded Button's node (local id, 0 when not recording), its state, and the overridable properties
+		// of every node as authored when recording started
+		struct RecordedBaseValue
+		{
+			uint64_t			_target = 0;
+			String				_property;
+			ui2::PropertyValue	_value;
+		};
+		uint64_t					_recordedNode = 0;
+		ui2::Button::State			_recordedState = ui2::Button::State::Normal;
+		Vector<RecordedBaseValue>	_recordedBase;
+
+		ui2::Canvas*					_interactionCanvas = nullptr; // Interact mode's copy, null when not interacting
+		ui2::Canvas::ActionEvent::Slot	_onInteractionAction;
+		Vector<InteractionLogEntry>		_interactionLog;
 	};
 }

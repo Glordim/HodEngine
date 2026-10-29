@@ -12,6 +12,7 @@
 #include <HodEngine/Core/Memory/DefaultAllocator.hpp>
 
 #include "HodEngine/UI2/Layout.hpp"
+#include "HodEngine/UI2/Interaction.hpp"
 
 namespace hod::inline core
 {
@@ -157,6 +158,27 @@ namespace hod::inline ui2
 		_Layout_*					GetLayout() const;
 		Layout*						GetLayout() const;
 
+		// Single, optional slot saying how THIS node reacts to the pointer (see Interaction), same ownership as the Layout:
+		// SetInteraction<T>()/SetInteraction(Interaction*) destroy any previously attached one.
+		template<typename _Interaction_, typename... Args>
+		_Interaction_&				SetInteraction(Args&&... args);
+		void						SetInteraction(Interaction* interaction);
+		template<typename _Interaction_>
+		_Interaction_*				GetInteraction() const;
+		Interaction*				GetInteraction() const;
+
+		// Whether the hit-test (see HitTest) finds this node, catching the pointer: what is under it doesn't get it. Off for a
+		// plain Node, on for the drawing ones filling their rect (Image, Shape). A node with an Interaction always catches the
+		// pointer, whatever this says.
+		bool						IsPointerTarget() const;
+		void						SetPointerTarget(bool pointerTarget);
+
+		// Deepest, topmost node of this subtree catching the pointer at canvasPosition (canvas space): children before their
+		// parent and later siblings before earlier ones, i.e. the drawing order reversed. Within the node's rect as drawn
+		// (pivot, rotation, scale applied), and, for the descendants of a node clipping its children (see ClipsChildren),
+		// only within that node's rect too. Reads the cached layout results, so Canvas::UpdateLayout() must have run.
+		Node*						HitTest(const Vector2& canvasPosition);
+
 		PropertyChangedEvent&		GetPropertyChangedEvent();
 
 		// Render pass: queues this node's own drawing (DrawSelf) then its children's (DrawChildren),
@@ -190,6 +212,9 @@ namespace hod::inline ui2
 		// Draws the children in order. A node wrapping them in some render state (MaskNode's clip)
 		// overrides this and calls Node::DrawChildren() in between setting and restoring it.
 		virtual void				DrawChildren(DrawContext& drawContext);
+
+		// Whether nothing of the children shows outside of this node's rect (MaskNode): the hit-test doesn't find them there either.
+		virtual bool				ClipsChildren() const;
 
 	private:
 
@@ -252,6 +277,10 @@ namespace hod::inline ui2
 		// describes how THIS node is placed within its PARENT.
 		Layout*						_layout = nullptr;
 
+		// Single, optional, owned (see SetInteraction above).
+		Interaction*				_interaction = nullptr;
+		bool						_pointerTarget = false;
+
 		Vector<Node*>				_children;
 
 		PropertyChangedEvent		_propertyChangedEvent;
@@ -271,5 +300,21 @@ namespace hod::inline ui2
 	_Layout_* Node::GetLayout() const
 	{
 		return Layout::Cast<_Layout_>(GetLayout());
+	}
+
+	template<typename _Interaction_, typename... Args>
+	_Interaction_& Node::SetInteraction(Args&&... args)
+	{
+		static_assert(std::is_base_of<Interaction, _Interaction_>::value, "_Interaction_ must derive from Interaction to use Node::SetInteraction()");
+
+		_Interaction_* interaction = DefaultAllocator::GetInstance().New<_Interaction_>(std::forward<Args>(args)...);
+		SetInteraction(interaction);
+		return *interaction;
+	}
+
+	template<typename _Interaction_>
+	_Interaction_* Node::GetInteraction() const
+	{
+		return Interaction::Cast<_Interaction_>(GetInteraction());
 	}
 }

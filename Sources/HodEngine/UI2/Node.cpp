@@ -7,6 +7,7 @@
 #include "HodEngine/UI2/LayoutParamsFactory.hpp"
 #include "HodEngine/UI2/Layout.hpp"
 #include "HodEngine/UI2/LayoutFactory.hpp"
+#include "HodEngine/UI2/InteractionFactory.hpp"
 #include "HodEngine/UI2/NodeFactory.hpp"
 #include "HodEngine/UI2/DrawContext.hpp"
 
@@ -19,6 +20,7 @@
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 #include <algorithm>
+#include <cmath>
 
 namespace hod::inline ui2
 {
@@ -34,6 +36,8 @@ namespace hod::inline ui2
 		AddPropertyT(reflectionDescriptor, &Node::_rotation, "Rotation", &Node::SetRotation);
 		AddPropertyT(reflectionDescriptor, &Node::_scale, "Scale", &Node::SetScale);
 		AddPropertyT(reflectionDescriptor, &Node::_pivot, "Pivot", &Node::SetPivot);
+
+		AddPropertyT(reflectionDescriptor, &Node::_pointerTarget, "PointerTarget", &Node::SetPointerTarget);
 	}
 
 	namespace
@@ -83,6 +87,7 @@ namespace hod::inline ui2
 	Node::~Node()
 	{
 		DefaultAllocator::GetInstance().Delete(_layout);
+		DefaultAllocator::GetInstance().Delete(_interaction);
 
 		for (Node* child : _children)
 		{
@@ -228,6 +233,7 @@ namespace hod::inline ui2
 		replacement->_rotation = _rotation;
 		replacement->_scale = _scale;
 		replacement->_pivot = _pivot;
+		// _pointerTarget not carried over: its default depends on the node type (a plain Node turned into an Image catches the pointer).
 
 		// Moved as is rather than through SetLayout: the children's LayoutParams already are of the type it expects.
 		DefaultAllocator::GetInstance().Delete(replacement->_layout);
@@ -236,6 +242,14 @@ namespace hod::inline ui2
 		{
 			_layout->_node = replacement;
 			_layout = nullptr;
+		}
+
+		DefaultAllocator::GetInstance().Delete(replacement->_interaction);
+		replacement->_interaction = _interaction;
+		if (_interaction != nullptr)
+		{
+			_interaction->_node = replacement;
+			_interaction = nullptr;
 		}
 
 		replacement->_children = std::move(_children);
@@ -789,6 +803,81 @@ namespace hod::inline ui2
 		return _layout;
 	}
 
+	void Node::SetInteraction(Interaction* interaction)
+	{
+		if (interaction == _interaction)
+		{
+			return;
+		}
+
+		DefaultAllocator::GetInstance().Delete(_interaction);
+
+		_interaction = interaction;
+		if (_interaction != nullptr)
+		{
+			_interaction->_node = this;
+		}
+
+		_propertyChangedEvent.Emit();
+	}
+
+	Interaction* Node::GetInteraction() const
+	{
+		return _interaction;
+	}
+
+	bool Node::IsPointerTarget() const
+	{
+		return _pointerTarget;
+	}
+
+	void Node::SetPointerTarget(bool pointerTarget)
+	{
+		if (_pointerTarget != pointerTarget)
+		{
+			_pointerTarget = pointerTarget;
+			_propertyChangedEvent.Emit();
+		}
+	}
+
+	/// @brief
+	/// @param canvasPosition
+	/// @return
+	Node* Node::HitTest(const Vector2& canvasPosition)
+	{
+		// The canvas matrix maps this node's own space (origin at its rect's center) to canvas space: back into it, the rect is
+		// centered on the origin. A zero scale has no inverse (and nothing drawn to hit).
+		bool inside = false;
+		if (_size.GetX() > 0.0f && _size.GetY() > 0.0f && _scale.GetX() != 0.0f && _scale.GetY() != 0.0f)
+		{
+			Vector4 local = Matrix4::Inverse(ComputeCanvasMatrix()) * Vector4(canvasPosition.GetX(), canvasPosition.GetY(), 0.0f, 1.0f);
+			inside = std::abs(local.GetX()) <= _size.GetX() * 0.5f && std::abs(local.GetY()) <= _size.GetY() * 0.5f;
+		}
+
+		if (inside || ClipsChildren() == false)
+		{
+			for (uint32_t childIndex = _children.Size(); childIndex > 0; --childIndex)
+			{
+				Node* hit = _children[childIndex - 1]->HitTest(canvasPosition);
+				if (hit != nullptr)
+				{
+					return hit;
+				}
+			}
+		}
+
+		if (inside && (_pointerTarget || _interaction != nullptr))
+		{
+			return this;
+		}
+		return nullptr;
+	}
+
+	bool Node::ClipsChildren() const
+	{
+		return false;
+	}
+
 	void Node::SetZOrder(int32_t zOrder)
 	{
 		_zOrder = zOrder;
@@ -834,6 +923,16 @@ namespace hod::inline ui2
 			DocumentNode& layoutNode = documentNode.AddChild("Layout");
 			layoutNode.AddChild("Type").SetUInt64(_layout->GetReflectionDescriptorV().GetType());
 			if (Serializer::Serialize(_layout, layoutNode) == false)
+			{
+				return false;
+			}
+		}
+
+		if (_interaction != nullptr)
+		{
+			DocumentNode& interactionNode = documentNode.AddChild("Interaction");
+			interactionNode.AddChild("Type").SetUInt64(_interaction->GetReflectionDescriptorV().GetType());
+			if (Serializer::Serialize(_interaction, interactionNode) == false)
 			{
 				return false;
 			}
@@ -885,6 +984,24 @@ namespace hod::inline ui2
 					Layout* layout = it->second->CreateInstance<Layout>();
 					Serializer::Deserialize(*it->second, layout, *layoutNode);
 					SetLayout(layout);
+				}
+			}
+		}
+
+		// An unknown type (registered by a module that isn't loaded) leaves the node without interaction.
+		const DocumentNode* interactionNode = documentNode.GetChild("Interaction");
+		if (interactionNode != nullptr)
+		{
+			const DocumentNode* typeNode = interactionNode->GetChild("Type");
+			if (typeNode != nullptr)
+			{
+				const std::map<uint64_t, ReflectionDescriptor*>& descriptors = InteractionFactory::GetInstance()->GetAllDescriptors();
+				auto                                              it = descriptors.find(typeNode->GetUInt64());
+				if (it != descriptors.end())
+				{
+					Interaction* interaction = it->second->CreateInstance<Interaction>();
+					Serializer::Deserialize(*it->second, interaction, *interactionNode);
+					SetInteraction(interaction);
 				}
 			}
 		}
