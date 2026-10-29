@@ -9,7 +9,8 @@
 namespace hod::inline ui2
 {
 	/// @brief Draws the node's rect procedurally, without texture: filled with a color, its corners rounded,
-	/// with a border inside its outline, a thickness under it and a drop shadow. Sharp at any size, every
+	/// with a border inside its outline, a thickness under it and a drop shadow. The face can be pushed into its thickness (Press),
+	/// its children drawn going down with it: a button sinking when pressed. Sharp at any size, every
 	/// parameter can be changed (or animated) at runtime. Richer looks are made by stacking several of them
 	/// (e.g. a button's face and highlight). It has no natural size (see MeasureContent): its size comes from
 	/// its LayoutParams. The thickness and the shadow are drawn out of the node's rect, as overflow: the layout
@@ -54,6 +55,9 @@ namespace hod::inline ui2
 		float				GetDepth() const;
 		void				SetDepth(float depth);
 
+		float				GetPress() const;
+		void				SetPress(float press);
+
 		const Color&		GetDepthColor() const;
 		void				SetDepthColor(const Color& depthColor);
 
@@ -75,6 +79,7 @@ namespace hod::inline ui2
 	protected:
 
 		void				DrawSelf(DrawContext& drawContext) override;
+		void				DrawChildren(DrawContext& drawContext) override;
 
 	private:
 
@@ -82,7 +87,8 @@ namespace hod::inline ui2
 		CornerRadii			_cornerRadii;
 		float				_borderWidth = 0.0f; // inside the outline, the fill is what is left
 		Color				_borderColor = Color(0.0f, 0.0f, 0.0f, 1.0f);
-		float				_depth = 0.0f; // how far down the shape is swept, under itself: its thickness. Pressed, a button can trade it for a move down
+		float				_depth = 0.0f; // how far down the shape is swept, under itself: its thickness
+		float				_press = 0.0f; // how far the face is pushed down into its thickness (up to the depth), its bottom and its shadow staying in place. Drawn only: the rect, the layout and the hit-test don't move
 		Color				_depthColor = Color(0.75f, 0.75f, 0.75f, 1.0f);
 		Color				_shadowColor = Color(0.0f, 0.0f, 0.0f, 0.0f); // no shadow while transparent
 		Vector2				_shadowOffset = Vector2(0.0f, -4.0f);

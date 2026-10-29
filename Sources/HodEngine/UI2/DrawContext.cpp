@@ -59,6 +59,23 @@ namespace hod::inline ui2
 		PushClipCommand();
 	}
 
+	/// @brief
+	/// @param transform
+	void DrawContext::PushTransform(const Matrix4& transform)
+	{
+		_baseMatrixStack.PushBack(_baseMatrix);
+		_baseMatrix = _baseMatrix * transform;
+	}
+
+	/// @brief
+	void DrawContext::PopTransform()
+	{
+		Assert(_baseMatrixStack.Empty() == false);
+
+		_baseMatrix = _baseMatrixStack.Back();
+		_baseMatrixStack.PopBack();
+	}
+
 	/// @brief Queues the scissor command matching the current clip stack (no clip once it is empty).
 	void DrawContext::PushClipCommand()
 	{

@@ -42,6 +42,7 @@ struct UBO
 	float  borderWidth;
 	float  shadowSpread;
 	float  depth;
+	float  press; // how far the face is pushed down into the depth, at most the depth
 };
 
 struct Material
@@ -147,7 +148,9 @@ float4 FragmentMain(VS_OUT input) : SV_Target
 	// A radius can't be larger than half of the shortest side
 	float4 cornerRadii = clamp(material.ubo.cornerRadii, 0.0, min(halfSize.x, halfSize.y));
 
-	float distance = RoundedRectDistance(input.local, halfSize, cornerRadii);
+	// The face pushed down by press, into the thickness: its bottom doesn't move, the thickness left under the face is depth - press
+	float2 faceCenter = float2(0.0, -material.ubo.press);
+	float  distance = RoundedRectDistance(input.local - faceCenter, halfSize, cornerRadii);
 	float pixelSize = max(0.5 * (length(ddx(input.local)) + length(ddy(input.local))), 1e-5); // units per pixel
 
 	// The border is inside the outline: the fill only starts borderWidth away from it
@@ -158,12 +161,14 @@ float4 FragmentMain(VS_OUT input) : SV_Target
 	float4 shape = lerp(border, fill, inner) * outer; // premultiplied
 
 	// The thickness: the shape swept down by depth, seen under it. Swept vertically, its rounded corners stay the same, only its sides
-	// get longer. That body, not only the face, is what casts the shadow.
+	// get longer. That body, not only the face, is what casts the shadow. Pressed, it goes from the face's top, moved down, to its
+	// bottom, which stays: its shadow shrinks on the top side only, where the body is, and stays in place under it.
 	// The body holds the face: what it adds to a pixel is its coverage less the face's, not its coverage over the rest of the pixel.
 	// Along the outline they share (the top), that would count the same part of the pixel twice: a fringe of the thickness's color
-	float2 bodyCenter = float2(0.0, -0.5 * material.ubo.depth);
-	float2 bodyHalfSize = halfSize + float2(0.0, 0.5 * material.ubo.depth);
-	if (material.ubo.depth > 0.0)
+	float  thickness = material.ubo.depth - material.ubo.press;
+	float2 bodyCenter = float2(0.0, -material.ubo.press - 0.5 * thickness);
+	float2 bodyHalfSize = halfSize + float2(0.0, 0.5 * thickness);
+	if (thickness > 0.0)
 	{
 		float  bodyCoverage = Coverage(RoundedRectDistance(input.local - bodyCenter, bodyHalfSize, cornerRadii), pixelSize);
 		float4 depthColor = float4(material.ubo.depthColor.rgb * material.ubo.depthColor.a, material.ubo.depthColor.a);

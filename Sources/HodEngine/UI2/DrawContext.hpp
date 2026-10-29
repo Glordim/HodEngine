@@ -48,6 +48,12 @@ namespace hod::inline ui2
 		void PushClipRect(const Matrix4& canvasMatrix, const Vector2& size);
 		void PopClipRect();
 
+		/// @brief Applies transform (canvas space to canvas space) to everything queued, meshes and clip rects, until the matching
+		/// PopTransform(): a node drawing its children elsewhere than where the layout put them (ShapeNode's press). Must be balanced
+		/// with PopTransform().
+		void PushTransform(const Matrix4& transform);
+		void PopTransform();
+
 	private:
 		void PushClipCommand();
 
@@ -58,5 +64,6 @@ namespace hod::inline ui2
 		uint32_t                    _nextOrder;
 
 		Vector<RenderCommandScissor::Region> _clipRegions;
+		Vector<Matrix4>                      _baseMatrixStack; // _baseMatrix before each PushTransform
 	};
 }

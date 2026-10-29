@@ -36,6 +36,7 @@ namespace hod::inline ui2
 		AddPropertyT(reflectionDescriptor, &ShapeNode::_borderWidth, "BorderWidth", &ShapeNode::SetBorderWidth);
 		AddPropertyT(reflectionDescriptor, &ShapeNode::_borderColor, "BorderColor", &ShapeNode::SetBorderColor);
 		AddPropertyT(reflectionDescriptor, &ShapeNode::_depth, "Depth", &ShapeNode::SetDepth);
+		AddPropertyT(reflectionDescriptor, &ShapeNode::_press, "Press", &ShapeNode::SetPress);
 		AddPropertyT(reflectionDescriptor, &ShapeNode::_depthColor, "DepthColor", &ShapeNode::SetDepthColor);
 		AddPropertyT(reflectionDescriptor, &ShapeNode::_shadowColor, "ShadowColor", &ShapeNode::SetShadowColor);
 		AddPropertyT(reflectionDescriptor, &ShapeNode::_shadowOffset, "ShadowOffset", &ShapeNode::SetShadowOffset);
@@ -138,6 +139,25 @@ namespace hod::inline ui2
 		if (_depth != depth)
 		{
 			_depth = depth;
+			GetPropertyChangedEvent().Emit();
+		}
+	}
+
+	/// @brief
+	/// @return
+	float ShapeNode::GetPress() const
+	{
+		return _press;
+	}
+
+	/// @brief
+	/// @param press negative values are clamped to 0. Not to the depth, which may be set after it: drawn, it is
+	void ShapeNode::SetPress(float press)
+	{
+		press = Max(press, 0.0f);
+		if (_press != press)
+		{
+			_press = press;
 			GetPropertyChangedEvent().Emit();
 		}
 	}
@@ -320,7 +340,25 @@ namespace hod::inline ui2
 		materialInstance->SetFloat("ubo.shadowSpread", _shadowSpread);
 		materialInstance->SetVec2("ubo.shadowDirection", ToVector(_shadowDirection));
 		materialInstance->SetFloat("ubo.depth", _depth);
+		materialInstance->SetFloat("ubo.press", Min(_press, _depth));
 
 		drawContext.PushMesh(vertices.Data(), vertices.Data(), (uint32_t)vertices.Size(), indices.Data(), (uint32_t)indices.Size(), ComputeCanvasMatrix(), materialInstance);
+	}
+
+	/// @brief The children go down with the face (see _press): drawn moved in this node's own space, which rotates and scales with it
+	/// @param drawContext
+	void ShapeNode::DrawChildren(DrawContext& drawContext)
+	{
+		float press = Min(_press, _depth);
+		if (press <= 0.0f)
+		{
+			Node::DrawChildren(drawContext);
+			return;
+		}
+
+		const Matrix4& canvasMatrix = ComputeCanvasMatrix();
+		drawContext.PushTransform(canvasMatrix * Matrix4::Translation(Vector2(0.0f, -press)) * Matrix4::Inverse(canvasMatrix));
+		Node::DrawChildren(drawContext);
+		drawContext.PopTransform();
 	}
 }
