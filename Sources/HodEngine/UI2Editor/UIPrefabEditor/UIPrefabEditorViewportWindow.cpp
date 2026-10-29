@@ -299,7 +299,9 @@ namespace hod::inline editor
 			_interactionPointerDown = false;
 		}
 
-		if (selectedNode != nullptr)
+		// Preview: nothing drawn over the prefab, so no gizmo to grab either
+		bool preview = _settings._preview;
+		if (selectedNode != nullptr && preview == false)
 		{
 			UpdateGizmoDrag(selectedNode, mouseCanvasPos, scale, hovered && mouseInsideImage);
 		}
@@ -345,11 +347,14 @@ namespace hod::inline editor
 */
 		// The grid is aligned on the canvas' top-left corner (the canvas rect is centered on the canvas origin).
 		Vector2 gridOrigin(-canvasSize.GetX() * 0.5f, canvasSize.GetY() * 0.5f);
-		if (_settings._gridVisible)
+		if (_settings._gridVisible && preview == false)
 		{
 			DrawGrid(gridOrigin, _camera.GetPosition(), worldHalfWidth, worldHalfHeight, scale, *renderView);
 		}
-		DrawPreviewFrames(*renderView);
+		if (preview == false)
+		{
+			DrawPreviewFrames(*renderView);
+		}
 
 		//Gizmos::Rect(Matrix4::Identity, canvasSize, Color(90.0f / 255.0f, 90.0f / 255.0f, 90.0f / 255.0f, 1.0f), *renderView);
 
@@ -357,25 +362,28 @@ namespace hod::inline editor
 		// rendering order, so they stay on top of it.
 		canvas.PushRenderCommand(*renderView, RenderView::RenderQueueType::World);
 
-		if (interacting)
+		if (preview == false)
 		{
-			// The prefab as it would look in game: no outlines, only what the pointer reaches
-			DrawInteractionOverlay(canvas, hitNode, *renderView);
-		}
-		else
-		{
-			// Only the prefab root's subtree: `root` is the hidden container, whose rect is the design resolution, not part of the prefab.
-			DrawNode(prefabRoot, *renderView);
-		}
+			if (interacting)
+			{
+				// The prefab as it would look in game: no outlines, only what the pointer reaches
+				DrawInteractionOverlay(canvas, hitNode, *renderView);
+			}
+			else
+			{
+				// Only the prefab root's subtree: `root` is the hidden container, whose rect is the design resolution, not part of the prefab.
+				DrawNode(prefabRoot, *renderView);
+			}
 
-		if (selectedNode != nullptr)
-		{
-			DrawSpacing(selectedNode, *renderView);
-		}
+			if (selectedNode != nullptr)
+			{
+				DrawSpacing(selectedNode, *renderView);
+			}
 
-		if (selectedNode != nullptr && GetGizmoAxes(*selectedNode).Any())
-		{
-			DrawSelectionGizmo(selectedNode, scale, *renderView);
+			if (selectedNode != nullptr && GetGizmoAxes(*selectedNode).Any())
+			{
+				DrawSelectionGizmo(selectedNode, scale, *renderView);
+			}
 		}
 
 		ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
@@ -384,7 +392,10 @@ namespace hod::inline editor
 			// Framed in red as long as the edits record a state rather than change the prefab
 			ImGui::GetWindowDrawList()->AddRect(imagePos, imagePos + ImVec2((float)resolutionWidth, (float)resolutionHeight), IM_COL32(230, 60, 60, 255), 0.0f, 3.0f);
 		}
-		DrawPreviewLabels(imagePos, ImVec2((float)resolutionWidth, (float)resolutionHeight), scale);
+		if (preview == false)
+		{
+			DrawPreviewLabels(imagePos, ImVec2((float)resolutionWidth, (float)resolutionHeight), scale);
+		}
 
 		if (interacting == false && hovered && mouseInsideImage && ImGui::IsMouseClicked(ImGuiMouseButton_Left) && _draggedGizmoHandle == GizmoHandle::None)
 		{
@@ -483,6 +494,18 @@ namespace hod::inline editor
 		{
 			ImGui::SetTooltip(tab->IsInteracting() ? "Back to editing (the interactions' state changes are dropped)"
 			                                       : "Try the interactions with the mouse, on a copy of the prefab (editing is suspended meanwhile)");
+		}
+
+		ImGui::SameLine();
+		if (FramedButton(ICON_MDI_EYE " Preview", _settings._preview))
+		{
+			_settings._preview = !_settings._preview;
+			_settingsDirty = true;
+		}
+		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+		{
+			ImGui::SetTooltip(_settings._preview ? "Back to the grid, device frame, outlines and gizmos"
+			                                     : "Only the prefab as drawn in game: no grid, device frame, outlines nor gizmos");
 		}
 
 		DrawDevicesPopup();

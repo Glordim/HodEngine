@@ -22,6 +22,7 @@ namespace hod::inline editor
 		AddPropertyT(reflectionDescriptor, &UIPrefabEditorViewportSettings::_deviceRotated, "DeviceRotated");
 		AddPropertyT(reflectionDescriptor, &UIPrefabEditorViewportSettings::_gridVisible, "GridVisible");
 		AddPropertyT(reflectionDescriptor, &UIPrefabEditorViewportSettings::_gridCellSize, "GridCellSize");
+		AddPropertyT(reflectionDescriptor, &UIPrefabEditorViewportSettings::_preview, "Preview");
 	}
 
 	namespace
