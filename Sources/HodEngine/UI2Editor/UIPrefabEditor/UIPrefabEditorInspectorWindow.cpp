@@ -908,19 +908,14 @@ namespace hod::inline editor
 
 			case ui2::PropertyValue::Type::Vector2:
 			{
-				float components[2] = {value._vector2.GetX(), value._vector2.GetY()};
-				if (ImGui::DragFloat2("##Value", components, 0.01f))
-				{
-					value._vector2 = Vector2(components[0], components[1]);
-					changed = true;
-				}
+				changed |= DrawHelper::DrawVector2(value._vector2);
 			}
 			break;
 
 			case ui2::PropertyValue::Type::Color:
 			{
 				float components[4] = {value._color.r, value._color.g, value._color.b, value._color.a};
-				if (ImGui::ColorEdit4("##Value", components, ImGuiColorEditFlags_AlphaBar))
+				if (ColorField("##Value", components))
 				{
 					value._color = Color(components[0], components[1], components[2], components[3]);
 					changed = true;
