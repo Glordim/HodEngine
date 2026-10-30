@@ -32,6 +32,8 @@
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 #include <HodEngine/Core/Document/DocumentWriterJson.hpp>
 
+#include <cstring>
+
 namespace hod::inline editor
 {
 	/// @brief
@@ -561,6 +563,301 @@ namespace hod::inline editor
 		DefaultAllocator::GetInstance().Delete(node);
 		MarkAsDirty();
 		return true;
+	}
+
+	namespace
+	{
+		// Tells the clipboard's text is a copied node: checked before parsing, so any other text is ignored without a JSON error.
+		constexpr const char* ClipboardFormat = "HodEngine.UI2Node";
+
+		/// @brief Index of node among its parent's children.
+		uint32_t GetSiblingIndex(const ui2::Node* node)
+		{
+			const Vector<ui2::Node*>& siblings = node->GetParent()->GetChildren();
+			for (uint32_t index = 0; index < siblings.Size(); ++index)
+			{
+				if (siblings[index] == node)
+				{
+					return index;
+				}
+			}
+			return siblings.Size();
+		}
+	}
+
+	/// @brief
+	/// @param node
+	/// @param documentNode
+	/// @return
+	bool UIPrefabEditorTab::SerializeNodeAsAuthored(ui2::Node* node, DocumentNode& documentNode)
+	{
+		// As in OnSave: as authored, then back to the recorded state's look
+		UpdateRecording();
+		RestoreRecordedBase();
+		ScopedGuard reapplyRecordedOverrides = [&]()
+		{
+			if (IsRecording())
+			{
+				ApplyRecordedOverrides();
+			}
+		};
+
+		return node->SerializeAsChildInDocument(documentNode);
+	}
+
+	/// @brief
+	/// @param parent
+	/// @param index
+	/// @param documentNode
+	/// @param keepOutsideTargets
+	/// @return
+	ui2::Node* UIPrefabEditorTab::InsertNodeCopy(ui2::Node* parent, uint32_t index, const DocumentNode& documentNode, bool keepOutsideTargets)
+	{
+		ui2::Node* node = parent->AddChildFromDocument(documentNode);
+		if (node == nullptr)
+		{
+			return nullptr;
+		}
+
+		node->RenewLocalIds(_nextLocalId, keepOutsideTargets);
+		parent->SetChildIndex(node, index);
+
+		SetSelectedNode(node);
+		MarkAsDirty();
+		return node;
+	}
+
+	/// @brief
+	/// @param node
+	/// @return
+	bool UIPrefabEditorTab::CopyNode(ui2::Node* node)
+	{
+		CancelCut();
+
+		if (node == nullptr)
+		{
+			return false;
+		}
+
+		Document document;
+		document.GetRootNode().AddChild("Format").SetString(ClipboardFormat);
+		document.GetRootNode().AddChild("SourceAsset").SetString(GetAsset() != nullptr ? GetAsset()->GetUid().ToString() : String());
+		if (SerializeNodeAsAuthored(node, document.GetRootNode().AddChild("Node")) == false)
+		{
+			return false;
+		}
+
+		String             text;
+		DocumentWriterJson documentWriter;
+		if (documentWriter.Write(document, text) == false)
+		{
+			return false;
+		}
+
+		ImGui::SetClipboardText(text.CStr());
+		return true;
+	}
+
+	/// @brief
+	/// @param node
+	/// @return
+	bool UIPrefabEditorTab::CutNode(ui2::Node* node)
+	{
+		if (node == nullptr || node == GetPrefabRoot() || CopyNode(node) == false)
+		{
+			return false;
+		}
+
+		// Found back by its id: a pointer wouldn't survive a conversion (see ConvertNode)
+		AssignLocalIds();
+		_cutNode = node->GetLocalId();
+		// Read back rather than kept from CopyNode: what the clipboard gives back (encoding round trip) is what a paste compares
+		const char* text = ImGui::GetClipboardText();
+		_cutClipboardText = (text != nullptr) ? text : "";
+		return true;
+	}
+
+	/// @brief
+	void UIPrefabEditorTab::CancelCut()
+	{
+		_cutNode = 0;
+		_cutClipboardText.Clear();
+	}
+
+	/// @brief
+	/// @param node
+	/// @return
+	bool UIPrefabEditorTab::IsCut(const ui2::Node* node) const
+	{
+		if (_cutNode == 0)
+		{
+			return false;
+		}
+		for (; node != nullptr; node = node->GetParent())
+		{
+			if (node->GetLocalId() == _cutNode)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/// @brief
+	/// @param node
+	/// @param parent
+	/// @param index
+	/// @return
+	ui2::Node* UIPrefabEditorTab::MoveNode(ui2::Node* node, ui2::Node* parent, uint32_t index)
+	{
+		ui2::Node* oldParent = node->GetParent();
+		if (oldParent == parent)
+		{
+			// index counts node itself, SetChildIndex counts without it
+			if (GetSiblingIndex(node) < index)
+			{
+				--index;
+			}
+		}
+		else
+		{
+			oldParent->ReparentChild(node, parent);
+		}
+		parent->SetChildIndex(node, index);
+
+		SetSelectedNode(node);
+		MarkAsDirty();
+		return node;
+	}
+
+	/// @brief
+	/// @return
+	bool UIPrefabEditorTab::CanPasteNode() const
+	{
+		const char* text = ImGui::GetClipboardText();
+		return text != nullptr && std::strstr(text, ClipboardFormat) != nullptr;
+	}
+
+	/// @brief
+	/// @param parent
+	/// @param index
+	/// @return
+	ui2::Node* UIPrefabEditorTab::PasteNode(ui2::Node* parent, uint32_t index)
+	{
+		if (parent == nullptr || CanPasteNode() == false)
+		{
+			return nullptr;
+		}
+
+		const char* text = ImGui::GetClipboardText();
+
+		// A node cut here is moved, as long as the clipboard still holds what the cut put there (nothing copied since, here or elsewhere)
+		if (_cutNode != 0)
+		{
+			ui2::Node* cutNode = (_cutClipboardText == text) ? _canvas.GetRootNode()->FindByLocalId(_cutNode) : nullptr;
+			if (cutNode == nullptr)
+			{
+				CancelCut(); // pasted as any copied node below
+			}
+			else if (parent == cutNode || parent->IsDescendantOf(cutNode))
+			{
+				return nullptr; // can't go inside itself: stays cut
+			}
+			else
+			{
+				CancelCut();
+				return MoveNode(cutNode, parent, index);
+			}
+		}
+
+		Document           document;
+		DocumentReaderJson documentReader;
+		if (documentReader.Read(document, text, (uint32_t)std::strlen(text)) == false)
+		{
+			return nullptr;
+		}
+
+		const DocumentNode* formatNode = document.GetRootNode().GetChild("Format");
+		const DocumentNode* nodeNode = document.GetRootNode().GetChild("Node");
+		if (formatNode == nullptr || formatNode->GetType() != DocumentNode::Type::String || formatNode->GetString() != ClipboardFormat || nodeNode == nullptr)
+		{
+			return nullptr;
+		}
+
+		// The ids of the nodes outside of the copied subtree only mean the same nodes in the prefab it was copied from
+		const DocumentNode* sourceAssetNode = document.GetRootNode().GetChild("SourceAsset");
+		bool                samePrefab = GetAsset() != nullptr && sourceAssetNode != nullptr && sourceAssetNode->GetType() == DocumentNode::Type::String &&
+		                  sourceAssetNode->GetString() == GetAsset()->GetUid().ToString();
+
+		return InsertNodeCopy(parent, index, *nodeNode, samePrefab);
+	}
+
+	/// @brief
+	/// @return
+	ui2::Node* UIPrefabEditorTab::PasteNodeNextToSelection()
+	{
+		ui2::Node* selection = _selectedNode;
+		if (selection == nullptr || selection == GetPrefabRoot())
+		{
+			return PasteNode(GetPrefabRoot());
+		}
+
+		return PasteNode(selection->GetParent(), GetSiblingIndex(selection) + 1);
+	}
+
+	/// @brief
+	/// @return
+	ui2::Node* UIPrefabEditorTab::PasteNodeInSelection()
+	{
+		return PasteNode(_selectedNode != nullptr ? _selectedNode : GetPrefabRoot());
+	}
+
+	/// @brief
+	/// @param node
+	/// @return
+	ui2::Node* UIPrefabEditorTab::DuplicateNode(ui2::Node* node)
+	{
+		if (node == nullptr || node == GetPrefabRoot())
+		{
+			return nullptr;
+		}
+
+		Document document;
+		if (SerializeNodeAsAuthored(node, document.GetRootNode()) == false)
+		{
+			return nullptr;
+		}
+
+		return InsertNodeCopy(node->GetParent(), GetSiblingIndex(node) + 1, document.GetRootNode(), true);
+	}
+
+	/// @brief
+	void UIPrefabEditorTab::HandleClipboardShortcuts()
+	{
+		if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_C))
+		{
+			CopyNode(_selectedNode);
+		}
+		else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_X))
+		{
+			CutNode(_selectedNode);
+		}
+		else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_V))
+		{
+			PasteNodeNextToSelection();
+		}
+		else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Shift | ImGuiKey_V))
+		{
+			PasteNodeInSelection();
+		}
+		else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_D))
+		{
+			DuplicateNode(_selectedNode);
+		}
+		else if (_cutNode != 0 && ImGui::IsKeyPressed(ImGuiKey_Escape, false))
+		{
+			CancelCut();
+		}
 	}
 
 	/// @brief

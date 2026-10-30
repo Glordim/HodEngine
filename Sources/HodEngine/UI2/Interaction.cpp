@@ -30,4 +30,13 @@ namespace hod::inline ui2
 	{
 		(void)deltaTime;
 	}
+
+	/// @brief
+	/// @param oldToNew
+	/// @param keepOthers
+	void Interaction::RemapTargets(const std::map<uint64_t, uint64_t>& oldToNew, bool keepOthers)
+	{
+		(void)oldToNew;
+		(void)keepOthers;
+	}
 }

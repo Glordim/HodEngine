@@ -241,6 +241,12 @@ namespace hod::inline editor
 		{
 			tab->DeleteNode(tab->GetSelectedNode());
 		}
+		// Ctrl+C / Ctrl+X / Ctrl+V / Ctrl+Shift+V / Ctrl+D / Escape, as in the hierarchy. Same moment, for the same reason.
+		if (playing == false && ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::GetIO().WantTextInput == false &&
+		    _draggedGizmoHandle == GizmoHandle::None)
+		{
+			tab->HandleClipboardShortcuts();
+		}
 
 		bool frameDevice = _frameDeviceRequested;
 		_frameDeviceRequested = false;

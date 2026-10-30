@@ -61,6 +61,7 @@ namespace hod::inline editor
 			_pendingDeleteNode = selection;
 		}
 		_renameSubmitted = false;
+		bool renamingAtStart = (_renamedNode != nullptr);
 
 		// The canvas stands at the top, greyed out (not a node of the prefab: it cannot be moved, deleted or
 		// given children), so its settings are selected like any other item. The canvas' own root node is
@@ -124,6 +125,33 @@ namespace hod::inline editor
 			tab->DeleteNode(_pendingDeleteNode);
 			_pendingDeleteNode = nullptr;
 		}
+
+		if (_pendingPaste)
+		{
+			if (_pendingPasteParent != nullptr)
+			{
+				tab->PasteNode(_pendingPasteParent);
+			}
+			else
+			{
+				tab->PasteNodeNextToSelection();
+			}
+			_pendingPaste = false;
+			_pendingPasteParent = nullptr;
+		}
+
+		if (_pendingDuplicateNode != nullptr)
+		{
+			tab->DuplicateNode(_pendingDuplicateNode);
+			_pendingDuplicateNode = nullptr;
+		}
+
+		// Ctrl+C / Ctrl+X / Ctrl+V / Ctrl+Shift+V / Ctrl+D / Escape, as in the viewport. After the tree has been drawn, for the same reason as above.
+		// Not while renaming, nor on the frame a rename ends: its Escape isn't for the cut.
+		if (ImGui::IsWindowFocused() && ImGui::GetIO().WantTextInput == false && renamingAtStart == false && _renamedNode == nullptr)
+		{
+			tab->HandleClipboardShortcuts();
+		}
 	}
 
 	/// @brief Replaces node's label by a text field, focused on its next draw.
@@ -183,7 +211,17 @@ namespace hod::inline editor
 		bool        renaming = (node == _renamedNode);
 		float       treeNodeStartX = ImGui::GetCursorPosX();
 		// While renamed, only the icon is drawn by the tree node: the rename field takes the label's place (see below).
+		// A cut node (and its subtree) is greyed out until pasted, as in a file explorer
+		bool cut = tab->IsCut(node);
+		if (cut)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+		}
 		bool opened = renaming ? ImGui::TreeNodeEx("##Node", treeNodeFlags, "%s", icon) : ImGui::TreeNodeEx("##Node", treeNodeFlags, "%s %s", icon, label.CStr());
+		if (cut)
+		{
+			ImGui::PopStyleColor();
+		}
 		if (_revealSelection && node == selection)
 		{
 			ImGui::SetScrollHereY();
@@ -275,6 +313,30 @@ namespace hod::inline editor
 				}
 				ImGui::EndMenu();
 			}
+			ImGui::Separator();
+			if (ImGui::MenuItem(ICON_MDI_CONTENT_COPY " Copy", "Ctrl+C"))
+			{
+				tab->CopyNode(node);
+			}
+			if (node != tab->GetPrefabRoot() && ImGui::MenuItem(ICON_MDI_CONTENT_CUT " Cut", "Ctrl+X"))
+			{
+				tab->CutNode(node); // only marked, moved by the paste
+			}
+			bool canPaste = tab->CanPasteNode();
+			if (ImGui::MenuItem(ICON_MDI_CONTENT_PASTE " Paste", "Ctrl+V", false, canPaste))
+			{
+				_pendingPaste = true; // the node was selected by the right click
+			}
+			if (ImGui::MenuItem(ICON_MDI_CONTENT_PASTE " Paste As Child", "Ctrl+Shift+V", false, canPaste))
+			{
+				_pendingPaste = true;
+				_pendingPasteParent = node;
+			}
+			if (node != tab->GetPrefabRoot() && ImGui::MenuItem(ICON_MDI_CONTENT_DUPLICATE " Duplicate", "Ctrl+D"))
+			{
+				_pendingDuplicateNode = node;
+			}
+			ImGui::Separator();
 			if (node != tab->GetPrefabRoot() && ImGui::MenuItem(ICON_MDI_DELETE " Delete", "Del"))
 			{
 				_pendingDeleteNode = node;

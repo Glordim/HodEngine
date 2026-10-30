@@ -151,6 +151,31 @@ namespace hod::inline ui2
 	}
 
 	/// @brief
+	/// @param oldToNew
+	/// @param keepOthers
+	void Button::RemapTargets(const std::map<uint64_t, uint64_t>& oldToNew, bool keepOthers)
+	{
+		for (Vector<PropertyOverride>* overrides : {&_hoveredOverrides, &_pressedOverrides, &_disabledOverrides})
+		{
+			for (uint32_t index = 0; index < overrides->Size();)
+			{
+				PropertyOverride& propertyOverride = (*overrides)[index];
+				auto              it = oldToNew.find(propertyOverride._target);
+				if (it != oldToNew.end())
+				{
+					propertyOverride._target = it->second;
+				}
+				else if (keepOthers == false)
+				{
+					overrides->Erase(index);
+					continue;
+				}
+				++index;
+			}
+		}
+	}
+
+	/// @brief
 	/// @param deltaTime
 	void Button::Update(float deltaTime)
 	{

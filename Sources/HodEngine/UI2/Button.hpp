@@ -54,6 +54,7 @@ namespace hod::inline ui2
 
 		bool				OnPointerEvent(const PointerEvent& event) override;
 		void				Update(float deltaTime) override;
+		void				RemapTargets(const std::map<uint64_t, uint64_t>& oldToNew, bool keepOthers) override;
 
 	private:
 

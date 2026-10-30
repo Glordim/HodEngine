@@ -11,7 +11,8 @@ namespace hod::inline editor
 {
 	/// @brief Tree view of a UIPrefabEditorTab's ui2::Node hierarchy, with selection and basic
 	/// add/remove-child editing, drop target for nodes dragged from the Library, and reparenting by
-	/// dragging a node onto its new parent (added last among its children). The ui2::Node equivalent
+	/// dragging a node onto its new parent (added last among its children), copy / cut / paste / duplicate (see
+	/// UIPrefabEditorTab::CopyNode). The ui2::Node equivalent
 	/// of HierachyWindow, but self-contained (no World/Entity involved).
 	class HOD_UI2_EDITOR_API UIPrefabEditorHierarchyWindow : public EditorTabWindow
 	{
@@ -51,6 +52,12 @@ namespace hod::inline editor
 
 		// Deletion requested (Delete key or context menu), applied after the tree has been drawn for the same reason.
 		ui2::Node*	_pendingDeleteNode = nullptr;
+
+		// Paste / duplicate requested from the context menu, applied after the tree has been drawn for the same reason. Pasted
+		// right after the selection, or, with _pendingPasteParent, as that node's last child.
+		bool		_pendingPaste = false;
+		ui2::Node*	_pendingPasteParent = nullptr;
+		ui2::Node*	_pendingDuplicateNode = nullptr;
 
 		// Node whose label is replaced by a text field (F2 or "Rename"): Enter or focus lost validates, Escape cancels.
 		ui2::Node*	_renamedNode = nullptr;

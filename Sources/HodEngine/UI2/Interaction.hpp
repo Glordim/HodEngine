@@ -2,6 +2,8 @@
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 #include "HodEngine/UI2/Export.hpp"
 
+#include <map>
+
 namespace hod::inline ui2
 {
 	class Node;
@@ -36,6 +38,11 @@ namespace hod::inline ui2
 
 		// Advances what plays over time (e.g. Button's state transitions). Called by Canvas::Update, before the layout.
 		virtual void				Update(float deltaTime);
+
+		// Follows the nodes it references by local id (e.g. Button's overrides' targets) getting new ids (see Node::RenewLocalIds):
+		// the ids found in oldToNew are replaced, the others kept if keepOthers, the references dropped otherwise. Default:
+		// references none.
+		virtual void				RemapTargets(const std::map<uint64_t, uint64_t>& oldToNew, bool keepOthers);
 
 	private:
 

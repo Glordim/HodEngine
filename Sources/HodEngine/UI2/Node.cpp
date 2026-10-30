@@ -12,6 +12,7 @@
 #include "HodEngine/UI2/DrawContext.hpp"
 
 #include <HodEngine/Core/Document/Document.hpp>
+#include <HodEngine/Core/Math.hpp>
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <HodEngine/Core/Reflection/ReflectionProperty.hpp>
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
@@ -138,6 +139,39 @@ namespace hod::inline ui2
 	}
 
 	/// @brief
+	/// @param nextLocalId
+	/// @param keepOutsideTargets
+	void Node::RenewLocalIds(uint64_t& nextLocalId, bool keepOutsideTargets)
+	{
+		std::map<uint64_t, uint64_t> oldToNew;
+		Vector<Node*>                nodes = {this};
+		for (uint32_t index = 0; index < nodes.Size(); ++index)
+		{
+			Node* node = nodes[index];
+			if (node->_localId != 0)
+			{
+				oldToNew[node->_localId] = nextLocalId;
+			}
+			node->_localId = nextLocalId;
+			++nextLocalId;
+
+			for (Node* child : node->_children)
+			{
+				nodes.PushBack(child);
+			}
+		}
+
+		// Once every id of the subtree is known: an Interaction may reference a node visited after its own
+		for (Node* node : nodes)
+		{
+			if (node->_interaction != nullptr)
+			{
+				node->_interaction->RemapTargets(oldToNew, keepOutsideTargets);
+			}
+		}
+	}
+
+	/// @brief
 	/// @param localId
 	/// @return
 	Node* Node::FindByLocalId(uint64_t localId)
@@ -220,6 +254,20 @@ namespace hod::inline ui2
 		MarkMeasureAsDirty();
 
 		newParent->AddChild(child, layoutParams);
+	}
+
+	void Node::SetChildIndex(Node* child, uint32_t index)
+	{
+		auto it = std::find(_children.Begin(), _children.End(), child);
+		if (it == _children.End())
+		{
+			return;
+		}
+
+		_children.Erase(it);
+		_children.Insert(Min(index, _children.Size()), child);
+
+		MarkMeasureAsDirty();
 	}
 
 	void Node::ReplaceWith(Node* replacement)
@@ -941,27 +989,83 @@ namespace hod::inline ui2
 		DocumentNode& childrenNode = documentNode.AddChild("Children");
 		for (Node* child : _children)
 		{
-			DocumentNode& childNode = childrenNode.AddChild("");
-
-			childNode.AddChild("Type").SetUInt64(child->GetReflectionDescriptorV().GetType());
-
-			if (child->_layoutParams != nullptr)
-			{
-				DocumentNode& layoutParamsNode = childNode.AddChild("LayoutParams");
-				layoutParamsNode.AddChild("Type").SetUInt64(child->_layoutParams->GetReflectionDescriptorV().GetType());
-				if (Serializer::Serialize(child->_layoutParams, layoutParamsNode) == false)
-				{
-					return false;
-				}
-			}
-
-			if (child->SerializeInDocument(childNode) == false)
+			if (child->SerializeAsChildInDocument(childrenNode.AddChild("")) == false)
 			{
 				return false;
 			}
 		}
 
 		return true;
+	}
+
+	bool Node::SerializeAsChildInDocument(DocumentNode& documentNode)
+	{
+		documentNode.AddChild("Type").SetUInt64(GetReflectionDescriptorV().GetType());
+
+		if (_layoutParams != nullptr)
+		{
+			DocumentNode& layoutParamsNode = documentNode.AddChild("LayoutParams");
+			layoutParamsNode.AddChild("Type").SetUInt64(_layoutParams->GetReflectionDescriptorV().GetType());
+			if (Serializer::Serialize(_layoutParams, layoutParamsNode) == false)
+			{
+				return false;
+			}
+		}
+
+		return SerializeInDocument(documentNode);
+	}
+
+	Node* Node::AddChildFromDocument(const DocumentNode& documentNode)
+	{
+		// A missing or unknown type (document saved before drawing nodes existed, or by a module that
+		// isn't loaded) degrades to a plain Node rather than failing the whole tree.
+		Node*               child = nullptr;
+		const DocumentNode* childTypeNode = documentNode.GetChild("Type");
+		if (childTypeNode != nullptr)
+		{
+			const std::map<uint64_t, ReflectionDescriptor*>& descriptors = NodeFactory::GetInstance()->GetAllDescriptors();
+			auto                                              it = descriptors.find(childTypeNode->GetUInt64());
+			if (it != descriptors.end())
+			{
+				child = it->second->CreateInstance<Node>();
+			}
+		}
+		if (child == nullptr)
+		{
+			child = DefaultAllocator::GetInstance().New<Node>();
+		}
+
+		LayoutParams*       layoutParams = nullptr;
+		const DocumentNode* layoutParamsNode = documentNode.GetChild("LayoutParams");
+		if (layoutParamsNode != nullptr)
+		{
+			const DocumentNode* typeNode = layoutParamsNode->GetChild("Type");
+			if (typeNode != nullptr)
+			{
+				const std::map<uint64_t, ReflectionDescriptor*>& descriptors = LayoutParamsFactory::GetInstance()->GetAllDescriptors();
+				auto                                              it = descriptors.find(typeNode->GetUInt64());
+				if (it != descriptors.end())
+				{
+					layoutParams = it->second->CreateInstance<LayoutParams>();
+					Serializer::Deserialize(*it->second, layoutParams, *layoutParamsNode);
+				}
+			}
+		}
+
+		// Written under a parent expecting another type (copied from a BoxLayout into an anchored node...): converted.
+		LayoutParams* defaultLayoutParams = CreateDefaultLayoutParams();
+		layoutParams = (layoutParams != nullptr) ? AdaptLayoutParams(layoutParams, defaultLayoutParams) : defaultLayoutParams;
+
+		AddChild(child, layoutParams);
+
+		if (child->DeserializeFromDocument(documentNode) == false)
+		{
+			RemoveChild(child);
+			DefaultAllocator::GetInstance().Delete(child);
+			return nullptr;
+		}
+
+		return child;
 	}
 
 	bool Node::DeserializeFromDocument(const DocumentNode& documentNode)
@@ -1015,49 +1119,7 @@ namespace hod::inline ui2
 		const DocumentNode* childNode = childrenNode->GetFirstChild();
 		while (childNode != nullptr)
 		{
-			// A missing or unknown type (document saved before drawing nodes existed, or by a module that
-			// isn't loaded) degrades to a plain Node rather than failing the whole tree.
-			Node*               child = nullptr;
-			const DocumentNode* childTypeNode = childNode->GetChild("Type");
-			if (childTypeNode != nullptr)
-			{
-				const std::map<uint64_t, ReflectionDescriptor*>& descriptors = NodeFactory::GetInstance()->GetAllDescriptors();
-				auto                                              it = descriptors.find(childTypeNode->GetUInt64());
-				if (it != descriptors.end())
-				{
-					child = it->second->CreateInstance<Node>();
-				}
-			}
-			if (child == nullptr)
-			{
-				child = DefaultAllocator::GetInstance().New<Node>();
-			}
-
-			LayoutParams*       layoutParams = nullptr;
-			const DocumentNode* layoutParamsNode = childNode->GetChild("LayoutParams");
-			if (layoutParamsNode != nullptr)
-			{
-				const DocumentNode* typeNode = layoutParamsNode->GetChild("Type");
-				if (typeNode != nullptr)
-				{
-					const std::map<uint64_t, ReflectionDescriptor*>& descriptors = LayoutParamsFactory::GetInstance()->GetAllDescriptors();
-					auto                                              it = descriptors.find(typeNode->GetUInt64());
-					if (it != descriptors.end())
-					{
-						layoutParams = it->second->CreateInstance<LayoutParams>();
-						Serializer::Deserialize(*it->second, layoutParams, *layoutParamsNode);
-					}
-				}
-			}
-
-			if (layoutParams == nullptr)
-			{
-				layoutParams = CreateDefaultLayoutParams();
-			}
-
-			AddChild(child, layoutParams);
-
-			if (child->DeserializeFromDocument(*childNode) == false)
+			if (AddChildFromDocument(*childNode) == nullptr)
 			{
 				return false;
 			}

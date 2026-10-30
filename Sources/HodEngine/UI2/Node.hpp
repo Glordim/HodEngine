@@ -53,6 +53,11 @@ namespace hod::inline ui2
 
 		// Gives an id, taken from nextLocalId, to this node and its descendants that have none yet.
 		void						AssignLocalIds(uint64_t& nextLocalId);
+		// Gives this node and its descendants new ids, taken from nextLocalId, as a copy must not share its original's. The
+		// references the subtree's Interactions hold (see Interaction::RemapTargets) follow for the nodes of the subtree; the
+		// ones to nodes outside of it are kept if keepOutsideTargets, dropped otherwise (a copy pasted in another tree, where
+		// those ids mean other nodes).
+		void						RenewLocalIds(uint64_t& nextLocalId, bool keepOutsideTargets);
 
 		// This node or, depth-first, one of its descendants having that local id; nullptr if there is none.
 		Node*						FindByLocalId(uint64_t localId);
@@ -132,6 +137,9 @@ namespace hod::inline ui2
 		// and its place among its siblings. Properties specific to this node's own type are not carried over.
 		// This node is left detached and empty, for the caller to delete.
 		void						ReplaceWith(Node* replacement);
+		// Moves child (one of this node's children) to index among its siblings, the last place if index is out of range:
+		// drawn over the ones before it, placed after them by a Layout.
+		void						SetChildIndex(Node* child, uint32_t index);
 
 		// Whether ancestor is this node's parent, or the parent of its parent, and so on.
 		bool						IsDescendantOf(const Node* ancestor) const;
@@ -192,6 +200,13 @@ namespace hod::inline ui2
 		// recursively.
 		bool						SerializeInDocument(DocumentNode& documentNode);
 		bool						DeserializeFromDocument(const DocumentNode& documentNode);
+		// One entry of SerializeInDocument's children: this node's concrete type, its LayoutParams (if it has some), then the
+		// node itself and its subtree. Read back by AddChildFromDocument, e.g. to copy the subtree under another node.
+		bool						SerializeAsChildInDocument(DocumentNode& documentNode);
+		// Creates the node (and its subtree) an entry written by SerializeAsChildInDocument describes and adds it as this node's
+		// last child. Its LayoutParams are kept if of the type this node expects, converted otherwise (see ReparentChild).
+		// @return the new child, nullptr if the entry couldn't be read (nothing is added then)
+		Node*						AddChildFromDocument(const DocumentNode& documentNode);
 
 	public:
 
