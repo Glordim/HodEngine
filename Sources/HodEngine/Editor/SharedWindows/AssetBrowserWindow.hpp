@@ -137,14 +137,17 @@ namespace hod::inline editor
 		static Vector<ContextualMenuAction> _contextualMenuActions;
 		static uint32_t                     _nextContextualMenuActionId;
 		static bool                         _populatingContextualMenuActions;
+		static uint32_t                     _contextualMenuActionsVersion; // Changed with _contextualMenuActions: the items pointing into it are stale
 
 		struct ContextualMenuItem
 		{
 			String label;
 			bool isSeparator;
-			std::function<void(const Context&)> callback;
+			// Not a copy: the lambdas of an editor module must not outlive its unload (hot reload, editor shutdown)
+			const std::function<void(const Context&)>* callback = nullptr;
 		};
 		Vector<ContextualMenuItem> _contextualMenuData;
+		uint32_t                   _contextualMenuDataVersion = 0;
 
 		static const ContextualMenuItem* DrawContextualMenuItems(const Vector<ContextualMenuItem>& menuItems, std::string_view prefix);
 	};

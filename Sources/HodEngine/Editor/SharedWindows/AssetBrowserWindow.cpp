@@ -56,6 +56,7 @@ namespace hod::inline editor
 	Vector<AssetBrowserWindow::ContextualMenuAction> AssetBrowserWindow::_contextualMenuActions;
 	uint32_t                                         AssetBrowserWindow::_nextContextualMenuActionId = 1;
 	bool                                             AssetBrowserWindow::_populatingContextualMenuActions = false;
+	uint32_t                                         AssetBrowserWindow::_contextualMenuActionsVersion = 0;
 
 	/// @brief Availability of the actions about an asset only (not a folder)
 	/// @param context
@@ -90,6 +91,7 @@ namespace hod::inline editor
 	{
 		contextualMenuAction.id = _populatingContextualMenuActions ? 0 : _nextContextualMenuActionId++;
 		_contextualMenuActions.PushBack(contextualMenuAction);
+		++_contextualMenuActionsVersion;
 		return contextualMenuAction.id;
 	}
 
@@ -100,6 +102,7 @@ namespace hod::inline editor
 			if (_contextualMenuActions[index].id == contextualMenuActionId)
 			{
 				_contextualMenuActions.Erase(index);
+				++_contextualMenuActionsVersion;
 				return;
 			}
 		}
@@ -130,6 +133,7 @@ namespace hod::inline editor
 			}
 		}
 		_contextualMenuActions.Clear();
+		++_contextualMenuActionsVersion;
 		_populatingContextualMenuActions = true;
 
 		RegisterContextualMenuAction({
@@ -486,7 +490,7 @@ namespace hod::inline editor
 			ContextualMenuItem menuItem;
 			menuItem.label = label;
 			menuItem.isSeparator = false;
-			menuItem.callback = menuAction.execute;
+			menuItem.callback = &menuAction.execute;
 			menuItems.PushBack(menuItem);
 		}
 
@@ -494,7 +498,7 @@ namespace hod::inline editor
 		if (clickedMenuItem != nullptr)
 		{
 			_selectedItems.Clear(); // Same as creating from the contextual menu opened on the void
-			clickedMenuItem->callback(context);
+			(*clickedMenuItem->callback)(context);
 		}
 	}
 
@@ -901,24 +905,31 @@ namespace hod::inline editor
 				Context context({.assetBrowserWindow = *this, .currentDirectory = _currentFolderTreeNode->_path, .selectedItems = _contextualMenuSelection});
 
 				_contextualMenuData.Clear();
-				for (ContextualMenuAction menuAction : _contextualMenuActions)
+				_contextualMenuDataVersion = _contextualMenuActionsVersion;
+				for (const ContextualMenuAction& menuAction : _contextualMenuActions)
 				{
 					if (menuAction.available == nullptr || menuAction.available(context))
 					{
 						ContextualMenuItem menuItem;
-						menuItem.callback = menuAction.execute;
+						menuItem.callback = &menuAction.execute;
 						menuItem.label = menuAction.path;
 						menuItem.isSeparator = false;
 						_contextualMenuData.PushBack(menuItem);
 					}
 				}
 			}
+			else if (_contextualMenuDataVersion != _contextualMenuActionsVersion)
+			{
+				// The actions changed while the menu was open (modules reloaded): its items point to the old ones
+				_contextualMenuData.Clear();
+				ImGui::CloseCurrentPopup();
+			}
 
 			const ContextualMenuItem* clickedMenuItem = DrawContextualMenuItems(_contextualMenuData, "");
 			if (clickedMenuItem != nullptr)
 			{
 				Context context({.assetBrowserWindow = *this, .currentDirectory = _currentFolderTreeNode->_path, .selectedItems = _contextualMenuSelection});
-				clickedMenuItem->callback(context);
+				(*clickedMenuItem->callback)(context);
 			}
 			ImGui::EndPopup();
 		}
