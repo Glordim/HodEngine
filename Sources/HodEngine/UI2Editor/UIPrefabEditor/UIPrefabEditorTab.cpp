@@ -618,8 +618,8 @@ namespace hod::inline editor
 		{
 			Play();
 		}
-		ImGui::SetItemTooltip(IsPlaying() ? "Back to editing (the interactions' state changes are dropped)"
-		                                  : "Try the interactions with the mouse, on a copy of the prefab (editing is suspended meanwhile)");
+		ImGui::SetItemTooltip(IsPlaying() ? "Back to editing (the interactions' state changes are dropped). Escape in the viewport"
+		                                  : "Try the interactions with the mouse, on a copy of the prefab (editing is suspended meanwhile). F5 in the viewport");
 
 		ImGui::SameLine();
 

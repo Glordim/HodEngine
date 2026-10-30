@@ -119,9 +119,40 @@ namespace hod::inline editor
 	void UIPrefabEditorViewportWindow::DrawViewport(bool mouseOverToolbar)
 	{
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
+
+		// F5 plays, Escape stops. Before the displayed canvas is read below, as it switches with the play mode.
+		if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::GetIO().WantTextInput == false)
+		{
+			if (ImGui::IsKeyPressed(ImGuiKey_F5, false))
+			{
+				tab->Play();
+			}
+			else if (ImGui::IsKeyPressed(ImGuiKey_Escape, false) && _draggedGizmoHandle == GizmoHandle::None)
+			{
+				tab->Stop();
+			}
+		}
+
 		// While playing, the play mode's copy (see UIPrefabEditorTab::Play): laid out, drawn and fed the pointer instead.
 		bool         playing = tab->IsPlaying();
 		ui2::Canvas& canvas = tab->GetDisplayedCanvas();
+
+		// Once when the play mode starts (from the menu bar or F5): the prefab shown as in game, the preview can still be turned
+		// off meanwhile. Once when it stops: the preview set back as before, not saved as on.
+		if (playing != _wasPlaying)
+		{
+			_wasPlaying = playing;
+			if (playing)
+			{
+				_previewBeforePlay = _settings._preview;
+				_settings._preview = true;
+			}
+			else if (_settings._preview != _previewBeforePlay)
+			{
+				_settings._preview = _previewBeforePlay;
+				_settingsDirty = true;
+			}
+		}
 		ui2::Node*   root = canvas.GetRootNode();
 		ui2::Node*   prefabRoot = tab->GetDisplayedPrefabRoot();
 
@@ -370,15 +401,12 @@ namespace hod::inline editor
 
 		if (preview == false)
 		{
+			// Only the prefab root's subtree: `root` is the hidden container, whose rect is the design resolution, not part of the prefab.
+			DrawNode(prefabRoot, *renderView);
 			if (playing)
 			{
-				// The prefab as it would look in game: no outlines, only what the pointer reaches
+				// Over the outlines: what the pointer reaches
 				DrawInteractionOverlay(canvas, hitNode, *renderView);
-			}
-			else
-			{
-				// Only the prefab root's subtree: `root` is the hidden container, whose rect is the design resolution, not part of the prefab.
-				DrawNode(prefabRoot, *renderView);
 			}
 
 			if (selectedNode != nullptr)
@@ -397,6 +425,12 @@ namespace hod::inline editor
 		{
 			// Framed in red as long as the edits record a state rather than change the prefab
 			ImGui::GetWindowDrawList()->AddRect(imagePos, imagePos + ImVec2((float)resolutionWidth, (float)resolutionHeight), IM_COL32(230, 60, 60, 255), 0.0f, 3.0f);
+		}
+		else if (playing)
+		{
+			// Framed in blue as long as the play mode's copy is shown rather than the prefab (orange once paused)
+			ImU32 color = tab->IsPaused() ? IM_COL32(230, 160, 40, 255) : IM_COL32(60, 140, 230, 255);
+			ImGui::GetWindowDrawList()->AddRect(imagePos, imagePos + ImVec2((float)resolutionWidth, (float)resolutionHeight), color, 0.0f, 3.0f);
 		}
 		DrawPreviewLabels(imagePos, ImVec2((float)resolutionWidth, (float)resolutionHeight), scale);
 

@@ -123,6 +123,10 @@ namespace hod::inline editor
 		UIPrefabEditorViewportSettings _settings;
 		bool                           _settingsDirty = false;
 
+		// Entering the play mode turns the preview on (still toggleable meanwhile), leaving it gives back the setting it had before.
+		bool _wasPlaying = false;
+		bool _previewBeforePlay = false;
+
 		// Resolution the canvas is currently laid out for, easing towards the previewed device's one. Zero until the first frame (no easing then).
 		Vector2 _previewResolution = Vector2::Zero;
 
