@@ -735,17 +735,52 @@ namespace hod::inline editor
 			bool recording = tab->IsRecording(node, stateEntry._state);
 			bool otherRecorded = tab->IsRecording() && recording == false;
 
+			ImGui::BeginDisabled(otherRecorded);
+
+			// One framed block per state (red framed while recorded): its name followed by its record button, then its overrides
+			ImGui::PushStyleColor(ImGuiCol_Border, recording ? ImVec4(1.0f, 80.0f / 255.0f, 80.0f / 255.0f, 1.0f) : ImGui::GetStyleColorVec4(ImGuiCol_Border));
+			bool blockVisible = ImGui::BeginChild("State", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_Borders);
+			ImGui::PopStyleColor();
+			if (blockVisible == false)
+			{
+				ImGui::EndChild();
+				ImGui::EndDisabled();
+				ImGui::PopID();
+				continue;
+			}
+
+			ImGui::AlignTextToFramePadding();
+			if (recording)
+			{
+				ImGui::TextColored(ImVec4(1.0f, 80.0f / 255.0f, 80.0f / 255.0f, 1.0f), "%s", stateEntry._label);
+			}
+			else
+			{
+				ImGui::TextUnformatted(stateEntry._label);
+			}
+			ImGui::SameLine();
 			if (recording)
 			{
 				ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 80, 80, 255));
 			}
-			ImGui::SeparatorText(recording ? (String(stateEntry._label) + " (recording)").CStr() : stateEntry._label);
+			if (ImGui::SmallButton(recording ? ICON_MDI_STOP : ICON_MDI_RECORD))
+			{
+				if (recording)
+				{
+					tab->StopRecording();
+				}
+				else
+				{
+					tab->StartRecording(node, stateEntry._state);
+				}
+			}
 			if (recording)
 			{
 				ImGui::PopStyleColor();
 			}
-
-			ImGui::BeginDisabled(otherRecorded);
+			ImGui::SetItemTooltip(recording ? "Stop recording, back to the prefab as authored"
+			                                : "Record: show this state, and record the properties edited on any node (inspector) as its overrides");
+			ImGui::Separator();
 
 			Vector<ui2::PropertyOverride>& overrides = *button.GetOverrides(stateEntry._state);
 			int32_t                        removeIndex = -1;
@@ -775,28 +810,12 @@ namespace hod::inline editor
 				}
 			}
 
-			if (recording)
+			if (overrides.Empty())
 			{
-				ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 80, 80, 255));
+				ImGui::TextDisabled("No override");
 			}
-			if (ImGui::SmallButton(recording ? ICON_MDI_STOP " Stop Recording" : ICON_MDI_RECORD " Record"))
-			{
-				if (recording)
-				{
-					tab->StopRecording();
-				}
-				else
-				{
-					tab->StartRecording(node, stateEntry._state);
-				}
-			}
-			if (recording)
-			{
-				ImGui::PopStyleColor();
-			}
-			ImGui::SetItemTooltip(recording ? "Back to the prefab as authored"
-			                                : "Show this state, and record the properties edited on any node (inspector) as its overrides");
 
+			ImGui::EndChild();
 			ImGui::EndDisabled();
 			ImGui::PopID();
 		}
@@ -804,7 +823,8 @@ namespace hod::inline editor
 		return changed;
 	}
 
-	/// @brief One override, read-only (edited by recording its state): the target node and its property, then the value.
+	/// @brief One override, read-only (edited by recording its state), on one line: the target node and its property, then the
+	/// value (cut to the line, whole in the tooltip).
 	/// @param propertyOverride
 	/// @param recording whether its state is being recorded (its remove button then puts the property back)
 	/// @param removeRequested set when its remove button is clicked
@@ -835,20 +855,27 @@ namespace hod::inline editor
 			ImGui::TextUnformatted(propertyOverride._property.CStr());
 		}
 
-		ImGui::SameLine(lineStart + Max(ImGui::GetContentRegionAvail().x - removeWidth, 0.0f)); // right-aligned
+		float removeX = lineStart + Max(ImGui::GetContentRegionAvail().x - removeWidth, 0.0f); // right-aligned
+
+		// The value between the property and the remove button, clipped there
+		ImGui::SameLine();
+		String valueText = FormatValue(propertyOverride._value.GetRootNode());
+		ImVec2 valuePos = ImGui::GetCursorScreenPos();
+		float  valueWidth = Max(removeX - ImGui::GetCursorPosX() - ImGui::GetStyle().ItemSpacing.x, 0.0f);
+		ImGui::PushClipRect(valuePos, ImVec2(valuePos.x + valueWidth, valuePos.y + ImGui::GetFrameHeight()), true);
+		ImGui::TextDisabled("%s", valueText.CStr());
+		ImGui::PopClipRect();
+		if (ImGui::IsMouseHoveringRect(valuePos, ImVec2(valuePos.x + valueWidth, valuePos.y + ImGui::GetFrameHeight())))
+		{
+			ImGui::SetTooltip("%s", valueText.CStr());
+		}
+
+		ImGui::SameLine(removeX);
 		if (ImGui::Button(ICON_MDI_CLOSE))
 		{
 			removeRequested = true;
 		}
 		ImGui::SetItemTooltip(recording ? "Remove (puts the property back to its authored value)" : "Remove");
-
-		String valueText = FormatValue(propertyOverride._value.GetRootNode());
-		ImGui::Indent();
-		ImGui::PushTextWrapPos(0.0f);
-		ImGui::TextDisabled("%s", valueText.CStr());
-		ImGui::PopTextWrapPos();
-		ImGui::Unindent();
-		ImGui::Spacing();
 	}
 
 	/// @brief Play mode's state, in place of the selection (editing is suspended): the node whose Interaction gets the pointer
