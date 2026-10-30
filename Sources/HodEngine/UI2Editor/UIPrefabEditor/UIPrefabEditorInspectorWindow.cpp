@@ -663,22 +663,6 @@ namespace hod::inline editor
 
 	namespace
 	{
-		/// @brief The property a new override of node targets first: its first color (what a state changes the most), otherwise its first overridable one.
-		/// @return empty if node has none
-		String GetDefaultOverrideProperty(const ui2::Node& node)
-		{
-			Vector<const ReflectionProperty*> properties = ui2::PropertyValue::GetOverridableProperties(node);
-			for (const ReflectionProperty* property : properties)
-			{
-				ui2::PropertyValue::Type type;
-				if (ui2::PropertyValue::GetType(*property, type) && type == ui2::PropertyValue::Type::Color)
-				{
-					return property->GetName();
-				}
-			}
-			return properties.Empty() ? String() : String(properties[0]->GetName());
-		}
-
 		/// @brief A node of the prefab, as listed in the override target picker: its icon and name.
 		String GetNodeLabel(const ui2::Node& node)
 		{
@@ -686,25 +670,40 @@ namespace hod::inline editor
 			return String(DrawHelper::GetTypeIcon(node.GetReflectionDescriptorV(), ICON_MDI_VECTOR_SQUARE)) + " " + name;
 		}
 
-		/// @brief Target picker entries: node then its descendants, indented by depth as in the hierarchy.
-		/// @return true if one was picked (outPicked)
-		bool DrawTargetItems(ui2::Node& node, uint32_t depth, const ui2::Node* current, ui2::Node*& outPicked)
+		/// @brief A value as serialized, on one line: objects and arrays as their values between parentheses.
+		String FormatValue(const DocumentNode& node)
 		{
-			ImGui::PushID(&node);
-			String label = String(std::string(depth * 2, ' ').c_str()) + GetNodeLabel(node);
-			bool   picked = false;
-			if (ImGui::Selectable(label.CStr(), &node == current))
+			char buffer[64] = {};
+			switch (node.GetType())
 			{
-				outPicked = &node;
-				picked = true;
+				case DocumentNode::Type::Object:
+				case DocumentNode::Type::Array:
+				{
+					String text = "(";
+					for (const DocumentNode* child = node.GetFirstChild(); child != nullptr; child = child->GetNextSibling())
+					{
+						if (child != node.GetFirstChild())
+						{
+							text += ", ";
+						}
+						text += FormatValue(*child);
+					}
+					return text + ")";
+				}
+				case DocumentNode::Type::Bool: return node.GetBool() ? "true" : "false";
+				case DocumentNode::Type::Int8: std::snprintf(buffer, sizeof(buffer), "%d", (int)node.GetInt8()); break;
+				case DocumentNode::Type::Int16: std::snprintf(buffer, sizeof(buffer), "%d", (int)node.GetInt16()); break;
+				case DocumentNode::Type::Int32: std::snprintf(buffer, sizeof(buffer), "%d", (int)node.GetInt32()); break;
+				case DocumentNode::Type::Int64: std::snprintf(buffer, sizeof(buffer), "%lld", (long long)node.GetInt64()); break;
+				case DocumentNode::Type::UInt8: std::snprintf(buffer, sizeof(buffer), "%u", (unsigned)node.GetUInt8()); break;
+				case DocumentNode::Type::UInt16: std::snprintf(buffer, sizeof(buffer), "%u", (unsigned)node.GetUInt16()); break;
+				case DocumentNode::Type::UInt32: std::snprintf(buffer, sizeof(buffer), "%u", (unsigned)node.GetUInt32()); break;
+				case DocumentNode::Type::UInt64: std::snprintf(buffer, sizeof(buffer), "%llu", (unsigned long long)node.GetUInt64()); break;
+				case DocumentNode::Type::Float32: std::snprintf(buffer, sizeof(buffer), "%.3g", (double)node.GetFloat32()); break;
+				case DocumentNode::Type::Float64: std::snprintf(buffer, sizeof(buffer), "%.3g", node.GetFloat64()); break;
+				case DocumentNode::Type::String: return String("\"") + node.GetString() + "\"";
 			}
-			ImGui::PopID();
-
-			for (ui2::Node* child : node.GetChildren())
-			{
-				picked |= DrawTargetItems(*child, depth + 1, current, outPicked);
-			}
-			return picked;
+			return buffer;
 		}
 	}
 
@@ -754,7 +753,7 @@ namespace hod::inline editor
 			{
 				ImGui::PushID((int)index);
 				bool removeRequested = false;
-				changed |= DrawPropertyOverride(node, overrides[index], recording, removeRequested);
+				DrawPropertyOverride(overrides[index], recording, removeRequested);
 				if (removeRequested)
 				{
 					removeIndex = (int32_t)index;
@@ -796,21 +795,7 @@ namespace hod::inline editor
 				ImGui::PopStyleColor();
 			}
 			ImGui::SetItemTooltip(recording ? "Back to the prefab as authored"
-			                                : "Show this state, and record the colors, scales... edited on any node (inspector) as its overrides");
-
-			// Starts on the button's own node, with its current value: the state then looks the same until edited
-			ImGui::SameLine();
-			if (recording == false && ImGui::SmallButton(ICON_MDI_PLUS " Add Override"))
-			{
-				tab->AssignLocalIds();
-
-				ui2::PropertyOverride propertyOverride;
-				propertyOverride._target = node->GetLocalId();
-				propertyOverride._property = GetDefaultOverrideProperty(*node);
-				ui2::PropertyValue::Read(*node, propertyOverride._property, propertyOverride._value);
-				overrides.PushBack(propertyOverride);
-				changed = true;
-			}
+			                                : "Show this state, and record the properties edited on any node (inspector) as its overrides");
 
 			ImGui::EndDisabled();
 			ImGui::PopID();
@@ -819,114 +804,51 @@ namespace hod::inline editor
 		return changed;
 	}
 
-	/// @brief One override: the target node and its property on a first row (pickers), the value on a second one.
-	/// @param owner the node of the Button the override belongs to
+	/// @brief One override, read-only (edited by recording its state): the target node and its property, then the value.
 	/// @param propertyOverride
-	/// @param recording whether its state is being recorded: read-only then (the recording sets it), except its remove button
+	/// @param recording whether its state is being recorded (its remove button then puts the property back)
 	/// @param removeRequested set when its remove button is clicked
-	/// @return true if edited
-	bool UIPrefabEditorInspectorWindow::DrawPropertyOverride(ui2::Node* owner, ui2::PropertyOverride& propertyOverride, bool recording, bool& removeRequested)
+	void UIPrefabEditorInspectorWindow::DrawPropertyOverride(const ui2::PropertyOverride& propertyOverride, bool recording, bool& removeRequested)
 	{
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
-		bool               changed = false;
+		ui2::Node*         target = tab->GetCanvas().GetRootNode()->FindByLocalId(propertyOverride._target);
 
-		ui2::Node* target = tab->GetCanvas().GetRootNode()->FindByLocalId(propertyOverride._target);
+		ui2::PropertyValue value;
+		bool               resolved = (target != nullptr && propertyOverride.GetValue(*target, value));
 
 		float removeWidth = ImGui::CalcTextSize(ICON_MDI_CLOSE).x + ImGui::GetStyle().FramePadding.x * 2.0f;
-		float pickerWidth = (ImGui::GetContentRegionAvail().x - removeWidth - ImGui::GetStyle().ItemSpacing.x * 2.0f) * 0.5f;
+		float lineStart = ImGui::GetCursorPosX();
 
-		ImGui::BeginDisabled(recording);
-		ImGui::SetNextItemWidth(pickerWidth);
 		String targetLabel = (target != nullptr) ? GetNodeLabel(*target) : String(ICON_MDI_ALERT " Missing node");
-		if (ImGui::BeginCombo("##Target", targetLabel.CStr(), ImGuiComboFlags_HeightLarge))
-		{
-			ui2::Node* picked = nullptr;
-			if (DrawTargetItems(*tab->GetPrefabRoot(), 0, target, picked) && picked != target)
-			{
-				tab->AssignLocalIds();
-				target = picked;
-				propertyOverride._target = picked->GetLocalId();
-
-				// Keeps the property when the new target has it too (e.g. one shape's color for another's)
-				ui2::PropertyValue value;
-				if (ui2::PropertyValue::Read(*target, propertyOverride._property, value) == false || value._type != propertyOverride._value._type)
-				{
-					propertyOverride._property = GetDefaultOverrideProperty(*target);
-					ui2::PropertyValue::Read(*target, propertyOverride._property, propertyOverride._value);
-				}
-				changed = true;
-			}
-			ImGui::EndCombo();
-		}
-		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
-		{
-			ImGui::SetTooltip(target == owner ? "The button's own node" : "Node of the prefab whose property the state changes");
-		}
-
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted(targetLabel.CStr());
 		ImGui::SameLine();
-		ImGui::SetNextItemWidth(pickerWidth);
-		ImGui::BeginDisabled(target == nullptr);
-		if (ImGui::BeginCombo("##Property", propertyOverride._property.Empty() ? "None" : propertyOverride._property.CStr()))
-		{
-			if (target != nullptr)
-			{
-				for (const ReflectionProperty* property : ui2::PropertyValue::GetOverridableProperties(*target))
-				{
-					bool isCurrent = (propertyOverride._property == property->GetName());
-					if (ImGui::Selectable(property->GetName(), isCurrent) && isCurrent == false)
-					{
-						propertyOverride._property = property->GetName();
-						ui2::PropertyValue::Read(*target, propertyOverride._property, propertyOverride._value);
-						changed = true;
-					}
-				}
-			}
-			ImGui::EndCombo();
-		}
-		ImGui::EndDisabled();
-
-		ImGui::EndDisabled(); // recording
-
+		ImGui::TextDisabled(ICON_MDI_CHEVRON_RIGHT);
 		ImGui::SameLine();
+		if (target != nullptr && resolved == false)
+		{
+			ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1.0f), ICON_MDI_ALERT " %s", propertyOverride._property.CStr());
+			ImGui::SetItemTooltip("The node has no such property anymore (or of another type): ignored");
+		}
+		else
+		{
+			ImGui::TextUnformatted(propertyOverride._property.CStr());
+		}
+
+		ImGui::SameLine(lineStart + Max(ImGui::GetContentRegionAvail().x - removeWidth, 0.0f)); // right-aligned
 		if (ImGui::Button(ICON_MDI_CLOSE))
 		{
 			removeRequested = true;
 		}
 		ImGui::SetItemTooltip(recording ? "Remove (puts the property back to its authored value)" : "Remove");
 
-		ImGui::BeginDisabled(recording);
-
-		ui2::PropertyValue& value = propertyOverride._value;
-		ImGui::SetNextItemWidth(-FLT_MIN);
-		switch (value._type)
-		{
-			case ui2::PropertyValue::Type::Float:
-			{
-				changed |= ImGui::DragFloat("##Value", &value._float, 0.01f);
-			}
-			break;
-
-			case ui2::PropertyValue::Type::Vector2:
-			{
-				changed |= DrawHelper::DrawVector2(value._vector2);
-			}
-			break;
-
-			case ui2::PropertyValue::Type::Color:
-			{
-				float components[4] = {value._color.r, value._color.g, value._color.b, value._color.a};
-				if (ColorField("##Value", components))
-				{
-					value._color = Color(components[0], components[1], components[2], components[3]);
-					changed = true;
-				}
-			}
-			break;
-		}
-		ImGui::EndDisabled(); // recording
+		String valueText = FormatValue(propertyOverride._value.GetRootNode());
+		ImGui::Indent();
+		ImGui::PushTextWrapPos(0.0f);
+		ImGui::TextDisabled("%s", valueText.CStr());
+		ImGui::PopTextWrapPos();
+		ImGui::Unindent();
 		ImGui::Spacing();
-
-		return changed;
 	}
 
 	/// @brief Interact mode's state, in place of the selection (editing is suspended): the node whose Interaction gets the pointer

@@ -116,12 +116,15 @@ namespace hod::inline editor
 		for (uint32_t index = 0; index < nodes.Size(); ++index)
 		{
 			ui2::Node* node = nodes[index];
-			for (const ReflectionProperty* property : ui2::PropertyValue::GetOverridableProperties(*node))
+			for (const String& property : ui2::PropertyValue::GetOverridableProperties(*node))
 			{
-				RecordedBaseValue& baseValue = _recordedBase.EmplaceBack();
+				RecordedBaseValue baseValue;
 				baseValue._target = node->GetLocalId();
-				baseValue._property = property->GetName();
-				ui2::PropertyValue::Read(*node, baseValue._property, baseValue._value);
+				baseValue._property = property;
+				if (baseValue._value.Read(*node, property))
+				{
+					_recordedBase.PushBack(std::move(baseValue));
+				}
 			}
 			for (ui2::Node* child : node->GetChildren())
 			{
@@ -204,7 +207,7 @@ namespace hod::inline editor
 		{
 			ui2::Node*         node = _canvas.GetRootNode()->FindByLocalId(baseValue._target);
 			ui2::PropertyValue value;
-			if (node == nullptr || ui2::PropertyValue::Read(*node, baseValue._property, value) == false)
+			if (node == nullptr || value.Read(*node, baseValue._property) == false)
 			{
 				continue;
 			}
@@ -229,9 +232,11 @@ namespace hod::inline editor
 			}
 			else if (overrideIndex >= 0)
 			{
-				if (overrides[(uint32_t)overrideIndex]._value.Equals(value) == false)
+				ui2::PropertyOverride& propertyOverride = overrides[(uint32_t)overrideIndex];
+				ui2::PropertyValue     recorded;
+				if (propertyOverride.GetValue(*node, recorded) == false || recorded.Equals(value) == false)
 				{
-					overrides[(uint32_t)overrideIndex]._value = value;
+					propertyOverride.SetValue(value);
 					changed = true;
 				}
 			}
@@ -240,7 +245,7 @@ namespace hod::inline editor
 				ui2::PropertyOverride& propertyOverride = overrides.EmplaceBack();
 				propertyOverride._target = baseValue._target;
 				propertyOverride._property = baseValue._property;
-				propertyOverride._value = value;
+				propertyOverride.SetValue(value);
 				changed = true;
 			}
 		}
@@ -258,7 +263,7 @@ namespace hod::inline editor
 		{
 			ui2::Node*         node = _canvas.GetRootNode()->FindByLocalId(baseValue._target);
 			ui2::PropertyValue value;
-			if (node != nullptr && ui2::PropertyValue::Read(*node, baseValue._property, value) && value.Equals(baseValue._value) == false)
+			if (node != nullptr && value.Read(*node, baseValue._property) && value.Equals(baseValue._value) == false)
 			{
 				baseValue._value.Write(*node, baseValue._property);
 			}
@@ -275,10 +280,11 @@ namespace hod::inline editor
 		}
 		for (const ui2::PropertyOverride& propertyOverride : *button->GetOverrides(_recordedState))
 		{
-			ui2::Node* node = _canvas.GetRootNode()->FindByLocalId(propertyOverride._target);
-			if (node != nullptr)
+			ui2::Node*         node = _canvas.GetRootNode()->FindByLocalId(propertyOverride._target);
+			ui2::PropertyValue value;
+			if (node != nullptr && propertyOverride.GetValue(*node, value))
 			{
-				propertyOverride._value.Write(*node, propertyOverride._property);
+				value.Write(*node, propertyOverride._property);
 			}
 		}
 	}

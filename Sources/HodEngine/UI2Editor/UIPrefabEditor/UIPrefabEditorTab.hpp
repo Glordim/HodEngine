@@ -63,9 +63,9 @@ namespace hod::inline editor
 		void			AssignLocalIds();
 
 		// Record mode: the prefab shows a Button's state (its overrides applied), and editing the nodes' overridable properties
-		// (colors, scales...: see ui2::PropertyValue) records the state's overrides instead of changing the prefab: the state's
-		// overrides are kept equal to what differs from the prefab as authored, until StopRecording() puts that back. Other
-		// edits (texts, placement, nodes added...) still change the prefab itself. Saving while recording saves the prefab as
+		// (theirs, their LayoutParams' and Layout's: see ui2::PropertyValue) records the state's overrides instead of changing the
+		// prefab: the state's overrides are kept equal to what differs from the prefab as authored, until StopRecording() puts
+		// that back. Other edits (nodes added, removed, moved, layout type changed...) still change the prefab itself. Saving while recording saves the prefab as
 		// authored, plus the overrides recorded so far, and keeps recording.
 		bool			IsRecording() const;
 		bool			IsRecording(const ui2::Node* buttonNode, ui2::Button::State state) const;

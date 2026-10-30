@@ -1,84 +1,114 @@
 #pragma once
 #include "HodEngine/UI2/Export.hpp"
 
+#include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <HodEngine/Core/String.hpp>
 #include <HodEngine/Core/Vector.hpp>
-#include <HodEngine/Math/Color.hpp>
-#include <HodEngine/Math/Vector2.hpp>
 
 #include <string_view>
 
 namespace hod::inline core
 {
+	class ReflectionDescriptor;
 	class ReflectionProperty;
+	class ReflectionPropertyVariable;
 }
 
 namespace hod::inline ui2
 {
 	class Node;
 
-	/// @brief Value of a node property an override can drive: only the types a transition can ease (interpolate).
-	struct HOD_UI2_API PropertyValue
+	/// @brief Value of a node property an override can drive, held as an instance of the property's own type: any reflected
+	/// type works without being known here (floats, enums, strings, Color, Vector2, CornerRadii, Margin...), only through
+	/// reflection. The property is named by a path: its name for one of the node's own properties, prefixed by "LayoutParams/"
+	/// or "Layout/" for one of its LayoutParams' or Layout's (e.g. "LayoutParams/Margin").
+	class HOD_UI2_API PropertyValue
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(PropertyValue)
+	public:
+
+							PropertyValue() = default;
+							PropertyValue(const PropertyValue& copy);
+							PropertyValue(PropertyValue&& move);
+							~PropertyValue();
+
+		PropertyValue&		operator=(const PropertyValue& copy);
+		PropertyValue&		operator=(PropertyValue&& move);
 
 	public:
 
-		enum class Type : uint8_t
-		{
-			Float,
-			Vector2,
-			Color,
-		};
-		REFLECTED_ENUM(HOD_UI2_API, Type);
+		// The paths of the properties of node an override can drive: its own (its type's after its parents'), then its
+		// LayoutParams' and its Layout's. Without the hidden and non serialized ones, nor the arrays (or objects holding some).
+		static Vector<String>	GetOverridableProperties(const Node& node);
 
-	public:
-
-		// The type of the value property holds, when an override can drive it. Top-level reflected properties only.
-		static bool			GetType(const ReflectionProperty& property, Type& outType);
-
-		// The properties of node an override can drive, its type's own after its parents', without the hidden ones.
-		static Vector<const ReflectionProperty*>	GetOverridableProperties(const Node& node);
-
-		// node's property named propertyName (its own or inherited), when it exists and has an overridable type.
-		static bool			Read(const Node& node, std::string_view propertyName, PropertyValue& outValue);
+		// Takes the type and the current value of node's property at propertyPath. False when there is none (or not overridable).
+		bool				Read(const Node& node, std::string_view propertyPath);
 		// Through the property's setter when it has one (the node relayouts/redraws as on any edit). False when node has no
 		// such property, or not of this value's type.
-		bool				Write(Node& node, std::string_view propertyName) const;
+		bool				Write(Node& node, std::string_view propertyPath) const;
 
-		static PropertyValue	Lerp(const PropertyValue& from, const PropertyValue& to, float t);
+		// Takes the type of node's property at propertyPath, and the value serialized in documentNode (see Save).
+		bool				Load(const Node& node, std::string_view propertyPath, const DocumentNode& documentNode);
+		// As the node's own serialization writes the property
+		void				Save(DocumentNode& documentNode) const;
 
-		// Same type and same value of that type (the other types' fields are ignored)
+		// Read or Loaded
+		bool				IsValid() const;
+		bool				IsSameType(const PropertyValue& other) const;
 		bool				Equals(const PropertyValue& other) const;
 
-	public:
+		// Between two values of the same type, into out: the floats (also inside objects, e.g. a color's channels) are eased,
+		// the other variables (integers, booleans, enums, strings, ids) switch from from to to halfway. out takes to's type.
+		static void			Lerp(const PropertyValue& from, const PropertyValue& to, float t, PropertyValue& out);
 
-		Type		_type = Type::Float;
-		// Only the one of _type is used
-		float		_float = 0.0f;
-		Vector2		_vector2 = Vector2::Zero;
-		Color		_color = Color(1.0f, 1.0f, 1.0f, 1.0f);
+	private:
+
+		// Makes the value an instance of property's type (kept if already of it)
+		void				SetType(const ReflectionProperty& property);
+		void				Clear();
+
+	private:
+
+		const ReflectionProperty*	_property = nullptr; // whose type the value has (a property of a node, LayoutParams or Layout type)
+		ReflectionPropertyVariable*	_variable = nullptr; // for a variable: the value seen as that variable at offset 0 of _storage, without setter
+		void*						_storage = nullptr; // an instance of the object's type, or the variable's
 	};
 
 	/// @brief Value given to a property of a node of the same tree (prefab) while some state is active, e.g. a Button's
 	/// shape filled in another color while hovered. The target is referenced by its local id (see Node::GetLocalId), so it
-	/// survives renames and moves.
+	/// survives renames and moves. The value is kept serialized: its type is the target's property's, known once resolved.
 	struct HOD_UI2_API PropertyOverride
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(PropertyOverride)
 
 	public:
 
+							PropertyOverride() = default;
+							PropertyOverride(const PropertyOverride& copy);
+							PropertyOverride(PropertyOverride&& move); // copies: a Document can't move
+							~PropertyOverride() = default;
+
+		PropertyOverride&	operator=(const PropertyOverride& copy);
+		PropertyOverride&	operator=(PropertyOverride&& move);
+
+	public:
+
+		// The value, as an instance of target's property type. False when target has no such property (anymore).
+		bool				GetValue(const Node& target, PropertyValue& outValue) const;
+		void				SetValue(const PropertyValue& value);
+
+	public:
+
 		uint64_t		_target = 0;
-		String			_property;
-		PropertyValue	_value;
+		String			_property; // path, see PropertyValue
+		Document		_value;
 	};
 
 	/// @brief Plays the switches between sets of PropertyOverride (one per state of an Interaction, see Button): every
 	/// property targeted by any of the sets eases, over the transition's duration, from its current value towards the value
 	/// the active set gives it, or back to its base value when that set doesn't override it. A property's base value is
-	/// read the first time it is targeted, i.e. before any override touched it.
+	/// read the first time it is targeted, i.e. before any override touched it. The values are resolved when a transition
+	/// starts: each frame only eases them and writes them.
 	class HOD_UI2_API PropertyOverrideTransition
 	{
 	public:
@@ -100,6 +130,7 @@ namespace hod::inline ui2
 			PropertyValue	_base;
 			PropertyValue	_from;
 			PropertyValue	_to;
+			PropertyValue	_current;
 		};
 
 		Track*	FindTrack(uint64_t target, const String& property);
