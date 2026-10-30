@@ -55,6 +55,6 @@ namespace hod::inline editor
 		bool  _gridVisible = true;
 		float _gridCellSize = 100.0f; // canvas units, at zoom 1.0
 
-		bool _preview = false; // Only the prefab as drawn in game: no grid, device frame, outlines nor gizmos
+		bool _preview = false; // Only the prefab as drawn in game: only the device frame, no grid, outlines nor gizmos
 	};
 }

@@ -308,7 +308,7 @@ namespace hod::inline editor
 			_interactionPointerDown = false;
 		}
 
-		// Preview: nothing drawn over the prefab, so no gizmo to grab either
+		// Preview: nothing drawn over the prefab but the device frame (where the screen's edges are), so no gizmo to grab either
 		bool preview = _settings._preview;
 		if (selectedNode != nullptr && preview == false)
 		{
@@ -360,10 +360,7 @@ namespace hod::inline editor
 		{
 			DrawGrid(gridOrigin, _camera.GetPosition(), worldHalfWidth, worldHalfHeight, scale, *renderView);
 		}
-		if (preview == false)
-		{
-			DrawPreviewFrames(*renderView);
-		}
+		DrawPreviewFrames(*renderView);
 
 		//Gizmos::Rect(Matrix4::Identity, canvasSize, Color(90.0f / 255.0f, 90.0f / 255.0f, 90.0f / 255.0f, 1.0f), *renderView);
 
@@ -401,10 +398,7 @@ namespace hod::inline editor
 			// Framed in red as long as the edits record a state rather than change the prefab
 			ImGui::GetWindowDrawList()->AddRect(imagePos, imagePos + ImVec2((float)resolutionWidth, (float)resolutionHeight), IM_COL32(230, 60, 60, 255), 0.0f, 3.0f);
 		}
-		if (preview == false)
-		{
-			DrawPreviewLabels(imagePos, ImVec2((float)resolutionWidth, (float)resolutionHeight), scale);
-		}
+		DrawPreviewLabels(imagePos, ImVec2((float)resolutionWidth, (float)resolutionHeight), scale);
 
 		if (playing == false && hovered && mouseInsideImage && ImGui::IsMouseClicked(ImGuiMouseButton_Left) && _draggedGizmoHandle == GizmoHandle::None)
 		{
@@ -502,8 +496,8 @@ namespace hod::inline editor
 		}
 		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
 		{
-			ImGui::SetTooltip(_settings._preview ? "Back to the grid, device frame, outlines and gizmos"
-			                                     : "Only the prefab as drawn in game: no grid, device frame, outlines nor gizmos");
+			ImGui::SetTooltip(_settings._preview ? "Back to the grid, outlines and gizmos"
+			                                     : "Only the prefab as drawn in game, in its device frame: no grid, outlines nor gizmos");
 		}
 
 		DrawDevicesPopup();
