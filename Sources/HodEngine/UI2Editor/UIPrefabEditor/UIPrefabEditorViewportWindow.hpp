@@ -29,14 +29,10 @@ namespace hod::inline renderer
 
 namespace hod::inline editor
 {
-	/// @brief RT-rendered 2D preview of a UIPrefabEditorTab's ui2::Node tree: draws each node's
-	/// computed rect (position/size) as a wireframe box into an offscreen render target (via
-	/// Gizmos/RenderView, like the other RHI-backed editor viewports), then blits that texture
+	/// @brief RT-rendered 2D preview of a UIPrefabEditorTab's ui2::Node tree: draws the canvas' content as in game
+	/// (ui2::Canvas::PushRenderCommand) into an offscreen render target, then, over it and via Gizmos, each node's
+	/// computed rect as an outline, the selected node's spacing and its manipulation gizmo, and blits that texture
 	/// into the panel. Click-to-select is done in canvas space against the same node bounds.
-	///
-	/// ui2::Node has no drawable content yet (no Drawable/Text/Image node types, see
-	/// Docs/Architecture/UI2-Architecture.md), so there is nothing to render beyond node bounds
-	/// regardless of which rendering technology is used.
 	///
 	/// The prefab can be previewed on a device picked from a user-editable list (name + resolution, optionally
 	/// rotated): the canvas is then laid out for that resolution, exactly as it would be in game (see
@@ -45,8 +41,8 @@ namespace hod::inline editor
 	/// Never saved in the prefab: the devices, the active one and the grid settings are persisted per user.
 	/// In play mode (see UIPrefabEditorTab::Play): the mouse then drives
 	/// the prefab's Interactions instead of selecting and moving nodes, with what the pointer reaches outlined (see DrawInteractionOverlay).
-	/// Known simplification: rotation and scale are ignored (boxes are drawn axis-aligned, at the layout size,
-	/// centered on the node's computed canvas-space center).
+	/// Known simplification: rotation and scale are ignored by the editor overlays (outlines, picking and gizmo are
+	/// axis-aligned, at the layout size, centered on the node's computed canvas-space center).
 	class HOD_UI2_EDITOR_API UIPrefabEditorViewportWindow : public EditorTabWindow
 	{
 		REFLECTED_CLASS(UIPrefabEditorViewportWindow, EditorTabWindow)
@@ -81,9 +77,8 @@ namespace hod::inline editor
 		ui2::Node*	UpdateInteraction(ui2::Canvas& canvas, const Vector2& canvasMousePosition, bool mouseAvailable);
 		void		DrawInteractionOverlay(ui2::Canvas& canvas, ui2::Node* hitNode, RenderView& renderView);
 
-		// Manipulation gizmo drawn over the selected node, mirroring UIEditor's
-		// NodeCustomComponentDrawer (move via the node's body, resize via the 4 corners / 4 edges),
-		// but hit-tested on the CPU against canvas-space bounds instead of the RHI picking texture,
+		// Manipulation gizmo drawn over the selected node (move via the node's body, resize via the 4 corners / 4 edges),
+		// hit-tested on the CPU against canvas-space bounds rather than with a picking texture,
 		// since this viewport isn't a ViewportWindow and has no picking render target.
 		enum class GizmoHandle : uint8_t
 		{

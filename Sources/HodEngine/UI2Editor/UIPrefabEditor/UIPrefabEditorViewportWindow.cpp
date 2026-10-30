@@ -1046,8 +1046,7 @@ namespace hod::inline editor
 	/// 4 corners (resize keeping the opposite corner fixed) and a highlighted edge line when
 	/// hovering/dragging one of the 4 edges (resize along one axis only). The node's body itself
 	/// (already drawn as an outline by DrawNode) acts as the move handle.
-	/// Mirrors UIEditor's NodeCustomComponentDrawer::OnDrawGizmo, minus rotation support (this
-	/// viewport draws every node axis-aligned, see the class comment on the header).
+	/// No rotation support: this viewport's overlays are axis-aligned, see the class comment on the header.
 	/// @param node
 	/// @param scale pixels per canvas unit, used to keep the handle size constant on screen
 	/// @param renderView
