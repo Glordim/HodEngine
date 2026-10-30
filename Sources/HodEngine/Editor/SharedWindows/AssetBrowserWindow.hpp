@@ -51,6 +51,20 @@ namespace hod::inline editor
 
 		static void PopulateContextualMenuActions();
 
+		/// @brief What a drag and drop payload of another window (e.g. a node of a hierarchy) does dropped on a folder of the
+		/// asset browser (the explorer's background being the current folder), typically making an asset of it
+		struct DropAction
+		{
+			String                                                                         payloadType; // ImGui payload type
+			std::function<bool(const void* payloadData)>                                   available;   // Optional: highlighted and accepted only then
+			std::function<void(const void* payloadData, const Path& folder, AssetBrowserWindow&)> execute;     // Out of the browser's drawing
+			uint32_t                                                                       id = 0;      // Given by RegisterDropAction
+		};
+
+		/// @brief By the editor modules (through EditorModuleRegistration)
+		static uint32_t RegisterDropAction(DropAction dropAction);
+		static void     UnregisterDropAction(uint32_t dropActionId);
+
 	private:
 		struct HOD_EDITOR_API FolderItem
 		{
@@ -101,6 +115,7 @@ namespace hod::inline editor
 		Vector<Path> GetSelectedPaths() const;
 
 		void DrawFolderDropTarget(AssetDatabase::FileSystemMapping* folder);
+		void AcceptFolderDropPayloads(AssetDatabase::FileSystemMapping* folder);
 		void ApplyPendingDrop();
 
 	private:
@@ -123,6 +138,8 @@ namespace hod::inline editor
 		AssetDatabase::FileSystemMapping* _explorerDraggedItem = nullptr; // Drag source of the explorer, its drop moves the whole selection
 		AssetDatabase::FileSystemMapping* _pendingDropItem = nullptr;
 		AssetDatabase::FileSystemMapping* _pendingDropFolder = nullptr;
+		uint32_t                          _pendingDropActionId = 0; // A DropAction's drop, its payload copied (ImGui frees it)
+		Vector<uint8_t>                   _pendingDropActionData;
 
 		AssetDatabase::FileSystemMapping* _itemToRename = nullptr;
 		char                              _itemRenameBuffer[256] = {'\0'};
@@ -138,6 +155,9 @@ namespace hod::inline editor
 		static uint32_t                     _nextContextualMenuActionId;
 		static bool                         _populatingContextualMenuActions;
 		static uint32_t                     _contextualMenuActionsVersion; // Changed with _contextualMenuActions: the items pointing into it are stale
+
+		static Vector<DropAction> _dropActions;
+		static uint32_t           _nextDropActionId;
 
 		struct ContextualMenuItem
 		{

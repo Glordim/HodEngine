@@ -84,6 +84,34 @@ HOD_STARTUP_MODULE(UI2Editor)
 				context.assetBrowserWindow.Rename(assetPath);
 			},
 	});
+
+	// A node dragged from a UI prefab's hierarchy becomes a UI prefab of its own, the node an instance of it
+	registration.RegisterDropAction({
+		.payloadType = "UI2Node",
+		.available =
+			+[](const void* payloadData)
+			{
+				ui2::Node* node = *static_cast<ui2::Node* const*>(payloadData);
+				UIPrefabEditorTab* tab = UIPrefabEditorTab::FindTabOf(node);
+				return tab != nullptr && UIPrefabEditorTab::GetNodeRole(node) == UIPrefabEditorTab::NodeRole::Authored && tab->IsRecording() == false &&
+				       tab->IsPlaying() == false;
+			},
+		.execute =
+			+[](const void* payloadData, const Path& folder, AssetBrowserWindow& assetBrowserWindow)
+			{
+				ui2::Node* node = *static_cast<ui2::Node* const*>(payloadData);
+				UIPrefabEditorTab* tab = UIPrefabEditorTab::FindTabOf(node);
+				if (tab == nullptr)
+				{
+					return;
+				}
+				std::shared_ptr<Asset> asset = tab->CreatePrefabFromNode(node, folder);
+				if (asset != nullptr)
+				{
+					assetBrowserWindow.PingAsset(*asset);
+				}
+			},
+	});
 	return 0;
 }
 

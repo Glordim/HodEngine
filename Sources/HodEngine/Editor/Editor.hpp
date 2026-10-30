@@ -92,6 +92,11 @@ namespace hod::inline editor
 
 		void PingAsset(std::shared_ptr<Asset> asset);
 
+		const Vector<EditorTab*>& GetEditorTabs() const
+		{
+			return _editorTabs;
+		}
+
 		Texture* GetHodTexture() const
 		{
 			return _hodTexture;

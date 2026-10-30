@@ -28,6 +28,7 @@
 #include <HodEngine/Core/OS.hpp>
 
 #include <cmath>
+#include <cstring>
 
 namespace ImGui
 {
@@ -57,6 +58,8 @@ namespace hod::inline editor
 	uint32_t                                         AssetBrowserWindow::_nextContextualMenuActionId = 1;
 	bool                                             AssetBrowserWindow::_populatingContextualMenuActions = false;
 	uint32_t                                         AssetBrowserWindow::_contextualMenuActionsVersion = 0;
+	Vector<AssetBrowserWindow::DropAction>           AssetBrowserWindow::_dropActions;
+	uint32_t                                         AssetBrowserWindow::_nextDropActionId = 1;
 
 	/// @brief Availability of the actions about an asset only (not a folder)
 	/// @param context
@@ -103,6 +106,25 @@ namespace hod::inline editor
 			{
 				_contextualMenuActions.Erase(index);
 				++_contextualMenuActionsVersion;
+				return;
+			}
+		}
+	}
+
+	uint32_t AssetBrowserWindow::RegisterDropAction(DropAction dropAction)
+	{
+		dropAction.id = _nextDropActionId++;
+		_dropActions.PushBack(dropAction);
+		return dropAction.id;
+	}
+
+	void AssetBrowserWindow::UnregisterDropAction(uint32_t dropActionId)
+	{
+		for (uint32_t index = 0; index < _dropActions.Size(); ++index)
+		{
+			if (_dropActions[index].id == dropActionId)
+			{
+				_dropActions.Erase(index);
 				return;
 			}
 		}
@@ -867,6 +889,14 @@ namespace hod::inline editor
 		multiSelectIO = ImGui::EndMultiSelect();
 		ApplySelectionRequests(multiSelectIO, explorerItems);
 
+		// The background is the current folder (the folders' items, smaller, take precedence over it)
+		ImGuiWindow* explorerWindow = ImGui::GetCurrentWindow();
+		if (ImGui::BeginDragDropTargetCustom(explorerWindow->InnerRect, explorerWindow->GetID("##ExplorerBackgroundDropTarget")))
+		{
+			AcceptFolderDropPayloads(_currentFolderTreeNode);
+			ImGui::EndDragDropTarget();
+		}
+
 		// Kept until the drop is applied (end of Draw()), the drop target may have been drawn before this
 		if (ImGui::IsDragDropActive() == false && _pendingDropItem == nullptr)
 		{
@@ -1061,18 +1091,67 @@ namespace hod::inline editor
 	{
 		if (ImGui::BeginDragDropTarget() == true)
 		{
-			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FileSystemMapping"))
-			{
-				_pendingDropItem = *static_cast<AssetDatabase::FileSystemMapping**>(payload->Data);
-				_pendingDropFolder = folder;
-			}
+			AcceptFolderDropPayloads(folder);
 			ImGui::EndDragDropTarget();
 		}
 	}
 
-	/// @brief Moves the dropped item, or the whole explorer selection when the dragged item was part of it
+	/// @brief Between a BeginDragDropTarget and its EndDragDropTarget: the items moved into folder, or a DropAction's payload
+	/// @param folder
+	void AssetBrowserWindow::AcceptFolderDropPayloads(AssetDatabase::FileSystemMapping* folder)
+	{
+		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FileSystemMapping"))
+		{
+			_pendingDropItem = *static_cast<AssetDatabase::FileSystemMapping**>(payload->Data);
+			_pendingDropFolder = folder;
+			return;
+		}
+
+		const ImGuiPayload* peekedPayload = ImGui::GetDragDropPayload();
+		if (peekedPayload == nullptr)
+		{
+			return;
+		}
+		for (const DropAction& dropAction : _dropActions)
+		{
+			if (peekedPayload->IsDataType(dropAction.payloadType.CStr()) == false ||
+			    (dropAction.available != nullptr && dropAction.available(peekedPayload->Data) == false))
+			{
+				continue;
+			}
+			if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload(dropAction.payloadType.CStr()))
+			{
+				_pendingDropActionId = dropAction.id;
+				_pendingDropActionData.Resize(static_cast<uint32_t>(payload->DataSize));
+				std::memcpy(_pendingDropActionData.Data(), payload->Data, static_cast<size_t>(payload->DataSize));
+				_pendingDropFolder = folder;
+			}
+			return;
+		}
+	}
+
+	/// @brief Moves the dropped item, or the whole explorer selection when the dragged item was part of it. Or runs the
+	/// DropAction dropped.
 	void AssetBrowserWindow::ApplyPendingDrop()
 	{
+		if (_pendingDropActionId != 0)
+		{
+			uint32_t dropActionId = _pendingDropActionId;
+			_pendingDropActionId = 0;
+			Path folder = _pendingDropFolder->_path;
+			_pendingDropFolder = nullptr;
+			for (const DropAction& dropAction : _dropActions)
+			{
+				if (dropAction.id == dropActionId)
+				{
+					dropAction.execute(_pendingDropActionData.Data(), folder, *this);
+					break;
+				}
+			}
+			_pendingDropActionData.Clear();
+			return;
+		}
+
 		if (_pendingDropItem == nullptr)
 		{
 			return;

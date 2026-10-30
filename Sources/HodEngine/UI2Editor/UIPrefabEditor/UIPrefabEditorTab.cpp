@@ -6,6 +6,8 @@
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorViewportWindow.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Framing.hpp"
 #include "HodEngine/Editor/Thumbnail.hpp"
 
@@ -32,6 +34,7 @@
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 #include <HodEngine/Core/Document/DocumentWriterJson.hpp>
+#include <HodEngine/Core/Hash.hpp>
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
@@ -814,6 +817,156 @@ namespace hod::inline editor
 		return true;
 	}
 
+	namespace
+	{
+		/// @brief node's name as a file name: the characters a path can't hold replaced.
+		String GetPrefabFileName(const ui2::Node& node)
+		{
+			String fileName = node.GetName();
+			for (uint32_t index = 0; index < fileName.Length(); ++index)
+			{
+				if (std::strchr("\\/:*?\"<>|", fileName[index]) != nullptr)
+				{
+					fileName[index] = '_';
+				}
+			}
+			return fileName.Empty() ? String("NewUIPrefab") : fileName;
+		}
+	}
+
+	/// @brief
+	/// @param node
+	/// @param folder
+	/// @return
+	std::shared_ptr<Asset> UIPrefabEditorTab::CreatePrefabFromNode(ui2::Node* node, const Path& folder)
+	{
+		if (GetNodeRole(node) != NodeRole::Authored || CanRemove(node) == false)
+		{
+			OUTPUT_ERROR("Only the nodes of the prefab itself, but its root, can make a UI prefab (an instance is unpacked first)");
+			return nullptr;
+		}
+		if (IsRecording() || IsPlaying())
+		{
+			OUTPUT_ERROR("A UI prefab can't be made of a node while recording a state or playing");
+			return nullptr;
+		}
+
+		AssignLocalIds(); // The instance replacing node keeps its id: what references node references the instance
+		Document entryDocument;
+		if (node->SerializeAsChildInDocument(entryDocument.GetRootNode()) == false)
+		{
+			return nullptr;
+		}
+
+		// The new prefab as its tab would hold it (see LoadNodes), with ids of its own and this prefab's scaler (same design
+		// resolution), saved as its tab saves it (see OnSave)
+		ui2::Canvas prefabCanvas;
+		prefabCanvas.SetScaler(_canvas.GetScaler());
+		prefabCanvas.SetOverrideScaler(_canvas.GetOverrideScaler());
+		ui2::Node* prefabRoot = prefabCanvas.GetRootNode()->AddChildFromDocument(entryDocument.GetRootNode());
+		if (prefabRoot == nullptr)
+		{
+			return nullptr;
+		}
+		uint64_t nextLocalId = 1;
+		prefabRoot->RenewLocalIds(nextLocalId, false);
+
+		Document prefabDocument;
+		if (prefabCanvas.SerializeInDocument(prefabDocument.GetRootNode()) == false)
+		{
+			return nullptr;
+		}
+		prefabDocument.GetRootNode().AddChild("NextLocalId").SetUInt64(nextLocalId);
+
+		Path               assetPath = AssetDatabase::GenerateUniqueAssetPath(folder / (GetPrefabFileName(*node) + ".uiprefab"));
+		AssetContainer     assetContainer;
+		DocumentWriterJson documentWriter;
+		assetContainer.SetAssetType(Hash::ComputeXxh3_64("UIPrefab"));
+		assetContainer.SetUid(UID::GenerateUID());
+		Vector<uint8_t> thumbnail;
+		if (RenderThumbnail(prefabCanvas, thumbnail))
+		{
+			assetContainer.SetThumbnail(std::move(thumbnail));
+		}
+		if (documentWriter.Write(prefabDocument, assetContainer.AddDataBlock("Nodes", false)) == false || assetContainer.Save(assetPath) == false)
+		{
+			OUTPUT_ERROR("Can't write the UI prefab {}", assetPath);
+			return nullptr;
+		}
+		std::shared_ptr<Asset> asset = AssetDatabase::GetInstance()->AddWrittenAsset(assetPath);
+		if (asset == nullptr)
+		{
+			OUTPUT_ERROR("Can't load the UI prefab {}", assetPath);
+			return nullptr;
+		}
+
+		// node replaced by an instance without overrides: its placement and id, everything else from the new prefab
+		Document      instanceDocument;
+		DocumentNode& instanceEntry = instanceDocument.GetRootNode();
+		if (const DocumentNode* layoutParamsNode = entryDocument.GetRootNode().GetChild("LayoutParams"))
+		{
+			instanceEntry.AddChild("LayoutParams").Copy(*layoutParamsNode);
+		}
+		instanceEntry.AddChild("_localId").SetUInt64(node->GetLocalId());
+		instanceEntry.AddChild("PrefabInstance").AddChild("Prefab").SetString(asset->GetUid().ToString());
+
+		// A node cut inside goes away (node itself stays cut: the instance has its id)
+		ui2::Node* cutNode = (_cutNode != 0) ? GetPrefabRoot()->FindByLocalId(_cutNode) : nullptr;
+		if (cutNode != nullptr && cutNode->IsDescendantOf(node))
+		{
+			CancelCut();
+		}
+
+		ui2::Node* parent = node->GetParent();
+		uint32_t   index = GetSiblingIndex(node);
+		bool       selected = (_selectedNode != nullptr && (_selectedNode == node || _selectedNode->IsDescendantOf(node)));
+
+		parent->RemoveChild(node);
+		DefaultAllocator::GetInstance().Delete(node);
+		++_rebuildCount;
+
+		ui2::Node* instanceRoot = nullptr;
+		{
+			ui2::PrefabInstance::ScopedLoading loading(GetAsset()->GetUid());
+			instanceRoot = parent->AddChildFromDocument(instanceEntry);
+		}
+		if (instanceRoot != nullptr)
+		{
+			parent->SetChildIndex(instanceRoot, index);
+		}
+		if (selected)
+		{
+			SetSelectedNode(instanceRoot);
+		}
+		MarkAsDirty();
+		return asset;
+	}
+
+	/// @brief
+	/// @param node
+	/// @return
+	UIPrefabEditorTab* UIPrefabEditorTab::FindTabOf(const ui2::Node* node)
+	{
+		if (node == nullptr)
+		{
+			return nullptr;
+		}
+
+		for (EditorTab* editorTab : Editor::GetInstance()->GetEditorTabs())
+		{
+			if (editorTab->GetAsset() == nullptr || editorTab->GetAsset()->GetType() != Hash::ComputeXxh3_64("UIPrefab"))
+			{
+				continue;
+			}
+			UIPrefabEditorTab* tab = static_cast<UIPrefabEditorTab*>(editorTab);
+			if (node->IsDescendantOf(tab->_canvas.GetRootNode()))
+			{
+				return tab;
+			}
+		}
+		return nullptr;
+	}
+
 	/// @brief
 	/// @return
 	uint32_t UIPrefabEditorTab::GetRebuildCount() const
@@ -1283,22 +1436,40 @@ namespace hod::inline editor
 	/// gets its thumbnail. Leaves the previous thumbnail as is on failure.
 	void UIPrefabEditorTab::GenerateThumbnail()
 	{
+		Vector<uint8_t> encoded;
+		if (RenderThumbnail(_canvas, encoded))
+		{
+			_assetContainer.SetThumbnail(std::move(encoded));
+		}
+	}
+
+	/// @brief
+	/// @param canvas
+	/// @param outEncoded
+	/// @return
+	bool UIPrefabEditorTab::RenderThumbnail(ui2::Canvas& canvas, Vector<uint8_t>& outEncoded)
+	{
+		if (canvas.GetRootNode()->GetChildren().Empty())
+		{
+			return false;
+		}
+
 		// The preview device the viewport lays the canvas out for is only a view setting: the thumbnail
 		// shows the prefab as authored.
-		Vector2 previousTargetResolution = _canvas.GetTargetResolution();
-		_canvas.SetTargetResolution(_canvas.GetEffectiveScaler()._designResolution);
-		_canvas.UpdateLayout();
+		Vector2 previousTargetResolution = canvas.GetTargetResolution();
+		canvas.SetTargetResolution(canvas.GetEffectiveScaler()._designResolution);
+		canvas.UpdateLayout();
 		ScopedGuard restoreLayout = [&]()
 		{
-			_canvas.SetTargetResolution(previousTargetResolution);
-			_canvas.UpdateLayout();
+			canvas.SetTargetResolution(previousTargetResolution);
+			canvas.UpdateLayout();
 		};
 
-		ui2::Node* prefabRoot = GetPrefabRoot();
+		ui2::Node* prefabRoot = canvas.GetRootNode()->GetChildren()[0];
 		Vector2    rootSize = prefabRoot->GetSize();
 		if (rootSize.GetX() <= 0.0f || rootSize.GetY() <= 0.0f)
 		{
-			return;
+			return false;
 		}
 
 		// Framed as in the viewport (see Framing): the root plus its margin.
@@ -1315,7 +1486,7 @@ namespace hod::inline editor
 
 		if (renderTarget->Init(width, height, true) == false || renderTarget->IsValid() == false)
 		{
-			return;
+			return false;
 		}
 
 		RenderView renderView;
@@ -1332,7 +1503,7 @@ namespace hod::inline editor
 		viewport._size = Vector2((float)width, (float)height);
 		renderView.SetupCamera(projection, view, viewport);
 
-		_canvas.PushRenderCommand(renderView, RenderView::RenderQueueType::World);
+		canvas.PushRenderCommand(renderView, RenderView::RenderQueueType::World);
 
 		renderView.Execute();
 		renderView.Wait();
@@ -1354,10 +1525,6 @@ namespace hod::inline editor
 			}
 		}
 
-		Vector<uint8_t> encoded;
-		if (Thumbnail::Encode(pixels.Data(), width, height, encoded))
-		{
-			_assetContainer.SetThumbnail(std::move(encoded));
-		}
+		return Thumbnail::Encode(pixels.Data(), width, height, outEncoded);
 	}
 }

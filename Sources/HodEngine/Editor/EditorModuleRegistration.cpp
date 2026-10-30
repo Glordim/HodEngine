@@ -20,6 +20,13 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @param dropAction
+	void EditorModuleRegistration::RegisterDropAction(AssetBrowserWindow::DropAction dropAction)
+	{
+		_dropActionIds.PushBack(AssetBrowserWindow::RegisterDropAction(std::move(dropAction)));
+	}
+
+	/// @brief
 	/// @param descriptor
 	/// @param drawer Owned by the registry
 	void EditorModuleRegistration::RegisterCustomPropertyDrawer(const ReflectionDescriptor& descriptor, CustomPropertyDrawer* drawer)
@@ -72,6 +79,12 @@ namespace hod::inline editor
 			AssetBrowserWindow::UnregisterContextualMenuAction(contextualMenuActionId);
 		}
 		_contextualMenuActionIds.Clear();
+
+		for (uint32_t dropActionId : _dropActionIds)
+		{
+			AssetBrowserWindow::UnregisterDropAction(dropActionId);
+		}
+		_dropActionIds.Clear();
 
 		// The tabs first: closing them can still use the asset types
 		for (const String& assetType : _editorTabAssetTypes)

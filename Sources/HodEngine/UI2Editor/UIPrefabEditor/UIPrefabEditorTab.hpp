@@ -87,6 +87,14 @@ namespace hod::inline editor
 		ui2::Node*		InstantiatePrefab(const UID& prefab, ui2::Node* parent);
 		// Turns an instance into plain nodes of this prefab (see ui2::Node::UnpackPrefabInstance), to edit them freely.
 		bool			UnpackPrefabInstance(ui2::Node* instanceRoot);
+		// Makes a new UI prefab asset in folder, named after node, of node and its subtree as authored (with new local ids: the
+		// references its Interactions hold to nodes outside of it are dropped), then replaces node by an instance of it, keeping
+		// its placement, its local id and the selection. Only for Authored nodes but the prefab root (an instance is unpacked
+		// first), not while recording or playing. Same contract as ConvertNode.
+		// @return the new asset, nullptr if refused (with an error) or failed
+		std::shared_ptr<Asset>	CreatePrefabFromNode(ui2::Node* node, const Path& folder);
+		// The open UI prefab tab editing node, nullptr if none
+		static UIPrefabEditorTab*	FindTabOf(const ui2::Node* node);
 		// Bumped whenever instances are rebuilt from their saved prefab (see RefreshInstances): the nodes they had are deleted, a
 		// window keeping node pointers across frames drops them on a change.
 		uint32_t		GetRebuildCount() const;
@@ -188,6 +196,8 @@ namespace hod::inline editor
 		void	EnsurePrefabRoot();
 
 		void	GenerateThumbnail();
+		// The thumbnail of the prefab canvas holds (see GenerateThumbnail), encoded (see Thumbnail)
+		static bool	RenderThumbnail(ui2::Canvas& canvas, Vector<uint8_t>& outEncoded);
 
 		// Clipboard (see CopyNode)
 		bool		SerializeNodeAsAuthored(ui2::Node* node, DocumentNode& documentNode);

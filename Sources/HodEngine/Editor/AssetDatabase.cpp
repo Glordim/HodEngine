@@ -474,6 +474,21 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @param path
+	/// @return nullptr if it isn't a loadable asset, or its folder isn't known
+	std::shared_ptr<Asset> AssetDatabase::AddWrittenAsset(const Path& path)
+	{
+		if (FindFileSystemMappingFromPath(path.ParentPath()) == nullptr)
+		{
+			return nullptr;
+		}
+
+		FileSystemWatcherAssetOnCreateFile(path); // The watcher's report, later, finds it known: reloaded as a change then
+		FileSystemMapping* node = FindFileSystemMappingFromPath(path);
+		return (node != nullptr) ? node->_asset : nullptr;
+	}
+
+	/// @brief
 	/// @param node
 	/// @param newName
 	void AssetDatabase::Move(FileSystemMapping& node, const Path& newPath)

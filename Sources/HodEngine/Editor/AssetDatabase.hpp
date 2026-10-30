@@ -92,6 +92,10 @@ namespace hod::inline editor
 		template<typename _Object_, typename _Importer_>
 		Path CreateAsset(const Path& path);
 
+		/// @brief An asset file the editor just wrote, known right away rather than once the file watcher reports it
+		/// (e.g. to reference it on the same frame). Its folder must be known already.
+		std::shared_ptr<Asset> AddWrittenAsset(const Path& path);
+
 		void Move(FileSystemMapping& node, const Path& newPath);
 		void Delete(FileSystemMapping& node);
 

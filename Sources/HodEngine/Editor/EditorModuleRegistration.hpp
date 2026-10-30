@@ -51,6 +51,7 @@ namespace hod::inline editor
 		void RegisterEditorTab(std::string_view assetType);
 
 		void RegisterContextualMenuAction(AssetBrowserWindow::ContextualMenuAction contextualMenuAction);
+		void RegisterDropAction(AssetBrowserWindow::DropAction dropAction);
 
 		template<typename _Type_, typename _Drawer_>
 		void RegisterCustomPropertyDrawer();
@@ -74,6 +75,7 @@ namespace hod::inline editor
 		Vector<String>     _resourceAssetTypes;
 		Vector<String>     _editorTabAssetTypes;
 		Vector<uint32_t>   _contextualMenuActionIds;
+		Vector<uint32_t>   _dropActionIds;
 
 		Vector<const ReflectionDescriptor*> _customPropertyDrawerDescriptors;
 		Vector<const ReflectionDescriptor*> _customComponentDrawerDescriptors;
