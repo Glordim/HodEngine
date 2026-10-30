@@ -23,6 +23,7 @@ namespace hod::inline ui2
 {
 	class LayoutParams;
 	class DrawContext;
+	class PrefabInstance;
 
 	/// @brief
 	class HOD_UI2_API Node
@@ -51,16 +52,29 @@ namespace hod::inline ui2
 		// is only the runtime container a prefab gets instantiated into.
 		uint64_t					GetLocalId() const;
 
-		// Gives an id, taken from nextLocalId, to this node and its descendants that have none yet.
+		// Gives an id, taken from nextLocalId, to this node and its descendants that have none yet. Not to the content of the
+		// prefab instances (see PrefabInstance), whose ids are their prefab's.
 		void						AssignLocalIds(uint64_t& nextLocalId);
 		// Gives this node and its descendants new ids, taken from nextLocalId, as a copy must not share its original's. The
 		// references the subtree's Interactions hold (see Interaction::RemapTargets) follow for the nodes of the subtree; the
 		// ones to nodes outside of it are kept if keepOutsideTargets, dropped otherwise (a copy pasted in another tree, where
-		// those ids mean other nodes).
+		// those ids mean other nodes). The content of the prefab instances keeps its ids, its prefab's.
 		void						RenewLocalIds(uint64_t& nextLocalId, bool keepOutsideTargets);
 
-		// This node or, depth-first, one of its descendants having that local id; nullptr if there is none.
+		// The node of that local id in the prefab whose scope this node roots (see GetScopeRoot): this node or, depth-first, one
+		// of its descendants, without going into the nested prefab instances (see PrefabInstance), each a scope of its own whose
+		// root only is found, by its id in this scope. This node, if it is an instance root, is found by its id in its own
+		// prefab (PrefabInstance::GetRootLocalId). nullptr if there is none.
 		Node*						FindByLocalId(uint64_t localId);
+		// Where the local ids this node's references (e.g. its Interaction's overrides' targets) are resolved: the closest prefab
+		// instance root among this node and its ancestors, the tree's root if none.
+		Node*						GetScopeRoot();
+
+		// Set on the root of a nested prefab's instance (see PrefabInstance), null on the other nodes.
+		PrefabInstance*				GetPrefabInstance() const;
+		// Turns this instance root's subtree into plain nodes of the containing prefab: they get new ids taken from nextLocalId
+		// (theirs were their prefab's), which their Interactions' references follow. The nested instances it holds stay instances.
+		void						UnpackPrefabInstance(uint64_t& nextLocalId);
 
 		float						GetRotation() const;
 		void						SetRotation(float rotation);
@@ -205,6 +219,7 @@ namespace hod::inline ui2
 		bool						SerializeAsChildInDocument(DocumentNode& documentNode);
 		// Creates the node (and its subtree) an entry written by SerializeAsChildInDocument describes and adds it as this node's
 		// last child. Its LayoutParams are kept if of the type this node expects, converted otherwise (see ReparentChild).
+		// An instance of a prefab (see PrefabInstance) is built from the prefab, then given its overrides.
 		// @return the new child, nullptr if the entry couldn't be read (nothing is added then)
 		Node*						AddChildFromDocument(const DocumentNode& documentNode);
 
@@ -259,6 +274,13 @@ namespace hod::inline ui2
 		// no Layout is attached.
 		static void					ArrangeChildInRect(Node* child, const Rect& parentContentRect);
 
+		// FindByLocalId's search below the scope root: an instance root is found by its id in the containing prefab, and closes its subtree
+		Node*						FindInScope(uint64_t localId);
+		// The LayoutParams an entry (see SerializeAsChildInDocument) gives, of the type this node expects
+		LayoutParams*				ReadLayoutParams(const DocumentNode& entry) const;
+		Node*						AddPrefabInstanceFromDocument(const DocumentNode& entry, const DocumentNode& instanceNode);
+		bool						SerializePrefabInstance(DocumentNode& documentNode);
+
 	private:
 
 		String						_name;
@@ -296,6 +318,8 @@ namespace hod::inline ui2
 		Interaction*				_interaction = nullptr;
 		bool						_pointerTarget = false;
 
+		// Owned, see GetPrefabInstance
+		PrefabInstance*				_prefabInstance = nullptr;
 		Vector<Node*>				_children;
 
 		PropertyChangedEvent		_propertyChangedEvent;

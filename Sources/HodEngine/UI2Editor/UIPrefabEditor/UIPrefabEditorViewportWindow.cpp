@@ -452,7 +452,12 @@ namespace hod::inline editor
 			{
 				ReflectionDescriptor* nodeDescriptor = *static_cast<ReflectionDescriptor**>(payload->Data);
 
+				// In the selection, or the closest node that can have new children (not an instance's)
 				ui2::Node* parent = tab->GetSelectedNode();
+				while (parent != nullptr && UIPrefabEditorTab::CanEditStructure(parent) == false)
+				{
+					parent = parent->GetParent();
+				}
 				if (parent == nullptr)
 				{
 					parent = tab->GetPrefabRoot();
@@ -997,7 +1002,13 @@ namespace hod::inline editor
 	/// @return
 	UIPrefabEditorViewportWindow::GizmoAxes UIPrefabEditorViewportWindow::GetGizmoAxes(const ui2::Node& node)
 	{
-		GizmoAxes           axes;
+		GizmoAxes axes;
+		// Inside an instance held by an instance, nothing can be edited
+		if (UIPrefabEditorTab::CanEditProperties(&node) == false)
+		{
+			return axes;
+		}
+
 		const LayoutParams* layoutParams = node.GetLayoutParams();
 		if (LayoutParams::Cast<AnchoredLayoutParams>(layoutParams) != nullptr)
 		{

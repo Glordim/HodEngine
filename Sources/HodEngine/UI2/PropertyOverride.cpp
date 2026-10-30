@@ -1,5 +1,6 @@
 #include "HodEngine/UI2/Pch.hpp"
 #include "HodEngine/UI2/PropertyOverride.hpp"
+#include "HodEngine/UI2/Interaction.hpp"
 #include "HodEngine/UI2/Layout.hpp"
 #include "HodEngine/UI2/LayoutParams.hpp"
 #include "HodEngine/UI2/Node.hpp"
@@ -29,6 +30,7 @@ namespace hod::inline ui2
 	{
 		constexpr std::string_view LayoutParamsPrefix = "LayoutParams/";
 		constexpr std::string_view LayoutPrefix = "Layout/";
+		constexpr std::string_view InteractionPrefix = "Interaction/";
 
 		/// @brief Calls function.template operator()<T>() with T the C++ type of a variable of that type.
 		template<typename _Function_>
@@ -124,6 +126,17 @@ namespace hod::inline ui2
 				outOwner = layout;
 				descriptor = &layout->GetReflectionDescriptorV();
 				propertyPath.remove_prefix(LayoutPrefix.size());
+			}
+			else if (propertyPath.starts_with(InteractionPrefix))
+			{
+				Interaction* interaction = node.GetInteraction();
+				if (interaction == nullptr)
+				{
+					return false;
+				}
+				outOwner = interaction;
+				descriptor = &interaction->GetReflectionDescriptorV();
+				propertyPath.remove_prefix(InteractionPrefix.size());
 			}
 			else
 			{
@@ -386,7 +399,7 @@ namespace hod::inline ui2
 	/// @brief
 	/// @param node
 	/// @return
-	Vector<String> PropertyValue::GetOverridableProperties(const Node& node)
+	Vector<String> PropertyValue::GetOverridableProperties(const Node& node, bool withInteraction)
 	{
 		Vector<String> paths;
 		CollectOverridableProperties(node.GetReflectionDescriptorV(), "", paths);
@@ -398,7 +411,19 @@ namespace hod::inline ui2
 		{
 			CollectOverridableProperties(node.GetLayout()->GetReflectionDescriptorV(), LayoutPrefix, paths);
 		}
+		if (withInteraction && node.GetInteraction() != nullptr)
+		{
+			CollectOverridableProperties(node.GetInteraction()->GetReflectionDescriptorV(), InteractionPrefix, paths);
+		}
 		return paths;
+	}
+
+	/// @brief
+	/// @param propertyPath
+	/// @return
+	bool PropertyValue::IsLayoutParamsProperty(std::string_view propertyPath)
+	{
+		return propertyPath.starts_with(LayoutParamsPrefix);
 	}
 
 	/// @brief
@@ -610,15 +635,10 @@ namespace hod::inline ui2
 
 	namespace
 	{
-		/// @brief The node of owner's tree having that local id, null if none.
+		/// @brief The node of owner's prefab having that local id, null if none.
 		Node* FindTarget(Node& owner, uint64_t target)
 		{
-			Node* root = &owner;
-			while (root->GetParent() != nullptr)
-			{
-				root = root->GetParent();
-			}
-			return root->FindByLocalId(target);
+			return owner.GetScopeRoot()->FindByLocalId(target);
 		}
 	}
 

@@ -2,6 +2,9 @@
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorHierarchyWindow.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
+#include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/Editor/Editor.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
@@ -9,6 +12,8 @@
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <HodEngine/UI2/Node.hpp>
 #include <HodEngine/UI2/NodeFactory.hpp>
+#include <HodEngine/UI2/PrefabInstance.hpp>
+#include <HodEngine/Core/Hash.hpp>
 #include <HodEngine/Core/Memory/DefaultAllocator.hpp>
 
 namespace hod::inline editor
@@ -35,6 +40,14 @@ namespace hod::inline editor
 			return;
 		}
 
+		// Instances rebuilt from their saved prefab: their nodes are gone
+		if (tab->GetRebuildCount() != _rebuildCount)
+		{
+			_rebuildCount = tab->GetRebuildCount();
+			_renamedNode = nullptr;
+			_lastSelectedNode = nullptr;
+		}
+
 		// A newly selected node may sit under collapsed parents (picked in the viewport): for that one
 		// frame the ancestors are forced open and the node scrolled into view. Only on a change, so the
 		// user stays free to collapse them again afterwards.
@@ -43,7 +56,8 @@ namespace hod::inline editor
 		_lastSelectedNode = selection;
 
 		// F2 renames the selected node, as in the explorer.
-		if (ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGuiKey_F2) && ImGui::GetIO().WantTextInput == false && selection != nullptr && _renamedNode == nullptr)
+		if (ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGuiKey_F2) && ImGui::GetIO().WantTextInput == false && selection != nullptr && _renamedNode == nullptr &&
+		    UIPrefabEditorTab::CanEditProperties(selection))
 		{
 			StartRename(selection);
 		}
@@ -54,9 +68,8 @@ namespace hod::inline editor
 			tab->RequestFrameSelection();
 		}
 
-		// Delete removes the selected node (except the prefab root).
-		if (ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGuiKey_Delete, false) && ImGui::GetIO().WantTextInput == false && selection != nullptr &&
-		    selection != tab->GetPrefabRoot())
+		// Delete removes the selected node (except the prefab root and an instance's content).
+		if (ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGuiKey_Delete, false) && ImGui::GetIO().WantTextInput == false && tab->CanRemove(selection))
 		{
 			_pendingDeleteNode = selection;
 		}
@@ -207,20 +220,60 @@ namespace hod::inline editor
 				}
 			}
 		}
-		const char* icon = DrawHelper::GetTypeIcon(node->GetReflectionDescriptorV());
-		bool        renaming = (node == _renamedNode);
-		float       treeNodeStartX = ImGui::GetCursorPosX();
+		// Nested prefabs: an instance's root has the prefab icon, the instances' content is drawn in blue (paler where read-only)
+		UIPrefabEditorTab::NodeRole role = UIPrefabEditorTab::GetNodeRole(node);
+		ui2::PrefabInstance*        prefabInstance = node->GetPrefabInstance();
+		bool                        canEditStructure = (role == UIPrefabEditorTab::NodeRole::Authored);
+		const char*                 icon = DrawHelper::GetTypeIcon(node->GetReflectionDescriptorV());
+		if (prefabInstance != nullptr)
+		{
+			icon = prefabInstance->IsMissing() ? ICON_MDI_ALERT : ICON_MDI_PACKAGE_VARIANT_CLOSED;
+		}
+		String displayedLabel = label;
+		if (prefabInstance != nullptr && prefabInstance->IsMissing())
+		{
+			displayedLabel = "Missing Prefab";
+		}
+
+		bool  renaming = (node == _renamedNode);
+		float treeNodeStartX = ImGui::GetCursorPosX();
 		// While renamed, only the icon is drawn by the tree node: the rename field takes the label's place (see below).
 		// A cut node (and its subtree) is greyed out until pasted, as in a file explorer
-		bool cut = tab->IsCut(node);
-		if (cut)
+		bool  pushedColor = true;
+		if (tab->IsCut(node))
 		{
 			ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
 		}
-		bool opened = renaming ? ImGui::TreeNodeEx("##Node", treeNodeFlags, "%s", icon) : ImGui::TreeNodeEx("##Node", treeNodeFlags, "%s %s", icon, label.CStr());
-		if (cut)
+		else if (prefabInstance != nullptr && prefabInstance->IsMissing())
+		{
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.4f, 0.4f, 1.0f));
+		}
+		else if (role == UIPrefabEditorTab::NodeRole::ReadOnly)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.45f, 0.75f, 1.0f, 0.5f));
+		}
+		else if (role != UIPrefabEditorTab::NodeRole::Authored)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(0.45f, 0.75f, 1.0f, 1.0f));
+		}
+		else
+		{
+			pushedColor = false;
+		}
+		bool opened = renaming ? ImGui::TreeNodeEx("##Node", treeNodeFlags, "%s", icon) : ImGui::TreeNodeEx("##Node", treeNodeFlags, "%s %s", icon, displayedLabel.CStr());
+		if (pushedColor)
 		{
 			ImGui::PopStyleColor();
+		}
+		if (prefabInstance != nullptr)
+		{
+			std::shared_ptr<Asset> prefabAsset = AssetDatabase::GetInstance()->Find(prefabInstance->GetPrefab());
+			ImGui::SetItemTooltip("Instance of %s%s", prefabAsset != nullptr ? prefabAsset->GetName().CStr() : prefabInstance->GetPrefab().ToString().CStr(),
+			                      prefabInstance->IsMissing() ? " (can't be loaded)" : "");
+		}
+		else if (role == UIPrefabEditorTab::NodeRole::ReadOnly)
+		{
+			ImGui::SetItemTooltip("In an instance nested in an instance: edited in its own prefab");
 		}
 		if (_revealSelection && node == selection)
 		{
@@ -232,17 +285,31 @@ namespace hod::inline editor
 		}
 
 		// Any node can be dragged onto another to become its child, except the prefab root: it has no
-		// place to go, being the one and only child of the hidden container.
-		if (node != tab->GetPrefabRoot() && ImGui::BeginDragDropSource())
+		// place to go, being the one and only child of the hidden container. Nor an instance's content, which follows its prefab.
+		if (tab->CanRemove(node) && ImGui::BeginDragDropSource())
 		{
 			ImGui::SetDragDropPayload("UI2Node", &node, sizeof(ui2::Node*));
-			ImGui::Text("%s %s", icon, label.CStr());
+			ImGui::Text("%s %s", icon, displayedLabel.CStr());
 			ImGui::EndDragDropSource();
 		}
 
-		// Dropping a node from the Library adds it as a child of the hovered node.
-		if (ImGui::BeginDragDropTarget())
+		// Dropping a node from the Library adds it as a child of the hovered node, a UI prefab from the asset browser an instance of it.
+		// Not into an instance: its structure is its prefab's.
+		if (canEditStructure && ImGui::BeginDragDropTarget())
 		{
+			const ImGuiPayload* assetPayload = ImGui::GetDragDropPayload();
+			if (assetPayload != nullptr && assetPayload->IsDataType("FileSystemMapping"))
+			{
+				AssetDatabase::FileSystemMapping* mapping = *static_cast<AssetDatabase::FileSystemMapping**>(assetPayload->Data);
+				if (mapping->_asset != nullptr && mapping->_asset->GetType() == Hash::ComputeXxh3_64("UIPrefab") && ImGui::AcceptDragDropPayload("FileSystemMapping") != nullptr)
+				{
+					if (tab->InstantiatePrefab(mapping->_asset->GetUid(), node) != nullptr)
+					{
+						ImGui::GetStateStorage()->SetInt(ImGui::GetItemID(), 1);
+					}
+				}
+			}
+
 			const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("UI2NodeLibraryDescriptor");
 			if (payload != nullptr)
 			{
@@ -289,16 +356,33 @@ namespace hod::inline editor
 
 		if (ImGui::BeginPopup("UIPrefabNodeContextMenu"))
 		{
-			if (ImGui::MenuItem(ICON_MDI_PLUS_BOX " Add Child"))
+			if (prefabInstance != nullptr)
+			{
+				std::shared_ptr<Asset> prefabAsset = AssetDatabase::GetInstance()->Find(prefabInstance->GetPrefab());
+				if (ImGui::MenuItem(ICON_MDI_OPEN_IN_NEW " Open Prefab", nullptr, false, prefabAsset != nullptr))
+				{
+					Editor::GetInstance()->OpenAsset(prefabAsset);
+				}
+				if (role == UIPrefabEditorTab::NodeRole::InstanceRoot)
+				{
+					if (ImGui::MenuItem(ICON_MDI_PACKAGE_VARIANT " Unpack Prefab"))
+					{
+						tab->UnpackPrefabInstance(node); // Ids only: nothing drawn is changed
+					}
+					ImGui::SetItemTooltip("Turn the instance into plain nodes of this prefab, no longer following its prefab");
+				}
+				ImGui::Separator();
+			}
+			if (ImGui::MenuItem(ICON_MDI_PLUS_BOX " Add Child", nullptr, false, canEditStructure))
 			{
 				node->AddChild(ui2::NodeFactory::GetInstance()->CreateNode(ui2::Node::GetReflectionDescriptor()));
 				tab->MarkAsDirty();
 			}
-			if (ImGui::MenuItem(ICON_MDI_RENAME " Rename", "F2"))
+			if (ImGui::MenuItem(ICON_MDI_RENAME " Rename", "F2", false, UIPrefabEditorTab::CanEditProperties(node)))
 			{
 				StartRename(node);
 			}
-			if (ImGui::BeginMenu(ICON_MDI_SWAP_HORIZONTAL " Convert To"))
+			if (ImGui::BeginMenu(ICON_MDI_SWAP_HORIZONTAL " Convert To", canEditStructure))
 			{
 				uint64_t currentType = node->GetReflectionDescriptorV().GetType();
 				for (const auto& descriptorPair : ui2::NodeFactory::GetInstance()->GetAllDescriptors())
@@ -318,7 +402,8 @@ namespace hod::inline editor
 			{
 				tab->CopyNode(node);
 			}
-			if (node != tab->GetPrefabRoot() && ImGui::MenuItem(ICON_MDI_CONTENT_CUT " Cut", "Ctrl+X"))
+			bool canRemove = tab->CanRemove(node);
+			if (ImGui::MenuItem(ICON_MDI_CONTENT_CUT " Cut", "Ctrl+X", false, canRemove))
 			{
 				tab->CutNode(node); // only marked, moved by the paste
 			}
@@ -327,17 +412,17 @@ namespace hod::inline editor
 			{
 				_pendingPaste = true; // the node was selected by the right click
 			}
-			if (ImGui::MenuItem(ICON_MDI_CONTENT_PASTE " Paste As Child", "Ctrl+Shift+V", false, canPaste))
+			if (ImGui::MenuItem(ICON_MDI_CONTENT_PASTE " Paste As Child", "Ctrl+Shift+V", false, canPaste && canEditStructure))
 			{
 				_pendingPaste = true;
 				_pendingPasteParent = node;
 			}
-			if (node != tab->GetPrefabRoot() && ImGui::MenuItem(ICON_MDI_CONTENT_DUPLICATE " Duplicate", "Ctrl+D"))
+			if (ImGui::MenuItem(ICON_MDI_CONTENT_DUPLICATE " Duplicate", "Ctrl+D", false, canRemove))
 			{
 				_pendingDuplicateNode = node;
 			}
 			ImGui::Separator();
-			if (node != tab->GetPrefabRoot() && ImGui::MenuItem(ICON_MDI_DELETE " Delete", "Del"))
+			if (ImGui::MenuItem(ICON_MDI_DELETE " Delete", "Del", false, canRemove))
 			{
 				_pendingDeleteNode = node;
 			}

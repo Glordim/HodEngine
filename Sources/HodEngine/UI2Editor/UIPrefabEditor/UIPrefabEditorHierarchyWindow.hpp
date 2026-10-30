@@ -12,7 +12,8 @@ namespace hod::inline editor
 	/// @brief Tree view of a UIPrefabEditorTab's ui2::Node hierarchy, with selection and basic
 	/// add/remove-child editing, drop target for nodes dragged from the Library, and reparenting by
 	/// dragging a node onto its new parent (added last among its children), copy / cut / paste / duplicate (see
-	/// UIPrefabEditorTab::CopyNode). The ui2::Node equivalent
+	/// UIPrefabEditorTab::CopyNode), and nested prefabs: a UI prefab dropped from the asset browser is instantiated, the instances
+	/// shown in blue with their own actions (see UIPrefabEditorTab::NodeRole). The ui2::Node equivalent
 	/// of HierachyWindow, but self-contained (no World/Entity involved).
 	class HOD_UI2_EDITOR_API UIPrefabEditorHierarchyWindow : public EditorTabWindow
 	{
@@ -40,6 +41,9 @@ namespace hod::inline editor
 		// the viewport) triggers a one-frame reveal, see DrawContent().
 		ui2::Node*	_lastSelectedNode = nullptr;
 		bool		_revealSelection = false;
+
+		// The tab's UIPrefabEditorTab::GetRebuildCount() seen at the previous frame: the node pointers kept across frames are dropped on a change
+		uint32_t	_rebuildCount = 0;
 
 		// Reparenting requested by a drag and drop, applied once the whole tree has been drawn: doing it
 		// in place would modify a children list DrawNode() is iterating over.

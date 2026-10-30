@@ -4,6 +4,9 @@
 
 #include "HodEngine/UI2Editor/AnchorPresetsDrawer.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
+#include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
@@ -25,6 +28,7 @@
 #include <HodEngine/UI2/Button.hpp>
 #include <HodEngine/UI2/Interaction.hpp>
 #include <HodEngine/UI2/InteractionFactory.hpp>
+#include <HodEngine/UI2/PrefabInstance.hpp>
 #include <HodEngine/UI2/PropertyOverride.hpp>
 
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
@@ -258,21 +262,31 @@ namespace hod::inline editor
 		bool                        changed = false;
 		const ReflectionDescriptor* convertDescriptor = nullptr;
 
-		EditorReflectedObject nodeObject(node, &node->GetReflectionDescriptorV(), nullptr, this);
+		// First: unpacking the instance from there deletes its source
+		DrawPrefabInstanceRow(node);
+
+		// A node of an instance is compared to its prefab's: the overrides are marked, and revertable
+		ui2::Node*            sourceNode = UIPrefabEditorTab::FindSourceNode(node);
+		EditorReflectedObject nodeObject(node, &node->GetReflectionDescriptorV(), sourceNode, this);
+
+		bool readOnly = (UIPrefabEditorTab::CanEditProperties(node) == false);
+		ImGui::BeginDisabled(readOnly);
 
 		changed |= DrawNameRow(node, nodeObject);
 
 		// 1. Where the node is and how big: what is looked at and edited the most
-		changed |= DrawPlacementBlock(node, nodeObject);
+		changed |= DrawPlacementBlock(node, nodeObject, sourceNode);
 
 		// 2. What the node's type adds
 		changed |= DrawContentBlock(node, nodeObject, convertDescriptor);
 
 		// 3. How the node reacts to the pointer
-		changed |= DrawInteractionBlock(node);
+		changed |= DrawInteractionBlock(node, sourceNode);
 
 		// 4. How the node arranges its own children: rarely added, so last
-		changed |= DrawLayoutBlock(node);
+		changed |= DrawLayoutBlock(node, sourceNode);
+
+		ImGui::EndDisabled();
 
 		if (changed)
 		{
@@ -313,12 +327,76 @@ namespace hod::inline editor
 		return changed;
 	}
 
+	/// @brief For a node of a nested prefab's instance, above the name: the prefab, with its actions for the instance's root (open
+	/// the prefab, unpack the instance), what can be edited otherwise. Nothing for the other nodes.
+	void UIPrefabEditorInspectorWindow::DrawPrefabInstanceRow(ui2::Node* node)
+	{
+		UIPrefabEditorTab*          tab = GetOwner<UIPrefabEditorTab>();
+		UIPrefabEditorTab::NodeRole role = UIPrefabEditorTab::GetNodeRole(node);
+		if (role == UIPrefabEditorTab::NodeRole::Authored)
+		{
+			return;
+		}
+
+		// The instance holding the node: its own for the root
+		const ui2::Node* instanceRoot = node;
+		if (role != UIPrefabEditorTab::NodeRole::InstanceRoot)
+		{
+			for (instanceRoot = node->GetParent(); instanceRoot != nullptr && instanceRoot->GetPrefabInstance() == nullptr; instanceRoot = instanceRoot->GetParent())
+			{
+			}
+		}
+		if (instanceRoot == nullptr)
+		{
+			return;
+		}
+
+		ui2::PrefabInstance*   prefabInstance = instanceRoot->GetPrefabInstance();
+		std::shared_ptr<Asset> prefabAsset = AssetDatabase::GetInstance()->Find(prefabInstance->GetPrefab());
+		String                 prefabName = (prefabAsset != nullptr) ? prefabAsset->GetName() : prefabInstance->GetPrefab().ToString();
+
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextColored(ImVec4(0.45f, 0.75f, 1.0f, 1.0f), ICON_MDI_PACKAGE_VARIANT_CLOSED " %s", prefabName.CStr());
+		if (prefabInstance->IsMissing())
+		{
+			ImGui::SameLine();
+			ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), ICON_MDI_ALERT " Missing");
+			ImGui::SetItemTooltip("The prefab can't be loaded: the instance is kept as is (its overrides too) until it can");
+		}
+
+		switch (role)
+		{
+			case UIPrefabEditorTab::NodeRole::InstanceRoot:
+			{
+				ImGui::SameLine();
+				ImGui::BeginDisabled(prefabAsset == nullptr);
+				if (ImGui::SmallButton(ICON_MDI_OPEN_IN_NEW " Open"))
+				{
+					Editor::GetInstance()->OpenAsset(prefabAsset);
+				}
+				ImGui::EndDisabled();
+				ImGui::SameLine();
+				if (ImGui::SmallButton(ICON_MDI_PACKAGE_VARIANT " Unpack"))
+				{
+					tab->UnpackPrefabInstance(node);
+				}
+				ImGui::SetItemTooltip("Turn the instance into plain nodes of this prefab, no longer following its prefab");
+				break;
+			}
+			case UIPrefabEditorTab::NodeRole::InstanceContent:
+				ImGui::TextDisabled("In an instance: its edits are overrides, its structure is its prefab's");
+				break;
+			default: ImGui::TextDisabled("In an instance held by an instance: edited in its own prefab"); break;
+		}
+		ImGui::Spacing();
+	}
+
 	/// @brief How the node is placed within its parent, in three sections:
 	/// 1. the fields of its LayoutParams' type, which depends on the parent's layout (anchors without one, see DrawAnchoredFields)
 	/// 2. the size fields every LayoutParams shares (see DrawSizeFields)
 	/// 3. the node's own transform (Rotation, Scale, Pivot), purely visual
 	/// @return true if something was edited
-	bool UIPrefabEditorInspectorWindow::DrawPlacementBlock(ui2::Node* node, EditorReflectedObject& nodeObject)
+	bool UIPrefabEditorInspectorWindow::DrawPlacementBlock(ui2::Node* node, EditorReflectedObject& nodeObject, ui2::Node* sourceNode)
 	{
 		bool changed = false;
 
@@ -340,7 +418,14 @@ namespace hod::inline editor
 		{
 			if (layoutParams != nullptr)
 			{
-				EditorReflectedObject layoutParamsObject(layoutParams, &layoutParams->GetReflectionDescriptorV(), nullptr, this);
+				// An instance root's placement is the containing prefab's own: compared to nothing
+				ui2::LayoutParams* sourceLayoutParams = nullptr;
+				if (sourceNode != nullptr && node->GetPrefabInstance() == nullptr && sourceNode->GetLayoutParams() != nullptr &&
+				    sourceNode->GetLayoutParams()->GetReflectionDescriptorV().GetType() == layoutParams->GetReflectionDescriptorV().GetType())
+				{
+					sourceLayoutParams = sourceNode->GetLayoutParams();
+				}
+				EditorReflectedObject layoutParamsObject(layoutParams, &layoutParams->GetReflectionDescriptorV(), sourceLayoutParams, this);
 
 				// 1. The type's own fields
 				if (ui2::AnchoredLayoutParams* anchoredLayoutParams = ui2::LayoutParams::Cast<ui2::AnchoredLayoutParams>(layoutParams))
@@ -493,8 +578,11 @@ namespace hod::inline editor
 
 		ReflectionDescriptor& currentDescriptor = node->GetReflectionDescriptorV();
 		bool                  convertRequested = false;
+		// An instance's nodes have their prefab's types
+		bool canConvert = UIPrefabEditorTab::CanEditStructure(node);
 		bool blockOpened = DrawHelper::BeginInspectorBlock((const void*)BlockNode, DrawHelper::GetTypeIcon(currentDescriptor, ICON_MDI_VECTOR_SQUARE),
-		                                                   currentDescriptor.GetDisplayName().CStr(), nullptr, nullptr, ICON_MDI_SWAP_HORIZONTAL, "Convert To", &convertRequested);
+		                                                   currentDescriptor.GetDisplayName().CStr(), nullptr, nullptr, canConvert ? ICON_MDI_SWAP_HORIZONTAL : nullptr,
+		                                                   canConvert ? "Convert To" : nullptr, canConvert ? &convertRequested : nullptr);
 		if (convertRequested)
 		{
 			ImGui::OpenPopup("UIPrefabConvertNode");
@@ -598,11 +686,13 @@ namespace hod::inline editor
 	/// @brief Interaction attached to `node` (how it reacts to the pointer). Shown as a block when one is attached, removable from
 	/// the header's close button, otherwise an "Add Interaction" button is shown.
 	/// @return true if the node's interaction was added, removed or edited
-	bool UIPrefabEditorInspectorWindow::DrawInteractionBlock(ui2::Node* node)
+	bool UIPrefabEditorInspectorWindow::DrawInteractionBlock(ui2::Node* node, ui2::Node* sourceNode)
 	{
 		bool                  changed = false;
 		ReflectionDescriptor* newInteractionDescriptor = nullptr;
 		bool                  removeInteraction = false;
+		// An instance's nodes have their prefab's Interactions: only their properties can be overridden, not the states
+		bool                  canEditStructure = UIPrefabEditorTab::CanEditStructure(node);
 
 		ui2::Interaction* interaction = node->GetInteraction();
 		if (interaction != nullptr)
@@ -611,19 +701,26 @@ namespace hod::inline editor
 
 			String title = String("Interaction: ") + currentDescriptor.GetDisplayName();
 			if (DrawHelper::BeginInspectorBlock((const void*)BlockInteraction, DrawHelper::GetTypeIcon(currentDescriptor, ICON_MDI_GESTURE_TAP), title.CStr(), nullptr,
-			                                    &removeInteraction))
+			                                    canEditStructure ? &removeInteraction : nullptr))
 			{
-				EditorReflectedObject interactionObject(interaction, &currentDescriptor, nullptr, this);
+				ui2::Interaction* sourceInteraction = (sourceNode != nullptr) ? sourceNode->GetInteraction() : nullptr;
+				if (sourceInteraction != nullptr && sourceInteraction->GetReflectionDescriptorV().GetType() != currentDescriptor.GetType())
+				{
+					sourceInteraction = nullptr;
+				}
+				EditorReflectedObject interactionObject(interaction, &currentDescriptor, sourceInteraction, this);
 				changed |= PropertyDrawer::DrawDescriptor(interactionObject);
 
 				if (ui2::Button* button = ui2::Interaction::Cast<ui2::Button>(interaction))
 				{
+					ImGui::BeginDisabled(canEditStructure == false);
 					changed |= DrawStateOverrides(node, *button);
+					ImGui::EndDisabled();
 				}
 			}
 			DrawHelper::EndInspectorBlock();
 		}
-		else
+		else if (canEditStructure)
 		{
 			ImVec2 addButtonSize = ImGui::CalcTextSize("  Add Interaction  ") + ImVec2(35.0f, 15.0f);
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x * 0.5f - addButtonSize.x * 0.5f));
@@ -788,7 +885,7 @@ namespace hod::inline editor
 			{
 				ImGui::PushID((int)index);
 				bool removeRequested = false;
-				DrawPropertyOverride(overrides[index], recording, removeRequested);
+				DrawPropertyOverride(node, overrides[index], recording, removeRequested);
 				if (removeRequested)
 				{
 					removeIndex = (int32_t)index;
@@ -825,13 +922,13 @@ namespace hod::inline editor
 
 	/// @brief One override, read-only (edited by recording its state), on one line: the target node and its property, then the
 	/// value (cut to the line, whole in the tooltip).
+	/// @param owner the Button's node, whose prefab the target is resolved in (an instance's own, for an instance's Button)
 	/// @param propertyOverride
 	/// @param recording whether its state is being recorded (its remove button then puts the property back)
 	/// @param removeRequested set when its remove button is clicked
-	void UIPrefabEditorInspectorWindow::DrawPropertyOverride(const ui2::PropertyOverride& propertyOverride, bool recording, bool& removeRequested)
+	void UIPrefabEditorInspectorWindow::DrawPropertyOverride(ui2::Node* owner, const ui2::PropertyOverride& propertyOverride, bool recording, bool& removeRequested)
 	{
-		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
-		ui2::Node*         target = tab->GetCanvas().GetRootNode()->FindByLocalId(propertyOverride._target);
+		ui2::Node* target = owner->GetScopeRoot()->FindByLocalId(propertyOverride._target);
 
 		ui2::PropertyValue value;
 		bool               resolved = (target != nullptr && propertyOverride.GetValue(*target, value));
@@ -930,11 +1027,13 @@ namespace hod::inline editor
 	/// it can be removed from the header's close button — otherwise an "Add Layout" button is shown.
 	/// Node::SetLayout takes care of converting the children's LayoutParams to the new layout's type.
 	/// @return true if the node's layout was added, replaced, removed or edited
-	bool UIPrefabEditorInspectorWindow::DrawLayoutBlock(ui2::Node* node)
+	bool UIPrefabEditorInspectorWindow::DrawLayoutBlock(ui2::Node* node, ui2::Node* sourceNode)
 	{
 		bool                  changed = false;
 		ReflectionDescriptor* newLayoutDescriptor = nullptr;
 		bool                  removeLayout = false;
+		// An instance's nodes have their prefab's layouts: only their properties can be overridden
+		bool                  canEditStructure = UIPrefabEditorTab::CanEditStructure(node);
 
 		const auto&  layoutDescriptors = ui2::LayoutFactory::GetInstance()->GetAllDescriptors();
 		ui2::Layout* layout = node->GetLayout();
@@ -945,8 +1044,9 @@ namespace hod::inline editor
 
 			String layoutTitle = String("Children Layout: ") + currentDescriptor.GetDisplayName();
 			bool   convertRequested = false;
-			bool   blockOpened = DrawHelper::BeginInspectorBlock((const void*)BlockLayout, ICON_MDI_VIEW_QUILT, layoutTitle.CStr(), nullptr, &removeLayout,
-			                                                     ICON_MDI_SWAP_HORIZONTAL, "Convert To", &convertRequested);
+			bool   blockOpened = DrawHelper::BeginInspectorBlock((const void*)BlockLayout, ICON_MDI_VIEW_QUILT, layoutTitle.CStr(), nullptr,
+			                                                     canEditStructure ? &removeLayout : nullptr, canEditStructure ? ICON_MDI_SWAP_HORIZONTAL : nullptr,
+			                                                     canEditStructure ? "Convert To" : nullptr, canEditStructure ? &convertRequested : nullptr);
 			// Same popup as the node's Convert To: picking another type converts the layout, keeping what the two types share (see Node::ConvertLayout)
 			if (convertRequested)
 			{
@@ -968,12 +1068,17 @@ namespace hod::inline editor
 			}
 			if (blockOpened)
 			{
-				EditorReflectedObject layoutObject(layout, &currentDescriptor, nullptr, this);
+				ui2::Layout* sourceLayout = (sourceNode != nullptr) ? sourceNode->GetLayout() : nullptr;
+				if (sourceLayout != nullptr && sourceLayout->GetReflectionDescriptorV().GetType() != currentDescriptor.GetType())
+				{
+					sourceLayout = nullptr;
+				}
+				EditorReflectedObject layoutObject(layout, &currentDescriptor, sourceLayout, this);
 				changed |= PropertyDrawer::DrawDescriptor(layoutObject);
 			}
 			DrawHelper::EndInspectorBlock();
 		}
-		else
+		else if (canEditStructure)
 		{
 			ImVec2 addLayoutButtonSize = ImGui::CalcTextSize("  Add Children Layout  ") + ImVec2(35.0f, 15.0f);
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x * 0.5f - addLayoutButtonSize.x * 0.5f));

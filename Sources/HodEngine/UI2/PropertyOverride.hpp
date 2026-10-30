@@ -21,8 +21,8 @@ namespace hod::inline ui2
 
 	/// @brief Value of a node property an override can drive, held as an instance of the property's own type: any reflected
 	/// type works without being known here (floats, enums, strings, Color, Vector2, CornerRadii, Margin...), only through
-	/// reflection. The property is named by a path: its name for one of the node's own properties, prefixed by "LayoutParams/"
-	/// or "Layout/" for one of its LayoutParams' or Layout's (e.g. "LayoutParams/Margin").
+	/// reflection. The property is named by a path: its name for one of the node's own properties, prefixed by "LayoutParams/",
+	/// "Layout/" or "Interaction/" for one of its LayoutParams', Layout's or Interaction's (e.g. "LayoutParams/Margin").
 	class HOD_UI2_API PropertyValue
 	{
 	public:
@@ -38,8 +38,11 @@ namespace hod::inline ui2
 	public:
 
 		// The paths of the properties of node an override can drive: its own (its type's after its parents'), then its
-		// LayoutParams' and its Layout's. Without the hidden and non serialized ones, nor the arrays (or objects holding some).
-		static Vector<String>	GetOverridableProperties(const Node& node);
+		// LayoutParams', its Layout's and, if withInteraction, its Interaction's (what a prefab instance can override, not a
+		// state). Without the hidden and non serialized ones, nor the arrays (or objects holding some).
+		static Vector<String>	GetOverridableProperties(const Node& node, bool withInteraction = false);
+		// Whether propertyPath is one of a node's LayoutParams' properties (given by its parent).
+		static bool				IsLayoutParamsProperty(std::string_view propertyPath);
 
 		// Takes the type and the current value of node's property at propertyPath. False when there is none (or not overridable).
 		bool				Read(const Node& node, std::string_view propertyPath);

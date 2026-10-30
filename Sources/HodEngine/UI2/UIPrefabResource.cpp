@@ -1,6 +1,7 @@
 #include "HodEngine/UI2/Pch.hpp"
 #include "HodEngine/UI2/UIPrefabResource.hpp"
 #include "HodEngine/UI2/Canvas.hpp"
+#include "HodEngine/UI2/PrefabInstance.hpp"
 
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 #include <HodEngine/GameSystems/Resource/ResourceContainer.hpp>
@@ -30,6 +31,9 @@ namespace hod::inline ui2
 		{
 			return false;
 		}
+
+		// An instance of itself in its content would be loaded endlessly (see PrefabInstance)
+		PrefabInstance::ScopedLoading loading(GetUid());
 
 		_canvas = DefaultAllocator::GetInstance().New<Canvas>();
 		bool result = _canvas->DeserializeFromDocument(_document.GetRootNode());

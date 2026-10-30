@@ -78,11 +78,13 @@ if (BUILD_UNIT_TESTS AND NOT ANDROID)
 	add_subdirectory("Sources/Tests/GameSystems")
 	add_subdirectory("Sources/Tests/Renderer")
 	add_subdirectory("Sources/Tests/Text")
+	add_subdirectory("Sources/Tests/UI2")
 
 	set_target_properties(TestsCore PROPERTIES FOLDER "Test/")
 	set_target_properties(TestsGameSystems PROPERTIES FOLDER "Test/")
 	set_target_properties(TestsRenderer PROPERTIES FOLDER "Test/")
 	set_target_properties(TestsText PROPERTIES FOLDER "Test/")
+	set_target_properties(TestsUI2 PROPERTIES FOLDER "Test/")
 endif()
 
 install(EXPORT HodEngineTargets

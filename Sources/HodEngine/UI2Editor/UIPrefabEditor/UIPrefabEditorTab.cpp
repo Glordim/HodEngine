@@ -16,6 +16,7 @@
 #include <HodEngine/UI2/AnchoredLayoutParams.hpp>
 #include <HodEngine/UI2/Node.hpp>
 #include <HodEngine/UI2/NodeFactory.hpp>
+#include <HodEngine/UI2/PrefabInstance.hpp>
 
 #include <HodEngine/Core/Memory/DefaultAllocator.hpp>
 #include <HodEngine/Core/Math.hpp>
@@ -32,7 +33,10 @@
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 #include <HodEngine/Core/Document/DocumentWriterJson.hpp>
 
+#include <HodEngine/Core/Output/OutputService.hpp>
+
 #include <cstring>
+#include <optional>
 
 namespace hod::inline editor
 {
@@ -47,12 +51,23 @@ namespace hod::inline editor
 			  entry._nodeName = node.GetName();
 			  entry._time = ImGui::GetTime();
 		  })
+	, _onPrefabSaved([this](const UID& savedPrefab) { RefreshInstances(savedPrefab); })
 	{
 		if (asset != nullptr)
 		{
 			LoadNodes();
 		}
 		EnsurePrefabRoot();
+
+		GetPrefabSavedEvent().Connect(_onPrefabSaved);
+	}
+
+	/// @brief
+	/// @return
+	UIPrefabEditorTab::PrefabSavedEvent& UIPrefabEditorTab::GetPrefabSavedEvent()
+	{
+		static PrefabSavedEvent prefabSavedEvent;
+		return prefabSavedEvent;
 	}
 
 	/// @brief
@@ -104,6 +119,12 @@ namespace hod::inline editor
 	{
 		StopRecording();
 
+		// The Buttons of the nested instances are their prefab's: their states are edited there
+		if (GetNodeRole(buttonNode) != NodeRole::Authored)
+		{
+			return;
+		}
+
 		ui2::Button* button = (buttonNode != nullptr) ? buttonNode->GetInteraction<ui2::Button>() : nullptr;
 		if (button == nullptr || button->GetOverrides(state) == nullptr)
 		{
@@ -127,6 +148,12 @@ namespace hod::inline editor
 				{
 					_recordedBase.PushBack(std::move(baseValue));
 				}
+			}
+			// An instance's content isn't this prefab's: its ids are its own prefab's, the states can't reference them. Edited
+			// meanwhile, it changes the instance's overrides.
+			if (node->GetPrefabInstance() != nullptr)
+			{
+				continue;
 			}
 			for (ui2::Node* child : node->GetChildren())
 			{
@@ -433,6 +460,8 @@ namespace hod::inline editor
 			_nextLocalId = std::max<uint64_t>(nextLocalIdNode->GetUInt64(), 1);
 		}
 
+		// An instance of this prefab in it (saved before the check existed) is left empty rather than loaded endlessly
+		ui2::PrefabInstance::ScopedLoading loading(GetAsset()->GetUid());
 		_canvas.DeserializeFromDocument(document.GetRootNode());
 	}
 
@@ -531,6 +560,11 @@ namespace hod::inline editor
 	/// @return
 	ui2::Node* UIPrefabEditorTab::ConvertNode(ui2::Node* node, const ReflectionDescriptor& nodeDescriptor)
 	{
+		if (CanEditStructure(node) == false)
+		{
+			return nullptr;
+		}
+
 		ui2::Node* newNode = ui2::NodeFactory::GetInstance()->CreateNode(nodeDescriptor);
 		node->ReplaceWith(newNode);
 
@@ -549,7 +583,7 @@ namespace hod::inline editor
 	/// @return
 	bool UIPrefabEditorTab::DeleteNode(ui2::Node* node)
 	{
-		if (node == GetPrefabRoot())
+		if (CanRemove(node) == false)
 		{
 			return false;
 		}
@@ -613,7 +647,25 @@ namespace hod::inline editor
 	/// @return
 	ui2::Node* UIPrefabEditorTab::InsertNodeCopy(ui2::Node* parent, uint32_t index, const DocumentNode& documentNode, bool keepOutsideTargets)
 	{
-		ui2::Node* node = parent->AddChildFromDocument(documentNode);
+		if (CanEditStructure(parent) == false)
+		{
+			return nullptr;
+		}
+		if (WouldContainItself(documentNode))
+		{
+			OUTPUT_ERROR("A UI prefab can't contain itself: {} holds an instance of it", GetAsset()->GetName());
+			return nullptr;
+		}
+
+		ui2::Node* node = nullptr;
+		{
+			std::optional<ui2::PrefabInstance::ScopedLoading> loading;
+			if (GetAsset() != nullptr)
+			{
+				loading.emplace(GetAsset()->GetUid());
+			}
+			node = parent->AddChildFromDocument(documentNode);
+		}
 		if (node == nullptr)
 		{
 			return nullptr;
@@ -625,6 +677,228 @@ namespace hod::inline editor
 		SetSelectedNode(node);
 		MarkAsDirty();
 		return node;
+	}
+
+	/// @brief
+	/// @param entry
+	/// @return
+	bool UIPrefabEditorTab::WouldContainItself(const DocumentNode& entry) const
+	{
+		if (GetAsset() == nullptr)
+		{
+			return false;
+		}
+
+		Vector<UID> prefabs;
+		ui2::PrefabInstance::CollectPrefabs(entry, prefabs);
+		for (const UID& prefab : prefabs)
+		{
+			if (ui2::PrefabInstance::Contains(prefab, GetAsset()->GetUid()))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/// @brief
+	/// @param node
+	/// @return
+	UIPrefabEditorTab::NodeRole UIPrefabEditorTab::GetNodeRole(const ui2::Node* node)
+	{
+		if (node == nullptr)
+		{
+			return NodeRole::ReadOnly;
+		}
+
+		uint32_t instanceDepth = 0;
+		for (const ui2::Node* ancestor = node->GetParent(); ancestor != nullptr; ancestor = ancestor->GetParent())
+		{
+			if (ancestor->GetPrefabInstance() != nullptr)
+			{
+				++instanceDepth;
+			}
+		}
+
+		if (instanceDepth == 0)
+		{
+			return (node->GetPrefabInstance() != nullptr) ? NodeRole::InstanceRoot : NodeRole::Authored;
+		}
+		// A nested instance's root is a node of its instance as any other: its properties are overrides of that instance
+		return (instanceDepth == 1) ? NodeRole::InstanceContent : NodeRole::ReadOnly;
+	}
+
+	/// @brief
+	/// @param node
+	/// @return
+	bool UIPrefabEditorTab::CanEditStructure(const ui2::Node* node)
+	{
+		return GetNodeRole(node) == NodeRole::Authored;
+	}
+
+	/// @brief
+	/// @param node
+	/// @return
+	bool UIPrefabEditorTab::CanRemove(const ui2::Node* node) const
+	{
+		NodeRole role = GetNodeRole(node);
+		return (role == NodeRole::Authored || role == NodeRole::InstanceRoot) && node != GetPrefabRoot();
+	}
+
+	/// @brief
+	/// @param node
+	/// @return
+	bool UIPrefabEditorTab::CanEditProperties(const ui2::Node* node)
+	{
+		// A missing prefab's placeholder only keeps what was saved (see ui2::PrefabInstance): an edit would be lost
+		if (node != nullptr && node->GetPrefabInstance() != nullptr && node->GetPrefabInstance()->IsMissing())
+		{
+			return false;
+		}
+		return GetNodeRole(node) != NodeRole::ReadOnly;
+	}
+
+	/// @brief
+	/// @param node
+	/// @return
+	ui2::Node* UIPrefabEditorTab::FindSourceNode(const ui2::Node* node)
+	{
+		switch (GetNodeRole(node))
+		{
+			case NodeRole::InstanceRoot:
+			{
+				ui2::PrefabInstance* prefabInstance = node->GetPrefabInstance();
+				return prefabInstance->FindSourceNode(prefabInstance->GetRootLocalId());
+			}
+			case NodeRole::InstanceContent:
+			{
+				// By its id in the instance holding it (a nested instance's root included)
+				for (const ui2::Node* ancestor = node->GetParent(); ancestor != nullptr; ancestor = ancestor->GetParent())
+				{
+					if (ancestor->GetPrefabInstance() != nullptr)
+					{
+						return ancestor->GetPrefabInstance()->FindSourceNode(node->GetLocalId());
+					}
+				}
+				return nullptr;
+			}
+			default: return nullptr;
+		}
+	}
+
+	/// @brief
+	/// @param prefab
+	/// @param parent
+	/// @return
+	ui2::Node* UIPrefabEditorTab::InstantiatePrefab(const UID& prefab, ui2::Node* parent)
+	{
+		// The entry of an instance without overrides yet, as a copied one would be: its placement is parent's default
+		Document      document;
+		DocumentNode& instanceNode = document.GetRootNode().AddChild("PrefabInstance");
+		instanceNode.AddChild("Prefab").SetString(prefab.ToString());
+		return InsertNodeCopy(parent, UINT32_MAX, document.GetRootNode(), true);
+	}
+
+	/// @brief
+	/// @param instanceRoot
+	/// @return
+	bool UIPrefabEditorTab::UnpackPrefabInstance(ui2::Node* instanceRoot)
+	{
+		if (GetNodeRole(instanceRoot) != NodeRole::InstanceRoot)
+		{
+			return false;
+		}
+
+		instanceRoot->UnpackPrefabInstance(_nextLocalId);
+		MarkAsDirty();
+		return true;
+	}
+
+	/// @brief
+	/// @return
+	uint32_t UIPrefabEditorTab::GetRebuildCount() const
+	{
+		return _rebuildCount;
+	}
+
+	/// @brief
+	/// @param savedPrefab
+	void UIPrefabEditorTab::RefreshInstances(const UID& savedPrefab)
+	{
+		if (GetAsset() == nullptr || GetAsset()->GetUid() == savedPrefab)
+		{
+			return;
+		}
+
+		// The instances of this prefab (their content is rebuilt along with them)
+		Vector<ui2::Node*> instanceRoots;
+		Vector<ui2::Node*> nodes = {GetPrefabRoot()};
+		for (uint32_t index = 0; index < nodes.Size(); ++index)
+		{
+			ui2::Node* node = nodes[index];
+			if (ui2::PrefabInstance* prefabInstance = node->GetPrefabInstance())
+			{
+				if (prefabInstance->GetPrefab() == savedPrefab || ui2::PrefabInstance::Contains(prefabInstance->GetPrefab(), savedPrefab))
+				{
+					instanceRoots.PushBack(node);
+				}
+				continue;
+			}
+			for (ui2::Node* child : node->GetChildren())
+			{
+				nodes.PushBack(child);
+			}
+		}
+
+		for (ui2::Node* instanceRoot : instanceRoots)
+		{
+			RebuildInstance(instanceRoot);
+		}
+	}
+
+	/// @brief Through the instance's entry (its prefab and overrides), as it is saved. Doesn't make the prefab dirty: what changed
+	/// is what the instance shows, not what is saved.
+	/// @param instanceRoot
+	void UIPrefabEditorTab::RebuildInstance(ui2::Node* instanceRoot)
+	{
+		// As authored: a recorded state's look isn't the instance's overrides
+		UpdateRecording();
+		RestoreRecordedBase();
+		ScopedGuard reapplyRecordedOverrides = [&]()
+		{
+			if (IsRecording())
+			{
+				ApplyRecordedOverrides();
+			}
+		};
+
+		Document document;
+		if (instanceRoot->SerializeAsChildInDocument(document.GetRootNode()) == false)
+		{
+			return;
+		}
+
+		ui2::Node* parent = instanceRoot->GetParent();
+		uint32_t   index = GetSiblingIndex(instanceRoot);
+		bool       selected = (_selectedNode != nullptr && (_selectedNode == instanceRoot || _selectedNode->IsDescendantOf(instanceRoot)));
+
+		parent->RemoveChild(instanceRoot);
+		DefaultAllocator::GetInstance().Delete(instanceRoot);
+		++_rebuildCount;
+
+		ui2::Node* newInstanceRoot = nullptr;
+		{
+			ui2::PrefabInstance::ScopedLoading loading(GetAsset()->GetUid());
+			newInstanceRoot = parent->AddChildFromDocument(document.GetRootNode());
+		}
+		if (newInstanceRoot != nullptr)
+		{
+			parent->SetChildIndex(newInstanceRoot, index);
+		}
+		if (selected)
+		{
+			SetSelectedNode(newInstanceRoot);
+		}
 	}
 
 	/// @brief
@@ -663,7 +937,7 @@ namespace hod::inline editor
 	/// @return
 	bool UIPrefabEditorTab::CutNode(ui2::Node* node)
 	{
-		if (node == nullptr || node == GetPrefabRoot() || CopyNode(node) == false)
+		if (CanRemove(node) == false || CopyNode(node) == false)
 		{
 			return false;
 		}
@@ -744,7 +1018,7 @@ namespace hod::inline editor
 	/// @return
 	ui2::Node* UIPrefabEditorTab::PasteNode(ui2::Node* parent, uint32_t index)
 	{
-		if (parent == nullptr || CanPasteNode() == false)
+		if (CanEditStructure(parent) == false || CanPasteNode() == false)
 		{
 			return nullptr;
 		}
@@ -796,7 +1070,12 @@ namespace hod::inline editor
 	/// @return
 	ui2::Node* UIPrefabEditorTab::PasteNodeNextToSelection()
 	{
+		// Inside an instance, after the instance: its content has no room for new nodes
 		ui2::Node* selection = _selectedNode;
+		while (selection != nullptr && CanRemove(selection) == false)
+		{
+			selection = selection->GetParent();
+		}
 		if (selection == nullptr || selection == GetPrefabRoot())
 		{
 			return PasteNode(GetPrefabRoot());
@@ -809,7 +1088,13 @@ namespace hod::inline editor
 	/// @return
 	ui2::Node* UIPrefabEditorTab::PasteNodeInSelection()
 	{
-		return PasteNode(_selectedNode != nullptr ? _selectedNode : GetPrefabRoot());
+		// Inside an instance, in the closest node that can have new children
+		ui2::Node* parent = (_selectedNode != nullptr) ? _selectedNode : GetPrefabRoot();
+		while (parent != nullptr && CanEditStructure(parent) == false)
+		{
+			parent = parent->GetParent();
+		}
+		return PasteNode(parent);
 	}
 
 	/// @brief
@@ -817,7 +1102,7 @@ namespace hod::inline editor
 	/// @return
 	ui2::Node* UIPrefabEditorTab::DuplicateNode(ui2::Node* node)
 	{
-		if (node == nullptr || node == GetPrefabRoot())
+		if (CanRemove(node) == false)
 		{
 			return nullptr;
 		}
@@ -893,6 +1178,16 @@ namespace hod::inline editor
 	bool UIPrefabEditorTab::DrawContent()
 	{
 		UpdateRecording();
+
+		// The asset is written after OnSave: the other tabs' instances are rebuilt from it once it is (still clean: the write went well)
+		if (_savedNotificationPending)
+		{
+			_savedNotificationPending = false;
+			if (IsDirty() == false && GetAsset() != nullptr)
+			{
+				GetPrefabSavedEvent().Emit(GetAsset()->GetUid());
+			}
+		}
 		return true;
 	}
 
@@ -950,6 +1245,7 @@ namespace hod::inline editor
 	bool UIPrefabEditorTab::OnSave()
 	{
 		_canvas.GetRootNode()->AssignLocalIds(_nextLocalId);
+		_savedNotificationPending = true;
 
 		// Saved as authored (with the overrides recorded so far), then back to the recorded state's look
 		UpdateRecording();

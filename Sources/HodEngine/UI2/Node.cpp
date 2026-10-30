@@ -10,9 +10,12 @@
 #include "HodEngine/UI2/InteractionFactory.hpp"
 #include "HodEngine/UI2/NodeFactory.hpp"
 #include "HodEngine/UI2/DrawContext.hpp"
+#include "HodEngine/UI2/PrefabInstance.hpp"
+#include "HodEngine/UI2/PropertyOverride.hpp"
 
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Math.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <HodEngine/Core/Reflection/ReflectionProperty.hpp>
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
@@ -89,6 +92,7 @@ namespace hod::inline ui2
 	{
 		DefaultAllocator::GetInstance().Delete(_layout);
 		DefaultAllocator::GetInstance().Delete(_interaction);
+		DefaultAllocator::GetInstance().Delete(_prefabInstance);
 
 		for (Node* child : _children)
 		{
@@ -132,6 +136,11 @@ namespace hod::inline ui2
 			++nextLocalId;
 		}
 
+		if (_prefabInstance != nullptr)
+		{
+			return; // Its content has its prefab's ids
+		}
+
 		for (Node* child : _children)
 		{
 			child->AssignLocalIds(nextLocalId);
@@ -155,16 +164,21 @@ namespace hod::inline ui2
 			node->_localId = nextLocalId;
 			++nextLocalId;
 
-			for (Node* child : node->_children)
+			// An instance's content keeps its prefab's ids
+			if (node->_prefabInstance == nullptr)
 			{
-				nodes.PushBack(child);
+				for (Node* child : node->_children)
+				{
+					nodes.PushBack(child);
+				}
 			}
 		}
 
-		// Once every id of the subtree is known: an Interaction may reference a node visited after its own
+		// Once every id of the subtree is known: an Interaction may reference a node visited after its own. Not an instance
+		// root's, which references nodes of its prefab.
 		for (Node* node : nodes)
 		{
-			if (node->_interaction != nullptr)
+			if (node->_interaction != nullptr && node->_prefabInstance == nullptr)
 			{
 				node->_interaction->RemapTargets(oldToNew, keepOutsideTargets);
 			}
@@ -176,14 +190,20 @@ namespace hod::inline ui2
 	/// @return
 	Node* Node::FindByLocalId(uint64_t localId)
 	{
-		if (localId != 0 && _localId == localId)
+		if (localId == 0)
+		{
+			return nullptr;
+		}
+
+		uint64_t scopeLocalId = (_prefabInstance != nullptr) ? _prefabInstance->GetRootLocalId() : _localId;
+		if (scopeLocalId == localId)
 		{
 			return this;
 		}
 
 		for (Node* child : _children)
 		{
-			Node* found = child->FindByLocalId(localId);
+			Node* found = child->FindInScope(localId);
 			if (found != nullptr)
 			{
 				return found;
@@ -191,6 +211,106 @@ namespace hod::inline ui2
 		}
 
 		return nullptr;
+	}
+
+	/// @brief
+	/// @param localId
+	/// @return
+	Node* Node::FindInScope(uint64_t localId)
+	{
+		if (_localId == localId)
+		{
+			return this;
+		}
+
+		if (_prefabInstance != nullptr)
+		{
+			return nullptr;
+		}
+
+		for (Node* child : _children)
+		{
+			Node* found = child->FindInScope(localId);
+			if (found != nullptr)
+			{
+				return found;
+			}
+		}
+
+		return nullptr;
+	}
+
+	/// @brief
+	/// @return
+	Node* Node::GetScopeRoot()
+	{
+		Node* node = this;
+		while (node->_prefabInstance == nullptr && node->_parent != nullptr)
+		{
+			node = node->_parent;
+		}
+		return node;
+	}
+
+	/// @brief
+	/// @return
+	PrefabInstance* Node::GetPrefabInstance() const
+	{
+		return _prefabInstance;
+	}
+
+	/// @brief
+	/// @param nextLocalId
+	void Node::UnpackPrefabInstance(uint64_t& nextLocalId)
+	{
+		if (_prefabInstance == nullptr)
+		{
+			return;
+		}
+
+		// From the ids in the prefab to the new ones in the containing prefab: the root keeps the one it has there
+		std::map<uint64_t, uint64_t> prefabToNew;
+		if (_prefabInstance->GetRootLocalId() != 0)
+		{
+			prefabToNew[_prefabInstance->GetRootLocalId()] = _localId;
+		}
+
+		Vector<Node*> nodes(_children);
+		for (uint32_t index = 0; index < nodes.Size(); ++index)
+		{
+			Node* node = nodes[index];
+			if (node->_localId != 0)
+			{
+				prefabToNew[node->_localId] = nextLocalId;
+			}
+			node->_localId = nextLocalId;
+			++nextLocalId;
+
+			// A nested instance stays one, with its own ids
+			if (node->_prefabInstance == nullptr)
+			{
+				for (Node* child : node->_children)
+				{
+					nodes.PushBack(child);
+				}
+			}
+		}
+
+		// The prefab's Interactions only referenced its own nodes
+		if (_interaction != nullptr)
+		{
+			_interaction->RemapTargets(prefabToNew, false);
+		}
+		for (Node* node : nodes)
+		{
+			if (node->_interaction != nullptr && node->_prefabInstance == nullptr)
+			{
+				node->_interaction->RemapTargets(prefabToNew, false);
+			}
+		}
+
+		DefaultAllocator::GetInstance().Delete(_prefabInstance);
+		_prefabInstance = nullptr;
 	}
 
 	void Node::AddChild(Node* child)
@@ -961,6 +1081,11 @@ namespace hod::inline ui2
 
 	bool Node::SerializeInDocument(DocumentNode& documentNode)
 	{
+		if (_prefabInstance != nullptr)
+		{
+			return SerializePrefabInstance(documentNode);
+		}
+
 		if (Serializer::Serialize(*this, documentNode) == false)
 		{
 			return false;
@@ -1015,28 +1140,41 @@ namespace hod::inline ui2
 		return SerializeInDocument(documentNode);
 	}
 
-	Node* Node::AddChildFromDocument(const DocumentNode& documentNode)
+	namespace
 	{
-		// A missing or unknown type (document saved before drawing nodes existed, or by a module that
-		// isn't loaded) degrades to a plain Node rather than failing the whole tree.
-		Node*               child = nullptr;
-		const DocumentNode* childTypeNode = documentNode.GetChild("Type");
-		if (childTypeNode != nullptr)
+		/// @brief A node of the type entry names. A missing or unknown type (document saved before drawing nodes existed, or by
+		/// a module that isn't loaded) degrades to a plain Node rather than failing the whole tree.
+		Node* CreateNode(const DocumentNode& entry)
 		{
-			const std::map<uint64_t, ReflectionDescriptor*>& descriptors = NodeFactory::GetInstance()->GetAllDescriptors();
-			auto                                              it = descriptors.find(childTypeNode->GetUInt64());
-			if (it != descriptors.end())
+			const DocumentNode* typeNode = entry.GetChild("Type");
+			if (typeNode != nullptr)
 			{
-				child = it->second->CreateInstance<Node>();
+				const std::map<uint64_t, ReflectionDescriptor*>& descriptors = NodeFactory::GetInstance()->GetAllDescriptors();
+				auto                                              it = descriptors.find(typeNode->GetUInt64());
+				if (it != descriptors.end())
+				{
+					return it->second->CreateInstance<Node>();
+				}
 			}
-		}
-		if (child == nullptr)
-		{
-			child = DefaultAllocator::GetInstance().New<Node>();
+			return DefaultAllocator::GetInstance().New<Node>();
 		}
 
+		/// @brief The entry of a prefab's root in its document (see UIPrefabResource): the single child of the canvas' root node.
+		const DocumentNode* FindPrefabRootEntry(const Document& document)
+		{
+			const DocumentNode* childrenNode = document.GetRootNode().GetChild("Children");
+			if (childrenNode == nullptr || childrenNode->GetFirstChild() == nullptr || childrenNode->GetFirstChild()->GetNextSibling() != nullptr)
+			{
+				return nullptr;
+			}
+			return childrenNode->GetFirstChild();
+		}
+	}
+
+	LayoutParams* Node::ReadLayoutParams(const DocumentNode& entry) const
+	{
 		LayoutParams*       layoutParams = nullptr;
-		const DocumentNode* layoutParamsNode = documentNode.GetChild("LayoutParams");
+		const DocumentNode* layoutParamsNode = entry.GetChild("LayoutParams");
 		if (layoutParamsNode != nullptr)
 		{
 			const DocumentNode* typeNode = layoutParamsNode->GetChild("Type");
@@ -1054,9 +1192,19 @@ namespace hod::inline ui2
 
 		// Written under a parent expecting another type (copied from a BoxLayout into an anchored node...): converted.
 		LayoutParams* defaultLayoutParams = CreateDefaultLayoutParams();
-		layoutParams = (layoutParams != nullptr) ? AdaptLayoutParams(layoutParams, defaultLayoutParams) : defaultLayoutParams;
+		return (layoutParams != nullptr) ? AdaptLayoutParams(layoutParams, defaultLayoutParams) : defaultLayoutParams;
+	}
 
-		AddChild(child, layoutParams);
+	Node* Node::AddChildFromDocument(const DocumentNode& documentNode)
+	{
+		const DocumentNode* instanceNode = documentNode.GetChild("PrefabInstance");
+		if (instanceNode != nullptr)
+		{
+			return AddPrefabInstanceFromDocument(documentNode, *instanceNode);
+		}
+
+		Node* child = CreateNode(documentNode);
+		AddChild(child, ReadLayoutParams(documentNode));
 
 		if (child->DeserializeFromDocument(documentNode) == false)
 		{
@@ -1066,6 +1214,106 @@ namespace hod::inline ui2
 		}
 
 		return child;
+	}
+
+	/// @brief An instance's entry: its type and LayoutParams as any node's, then its id in this prefab and a PrefabInstance
+	/// node: the prefab (UID) and the overrides.
+	Node* Node::AddPrefabInstanceFromDocument(const DocumentNode& entry, const DocumentNode& instanceNode)
+	{
+		const DocumentNode* prefabNode = instanceNode.GetChild("Prefab");
+		UID                 prefab = (prefabNode != nullptr && prefabNode->GetType() == DocumentNode::Type::String) ? UID::FromString(prefabNode->GetString().CStr())
+		                                                                                                            : UID::INVALID_UID;
+		PrefabInstance*     prefabInstance = DefaultAllocator::GetInstance().New<PrefabInstance>(prefab);
+
+		// The prefab's root, unless the prefab can't be loaded (or is being loaded: it would contain itself)
+		Document            prefabDocument;
+		const DocumentNode* sourceEntry = nullptr;
+		if (prefab.IsValid() == false)
+		{
+			OUTPUT_ERROR("UI prefab instance without prefab");
+		}
+		else if (PrefabInstance::IsLoading(prefab))
+		{
+			OUTPUT_ERROR("UI prefab {} contains itself: its instance is left empty", prefab.ToString());
+		}
+		else if (PrefabInstance::LoadSource(prefab, prefabDocument) == false || (sourceEntry = FindPrefabRootEntry(prefabDocument)) == nullptr)
+		{
+			OUTPUT_ERROR("UI prefab {} can't be loaded: its instance is left empty", prefab.ToString());
+		}
+
+		Node* child = (sourceEntry != nullptr) ? CreateNode(*sourceEntry) : DefaultAllocator::GetInstance().New<Node>();
+		// The placement is the containing prefab's. A new instance (none yet) starts with the one the prefab's root has in its
+		// own canvas: its size, anchors...
+		const DocumentNode& placementEntry = (entry.GetChild("LayoutParams") == nullptr && sourceEntry != nullptr) ? *sourceEntry : entry;
+		AddChild(child, ReadLayoutParams(placementEntry));
+
+		if (sourceEntry != nullptr)
+		{
+			PrefabInstance::ScopedLoading loading(prefab);
+			if (child->DeserializeFromDocument(*sourceEntry) == false)
+			{
+				RemoveChild(child);
+				DefaultAllocator::GetInstance().Delete(child);
+				DefaultAllocator::GetInstance().Delete(prefabInstance);
+				return nullptr;
+			}
+			prefabInstance->_source.GetRootNode().Copy(*sourceEntry);
+			prefabInstance->_rootLocalId = child->_localId;
+			prefabInstance->_missing = false;
+		}
+
+		child->_prefabInstance = prefabInstance;
+		const DocumentNode* localIdNode = entry.GetChild("_localId");
+		child->_localId = (localIdNode != nullptr) ? localIdNode->GetUInt64() : 0;
+
+		Vector<PropertyOverride> overrides;
+		if (const DocumentNode* overridesNode = instanceNode.GetChild("Overrides"))
+		{
+			for (const DocumentNode* overrideNode = overridesNode->GetFirstChild(); overrideNode != nullptr; overrideNode = overrideNode->GetNextSibling())
+			{
+				Serializer::Deserialize(overrides.EmplaceBack(), *overrideNode);
+			}
+		}
+
+		if (prefabInstance->_missing)
+		{
+			prefabInstance->_missingOverrides = std::move(overrides);
+			return child;
+		}
+
+		for (const PropertyOverride& propertyOverride : overrides)
+		{
+			Node*         target = child->FindByLocalId(propertyOverride._target);
+			PropertyValue value;
+			if (target != nullptr && propertyOverride.GetValue(*target, value))
+			{
+				value.Write(*target, propertyOverride._property);
+			}
+		}
+
+		return child;
+	}
+
+	/// @brief See AddPrefabInstanceFromDocument
+	bool Node::SerializePrefabInstance(DocumentNode& documentNode)
+	{
+		documentNode.AddChild("_localId").SetUInt64(_localId);
+
+		DocumentNode& instanceNode = documentNode.AddChild("PrefabInstance");
+		instanceNode.AddChild("Prefab").SetString(_prefabInstance->GetPrefab().ToString());
+
+		Vector<PropertyOverride> overrides;
+		_prefabInstance->CollectOverrides(*this, overrides);
+		DocumentNode& overridesNode = instanceNode.AddChild("Overrides");
+		for (const PropertyOverride& propertyOverride : overrides)
+		{
+			if (Serializer::Serialize(propertyOverride, overridesNode.AddChild("")) == false)
+			{
+				return false;
+			}
+		}
+
+		return true;
 	}
 
 	bool Node::DeserializeFromDocument(const DocumentNode& documentNode)

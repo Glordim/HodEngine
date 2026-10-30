@@ -6,6 +6,9 @@
 #include <HodEngine/UI2/Canvas.hpp>
 #include <HodEngine/UI2/PropertyOverride.hpp>
 
+#include <HodEngine/Core/Event.hpp>
+#include <HodEngine/Core/UID.hpp>
+
 namespace hod::inline core
 {
 	class ReflectionDescriptor;
@@ -48,16 +51,45 @@ namespace hod::inline editor
 		void			RequestFrameSelection();
 		bool			ConsumeFrameSelectionRequest();
 
+		// What can be done to a node, given the nested prefab instances it is in (see ui2::PrefabInstance)
+		enum class NodeRole : uint8_t
+		{
+			Authored,        // A node of this prefab: anything goes
+			InstanceRoot,    // The root of a nested prefab's instance: placed, moved and removed as any node, but its content follows its prefab
+			InstanceContent, // A node of an instance (not its root): only its properties can be changed, recorded as the instance's overrides
+			ReadOnly,        // A node of an instance held by an instance: edited in its own prefab only
+		};
+		static NodeRole	GetNodeRole(const ui2::Node* node);
+		// Children added, type converted, Layout or Interaction added or removed: Authored nodes only
+		static bool		CanEditStructure(const ui2::Node* node);
+		// Deleted, moved, cut or duplicated: Authored nodes and instance roots, except the prefab root
+		bool			CanRemove(const ui2::Node* node) const;
+		// Properties edited: every node but the ReadOnly ones and the missing prefabs' placeholders
+		static bool		CanEditProperties(const ui2::Node* node);
+		// For an instance's root or content: the node as its prefab authors it (see ui2::PrefabInstance::FindSourceNode), what
+		// its properties are compared to (overrides) and reverted to. Null for the other nodes.
+		static ui2::Node*	FindSourceNode(const ui2::Node* node);
+
 		// Replaces node by a new node of the type nodeDescriptor describes (see ui2::Node::ReplaceWith),
 		// keeps it selected if it was, and deletes node: callers must not be drawing node (or iterating
 		// its children) anymore, i.e. defer the call to after their drawing pass.
-		// @return the new node
+		// @return the new node, nullptr if node's structure can't be edited (see CanEditStructure)
 		ui2::Node*		ConvertNode(ui2::Node* node, const ReflectionDescriptor& nodeDescriptor);
 
 		// Removes node (and its subtree) from the prefab, deselecting it if it, or one of its descendants, was
 		// selected. Same contract as ConvertNode: defer the call to after the drawing pass.
-		// @return false for the prefab root, which can't be deleted
+		// @return false for the nodes that can't be removed (see CanRemove)
 		bool			DeleteNode(ui2::Node* node);
+
+		// Nested prefabs: adds an instance of prefab (a UI prefab asset) as the last child of parent, selected. Refused (with an
+		// error) if prefab is this one or contains it, as it would contain itself. Same contract as ConvertNode.
+		// @return the instance's root, nullptr if refused
+		ui2::Node*		InstantiatePrefab(const UID& prefab, ui2::Node* parent);
+		// Turns an instance into plain nodes of this prefab (see ui2::Node::UnpackPrefabInstance), to edit them freely.
+		bool			UnpackPrefabInstance(ui2::Node* instanceRoot);
+		// Bumped whenever instances are rebuilt from their saved prefab (see RefreshInstances): the nodes they had are deleted, a
+		// window keeping node pointers across frames drops them on a change.
+		uint32_t		GetRebuildCount() const;
 
 		// Clipboard: a node and its subtree are copied as text (a JSON document, see ui2::Node::SerializeAsChildInDocument) to the
 		// system clipboard, so they can be pasted in another UI prefab too. Copied as authored: while recording, without the
@@ -161,6 +193,15 @@ namespace hod::inline editor
 		bool		SerializeNodeAsAuthored(ui2::Node* node, DocumentNode& documentNode);
 		ui2::Node*	InsertNodeCopy(ui2::Node* parent, uint32_t index, const DocumentNode& documentNode, bool keepOutsideTargets);
 		ui2::Node*	MoveNode(ui2::Node* node, ui2::Node* parent, uint32_t index);
+		// Whether adding the node entry describes would make this prefab contain itself (through the instances it holds)
+		bool		WouldContainItself(const DocumentNode& entry) const;
+
+		// Nested prefabs: a UI prefab saved (in any tab), the instances of it (also inside other instances) are rebuilt from
+		// what it is now, keeping their overrides. Their nodes are replaced.
+		using PrefabSavedEvent = Event<const UID&>;
+		static PrefabSavedEvent&	GetPrefabSavedEvent();
+		void						RefreshInstances(const UID& savedPrefab);
+		void						RebuildInstance(ui2::Node* instanceRoot);
 
 		// Record mode (see StartRecording)
 		ui2::Button*	FindRecordedButton() const;
@@ -201,5 +242,10 @@ namespace hod::inline editor
 		// be the clipboard's for a paste to move the node
 		uint64_t	_cutNode = 0;
 		String		_cutClipboardText;
+
+		// Nested prefabs (see RefreshInstances): the save is told once written, i.e. on the next frame
+		PrefabSavedEvent::Slot	_onPrefabSaved;
+		bool					_savedNotificationPending = false;
+		uint32_t				_rebuildCount = 0;
 	};
 }

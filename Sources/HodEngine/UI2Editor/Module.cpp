@@ -13,7 +13,10 @@
 #include <HodEngine/Core/Hash.hpp>
 #include <HodEngine/UI2/Margin.hpp>
 #include <HodEngine/UI2/Padding.hpp>
+#include <HodEngine/UI2/PrefabInstance.hpp>
 #include <HodEngine/UI2/UIPrefabResource.hpp>
+#include "HodEngine/Editor/Asset.hpp"
+#include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
@@ -23,6 +26,31 @@ using namespace hod::editor;
 namespace
 {
 	EditorModuleRegistration registration;
+
+	/// @brief The nested prefabs' instances are built from the UI prefab assets as last saved, rather than from the cooked
+	/// resources (see ui2::PrefabInstance::SourceProvider): a resource still in use isn't reloaded when its asset changes.
+	bool LoadUIPrefabAsset(const UID& prefab, Document& outDocument)
+	{
+		std::shared_ptr<Asset> asset = AssetDatabase::GetInstance()->Find(prefab);
+		if (asset == nullptr || asset->GetType() != Hash::ComputeXxh3_64("UIPrefab"))
+		{
+			return false;
+		}
+
+		AssetContainer assetContainer;
+		if (assetContainer.Load(asset->GetPath()) == false)
+		{
+			return false;
+		}
+		const AssetContainer::DataBlockInfo* nodesDataBlock = assetContainer.FindDataBlock("Nodes");
+		if (nodesDataBlock == nullptr)
+		{
+			return false;
+		}
+
+		DocumentReaderJson documentReader;
+		return documentReader.Read(outDocument, *nodesDataBlock->_stream);
+	}
 }
 
 HOD_STARTUP_MODULE(UI2Editor)
@@ -32,6 +60,8 @@ HOD_STARTUP_MODULE(UI2Editor)
 	                                          DefaultAllocator::GetInstance().New<RectOffsetsCustomPropertyDrawer>(RectOffsetsCustomPropertyDrawer::Direction::Outward));
 	registration.RegisterCustomPropertyDrawer(ui2::Padding::GetReflectionDescriptor(),
 	                                          DefaultAllocator::GetInstance().New<RectOffsetsCustomPropertyDrawer>(RectOffsetsCustomPropertyDrawer::Direction::Inward));
+
+	ui2::PrefabInstance::SetSourceProvider(&LoadUIPrefabAsset);
 
 	registration.RegisterCooker<UIPrefabCooker>("UIPrefab");
 	registration.RegisterResource<UIPrefabResource>("UIPrefab");
@@ -60,5 +90,6 @@ HOD_STARTUP_MODULE(UI2Editor)
 HOD_SHUTDOWN_MODULE(UI2Editor)
 {
 	registration.UnregisterAll();
+	ui2::PrefabInstance::SetSourceProvider(nullptr); // Its code goes with this module
 	return 0;
 }
