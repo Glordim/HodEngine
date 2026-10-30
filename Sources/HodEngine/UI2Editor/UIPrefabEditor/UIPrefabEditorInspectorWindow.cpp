@@ -234,9 +234,9 @@ namespace hod::inline editor
 	void UIPrefabEditorInspectorWindow::DrawContent()
 	{
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
-		if (tab->IsInteracting())
+		if (tab->IsPlaying())
 		{
-			DrawInteractingState(tab->GetDisplayedCanvas(), tab->GetInteractionLog());
+			DrawPlayingState(tab->GetDisplayedCanvas(), tab->GetInteractionLog());
 			return;
 		}
 
@@ -708,7 +708,7 @@ namespace hod::inline editor
 	}
 
 	/// @brief A Button's look per state: for Hovered, Pressed and Disabled, the list of property overrides applied in that state
-	/// (Normal is the prefab as authored), each a target node, one of its properties and the value it takes. Seen in interact mode.
+	/// (Normal is the prefab as authored), each a target node, one of its properties and the value it takes. Seen in play mode.
 	/// Each state can be recorded (see UIPrefabEditorTab::StartRecording): its overrides then follow the edits of the nodes, and are
 	/// only removable here (which puts the property back). The other states can't be edited meanwhile.
 	/// @return true if an override was added, removed or edited
@@ -851,13 +851,13 @@ namespace hod::inline editor
 		ImGui::Spacing();
 	}
 
-	/// @brief Interact mode's state, in place of the selection (editing is suspended): the node whose Interaction gets the pointer
+	/// @brief Play mode's state, in place of the selection (editing is suspended): the node whose Interaction gets the pointer
 	/// and the one holding the press, with their Button state, then the actions emitted, most recent first.
-	/// @param canvas the interact mode's canvas
+	/// @param canvas the play mode's canvas
 	/// @param log
-	void UIPrefabEditorInspectorWindow::DrawInteractingState(ui2::Canvas& canvas, const Vector<UIPrefabEditorTab::InteractionLogEntry>& log)
+	void UIPrefabEditorInspectorWindow::DrawPlayingState(ui2::Canvas& canvas, const Vector<UIPrefabEditorTab::InteractionLogEntry>& log)
 	{
-		ImGui::TextDisabled("Editing suspended while interacting");
+		ImGui::TextDisabled("Editing suspended while playing");
 		ImGui::Spacing();
 
 		auto drawNodeRow = [](const char* label, ui2::Node* node)

@@ -76,17 +76,27 @@ namespace hod::inline editor
 		// While recording, the override of that property is removed by putting the property back to its authored value.
 		void			RevertRecordedProperty(uint64_t target, const String& property);
 
-		// Interact mode (toggled from the viewport's toolbar): the viewport's pointer drives the prefab's Interactions, to check
-		// hit-tests and state changes. Played on a copy of the canvas, made when entering it and dropped when leaving it, so
-		// nothing the Interactions change ends up in the prefab. Editing is suspended meanwhile.
-		bool			IsInteracting() const;
-		void			SetInteracting(bool interacting);
+		// Play mode (the menu bar's Play / Pause / Step, as in the scene and prefab tabs): the viewport's pointer drives the
+		// prefab's Interactions, to check hit-tests and state changes. Played on a copy of the canvas, made by Play() and dropped
+		// by Stop(), so nothing the Interactions change ends up in the prefab. Editing is suspended meanwhile. Paused, neither
+		// the pointer nor the time go on, but one frame at a time (PlayNextFrame).
+		void			Play();
+		void			Stop();
+		void			Pause();
+		void			Resume();
+		void			PlayNextFrame(); // pauses if playing
 
-		// The canvas the viewport shows: the interact mode's copy while interacting, the edited canvas otherwise.
+		bool			IsPlaying() const;
+		bool			IsPaused() const;
+
+		// Whether the viewport plays a frame now: playing and not paused, or a step was asked (consumed)
+		bool			ConsumeFrame();
+
+		// The canvas the viewport shows: the play mode's copy while playing, the edited canvas otherwise.
 		ui2::Canvas&	GetDisplayedCanvas();
 		ui2::Node*		GetDisplayedPrefabRoot() const;
 
-		// The actions the interact mode's canvas emitted (see ui2::Canvas::GetActionEvent), most recent last. Cleared on entering it.
+		// The actions the play mode's canvas emitted (see ui2::Canvas::GetActionEvent), most recent last. Cleared on entering it.
 		struct InteractionLogEntry
 		{
 			String		_action;
@@ -143,7 +153,9 @@ namespace hod::inline editor
 		ui2::Button::State			_recordedState = ui2::Button::State::Normal;
 		Vector<RecordedBaseValue>	_recordedBase;
 
-		ui2::Canvas*					_interactionCanvas = nullptr; // Interact mode's copy, null when not interacting
+		ui2::Canvas*					_interactionCanvas = nullptr; // Play mode's copy, null when not playing
+		bool							_paused = false;
+		bool							_nextFrameRequested = false;
 		ui2::Canvas::ActionEvent::Slot	_onInteractionAction;
 		Vector<InteractionLogEntry>		_interactionLog;
 	};

@@ -27,8 +27,8 @@ namespace hod::inline editor
 	/// 3. Interaction: how it reacts to the pointer (add / remove)
 	/// 4. Children Layout: how it arranges its children (add / transform / remove)
 	/// all via the engine's generic reflected-property drawer. With the canvas selected (see
-	/// UIPrefabEditorTab::SelectCanvas), draws its own settings (its CanvasScaler) instead. In interact mode
-	/// (see UIPrefabEditorTab::SetInteracting), draws what the pointer drives and the actions emitted instead.
+	/// UIPrefabEditorTab::SelectCanvas), draws its own settings (its CanvasScaler) instead. In play mode
+	/// (see UIPrefabEditorTab::Play), draws what the pointer drives and the actions emitted instead.
 	class HOD_UI2_EDITOR_API UIPrefabEditorInspectorWindow : public EditorTabWindow
 	{
 		REFLECTED_CLASS(UIPrefabEditorInspectorWindow, EditorTabWindow)
@@ -55,7 +55,7 @@ namespace hod::inline editor
 		void		DrawPropertyOverride(const ui2::PropertyOverride& propertyOverride, bool recording, bool& removeRequested);
 		bool		DrawLayoutBlock(ui2::Node* node);
 		bool		DrawCanvasBlock(ui2::Canvas& canvas);
-		void		DrawInteractingState(ui2::Canvas& canvas, const Vector<UIPrefabEditorTab::InteractionLogEntry>& log);
+		void		DrawPlayingState(ui2::Canvas& canvas, const Vector<UIPrefabEditorTab::InteractionLogEntry>& log);
 
 	public:
 

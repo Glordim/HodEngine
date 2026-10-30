@@ -119,8 +119,8 @@ namespace hod::inline editor
 	void UIPrefabEditorViewportWindow::DrawViewport(bool mouseOverToolbar)
 	{
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
-		// While interacting, the interact mode's copy (see UIPrefabEditorTab::SetInteracting): laid out, drawn and fed the pointer instead.
-		bool         interacting = tab->IsInteracting();
+		// While playing, the play mode's copy (see UIPrefabEditorTab::Play): laid out, drawn and fed the pointer instead.
+		bool         playing = tab->IsPlaying();
 		ui2::Canvas& canvas = tab->GetDisplayedCanvas();
 		ui2::Node*   root = canvas.GetRootNode();
 		ui2::Node*   prefabRoot = tab->GetDisplayedPrefabRoot();
@@ -205,7 +205,7 @@ namespace hod::inline editor
 			frameSelection = true;
 		}
 		// Delete (here or in the hierarchy) removes the selected node. Before the selection is read below, nothing of it is drawn yet.
-		if (interacting == false && ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Delete, false) &&
+		if (playing == false && ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Delete, false) &&
 		    ImGui::GetIO().WantTextInput == false && tab->GetSelectedNode() != nullptr && _draggedGizmoHandle == GizmoHandle::None)
 		{
 			tab->DeleteNode(tab->GetSelectedNode());
@@ -215,8 +215,8 @@ namespace hod::inline editor
 		_frameDeviceRequested = false;
 
 		Vector2    viewSize((float)resolutionWidth, (float)resolutionHeight);
-		// The selection belongs to the edited canvas, not to the interact mode's copy: no selection while interacting.
-		ui2::Node* selectedNode = interacting ? nullptr : tab->GetSelectedNode();
+		// The selection belongs to the edited canvas, not to the play mode's copy: no selection while playing.
+		ui2::Node* selectedNode = playing ? nullptr : tab->GetSelectedNode();
 		if (frameSelection && frameDevice == false && selectedNode != nullptr)
 		{
 			_camera.Frame(selectedNode->ComputeCanvasMatrix().GetTranslation(), selectedNode->GetSize(), viewSize, baseScale, true);
@@ -286,13 +286,22 @@ namespace hod::inline editor
 		Vector2 mouseCanvasPos = screenToCanvas(ImGui::GetIO().MousePos);
 
 		ui2::Node* hitNode = nullptr;
-		if (interacting)
+		if (playing)
 		{
-			hitNode = UpdateInteraction(canvas, mouseCanvasPos, hovered && mouseInsideImage);
+			if (tab->ConsumeFrame())
+			{
+				hitNode = UpdateInteraction(canvas, mouseCanvasPos, hovered && mouseInsideImage);
 
-			// The state transitions the pointer just started (or already playing), laid out again before drawing
-			canvas.Update(ImGui::GetIO().DeltaTime);
-			canvas.UpdateLayout();
+				// The state transitions the pointer just started (or already playing), laid out again before drawing. A step
+				// (paused) lasts a 60 Hz frame.
+				canvas.Update(tab->IsPaused() ? 1.0f / 60.0f : ImGui::GetIO().DeltaTime);
+				canvas.UpdateLayout();
+			}
+			else if (hovered && mouseInsideImage)
+			{
+				// Paused: the pointer is left as it was, the overlay still shows what is under the mouse
+				hitNode = canvas.GetRootNode()->HitTest(mouseCanvasPos);
+			}
 		}
 		else
 		{
@@ -364,7 +373,7 @@ namespace hod::inline editor
 
 		if (preview == false)
 		{
-			if (interacting)
+			if (playing)
 			{
 				// The prefab as it would look in game: no outlines, only what the pointer reaches
 				DrawInteractionOverlay(canvas, hitNode, *renderView);
@@ -397,12 +406,12 @@ namespace hod::inline editor
 			DrawPreviewLabels(imagePos, ImVec2((float)resolutionWidth, (float)resolutionHeight), scale);
 		}
 
-		if (interacting == false && hovered && mouseInsideImage && ImGui::IsMouseClicked(ImGuiMouseButton_Left) && _draggedGizmoHandle == GizmoHandle::None)
+		if (playing == false && hovered && mouseInsideImage && ImGui::IsMouseClicked(ImGuiMouseButton_Left) && _draggedGizmoHandle == GizmoHandle::None)
 		{
 			tab->SetSelectedNode(PickNode(prefabRoot, mouseCanvasPos));
 		}
 
-		if (interacting == false && ImGui::BeginDragDropTarget())
+		if (playing == false && ImGui::BeginDragDropTarget())
 		{
 			const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("UI2NodeLibraryDescriptor");
 			if (payload != nullptr)
@@ -486,17 +495,6 @@ namespace hod::inline editor
 			ImGui::SetItemTooltip("Edits to colors, scales... record the state's overrides. Click to stop and go back to the prefab as authored");
 			ImGui::SameLine();
 		}
-		if (FramedButton(ICON_MDI_CURSOR_DEFAULT_CLICK " Interact", tab->IsInteracting()))
-		{
-			tab->SetInteracting(tab->IsInteracting() == false);
-		}
-		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
-		{
-			ImGui::SetTooltip(tab->IsInteracting() ? "Back to editing (the interactions' state changes are dropped)"
-			                                       : "Try the interactions with the mouse, on a copy of the prefab (editing is suspended meanwhile)");
-		}
-
-		ImGui::SameLine();
 		if (FramedButton(ICON_MDI_EYE " Preview", _settings._preview))
 		{
 			_settings._preview = !_settings._preview;
@@ -815,10 +813,10 @@ namespace hod::inline editor
 	/// @brief
 	/// @param node
 	/// @param renderView
-	/// @brief Feeds the interact mode's canvas the mouse, as the game's input would be. The button only counts as down for a press
+	/// @brief Feeds the play mode's canvas the mouse, as the game's input would be. The button only counts as down for a press
 	/// started over the viewport (not one started elsewhere in the editor then dragged in), and the pointer stays tracked outside of
 	/// the viewport until it is released, as a game window captures the mouse.
-	/// @param canvas the interact mode's canvas, laid out
+	/// @param canvas the play mode's canvas, laid out
 	/// @param canvasMousePosition
 	/// @param mouseAvailable whether the mouse is over the viewport's image, and not used by the toolbar
 	/// @return the node the hit-test finds under the mouse, null if none or not over the viewport
@@ -843,10 +841,10 @@ namespace hod::inline editor
 		return mouseAvailable ? canvas.GetRootNode()->HitTest(canvasMousePosition) : nullptr;
 	}
 
-	/// @brief Interact mode's overlay: what the pointer reaches. The node the hit-test finds under the mouse in white, and the
+	/// @brief Play mode's overlay: what the pointer reaches. The node the hit-test finds under the mouse in white, and the
 	/// node whose Interaction gets the pointer (hovered, or holding the press) colored after its state when it is a Button.
 	/// Drawn with their canvas matrix: exactly the rect the hit-test uses, rotated and scaled, unlike the edit mode's outlines.
-	/// @param canvas the interact mode's canvas
+	/// @param canvas the play mode's canvas
 	/// @param hitNode
 	/// @param renderView
 	void UIPrefabEditorViewportWindow::DrawInteractionOverlay(ui2::Canvas& canvas, ui2::Node* hitNode, RenderView& renderView)

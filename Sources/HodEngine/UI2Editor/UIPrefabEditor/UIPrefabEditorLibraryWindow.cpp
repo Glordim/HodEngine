@@ -29,9 +29,9 @@ namespace hod::inline editor
 	void UIPrefabEditorLibraryWindow::DrawContent()
 	{
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
-		if (tab->IsInteracting())
+		if (tab->IsPlaying())
 		{
-			ImGui::TextDisabled("Editing suspended while interacting");
+			ImGui::TextDisabled("Editing suspended while playing");
 			return;
 		}
 

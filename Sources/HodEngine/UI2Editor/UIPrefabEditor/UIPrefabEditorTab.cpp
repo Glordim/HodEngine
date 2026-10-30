@@ -56,7 +56,7 @@ namespace hod::inline editor
 	/// @brief
 	UIPrefabEditorTab::~UIPrefabEditorTab()
 	{
-		SetInteracting(false);
+		Stop();
 	}
 
 	/// @brief
@@ -291,24 +291,76 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
-	bool UIPrefabEditorTab::IsInteracting() const
+	bool UIPrefabEditorTab::IsPlaying() const
 	{
 		return _interactionCanvas != nullptr;
 	}
 
 	/// @brief
-	/// @param interacting
-	void UIPrefabEditorTab::SetInteracting(bool interacting)
+	/// @return
+	bool UIPrefabEditorTab::IsPaused() const
 	{
-		if (interacting == IsInteracting())
+		return _paused;
+	}
+
+	/// @brief
+	void UIPrefabEditorTab::Stop()
+	{
+		if (IsPlaying() == false)
 		{
 			return;
 		}
 
-		if (interacting == false)
+		DefaultAllocator::GetInstance().Delete(_interactionCanvas); // Disconnects _onInteractionAction
+		_interactionCanvas = nullptr;
+		_paused = false;
+		_nextFrameRequested = false;
+	}
+
+	/// @brief
+	void UIPrefabEditorTab::Pause()
+	{
+		_paused = true;
+	}
+
+	/// @brief
+	void UIPrefabEditorTab::Resume()
+	{
+		_paused = false;
+	}
+
+	/// @brief
+	void UIPrefabEditorTab::PlayNextFrame()
+	{
+		if (IsPlaying())
 		{
-			DefaultAllocator::GetInstance().Delete(_interactionCanvas); // Disconnects _onInteractionAction
-			_interactionCanvas = nullptr;
+			_paused = true;
+			_nextFrameRequested = true;
+		}
+	}
+
+	/// @brief
+	/// @return
+	bool UIPrefabEditorTab::ConsumeFrame()
+	{
+		if (IsPlaying() == false)
+		{
+			return false;
+		}
+		if (_paused == false)
+		{
+			return true;
+		}
+		bool step = _nextFrameRequested;
+		_nextFrameRequested = false;
+		return step;
+	}
+
+	/// @brief
+	void UIPrefabEditorTab::Play()
+	{
+		if (IsPlaying())
+		{
 			return;
 		}
 
@@ -550,6 +602,50 @@ namespace hod::inline editor
 	/// @brief
 	void UIPrefabEditorTab::DrawMenuBar()
 	{
+		ImGui::SameLine();
+
+		if (IsPlaying())
+		{
+			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
+			bool pressed = ImGui::Button(ICON_MDI_STOP, ImVec2(0, 32));
+			ImGui::PopStyleColor();
+			if (pressed)
+			{
+				Stop();
+			}
+		}
+		else if (ImGui::Button(ICON_MDI_PLAY, ImVec2(0, 32)))
+		{
+			Play();
+		}
+		ImGui::SetItemTooltip(IsPlaying() ? "Back to editing (the interactions' state changes are dropped)"
+		                                  : "Try the interactions with the mouse, on a copy of the prefab (editing is suspended meanwhile)");
+
+		ImGui::SameLine();
+
+		if (_paused)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Button, ImGui::GetStyle().Colors[ImGuiCol_ButtonActive]);
+			bool pressed = ImGui::Button(ICON_MDI_PAUSE, ImVec2(0, 32));
+			ImGui::PopStyleColor();
+			if (pressed)
+			{
+				Resume();
+			}
+		}
+		else if (ImGui::Button(ICON_MDI_PAUSE, ImVec2(0, 32)))
+		{
+			Pause();
+		}
+
+		ImGui::SameLine();
+
+		ImGui::BeginDisabled(IsPlaying() == false);
+		if (ImGui::Button(ICON_MDI_SKIP_NEXT, ImVec2(0, 32)))
+		{
+			PlayNextFrame();
+		}
+		ImGui::EndDisabled();
 	}
 
 	/// @brief
