@@ -12,6 +12,7 @@
 #include "HodEngine/Editor/AssetDatabase.hpp"
 
 #include <HodEngine/Core/Hash.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/UI2/Margin.hpp>
 #include <HodEngine/UI2/NodeRef.hpp>
 #include <HodEngine/UI2/Padding.hpp>
@@ -78,12 +79,13 @@ HOD_STARTUP_MODULE(UI2Editor)
 		.execute =
 			+[](const AssetBrowserWindow::Context& context)
 			{
+				// With its root and thumbnail already: not an empty thumbnail until the prefab is first saved
 				Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / "NewUIPrefab.uiprefab");
-
-				AssetContainer assetContainer;
-				assetContainer.SetAssetType(Hash::ComputeXxh3_64("UIPrefab"));
-				assetContainer.SetUid(UID::GenerateUID());
-				assetContainer.Save(assetPath);
+				if (UIPrefabEditorTab::CreateEmptyPrefab(assetPath) == false)
+				{
+					OUTPUT_ERROR("Can't write the UI prefab {}", assetPath);
+					return;
+				}
 
 				context.assetBrowserWindow.Rename(assetPath);
 			},

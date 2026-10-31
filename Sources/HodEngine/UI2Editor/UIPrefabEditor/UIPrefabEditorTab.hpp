@@ -107,6 +107,9 @@ namespace hod::inline editor
 		// first), not while recording or playing. Same contract as ConvertNode.
 		// @return the new asset, nullptr if refused (with an error) or failed
 		std::shared_ptr<Asset>	CreatePrefabFromNode(ui2::Node* node, const Path& folder);
+		// Writes a new UI prefab asset at assetPath as its tab makes an empty one (see CreateDefaultPrefabRoot), with its thumbnail
+		// @return false if it can't be written
+		static bool				CreateEmptyPrefab(const Path& assetPath);
 		// The open UI prefab tab editing node, nullptr if none
 		static UIPrefabEditorTab*	FindTabOf(const ui2::Node* node);
 		// Bumped whenever instances are rebuilt from their saved prefab (see RefreshInstances): the nodes they had are deleted, a
@@ -211,11 +214,13 @@ namespace hod::inline editor
 
 		void	LoadNodes();
 
-		// Guarantees the canvas' root node holds exactly one child (the prefab root): creates it for an
+		// Guarantees the canvas' root node holds exactly one child (the prefab root): creates it (an Image) for an
 		// empty prefab, or, for one saved when the canvas' root node itself was the prefab root (possibly
 		// with several children), wraps those children in a stretched prefab root so they keep their
 		// placement.
 		void	EnsurePrefabRoot();
+		// The root of a new prefab: an Image rather than a plain Node, drawn (its color filling it) for its preview and thumbnail not to be empty
+		static ui2::Node*	CreateDefaultPrefabRoot();
 
 		void	GenerateThumbnail();
 		// The thumbnail of the prefab canvas holds (see GenerateThumbnail), encoded (see Thumbnail)

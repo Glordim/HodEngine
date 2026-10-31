@@ -16,6 +16,7 @@
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 #include <HodEngine/UI2/AnchoredLayoutParams.hpp>
+#include <HodEngine/UI2/ImageNode.hpp>
 #include <HodEngine/UI2/Node.hpp>
 #include <HodEngine/UI2/NodeFactory.hpp>
 #include <HodEngine/UI2/PrefabInstance.hpp>
@@ -478,14 +479,14 @@ namespace hod::inline editor
 			return;
 		}
 
-		ui2::Node* prefabRoot = DefaultAllocator::GetInstance().New<ui2::Node>();
-		prefabRoot->SetName("Root");
-
 		if (container->GetChildren().Empty())
 		{
-			container->AddChild(prefabRoot);
+			container->AddChild(CreateDefaultPrefabRoot());
 			return;
 		}
+
+		ui2::Node* prefabRoot = DefaultAllocator::GetInstance().New<ui2::Node>();
+		prefabRoot->SetName("Root");
 
 		// Legacy prefab: stretched over the container without margin, the wrapper is exactly
 		// the rect its children used to be placed in.
@@ -498,6 +499,42 @@ namespace hod::inline editor
 		{
 			container->ReparentChild(container->GetChildren()[0], prefabRoot);
 		}
+	}
+
+	/// @brief
+	/// @return
+	ui2::Node* UIPrefabEditorTab::CreateDefaultPrefabRoot()
+	{
+		ui2::Node* prefabRoot = DefaultAllocator::GetInstance().New<ui2::ImageNode>();
+		prefabRoot->SetName("Root");
+		return prefabRoot;
+	}
+
+	/// @brief The prefab as its tab would hold it once opened (see LoadNodes, EnsurePrefabRoot), saved as its tab saves it (see OnSave)
+	/// @param assetPath
+	/// @return
+	bool UIPrefabEditorTab::CreateEmptyPrefab(const Path& assetPath)
+	{
+		ui2::Canvas prefabCanvas;
+		prefabCanvas.GetRootNode()->AddChild(CreateDefaultPrefabRoot());
+
+		Document prefabDocument;
+		if (prefabCanvas.SerializeInDocument(prefabDocument.GetRootNode()) == false)
+		{
+			return false;
+		}
+		prefabDocument.GetRootNode().AddChild("NextLocalId").SetUInt64(1);
+
+		AssetContainer     assetContainer;
+		DocumentWriterJson documentWriter;
+		assetContainer.SetAssetType(Hash::ComputeXxh3_64("UIPrefab"));
+		assetContainer.SetUid(UID::GenerateUID());
+		Vector<uint8_t> thumbnail;
+		if (RenderThumbnail(prefabCanvas, thumbnail))
+		{
+			assetContainer.SetThumbnail(std::move(thumbnail));
+		}
+		return documentWriter.Write(prefabDocument, assetContainer.AddDataBlock("Nodes", false)) && assetContainer.Save(assetPath);
 	}
 
 	/// @brief
