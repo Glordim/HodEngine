@@ -3,6 +3,7 @@
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
 
 #include "HodEngine/UI2Editor/AnchorPresetsDrawer.hpp"
+#include "HodEngine/UI2Editor/CustomPropertyDrawer/NodeRefCustomPropertyDrawer.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
@@ -30,6 +31,8 @@
 #include <HodEngine/UI2/InteractionFactory.hpp>
 #include <HodEngine/UI2/PrefabInstance.hpp>
 #include <HodEngine/UI2/PropertyOverride.hpp>
+#include <HodEngine/UI2/View.hpp>
+#include <HodEngine/UI2/ViewFactory.hpp>
 
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
 #include <HodEngine/UI2/NodeFactory.hpp>
@@ -66,6 +69,7 @@ namespace hod::inline editor
 			BlockLayoutParams,
 			BlockCanvas,
 			BlockInteraction,
+			BlockView,
 		};
 
 		// Node properties that are not drawn among the node's content: the name has its own row on top, the
@@ -283,8 +287,11 @@ namespace hod::inline editor
 		// 3. How the node reacts to the pointer
 		changed |= DrawInteractionBlock(node, sourceNode);
 
-		// 4. How the node arranges its own children: rarely added, so last
+		// 4. How the node arranges its own children: rarely added
 		changed |= DrawLayoutBlock(node, sourceNode);
+
+		// 5. The code driving the prefab: on its root only
+		changed |= DrawViewBlock(node);
 
 		ImGui::EndDisabled();
 
@@ -1020,6 +1027,89 @@ namespace hod::inline editor
 			ImGui::SameLine();
 			ImGui::TextDisabled("from %s, %.1fs ago", entry._nodeName.CStr(), (float)(ImGui::GetTime() - entry._time));
 		}
+	}
+
+	/// @brief View attached to `node` (the prefab's code, see ui2::View): its properties, the node references first among them.
+	/// Added to the prefab's root only (a view found on another node is still shown), from the views the game modules register.
+	/// A view of an unknown type (its module not loaded) is kept as is, only removable. An instance root's view is its prefab's:
+	/// read-only.
+	/// @return true if the node's view was added, removed or edited
+	bool UIPrefabEditorInspectorWindow::DrawViewBlock(ui2::Node* node)
+	{
+		UIPrefabEditorTab*    tab = GetOwner<UIPrefabEditorTab>();
+		bool                  changed = false;
+		ReflectionDescriptor* newViewDescriptor = nullptr;
+		bool                  removeView = false;
+		bool                  canEditStructure = UIPrefabEditorTab::CanEditStructure(node);
+
+		ui2::View* view = node->GetView();
+		if (view != nullptr)
+		{
+			ReflectionDescriptor& currentDescriptor = view->GetReflectionDescriptorV();
+
+			String title = String("View: ") + currentDescriptor.GetDisplayName();
+			if (DrawHelper::BeginInspectorBlock((const void*)BlockView, DrawHelper::GetTypeIcon(currentDescriptor, ICON_MDI_CODE_BRACES), title.CStr(), nullptr,
+			                                    canEditStructure ? &removeView : nullptr))
+			{
+				ImGui::BeginDisabled(canEditStructure == false);
+				NodeRefCustomPropertyDrawer::Scope scope(*tab, *node->GetScopeRoot());
+				EditorReflectedObject              viewObject(view, &currentDescriptor, nullptr, this);
+				changed |= PropertyDrawer::DrawDescriptor(viewObject);
+				ImGui::EndDisabled();
+			}
+			DrawHelper::EndInspectorBlock();
+		}
+		else if (node->HasUnknownView())
+		{
+			if (DrawHelper::BeginInspectorBlock((const void*)BlockView, ICON_MDI_CODE_BRACES, "View: unknown type", nullptr, canEditStructure ? &removeView : nullptr))
+			{
+				ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1.0f), ICON_MDI_ALERT " Its game module isn't loaded");
+				ImGui::TextDisabled("Kept as is until then");
+			}
+			DrawHelper::EndInspectorBlock();
+		}
+		else if (canEditStructure && node == tab->GetPrefabRoot())
+		{
+			ImVec2 addButtonSize = ImGui::CalcTextSize("  Add View  ") + ImVec2(35.0f, 15.0f);
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x * 0.5f - addButtonSize.x * 0.5f));
+			if (ImGui::Button("  Add View  ", addButtonSize))
+			{
+				ImGui::OpenPopup("UIPrefabAddView");
+			}
+			ImGui::SetItemTooltip("The code gameplay drives the prefab through (a ui2::View of the game module)");
+			if (ImGui::BeginPopup("UIPrefabAddView"))
+			{
+				const auto& viewDescriptors = ui2::ViewFactory::GetInstance()->GetAllDescriptors();
+				if (viewDescriptors.empty())
+				{
+					ImGui::TextDisabled("No view: a game module registers its own (ui2::ViewFactory)");
+				}
+				for (const auto& descriptorPair : viewDescriptors)
+				{
+					String label = String(DrawHelper::GetTypeIcon(*descriptorPair.second, ICON_MDI_CODE_BRACES)) + " " + descriptorPair.second->GetDisplayName();
+					if (ImGui::MenuItem(label.CStr()))
+					{
+						newViewDescriptor = descriptorPair.second;
+					}
+				}
+				ImGui::EndPopup();
+			}
+			ImGui::Spacing();
+		}
+
+		// Applied once everything referencing the current view has been drawn: SetView destroys it.
+		if (removeView)
+		{
+			node->SetView(nullptr);
+			changed = true;
+		}
+		else if (newViewDescriptor != nullptr)
+		{
+			node->SetView(newViewDescriptor->CreateInstance<ui2::View>());
+			changed = true;
+		}
+
+		return changed;
 	}
 
 	/// @brief Layout attached to `node` (how its own children are arranged). Shown as a block when

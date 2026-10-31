@@ -3,6 +3,7 @@
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
 #include "HodEngine/Editor/EditorModuleRegistration.hpp"
+#include "HodEngine/UI2Editor/CustomPropertyDrawer/NodeRefCustomPropertyDrawer.hpp"
 #include "HodEngine/UI2Editor/CustomPropertyDrawer/RectOffsetsCustomPropertyDrawer.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabCooker.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
@@ -12,6 +13,7 @@
 
 #include <HodEngine/Core/Hash.hpp>
 #include <HodEngine/UI2/Margin.hpp>
+#include <HodEngine/UI2/NodeRef.hpp>
 #include <HodEngine/UI2/Padding.hpp>
 #include <HodEngine/UI2/PrefabInstance.hpp>
 #include <HodEngine/UI2/UIPrefabResource.hpp>
@@ -60,6 +62,8 @@ HOD_STARTUP_MODULE(UI2Editor)
 	                                          DefaultAllocator::GetInstance().New<RectOffsetsCustomPropertyDrawer>(RectOffsetsCustomPropertyDrawer::Direction::Outward));
 	registration.RegisterCustomPropertyDrawer(ui2::Padding::GetReflectionDescriptor(),
 	                                          DefaultAllocator::GetInstance().New<RectOffsetsCustomPropertyDrawer>(RectOffsetsCustomPropertyDrawer::Direction::Inward));
+
+	registration.RegisterCustomPropertyDrawer<ui2::NodeRefBase, NodeRefCustomPropertyDrawer>();
 
 	ui2::PrefabInstance::SetSourceProvider(&LoadUIPrefabAsset);
 

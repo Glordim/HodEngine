@@ -57,6 +57,7 @@ namespace hod::inline editor
 		bool		DrawStateOverrides(ui2::Node* node, ui2::Button& button);
 		void		DrawPropertyOverride(ui2::Node* owner, const ui2::PropertyOverride& propertyOverride, bool recording, bool& removeRequested);
 		bool		DrawLayoutBlock(ui2::Node* node, ui2::Node* sourceNode);
+		bool		DrawViewBlock(ui2::Node* node);
 		bool		DrawCanvasBlock(ui2::Canvas& canvas);
 		void		DrawPlayingState(ui2::Canvas& canvas, const Vector<UIPrefabEditorTab::InteractionLogEntry>& log);
 

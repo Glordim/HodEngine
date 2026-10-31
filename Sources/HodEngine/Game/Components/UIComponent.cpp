@@ -64,9 +64,15 @@ namespace hod::inline game
 		BuildCanvas();
 	}
 
+	void UIComponent::OnAwake()
+	{
+		BindViews();
+	}
+
 	void UIComponent::OnDestruct()
 	{
 		_constructed = false;
+		_bindViews = false;
 		_onPrefabSourceChanged.Disconnect();
 		DestroyCanvas();
 	}
@@ -97,6 +103,10 @@ namespace hod::inline game
 				OUTPUT_ERROR("UI prefab {} can't be loaded", prefab.ToString());
 			}
 		}
+		if (_bindViews)
+		{
+			_canvas->GetRootNode()->BindViews();
+		}
 
 		_prefabOverrideScaler = _canvas->GetOverrideScaler();
 		_prefabScaler = _canvas->GetScaler();
@@ -108,6 +118,16 @@ namespace hod::inline game
 			canvasManager->AddCanvas(_canvas);
 		}
 		UpdatePointerMapping();
+	}
+
+	/// @brief From now on, the canvas' views run (see ui2::View::Bind)
+	void UIComponent::BindViews()
+	{
+		_bindViews = true;
+		if (_canvas != nullptr)
+		{
+			_canvas->GetRootNode()->BindViews();
+		}
 	}
 
 	/// @brief
@@ -342,6 +362,19 @@ namespace hod::inline game
 			return nullptr;
 		}
 		return _canvas->GetRootNode()->GetChildren()[0];
+	}
+
+	ui2::View* UIComponent::GetView()
+	{
+		// Asked by another component awakening before this one
+		World* world = GetWorld();
+		if (_bindViews == false && _constructed && world != nullptr && world->GetEditorPlaying())
+		{
+			BindViews();
+		}
+
+		ui2::Node* rootNode = GetRootNode();
+		return (rootNode != nullptr) ? rootNode->GetView() : nullptr;
 	}
 
 	ui2::Node* UIComponent::FindNode(std::string_view path) const

@@ -15,7 +15,8 @@ namespace hod::inline game
 {
 	/// @brief Displays a UI prefab (as authored: an entity only chooses which one and where) and gives it the game's pointer
 	/// (see ui2::CanvasManager). Each component has a canvas of its own, built from the prefab. The game talks to it through
-	/// FindNode and GetActionEvent.
+	/// the prefab's view (see ui2::View, GetView): its interface, without knowing the prefab's tree. FindNode and
+	/// GetActionEvent are there for the prefabs without one.
 	class HOD_GAME_API UIComponent : public RendererComponent
 	{
 		REFLECTED_CLASS(UIComponent, RendererComponent)
@@ -42,6 +43,7 @@ namespace hod::inline game
 		UIComponent&					operator=(UIComponent&&) = delete;
 
 		void	OnConstruct() override;
+		void	OnAwake() override;
 		void	OnDestruct() override;
 
 		// A Screen canvas is only drawn in game (playing, not paused), on the UI queue, laid out and scaled for the screen: not in
@@ -80,6 +82,14 @@ namespace hod::inline game
 		// The prefab's root node, null when there is no prefab
 		ui2::Node*		GetRootNode() const;
 
+		// The view of the prefab's root (see ui2::View), null if none (or not a _View_). Bound (the views run) once the game plays:
+		// from the component's awakening, or before on the first call while playing, so that another component can use it in its
+		// own OnAwake. The canvas built again (SetPrefab, or the prefab saved in the editor) has a new view: get it from here
+		// rather than keeping it.
+		ui2::View*		GetView();
+		template<typename _View_>
+		_View_*			GetView();
+
 		// The node at path from the prefab's root (see ui2::Node::FindByPath): "" for the root, "Panel/Title"... null if none.
 		ui2::Node*		FindNode(std::string_view path) const;
 		template<typename _Node_>
@@ -95,6 +105,8 @@ namespace hod::inline game
 		void	DestroyCanvas();
 		void	UpdatePointerMapping();
 		void	ApplyScaler();
+
+		void	BindViews();
 
 		bool	IsPlaying() const;
 		Matrix4	ComputeWorldCanvasMatrix() const;
@@ -113,6 +125,7 @@ namespace hod::inline game
 		bool							_prefabOverrideScaler = false; // The prefab's, put back when not overriding them
 		ui2::CanvasScaler				_prefabScaler;
 		bool							_constructed = false;
+		bool							_bindViews = false; // The game plays: the canvas' views are bound, the ones of the canvases built again too
 
 		ActionEvent						_actionEvent;
 		ActionEvent::Slot				_onCanvasAction;
@@ -124,5 +137,11 @@ namespace hod::inline game
 	{
 		ui2::Node* rootNode = GetRootNode();
 		return (rootNode != nullptr) ? rootNode->FindByPath<_Node_>(path) : nullptr;
+	}
+
+	template<typename _View_>
+	_View_* UIComponent::GetView()
+	{
+		return ui2::View::Cast<_View_>(GetView());
 	}
 }

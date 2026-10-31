@@ -19,6 +19,7 @@
 #include "HodEngine/UI2/NodeFactory.hpp"
 #include "HodEngine/UI2/LayoutFactory.hpp"
 #include "HodEngine/UI2/InteractionFactory.hpp"
+#include "HodEngine/UI2/ViewFactory.hpp"
 
 #include "HodEngine/Physics/Physics.hpp"
 
@@ -111,6 +112,7 @@ namespace hod::inline application
 		ui2::NodeFactory::CreateInstance();
 		ui2::LayoutFactory::CreateInstance();
 		ui2::InteractionFactory::CreateInstance();
+		ui2::ViewFactory::CreateInstance();
 		game::RegisterBuiltin();
 		ui::RegisterBuiltin();
 		ui2::RegisterBuiltin();
@@ -171,6 +173,7 @@ namespace hod::inline application
 		ui2::NodeFactory::DestroyInstance();
 		ui2::LayoutFactory::DestroyInstance();
 		ui2::InteractionFactory::DestroyInstance();
+		ui2::ViewFactory::DestroyInstance();
 		return true;
 	}
 

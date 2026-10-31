@@ -13,9 +13,11 @@
 
 #include "HodEngine/UI2/Layout.hpp"
 #include "HodEngine/UI2/Interaction.hpp"
+#include "HodEngine/UI2/View.hpp"
 
 namespace hod::inline core
 {
+	class Document;
 	class DocumentNode;
 }
 
@@ -62,7 +64,7 @@ namespace hod::inline ui2
 		// prefab instances (see PrefabInstance), whose ids are their prefab's.
 		void						AssignLocalIds(uint64_t& nextLocalId);
 		// Gives this node and its descendants new ids, taken from nextLocalId, as a copy must not share its original's. The
-		// references the subtree's Interactions hold (see Interaction::RemapTargets) follow for the nodes of the subtree; the
+		// references the subtree's Interactions and Views hold (see Interaction::RemapTargets, View::RemapReferences) follow for the nodes of the subtree; the
 		// ones to nodes outside of it are kept if keepOutsideTargets, dropped otherwise (a copy pasted in another tree, where
 		// those ids mean other nodes). The content of the prefab instances keeps its ids, its prefab's.
 		void						RenewLocalIds(uint64_t& nextLocalId, bool keepOutsideTargets);
@@ -195,6 +197,24 @@ namespace hod::inline ui2
 		_Interaction_*				GetInteraction() const;
 		Interaction*				GetInteraction() const;
 
+		// Single, optional slot for the code driving this node's prefab (see View), same ownership as the Layout: SetView<T>()/
+		// SetView(View*) destroy any previously attached one (unbound first if it was bound).
+		template<typename _View_, typename... Args>
+		_View_&						SetView(Args&&... args);
+		void						SetView(View* view);
+		template<typename _View_>
+		_View_*						GetView() const;
+		View*						GetView() const;
+		// A view of a type no loaded module registers (its game module missing): kept as read, to be saved back as is, until a
+		// view is set (SetView) or it is dropped.
+		bool						HasUnknownView() const;
+		void						DropUnknownView();
+
+		// Binds the views of this subtree (see View::Bind), the nested prefab instances' included: the deepest first, so a view
+		// can use the views of the nodes below it once bound. UnbindViews unbinds them, the highest first.
+		void						BindViews();
+		void						UnbindViews();
+
 		// Whether the hit-test (see HitTest) finds this node, catching the pointer: what is under it doesn't get it. Off for a
 		// plain Node, on for the drawing ones filling their rect (Image, Shape). A node with an Interaction always catches the
 		// pointer, whatever this says.
@@ -324,6 +344,10 @@ namespace hod::inline ui2
 		Interaction*				_interaction = nullptr;
 		bool						_pointerTarget = false;
 
+		// Single, optional, owned (see SetView above). _unknownView: owned, see HasUnknownView.
+		View*						_view = nullptr;
+		Document*					_unknownView = nullptr;
+
 		// Owned, see GetPrefabInstance
 		PrefabInstance*				_prefabInstance = nullptr;
 		Vector<Node*>				_children;
@@ -361,6 +385,22 @@ namespace hod::inline ui2
 	_Interaction_* Node::GetInteraction() const
 	{
 		return Interaction::Cast<_Interaction_>(GetInteraction());
+	}
+
+	template<typename _View_, typename... Args>
+	_View_& Node::SetView(Args&&... args)
+	{
+		static_assert(std::is_base_of<View, _View_>::value, "_View_ must derive from View to use Node::SetView()");
+
+		_View_* view = DefaultAllocator::GetInstance().New<_View_>(std::forward<Args>(args)...);
+		SetView(view);
+		return *view;
+	}
+
+	template<typename _View_>
+	_View_* Node::GetView() const
+	{
+		return View::Cast<_View_>(GetView());
 	}
 
 	/// @brief nullptr also when the node there isn't a _Node_

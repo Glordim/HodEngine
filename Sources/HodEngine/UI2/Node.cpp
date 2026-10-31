@@ -8,6 +8,7 @@
 #include "HodEngine/UI2/Layout.hpp"
 #include "HodEngine/UI2/LayoutFactory.hpp"
 #include "HodEngine/UI2/InteractionFactory.hpp"
+#include "HodEngine/UI2/ViewFactory.hpp"
 #include "HodEngine/UI2/NodeFactory.hpp"
 #include "HodEngine/UI2/DrawContext.hpp"
 #include "HodEngine/UI2/PrefabInstance.hpp"
@@ -90,6 +91,14 @@ namespace hod::inline ui2
 
 	Node::~Node()
 	{
+		// Before the nodes it references go
+		if (_view != nullptr)
+		{
+			_view->Unbind();
+		}
+		DefaultAllocator::GetInstance().Delete(_view);
+		DefaultAllocator::GetInstance().Delete(_unknownView);
+
 		DefaultAllocator::GetInstance().Delete(_layout);
 		DefaultAllocator::GetInstance().Delete(_interaction);
 		DefaultAllocator::GetInstance().Delete(_prefabInstance);
@@ -200,13 +209,21 @@ namespace hod::inline ui2
 			}
 		}
 
-		// Once every id of the subtree is known: an Interaction may reference a node visited after its own. Not an instance
-		// root's, which references nodes of its prefab.
+		// Once every id of the subtree is known: an Interaction (or a View) may reference a node visited after its own. Not an
+		// instance root's, which references nodes of its prefab.
 		for (Node* node : nodes)
 		{
-			if (node->_interaction != nullptr && node->_prefabInstance == nullptr)
+			if (node->_prefabInstance != nullptr)
+			{
+				continue;
+			}
+			if (node->_interaction != nullptr)
 			{
 				node->_interaction->RemapTargets(oldToNew, keepOutsideTargets);
+			}
+			if (node->_view != nullptr)
+			{
+				node->_view->RemapReferences(oldToNew, keepOutsideTargets);
 			}
 		}
 	}
@@ -322,16 +339,28 @@ namespace hod::inline ui2
 			}
 		}
 
-		// The prefab's Interactions only referenced its own nodes
+		// The prefab's Interactions and Views only referenced its own nodes
 		if (_interaction != nullptr)
 		{
 			_interaction->RemapTargets(prefabToNew, false);
 		}
+		if (_view != nullptr)
+		{
+			_view->RemapReferences(prefabToNew, false);
+		}
 		for (Node* node : nodes)
 		{
-			if (node->_interaction != nullptr && node->_prefabInstance == nullptr)
+			if (node->_prefabInstance != nullptr)
+			{
+				continue;
+			}
+			if (node->_interaction != nullptr)
 			{
 				node->_interaction->RemapTargets(prefabToNew, false);
+			}
+			if (node->_view != nullptr)
+			{
+				node->_view->RemapReferences(prefabToNew, false);
 			}
 		}
 
@@ -445,6 +474,16 @@ namespace hod::inline ui2
 			_interaction->_node = replacement;
 			_interaction = nullptr;
 		}
+
+		replacement->SetView(nullptr);
+		replacement->_view = _view;
+		if (_view != nullptr)
+		{
+			_view->_node = replacement;
+			_view = nullptr;
+		}
+		replacement->_unknownView = _unknownView;
+		_unknownView = nullptr;
 
 		replacement->_children = std::move(_children);
 		_children.Clear();
@@ -1020,6 +1059,78 @@ namespace hod::inline ui2
 		return _interaction;
 	}
 
+	/// @brief
+	/// @param view
+	void Node::SetView(View* view)
+	{
+		DropUnknownView();
+		if (view == _view)
+		{
+			return;
+		}
+
+		if (_view != nullptr)
+		{
+			_view->Unbind();
+		}
+		DefaultAllocator::GetInstance().Delete(_view);
+
+		_view = view;
+		if (_view != nullptr)
+		{
+			_view->_node = this;
+		}
+
+		_propertyChangedEvent.Emit();
+	}
+
+	/// @brief
+	/// @return
+	View* Node::GetView() const
+	{
+		return _view;
+	}
+
+	/// @brief
+	/// @return
+	bool Node::HasUnknownView() const
+	{
+		return _unknownView != nullptr;
+	}
+
+	/// @brief
+	void Node::DropUnknownView()
+	{
+		DefaultAllocator::GetInstance().Delete(_unknownView);
+		_unknownView = nullptr;
+	}
+
+	/// @brief
+	void Node::BindViews()
+	{
+		for (Node* child : _children)
+		{
+			child->BindViews();
+		}
+		if (_view != nullptr)
+		{
+			_view->Bind();
+		}
+	}
+
+	/// @brief
+	void Node::UnbindViews()
+	{
+		if (_view != nullptr)
+		{
+			_view->Unbind();
+		}
+		for (Node* child : _children)
+		{
+			child->UnbindViews();
+		}
+	}
+
 	bool Node::IsPointerTarget() const
 	{
 		return _pointerTarget;
@@ -1135,6 +1246,20 @@ namespace hod::inline ui2
 			{
 				return false;
 			}
+		}
+
+		if (_view != nullptr)
+		{
+			DocumentNode& viewNode = documentNode.AddChild("View");
+			viewNode.AddChild("Type").SetUInt64(_view->GetReflectionDescriptorV().GetType());
+			if (Serializer::Serialize(_view, viewNode) == false)
+			{
+				return false;
+			}
+		}
+		else if (_unknownView != nullptr)
+		{
+			documentNode.AddChild("View").Copy(_unknownView->GetRootNode());
 		}
 
 		DocumentNode& childrenNode = documentNode.AddChild("Children");
@@ -1380,6 +1505,35 @@ namespace hod::inline ui2
 					Interaction* interaction = it->second->CreateInstance<Interaction>();
 					Serializer::Deserialize(*it->second, interaction, *interactionNode);
 					SetInteraction(interaction);
+				}
+			}
+		}
+
+		// Views come from game modules: one that isn't loaded leaves the view's data as is, for it not to be lost on save.
+		const DocumentNode* viewNode = documentNode.GetChild("View");
+		if (viewNode != nullptr)
+		{
+			const DocumentNode* typeNode = viewNode->GetChild("Type");
+			if (typeNode != nullptr)
+			{
+				ViewFactory*                                      viewFactory = ViewFactory::GetInstance();
+				const ReflectionDescriptor*                       descriptor = nullptr;
+				if (viewFactory != nullptr)
+				{
+					auto it = viewFactory->GetAllDescriptors().find(typeNode->GetUInt64());
+					descriptor = (it != viewFactory->GetAllDescriptors().end()) ? it->second : nullptr;
+				}
+				if (descriptor != nullptr)
+				{
+					View* view = descriptor->CreateInstance<View>();
+					Serializer::Deserialize(*descriptor, view, *viewNode);
+					SetView(view);
+				}
+				else
+				{
+					SetView(nullptr);
+					_unknownView = DefaultAllocator::GetInstance().New<Document>();
+					_unknownView->GetRootNode().Copy(*viewNode);
 				}
 			}
 		}
