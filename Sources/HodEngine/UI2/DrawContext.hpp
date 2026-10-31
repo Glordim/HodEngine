@@ -25,9 +25,12 @@ namespace hod::inline ui2
 	{
 	public:
 		/// @param baseMatrix maps canvas space into the queue's space (identity: canvas units == queue units)
-		/// @param firstOrder rendering order of the first command; every command then gets the next one, so
-		/// the queue's (unstable) sort still ends up drawing in push order
-		DrawContext(RenderView& renderView, RenderView::RenderQueueType queueType, const Matrix4& baseMatrix, uint32_t firstOrder = 1);
+		/// @param firstOrder rendering order of the first command; every command then gets it plus orderStep more than the
+		/// previous one. 0 gives them all the same order, which the queue's (stable) sort keeps in push order: how a canvas is
+		/// sorted as one item among others (a world canvas at its entity's z-order, screen canvases by their sorting order)
+		/// @param pickingId given to the meshes (the editor's picking), 0 for none
+		DrawContext(RenderView& renderView, RenderView::RenderQueueType queueType, const Matrix4& baseMatrix, uint32_t firstOrder = 1, uint32_t orderStep = 1,
+		            uint32_t pickingId = 0);
 		DrawContext(const DrawContext&) = delete;
 		DrawContext(DrawContext&&) = delete;
 		~DrawContext() = default;
@@ -62,6 +65,8 @@ namespace hod::inline ui2
 		RenderView::RenderQueueType _queueType;
 		Matrix4                     _baseMatrix;
 		uint32_t                    _nextOrder;
+		uint32_t                    _orderStep;
+		uint32_t                    _pickingId;
 
 		Vector<RenderCommandScissor::Region> _clipRegions;
 		Vector<Matrix4>                      _baseMatrixStack; // _baseMatrix before each PushTransform

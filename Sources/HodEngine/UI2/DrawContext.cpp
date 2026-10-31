@@ -12,11 +12,16 @@ namespace hod::inline ui2
 	/// @param queueType
 	/// @param baseMatrix
 	/// @param firstOrder
-	DrawContext::DrawContext(RenderView& renderView, RenderView::RenderQueueType queueType, const Matrix4& baseMatrix, uint32_t firstOrder)
+	/// @param orderStep
+	/// @param pickingId
+	DrawContext::DrawContext(RenderView& renderView, RenderView::RenderQueueType queueType, const Matrix4& baseMatrix, uint32_t firstOrder, uint32_t orderStep,
+	                         uint32_t pickingId)
 	: _renderView(renderView)
 	, _queueType(queueType)
 	, _baseMatrix(baseMatrix)
 	, _nextOrder(firstOrder)
+	, _orderStep(orderStep)
+	, _pickingId(pickingId)
 	{
 	}
 
@@ -32,8 +37,9 @@ namespace hod::inline ui2
 	                           MaterialInstance* materialInstance)
 	{
 		_renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(positions, uvs, nullptr, vertexCount, indices, indexCount,
-		                                                                                     _baseMatrix * canvasMatrix, materialInstance, _nextOrder++),
+		                                                                                     _baseMatrix * canvasMatrix, materialInstance, _nextOrder, _pickingId),
 		                              _queueType);
+		_nextOrder += _orderStep;
 		_renderView.DeleteAfter(materialInstance);
 	}
 
@@ -79,6 +85,7 @@ namespace hod::inline ui2
 	/// @brief Queues the scissor command matching the current clip stack (no clip once it is empty).
 	void DrawContext::PushClipCommand()
 	{
-		_renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandScissor>(_clipRegions, _renderView.GetViewport(), _nextOrder++), _queueType);
+		_renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandScissor>(_clipRegions, _renderView.GetViewport(), _nextOrder), _queueType);
+		_nextOrder += _orderStep;
 	}
 }

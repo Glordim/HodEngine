@@ -109,8 +109,10 @@ namespace hod::inline ui2
 
 		// Queues the whole node tree's drawing into renderView's queueType queue. Layout must be up to
 		// date (UpdateLayout()). baseMatrix maps canvas space into that queue's space: identity when canvas
-		// units are the queue's units (editor viewport), ComputeScaleMatrix() for in-game UI on the UI queue.
-		void	PushRenderCommand(RenderView& renderView, RenderView::RenderQueueType queueType, const Matrix4& baseMatrix = Matrix4::Identity);
+		// units are the queue's units (editor viewport), ComputeScaleMatrix() for in-game UI on the UI queue. firstOrder, orderStep
+		// and pickingId: see DrawContext.
+		void	PushRenderCommand(RenderView& renderView, RenderView::RenderQueueType queueType, const Matrix4& baseMatrix = Matrix4::Identity, uint32_t firstOrder = 1,
+		                          uint32_t orderStep = 1, uint32_t pickingId = 0);
 
 		// Uniform GetScaleFactor() scale, mapping canvas units to target resolution pixels.
 		Matrix4	ComputeScaleMatrix() const;

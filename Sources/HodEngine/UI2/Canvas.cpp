@@ -242,9 +242,10 @@ namespace hod::inline ui2
 		_rootNode->Arrange(finalRect);
 	}
 
-	void Canvas::PushRenderCommand(RenderView& renderView, RenderView::RenderQueueType queueType, const Matrix4& baseMatrix)
+	void Canvas::PushRenderCommand(RenderView& renderView, RenderView::RenderQueueType queueType, const Matrix4& baseMatrix, uint32_t firstOrder, uint32_t orderStep,
+	                               uint32_t pickingId)
 	{
-		DrawContext drawContext(renderView, queueType, baseMatrix);
+		DrawContext drawContext(renderView, queueType, baseMatrix, firstOrder, orderStep, pickingId);
 		_rootNode->PushRenderCommand(drawContext);
 	}
 
