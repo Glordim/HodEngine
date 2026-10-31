@@ -710,17 +710,25 @@ namespace hod::inline editor
 		}
 	}
 
+	/// @brief Starts renaming the asset or folder at path. An asset file just written (the "Create/..." actions) is made known to
+	/// the database right away: the file watcher would only report it later, there would be nothing to rename yet.
+	/// @param path
 	void AssetBrowserWindow::Rename(const Path& path)
 	{
 		AssetDatabase::FileSystemMapping* node = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(path);
+		if (node == nullptr && AssetDatabase::GetInstance()->AddWrittenAsset(path) != nullptr)
+		{
+			node = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(path);
+		}
 		if (node == nullptr)
 		{
 			return;
 		}
 
-		// What is shown in the explorer is renamed there, the tree only shows folders
+		// What is shown in the explorer is renamed there (pinged, to be found among the others), the tree only shows folders
 		if (node->_type == AssetDatabase::FileSystemMapping::Type::AssetType || node->_parentFolder == _currentFolderTreeNode)
 		{
+			Ping(node);
 			StartItemRename(node);
 		}
 		else
@@ -821,7 +829,7 @@ namespace hod::inline editor
 			const bool                        isAsset = (item->_type == AssetDatabase::FileSystemMapping::Type::AssetType);
 			float                             available = ImGui::GetContentRegionAvail().x;
 
-			if (isAsset && _itemToPing == item)
+			if (_itemToPing == item)
 			{
 				if (_pingAnimState == PingAnimState::In)
 				{
@@ -1488,10 +1496,17 @@ namespace hod::inline editor
 		AssetDatabase::FileSystemMapping* fileSystemMapping = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(asset.GetPath());
 		if (fileSystemMapping != nullptr)
 		{
-			_currentFolderTreeNode = fileSystemMapping->_parentFolder;
-			_itemToPing = fileSystemMapping;
-			_pingAnimState = PingAnimState::In;
-			_pingAnimValue = 0.0f;
+			Ping(fileSystemMapping);
 		}
+	}
+
+	/// @brief Shows item's folder in the explorer, item flashing there
+	/// @param item
+	void AssetBrowserWindow::Ping(AssetDatabase::FileSystemMapping* item)
+	{
+		_currentFolderTreeNode = item->_parentFolder;
+		_itemToPing = item;
+		_pingAnimState = PingAnimState::In;
+		_pingAnimValue = 0.0f;
 	}
 }

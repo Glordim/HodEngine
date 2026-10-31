@@ -114,6 +114,8 @@ namespace hod::inline editor
 		void         ApplySelectionRequests(ImGuiMultiSelectIO* multiSelectIO, const Vector<AssetDatabase::FileSystemMapping*>& explorerItems);
 		Vector<Path> GetSelectedPaths() const;
 
+		void Ping(AssetDatabase::FileSystemMapping* item);
+
 		void DrawFolderDropTarget(AssetDatabase::FileSystemMapping* folder);
 		void AcceptFolderDropPayloads(AssetDatabase::FileSystemMapping* folder);
 		Vector<AssetDatabase::FileSystemMapping*> GetItemsToMove(AssetDatabase::FileSystemMapping* draggedItem, AssetDatabase::FileSystemMapping* folder) const;
