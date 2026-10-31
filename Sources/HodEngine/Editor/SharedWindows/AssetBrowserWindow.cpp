@@ -1096,20 +1096,25 @@ namespace hod::inline editor
 		}
 	}
 
-	/// @brief Between a BeginDragDropTarget and its EndDragDropTarget: the items moved into folder, or a DropAction's payload
+	/// @brief Between a BeginDragDropTarget and its EndDragDropTarget: the items moved into folder, or a DropAction's payload.
+	/// Not a target for items that wouldn't move (already in it, or a folder into itself): e.g. the folder they're dragged from.
 	/// @param folder
 	void AssetBrowserWindow::AcceptFolderDropPayloads(AssetDatabase::FileSystemMapping* folder)
 	{
-		if (const ImGuiPayload* payload = ImGui::AcceptDragDropPayload("FileSystemMapping"))
-		{
-			_pendingDropItem = *static_cast<AssetDatabase::FileSystemMapping**>(payload->Data);
-			_pendingDropFolder = folder;
-			return;
-		}
-
 		const ImGuiPayload* peekedPayload = ImGui::GetDragDropPayload();
 		if (peekedPayload == nullptr)
 		{
+			return;
+		}
+
+		if (peekedPayload->IsDataType("FileSystemMapping"))
+		{
+			AssetDatabase::FileSystemMapping* draggedItem = *static_cast<AssetDatabase::FileSystemMapping* const*>(peekedPayload->Data);
+			if (GetItemsToMove(draggedItem, folder).Empty() == false && ImGui::AcceptDragDropPayload("FileSystemMapping") != nullptr)
+			{
+				_pendingDropItem = draggedItem;
+				_pendingDropFolder = folder;
+			}
 			return;
 		}
 		for (const DropAction& dropAction : _dropActions)
@@ -1157,40 +1162,52 @@ namespace hod::inline editor
 			return;
 		}
 
-		Vector<AssetDatabase::FileSystemMapping*> itemsToMove;
-		if (_pendingDropItem == _explorerDraggedItem && IsSelected(_pendingDropItem))
+		for (AssetDatabase::FileSystemMapping* item : GetItemsToMove(_pendingDropItem, _pendingDropFolder))
 		{
-			itemsToMove = _selectedItems;
-		}
-		else
-		{
-			itemsToMove.PushBack(_pendingDropItem);
-		}
-
-		for (AssetDatabase::FileSystemMapping* item : itemsToMove)
-		{
-			if (item->_parentFolder == _pendingDropFolder)
-			{
-				continue;
-			}
-
-			// A folder can't go into itself or one of its own subfolders
-			bool intoItself = false;
-			for (AssetDatabase::FileSystemMapping* folder = _pendingDropFolder; folder != nullptr && intoItself == false; folder = folder->_parentFolder)
-			{
-				intoItself = (folder == item);
-			}
-			if (intoItself)
-			{
-				continue;
-			}
-
 			AssetDatabase::GetInstance()->Move(*item, _pendingDropFolder->_path / item->_path.Filename());
 		}
 
 		_pendingDropItem = nullptr;
 		_pendingDropFolder = nullptr;
 		_explorerDraggedItem = nullptr;
+	}
+
+	/// @brief What dropping draggedItem into folder moves: the item, or the whole explorer selection when it was dragged from it.
+	/// Without the ones already in folder, and the folders that would go into themselves or one of their own subfolders.
+	/// @param draggedItem
+	/// @param folder
+	/// @return
+	Vector<AssetDatabase::FileSystemMapping*> AssetBrowserWindow::GetItemsToMove(AssetDatabase::FileSystemMapping* draggedItem, AssetDatabase::FileSystemMapping* folder) const
+	{
+		Vector<AssetDatabase::FileSystemMapping*> draggedItems;
+		if (draggedItem == _explorerDraggedItem && IsSelected(draggedItem))
+		{
+			draggedItems = _selectedItems;
+		}
+		else
+		{
+			draggedItems.PushBack(draggedItem);
+		}
+
+		Vector<AssetDatabase::FileSystemMapping*> itemsToMove;
+		for (AssetDatabase::FileSystemMapping* item : draggedItems)
+		{
+			if (item->_parentFolder == folder)
+			{
+				continue;
+			}
+
+			bool intoItself = false;
+			for (AssetDatabase::FileSystemMapping* ancestor = folder; ancestor != nullptr && intoItself == false; ancestor = ancestor->_parentFolder)
+			{
+				intoItself = (ancestor == item);
+			}
+			if (intoItself == false)
+			{
+				itemsToMove.PushBack(item);
+			}
+		}
+		return itemsToMove;
 	}
 
 	/// @brief Draws the contextual menu items under prefix, a '/' in their label opens a submenu (e.g. "Create/Scene")
@@ -1347,6 +1364,15 @@ namespace hod::inline editor
 		if (isMultiSelect)
 		{
 			ImGui::MultiSelectItemFooter(id, &selected, &pressed);
+
+			// A box-selection only starts from the void: from an item, ImGui would also consider one, which takes the mouse
+			// (active id) once dragged past the threshold, before the item's drag and drop source can start
+			ImGuiBoxSelectState& boxSelectState = g.BoxSelectState;
+			if (pressed && boxSelectState.IsStarting && boxSelectState.IsStartedFromVoid == false)
+			{
+				boxSelectState.IsStarting = false;
+				boxSelectState.ID = 0;
+			}
 		}
 
 		if (visible == false)

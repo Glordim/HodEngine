@@ -116,6 +116,7 @@ namespace hod::inline editor
 
 		void DrawFolderDropTarget(AssetDatabase::FileSystemMapping* folder);
 		void AcceptFolderDropPayloads(AssetDatabase::FileSystemMapping* folder);
+		Vector<AssetDatabase::FileSystemMapping*> GetItemsToMove(AssetDatabase::FileSystemMapping* draggedItem, AssetDatabase::FileSystemMapping* folder) const;
 		void ApplyPendingDrop();
 
 	private:
