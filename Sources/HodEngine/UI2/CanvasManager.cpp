@@ -3,6 +3,14 @@
 #include "HodEngine/UI2/CanvasManager.hpp"
 #include "HodEngine/UI2/Canvas.hpp"
 
+#include <HodEngine/Input/Devices/Mouse.hpp>
+#include <HodEngine/Input/InputManager.hpp>
+#include <HodEngine/Window/DisplayManager.hpp>
+#include <HodEngine/Window/Window.hpp>
+#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_MACOS) || defined(PLATFORM_LINUX)
+	#include <HodEngine/Window/Desktop/DesktopWindow.hpp>
+#endif
+
 namespace hod::inline ui2
 {
 	_SingletonConstructor(CanvasManager)
@@ -64,11 +72,30 @@ namespace hod::inline ui2
 	}
 
 	/// @brief
+	/// @return
+	CanvasManager::PointerSource CanvasManager::GetPointerSource() const
+	{
+		return _pointerSource;
+	}
+
+	/// @brief
+	/// @param pointerSource
+	void CanvasManager::SetPointerSource(PointerSource pointerSource)
+	{
+		_pointerSource = pointerSource;
+		_hasPointer = false;
+	}
+
+	/// @brief
 	/// @param viewPosition
 	/// @param viewSize
 	/// @param pressed
 	void CanvasManager::SetPointer(const Vector2& viewPosition, const Vector2& viewSize, bool pressed)
 	{
+		if (_pointerSource != PointerSource::Manual)
+		{
+			return;
+		}
 		_hasPointer = true;
 		_pointerPosition = viewPosition;
 		_viewSize = viewSize;
@@ -99,7 +126,44 @@ namespace hod::inline ui2
 			entry._canvas->UpdateLayout();
 		}
 
+		if (_pointerSource == PointerSource::Window)
+		{
+			ReadWindowPointer();
+		}
 		UpdatePointer();
+	}
+
+	/// @brief The main window's cursor (its position is the window's, the mouse devices only give moves), pressed by the last
+	/// used mouse (the first one before any is used: it is only made current by a click). Touch screens: not yet, they need a
+	/// touch device.
+	void CanvasManager::ReadWindowPointer()
+	{
+#if defined(PLATFORM_WINDOWS) || defined(PLATFORM_MACOS) || defined(PLATFORM_LINUX)
+		DisplayManager* displayManager = DisplayManager::GetInstance();
+		Window*         window = (displayManager != nullptr) ? displayManager->GetMainWindow() : nullptr;
+		if (window == nullptr)
+		{
+			return;
+		}
+
+		const Mouse* mouse = Mouse::Current();
+		if (mouse == nullptr && InputManager::GetInstance() != nullptr)
+		{
+			for (Device* device : InputManager::GetInstance()->GetDevices())
+			{
+				if (device->GetType() == Device::Type::MOUSE)
+				{
+					mouse = static_cast<const Mouse*>(device);
+					break;
+				}
+			}
+		}
+
+		_hasPointer = true;
+		_pointerPosition = static_cast<DesktopWindow*>(window)->GetMousePosition();
+		_viewSize = Vector2((float)window->GetWidth(), (float)window->GetHeight());
+		_pointerPressed = mouse != nullptr && mouse->GetButtonLeft().IsPressed();
+#endif
 	}
 
 	/// @brief

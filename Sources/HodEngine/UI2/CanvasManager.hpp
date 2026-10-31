@@ -13,10 +13,11 @@ namespace hod::inline ui2
 {
 	class Canvas;
 
-	/// @brief The game's canvases: advanced and laid out once per frame, and given the game's pointer. UI2 knows neither the
-	/// game's view nor its cameras: the pointer is fed by whoever owns the view (SetPointer: the application from the window's
-	/// mouse, the editor from its game viewport), and each canvas taking it says how a view position maps into it (PointerMapping,
-	/// e.g. through the camera for a canvas placed in the world).
+	/// @brief The game's canvases: advanced and laid out once per frame, and given the game's pointer. The pointer is read by
+	/// Update (see PointerSource): the main window's cursor and the mouse's button, unless the game is shown elsewhere (the
+	/// editor's game viewport) which then gives it (SetPointer). UI2 knows neither the game's view nor its cameras: each canvas
+	/// taking the pointer says how a view position maps into it (PointerMapping, e.g. through the camera for a canvas placed
+	/// in the world).
 	class HOD_UI2_API CanvasManager final
 	{
 		_Singleton(CanvasManager)
@@ -27,6 +28,12 @@ namespace hod::inline ui2
 		// can't take the pointer (not displayed in that view...).
 		using PointerMapping = std::function<bool(const Vector2& viewPosition, const Vector2& viewSize, Vector2& outCanvasPosition)>;
 
+		enum class PointerSource : uint8_t
+		{
+			Window, // The main window's cursor, pressed by the mouse's left button (the game drawn in the main window)
+			Manual, // Given each frame through SetPointer (the game drawn elsewhere: the editor's game viewport, tests)
+		};
+
 	public:
 
 		void	AddCanvas(Canvas* canvas);
@@ -36,15 +43,20 @@ namespace hod::inline ui2
 		// catch the pointer (see Canvas::UpdatePointer) takes it, the others lose it. A null mapping takes the pointer away.
 		void	SetPointerMapping(Canvas* canvas, PointerMapping mapping, int64_t priority);
 
-		// The pointer over the view this frame (position: see PointerMapping), with its primary button's state (left mouse
-		// button, touch). Without a call in a frame, there is no pointer (out of the view, or not playing).
+		// Window by default
+		PointerSource	GetPointerSource() const;
+		void			SetPointerSource(PointerSource pointerSource);
+
+		// Manual source: the pointer over the view this frame (position: see PointerMapping), with its primary button's state.
+		// Without a call in a frame, there is no pointer (out of the view, or not playing). Ignored with the Window source.
 		void	SetPointer(const Vector2& viewPosition, const Vector2& viewSize, bool pressed);
 
 		// Whether the pointer was over a canvas' node catching it, or pressing one of them, at the last Update(): the input is
 		// the UI's, the game shouldn't act on what is under it.
 		bool	IsPointerOverUI() const;
 
-		// Advances (see Canvas::Update) then lays out every canvas, once per frame, then gives them the pointer.
+		// Advances (see Canvas::Update) then lays out every canvas, once per frame, then gives them the pointer (read from the
+		// window with the Window source).
 		void	Update();
 
 	private:
@@ -58,12 +70,14 @@ namespace hod::inline ui2
 		};
 
 		Entry*	FindEntry(Canvas* canvas);
+		void	ReadWindowPointer();
 		void	UpdatePointer();
 
 	private:
 
 		Vector<Entry>	_entries; // By decreasing priority
 
+		PointerSource	_pointerSource = PointerSource::Window;
 		bool			_hasPointer = false;
 		Vector2			_pointerPosition;
 		Vector2			_viewSize;

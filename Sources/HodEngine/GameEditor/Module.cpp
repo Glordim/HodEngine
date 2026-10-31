@@ -9,6 +9,7 @@
 #include "HodEngine/Game/Components/RendererComponent.hpp"
 #include "HodEngine/Game/Components/SpriteRendererComponent.hpp"
 #include "HodEngine/Game/Components/TextureRendererComponent.hpp"
+#include "HodEngine/Game/Components/UIComponent.hpp"
 #include "HodEngine/Game/Components/TextRendererComponent.hpp"
 #include "HodEngine/Game/Components/Light/PointLightComponent.hpp"
 #include "HodEngine/Game/Components/Light/DirLightComponent.hpp"
@@ -38,6 +39,7 @@
 #include "HodEngine/GameEditor/CustomComponentDrawer/EdgeCollider2dCustomComponentDrawer.hpp"
 #include "HodEngine/GameEditor/CustomComponentDrawer/MultiShapeCollider2dCustomComponentDrawer.hpp"
 #include "HodEngine/GameEditor/CustomComponentDrawer/TextureRendererCustomComponentDrawer.hpp"
+#include "HodEngine/GameEditor/CustomComponentDrawer/UIComponentCustomComponentDrawer.hpp"
 
 #include "HodEngine/GameEditor/DataItemEditor/DataItemCooker.hpp"
 #include "HodEngine/GameEditor/DataItemEditor/DataItemEditorTab.hpp"
@@ -67,6 +69,7 @@
 #include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Core/Hash.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
+#include <HodEngine/UI2/CanvasManager.hpp>
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
@@ -204,6 +207,7 @@ HOD_STARTUP_MODULE(GameEditor)
 	registration.RegisterCustomComponentDrawer<Node2dComponent, Node2dCustomComponentDrawer>();
 	registration.RegisterCustomComponentDrawer<CameraComponent, CameraCustomComponentDrawer>();
 	registration.RegisterCustomComponentDrawer<TextureRendererComponent, TextureRendererCustomComponentDrawer>();
+	registration.RegisterCustomComponentDrawer<UIComponent, UIComponentCustomComponentDrawer>();
 	registration.RegisterCustomComponentDrawer<BoxCollider2dComponent, BoxCollider2dCustomComponentDrawer>();
 	registration.RegisterCustomComponentDrawer<CircleCollider2dComponent, CircleCollider2dCustomComponentDrawer>();
 	registration.RegisterCustomComponentDrawer<CapsuleCollider2dComponent, CapsuleCollider2dCustomComponentDrawer>();
@@ -232,11 +236,21 @@ HOD_STARTUP_MODULE(GameEditor)
 
 	RegisterCreateDataStructActions();
 	Project::GetInstance()->GetOnModulesReloadedEvent().Connect(onProjectModulesReloadedSlot);
+
+	// The game is drawn in the viewports, which give the game's canvases the pointer (see ViewportWindow), not the main window
+	if (ui2::CanvasManager* canvasManager = ui2::CanvasManager::GetInstance())
+	{
+		canvasManager->SetPointerSource(ui2::CanvasManager::PointerSource::Manual);
+	}
 	return 0;
 }
 
 HOD_SHUTDOWN_MODULE(GameEditor)
 {
+	if (ui2::CanvasManager* canvasManager = ui2::CanvasManager::GetInstance())
+	{
+		canvasManager->SetPointerSource(ui2::CanvasManager::PointerSource::Window);
+	}
 	onProjectModulesReloadedSlot.Disconnect();
 	dataStructRegistration.UnregisterAll();
 	registration.UnregisterAll();

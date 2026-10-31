@@ -3,6 +3,7 @@
 #include "HodEngine/UI2/PropertyOverride.hpp"
 
 #include <HodEngine/Core/Document/Document.hpp>
+#include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Core/UID.hpp>
 #include <HodEngine/Core/Vector.hpp>
 
@@ -53,6 +54,11 @@ namespace hod::inline ui2
 		static void			CollectPrefabs(const DocumentNode& entry, Vector<UID>& outPrefabs);
 		// Whether prefab is target or contains an instance of it, at any depth.
 		static bool			Contains(const UID& prefab, const UID& target);
+
+		// A prefab's source changed (emitted by the editor once a UI prefab is saved): what was built from it, or from a prefab
+		// containing it (see Contains), can be built again to follow it.
+		using SourceChangedEvent = Event<const UID&>;
+		static SourceChangedEvent&	GetSourceChangedEvent();
 
 	public:
 							PrefabInstance(const UID& prefab);

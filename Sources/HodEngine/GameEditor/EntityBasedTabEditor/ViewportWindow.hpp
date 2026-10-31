@@ -74,5 +74,6 @@ namespace hod::inline editor
 		bool _drawGrid = true;
 
 		bool _mouseOverToolbar = false;
+		bool _canvasPointerDown = false; // Playing: a press started over the image, the game's canvases keep the mouse until released
 	};
 }

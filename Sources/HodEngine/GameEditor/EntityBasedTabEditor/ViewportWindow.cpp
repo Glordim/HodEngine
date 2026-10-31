@@ -42,6 +42,7 @@
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
 #include <HodEngine/Renderer/PickingManager.hpp>
+#include <HodEngine/UI2/CanvasManager.hpp>
 #include <HodEngine/Core/StaticArray.hpp>
 
 #include <algorithm>
@@ -407,6 +408,32 @@ namespace hod::inline editor
 				ImGui::SetCursorPosX(ImGui::GetCursorPosX() + (ImGui::GetContentRegionAvail().x - resolutionWidth) * 0.5f);
 				ImGui::SetCursorPosY(ImGui::GetCursorPosY() + (ImGui::GetContentRegionAvail().y - resolutionHeight) * 0.5f);
 				ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
+			}
+
+			// Playing, the game's canvases get the mouse over the image (see ui2::CanvasManager), as the game window's
+			if (GetOwner<EntityEditorTab>()->IsPlaying() && GetOwner<EntityEditorTab>()->IsPaused() == false)
+			{
+				ImVec2 mouseImagePos = ImGui::GetIO().MousePos - ImGui::GetItemRectMin();
+				bool   mouseOverImage = ImGui::IsItemHovered() && _mouseOverToolbar == false && mouseImagePos.x >= 0.0f && mouseImagePos.y >= 0.0f &&
+				                      mouseImagePos.x < (float)resolutionWidth && mouseImagePos.y < (float)resolutionHeight;
+				if (mouseOverImage && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+				{
+					_canvasPointerDown = true;
+				}
+				else if (ImGui::IsMouseDown(ImGuiMouseButton_Left) == false)
+				{
+					_canvasPointerDown = false;
+				}
+
+				if (mouseOverImage || _canvasPointerDown)
+				{
+					ui2::CanvasManager::GetInstance()->SetPointer(Vector2(mouseImagePos.x, mouseImagePos.y), Vector2((float)resolutionWidth, (float)resolutionHeight),
+					                                              _canvasPointerDown);
+				}
+			}
+			else
+			{
+				_canvasPointerDown = false;
 			}
 			// ImGui::GetWindowDrawList()->AddImage(_renderTarget->GetColorTexture(), origin + ImVec2(0.0f, (float)menuBarHeight), origin + ImVec2((float)windowWidth,
 			// (float)(windowHeight + menuBarHeight)));

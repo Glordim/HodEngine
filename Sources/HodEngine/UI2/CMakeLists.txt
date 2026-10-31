@@ -16,6 +16,7 @@ target_precompile_headers(UI2 PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT
 
 target_link_libraries(UI2
 	PUBLIC Renderer
+	PRIVATE Input
 )
 
 target_compile_definitions(UI2 PUBLIC ${HOD_PLATFORM_DEFINE})

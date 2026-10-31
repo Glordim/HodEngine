@@ -151,6 +151,14 @@ namespace hod::inline ui2
 	}
 
 	/// @brief
+	/// @return
+	PrefabInstance::SourceChangedEvent& PrefabInstance::GetSourceChangedEvent()
+	{
+		static SourceChangedEvent sourceChangedEvent;
+		return sourceChangedEvent;
+	}
+
+	/// @brief
 	/// @param prefab
 	PrefabInstance::PrefabInstance(const UID& prefab)
 	: _prefab(prefab)

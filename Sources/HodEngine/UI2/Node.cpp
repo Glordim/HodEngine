@@ -120,6 +120,32 @@ namespace hod::inline ui2
 	}
 
 	/// @brief
+	/// @param path
+	/// @return
+	Node* Node::FindByPath(std::string_view path)
+	{
+		Node* node = this;
+		while (path.empty() == false && node != nullptr)
+		{
+			size_t           separator = path.find('/');
+			std::string_view name = path.substr(0, separator);
+			path = (separator == std::string_view::npos) ? std::string_view() : path.substr(separator + 1);
+
+			Node* parent = node;
+			node = nullptr;
+			for (Node* child : parent->_children)
+			{
+				if (std::string_view(child->GetName().CStr(), child->GetName().Length()) == name)
+				{
+					node = child;
+					break;
+				}
+			}
+		}
+		return node;
+	}
+
+	/// @brief
 	/// @return
 	uint64_t Node::GetLocalId() const
 	{

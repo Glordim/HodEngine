@@ -44,6 +44,12 @@ namespace hod::inline ui2
 		const String&				GetName() const;
 		void						SetName(const String& name);
 
+		// The descendant at path, names separated by '/' ("Panel/Title": the first child named Panel, then its first child named
+		// Title), this node for an empty path. Goes through the nested prefab instances as through any node. nullptr if none.
+		Node*						FindByPath(std::string_view path);
+		template<typename _Node_>
+		_Node_*						FindByPath(std::string_view path);
+
 		// Identity local to the tree (a prefab) this node belongs to: what a serialized reference to
 		// another node of the same tree must point at — unlike the name (editable, duplicable) or the
 		// position in the tree (moves with edits). Same convention as the ECS: 0 means "not assigned
@@ -355,5 +361,19 @@ namespace hod::inline ui2
 	_Interaction_* Node::GetInteraction() const
 	{
 		return Interaction::Cast<_Interaction_>(GetInteraction());
+	}
+
+	/// @brief nullptr also when the node there isn't a _Node_
+	template<typename _Node_>
+	_Node_* Node::FindByPath(std::string_view path)
+	{
+		static_assert(std::is_base_of<Node, _Node_>::value, "_Node_ must derive from Node to use Node::FindByPath()");
+
+		Node* node = FindByPath(path);
+		if (node != nullptr && node->GetReflectionDescriptorV().IsCompatible(_Node_::GetReflectionDescriptor()))
+		{
+			return static_cast<_Node_*>(node);
+		}
+		return nullptr;
 	}
 }

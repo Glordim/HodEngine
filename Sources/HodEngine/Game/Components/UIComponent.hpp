@@ -3,14 +3,33 @@
 
 #include "HodEngine/Game/Components/RendererComponent.hpp"
 
+#include <HodEngine/GameSystems/Resource/WeakResource.hpp>
 #include <HodEngine/UI2/Canvas.hpp>
+#include <HodEngine/UI2/Node.hpp>
+#include <HodEngine/UI2/PrefabInstance.hpp>
+#include <HodEngine/UI2/UIPrefabResource.hpp>
+
+#include <string_view>
 
 namespace hod::inline game
 {
-	/// @brief 
+	/// @brief Displays a UI prefab (as authored: an entity only chooses which one and where) and gives it the game's pointer
+	/// (see ui2::CanvasManager). Each component has a canvas of its own, built from the prefab. The game talks to it through
+	/// FindNode and GetActionEvent.
 	class HOD_GAME_API UIComponent : public RendererComponent
 	{
 		REFLECTED_CLASS(UIComponent, RendererComponent)
+
+	public:
+
+		enum class RenderMode : uint8_t
+		{
+			Screen, // Over the game, laid out and scaled for the screen per the prefab's scaler (see ui2::CanvasScaler)
+			World,  // In the scene, placed by the entity's transform (PixelsPerUnit canvas units per world unit), sorted by its z-order
+		};
+		REFLECTED_ENUM(HOD_GAME_API, RenderMode);
+
+		using ActionEvent = ui2::Canvas::ActionEvent;
 
 	public:
 
@@ -25,26 +44,85 @@ namespace hod::inline game
 		void	OnConstruct() override;
 		void	OnDestruct() override;
 
-		// In game (playing, not paused) the canvas is drawn on the UI queue, laid out and scaled for the screen per its effective scaler;
-		// otherwise (editor scene view) it is drawn in the world, 1 canvas unit = 0.01 world unit, like
-		// the previous UI system did.
+		// A Screen canvas is only drawn in game (playing, not paused), on the UI queue, laid out and scaled for the screen: not in
+		// the editor's scene view, where it would hide the level and say nothing of where it will be (the UI prefab editor shows
+		// it). A World canvas is drawn in the world in both cases.
 		void	PushRenderCommand(RenderView& renderView) override;
 		Rect	GetBoundingBox() const override;
 
-		// How the canvas adapts to the screen (design resolution, scale mode), applied to the canvas.
-		// Only in effect when overriding the project's (ui2::UISettings), see ui2::Canvas::SetOverrideScaler.
+		// The prefab displayed: the canvas is built again from it (what the game changed in it is lost). Not from one of its
+		// actions' handlers: the canvas emitting it would be deleted.
+		const WeakResource<UIPrefabResource>&	GetPrefab() const;
+		void									SetPrefab(const WeakResource<UIPrefabResource>& prefab);
+
+		RenderMode		GetRenderMode() const;
+		void			SetRenderMode(RenderMode renderMode);
+
+		// Screen: drawn over (and given the pointer before) the Screen canvases of a lower sorting order. They are all over the
+		// World ones.
+		int32_t			GetSortingOrder() const;
+		void			SetSortingOrder(int32_t sortingOrder);
+
+		// World: canvas units in a world unit.
+		float			GetPixelsPerUnit() const;
+		void			SetPixelsPerUnit(float pixelsPerUnit);
+
+		// Screen: how the canvas adapts to the screen, when overriding the prefab's (which follows the project's ui2::UISettings
+		// unless it overrides them itself, see ui2::Canvas::SetOverrideScaler). A World canvas keeps the prefab's: its size.
 		const ui2::CanvasScaler&	GetScaler() const;
 		void						SetScaler(const ui2::CanvasScaler& scaler);
 
 		bool						GetOverrideScaler() const;
 		void						SetOverrideScaler(bool overrideScaler);
 
+		// Null before OnConstruct and after OnDestruct. Built again with the prefab (SetPrefab, or the prefab saved in the editor).
+		ui2::Canvas*	GetCanvas() const;
+		// The prefab's root node, null when there is no prefab
+		ui2::Node*		GetRootNode() const;
+
+		// The node at path from the prefab's root (see ui2::Node::FindByPath): "" for the root, "Panel/Title"... null if none.
+		ui2::Node*		FindNode(std::string_view path) const;
+		template<typename _Node_>
+		_Node_*			FindNode(std::string_view path) const;
+
+		// The canvas' actions (see ui2::Canvas::GetActionEvent): an action name set in the prefab (a Button's...), and its node.
+		// Kept across the canvas' rebuilds.
+		ActionEvent&	GetActionEvent();
+
 	private:
 
-		//WeakResource<UIPrefabResource>	_canvas;
-		ui2::Canvas* _canvas = nullptr;
+		void	BuildCanvas();
+		void	DestroyCanvas();
+		void	UpdatePointerMapping();
+		void	ApplyScaler();
 
-		bool				_overrideScaler = false;
-		ui2::CanvasScaler	_scaler;
+		bool	IsPlaying() const;
+		Matrix4	ComputeWorldCanvasMatrix() const;
+		bool	MapPointer(const Vector2& viewPosition, const Vector2& viewSize, Vector2& outCanvasPosition) const;
+
+	private:
+
+		WeakResource<UIPrefabResource>	_prefab;
+		RenderMode						_renderMode = RenderMode::Screen;
+		int32_t							_sortingOrder = 0;
+		float							_pixelsPerUnit = 100.0f;
+		bool							_overrideScaler = false;
+		ui2::CanvasScaler				_scaler;
+
+		ui2::Canvas*					_canvas = nullptr;
+		bool							_prefabOverrideScaler = false; // The prefab's, put back when not overriding them
+		ui2::CanvasScaler				_prefabScaler;
+		bool							_constructed = false;
+
+		ActionEvent						_actionEvent;
+		ActionEvent::Slot				_onCanvasAction;
+		ui2::PrefabInstance::SourceChangedEvent::Slot	_onPrefabSourceChanged;
 	};
+
+	template<typename _Node_>
+	_Node_* UIComponent::FindNode(std::string_view path) const
+	{
+		ui2::Node* rootNode = GetRootNode();
+		return (rootNode != nullptr) ? rootNode->FindByPath<_Node_>(path) : nullptr;
+	}
 }

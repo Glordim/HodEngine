@@ -58,7 +58,7 @@ namespace hod
 
 		void SetUp() override
 		{
-			CanvasManager::CreateInstance();
+			CanvasManager::CreateInstance()->SetPointerSource(CanvasManager::PointerSource::Manual);
 		}
 
 		void TearDown() override
@@ -185,5 +185,23 @@ namespace hod
 
 		CanvasManager::GetInstance()->RemoveCanvas(&above);
 		CanvasManager::GetInstance()->RemoveCanvas(&below);
+	}
+
+	TEST_F(CanvasManagerTest, FindByPathFollowsTheNames)
+	{
+		Node  root;
+		Node* panel = DefaultAllocator::GetInstance().New<Node>();
+		panel->SetName("Panel");
+		root.AddChild(panel);
+		Node* title = DefaultAllocator::GetInstance().New<Node>();
+		title->SetName("Title");
+		panel->AddChild(title);
+
+		EXPECT_EQ(root.FindByPath(""), &root);
+		EXPECT_EQ(root.FindByPath("Panel"), panel);
+		EXPECT_EQ(root.FindByPath("Panel/Title"), title);
+		EXPECT_EQ(root.FindByPath<Node>("Panel/Title"), title);
+		EXPECT_EQ(root.FindByPath("Panel/Missing"), nullptr);
+		EXPECT_EQ(root.FindByPath("Title"), nullptr);
 	}
 }

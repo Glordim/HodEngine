@@ -69,8 +69,8 @@ namespace hod::inline editor
 	/// @return
 	UIPrefabEditorTab::PrefabSavedEvent& UIPrefabEditorTab::GetPrefabSavedEvent()
 	{
-		static PrefabSavedEvent prefabSavedEvent;
-		return prefabSavedEvent;
+		// UI2's: what the game builds from prefabs (UIComponent's canvases) follows them too
+		return ui2::PrefabInstance::GetSourceChangedEvent();
 	}
 
 	/// @brief
