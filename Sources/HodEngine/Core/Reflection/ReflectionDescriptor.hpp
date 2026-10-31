@@ -81,6 +81,8 @@ namespace hod::inline core
 		void Copy(const void* sourceInstance, void* destinationInstance);
 
 		bool Compare(const void* left, const void* right) const;
+		/// @brief Whether Compare can be called: the type has an operator==
+		bool CanCompare() const;
 
 		uint64_t      GetType() const;
 		const String& GetTypeName() const;

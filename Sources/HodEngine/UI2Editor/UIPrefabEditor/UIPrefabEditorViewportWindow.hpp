@@ -4,6 +4,7 @@
 #include "HodEngine/Editor/Framing.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorViewportSettings.hpp"
 
+#include <HodEngine/Core/Vector.hpp>
 #include <HodEngine/Math/Color.hpp>
 #include <HodEngine/Math/Vector2.hpp>
 
@@ -31,8 +32,9 @@ namespace hod::inline editor
 {
 	/// @brief RT-rendered 2D preview of a UIPrefabEditorTab's ui2::Node tree: draws the canvas' content as in game
 	/// (ui2::Canvas::PushRenderCommand) into an offscreen render target, then, over it and via Gizmos, each node's
-	/// computed rect as an outline, the selected node's spacing and its manipulation gizmo, and blits that texture
-	/// into the panel. Click-to-select is done in canvas space against the same node bounds.
+	/// computed rect as an outline (the selected ones in orange), the active node's spacing and the manipulation gizmo (the selected
+	/// node's, or with several selected the box around them, moving them together, see GetGizmoNodes), and blits that texture into the panel. Click-to-select is done in canvas space
+	/// against the same node bounds, Ctrl+click (or Shift+click) adding to the selection or removing from it.
 	///
 	/// The prefab can be previewed on a device picked from a user-editable list (name + resolution, optionally
 	/// rotated): the canvas is then laid out for that resolution, exactly as it would be in game (see
@@ -77,7 +79,7 @@ namespace hod::inline editor
 		ui2::Node*	UpdateInteraction(ui2::Canvas& canvas, const Vector2& canvasMousePosition, bool mouseAvailable);
 		void		DrawInteractionOverlay(ui2::Canvas& canvas, ui2::Node* hitNode, RenderView& renderView);
 
-		// Manipulation gizmo drawn over the selected node (move via the node's body, resize via the 4 corners / 4 edges),
+		// Manipulation gizmo drawn over the active node (move via the node's body, resize via the 4 corners / 4 edges),
 		// hit-tested on the CPU against canvas-space bounds rather than with a picking texture,
 		// since this viewport isn't a ViewportWindow and has no picking render target.
 		enum class GizmoHandle : uint8_t
@@ -106,9 +108,14 @@ namespace hod::inline editor
 
 		static GizmoAxes GetGizmoAxes(const ui2::Node& node);
 
-		void		DrawSelectionGizmo(ui2::Node* node, float scale, RenderView& renderView);
-		GizmoHandle	HitTestGizmoHandle(ui2::Node* node, const Vector2& canvasMousePosition, float scale) const;
-		void		UpdateGizmoDrag(ui2::Node* node, const Vector2& canvasMousePosition, float scale, bool mouseAvailable);
+		// The nodes the gizmo acts on: the selected node, moved and resized; with several selected, the ones it can move (the
+		// subtrees' roots, a child moving with its parent), moved together and never resized.
+		Vector<ui2::Node*> GetGizmoNodes() const;
+		static void        ComputeCanvasBounds(const Vector<ui2::Node*>& nodes, Vector2& center, Vector2& size);
+
+		void		DrawSelectionGizmo(const Vector<ui2::Node*>& nodes, float scale, RenderView& renderView);
+		GizmoHandle	HitTestGizmoHandle(const Vector<ui2::Node*>& nodes, const Vector2& canvasMousePosition, float scale) const;
+		void		UpdateGizmoDrag(const Vector<ui2::Node*>& nodes, const Vector2& canvasMousePosition, float scale, bool mouseAvailable);
 
 	private:
 
@@ -139,14 +146,21 @@ namespace hod::inline editor
 		GizmoHandle _hoveredGizmoHandle = GizmoHandle::None;
 		GizmoHandle _draggedGizmoHandle = GizmoHandle::None;
 		Vector2     _gizmoDragStartMousePosition = Vector2::Zero;
-		// The node's rect when the drag started (center in its parent's space), which the drag moves/resizes
-		Vector2     _gizmoDragStartCenter = Vector2::Zero;
-		Vector2     _gizmoDragStartSize = Vector2::Zero;
-		// What placed it then, restored by Escape (a drag may turn a Content axis into a Fixed one, see AnchoredLayoutParams::PlaceRect).
-		// The offset is AnchoredLayoutParams' only
-		Vector2                     _gizmoDragStartOffset = Vector2::Zero;
-		Vector2                     _gizmoDragStartOwnSize = Vector2::Zero;
-		ui2::LayoutParams::SizeMode _gizmoDragStartWidthMode = ui2::LayoutParams::SizeMode::Fixed;
-		ui2::LayoutParams::SizeMode _gizmoDragStartHeightMode = ui2::LayoutParams::SizeMode::Fixed;
+
+		// A node dragged, as it was when the drag started
+		struct GizmoDragStart
+		{
+			ui2::Node* _node = nullptr;
+			// Its rect (center in its parent's space), which the drag moves/resizes
+			Vector2    _center = Vector2::Zero;
+			Vector2    _size = Vector2::Zero;
+			// What placed it, restored by Escape (a drag may turn a Content axis into a Fixed one, see AnchoredLayoutParams::PlaceRect).
+			// The offset is AnchoredLayoutParams' only
+			Vector2                     _offset = Vector2::Zero;
+			Vector2                     _ownSize = Vector2::Zero;
+			ui2::LayoutParams::SizeMode _widthMode = ui2::LayoutParams::SizeMode::Fixed;
+			ui2::LayoutParams::SizeMode _heightMode = ui2::LayoutParams::SizeMode::Fixed;
+		};
+		Vector<GizmoDragStart> _gizmoDragStarts;
 	};
 }

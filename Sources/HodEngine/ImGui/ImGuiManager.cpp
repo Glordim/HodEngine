@@ -480,6 +480,7 @@ namespace hod::inline imgui
 
 		// ImGui::StyleColorsDark();
 		embraceTheDarkness();
+		ImGui::GetCurrentContext()->MixedValueLabel = "\xE2\x80\x94"; // an em dash, in place of a mixed value (see GetMixedValueLabel)
 
 		Path projectsPath = FileSystem::GetUserSettingsPath();
 		projectsPath /= ("HodEngine");

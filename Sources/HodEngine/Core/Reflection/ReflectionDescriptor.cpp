@@ -242,6 +242,13 @@ namespace hod::inline core
 	}
 
 	/// @brief
+	/// @return
+	bool ReflectionDescriptor::CanCompare() const
+	{
+		return _compareFunction != nullptr;
+	}
+
+	/// @brief
 	/// @param reflectionDescriptor
 	/// @param collectedInstances
 	/// @param instance

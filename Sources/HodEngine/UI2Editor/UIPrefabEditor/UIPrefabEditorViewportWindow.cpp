@@ -235,11 +235,11 @@ namespace hod::inline editor
 		{
 			frameSelection = true;
 		}
-		// Delete (here or in the hierarchy) removes the selected node. Before the selection is read below, nothing of it is drawn yet.
+		// Delete (here or in the hierarchy) removes the selected nodes. Before the selection is read below, nothing of it is drawn yet.
 		if (playing == false && ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Delete, false) &&
-		    ImGui::GetIO().WantTextInput == false && tab->GetSelectedNode() != nullptr && _draggedGizmoHandle == GizmoHandle::None)
+		    ImGui::GetIO().WantTextInput == false && tab->GetSelectedNodes().Empty() == false && _draggedGizmoHandle == GizmoHandle::None)
 		{
-			tab->DeleteNode(tab->GetSelectedNode());
+			tab->DeleteNodes(tab->GetSelectedNodes());
 		}
 		// Ctrl+C / Ctrl+X / Ctrl+V / Ctrl+Shift+V / Ctrl+D / Escape, as in the hierarchy. Same moment, for the same reason.
 		if (playing == false && ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::GetIO().WantTextInput == false &&
@@ -256,7 +256,11 @@ namespace hod::inline editor
 		ui2::Node* selectedNode = playing ? nullptr : tab->GetSelectedNode();
 		if (frameSelection && frameDevice == false && selectedNode != nullptr)
 		{
-			_camera.Frame(selectedNode->ComputeCanvasMatrix().GetTranslation(), selectedNode->GetSize(), viewSize, baseScale, true);
+			// All the selected nodes
+			Vector2 boundsCenter;
+			Vector2 boundsSize;
+			ComputeCanvasBounds(tab->GetSelectedNodes(), boundsCenter, boundsSize);
+			_camera.Frame(boundsCenter, boundsSize, viewSize, baseScale, true);
 		}
 		else if (frameSelection || frameDevice)
 		{
@@ -346,15 +350,21 @@ namespace hod::inline editor
 		}
 
 		// Preview: nothing drawn over the prefab but the device frame (where the screen's edges are), so no gizmo to grab either
-		bool preview = _settings._preview;
+		bool               preview = _settings._preview;
+		Vector<ui2::Node*> gizmoNodes;
 		if (selectedNode != nullptr && preview == false)
 		{
-			UpdateGizmoDrag(selectedNode, mouseCanvasPos, scale, hovered && mouseInsideImage);
+			gizmoNodes = GetGizmoNodes();
+		}
+		if (gizmoNodes.Empty() == false)
+		{
+			UpdateGizmoDrag(gizmoNodes, mouseCanvasPos, scale, hovered && mouseInsideImage);
 		}
 		else
 		{
 			_hoveredGizmoHandle = GizmoHandle::None;
 			_draggedGizmoHandle = GizmoHandle::None;
+			_gizmoDragStarts.Clear();
 		}
 
 		GizmoHandle activeGizmoHandle = _draggedGizmoHandle != GizmoHandle::None ? _draggedGizmoHandle : _hoveredGizmoHandle;
@@ -420,9 +430,9 @@ namespace hod::inline editor
 				DrawSpacing(selectedNode, *renderView);
 			}
 
-			if (selectedNode != nullptr && GetGizmoAxes(*selectedNode).Any())
+			if (gizmoNodes.Empty() == false)
 			{
-				DrawSelectionGizmo(selectedNode, scale, *renderView);
+				DrawSelectionGizmo(gizmoNodes, scale, *renderView);
 			}
 		}
 
@@ -442,7 +452,16 @@ namespace hod::inline editor
 
 		if (playing == false && hovered && mouseInsideImage && ImGui::IsMouseClicked(ImGuiMouseButton_Left) && _draggedGizmoHandle == GizmoHandle::None)
 		{
-			tab->SetSelectedNode(PickNode(prefabRoot, mouseCanvasPos));
+			// Ctrl or Shift adds the picked node to the selection, or removes it from it
+			ui2::Node* pickedNode = PickNode(prefabRoot, mouseCanvasPos);
+			if (ImGui::GetIO().KeyCtrl || ImGui::GetIO().KeyShift)
+			{
+				tab->SetNodeSelected(pickedNode, tab->IsSelected(pickedNode) == false);
+			}
+			else
+			{
+				tab->SetSelectedNode(pickedNode);
+			}
 		}
 
 		if (playing == false && ImGui::BeginDragDropTarget())
@@ -926,7 +945,7 @@ namespace hod::inline editor
 		Vector2 size = node->GetSize();
 		Vector2 canvasPosition = node->ComputeCanvasMatrix().GetTranslation();
 
-		bool  isSelected = (node == tab->GetSelectedNode());
+		bool  isSelected = tab->IsSelected(node);
 		Color color = isSelected ? Color(1.0f, 165.0f / 255.0f, 0.0f, 1.0f) : Color(120.0f / 255.0f, 170.0f / 255.0f, 1.0f, 180.0f / 255.0f);
 
 		Gizmos::Rect(Matrix4::Translation(canvasPosition), size, color, renderView);
@@ -1059,33 +1078,100 @@ namespace hod::inline editor
 		}
 	}
 
+	/// @brief With a single node selected: that node if the gizmo can do anything to it. With several: the roots of the selected
+	/// subtrees that can move (a selected child moves with its selected parent, not twice), the ones a BoxLayout places left out.
+	/// @return empty when there is nothing to manipulate
+	Vector<ui2::Node*> UIPrefabEditorViewportWindow::GetGizmoNodes() const
+	{
+		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
+
+		Vector<ui2::Node*> nodes;
+		if (tab->GetSelectedNodes().Size() == 1)
+		{
+			ui2::Node* node = tab->GetSelectedNode();
+			if (node->GetLayoutParams() != nullptr && GetGizmoAxes(*node).Any())
+			{
+				nodes.PushBack(node);
+			}
+			return nodes;
+		}
+
+		for (ui2::Node* node : tab->GetSelectedSubtrees())
+		{
+			if (node->GetLayoutParams() != nullptr && GetGizmoAxes(*node)._move)
+			{
+				nodes.PushBack(node);
+			}
+		}
+		return nodes;
+	}
+
+	/// @brief The canvas-space box around the nodes' rects (axis-aligned, as the outlines, see DrawNode)
+	/// @param nodes not empty
+	void UIPrefabEditorViewportWindow::ComputeCanvasBounds(const Vector<ui2::Node*>& nodes, Vector2& center, Vector2& size)
+	{
+		Vector2 min;
+		Vector2 max;
+		for (uint32_t index = 0; index < nodes.Size(); ++index)
+		{
+			Vector2 nodeCenter = nodes[index]->ComputeCanvasMatrix().GetTranslation();
+			Vector2 halfSize = nodes[index]->GetSize() * 0.5f;
+			Vector2 nodeMin = nodeCenter - halfSize;
+			Vector2 nodeMax = nodeCenter + halfSize;
+			if (index == 0)
+			{
+				min = nodeMin;
+				max = nodeMax;
+			}
+			else
+			{
+				min = Vector2(Min(min.GetX(), nodeMin.GetX()), Min(min.GetY(), nodeMin.GetY()));
+				max = Vector2(Max(max.GetX(), nodeMax.GetX()), Max(max.GetY(), nodeMax.GetY()));
+			}
+		}
+		center = (min + max) * 0.5f;
+		size = max - min;
+	}
+
 	/// @brief Draws the move/resize handles over the selected node: a filled square at each of the
 	/// 4 corners (resize keeping the opposite corner fixed) and a highlighted edge line when
 	/// hovering/dragging one of the 4 edges (resize along one axis only). The node's body itself
 	/// (already drawn as an outline by DrawNode) acts as the move handle.
+	/// With several nodes, only the box around them (see ComputeCanvasBounds), highlighted while they are hovered or dragged: their bodies
+	/// move them all, nothing resizes them.
 	/// No rotation support: this viewport's overlays are axis-aligned, see the class comment on the header.
-	/// @param node
+	/// @param nodes see GetGizmoNodes
 	/// @param scale pixels per canvas unit, used to keep the handle size constant on screen
 	/// @param renderView
-	void UIPrefabEditorViewportWindow::DrawSelectionGizmo(ui2::Node* node, float scale, RenderView& renderView)
+	void UIPrefabEditorViewportWindow::DrawSelectionGizmo(const Vector<ui2::Node*>& nodes, float scale, RenderView& renderView)
 	{
-		Vector2 size = node->GetSize();
-		Vector2 canvasPosition = node->ComputeCanvasMatrix().GetTranslation();
-		Vector2 halfSize = size * 0.5f;
-
-		float cornerSize = gizmoCornerHandlePixelSize / scale;
-
 		Color handleColor(0.25f, 0.25f, 1.0f, 1.0f);
 		Color handleHighlightColor(0.5f, 0.5f, 1.0f, 1.0f);
+
+		GizmoHandle activeHandle = _draggedGizmoHandle != GizmoHandle::None ? _draggedGizmoHandle : _hoveredGizmoHandle;
+
+		auto isActive = [&](GizmoHandle handle) { return activeHandle == handle; };
+
+		if (nodes.Size() > 1)
+		{
+			Vector2 boundsCenter;
+			Vector2 boundsSize;
+			ComputeCanvasBounds(nodes, boundsCenter, boundsSize);
+			Gizmos::Rect(Matrix4::Translation(boundsCenter), boundsSize, isActive(GizmoHandle::Move) ? handleHighlightColor : handleColor, renderView);
+			return;
+		}
+
+		ui2::Node* node = nodes[0];
+		Vector2    size = node->GetSize();
+		Vector2    canvasPosition = node->ComputeCanvasMatrix().GetTranslation();
+		Vector2    halfSize = size * 0.5f;
+
+		float cornerSize = gizmoCornerHandlePixelSize / scale;
 
 		Vector2 topLeft = canvasPosition + Vector2(-halfSize.GetX(), halfSize.GetY());
 		Vector2 topRight = canvasPosition + Vector2(halfSize.GetX(), halfSize.GetY());
 		Vector2 bottomLeft = canvasPosition + Vector2(-halfSize.GetX(), -halfSize.GetY());
 		Vector2 bottomRight = canvasPosition + Vector2(halfSize.GetX(), -halfSize.GetY());
-
-		GizmoHandle activeHandle = _draggedGizmoHandle != GizmoHandle::None ? _draggedGizmoHandle : _hoveredGizmoHandle;
-
-		auto isActive = [&](GizmoHandle handle) { return activeHandle == handle; };
 
 		DrawFilledQuad(topLeft, Vector2(cornerSize, cornerSize), isActive(GizmoHandle::TopLeft) ? handleHighlightColor : handleColor, renderView);
 		DrawFilledQuad(topRight, Vector2(cornerSize, cornerSize), isActive(GizmoHandle::TopRight) ? handleHighlightColor : handleColor, renderView);
@@ -1113,15 +1199,37 @@ namespace hod::inline editor
 	/// @brief CPU hit-test of the gizmo handles against a canvas-space mouse position (this
 	/// viewport has no RHI picking texture, unlike ViewportWindow/Gizmos::FreeMoveRect). Corners
 	/// are tested first so their (small) area takes priority over the edge bands that reach them.
-	/// @param node
+	/// With several nodes: Move over any of them (not the gaps of their box, where a click selects what is there).
+	/// @param nodes see GetGizmoNodes
 	/// @param canvasMousePosition
 	/// @param scale pixels per canvas unit
 	/// @return
-	UIPrefabEditorViewportWindow::GizmoHandle UIPrefabEditorViewportWindow::HitTestGizmoHandle(ui2::Node* node, const Vector2& canvasMousePosition, float scale) const
+	UIPrefabEditorViewportWindow::GizmoHandle UIPrefabEditorViewportWindow::HitTestGizmoHandle(const Vector<ui2::Node*>& nodes, const Vector2& canvasMousePosition,
+	                                                                                           float scale) const
 	{
-		Vector2 size = node->GetSize();
-		Vector2 canvasPosition = node->ComputeCanvasMatrix().GetTranslation();
-		Vector2 halfSize = size * 0.5f;
+		auto within = [&](ui2::Node& node)
+		{
+			Vector2 center = node.ComputeCanvasMatrix().GetTranslation();
+			Vector2 halfSize = node.GetSize() * 0.5f;
+			return std::abs(canvasMousePosition.GetX() - center.GetX()) <= halfSize.GetX() && std::abs(canvasMousePosition.GetY() - center.GetY()) <= halfSize.GetY();
+		};
+
+		if (nodes.Size() > 1)
+		{
+			for (ui2::Node* node : nodes)
+			{
+				if (within(*node))
+				{
+					return GizmoHandle::Move;
+				}
+			}
+			return GizmoHandle::None;
+		}
+
+		ui2::Node* node = nodes[0];
+		Vector2    size = node->GetSize();
+		Vector2    canvasPosition = node->ComputeCanvasMatrix().GetTranslation();
+		Vector2    halfSize = size * 0.5f;
 
 		float cornerRadius = gizmoCornerHandlePixelSize * 0.5f / scale;
 		float edgeThickness = gizmoEdgeHandlePixelThickness * 0.5f / scale;
@@ -1179,7 +1287,7 @@ namespace hod::inline editor
 			return GizmoHandle::Right;
 		}
 
-		if (axes._move && withinX && withinY)
+		if (axes._move && within(*node))
 		{
 			return GizmoHandle::Move;
 		}
@@ -1187,123 +1295,136 @@ namespace hod::inline editor
 		return GizmoHandle::None;
 	}
 
-	/// @brief Drives the move/resize drag state machine and, while dragging, moves/resizes the node's rect as
+	/// @brief Drives the move/resize drag state machine and, while dragging, moves/resizes each node's rect as
 	/// it was when the drag started, then places the node on it (AnchoredLayoutParams::PlaceRect: offset and
 	/// size, a delta on the stretched axes). The canvas-space mouse delta is taken as is in
-	/// the parent's space: the viewport draws every node axis-aligned and unscaled.
-	/// @param node
+	/// the parents' space: the viewport draws every node axis-aligned and unscaled. Ctrl or Shift held, a click is left to the
+	/// selection (adding the node under the mouse to it, or removing it) rather than starting a drag.
+	/// @param nodes see GetGizmoNodes, not empty
 	/// @param canvasMousePosition
 	/// @param scale pixels per canvas unit
 	/// @param mouseAvailable whether the mouse is over this viewport's image and usable for a new hit-test
-	void UIPrefabEditorViewportWindow::UpdateGizmoDrag(ui2::Node* node, const Vector2& canvasMousePosition, float scale, bool mouseAvailable)
+	void UIPrefabEditorViewportWindow::UpdateGizmoDrag(const Vector<ui2::Node*>& nodes, const Vector2& canvasMousePosition, float scale, bool mouseAvailable)
 	{
-		LayoutParams*         layoutParams = node->GetLayoutParams();
-		AnchoredLayoutParams* anchoredLayoutParams = LayoutParams::Cast<AnchoredLayoutParams>(layoutParams);
-		const GizmoAxes       axes = GetGizmoAxes(*node);
-		if (layoutParams == nullptr || axes.Any() == false)
-		{
-			_hoveredGizmoHandle = GizmoHandle::None;
-			_draggedGizmoHandle = GizmoHandle::None;
-			return;
-		}
-
 		if (_draggedGizmoHandle != GizmoHandle::None)
 		{
 			if (ImGui::IsMouseDown(ImGuiMouseButton_Left) == false)
 			{
 				_draggedGizmoHandle = GizmoHandle::None;
+				_gizmoDragStarts.Clear();
 				return;
 			}
 
 			if (ImGui::IsKeyPressed(ImGuiKey_Escape))
 			{
-				if (anchoredLayoutParams != nullptr)
+				for (const GizmoDragStart& dragStart : _gizmoDragStarts)
 				{
-					anchoredLayoutParams->SetOffset(_gizmoDragStartOffset);
+					LayoutParams* layoutParams = dragStart._node->GetLayoutParams();
+					if (AnchoredLayoutParams* anchoredLayoutParams = LayoutParams::Cast<AnchoredLayoutParams>(layoutParams))
+					{
+						anchoredLayoutParams->SetOffset(dragStart._offset);
+					}
+					layoutParams->SetSize(dragStart._ownSize);
+					layoutParams->SetWidthMode(dragStart._widthMode);
+					layoutParams->SetHeightMode(dragStart._heightMode);
 				}
-				layoutParams->SetSize(_gizmoDragStartOwnSize);
-				layoutParams->SetWidthMode(_gizmoDragStartWidthMode);
-				layoutParams->SetHeightMode(_gizmoDragStartHeightMode);
 				_draggedGizmoHandle = GizmoHandle::None;
+				_gizmoDragStarts.Clear();
 				GetOwner()->MarkAsDirty();
 				return;
 			}
 
-			Vector2 delta = canvasMousePosition - _gizmoDragStartMousePosition;
-
-			// The edges of the start rect, the dragged ones following the mouse (Move: all of them)
-			Vector2 halfSize = _gizmoDragStartSize * 0.5f;
-			float   left = _gizmoDragStartCenter.GetX() - halfSize.GetX();
-			float   right = _gizmoDragStartCenter.GetX() + halfSize.GetX();
-			float   bottom = _gizmoDragStartCenter.GetY() - halfSize.GetY();
-			float   top = _gizmoDragStartCenter.GetY() + halfSize.GetY();
-
+			Vector2     delta = canvasMousePosition - _gizmoDragStartMousePosition;
 			GizmoHandle handle = _draggedGizmoHandle;
-			if (handle == GizmoHandle::Move || handle == GizmoHandle::Left || handle == GizmoHandle::TopLeft || handle == GizmoHandle::BottomLeft)
+			for (const GizmoDragStart& dragStart : _gizmoDragStarts)
 			{
-				left += delta.GetX();
-			}
-			if (handle == GizmoHandle::Move || handle == GizmoHandle::Right || handle == GizmoHandle::TopRight || handle == GizmoHandle::BottomRight)
-			{
-				right += delta.GetX();
-			}
-			if (handle == GizmoHandle::Move || handle == GizmoHandle::Bottom || handle == GizmoHandle::BottomLeft || handle == GizmoHandle::BottomRight)
-			{
-				bottom += delta.GetY();
-			}
-			if (handle == GizmoHandle::Move || handle == GizmoHandle::Top || handle == GizmoHandle::TopLeft || handle == GizmoHandle::TopRight)
-			{
-				top += delta.GetY();
-			}
+				ui2::Node*            node = dragStart._node;
+				LayoutParams*         layoutParams = node->GetLayoutParams();
+				AnchoredLayoutParams* anchoredLayoutParams = LayoutParams::Cast<AnchoredLayoutParams>(layoutParams);
 
-			// An edge dragged past the opposite one stops on it: no negative size
-			right = Max(right, left);
-			top = Max(top, bottom);
+				// The edges of the start rect, the dragged ones following the mouse (Move: all of them)
+				Vector2 halfSize = dragStart._size * 0.5f;
+				float   left = dragStart._center.GetX() - halfSize.GetX();
+				float   right = dragStart._center.GetX() + halfSize.GetX();
+				float   bottom = dragStart._center.GetY() - halfSize.GetY();
+				float   top = dragStart._center.GetY() + halfSize.GetY();
 
-			if (anchoredLayoutParams != nullptr)
-			{
-				Vector2 parentSize = node->GetParent() != nullptr ? node->GetParent()->GetSize() : Vector2::Zero;
-				anchoredLayoutParams->PlaceRect(parentSize, Vector2((left + right) * 0.5f, (bottom + top) * 0.5f), Vector2(right - left, top - bottom));
-			}
-			else
-			{
-				// A BoxLayout's child: only its size, on the axes it owns (Fixed from then on), the layout places it
-				Vector2 size = layoutParams->GetSize();
-				if (axes._resizeX)
+				if (handle == GizmoHandle::Move || handle == GizmoHandle::Left || handle == GizmoHandle::TopLeft || handle == GizmoHandle::BottomLeft)
 				{
-					size.SetX(right - left);
-					layoutParams->SetWidthMode(LayoutParams::SizeMode::Fixed);
+					left += delta.GetX();
 				}
-				if (axes._resizeY)
+				if (handle == GizmoHandle::Move || handle == GizmoHandle::Right || handle == GizmoHandle::TopRight || handle == GizmoHandle::BottomRight)
 				{
-					size.SetY(top - bottom);
-					layoutParams->SetHeightMode(LayoutParams::SizeMode::Fixed);
+					right += delta.GetX();
 				}
-				layoutParams->SetSize(size);
+				if (handle == GizmoHandle::Move || handle == GizmoHandle::Bottom || handle == GizmoHandle::BottomLeft || handle == GizmoHandle::BottomRight)
+				{
+					bottom += delta.GetY();
+				}
+				if (handle == GizmoHandle::Move || handle == GizmoHandle::Top || handle == GizmoHandle::TopLeft || handle == GizmoHandle::TopRight)
+				{
+					top += delta.GetY();
+				}
+
+				// An edge dragged past the opposite one stops on it: no negative size
+				right = Max(right, left);
+				top = Max(top, bottom);
+
+				if (anchoredLayoutParams != nullptr)
+				{
+					Vector2 parentSize = node->GetParent() != nullptr ? node->GetParent()->GetSize() : Vector2::Zero;
+					anchoredLayoutParams->PlaceRect(parentSize, Vector2((left + right) * 0.5f, (bottom + top) * 0.5f), Vector2(right - left, top - bottom));
+				}
+				else
+				{
+					// A BoxLayout's child: only its size, on the axes it owns (Fixed from then on), the layout places it
+					const GizmoAxes axes = GetGizmoAxes(*node);
+					Vector2         size = layoutParams->GetSize();
+					if (axes._resizeX)
+					{
+						size.SetX(right - left);
+						layoutParams->SetWidthMode(LayoutParams::SizeMode::Fixed);
+					}
+					if (axes._resizeY)
+					{
+						size.SetY(top - bottom);
+						layoutParams->SetHeightMode(LayoutParams::SizeMode::Fixed);
+					}
+					layoutParams->SetSize(size);
+				}
 			}
 
 			GetOwner()->MarkAsDirty();
 			return;
 		}
 
-		if (mouseAvailable == false)
+		if (mouseAvailable == false || ImGui::GetIO().KeyCtrl || ImGui::GetIO().KeyShift)
 		{
 			_hoveredGizmoHandle = GizmoHandle::None;
 			return;
 		}
 
-		_hoveredGizmoHandle = HitTestGizmoHandle(node, canvasMousePosition, scale);
+		_hoveredGizmoHandle = HitTestGizmoHandle(nodes, canvasMousePosition, scale);
 
 		if (_hoveredGizmoHandle != GizmoHandle::None && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 		{
 			_draggedGizmoHandle = _hoveredGizmoHandle;
 			_gizmoDragStartMousePosition = canvasMousePosition;
-			_gizmoDragStartCenter = node->GetPosition();
-			_gizmoDragStartSize = node->GetSize();
-			_gizmoDragStartOffset = anchoredLayoutParams != nullptr ? anchoredLayoutParams->GetOffset() : Vector2::Zero;
-			_gizmoDragStartOwnSize = layoutParams->GetSize();
-			_gizmoDragStartWidthMode = layoutParams->GetWidthMode();
-			_gizmoDragStartHeightMode = layoutParams->GetHeightMode();
+			_gizmoDragStarts.Clear();
+			for (ui2::Node* node : nodes)
+			{
+				LayoutParams*         layoutParams = node->GetLayoutParams();
+				AnchoredLayoutParams* anchoredLayoutParams = LayoutParams::Cast<AnchoredLayoutParams>(layoutParams);
+
+				GizmoDragStart& dragStart = _gizmoDragStarts.EmplaceBack();
+				dragStart._node = node;
+				dragStart._center = node->GetPosition();
+				dragStart._size = node->GetSize();
+				dragStart._offset = anchoredLayoutParams != nullptr ? anchoredLayoutParams->GetOffset() : Vector2::Zero;
+				dragStart._ownSize = layoutParams->GetSize();
+				dragStart._widthMode = layoutParams->GetWidthMode();
+				dragStart._heightMode = layoutParams->GetHeightMode();
+			}
 		}
 	}
 }

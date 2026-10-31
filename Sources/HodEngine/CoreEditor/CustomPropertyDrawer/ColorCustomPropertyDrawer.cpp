@@ -26,10 +26,13 @@ namespace hod::inline editor
 		}
 
 		Color value = *editorReflectedProperty.GetObject<Color>();
-		changed |= ColorCustomPropertyDrawer::Draw(value);
-		if (changed == true)
+		ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, editorReflectedProperty.HasDifferentValues());
+		bool edited = ColorCustomPropertyDrawer::Draw(value);
+		ImGui::PopItemFlag();
+		if (edited)
 		{
 			editorReflectedProperty.SetObject(value);
+			changed = true;
 		}
 		return changed;
 	}

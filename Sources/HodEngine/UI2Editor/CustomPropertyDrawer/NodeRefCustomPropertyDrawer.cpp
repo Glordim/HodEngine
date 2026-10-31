@@ -10,6 +10,7 @@
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/Helper.hpp>
+#include <HodEngine/ImGui/Widgets.hpp>
 #include <HodEngine/UI2/Node.hpp>
 #include <HodEngine/UI2/NodeRef.hpp>
 #include <HodEngine/UI2/PrefabInstance.hpp>
@@ -111,10 +112,28 @@ namespace hod::inline editor
 			return changed;
 		}
 
-		ui2::Node* referenced = scopeRoot->FindByLocalId(reference->GetLocalId());
-		bool       missing = (reference->GetLocalId() != 0 && (referenced == nullptr || reference->Accepts(*referenced) == false));
+		// The references edited together, set together (in place, as they are their owners' members)
+		bool mixed = editorReflectedProperty.HasDifferentValues();
+		auto assignAll = [&](ui2::Node* node)
+		{
+			for (uint32_t index = 0; index < editorReflectedProperty.GetInstances().Size(); ++index)
+			{
+				ui2::NodeRefBase* instanceReference = editorReflectedProperty.GetObjectOf<ui2::NodeRefBase>(index);
+				if (node != nullptr)
+				{
+					Assign(*instanceReference, *node);
+				}
+				else
+				{
+					instanceReference->SetLocalId(0);
+				}
+			}
+		};
 
-		String preview = "None";
+		ui2::Node* referenced = mixed ? nullptr : scopeRoot->FindByLocalId(reference->GetLocalId());
+		bool       missing = (mixed == false && reference->GetLocalId() != 0 && (referenced == nullptr || reference->Accepts(*referenced) == false));
+
+		String preview = mixed ? String(GetMixedValueLabel()) : String("None");
 		if (missing)
 		{
 			preview = (referenced != nullptr) ? String(ICON_MDI_ALERT " ") + referenced->GetName() + " (not a " + expectedName + ")" : String(ICON_MDI_ALERT " Missing node");
@@ -137,9 +156,9 @@ namespace hod::inline editor
 		ImGui::SetItemTooltip("A %s of the prefab: pick it, or drop it from the hierarchy", expectedName.CStr());
 		if (opened)
 		{
-			if (ImGui::Selectable("None", reference->GetLocalId() == 0))
+			if (ImGui::Selectable("None", mixed == false && reference->GetLocalId() == 0))
 			{
-				reference->SetLocalId(0);
+				assignAll(nullptr);
 				changed = true;
 			}
 
@@ -154,7 +173,7 @@ namespace hod::inline editor
 				ImGui::PushID(node);
 				if (ImGui::Selectable(GetNodeLabel(*node).CStr(), node == referenced))
 				{
-					Assign(*reference, *node);
+					assignAll(node);
 					changed = true;
 				}
 				ImGui::PopID();
@@ -174,7 +193,7 @@ namespace hod::inline editor
 				bool inScope = std::find(nodes.Begin(), nodes.End(), node) != nodes.End();
 				if (inScope && reference->Accepts(*node) && ImGui::AcceptDragDropPayload("UI2Node") != nullptr)
 				{
-					Assign(*reference, *node);
+					assignAll(node);
 					changed = true;
 				}
 			}

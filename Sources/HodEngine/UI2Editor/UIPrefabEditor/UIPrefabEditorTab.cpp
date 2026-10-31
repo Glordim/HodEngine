@@ -38,6 +38,7 @@
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
+#include <algorithm>
 #include <cstring>
 #include <optional>
 
@@ -517,15 +518,123 @@ namespace hod::inline editor
 	/// @return
 	ui2::Node* UIPrefabEditorTab::GetSelectedNode() const
 	{
-		return _selectedNode;
+		return _selectedNodes.Empty() ? nullptr : _selectedNodes[_selectedNodes.Size() - 1];
+	}
+
+	/// @brief
+	/// @return
+	const Vector<ui2::Node*>& UIPrefabEditorTab::GetSelectedNodes() const
+	{
+		return _selectedNodes;
+	}
+
+	/// @brief
+	/// @param node
+	/// @return
+	bool UIPrefabEditorTab::IsSelected(const ui2::Node* node) const
+	{
+		return node != nullptr && std::find(_selectedNodes.CBegin(), _selectedNodes.CEnd(), node) != _selectedNodes.CEnd();
 	}
 
 	/// @brief
 	/// @param node
 	void UIPrefabEditorTab::SetSelectedNode(ui2::Node* node)
 	{
-		_selectedNode = node;
+		_selectedNodes.Clear();
+		if (node != nullptr)
+		{
+			_selectedNodes.PushBack(node);
+		}
 		_canvasSelected = false;
+	}
+
+	/// @brief
+	/// @param nodes
+	void UIPrefabEditorTab::SetSelectedNodes(const Vector<ui2::Node*>& nodes)
+	{
+		_selectedNodes.Clear();
+		for (ui2::Node* node : nodes)
+		{
+			SetNodeSelected(node, true);
+		}
+		_canvasSelected = false;
+	}
+
+	/// @brief
+	/// @param node
+	/// @param selected
+	void UIPrefabEditorTab::SetNodeSelected(ui2::Node* node, bool selected)
+	{
+		if (node == nullptr)
+		{
+			return;
+		}
+
+		auto it = std::find(_selectedNodes.Begin(), _selectedNodes.End(), node);
+		if (it != _selectedNodes.End())
+		{
+			_selectedNodes.Erase(it);
+		}
+		if (selected)
+		{
+			_selectedNodes.PushBack(node); // the active one
+			_canvasSelected = false;
+		}
+	}
+
+	/// @brief
+	/// @return
+	Vector<ui2::Node*> UIPrefabEditorTab::GetSelectedSubtrees() const
+	{
+		return GetSubtrees(_selectedNodes);
+	}
+
+	/// @brief Walks the prefab in the hierarchy's order, not entering the subtrees already taken.
+	/// @param nodes
+	/// @return
+	Vector<ui2::Node*> UIPrefabEditorTab::GetSubtrees(const Vector<ui2::Node*>& nodes) const
+	{
+		Vector<ui2::Node*> subtrees;
+		if (nodes.Empty())
+		{
+			return subtrees;
+		}
+
+		Vector<ui2::Node*> stack = {GetPrefabRoot()};
+		while (stack.Empty() == false)
+		{
+			ui2::Node* node = stack[stack.Size() - 1];
+			stack.PopBack();
+			if (std::find(nodes.CBegin(), nodes.CEnd(), node) != nodes.CEnd())
+			{
+				subtrees.PushBack(node);
+				continue;
+			}
+			const Vector<ui2::Node*>& children = node->GetChildren();
+			for (uint32_t index = children.Size(); index > 0; --index)
+			{
+				stack.PushBack(children[index - 1]);
+			}
+		}
+		return subtrees;
+	}
+
+	/// @brief
+	/// @param node
+	/// @return
+	bool UIPrefabEditorTab::DeselectSubtree(const ui2::Node* node)
+	{
+		bool deselected = false;
+		for (uint32_t index = _selectedNodes.Size(); index > 0; --index)
+		{
+			ui2::Node* selectedNode = _selectedNodes[index - 1];
+			if (selectedNode == node || selectedNode->IsDescendantOf(node))
+			{
+				_selectedNodes.Erase(_selectedNodes.Begin() + (index - 1));
+				deselected = true;
+			}
+		}
+		return deselected;
 	}
 
 	/// @brief
@@ -538,7 +647,7 @@ namespace hod::inline editor
 	/// @brief
 	void UIPrefabEditorTab::SelectCanvas()
 	{
-		_selectedNode = nullptr;
+		_selectedNodes.Clear();
 		_canvasSelected = true;
 	}
 
@@ -571,9 +680,12 @@ namespace hod::inline editor
 		ui2::Node* newNode = ui2::NodeFactory::GetInstance()->CreateNode(nodeDescriptor);
 		node->ReplaceWith(newNode);
 
-		if (_selectedNode == node)
+		for (ui2::Node*& selectedNode : _selectedNodes)
 		{
-			_selectedNode = newNode;
+			if (selectedNode == node)
+			{
+				selectedNode = newNode;
+			}
 		}
 
 		DefaultAllocator::GetInstance().Delete(node);
@@ -582,24 +694,29 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @param node
+	/// @param nodes
 	/// @return
-	bool UIPrefabEditorTab::DeleteNode(ui2::Node* node)
+	bool UIPrefabEditorTab::DeleteNodes(const Vector<ui2::Node*>& nodes)
 	{
-		if (CanRemove(node) == false)
+		bool deleted = false;
+		for (ui2::Node* node : GetSubtrees(nodes))
 		{
-			return false;
+			if (CanRemove(node) == false)
+			{
+				continue;
+			}
+
+			DeselectSubtree(node);
+			node->GetParent()->RemoveChild(node);
+			DefaultAllocator::GetInstance().Delete(node);
+			deleted = true;
 		}
 
-		if (_selectedNode != nullptr && (_selectedNode == node || _selectedNode->IsDescendantOf(node)))
+		if (deleted)
 		{
-			SetSelectedNode(nullptr);
+			MarkAsDirty();
 		}
-
-		node->GetParent()->RemoveChild(node);
-		DefaultAllocator::GetInstance().Delete(node);
-		MarkAsDirty();
-		return true;
+		return deleted;
 	}
 
 	namespace
@@ -623,10 +740,10 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @param node
+	/// @param nodes
 	/// @param documentNode
 	/// @return
-	bool UIPrefabEditorTab::SerializeNodeAsAuthored(ui2::Node* node, DocumentNode& documentNode)
+	bool UIPrefabEditorTab::SerializeNodesAsAuthored(const Vector<ui2::Node*>& nodes, DocumentNode& documentNode)
 	{
 		// As in OnSave: as authored, then back to the recorded state's look
 		UpdateRecording();
@@ -639,7 +756,14 @@ namespace hod::inline editor
 			}
 		};
 
-		return node->SerializeAsChildInDocument(documentNode);
+		for (ui2::Node* node : nodes)
+		{
+			if (node->SerializeAsChildInDocument(documentNode.AddChild("")) == false)
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/// @brief
@@ -677,7 +801,6 @@ namespace hod::inline editor
 		node->RenewLocalIds(_nextLocalId, keepOutsideTargets);
 		parent->SetChildIndex(node, index);
 
-		SetSelectedNode(node);
 		MarkAsDirty();
 		return node;
 	}
@@ -799,7 +922,12 @@ namespace hod::inline editor
 		Document      document;
 		DocumentNode& instanceNode = document.GetRootNode().AddChild("PrefabInstance");
 		instanceNode.AddChild("Prefab").SetString(prefab.ToString());
-		return InsertNodeCopy(parent, UINT32_MAX, document.GetRootNode(), true);
+		ui2::Node* instanceRoot = InsertNodeCopy(parent, UINT32_MAX, document.GetRootNode(), true);
+		if (instanceRoot != nullptr)
+		{
+			SetSelectedNode(instanceRoot);
+		}
+		return instanceRoot;
 	}
 
 	/// @brief
@@ -911,15 +1039,19 @@ namespace hod::inline editor
 		instanceEntry.AddChild("PrefabInstance").AddChild("Prefab").SetString(asset->GetUid().ToString());
 
 		// A node cut inside goes away (node itself stays cut: the instance has its id)
-		ui2::Node* cutNode = (_cutNode != 0) ? GetPrefabRoot()->FindByLocalId(_cutNode) : nullptr;
-		if (cutNode != nullptr && cutNode->IsDescendantOf(node))
+		for (uint64_t cutLocalId : _cutNodes)
 		{
-			CancelCut();
+			ui2::Node* cutNode = GetPrefabRoot()->FindByLocalId(cutLocalId);
+			if (cutNode != nullptr && cutNode->IsDescendantOf(node))
+			{
+				CancelCut();
+				break;
+			}
 		}
 
 		ui2::Node* parent = node->GetParent();
 		uint32_t   index = GetSiblingIndex(node);
-		bool       selected = (_selectedNode != nullptr && (_selectedNode == node || _selectedNode->IsDescendantOf(node)));
+		bool       selected = DeselectSubtree(node);
 
 		parent->RemoveChild(node);
 		DefaultAllocator::GetInstance().Delete(node);
@@ -936,7 +1068,7 @@ namespace hod::inline editor
 		}
 		if (selected)
 		{
-			SetSelectedNode(instanceRoot);
+			SetNodeSelected(instanceRoot, true);
 		}
 		MarkAsDirty();
 		return asset;
@@ -1033,7 +1165,7 @@ namespace hod::inline editor
 
 		ui2::Node* parent = instanceRoot->GetParent();
 		uint32_t   index = GetSiblingIndex(instanceRoot);
-		bool       selected = (_selectedNode != nullptr && (_selectedNode == instanceRoot || _selectedNode->IsDescendantOf(instanceRoot)));
+		bool       selected = DeselectSubtree(instanceRoot); // its nodes are replaced: the new instance's root takes their place
 
 		parent->RemoveChild(instanceRoot);
 		DefaultAllocator::GetInstance().Delete(instanceRoot);
@@ -1050,18 +1182,19 @@ namespace hod::inline editor
 		}
 		if (selected)
 		{
-			SetSelectedNode(newInstanceRoot);
+			SetNodeSelected(newInstanceRoot, true);
 		}
 	}
 
 	/// @brief
-	/// @param node
+	/// @param nodes
 	/// @return
-	bool UIPrefabEditorTab::CopyNode(ui2::Node* node)
+	bool UIPrefabEditorTab::CopyNodes(const Vector<ui2::Node*>& nodes)
 	{
 		CancelCut();
 
-		if (node == nullptr)
+		Vector<ui2::Node*> subtrees = GetSubtrees(nodes);
+		if (subtrees.Empty())
 		{
 			return false;
 		}
@@ -1069,7 +1202,7 @@ namespace hod::inline editor
 		Document document;
 		document.GetRootNode().AddChild("Format").SetString(ClipboardFormat);
 		document.GetRootNode().AddChild("SourceAsset").SetString(GetAsset() != nullptr ? GetAsset()->GetUid().ToString() : String());
-		if (SerializeNodeAsAuthored(node, document.GetRootNode().AddChild("Node")) == false)
+		if (SerializeNodesAsAuthored(subtrees, document.GetRootNode().AddChild("Nodes")) == false)
 		{
 			return false;
 		}
@@ -1086,19 +1219,30 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @param node
+	/// @param nodes
 	/// @return
-	bool UIPrefabEditorTab::CutNode(ui2::Node* node)
+	bool UIPrefabEditorTab::CutNodes(const Vector<ui2::Node*>& nodes)
 	{
-		if (CanRemove(node) == false || CopyNode(node) == false)
+		Vector<ui2::Node*> subtrees = GetSubtrees(nodes);
+		for (ui2::Node* node : subtrees)
+		{
+			if (CanRemove(node) == false)
+			{
+				return false;
+			}
+		}
+		if (CopyNodes(subtrees) == false)
 		{
 			return false;
 		}
 
-		// Found back by its id: a pointer wouldn't survive a conversion (see ConvertNode)
+		// Found back by their ids: a pointer wouldn't survive a conversion (see ConvertNode)
 		AssignLocalIds();
-		_cutNode = node->GetLocalId();
-		// Read back rather than kept from CopyNode: what the clipboard gives back (encoding round trip) is what a paste compares
+		for (ui2::Node* node : subtrees)
+		{
+			_cutNodes.PushBack(node->GetLocalId());
+		}
+		// Read back rather than kept from CopyNodes: what the clipboard gives back (encoding round trip) is what a paste compares
 		const char* text = ImGui::GetClipboardText();
 		_cutClipboardText = (text != nullptr) ? text : "";
 		return true;
@@ -1107,7 +1251,7 @@ namespace hod::inline editor
 	/// @brief
 	void UIPrefabEditorTab::CancelCut()
 	{
-		_cutNode = 0;
+		_cutNodes.Clear();
 		_cutClipboardText.Clear();
 	}
 
@@ -1116,13 +1260,13 @@ namespace hod::inline editor
 	/// @return
 	bool UIPrefabEditorTab::IsCut(const ui2::Node* node) const
 	{
-		if (_cutNode == 0)
+		if (_cutNodes.Empty())
 		{
 			return false;
 		}
 		for (; node != nullptr; node = node->GetParent())
 		{
-			if (node->GetLocalId() == _cutNode)
+			if (std::find(_cutNodes.CBegin(), _cutNodes.CEnd(), node->GetLocalId()) != _cutNodes.CEnd())
 			{
 				return true;
 			}
@@ -1131,11 +1275,17 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @return
+	bool UIPrefabEditorTab::HasCutNodes() const
+	{
+		return _cutNodes.Empty() == false;
+	}
+
+	/// @brief
 	/// @param node
 	/// @param parent
 	/// @param index
-	/// @return
-	ui2::Node* UIPrefabEditorTab::MoveNode(ui2::Node* node, ui2::Node* parent, uint32_t index)
+	void UIPrefabEditorTab::MoveNode(ui2::Node* node, ui2::Node* parent, uint32_t index)
 	{
 		ui2::Node* oldParent = node->GetParent();
 		if (oldParent == parent)
@@ -1151,10 +1301,7 @@ namespace hod::inline editor
 			oldParent->ReparentChild(node, parent);
 		}
 		parent->SetChildIndex(node, index);
-
-		SetSelectedNode(node);
 		MarkAsDirty();
-		return node;
 	}
 
 	/// @brief
@@ -1169,31 +1316,57 @@ namespace hod::inline editor
 	/// @param parent
 	/// @param index
 	/// @return
-	ui2::Node* UIPrefabEditorTab::PasteNode(ui2::Node* parent, uint32_t index)
+	Vector<ui2::Node*> UIPrefabEditorTab::PasteNodes(ui2::Node* parent, uint32_t index)
 	{
+		Vector<ui2::Node*> pastedNodes;
 		if (CanEditStructure(parent) == false || CanPasteNode() == false)
 		{
-			return nullptr;
+			return pastedNodes;
 		}
 
 		const char* text = ImGui::GetClipboardText();
 
-		// A node cut here is moved, as long as the clipboard still holds what the cut put there (nothing copied since, here or elsewhere)
-		if (_cutNode != 0)
+		// Nodes cut here are moved, as long as the clipboard still holds what the cut put there (nothing copied since, here or elsewhere)
+		if (_cutNodes.Empty() == false)
 		{
-			ui2::Node* cutNode = (_cutClipboardText == text) ? _canvas.GetRootNode()->FindByLocalId(_cutNode) : nullptr;
-			if (cutNode == nullptr)
+			Vector<ui2::Node*> cutNodes;
+			if (_cutClipboardText == text)
+			{
+				for (uint64_t cutLocalId : _cutNodes)
+				{
+					if (ui2::Node* cutNode = _canvas.GetRootNode()->FindByLocalId(cutLocalId))
+					{
+						cutNodes.PushBack(cutNode);
+					}
+				}
+			}
+			cutNodes = GetSubtrees(cutNodes);
+
+			if (cutNodes.Empty())
 			{
 				CancelCut(); // pasted as any copied node below
 			}
-			else if (parent == cutNode || parent->IsDescendantOf(cutNode))
-			{
-				return nullptr; // can't go inside itself: stays cut
-			}
 			else
 			{
+				for (ui2::Node* cutNode : cutNodes)
+				{
+					if (parent == cutNode || parent->IsDescendantOf(cutNode))
+					{
+						return pastedNodes; // can't go inside itself: stays cut
+					}
+				}
+
 				CancelCut();
-				return MoveNode(cutNode, parent, index);
+				for (ui2::Node* cutNode : cutNodes)
+				{
+					MoveNode(cutNode, parent, index);
+					if (index != UINT32_MAX)
+					{
+						index = GetSiblingIndex(cutNode) + 1;
+					}
+				}
+				SetSelectedNodes(cutNodes);
+				return cutNodes;
 			}
 		}
 
@@ -1201,72 +1374,146 @@ namespace hod::inline editor
 		DocumentReaderJson documentReader;
 		if (documentReader.Read(document, text, (uint32_t)std::strlen(text)) == false)
 		{
-			return nullptr;
+			return pastedNodes;
 		}
 
 		const DocumentNode* formatNode = document.GetRootNode().GetChild("Format");
-		const DocumentNode* nodeNode = document.GetRootNode().GetChild("Node");
-		if (formatNode == nullptr || formatNode->GetType() != DocumentNode::Type::String || formatNode->GetString() != ClipboardFormat || nodeNode == nullptr)
+		const DocumentNode* nodesNode = document.GetRootNode().GetChild("Nodes");
+		if (formatNode == nullptr || formatNode->GetType() != DocumentNode::Type::String || formatNode->GetString() != ClipboardFormat || nodesNode == nullptr)
 		{
-			return nullptr;
+			return pastedNodes;
 		}
 
-		// The ids of the nodes outside of the copied subtree only mean the same nodes in the prefab it was copied from
+		// The ids of the nodes outside of the copied subtrees only mean the same nodes in the prefab they were copied from
 		const DocumentNode* sourceAssetNode = document.GetRootNode().GetChild("SourceAsset");
 		bool                samePrefab = GetAsset() != nullptr && sourceAssetNode != nullptr && sourceAssetNode->GetType() == DocumentNode::Type::String &&
 		                  sourceAssetNode->GetString() == GetAsset()->GetUid().ToString();
 
-		return InsertNodeCopy(parent, index, *nodeNode, samePrefab);
+		for (const DocumentNode* nodeNode = nodesNode->GetFirstChild(); nodeNode != nullptr; nodeNode = nodeNode->GetNextSibling())
+		{
+			ui2::Node* node = InsertNodeCopy(parent, index, *nodeNode, samePrefab);
+			if (node == nullptr)
+			{
+				break;
+			}
+			pastedNodes.PushBack(node);
+			if (index != UINT32_MAX)
+			{
+				index = GetSiblingIndex(node) + 1;
+			}
+		}
+		if (pastedNodes.Empty() == false)
+		{
+			SetSelectedNodes(pastedNodes);
+		}
+		return pastedNodes;
 	}
 
 	/// @brief
 	/// @return
-	ui2::Node* UIPrefabEditorTab::PasteNodeNextToSelection()
+	Vector<ui2::Node*> UIPrefabEditorTab::PasteNodesNextToSelection()
 	{
 		// Inside an instance, after the instance: its content has no room for new nodes
-		ui2::Node* selection = _selectedNode;
+		ui2::Node* selection = GetSelectedNode();
 		while (selection != nullptr && CanRemove(selection) == false)
 		{
 			selection = selection->GetParent();
 		}
 		if (selection == nullptr || selection == GetPrefabRoot())
 		{
-			return PasteNode(GetPrefabRoot());
+			return PasteNodes(GetPrefabRoot());
 		}
 
-		return PasteNode(selection->GetParent(), GetSiblingIndex(selection) + 1);
+		return PasteNodes(selection->GetParent(), GetSiblingIndex(selection) + 1);
 	}
 
 	/// @brief
 	/// @return
-	ui2::Node* UIPrefabEditorTab::PasteNodeInSelection()
+	Vector<ui2::Node*> UIPrefabEditorTab::PasteNodesInSelection()
 	{
 		// Inside an instance, in the closest node that can have new children
-		ui2::Node* parent = (_selectedNode != nullptr) ? _selectedNode : GetPrefabRoot();
+		ui2::Node* parent = (GetSelectedNode() != nullptr) ? GetSelectedNode() : GetPrefabRoot();
 		while (parent != nullptr && CanEditStructure(parent) == false)
 		{
 			parent = parent->GetParent();
 		}
-		return PasteNode(parent);
+		return PasteNodes(parent);
 	}
 
 	/// @brief
-	/// @param node
+	/// @param nodes
 	/// @return
-	ui2::Node* UIPrefabEditorTab::DuplicateNode(ui2::Node* node)
+	Vector<ui2::Node*> UIPrefabEditorTab::DuplicateNodes(const Vector<ui2::Node*>& nodes)
 	{
-		if (CanRemove(node) == false)
+		Vector<ui2::Node*> copies;
+		for (ui2::Node* node : GetSubtrees(nodes))
 		{
-			return nullptr;
+			if (CanRemove(node) == false)
+			{
+				continue;
+			}
+
+			Document document;
+			if (SerializeNodesAsAuthored({node}, document.GetRootNode()) == false || document.GetRootNode().GetFirstChild() == nullptr)
+			{
+				continue;
+			}
+
+			ui2::Node* copy = InsertNodeCopy(node->GetParent(), GetSiblingIndex(node) + 1, *document.GetRootNode().GetFirstChild(), true);
+			if (copy != nullptr)
+			{
+				copies.PushBack(copy);
+			}
+		}
+		if (copies.Empty() == false)
+		{
+			SetSelectedNodes(copies);
+		}
+		return copies;
+	}
+
+	/// @brief
+	/// @param nodes
+	/// @param parent
+	/// @return
+	bool UIPrefabEditorTab::CanReparentNodes(const Vector<ui2::Node*>& nodes, const ui2::Node* parent) const
+	{
+		if (parent == nullptr || CanEditStructure(parent) == false)
+		{
+			return false;
 		}
 
-		Document document;
-		if (SerializeNodeAsAuthored(node, document.GetRootNode()) == false)
+		Vector<ui2::Node*> subtrees = GetSubtrees(nodes);
+		bool               moves = false;
+		for (ui2::Node* node : subtrees)
 		{
-			return nullptr;
+			if (CanRemove(node) == false || node == parent || parent->IsDescendantOf(node))
+			{
+				return false;
+			}
+			moves |= (node->GetParent() != parent);
+		}
+		return moves;
+	}
+
+	/// @brief
+	/// @param nodes
+	/// @param parent
+	/// @return
+	bool UIPrefabEditorTab::ReparentNodes(const Vector<ui2::Node*>& nodes, ui2::Node* parent)
+	{
+		if (CanReparentNodes(nodes, parent) == false)
+		{
+			return false;
 		}
 
-		return InsertNodeCopy(node->GetParent(), GetSiblingIndex(node) + 1, document.GetRootNode(), true);
+		Vector<ui2::Node*> subtrees = GetSubtrees(nodes);
+		for (ui2::Node* node : subtrees)
+		{
+			MoveNode(node, parent, UINT32_MAX);
+		}
+		SetSelectedNodes(subtrees);
+		return true;
 	}
 
 	/// @brief
@@ -1274,25 +1521,25 @@ namespace hod::inline editor
 	{
 		if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_C))
 		{
-			CopyNode(_selectedNode);
+			CopyNodes(_selectedNodes);
 		}
 		else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_X))
 		{
-			CutNode(_selectedNode);
+			CutNodes(_selectedNodes);
 		}
 		else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_V))
 		{
-			PasteNodeNextToSelection();
+			PasteNodesNextToSelection();
 		}
 		else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiMod_Shift | ImGuiKey_V))
 		{
-			PasteNodeInSelection();
+			PasteNodesInSelection();
 		}
 		else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_D))
 		{
-			DuplicateNode(_selectedNode);
+			DuplicateNodes(_selectedNodes);
 		}
-		else if (_cutNode != 0 && ImGui::IsKeyPressed(ImGuiKey_Escape, false))
+		else if (_cutNodes.Empty() == false && ImGui::IsKeyPressed(ImGuiKey_Escape, false))
 		{
 			CancelCut();
 		}

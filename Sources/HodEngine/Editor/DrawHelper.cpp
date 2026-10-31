@@ -18,11 +18,30 @@
 
 namespace hod::inline editor
 {
-	bool DrawHelper::DrawVector2(Vector2& value, const char* labelX, const char* labelY, bool enabledX, bool enabledY)
+	namespace
 	{
-		bool changed = false;
-		float x = value.GetX();
-		float y = value.GetY();
+		/// @brief One component of DrawVector2/DrawVector4: its framed label glued to its field
+		/// @return true if edited
+		bool DrawVectorComponent(const char* id, const char* label, const ImVec4& labelColor, float width, float& component, bool mixed)
+		{
+			ImGui::PushStyleColor(ImGuiCol_FrameBg, labelColor);
+			FramedText(label, ImDrawFlags_RoundLeft);
+			ImGui::PopStyleColor();
+			ImGui::SameLine(0.0f, 0.0f);
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
+			ImGui::SetNextItemWidth(width);
+			ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, mixed);
+			bool changed = DragScalar(id, ImGuiDataType_Float, &component, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundRight);
+			ImGui::PopItemFlag();
+			return changed;
+		}
+	}
+
+	bool DrawHelper::DrawVector2(Vector2& value, const char* labelX, const char* labelY, bool enabledX, bool enabledY, uint8_t mixedComponents, uint8_t* editedComponents)
+	{
+		uint8_t edited = 0;
+		float   x = value.GetX();
+		float   y = value.GetY();
 
 		ImGui::PushID(&value);
 
@@ -30,47 +49,42 @@ namespace hod::inline editor
 		availableWidth -= CalculateButtonSize(labelX).x;
 		availableWidth -= CalculateButtonSize(labelY).x;
 		availableWidth -= ImGui::GetStyle().ItemSpacing.x - 2;
-		
+
 		ImGui::BeginDisabled(enabledX == false);
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.5f, 0.0f, 0.0f, 1.0f));
-		FramedText(labelX, ImDrawFlags_RoundLeft);
-		ImGui::PopStyleColor();
-		ImGui::SameLine(0.0f, 0.0f);
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
-		ImGui::SetNextItemWidth(availableWidth * 0.5f);
-		changed |= DragScalar("##x", ImGuiDataType_Float, &x, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundRight);
+		if (DrawVectorComponent("##x", labelX, ImVec4(0.5f, 0.0f, 0.0f, 1.0f), availableWidth * 0.5f, x, (mixedComponents & 1) != 0))
+		{
+			edited |= 1;
+		}
 		ImGui::EndDisabled();
 
 		ImGui::SameLine();
 
 		ImGui::BeginDisabled(enabledY == false);
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.0f, 0.5f, 0.0f, 1.0f));
-		FramedText(labelY, ImDrawFlags_RoundLeft);
-		ImGui::PopStyleColor();
-		ImGui::SameLine(0.0f, 0.0f);
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
-		ImGui::SetNextItemWidth(availableWidth * 0.5f);
-		changed |= DragScalar("##y", ImGuiDataType_Float, &y, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundRight);
+		if (DrawVectorComponent("##y", labelY, ImVec4(0.0f, 0.5f, 0.0f, 1.0f), availableWidth * 0.5f, y, (mixedComponents & 2) != 0))
+		{
+			edited |= 2;
+		}
 		ImGui::EndDisabled();
 
 		ImGui::PopID();
 
-		if (changed)
+		if (edited != 0)
 		{
 			value.SetX(x);
 			value.SetY(y);
 		}
+		if (editedComponents != nullptr)
+		{
+			*editedComponents = edited;
+		}
 
-		return changed;
+		return edited != 0;
 	}
 
-	bool DrawHelper::DrawVector4(Vector4& value, const char* labelX, const char* labelY, const char* labelZ, const char* labelW)
+	bool DrawHelper::DrawVector4(Vector4& value, const char* labelX, const char* labelY, const char* labelZ, const char* labelW, uint8_t mixedComponents, uint8_t* editedComponents)
 	{
-		bool changed = false;
-		float x = value.GetX();
-		float y = value.GetY();
-		float z = value.GetZ();
-		float w = value.GetW();
+		uint8_t edited = 0;
+		float   components[4] = {value.GetX(), value.GetY(), value.GetZ(), value.GetW()};
 
 		ImGui::PushID(&value);
 
@@ -81,55 +95,36 @@ namespace hod::inline editor
 		availableWidth -= CalculateButtonSize("W").x;
 		availableWidth -= ImGui::GetStyle().ItemSpacing.x - 2;
 
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.5f, 0.0f, 0.0f, 1.0f));
-		FramedText(labelX, ImDrawFlags_RoundLeft);
-		ImGui::PopStyleColor();
-		ImGui::SameLine(0.0f, 0.0f);
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
-		ImGui::SetNextItemWidth(availableWidth * 0.24f);
-		changed |= DragScalar("##x", ImGuiDataType_Float, &x, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundRight);
-
-		ImGui::SameLine();
-
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.0f, 0.5f, 0.0f, 1.0f));
-		FramedText(labelY, ImDrawFlags_RoundLeft);
-		ImGui::PopStyleColor();
-		ImGui::SameLine(0.0f, 0.0f);
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
-		ImGui::SetNextItemWidth(availableWidth * 0.24f);
-		changed |= DragScalar("##y", ImGuiDataType_Float, &y, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundRight);
-
-		ImGui::SameLine();
-
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.0f, 0.0f, 1.0f, 1.0f));
-		FramedText(labelZ, ImDrawFlags_RoundLeft);
-		ImGui::PopStyleColor();
-		ImGui::SameLine(0.0f, 0.0f);
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
-		ImGui::SetNextItemWidth(availableWidth * 0.24f);
-		changed |= DragScalar("##z", ImGuiDataType_Float, &z, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundRight);
-
-		ImGui::SameLine();
-
-		ImGui::PushStyleColor(ImGuiCol_FrameBg, ImVec4(0.5f, 0.5f, 0.5f, 1.0f));
-		FramedText(labelW, ImDrawFlags_RoundLeft);
-		ImGui::PopStyleColor();
-		ImGui::SameLine(0.0f, 0.0f);
-		ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
-		ImGui::SetNextItemWidth(availableWidth * 0.24f);
-		changed |= DragScalar("##w", ImGuiDataType_Float, &w, 1.0f, nullptr, nullptr, nullptr, 0, ImDrawFlags_RoundRight);
+		const char*  ids[4] = {"##x", "##y", "##z", "##w"};
+		const char*  labels[4] = {labelX, labelY, labelZ, labelW};
+		const ImVec4 labelColors[4] = {ImVec4(0.5f, 0.0f, 0.0f, 1.0f), ImVec4(0.0f, 0.5f, 0.0f, 1.0f), ImVec4(0.0f, 0.0f, 1.0f, 1.0f), ImVec4(0.5f, 0.5f, 0.5f, 1.0f)};
+		for (uint8_t index = 0; index < 4; ++index)
+		{
+			if (index > 0)
+			{
+				ImGui::SameLine();
+			}
+			if (DrawVectorComponent(ids[index], labels[index], labelColors[index], availableWidth * 0.24f, components[index], (mixedComponents & (1 << index)) != 0))
+			{
+				edited |= (uint8_t)(1 << index);
+			}
+		}
 
 		ImGui::PopID();
 
-		if (changed)
+		if (edited != 0)
 		{
-			value.SetX(x);
-			value.SetY(y);
-			value.SetZ(z);
-			value.SetW(w);
+			value.SetX(components[0]);
+			value.SetY(components[1]);
+			value.SetZ(components[2]);
+			value.SetW(components[3]);
+		}
+		if (editedComponents != nullptr)
+		{
+			*editedComponents = edited;
 		}
 
-		return changed;
+		return edited != 0;
 	}
 
 	bool DrawHelper::DrawToggleWithSettings(const char* label, const char* itemName, const char* settingsPopupId, bool& toggled)

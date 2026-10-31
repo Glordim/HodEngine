@@ -158,10 +158,11 @@ namespace hod::inline editor
 			// Same lookup as PropertyDrawer's enum combo (SizeMode is reflected as a UInt8)
 			EnumDescriptor* enumDescriptor = static_cast<ReflectionPropertyVariable*>(property.GetReflectionProperty())->GetEnumDescriptor();
 			uint8_t         value = property.GetValue<uint8_t>();
-			const char*     valueLabel = "NotFound";
+			bool            mixed = property.HasDifferentValues();
+			const char*     valueLabel = mixed ? GetMixedValueLabel() : "NotFound";
 			for (const std::pair<uint64_t, String>& enumValue : enumDescriptor->GetValues())
 			{
-				if (static_cast<uint8_t>(enumValue.first) == value)
+				if (mixed == false && static_cast<uint8_t>(enumValue.first) == value)
 				{
 					valueLabel = enumValue.second.CStr();
 					break;
@@ -174,7 +175,8 @@ namespace hod::inline editor
 			{
 				for (const std::pair<uint64_t, String>& enumValue : enumDescriptor->GetValues())
 				{
-					if (ImGui::MenuItem(enumValue.second.CStr()) && static_cast<uint8_t>(enumValue.first) != value)
+					// Even the first node's mode, when mixed: to the other nodes
+					if (ImGui::MenuItem(enumValue.second.CStr()) && (mixed || static_cast<uint8_t>(enumValue.first) != value))
 					{
 						property.SetValue<uint8_t>(static_cast<uint8_t>(enumValue.first));
 						changed = true;
@@ -185,7 +187,15 @@ namespace hod::inline editor
 			if (ImGui::BeginComboPreview())
 			{
 				const ImRect& previewRect = ImGui::GetCurrentContext()->ComboPreviewData.PreviewRect;
+				if (mixed)
+				{
+					ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetStyleColorVec4(ImGuiCol_TextDisabled));
+				}
 				ImGui::RenderTextClipped(previewRect.Min, previewRect.Max, valueLabel, nullptr, nullptr, ImVec2(0.5f, 0.5f));
+				if (mixed)
+				{
+					ImGui::PopStyleColor();
+				}
 				ImGui::EndComboPreview();
 			}
 			ImGui::EndDisabled();
@@ -236,6 +246,77 @@ namespace hod::inline editor
 			changed |= DrawSizeModeComponent(*heightMode, "Y", ImVec4(0.0f, 0.5f, 0.0f, 1.0f), availableWidth * 0.5f, usedY, unusedReasonY);
 			return changed;
 		}
+
+		/// @brief The objects, as the instances of an EditorReflectedObject
+		template<typename _Type_>
+		Vector<void*> ToInstances(const Vector<_Type_*>& objects)
+		{
+			Vector<void*> instances;
+			instances.Reserve(objects.Size());
+			for (_Type_* object : objects)
+			{
+				instances.PushBack(object);
+			}
+			return instances;
+		}
+
+		bool IsKindOf(const ReflectionDescriptor& descriptor, const ReflectionDescriptor& base)
+		{
+			for (const ReflectionDescriptor* current = &descriptor; current != nullptr; current = current->GetParent())
+			{
+				if (current->GetType() == base.GetType()) // not the addresses: one descriptor per DLL
+				{
+					return true;
+				}
+			}
+			return false;
+		}
+
+		/// @brief The most derived type all the nodes are of: the properties they share (those of a Node for a Text and an Image)
+		const ReflectionDescriptor& FindCommonDescriptor(const Vector<ui2::Node*>& nodes)
+		{
+			const ReflectionDescriptor* common = &nodes[0]->GetReflectionDescriptorV();
+			for (const ui2::Node* node : nodes)
+			{
+				while (common->GetParent() != nullptr && IsKindOf(node->GetReflectionDescriptorV(), *common) == false)
+				{
+					common = common->GetParent();
+				}
+			}
+			return *common;
+		}
+
+		/// @brief The type of the objects (layouts, interactions...), when all of them exist and are of the same one: edited together then
+		/// @return nullptr otherwise
+		template<typename _Type_>
+		ReflectionDescriptor* FindSharedDescriptor(const Vector<_Type_*>& objects)
+		{
+			ReflectionDescriptor* shared = nullptr;
+			for (_Type_* object : objects)
+			{
+				if (object == nullptr)
+				{
+					return nullptr;
+				}
+				ReflectionDescriptor& descriptor = object->GetReflectionDescriptorV();
+				if (shared == nullptr)
+				{
+					shared = &descriptor;
+				}
+				else if (descriptor.GetType() != shared->GetType())
+				{
+					return nullptr;
+				}
+			}
+			return shared;
+		}
+
+		/// @brief For the nodes' Interactions, Layouts... that are neither all the same type nor all missing: nothing edited together
+		void DrawDifferentTypes(const char* what)
+		{
+			ImGui::TextDisabled("%s %s differ: edited one node at a time", GetMixedValueLabel(), what);
+			ImGui::Spacing();
+		}
 	}
 
 	/// @brief
@@ -263,35 +344,65 @@ namespace hod::inline editor
 			return;
 		}
 
+		// The nodes edited together: the active one first, whose value a mixed value's edit starts from
+		Vector<ui2::Node*> nodes;
+		nodes.PushBack(node);
+		for (ui2::Node* selectedNode : tab->GetSelectedNodes())
+		{
+			if (selectedNode != node)
+			{
+				nodes.PushBack(selectedNode);
+			}
+		}
+		bool multiple = (nodes.Size() > 1);
+
 		bool                        changed = false;
 		const ReflectionDescriptor* convertDescriptor = nullptr;
 
 		// First: unpacking the instance from there deletes its source
-		DrawPrefabInstanceRow(node);
+		if (multiple == false)
+		{
+			DrawPrefabInstanceRow(node);
+		}
 
-		// A node of an instance is compared to its prefab's: the overrides are marked, and revertable
-		ui2::Node*            sourceNode = UIPrefabEditorTab::FindSourceNode(node);
-		EditorReflectedObject nodeObject(node, &node->GetReflectionDescriptorV(), sourceNode, this);
+		// A node of an instance is compared to its prefab's: the overrides are marked, and revertable. Not several nodes, which have a source each.
+		ui2::Node*            sourceNode = multiple ? nullptr : UIPrefabEditorTab::FindSourceNode(node);
+		EditorReflectedObject nodeObject(ToInstances(nodes), &FindCommonDescriptor(nodes), sourceNode, this);
 
-		bool readOnly = (UIPrefabEditorTab::CanEditProperties(node) == false);
+		bool readOnly = false;
+		for (const ui2::Node* editedNode : nodes)
+		{
+			readOnly |= (UIPrefabEditorTab::CanEditProperties(editedNode) == false);
+		}
+		if (multiple)
+		{
+			ImGui::TextDisabled("%u nodes selected", nodes.Size());
+			if (readOnly)
+			{
+				ImGui::TextDisabled("Some are in an instance held by an instance: edited in its own prefab");
+			}
+		}
 		ImGui::BeginDisabled(readOnly);
 
-		changed |= DrawNameRow(node, nodeObject);
+		changed |= DrawNameRow(nodes, nodeObject);
 
 		// 1. Where the node is and how big: what is looked at and edited the most
-		changed |= DrawPlacementBlock(node, nodeObject, sourceNode);
+		changed |= DrawPlacementBlock(nodes, nodeObject, sourceNode);
 
 		// 2. What the node's type adds
-		changed |= DrawContentBlock(node, nodeObject, convertDescriptor);
+		changed |= DrawContentBlock(nodes, nodeObject, convertDescriptor);
 
 		// 3. How the node reacts to the pointer
-		changed |= DrawInteractionBlock(node, sourceNode);
+		changed |= DrawInteractionBlock(nodes, sourceNode);
 
 		// 4. How the node arranges its own children: rarely added
-		changed |= DrawLayoutBlock(node, sourceNode);
+		changed |= DrawLayoutBlock(nodes, sourceNode);
 
 		// 5. The code driving the prefab: on its root only
-		changed |= DrawViewBlock(node);
+		if (multiple == false)
+		{
+			changed |= DrawViewBlock(node);
+		}
 
 		ImGui::EndDisabled();
 
@@ -307,14 +418,20 @@ namespace hod::inline editor
 		}
 	}
 
-	/// @brief The node's icon and name, above the blocks (the name is what tells the selected node apart, as in the hierarchy).
+	/// @brief The nodes' icon and name, above the blocks (the name is what tells the selected node apart, as in the hierarchy).
 	/// @return true if the name was edited
-	bool UIPrefabEditorInspectorWindow::DrawNameRow(ui2::Node* node, EditorReflectedObject& nodeObject)
+	bool UIPrefabEditorInspectorWindow::DrawNameRow(const Vector<ui2::Node*>& nodes, EditorReflectedObject& nodeObject)
 	{
+		const ui2::Node* node = nodes[0];
+
 		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(DrawHelper::GetTypeIcon(node->GetReflectionDescriptorV(), ICON_MDI_VECTOR_SQUARE));
+		ImGui::TextUnformatted(DrawHelper::GetTypeIcon(*nodeObject.GetReflectionDescriptor(), ICON_MDI_VECTOR_SQUARE));
 		// Read-only: assigned once, on the first save, and never edited (see Node::GetLocalId). Only of use to debug.
-		if (node->GetLocalId() != 0)
+		if (nodes.Size() > 1)
+		{
+			ImGui::SetItemTooltip("%u nodes", nodes.Size());
+		}
+		else if (node->GetLocalId() != 0)
 		{
 			ImGui::SetItemTooltip("Local Id: %llu", (unsigned long long)node->GetLocalId());
 		}
@@ -398,46 +515,65 @@ namespace hod::inline editor
 		ImGui::Spacing();
 	}
 
-	/// @brief How the node is placed within its parent, in three sections:
-	/// 1. the fields of its LayoutParams' type, which depends on the parent's layout (anchors without one, see DrawAnchoredFields)
+	/// @brief How the nodes are placed within their parents, in three sections:
+	/// 1. the fields of their LayoutParams' type, which depends on the parent's layout (anchors without one, see DrawAnchoredFields)
 	/// 2. the size fields every LayoutParams shares (see DrawSizeFields)
 	/// 3. the node's own transform (Rotation, Scale, Pivot), purely visual
+	/// Nodes with LayoutParams of different types (under parents of different layouts) only share the third one.
 	/// @return true if something was edited
-	bool UIPrefabEditorInspectorWindow::DrawPlacementBlock(ui2::Node* node, EditorReflectedObject& nodeObject, ui2::Node* sourceNode)
+	bool UIPrefabEditorInspectorWindow::DrawPlacementBlock(const Vector<ui2::Node*>& nodes, EditorReflectedObject& nodeObject, ui2::Node* sourceNode)
 	{
 		bool changed = false;
 
+		ui2::Node*                 node = nodes[0];
+		Vector<ui2::LayoutParams*> layoutParamsList;
+		bool                       anyLayoutParams = false;
+		bool                       sameParent = true;
+		for (ui2::Node* editedNode : nodes)
+		{
+			layoutParamsList.PushBack(editedNode->GetLayoutParams());
+			anyLayoutParams |= (editedNode->GetLayoutParams() != nullptr);
+			sameParent &= (editedNode->GetParent() == node->GetParent());
+		}
+		ReflectionDescriptor* layoutParamsDescriptor = FindSharedDescriptor(layoutParamsList);
+
 		// The title says where the fields come from: they change with the parent's layout, e.g. when the node is moved.
-		ui2::Node*         parent = node->GetParent();
-		ui2::LayoutParams* layoutParams = node->GetLayoutParams();
-		String             title = "Placement";
-		if (parent != nullptr && parent->GetLayout() != nullptr)
+		ui2::Node* parent = node->GetParent();
+		String     title = "Placement";
+		if (sameParent && parent != nullptr && parent->GetLayout() != nullptr)
 		{
 			const String& parentName = parent->GetName().Empty() ? parent->GetReflectionDescriptorV().GetDisplayName() : parent->GetName();
 			title += String(" - ") + parent->GetLayout()->GetReflectionDescriptorV().GetDisplayName() + " of " + parentName;
 		}
-		else if (layoutParams != nullptr)
+		else if (layoutParamsDescriptor != nullptr)
 		{
-			title += String(" - ") + layoutParams->GetReflectionDescriptorV().GetDisplayName();
+			title += String(" - ") + layoutParamsDescriptor->GetDisplayName();
 		}
 
 		if (DrawHelper::BeginInspectorBlock((const void*)BlockLayoutParams, ICON_MDI_ANCHOR, title.CStr()))
 		{
-			if (layoutParams != nullptr)
+			if (layoutParamsDescriptor != nullptr)
 			{
+				ui2::LayoutParams* layoutParams = layoutParamsList[0];
+
 				// An instance root's placement is the containing prefab's own: compared to nothing
 				ui2::LayoutParams* sourceLayoutParams = nullptr;
 				if (sourceNode != nullptr && node->GetPrefabInstance() == nullptr && sourceNode->GetLayoutParams() != nullptr &&
-				    sourceNode->GetLayoutParams()->GetReflectionDescriptorV().GetType() == layoutParams->GetReflectionDescriptorV().GetType())
+				    sourceNode->GetLayoutParams()->GetReflectionDescriptorV().GetType() == layoutParamsDescriptor->GetType())
 				{
 					sourceLayoutParams = sourceNode->GetLayoutParams();
 				}
-				EditorReflectedObject layoutParamsObject(layoutParams, &layoutParams->GetReflectionDescriptorV(), sourceLayoutParams, this);
+				EditorReflectedObject layoutParamsObject(ToInstances(layoutParamsList), layoutParamsDescriptor, sourceLayoutParams, this);
 
 				// 1. The type's own fields
-				if (ui2::AnchoredLayoutParams* anchoredLayoutParams = ui2::LayoutParams::Cast<ui2::AnchoredLayoutParams>(layoutParams))
+				if (ui2::LayoutParams::Cast<ui2::AnchoredLayoutParams>(layoutParams) != nullptr)
 				{
-					changed |= DrawAnchoredFields(node, anchoredLayoutParams, layoutParamsObject);
+					Vector<ui2::AnchoredLayoutParams*> anchoredLayoutParamsList;
+					for (ui2::LayoutParams* editedLayoutParams : layoutParamsList)
+					{
+						anchoredLayoutParamsList.PushBack(ui2::LayoutParams::Cast<ui2::AnchoredLayoutParams>(editedLayoutParams));
+					}
+					changed |= DrawAnchoredFields(nodes, anchoredLayoutParamsList, layoutParamsObject);
 					DrawSectionSeparator();
 				}
 				else
@@ -459,7 +595,12 @@ namespace hod::inline editor
 				}
 
 				// 2. The shared size fields
-				changed |= DrawSizeFields(layoutParams, layoutParamsObject);
+				changed |= DrawSizeFields(layoutParamsList, layoutParamsObject);
+				DrawSectionSeparator();
+			}
+			else if (anyLayoutParams)
+			{
+				ImGui::TextDisabled("%s Placed differently (their parents' layouts differ): edited one node at a time", GetMixedValueLabel());
 				DrawSectionSeparator();
 			}
 
@@ -479,21 +620,32 @@ namespace hod::inline editor
 
 	/// @brief AnchoredLayoutParams' own fields, grouped by what they do rather than in declaration order: the anchor
 	/// preset picker, then the fields it sets (AnchorMin/Max, Alignment) right below, then Offset. Editing the anchors
-	/// keeps the node where it is (AnchoredLayoutParams::PlaceRect), as picking a preset does.
+	/// keeps each node where it is (AnchoredLayoutParams::PlaceRect), as picking a preset does.
+	/// @param layoutParamsList the nodes' ones, in the same order
 	/// @return true if something was edited
-	bool UIPrefabEditorInspectorWindow::DrawAnchoredFields(ui2::Node* node, ui2::AnchoredLayoutParams* layoutParams, EditorReflectedObject& layoutParamsObject)
+	bool UIPrefabEditorInspectorWindow::DrawAnchoredFields(const Vector<ui2::Node*>& nodes, const Vector<ui2::AnchoredLayoutParams*>& layoutParamsList,
+	                                                       EditorReflectedObject& layoutParamsObject)
 	{
 		bool changed = false;
 
-		// Where the node is before any change, to keep it there.
-		ui2::Node* parent = node->GetParent();
-		Vector2    parentSize = parent != nullptr ? parent->GetSize() : Vector2::Zero;
-		Vector2    center = node->GetPosition();
-		Vector2    size = node->GetSize();
+		// Where each node is before any change, to keep it there.
+		struct Placement
+		{
+			Vector2 _parentSize;
+			Vector2 _center;
+			Vector2 _size;
+		};
+		Vector<Placement> placements;
+		for (const ui2::Node* node : nodes)
+		{
+			const ui2::Node* parent = node->GetParent();
+			placements.PushBack(Placement {parent != nullptr ? parent->GetSize() : Vector2::Zero, node->GetPosition(), node->GetSize()});
+		}
 
-		Vector2 anchorMin = layoutParams->GetAnchorMin();
-		Vector2 anchorMax = layoutParams->GetAnchorMax();
-		Vector2 alignment = layoutParams->GetAlignment();
+		// The first node's preset is the one highlighted
+		Vector2 anchorMin = layoutParamsList[0]->GetAnchorMin();
+		Vector2 anchorMax = layoutParamsList[0]->GetAnchorMax();
+		Vector2 alignment = layoutParamsList[0]->GetAlignment();
 		bool    anchorsChanged = false;
 
 		// A row like the properties' ones (see PropertyDrawer::BeginProperty): its label, then the fixed size picker in the value column
@@ -502,9 +654,12 @@ namespace hod::inline editor
 		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 		if (AnchorPresetsDrawer::Draw(ImVec2(100.0f, 100.0f), anchorMin, anchorMax, alignment))
 		{
-			layoutParams->SetAnchorMin(anchorMin);
-			layoutParams->SetAnchorMax(anchorMax);
-			layoutParams->SetAlignment(alignment);
+			for (ui2::AnchoredLayoutParams* layoutParams : layoutParamsList)
+			{
+				layoutParams->SetAnchorMin(anchorMin);
+				layoutParams->SetAnchorMax(anchorMax);
+				layoutParams->SetAlignment(alignment);
+			}
 			anchorsChanged = true;
 		}
 		anchorsChanged |= DrawLayoutParamsProperty(layoutParamsObject, "AnchorMin");
@@ -513,7 +668,10 @@ namespace hod::inline editor
 
 		if (anchorsChanged)
 		{
-			layoutParams->PlaceRect(parentSize, center, size);
+			for (uint32_t index = 0; index < layoutParamsList.Size(); ++index)
+			{
+				layoutParamsList[index]->PlaceRect(placements[index]._parentSize, placements[index]._center, placements[index]._size);
+			}
 			changed = true;
 		}
 
@@ -524,27 +682,41 @@ namespace hod::inline editor
 
 	/// @brief The size fields every LayoutParams shares: the mode (Fixed/Content), Size, then its bounds. Under AnchoredLayoutParams,
 	/// a field unused with the current anchors is greyed out (the X Size Mode on a stretched width...), and Size is a delta
-	/// (dX/dY) on a stretched axis.
+	/// (dX/dY) on a stretched axis. With several nodes, a field is greyed out when none of them uses it.
+	/// @param layoutParamsList the nodes' ones, all of the same type
 	/// @return true if something was edited
-	bool UIPrefabEditorInspectorWindow::DrawSizeFields(ui2::LayoutParams* layoutParams, EditorReflectedObject& layoutParamsObject)
+	bool UIPrefabEditorInspectorWindow::DrawSizeFields(const Vector<ui2::LayoutParams*>& layoutParamsList, EditorReflectedObject& layoutParamsObject)
 	{
 		bool changed = false;
 
-		ui2::AnchoredLayoutParams* anchoredLayoutParams = ui2::LayoutParams::Cast<ui2::AnchoredLayoutParams>(layoutParams);
-		bool                       stretchedX = anchoredLayoutParams != nullptr && anchoredLayoutParams->IsStretchedX();
-		bool                       stretchedY = anchoredLayoutParams != nullptr && anchoredLayoutParams->IsStretchedY();
-		bool                       fixedX = stretchedX == false && layoutParams->GetWidthMode() == ui2::LayoutParams::SizeMode::Fixed;
-		bool                       fixedY = stretchedY == false && layoutParams->GetHeightMode() == ui2::LayoutParams::SizeMode::Fixed;
+		bool anyStretchedX = false;
+		bool anyStretchedY = false;
+		bool allStretchedX = true;
+		bool allStretchedY = true;
+		bool anyFixedX = false;
+		bool anyFixedY = false;
+		for (const ui2::LayoutParams* layoutParams : layoutParamsList)
+		{
+			const ui2::AnchoredLayoutParams* anchoredLayoutParams = ui2::LayoutParams::Cast<ui2::AnchoredLayoutParams>(layoutParams);
+			bool                             stretchedX = anchoredLayoutParams != nullptr && anchoredLayoutParams->IsStretchedX();
+			bool                             stretchedY = anchoredLayoutParams != nullptr && anchoredLayoutParams->IsStretchedY();
+			anyStretchedX |= stretchedX;
+			anyStretchedY |= stretchedY;
+			allStretchedX &= stretchedX;
+			allStretchedY &= stretchedY;
+			anyFixedX |= (stretchedX == false && layoutParams->GetWidthMode() == ui2::LayoutParams::SizeMode::Fixed);
+			anyFixedY |= (stretchedY == false && layoutParams->GetHeightMode() == ui2::LayoutParams::SizeMode::Fixed);
+		}
 
-		changed |= DrawSizeModeRow(layoutParamsObject, stretchedX == false, stretchedY == false, "Unused: the width is stretched, the anchors and the size delta give it",
+		changed |= DrawSizeModeRow(layoutParamsObject, allStretchedX == false, allStretchedY == false, "Unused: the width is stretched, the anchors and the size delta give it",
 		                           "Unused: the height is stretched, the anchors and the size delta give it");
 
 		// Size, by hand rather than reflected to tell its components apart: a delta added to the anchors' span on a stretched axis (dX/dY), the node's own size on the others
 		if (EditorReflectedProperty* sizeProperty = layoutParamsObject.FindProperty("Size"))
 		{
 			// A Content axis anchored on a point takes its size from the content: that component is unused
-			bool usedX = fixedX || stretchedX;
-			bool usedY = fixedY || stretchedY;
+			bool usedX = anyFixedX || anyStretchedX;
+			bool usedY = anyFixedY || anyStretchedY;
 			bool used = usedX || usedY;
 			ImGui::PushID(sizeProperty->GetReflectionProperty());
 			ImGui::BeginDisabled(used == false);
@@ -553,15 +725,35 @@ namespace hod::inline editor
 			{
 				ImGui::SetItemTooltip("Unused: no axis is Fixed or stretched (sized from the content)");
 			}
-			else if (stretchedX || stretchedY)
+			else if (anyStretchedX || anyStretchedY)
 			{
 				ImGui::SetItemTooltip("dX/dY: added to the anchors' span on a stretched axis, around the alignment point");
 			}
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+
+			// Each component on its own: the nodes may differ on one only
 			Vector2 sizeValue = *sizeProperty->GetObject<Vector2>();
-			if (DrawHelper::DrawVector2(sizeValue, stretchedX ? "dX" : "X", stretchedY ? "dY" : "Y", usedX, usedY))
+			uint8_t mixedComponents = 0;
+			for (uint32_t index = 1; index < sizeProperty->GetInstances().Size(); ++index)
 			{
-				sizeProperty->SetObject(sizeValue);
+				const Vector2& otherSize = *sizeProperty->GetObjectOf<Vector2>(index);
+				mixedComponents |= (otherSize.GetX() != sizeValue.GetX() ? 1 : 0) | (otherSize.GetY() != sizeValue.GetY() ? 2 : 0);
+			}
+			uint8_t editedComponents = 0;
+			if (DrawHelper::DrawVector2(sizeValue, allStretchedX ? "dX" : "X", allStretchedY ? "dY" : "Y", usedX, usedY, mixedComponents, &editedComponents))
+			{
+				sizeProperty->EditObjects<Vector2>(
+					[&](Vector2& size)
+					{
+						if (editedComponents & 1)
+						{
+							size.SetX(sizeValue.GetX());
+						}
+						if (editedComponents & 2)
+						{
+							size.SetY(sizeValue.GetY());
+						}
+					});
 				changed = true;
 			}
 			ImGui::EndDisabled();
@@ -574,22 +766,34 @@ namespace hod::inline editor
 		return changed;
 	}
 
-	/// @brief What the node's type adds (Text, Image...). Titled after that type; converting the node to another
-	/// type is an action of the header (see UIPrefabEditorTab::ConvertNode), not a field. Only the header for a
-	/// plain Node, which adds nothing.
+	/// @brief What the nodes' type adds (Text, Image...): the type they share, with several nodes. Titled after that type; converting
+	/// a node to another type is an action of the header (see UIPrefabEditorTab::ConvertNode), not a field, for a single node. Only
+	/// the header for a plain Node, which adds nothing.
 	/// @param convertDescriptor set to the type picked from Convert To, if any
 	/// @return true if something was edited
-	bool UIPrefabEditorInspectorWindow::DrawContentBlock(ui2::Node* node, EditorReflectedObject& nodeObject, const ReflectionDescriptor*& convertDescriptor)
+	bool UIPrefabEditorInspectorWindow::DrawContentBlock(const Vector<ui2::Node*>& nodes, EditorReflectedObject& nodeObject, const ReflectionDescriptor*& convertDescriptor)
 	{
 		bool changed = false;
 
-		ReflectionDescriptor& currentDescriptor = node->GetReflectionDescriptorV();
-		bool                  convertRequested = false;
+		const ReflectionDescriptor& currentDescriptor = *nodeObject.GetReflectionDescriptor();
+		bool                        convertRequested = false;
 		// An instance's nodes have their prefab's types
-		bool canConvert = UIPrefabEditorTab::CanEditStructure(node);
-		bool blockOpened = DrawHelper::BeginInspectorBlock((const void*)BlockNode, DrawHelper::GetTypeIcon(currentDescriptor, ICON_MDI_VECTOR_SQUARE),
-		                                                   currentDescriptor.GetDisplayName().CStr(), nullptr, nullptr, canConvert ? ICON_MDI_SWAP_HORIZONTAL : nullptr,
-		                                                   canConvert ? "Convert To" : nullptr, canConvert ? &convertRequested : nullptr);
+		bool canConvert = (nodes.Size() == 1 && UIPrefabEditorTab::CanEditStructure(nodes[0]));
+
+		// Nodes of different types: the block only has what their types share
+		String title = currentDescriptor.GetDisplayName();
+		for (const ui2::Node* node : nodes)
+		{
+			if (node->GetReflectionDescriptorV().GetType() != currentDescriptor.GetType())
+			{
+				title += " (shared by their types)";
+				break;
+			}
+		}
+
+		bool blockOpened = DrawHelper::BeginInspectorBlock((const void*)BlockNode, DrawHelper::GetTypeIcon(currentDescriptor, ICON_MDI_VECTOR_SQUARE), title.CStr(), nullptr,
+		                                                   nullptr, canConvert ? ICON_MDI_SWAP_HORIZONTAL : nullptr, canConvert ? "Convert To" : nullptr,
+		                                                   canConvert ? &convertRequested : nullptr);
 		if (convertRequested)
 		{
 			ImGui::OpenPopup("UIPrefabConvertNode");
@@ -611,19 +815,25 @@ namespace hod::inline editor
 		}
 		if (blockOpened)
 		{
+			// Greyed out when all the nodes have an Interaction
+			bool allInteractions = true;
+			for (const ui2::Node* node : nodes)
+			{
+				allInteractions &= (node->GetInteraction() != nullptr);
+			}
+
 			for (EditorReflectedProperty* property : nodeObject.GetProperties())
 			{
 				std::string_view name = property->GetReflectionProperty()->GetName();
 				if (name == PointerTargetProperty)
 				{
-					bool hasInteraction = (node->GetInteraction() != nullptr);
-					ImGui::BeginDisabled(hasInteraction);
+					ImGui::BeginDisabled(allInteractions);
 					changed |= PropertyDrawer::DrawProperty(*property);
 					ImGui::EndDisabled();
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled))
 					{
-						ImGui::SetTooltip(hasInteraction ? "Always on with an Interaction"
-						                                 : "Whether the pointer stops on this node: what is under it doesn't get it");
+						ImGui::SetTooltip(allInteractions ? "Always on with an Interaction"
+						                                  : "Whether the pointer stops on this node: what is under it doesn't get it (always on with an Interaction)");
 					}
 				}
 				else if (name != NameProperty && IsGeometryProperty(name) == false)
@@ -690,42 +900,60 @@ namespace hod::inline editor
 		return changed;
 	}
 
-	/// @brief Interaction attached to `node` (how it reacts to the pointer). Shown as a block when one is attached, removable from
-	/// the header's close button, otherwise an "Add Interaction" button is shown.
-	/// @return true if the node's interaction was added, removed or edited
-	bool UIPrefabEditorInspectorWindow::DrawInteractionBlock(ui2::Node* node, ui2::Node* sourceNode)
+	/// @brief Interaction attached to the nodes (how they react to the pointer). Shown as a block when they all have one of the same type,
+	/// removable from the header's close button, otherwise, when none has one, an "Add Interaction" button is shown. A Button's state
+	/// overrides are edited one node at a time.
+	/// @return true if the nodes' interactions were added, removed or edited
+	bool UIPrefabEditorInspectorWindow::DrawInteractionBlock(const Vector<ui2::Node*>& nodes, ui2::Node* sourceNode)
 	{
 		bool                  changed = false;
 		ReflectionDescriptor* newInteractionDescriptor = nullptr;
 		bool                  removeInteraction = false;
+
 		// An instance's nodes have their prefab's Interactions: only their properties can be overridden, not the states
-		bool                  canEditStructure = UIPrefabEditorTab::CanEditStructure(node);
-
-		ui2::Interaction* interaction = node->GetInteraction();
-		if (interaction != nullptr)
+		bool                      canEditStructure = true;
+		bool                      noInteraction = true;
+		Vector<ui2::Interaction*> interactions;
+		for (ui2::Node* node : nodes)
 		{
-			ReflectionDescriptor& currentDescriptor = interaction->GetReflectionDescriptorV();
+			canEditStructure &= UIPrefabEditorTab::CanEditStructure(node);
+			noInteraction &= (node->GetInteraction() == nullptr);
+			interactions.PushBack(node->GetInteraction());
+		}
 
-			String title = String("Interaction: ") + currentDescriptor.GetDisplayName();
-			if (DrawHelper::BeginInspectorBlock((const void*)BlockInteraction, DrawHelper::GetTypeIcon(currentDescriptor, ICON_MDI_GESTURE_TAP), title.CStr(), nullptr,
+		if (ReflectionDescriptor* interactionDescriptor = FindSharedDescriptor(interactions))
+		{
+			String title = String("Interaction: ") + interactionDescriptor->GetDisplayName();
+			if (DrawHelper::BeginInspectorBlock((const void*)BlockInteraction, DrawHelper::GetTypeIcon(*interactionDescriptor, ICON_MDI_GESTURE_TAP), title.CStr(), nullptr,
 			                                    canEditStructure ? &removeInteraction : nullptr))
 			{
 				ui2::Interaction* sourceInteraction = (sourceNode != nullptr) ? sourceNode->GetInteraction() : nullptr;
-				if (sourceInteraction != nullptr && sourceInteraction->GetReflectionDescriptorV().GetType() != currentDescriptor.GetType())
+				if (sourceInteraction != nullptr && sourceInteraction->GetReflectionDescriptorV().GetType() != interactionDescriptor->GetType())
 				{
 					sourceInteraction = nullptr;
 				}
-				EditorReflectedObject interactionObject(interaction, &currentDescriptor, sourceInteraction, this);
+				EditorReflectedObject interactionObject(ToInstances(interactions), interactionDescriptor, sourceInteraction, this);
 				changed |= PropertyDrawer::DrawDescriptor(interactionObject);
 
-				if (ui2::Button* button = ui2::Interaction::Cast<ui2::Button>(interaction))
+				if (ui2::Button* button = ui2::Interaction::Cast<ui2::Button>(interactions[0]))
 				{
-					ImGui::BeginDisabled(canEditStructure == false);
-					changed |= DrawStateOverrides(node, *button);
-					ImGui::EndDisabled();
+					if (nodes.Size() > 1)
+					{
+						ImGui::TextDisabled("States: edited one node at a time");
+					}
+					else
+					{
+						ImGui::BeginDisabled(canEditStructure == false);
+						changed |= DrawStateOverrides(nodes[0], *button);
+						ImGui::EndDisabled();
+					}
 				}
 			}
 			DrawHelper::EndInspectorBlock();
+		}
+		else if (noInteraction == false)
+		{
+			DrawDifferentTypes("Their Interactions");
 		}
 		else if (canEditStructure)
 		{
@@ -750,15 +978,21 @@ namespace hod::inline editor
 			ImGui::Spacing();
 		}
 
-		// Applied once everything referencing the current interaction has been drawn: SetInteraction destroys it.
+		// Applied once everything referencing the current interactions has been drawn: SetInteraction destroys them.
 		if (removeInteraction)
 		{
-			node->SetInteraction(nullptr);
+			for (ui2::Node* node : nodes)
+			{
+				node->SetInteraction(nullptr);
+			}
 			changed = true;
 		}
 		else if (newInteractionDescriptor != nullptr)
 		{
-			node->SetInteraction(newInteractionDescriptor->CreateInstance<ui2::Interaction>());
+			for (ui2::Node* node : nodes)
+			{
+				node->SetInteraction(newInteractionDescriptor->CreateInstance<ui2::Interaction>());
+			}
 			changed = true;
 		}
 
@@ -1112,27 +1346,33 @@ namespace hod::inline editor
 		return changed;
 	}
 
-	/// @brief Layout attached to `node` (how its own children are arranged). Shown as a block when
-	/// one is attached — its type can be changed from the combo (transform into another layout) and
-	/// it can be removed from the header's close button — otherwise an "Add Layout" button is shown.
+	/// @brief Layout attached to the nodes (how their own children are arranged). Shown as a block when they all have one of the
+	/// same type — its type can be changed from the combo (transform into another layout) and it can be removed from the header's
+	/// close button — otherwise, when none has one, an "Add Children Layout" button is shown.
 	/// Node::SetLayout takes care of converting the children's LayoutParams to the new layout's type.
-	/// @return true if the node's layout was added, replaced, removed or edited
-	bool UIPrefabEditorInspectorWindow::DrawLayoutBlock(ui2::Node* node, ui2::Node* sourceNode)
+	/// @return true if the nodes' layouts were added, replaced, removed or edited
+	bool UIPrefabEditorInspectorWindow::DrawLayoutBlock(const Vector<ui2::Node*>& nodes, ui2::Node* sourceNode)
 	{
 		bool                  changed = false;
 		ReflectionDescriptor* newLayoutDescriptor = nullptr;
 		bool                  removeLayout = false;
+
 		// An instance's nodes have their prefab's layouts: only their properties can be overridden
-		bool                  canEditStructure = UIPrefabEditorTab::CanEditStructure(node);
-
-		const auto&  layoutDescriptors = ui2::LayoutFactory::GetInstance()->GetAllDescriptors();
-		ui2::Layout* layout = node->GetLayout();
-
-		if (layout != nullptr)
+		bool                 canEditStructure = true;
+		bool                 noLayout = true;
+		Vector<ui2::Layout*> layouts;
+		for (ui2::Node* node : nodes)
 		{
-			ReflectionDescriptor& currentDescriptor = layout->GetReflectionDescriptorV();
+			canEditStructure &= UIPrefabEditorTab::CanEditStructure(node);
+			noLayout &= (node->GetLayout() == nullptr);
+			layouts.PushBack(node->GetLayout());
+		}
 
-			String layoutTitle = String("Children Layout: ") + currentDescriptor.GetDisplayName();
+		const auto& layoutDescriptors = ui2::LayoutFactory::GetInstance()->GetAllDescriptors();
+
+		if (ReflectionDescriptor* layoutDescriptor = FindSharedDescriptor(layouts))
+		{
+			String layoutTitle = String("Children Layout: ") + layoutDescriptor->GetDisplayName();
 			bool   convertRequested = false;
 			bool   blockOpened = DrawHelper::BeginInspectorBlock((const void*)BlockLayout, ICON_MDI_VIEW_QUILT, layoutTitle.CStr(), nullptr,
 			                                                     canEditStructure ? &removeLayout : nullptr, canEditStructure ? ICON_MDI_SWAP_HORIZONTAL : nullptr,
@@ -1148,7 +1388,7 @@ namespace hod::inline editor
 				ImGui::Separator();
 				for (const auto& descriptorPair : layoutDescriptors)
 				{
-					bool isCurrent = (descriptorPair.second->GetType() == currentDescriptor.GetType());
+					bool isCurrent = (descriptorPair.second->GetType() == layoutDescriptor->GetType());
 					if (ImGui::MenuItem(descriptorPair.second->GetDisplayName().CStr(), nullptr, isCurrent, isCurrent == false))
 					{
 						newLayoutDescriptor = descriptorPair.second;
@@ -1159,14 +1399,18 @@ namespace hod::inline editor
 			if (blockOpened)
 			{
 				ui2::Layout* sourceLayout = (sourceNode != nullptr) ? sourceNode->GetLayout() : nullptr;
-				if (sourceLayout != nullptr && sourceLayout->GetReflectionDescriptorV().GetType() != currentDescriptor.GetType())
+				if (sourceLayout != nullptr && sourceLayout->GetReflectionDescriptorV().GetType() != layoutDescriptor->GetType())
 				{
 					sourceLayout = nullptr;
 				}
-				EditorReflectedObject layoutObject(layout, &currentDescriptor, sourceLayout, this);
+				EditorReflectedObject layoutObject(ToInstances(layouts), layoutDescriptor, sourceLayout, this);
 				changed |= PropertyDrawer::DrawDescriptor(layoutObject);
 			}
 			DrawHelper::EndInspectorBlock();
+		}
+		else if (noLayout == false)
+		{
+			DrawDifferentTypes("Their Children Layouts");
 		}
 		else if (canEditStructure)
 		{
@@ -1190,15 +1434,21 @@ namespace hod::inline editor
 			ImGui::Spacing();
 		}
 
-		// Applied once everything referencing the current layout has been drawn: SetLayout destroys it.
+		// Applied once everything referencing the current layouts has been drawn: SetLayout destroys them.
 		if (removeLayout)
 		{
-			node->SetLayout(nullptr);
+			for (ui2::Node* node : nodes)
+			{
+				node->SetLayout(nullptr);
+			}
 			changed = true;
 		}
 		else if (newLayoutDescriptor != nullptr)
 		{
-			node->ConvertLayout(*newLayoutDescriptor);
+			for (ui2::Node* node : nodes)
+			{
+				node->ConvertLayout(*newLayoutDescriptor);
+			}
 			changed = true;
 		}
 

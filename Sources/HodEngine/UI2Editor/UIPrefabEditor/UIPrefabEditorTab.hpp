@@ -38,11 +38,25 @@ namespace hod::inline editor
 		// see EnsurePrefabRoot().
 		ui2::Node*		GetPrefabRoot() const;
 
-		ui2::Node*		GetSelectedNode() const;
-		void			SetSelectedNode(ui2::Node* node);
+		// Selection: any number of nodes, the last one selected being the active one (the one the inspector shows, F2 renames,
+		// F frames...).
+		// The active node, nullptr if none
+		ui2::Node*					GetSelectedNode() const;
+		// In the order they were selected, the active one last
+		const Vector<ui2::Node*>&	GetSelectedNodes() const;
+		bool						IsSelected(const ui2::Node* node) const;
+		// node only, nothing if nullptr
+		void						SetSelectedNode(ui2::Node* node);
+		// nodes only, the last one active
+		void						SetSelectedNodes(const Vector<ui2::Node*>& nodes);
+		// Adds node, as the active one, or removes it
+		void						SetNodeSelected(ui2::Node* node, bool selected);
+		// The selected nodes but those inside another selected one, in the hierarchy's order: the subtrees given to what acts on
+		// a node along with its descendants (copy, delete, move...)
+		Vector<ui2::Node*>			GetSelectedSubtrees() const;
 
 		// The canvas itself (its settings, e.g. the scaler) as the selection, shown as the hierarchy's top
-		// item. Exclusive with a selected node: selecting either one deselects the other.
+		// item. Exclusive with the selected nodes: selecting either deselects the other.
 		bool			IsCanvasSelected() const;
 		void			SelectCanvas();
 
@@ -71,15 +85,15 @@ namespace hod::inline editor
 		static ui2::Node*	FindSourceNode(const ui2::Node* node);
 
 		// Replaces node by a new node of the type nodeDescriptor describes (see ui2::Node::ReplaceWith),
-		// keeps it selected if it was, and deletes node: callers must not be drawing node (or iterating
+		// keeps it selected if it was (in its place in the selection), and deletes node: callers must not be drawing node (or iterating
 		// its children) anymore, i.e. defer the call to after their drawing pass.
 		// @return the new node, nullptr if node's structure can't be edited (see CanEditStructure)
 		ui2::Node*		ConvertNode(ui2::Node* node, const ReflectionDescriptor& nodeDescriptor);
 
-		// Removes node (and its subtree) from the prefab, deselecting it if it, or one of its descendants, was
-		// selected. Same contract as ConvertNode: defer the call to after the drawing pass.
-		// @return false for the nodes that can't be removed (see CanRemove)
-		bool			DeleteNode(ui2::Node* node);
+		// Removes nodes (and their subtrees) from the prefab, deselecting them and their descendants. The nodes that can't be
+		// removed (see CanRemove) are skipped. Same contract as ConvertNode: defer the call to after the drawing pass.
+		// @return false if none was removed
+		bool			DeleteNodes(const Vector<ui2::Node*>& nodes);
 
 		// Nested prefabs: adds an instance of prefab (a UI prefab asset) as the last child of parent, selected. Refused (with an
 		// error) if prefab is this one or contains it, as it would contain itself. Same contract as ConvertNode.
@@ -99,35 +113,43 @@ namespace hod::inline editor
 		// window keeping node pointers across frames drops them on a change.
 		uint32_t		GetRebuildCount() const;
 
-		// Clipboard: a node and its subtree are copied as text (a JSON document, see ui2::Node::SerializeAsChildInDocument) to the
-		// system clipboard, so they can be pasted in another UI prefab too. Copied as authored: while recording, without the
-		// recorded state's look. Cancels a pending cut.
-		bool			CopyNode(ui2::Node* node);
-		// As in a file explorer: node is copied (see CopyNode) and marked as cut, but stays in place until pasted in this
-		// prefab, which moves it (see PasteNode). Cancelled by CancelCut (Escape), another copy, or the clipboard changing.
-		// @return false for the prefab root, which can't be moved
-		bool			CutNode(ui2::Node* node);
+		// Clipboard: nodes and their subtrees (one inside another of them comes with it) are copied as text (a JSON document,
+		// see ui2::Node::SerializeAsChildInDocument) to the system clipboard, so they can be pasted in another UI prefab too.
+		// Copied as authored: while recording, without the recorded state's look. Cancels a pending cut.
+		bool			CopyNodes(const Vector<ui2::Node*>& nodes);
+		// As in a file explorer: nodes are copied (see CopyNodes) and marked as cut, but stay in place until pasted in this
+		// prefab, which moves them (see PasteNodes). Cancelled by CancelCut (Escape), another copy, or the clipboard changing.
+		// @return false if one of them can't be moved (see CanRemove): nothing is cut then
+		bool			CutNodes(const Vector<ui2::Node*>& nodes);
 		void			CancelCut();
-		// Whether node, or one of its ancestors, is marked as cut (see CutNode).
+		// Whether node, or one of its ancestors, is marked as cut (see CutNodes).
 		bool			IsCut(const ui2::Node* node) const;
-		// Whether the clipboard holds a copied node.
+		bool			HasCutNodes() const;
+		// Whether the clipboard holds copied nodes.
 		bool			CanPasteNode() const;
-		// Pastes the clipboard's node, selected, at index among parent's children (the last place if out of range), with new
-		// local ids (see ui2::Node::RenewLocalIds). The references its Interactions hold to nodes outside of the copied subtree
-		// are kept when pasted in the prefab it was copied from, dropped otherwise. A node cut in this prefab (see CutNode) is
-		// moved there instead, keeping its ids, unless parent is that node or one of its descendants (nothing is done then).
-		// Same contract as ConvertNode: defer the call to after the drawing pass.
-		// @return the pasted (or moved) node, nullptr if nothing was pasted
-		ui2::Node*		PasteNode(ui2::Node* parent, uint32_t index = UINT32_MAX);
-		// Pastes right after the selected node among its siblings (to chain pastes), or as the last child of the prefab root
+		// Pastes the clipboard's nodes, selected, in their copied order from index among parent's children (the last place if out
+		// of range), with new local ids (see ui2::Node::RenewLocalIds). The references their Interactions hold to nodes outside of
+		// the copied subtrees are kept when pasted in the prefab they were copied from, dropped otherwise. Nodes cut in this
+		// prefab (see CutNodes) are moved there instead, keeping their ids, unless parent is one of them or inside one (nothing
+		// is done then). Same contract as ConvertNode: defer the call to after the drawing pass.
+		// @return the pasted (or moved) nodes, empty if nothing was pasted
+		Vector<ui2::Node*>	PasteNodes(ui2::Node* parent, uint32_t index = UINT32_MAX);
+		// Pastes right after the active node among its siblings (to chain pastes), or as the last children of the prefab root
 		// when it is the selection (or there is none).
-		ui2::Node*		PasteNodeNextToSelection();
-		// Pastes as the last child of the selected node, or of the prefab root when there is no selection.
-		ui2::Node*		PasteNodeInSelection();
-		// Places a copy of node right after it among its siblings, selected, without going through the clipboard. Same contract
-		// as ConvertNode.
-		// @return the copy, nullptr for the prefab root, which can't have siblings
-		ui2::Node*		DuplicateNode(ui2::Node* node);
+		Vector<ui2::Node*>	PasteNodesNextToSelection();
+		// Pastes as the last children of the active node, or of the prefab root when there is no selection.
+		Vector<ui2::Node*>	PasteNodesInSelection();
+		// Places a copy of each node (but those inside another one of them) right after it among its siblings, the copies
+		// selected, without going through the clipboard. The ones that can't be moved (see CanRemove, e.g. the prefab root which
+		// can't have siblings) are skipped. Same contract as ConvertNode.
+		// @return the copies
+		Vector<ui2::Node*>	DuplicateNodes(const Vector<ui2::Node*>& nodes);
+		// Whether ReparentNodes would move something: they can all be moved (see CanRemove), parent can have children (see
+		// CanEditStructure), it is none of them nor inside one, and one of them at least isn't already its child.
+		bool			CanReparentNodes(const Vector<ui2::Node*>& nodes, const ui2::Node* parent) const;
+		// Moves nodes (but those inside another one of them), in the hierarchy's order, as the last children of parent, selected.
+		// Refused if CanReparentNodes is false. Same contract as ConvertNode.
+		bool			ReparentNodes(const Vector<ui2::Node*>& nodes, ui2::Node* parent);
 		// Ctrl+C / Ctrl+X / Ctrl+V (next to the selection) / Ctrl+Shift+V (in the selection) / Ctrl+D on the selection, Escape
 		// cancelling a cut, for the focused window calling it. Same contract as ConvertNode.
 		void			HandleClipboardShortcuts();
@@ -200,9 +222,16 @@ namespace hod::inline editor
 		static bool	RenderThumbnail(ui2::Canvas& canvas, Vector<uint8_t>& outEncoded);
 
 		// Clipboard (see CopyNode)
-		bool		SerializeNodeAsAuthored(ui2::Node* node, DocumentNode& documentNode);
+		// Each node of nodes as an unnamed child of documentNode
+		bool		SerializeNodesAsAuthored(const Vector<ui2::Node*>& nodes, DocumentNode& documentNode);
+		// Not selected: up to the callers
 		ui2::Node*	InsertNodeCopy(ui2::Node* parent, uint32_t index, const DocumentNode& documentNode, bool keepOutsideTargets);
-		ui2::Node*	MoveNode(ui2::Node* node, ui2::Node* parent, uint32_t index);
+		void		MoveNode(ui2::Node* node, ui2::Node* parent, uint32_t index);
+		// The nodes but those inside another one of them, in the hierarchy's order (the ones out of the prefab dropped)
+		Vector<ui2::Node*>	GetSubtrees(const Vector<ui2::Node*>& nodes) const;
+		// Deselects node and its descendants
+		// @return whether one of them was selected
+		bool		DeselectSubtree(const ui2::Node* node);
 		// Whether adding the node entry describes would make this prefab contain itself (through the instances it holds)
 		bool		WouldContainItself(const DocumentNode& entry) const;
 
@@ -222,7 +251,7 @@ namespace hod::inline editor
 	private:
 
 		ui2::Canvas	_canvas;
-		ui2::Node*	_selectedNode = nullptr;
+		Vector<ui2::Node*>	_selectedNodes; // the active one last
 		bool		_canvasSelected = false;
 		bool		_frameSelectionRequested = false;
 
@@ -248,9 +277,9 @@ namespace hod::inline editor
 		ui2::Canvas::ActionEvent::Slot	_onInteractionAction;
 		Vector<InteractionLogEntry>		_interactionLog;
 
-		// Cut (see CutNode): the cut node's local id (0 when none), and the clipboard's text the cut put there, which must still
-		// be the clipboard's for a paste to move the node
-		uint64_t	_cutNode = 0;
+		// Cut (see CutNodes): the cut nodes' local ids (empty when none), and the clipboard's text the cut put there, which must
+		// still be the clipboard's for a paste to move the nodes
+		Vector<uint64_t>	_cutNodes;
 		String		_cutClipboardText;
 
 		// Nested prefabs (see RefreshInstances): the save is told once written, i.e. on the next frame

@@ -138,6 +138,12 @@ namespace hod::inline imgui
 
 	// Note: p_data, p_min and p_max are _pointers_ to a memory address holding the data. For a Drag widget, p_min and p_max are optional.
 	// Read code of e.g. DragFloat(), DragInt() etc. or examples in 'Demo->Widgets->Data Types' to understand how to use this function directly.
+	const char* GetMixedValueLabel()
+	{
+		const char* label = GImGui->MixedValueLabel;
+		return (label != NULL) ? label : "";
+	}
+
 	bool DragScalar(const char* label, ImGuiDataType data_type, void* p_data, float v_speed, const void* p_min, const void* p_max, const char* format, ImGuiSliderFlags flags,
 	                ImDrawFlags drawFlags)
 	{
@@ -231,13 +237,24 @@ namespace hod::inline imgui
 		}
 
 		// Display value using user-provided display format so user can add prefix/suffix/decorations to the value.
+		// A mixed value shows g.MixedValueLabel instead, as ImGui::DragScalar does.
+		const bool  is_mixed = (g.LastItemData.ItemFlags & ImGuiItemFlags_MixedValue) != 0;
 		char        value_buf[64];
-		const char* value_buf_end = value_buf + ImGui::DataTypeFormatString(value_buf, IM_ARRAYSIZE(value_buf), data_type, p_data, format);
+		const char* value_buf_end =
+			value_buf + ImGui::DataTypeFormatString(value_buf, IM_ARRAYSIZE(value_buf), data_type, p_data, (is_mixed && g.MixedValueLabel != NULL) ? g.MixedValueLabel : format);
 		if (g.LogEnabled)
 		{
 			ImGui::LogSetNextTextDecoration("{", "}");
 		}
+		if (is_mixed)
+		{
+			ImGui::PushStyleColor(ImGuiCol_Text, g.Style.Colors[ImGuiCol_TextMixedValue]);
+		}
 		ImGui::RenderTextClipped(frame_bb.Min, frame_bb.Max, value_buf, value_buf_end, NULL, ImVec2(0.5f, 0.5f));
+		if (is_mixed)
+		{
+			ImGui::PopStyleColor();
+		}
 
 		if (label_size.x > 0.0f)
 		{
@@ -373,7 +390,19 @@ namespace hod::inline imgui
 		ImDrawList* drawList = window->DrawList;
 		const float rounding = style.FrameRounding;
 		const ImU32 opaqueColor = ImGui::ColorConvertFloat4ToU32(ImVec4(col[0], col[1], col[2], 1.0f));
-		if (hasAlpha)
+		const bool  isMixed = (g.LastItemData.ItemFlags & ImGuiItemFlags_MixedValue) != 0;
+		if (isMixed)
+		{
+			// Several colors: none of them, the mixed value label instead (the hex input shows it too, the flag applies to it)
+			drawList->AddRectFilled(bb.Min, bb.Max, ImGui::GetColorU32(ImGuiCol_FrameBg), rounding);
+			if (g.MixedValueLabel != NULL)
+			{
+				ImGui::PushStyleColor(ImGuiCol_Text, g.Style.Colors[ImGuiCol_TextMixedValue]);
+				ImGui::RenderTextClipped(bb.Min, bb.Max, g.MixedValueLabel, NULL, NULL, ImVec2(0.5f, 0.5f));
+				ImGui::PopStyleColor();
+			}
+		}
+		else if (hasAlpha)
 		{
 			const float splitY = bb.Max.y - ImMax(2.0f, IM_TRUNC(bb.GetHeight() * 0.2f));
 			const float alphaX = IM_TRUNC(ImLerp(bb.Min.x, bb.Max.x, ImSaturate(col[3])));
@@ -420,7 +449,7 @@ namespace hod::inline imgui
 			}
 		}
 
-		if (gColorFieldState.popupId != popupId && hovered && !held && (flags & ImGuiColorEditFlags_NoTooltip) == 0 && ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+		if (gColorFieldState.popupId != popupId && hovered && !held && !isMixed && (flags & ImGuiColorEditFlags_NoTooltip) == 0 && ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
 		{
 			ImGui::ColorTooltip(label, col, flags & (ImGuiColorEditFlags_AlphaMask_ | ImGuiColorEditFlags_HDR));
 		}
@@ -498,6 +527,9 @@ namespace hod::inline imgui
 
 		if (ImGui::BeginPopupEx(popupId, ImGuiWindowFlags_AlwaysAutoResize | ImGuiWindowFlags_NoTitleBar | ImGuiWindowFlags_NoSavedSettings))
 		{
+			// The picker shows the color edited, not the mixed value (the item flags are inherited by the popup)
+			ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, false);
+
 			// Escape reverts (when not consumed by an active input), whether or not keyboard navigation would close the popup itself
 			if (ImGui::IsKeyPressed(ImGuiKey_Escape, false) && g.ActiveId == 0 && g.ActiveIdPreviousFrame == 0)
 			{
@@ -547,6 +579,7 @@ namespace hod::inline imgui
 				}
 			}
 
+			ImGui::PopItemFlag();
 			ImGui::EndPopup();
 		}
 

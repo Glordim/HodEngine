@@ -14,6 +14,7 @@
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 #include "HodEngine/ImGui/Font/IconsMaterialDesignIcons.h"
+#include "HodEngine/ImGui/Widgets.hpp"
 
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
@@ -70,14 +71,14 @@ namespace hod::inline editor
 	/// @param value
 	/// @return
 	template<typename __TYPE__>
-	bool DrawEnum(__TYPE__& value, EnumDescriptor* enumDescriptor)
+	bool DrawEnum(__TYPE__& value, EnumDescriptor* enumDescriptor, bool mixed)
 	{
 		bool changed = false;
 
-		const char* label = "NotFound";
+		const char* label = mixed ? GetMixedValueLabel() : "NotFound";
 		for (const std::pair<uint64_t, String>& enumValue : enumDescriptor->GetValues())
 		{
-			if (static_cast<__TYPE__>(enumValue.first) == value)
+			if (mixed == false && static_cast<__TYPE__>(enumValue.first) == value)
 			{
 				label = enumValue.second.CStr();
 				break;
@@ -88,7 +89,8 @@ namespace hod::inline editor
 		{
 			for (const std::pair<uint64_t, String>& enumValue : enumDescriptor->GetValues())
 			{
-				if (ImGui::MenuItem(enumValue.second.CStr()) && static_cast<__TYPE__>(enumValue.first) != value)
+				// A mixed value applies even the first instance's value: to the other ones
+				if (ImGui::MenuItem(enumValue.second.CStr()) && (mixed || static_cast<__TYPE__>(enumValue.first) != value))
 				{
 					value = static_cast<__TYPE__>(enumValue.first);
 					changed = true;
@@ -111,13 +113,17 @@ namespace hod::inline editor
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 		}
 
+		// The instances edited together differ: the widget shows a mixed value (see ImGuiItemFlags_MixedValue), an edit applies to them all
+		bool mixed = editorReflectedProperty.HasDifferentValues();
+		ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, mixed);
+
 		ReflectionPropertyVariable* property = static_cast<ReflectionPropertyVariable*>(editorReflectedProperty.GetReflectionProperty());
 		switch (property->GetType())
 		{
 			case ReflectionPropertyVariable::Type::Bool:
 			{
 				ImGui::PushID(property);
-				bool value = editorReflectedProperty.GetValue<bool>();
+				bool value = (mixed == false) && editorReflectedProperty.GetValue<bool>(); // a click on a mixed value checks them all
 				ImGui::SetNextItemWidth(-1);
 				if (ImGui::Checkbox("", &value))
 				{
@@ -135,7 +141,7 @@ namespace hod::inline editor
 				ImGui::SetNextItemWidth(-1);
 				if (property->GetEnumDescriptor() != nullptr)
 				{
-					if (DrawEnum(value, property->GetEnumDescriptor()))
+					if (DrawEnum(value, property->GetEnumDescriptor(), mixed))
 					{
 						editorReflectedProperty.SetValue<int8_t>((int8_t)value);
 						changed = true;
@@ -160,7 +166,7 @@ namespace hod::inline editor
 				ImGui::SetNextItemWidth(-1);
 				if (property->GetEnumDescriptor() != nullptr)
 				{
-					if (DrawEnum(value, property->GetEnumDescriptor()))
+					if (DrawEnum(value, property->GetEnumDescriptor(), mixed))
 					{
 						editorReflectedProperty.SetValue<uint8_t>((uint8_t)value);
 						changed = true;
@@ -185,7 +191,7 @@ namespace hod::inline editor
 				ImGui::SetNextItemWidth(-1);
 				if (property->GetEnumDescriptor() != nullptr)
 				{
-					if (DrawEnum(value, property->GetEnumDescriptor()))
+					if (DrawEnum(value, property->GetEnumDescriptor(), mixed))
 					{
 						editorReflectedProperty.SetValue<int16_t>((int16_t)value);
 						changed = true;
@@ -210,7 +216,7 @@ namespace hod::inline editor
 				ImGui::SetNextItemWidth(-1);
 				if (property->GetEnumDescriptor() != nullptr)
 				{
-					if (DrawEnum(value, property->GetEnumDescriptor()))
+					if (DrawEnum(value, property->GetEnumDescriptor(), mixed))
 					{
 						editorReflectedProperty.SetValue<uint16_t>((uint16_t)value);
 						changed = true;
@@ -235,7 +241,7 @@ namespace hod::inline editor
 				ImGui::SetNextItemWidth(-1);
 				if (property->GetEnumDescriptor() != nullptr)
 				{
-					if (DrawEnum(value, property->GetEnumDescriptor()))
+					if (DrawEnum(value, property->GetEnumDescriptor(), mixed))
 					{
 						editorReflectedProperty.SetValue<int32_t>((int32_t)value);
 						changed = true;
@@ -260,7 +266,7 @@ namespace hod::inline editor
 				ImGui::SetNextItemWidth(-1);
 				if (property->GetEnumDescriptor() != nullptr)
 				{
-					if (DrawEnum(value, property->GetEnumDescriptor()))
+					if (DrawEnum(value, property->GetEnumDescriptor(), mixed))
 					{
 						editorReflectedProperty.SetValue<uint32_t>((uint32_t)value);
 						changed = true;
@@ -285,7 +291,7 @@ namespace hod::inline editor
 				ImGui::SetNextItemWidth(-1);
 				if (property->GetEnumDescriptor() != nullptr)
 				{
-					if (DrawEnum(value, property->GetEnumDescriptor()))
+					if (DrawEnum(value, property->GetEnumDescriptor(), mixed))
 					{
 						editorReflectedProperty.SetValue<int64_t>((int64_t)value);
 						changed = true;
@@ -310,7 +316,7 @@ namespace hod::inline editor
 				ImGui::SetNextItemWidth(-1);
 				if (property->GetEnumDescriptor() != nullptr)
 				{
-					if (DrawEnum(value, property->GetEnumDescriptor()))
+					if (DrawEnum(value, property->GetEnumDescriptor(), mixed))
 					{
 						editorReflectedProperty.SetValue<uint64_t>((uint64_t)value);
 						changed = true;
@@ -378,6 +384,7 @@ namespace hod::inline editor
 			}
 			break;
 		}
+		ImGui::PopItemFlag();
 
 		return changed;
 	}
@@ -391,6 +398,14 @@ namespace hod::inline editor
 		{
 			changed |= BeginProperty(editorReflectedProperty);
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+		}
+
+		// Their elements and size are edited on the first instance only for now
+		if (editorReflectedProperty.IsEditingMultipleInstance())
+		{
+			ImGui::TextDisabled("%s", GetMixedValueLabel());
+			ImGui::SetItemTooltip("An array is edited one object at a time");
+			return changed;
 		}
 
 		float cursorX = ImGui::GetCursorPosX();

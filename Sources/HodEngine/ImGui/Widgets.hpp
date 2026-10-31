@@ -6,6 +6,11 @@
 
 namespace hod::inline imgui
 {
+	/// @brief What a mixed value (ImGuiItemFlags_MixedValue: the objects edited together differ) shows in place of the value, for the
+	/// widgets drawing it themselves (a combo's preview...): the context's MixedValueLabel (an em dash, see ImGuiManager::Init), the ImGui
+	/// widgets showing it on their own. An empty string when it is NULL (ImGui then shows the original value)
+	HOD_IMGUI_API const char* GetMixedValueLabel();
+
 	HOD_IMGUI_API void FramedText(const char* label, ImDrawFlags drawFlags = ImDrawFlags_RoundAll);
 	/// @brief Button whose frame can be rounded on some corners only (to glue several widgets into one unified round rect, like FramedText/DragScalar do).
 	/// @param active drawn with the "pressed" color while true (toggle state)

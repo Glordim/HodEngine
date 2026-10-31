@@ -84,6 +84,84 @@ namespace hod::inline editor
         return false;
     }
 
+    bool EditorReflectedProperty::IsEditingMultipleInstance() const
+    {
+        return _instances.Size() > 1;
+    }
+
+    namespace
+    {
+        bool AreObjectsEqual(const ReflectionDescriptor& descriptor, const void* left, const void* right);
+
+        /// @brief Whether the property has the same value in both owners
+        bool AreValuesEqual(const ReflectionProperty& property, const void* left, const void* right)
+        {
+            if (property.GetRttiType() == ReflectionPropertyVariable::GetRttiTypeStatic())
+            {
+                return static_cast<const ReflectionPropertyVariable&>(property).CompareInstance(left, right);
+            }
+            else if (property.GetRttiType() == ReflectionPropertyObject::GetRttiTypeStatic())
+            {
+                const ReflectionPropertyObject& objectProperty = static_cast<const ReflectionPropertyObject&>(property);
+                return AreObjectsEqual(*objectProperty.GetReflectionDescriptor(), objectProperty.GetValue(left), objectProperty.GetValue(right));
+            }
+            else if (property.GetRttiType() == ReflectionPropertyArray::GetRttiTypeStatic())
+            {
+                // The elements aren't compared: the arrays are only edited one instance at a time (see PropertyDrawer::DrawPropertyArray)
+                const ReflectionPropertyArray& arrayProperty = static_cast<const ReflectionPropertyArray&>(property);
+                return arrayProperty.GetElementCount(left) == arrayProperty.GetElementCount(right);
+            }
+            return true;
+        }
+
+        /// @brief With the type's operator== when it has one, property by property otherwise
+        bool AreObjectsEqual(const ReflectionDescriptor& descriptor, const void* left, const void* right)
+        {
+            if (descriptor.CanCompare())
+            {
+                return descriptor.Compare(left, right);
+            }
+            for (const ReflectionDescriptor* current = &descriptor; current != nullptr; current = current->GetParent())
+            {
+                for (const ReflectionProperty* property : current->GetProperties())
+                {
+                    if (AreValuesEqual(*property, left, right) == false)
+                    {
+                        return false;
+                    }
+                }
+            }
+            return true;
+        }
+    }
+
+    bool EditorReflectedProperty::HasDifferentValues() const
+    {
+        for (uint32_t index = 1; index < _instances.Size(); ++index)
+        {
+            bool equal = true;
+            if (_internalIndex != (uint32_t)-1)
+            {
+                // An array element: compared as an object
+                const ReflectionPropertyArray* arrayProperty = static_cast<const ReflectionPropertyArray*>(_reflectionProperty);
+                if (arrayProperty->GetElementReflectionDescriptor() != nullptr)
+                {
+                    equal = AreObjectsEqual(*arrayProperty->GetElementReflectionDescriptor(), GetObjectOf<void>(0), GetObjectOf<void>(index));
+                }
+            }
+            else
+            {
+                equal = AreValuesEqual(*_reflectionProperty, _instances[0], _instances[index]);
+            }
+
+            if (equal == false)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
     bool EditorReflectedProperty::IsArray() const
     {
         return (_reflectionProperty->GetRttiType() == ReflectionPropertyArray::GetRttiTypeStatic());

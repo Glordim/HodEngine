@@ -1,6 +1,8 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
+#include <cstdint>
+
 namespace hod::inline core
 {
     class ReflectionDescriptor;
@@ -19,8 +21,12 @@ namespace hod::inline editor
     public:
 
         // enabledX/enabledY grey out one component (e.g. an axis the value is unused on)
-        static bool				DrawVector2(Vector2& value, const char* labelX = "X", const char* labelY = "Y", bool enabledX = true, bool enabledY = true);
-        static bool				DrawVector4(Vector4& value, const char* labelX = "X", const char* labelY = "Y", const char* labelZ = "Z", const char* labelW = "W");
+        // mixedComponents: one bit per component (X first) the objects edited together differ on, shown as a mixed value
+        // editedComponents (optional): set to the bits of the components edited, for the caller to apply only those to each object
+        static bool				DrawVector2(Vector2& value, const char* labelX = "X", const char* labelY = "Y", bool enabledX = true, bool enabledY = true,
+                                            uint8_t mixedComponents = 0, uint8_t* editedComponents = nullptr);
+        static bool				DrawVector4(Vector4& value, const char* labelX = "X", const char* labelY = "Y", const char* labelZ = "Z", const char* labelW = "W",
+                                            uint8_t mixedComponents = 0, uint8_t* editedComponents = nullptr);
 
         /// @brief Draws a toggle button glued to a small arrow button, in one unified round rect (same look as DrawVector2):
         /// the left part switches `toggled` on/off (highlighted while on), the right one opens the popup `settingsPopupId`

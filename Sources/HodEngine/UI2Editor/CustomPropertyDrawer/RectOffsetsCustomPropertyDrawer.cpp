@@ -33,6 +33,24 @@ namespace hod::inline editor
 		// Edited through the RectOffsets base: the types deriving from it only add a meaning, no data
 		RectOffsets value = *editorReflectedProperty.GetObject<RectOffsets>();
 
+		// Each side on its own: the instances edited together may differ on one only
+		bool mixedTop = false;
+		bool mixedLeft = false;
+		bool mixedRight = false;
+		bool mixedBottom = false;
+		for (uint32_t index = 1; index < editorReflectedProperty.GetInstances().Size(); ++index)
+		{
+			const RectOffsets& other = *editorReflectedProperty.GetObjectOf<RectOffsets>(index);
+			mixedTop |= (other._top != value._top);
+			mixedLeft |= (other._left != value._left);
+			mixedRight |= (other._right != value._right);
+			mixedBottom |= (other._bottom != value._bottom);
+		}
+		bool editedTop = false;
+		bool editedLeft = false;
+		bool editedRight = false;
+		bool editedBottom = false;
+
 		// Outward (margin): arrows towards the values. Inward (padding): arrows towards the content.
 		bool isPadding = (_direction == Direction::Inward);
 
@@ -57,17 +75,19 @@ namespace hod::inline editor
 		ImVec2 nodeMin(origin.x + fieldWidth + connectorLength, middleY);
 		ImVec2 nodeMax(nodeMin.x + nodeWidth, middleY + rowHeight);
 
-		auto drawField = [&](const char* id, const ImVec2& position, float& field)
+		auto drawField = [&](const char* id, const ImVec2& position, float& field, bool mixed, bool& edited)
 		{
 			ImGui::SetCursorScreenPos(position);
 			ImGui::SetNextItemWidth(fieldWidth);
-			changed |= ImGui::DragFloat(id, &field, 1.0f, 0.0f, 0.0f, "%.3f");
+			ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, mixed);
+			edited = ImGui::DragFloat(id, &field, 1.0f, 0.0f, 0.0f, "%.3f");
+			ImGui::PopItemFlag();
 		};
 
-		drawField("##Top", ImVec2(centerX - fieldWidth * 0.5f, topY), value._top);
-		drawField("##Left", ImVec2(origin.x, middleY), value._left);
-		drawField("##Right", ImVec2(nodeMax.x + connectorLength, middleY), value._right);
-		drawField("##Bottom", ImVec2(centerX - fieldWidth * 0.5f, bottomY), value._bottom);
+		drawField("##Top", ImVec2(centerX - fieldWidth * 0.5f, topY), value._top, mixedTop, editedTop);
+		drawField("##Left", ImVec2(origin.x, middleY), value._left, mixedLeft, editedLeft);
+		drawField("##Right", ImVec2(nodeMax.x + connectorLength, middleY), value._right, mixedRight, editedRight);
+		drawField("##Bottom", ImVec2(centerX - fieldWidth * 0.5f, bottomY), value._bottom, mixedBottom, editedBottom);
 
 		// The node (or the content it pads) itself, and an arrow linking it to each value
 		ImDrawList* drawList = ImGui::GetWindowDrawList();
@@ -113,9 +133,17 @@ namespace hod::inline editor
 
 		ImGui::PopID();
 
-		if (changed == true)
+		if (editedTop || editedLeft || editedRight || editedBottom)
 		{
-			editorReflectedProperty.SetObject(value);
+			editorReflectedProperty.EditObjects<RectOffsets>(
+				[&](RectOffsets& object)
+				{
+					object._top = editedTop ? value._top : object._top;
+					object._left = editedLeft ? value._left : object._left;
+					object._right = editedRight ? value._right : object._right;
+					object._bottom = editedBottom ? value._bottom : object._bottom;
+				});
+			changed = true;
 		}
 		return changed;
 	}

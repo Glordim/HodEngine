@@ -7,6 +7,7 @@
 #include "HodEngine/Editor/Editor.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
+#include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
@@ -15,6 +16,8 @@
 #include <HodEngine/UI2/PrefabInstance.hpp>
 #include <HodEngine/Core/Hash.hpp>
 #include <HodEngine/Core/Memory/DefaultAllocator.hpp>
+
+#include <algorithm>
 
 namespace hod::inline editor
 {
@@ -48,9 +51,9 @@ namespace hod::inline editor
 			_lastSelectedNode = nullptr;
 		}
 
-		// A newly selected node may sit under collapsed parents (picked in the viewport): for that one
-		// frame the ancestors are forced open and the node scrolled into view. Only on a change, so the
-		// user stays free to collapse them again afterwards.
+		// A newly active node may sit under collapsed parents (picked in the viewport): for that one frame the ancestors are
+		// forced open and the node scrolled into view. Only on a change, so the user stays free to collapse them again
+		// afterwards. Not for the selections made here (see the end of the multi-selection scope), of nodes already in view.
 		ui2::Node* selection = tab->GetSelectedNode();
 		_revealSelection = (selection != nullptr && selection != _lastSelectedNode);
 		_lastSelectedNode = selection;
@@ -68,10 +71,10 @@ namespace hod::inline editor
 			tab->RequestFrameSelection();
 		}
 
-		// Delete removes the selected node (except the prefab root and an instance's content).
-		if (ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGuiKey_Delete, false) && ImGui::GetIO().WantTextInput == false && tab->CanRemove(selection))
+		// Delete removes the selected nodes (except the prefab root and the instances' content).
+		if (ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGuiKey_Delete, false) && ImGui::GetIO().WantTextInput == false)
 		{
-			_pendingDeleteNode = selection;
+			_pendingDeleteNodes = tab->GetSelectedNodes();
 		}
 		_renameSubmitted = false;
 		bool renamingAtStart = (_renamedNode != nullptr);
@@ -98,7 +101,39 @@ namespace hod::inline editor
 
 		if (canvasOpened)
 		{
+			// The nodes only: the canvas, exclusive with them, is selected by its own click above. Escape is for a pending cut first.
+			ImGuiMultiSelectFlags multiSelectFlags = ImGuiMultiSelectFlags_BoxSelect1d;
+			if (tab->HasCutNodes() == false)
+			{
+				multiSelectFlags |= ImGuiMultiSelectFlags_ClearOnEscape;
+			}
+			// ImGui sees a click in a context menu as a click on the void of the scope (the popup is in this window hierarchy): it
+			// would clear the selection the menu acts on (see AssetBrowserWindow)
+			if (ImGui::IsPopupOpen("", ImGuiPopupFlags_AnyPopupId) == false)
+			{
+				multiSelectFlags |= ImGuiMultiSelectFlags_ClearOnClickVoid;
+			}
+			// The multi-selection always draws ImGui's nav cursor (the keyboard focus outline), which any click moves to the clicked
+			// node, its arrow included: it would look like the selection of a node only opened. Only shown while navigating with
+			// the keyboard, as outside of a multi-selection.
+			bool hideNavCursor = (ImGui::GetCurrentContext()->NavCursorVisible == false);
+			if (hideNavCursor)
+			{
+				ImGui::PushStyleColor(ImGuiCol_NavCursor, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+			}
+			ImGuiMultiSelectIO* multiSelectIO = ImGui::BeginMultiSelect(multiSelectFlags, static_cast<int>(tab->GetSelectedNodes().Size()), -1);
+			ApplySelectionRequests(multiSelectIO, false);
+
+			_visibleNodes.Clear();
 			DrawNode(tab->GetPrefabRoot());
+
+			multiSelectIO = ImGui::EndMultiSelect();
+			if (hideNavCursor)
+			{
+				ImGui::PopStyleColor();
+			}
+			ApplySelectionRequests(multiSelectIO, true);
+			_lastSelectedNode = tab->GetSelectedNode(); // made here: no reveal
 			ImGui::TreePop();
 		}
 
@@ -110,12 +145,11 @@ namespace hod::inline editor
 			_renamedNode = nullptr;
 		}
 
-		if (_pendingReparentNode != nullptr)
+		if (_pendingReparentNodes.Empty() == false)
 		{
-			_pendingReparentNode->GetParent()->ReparentChild(_pendingReparentNode, _pendingReparentParent);
-			_pendingReparentNode = nullptr;
+			tab->ReparentNodes(_pendingReparentNodes, _pendingReparentParent);
+			_pendingReparentNodes.Clear();
 			_pendingReparentParent = nullptr;
-			tab->MarkAsDirty();
 		}
 
 		if (_pendingConvertNode != nullptr)
@@ -129,34 +163,44 @@ namespace hod::inline editor
 			_pendingConvertDescriptor = nullptr;
 		}
 
-		if (_pendingDeleteNode != nullptr)
+		if (_pendingDeleteNodes.Empty() == false)
 		{
-			if (_renamedNode != nullptr && (_renamedNode == _pendingDeleteNode || _renamedNode->IsDescendantOf(_pendingDeleteNode)))
+			for (ui2::Node* deletedNode : _pendingDeleteNodes)
 			{
-				_renamedNode = nullptr;
+				if (_renamedNode != nullptr && tab->CanRemove(deletedNode) && (_renamedNode == deletedNode || _renamedNode->IsDescendantOf(deletedNode)))
+				{
+					_renamedNode = nullptr;
+				}
 			}
-			tab->DeleteNode(_pendingDeleteNode);
-			_pendingDeleteNode = nullptr;
+			tab->DeleteNodes(_pendingDeleteNodes);
+			_pendingDeleteNodes.Clear();
 		}
 
 		if (_pendingPaste)
 		{
 			if (_pendingPasteParent != nullptr)
 			{
-				tab->PasteNode(_pendingPasteParent);
+				tab->PasteNodes(_pendingPasteParent);
 			}
 			else
 			{
-				tab->PasteNodeNextToSelection();
+				tab->PasteNodesNextToSelection();
 			}
 			_pendingPaste = false;
 			_pendingPasteParent = nullptr;
 		}
 
-		if (_pendingDuplicateNode != nullptr)
+		if (_pendingDuplicateNodes.Empty() == false)
 		{
-			tab->DuplicateNode(_pendingDuplicateNode);
-			_pendingDuplicateNode = nullptr;
+			tab->DuplicateNodes(_pendingDuplicateNodes);
+			_pendingDuplicateNodes.Clear();
+		}
+
+		if (_selectAllRequested)
+		{
+			tab->SetSelectedNodes(_visibleNodes);
+			_lastSelectedNode = tab->GetSelectedNode(); // made here: no reveal
+			_selectAllRequested = false;
 		}
 
 		// Ctrl+C / Ctrl+X / Ctrl+V / Ctrl+Shift+V / Ctrl+D / Escape, as in the viewport. After the tree has been drawn, for the same reason as above.
@@ -164,6 +208,73 @@ namespace hod::inline editor
 		if (ImGui::IsWindowFocused() && ImGui::GetIO().WantTextInput == false && renamingAtStart == false && _renamedNode == nullptr)
 		{
 			tab->HandleClipboardShortcuts();
+		}
+	}
+
+	/// @brief
+	/// @param multiSelectIO
+	/// @param scopeEnd
+	void UIPrefabEditorHierarchyWindow::ApplySelectionRequests(ImGuiMultiSelectIO* multiSelectIO, bool scopeEnd)
+	{
+		// The nav init of a newly focused window puts the nav on the first item, and the multi-selection auto-selects it as if it
+		// was reached with the arrows: only a real move selects (see AssetBrowserWindow)
+		const ImGuiContext& g = *ImGui::GetCurrentContext();
+		if (g.NavJustMovedToId != 0 && g.NavJustMovedToIsInit)
+		{
+			return;
+		}
+
+		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
+		for (const ImGuiSelectionRequest& request : multiSelectIO->Requests)
+		{
+			if (request.Type == ImGuiSelectionRequestType_SetAll)
+			{
+				if (request.Selected == false)
+				{
+					tab->SetSelectedNode(nullptr);
+				}
+				else if (scopeEnd)
+				{
+					tab->SetSelectedNodes(_visibleNodes);
+				}
+				else
+				{
+					_selectAllRequested = true; // _visibleNodes is last frame's, its nodes may be gone
+				}
+			}
+			else if (request.Type == ImGuiSelectionRequestType_SetRange && scopeEnd)
+			{
+				// From the range's first item to its last one, so that the last one (the clicked one) ends up the active one. An end
+				// no longer drawn (collapsed since) leaves the other one only.
+				ui2::Node* firstNode = reinterpret_cast<ui2::Node*>(static_cast<intptr_t>(request.RangeFirstItem));
+				ui2::Node* lastNode = reinterpret_cast<ui2::Node*>(static_cast<intptr_t>(request.RangeLastItem));
+				auto       firstIt = std::find(_visibleNodes.Begin(), _visibleNodes.End(), firstNode);
+				auto       lastIt = std::find(_visibleNodes.Begin(), _visibleNodes.End(), lastNode);
+				if (firstIt == _visibleNodes.End())
+				{
+					firstIt = lastIt;
+				}
+				else if (lastIt == _visibleNodes.End())
+				{
+					lastIt = firstIt;
+				}
+				if (firstIt == _visibleNodes.End())
+				{
+					continue;
+				}
+
+				int32_t first = static_cast<int32_t>(firstIt - _visibleNodes.Begin());
+				int32_t last = static_cast<int32_t>(lastIt - _visibleNodes.Begin());
+				int32_t step = (first <= last) ? 1 : -1;
+				for (int32_t index = first;; index += step)
+				{
+					tab->SetNodeSelected(_visibleNodes[static_cast<uint32_t>(index)], request.Selected);
+					if (index == last)
+					{
+						break;
+					}
+				}
+			}
 		}
 	}
 
@@ -199,7 +310,7 @@ namespace hod::inline editor
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
 		}
-		if (node == selection)
+		if (tab->IsSelected(node))
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
 		}
@@ -260,6 +371,8 @@ namespace hod::inline editor
 		{
 			pushedColor = false;
 		}
+		ImGui::SetNextItemSelectionUserData(static_cast<ImGuiSelectionUserData>(reinterpret_cast<intptr_t>(node)));
+		_visibleNodes.PushBack(node);
 		bool opened = renaming ? ImGui::TreeNodeEx("##Node", treeNodeFlags, "%s", icon) : ImGui::TreeNodeEx("##Node", treeNodeFlags, "%s %s", icon, displayedLabel.CStr());
 		if (pushedColor)
 		{
@@ -279,17 +392,24 @@ namespace hod::inline editor
 		{
 			ImGui::SetScrollHereY();
 		}
-		if (ImGui::IsItemClicked() && ImGui::IsItemToggledOpen() == false)
-		{
-			tab->SetSelectedNode(node);
-		}
+		// Clicks are the multi-selection's (see ApplySelectionRequests)
 
 		// Any node can be dragged onto another to become its child, except the prefab root: it has no
 		// place to go, being the one and only child of the hidden container. Nor an instance's content, which follows its prefab.
+		// The selection goes along when the node is in it. The payload is the dragged node only, as other targets take one node
+		// (a NodeRef, the asset browser).
 		if (tab->CanRemove(node) && ImGui::BeginDragDropSource())
 		{
 			ImGui::SetDragDropPayload("UI2Node", &node, sizeof(ui2::Node*));
-			ImGui::Text("%s %s", icon, displayedLabel.CStr());
+			uint32_t draggedCount = tab->IsSelected(node) ? tab->GetSelectedSubtrees().Size() : 1;
+			if (draggedCount > 1)
+			{
+				ImGui::Text("%s %s (+%u)", icon, displayedLabel.CStr(), draggedCount - 1);
+			}
+			else
+			{
+				ImGui::Text("%s %s", icon, displayedLabel.CStr());
+			}
 			ImGui::EndDragDropSource();
 		}
 
@@ -325,18 +445,19 @@ namespace hod::inline editor
 				tab->MarkAsDirty();
 			}
 
-			// Only offered (highlighted, then accepted) when the move makes sense: not onto itself, onto
-			// one of its own descendants, or onto the parent it already has.
+			// Only offered (highlighted, then accepted) when the move makes sense: not onto one of the dragged nodes, into one, or
+			// onto the parent they all already have (see UIPrefabEditorTab::CanReparentNodes).
 			const ImGuiPayload* peekedPayload = ImGui::GetDragDropPayload();
 			if (peekedPayload != nullptr && peekedPayload->IsDataType("UI2Node"))
 			{
-				ui2::Node* draggedNode = *static_cast<ui2::Node**>(peekedPayload->Data);
-				if (draggedNode != node && node->IsDescendantOf(draggedNode) == false && draggedNode->GetParent() != node)
+				ui2::Node*         draggedNode = *static_cast<ui2::Node**>(peekedPayload->Data);
+				Vector<ui2::Node*> draggedNodes = tab->IsSelected(draggedNode) ? tab->GetSelectedNodes() : Vector<ui2::Node*>{draggedNode};
+				if (tab->CanReparentNodes(draggedNodes, node))
 				{
 					payload = ImGui::AcceptDragDropPayload("UI2Node");
 					if (payload != nullptr)
 					{
-						_pendingReparentNode = draggedNode;
+						_pendingReparentNodes = draggedNodes;
 						_pendingReparentParent = node;
 
 						// Keep the moved node visible: a previously leaf/collapsed target would otherwise hide it.
@@ -347,16 +468,27 @@ namespace hod::inline editor
 			ImGui::EndDragDropTarget();
 		}
 
+		// The right click selects the node if it isn't (the multi-selection's, on mouse down): the menu acts on the selection, the
+		// node made the active one (the one the single node actions are for)
 		bool hovered = ImGui::IsItemHovered();
 		if (ImGui::IsWindowHovered() && hovered && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
 		{
-			tab->SetSelectedNode(node);
+			tab->SetNodeSelected(node, true);
+			_lastSelectedNode = node; // already in view
 			ImGui::OpenPopup("UIPrefabNodeContextMenu");
 		}
 
 		if (ImGui::BeginPopup("UIPrefabNodeContextMenu"))
 		{
-			if (prefabInstance != nullptr)
+			Vector<ui2::Node*> targets = tab->IsSelected(node) ? tab->GetSelectedSubtrees() : Vector<ui2::Node*>{node};
+			bool               single = (targets.Size() <= 1);
+			bool               canRemove = targets.Empty() == false;
+			for (ui2::Node* target : targets)
+			{
+				canRemove &= tab->CanRemove(target);
+			}
+
+			if (prefabInstance != nullptr && single)
 			{
 				std::shared_ptr<Asset> prefabAsset = AssetDatabase::GetInstance()->Find(prefabInstance->GetPrefab());
 				if (ImGui::MenuItem(ICON_MDI_OPEN_IN_NEW " Open Prefab", nullptr, false, prefabAsset != nullptr))
@@ -373,16 +505,16 @@ namespace hod::inline editor
 				}
 				ImGui::Separator();
 			}
-			if (ImGui::MenuItem(ICON_MDI_PLUS_BOX " Add Child", nullptr, false, canEditStructure))
+			if (ImGui::MenuItem(ICON_MDI_PLUS_BOX " Add Child", nullptr, false, canEditStructure && single))
 			{
 				node->AddChild(ui2::NodeFactory::GetInstance()->CreateNode(ui2::Node::GetReflectionDescriptor()));
 				tab->MarkAsDirty();
 			}
-			if (ImGui::MenuItem(ICON_MDI_RENAME " Rename", "F2", false, UIPrefabEditorTab::CanEditProperties(node)))
+			if (ImGui::MenuItem(ICON_MDI_RENAME " Rename", "F2", false, UIPrefabEditorTab::CanEditProperties(node) && single))
 			{
 				StartRename(node);
 			}
-			if (ImGui::BeginMenu(ICON_MDI_SWAP_HORIZONTAL " Convert To", canEditStructure))
+			if (ImGui::BeginMenu(ICON_MDI_SWAP_HORIZONTAL " Convert To", canEditStructure && single))
 			{
 				uint64_t currentType = node->GetReflectionDescriptorV().GetType();
 				for (const auto& descriptorPair : ui2::NodeFactory::GetInstance()->GetAllDescriptors())
@@ -400,31 +532,30 @@ namespace hod::inline editor
 			ImGui::Separator();
 			if (ImGui::MenuItem(ICON_MDI_CONTENT_COPY " Copy", "Ctrl+C"))
 			{
-				tab->CopyNode(node);
+				tab->CopyNodes(targets);
 			}
-			bool canRemove = tab->CanRemove(node);
 			if (ImGui::MenuItem(ICON_MDI_CONTENT_CUT " Cut", "Ctrl+X", false, canRemove))
 			{
-				tab->CutNode(node); // only marked, moved by the paste
+				tab->CutNodes(targets); // only marked, moved by the paste
 			}
 			bool canPaste = tab->CanPasteNode();
 			if (ImGui::MenuItem(ICON_MDI_CONTENT_PASTE " Paste", "Ctrl+V", false, canPaste))
 			{
-				_pendingPaste = true; // the node was selected by the right click
+				_pendingPaste = true; // next to the node, made the active one by the right click
 			}
-			if (ImGui::MenuItem(ICON_MDI_CONTENT_PASTE " Paste As Child", "Ctrl+Shift+V", false, canPaste && canEditStructure))
+			if (ImGui::MenuItem(ICON_MDI_CONTENT_PASTE " Paste As Child", "Ctrl+Shift+V", false, canPaste && canEditStructure && single))
 			{
 				_pendingPaste = true;
 				_pendingPasteParent = node;
 			}
 			if (ImGui::MenuItem(ICON_MDI_CONTENT_DUPLICATE " Duplicate", "Ctrl+D", false, canRemove))
 			{
-				_pendingDuplicateNode = node;
+				_pendingDuplicateNodes = targets;
 			}
 			ImGui::Separator();
 			if (ImGui::MenuItem(ICON_MDI_DELETE " Delete", "Del", false, canRemove))
 			{
-				_pendingDeleteNode = node;
+				_pendingDeleteNodes = targets;
 			}
 			ImGui::EndPopup();
 		}

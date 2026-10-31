@@ -37,6 +37,7 @@ namespace hod::inline editor
         void*                       GetInstance() const;
         const Vector<void*>&   GetInstances() const;
 
+        /// @brief Whether the edited instances don't all have the same value (shown as a mixed value). The Get methods return the first one's.
         bool                        HasDifferentValues() const;
 
         template<typename _type_>
@@ -45,11 +46,20 @@ namespace hod::inline editor
         template<typename _type_>
         _type_*                     GetObject() const;
 
+        /// @brief The object of the instance at instanceIndex among GetInstances() (GetObject is the first one's)
+        template<typename _type_>
+        _type_*                     GetObjectOf(uint32_t instanceIndex) const;
+
         template<typename _type_>
         void                        SetValue(_type_ value) const;
 
         template<typename _type_>
         void                        SetObject(const _type_& value) const;
+
+        /// @brief Edits the object of each instance on its own, where SetObject gives them all the same value (e.g. a single component of a
+        /// vector, keeping the other ones of each instance): edit(object) is called on a copy of each, set back through the property (its set method, if any).
+        template<typename _type_, typename _Function_>
+        void                        EditObjects(_Function_&& edit) const;
 
         bool                        IsArray() const;
         uint32_t                    GetArraySize() const;
@@ -116,6 +126,43 @@ namespace hod::inline editor
         {
             assert(false);
             return nullptr;
+        }
+    }
+
+    template<typename _type_>
+    _type_* EditorReflectedProperty::GetObjectOf(uint32_t instanceIndex) const
+    {
+        if (_reflectionProperty->GetRttiType() == ReflectionPropertyObject::GetRttiTypeStatic())
+        {
+            return static_cast<_type_*>(static_cast<ReflectionPropertyObject*>(_reflectionProperty)->GetValue(_instances[instanceIndex]));
+        }
+        else if (_reflectionProperty->GetRttiType() == ReflectionPropertyArray::GetRttiTypeStatic() && static_cast<ReflectionPropertyArray*>(_reflectionProperty)->GetElementReflectionDescriptor() != nullptr)
+        {
+            return static_cast<_type_*>(static_cast<ReflectionPropertyArray*>(_reflectionProperty)->GetValue<void*>(_instances[instanceIndex], _internalIndex));
+        }
+        else
+        {
+            assert(false);
+            return nullptr;
+        }
+    }
+
+    template<typename _type_, typename _Function_>
+    void EditorReflectedProperty::EditObjects(_Function_&& edit) const
+    {
+        for (uint32_t instanceIndex = 0; instanceIndex < _instances.Size(); ++instanceIndex)
+        {
+            // A copy: a set method skipping a value equal to the current one would ignore the object edited in place
+            _type_ value = *GetObjectOf<_type_>(instanceIndex);
+            edit(value);
+            if (_reflectionProperty->GetRttiType() == ReflectionPropertyObject::GetRttiTypeStatic())
+            {
+                static_cast<ReflectionPropertyObject*>(_reflectionProperty)->SetValue(_instances[instanceIndex], (const void*)&value);
+            }
+            else
+            {
+                *GetObjectOf<_type_>(instanceIndex) = value; // an array element: no set method
+            }
         }
     }
 

@@ -88,7 +88,7 @@ namespace hod::inline editor
 			}
 		}
 
-		changed |= WeakResourceCustomPropertyDrawer::Draw(*value, expectedSubType);
+		changed |= WeakResourceCustomPropertyDrawer::Draw(*value, expectedSubType, editorReflectedProperty.HasDifferentValues());
 		if (changed == true)
 		{
 			editorReflectedProperty.SetObject(*value); // Set to itself for call SetFunction // todo affect a new object, wrong if SetFunction check if the value is the same
@@ -99,7 +99,7 @@ namespace hod::inline editor
 	/// @brief
 	/// @param weakResource
 	/// @return
-	bool WeakResourceCustomPropertyDrawer::Draw(WeakResourceBase& weakResource, uint64_t expectedSubType)
+	bool WeakResourceCustomPropertyDrawer::Draw(WeakResourceBase& weakResource, uint64_t expectedSubType, bool mixed)
 	{
 		static Vector<AssetDatabase::FileSystemMapping*> assetList;
 
@@ -107,7 +107,7 @@ namespace hod::inline editor
 		ImGui::PushID(&weakResource);
 
 		AssetDatabase*         assetDatabase = AssetDatabase::GetInstance();
-		std::shared_ptr<Asset> asset = assetDatabase->Find(weakResource.GetUid());
+		std::shared_ptr<Asset> asset = mixed ? nullptr : assetDatabase->Find(weakResource.GetUid());
 
 		float height = 50;
 
@@ -168,7 +168,7 @@ namespace hod::inline editor
 			prevCursorPos = ImGui::GetCursorPos();
 
 			ImGui::SetNextItemWidth(-1);
-			if (ImGui::BeginCombo("", "None", ImGuiComboFlags_HeightLarge))
+			if (ImGui::BeginCombo("", mixed ? GetMixedValueLabel() : "None", ImGuiComboFlags_HeightLarge))
 			{
 				if (clicked == false)
 				{

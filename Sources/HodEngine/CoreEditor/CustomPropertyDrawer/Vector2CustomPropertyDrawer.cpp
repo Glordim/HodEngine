@@ -23,11 +23,31 @@ namespace hod::inline editor
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 		}
 
+		// Each component on its own: the instances edited together may differ on one only
 		Vector2 value = *editorReflectedProperty.GetObject<Vector2>();
-		changed |= DrawHelper::DrawVector2(value);
-		if (changed == true)
+		uint8_t mixedComponents = 0;
+		for (uint32_t index = 1; index < editorReflectedProperty.GetInstances().Size(); ++index)
 		{
-			editorReflectedProperty.SetObject(value);
+			const Vector2& other = *editorReflectedProperty.GetObjectOf<Vector2>(index);
+			mixedComponents |= (other.GetX() != value.GetX() ? 1 : 0) | (other.GetY() != value.GetY() ? 2 : 0);
+		}
+
+		uint8_t editedComponents = 0;
+		if (DrawHelper::DrawVector2(value, "X", "Y", true, true, mixedComponents, &editedComponents))
+		{
+			editorReflectedProperty.EditObjects<Vector2>(
+				[&](Vector2& object)
+				{
+					if (editedComponents & 1)
+					{
+						object.SetX(value.GetX());
+					}
+					if (editedComponents & 2)
+					{
+						object.SetY(value.GetY());
+					}
+				});
+			changed = true;
 		}
 		return changed;
 	}

@@ -81,6 +81,11 @@ namespace hod::inline editor
 		}
 	}
 
+	bool EditorReflectedObject::IsEditingMultipleInstance() const
+	{
+		return _instances.Size() > 1;
+	}
+
 	bool EditorReflectedObject::IsOverride() const
 	{
 		if (_sourceInstance == nullptr)

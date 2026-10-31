@@ -18,7 +18,7 @@ namespace hod::inline editor
 {
 	class EditorReflectedObject;
 
-	/// @brief Draws a UIPrefabEditorTab's selected ui2::Node: its name on top, then three blocks, one
+	/// @brief Draws a UIPrefabEditorTab's active ui2::Node (see UIPrefabEditorTab::GetSelectedNode): its name on top, then three blocks, one
 	/// question each, from the most to the least often edited:
 	/// 1. Placement: where the node is and how big, in three sections: the fields of its LayoutParams' type
 	///    (dictated by its parent's layout), the size fields every LayoutParams shares, then the Node's own
@@ -28,7 +28,9 @@ namespace hod::inline editor
 	/// 4. Children Layout: how it arranges its children (add / transform / remove)
 	/// all via the engine's generic reflected-property drawer. For a node of a nested prefab's instance (see
 	/// UIPrefabEditorTab::NodeRole), the properties are compared to the prefab's (overrides marked, revertable), and what would
-	/// change the instance's structure is unavailable (all of it inside an instance held by an instance). With the canvas selected (see
+	/// change the instance's structure is unavailable (all of it inside an instance held by an instance). With several nodes selected, edits
+	/// them together: the properties their types share, a value they differ on shown mixed (an em dash) until edited, which sets it on all of
+	/// them; their Interactions and Layouts when of the same type; no override marks, Convert To, state overrides nor View. With the canvas selected (see
 	/// UIPrefabEditorTab::SelectCanvas), draws its own settings (its CanvasScaler) instead. In play mode
 	/// (see UIPrefabEditorTab::Play), draws what the pointer drives and the actions emitted instead.
 	class HOD_UI2_EDITOR_API UIPrefabEditorInspectorWindow : public EditorTabWindow
@@ -47,16 +49,17 @@ namespace hod::inline editor
 
 	private:
 
-		bool		DrawNameRow(ui2::Node* node, EditorReflectedObject& nodeObject);
+		// nodes: the ones edited together, the active one first
+		bool		DrawNameRow(const Vector<ui2::Node*>& nodes, EditorReflectedObject& nodeObject);
 		void		DrawPrefabInstanceRow(ui2::Node* node);
-		bool		DrawPlacementBlock(ui2::Node* node, EditorReflectedObject& nodeObject, ui2::Node* sourceNode);
-		bool		DrawAnchoredFields(ui2::Node* node, ui2::AnchoredLayoutParams* layoutParams, EditorReflectedObject& layoutParamsObject);
-		bool		DrawSizeFields(ui2::LayoutParams* layoutParams, EditorReflectedObject& layoutParamsObject);
-		bool		DrawContentBlock(ui2::Node* node, EditorReflectedObject& nodeObject, const ReflectionDescriptor*& convertDescriptor);
-		bool		DrawInteractionBlock(ui2::Node* node, ui2::Node* sourceNode);
+		bool		DrawPlacementBlock(const Vector<ui2::Node*>& nodes, EditorReflectedObject& nodeObject, ui2::Node* sourceNode);
+		bool		DrawAnchoredFields(const Vector<ui2::Node*>& nodes, const Vector<ui2::AnchoredLayoutParams*>& layoutParamsList, EditorReflectedObject& layoutParamsObject);
+		bool		DrawSizeFields(const Vector<ui2::LayoutParams*>& layoutParamsList, EditorReflectedObject& layoutParamsObject);
+		bool		DrawContentBlock(const Vector<ui2::Node*>& nodes, EditorReflectedObject& nodeObject, const ReflectionDescriptor*& convertDescriptor);
+		bool		DrawInteractionBlock(const Vector<ui2::Node*>& nodes, ui2::Node* sourceNode);
 		bool		DrawStateOverrides(ui2::Node* node, ui2::Button& button);
 		void		DrawPropertyOverride(ui2::Node* owner, const ui2::PropertyOverride& propertyOverride, bool recording, bool& removeRequested);
-		bool		DrawLayoutBlock(ui2::Node* node, ui2::Node* sourceNode);
+		bool		DrawLayoutBlock(const Vector<ui2::Node*>& nodes, ui2::Node* sourceNode);
 		bool		DrawViewBlock(ui2::Node* node);
 		bool		DrawCanvasBlock(ui2::Canvas& canvas);
 		void		DrawPlayingState(ui2::Canvas& canvas, const Vector<UIPrefabEditorTab::InteractionLogEntry>& log);
