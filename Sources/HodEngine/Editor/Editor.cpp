@@ -368,21 +368,22 @@ namespace hod::inline editor
 					}
 					if (ImGui::BeginMenu("Edit") == true)
 					{
-						if (ImGui::MenuItem("Undo", "CTRL+Z"))
+						// The selected tab's history (see EditorTab::Undo)
+						EditorTab* selectedTab = GetSelectedEditorTab();
+						bool       canUndo = selectedTab != nullptr && selectedTab->CanUndo();
+						bool       canRedo = selectedTab != nullptr && selectedTab->CanRedo();
+						// "###": the item keeps its id whatever the label
+						String undoLabel = (canUndo && selectedTab->GetUndoLabel().Empty() == false) ? "Undo " + selectedTab->GetUndoLabel() : String("Undo");
+						String redoLabel = (canRedo && selectedTab->GetRedoLabel().Empty() == false) ? "Redo " + selectedTab->GetRedoLabel() : String("Redo");
+						undoLabel += "###Undo";
+						redoLabel += "###Redo";
+						if (ImGui::MenuItem(undoLabel.CStr(), "CTRL+Z", false, canUndo))
 						{
+							selectedTab->Undo();
 						}
-						if (ImGui::MenuItem("Redo", "CTRL+Y", false, false))
+						if (ImGui::MenuItem(redoLabel.CStr(), "CTRL+Y", false, canRedo))
 						{
-						} // Disabled item
-						ImGui::Separator();
-						if (ImGui::MenuItem("Cut", "CTRL+X"))
-						{
-						}
-						if (ImGui::MenuItem("Copy", "CTRL+C"))
-						{
-						}
-						if (ImGui::MenuItem("Paste", "CTRL+V"))
-						{
+							selectedTab->Redo();
 						}
 						ImGui::Separator();
 						if (ImGui::MenuItem("Project Settings") == true)
@@ -756,6 +757,20 @@ namespace hod::inline editor
 				++index;
 			}
 		}
+	}
+
+	/// @brief
+	/// @return
+	EditorTab* Editor::GetSelectedEditorTab() const
+	{
+		for (EditorTab* editorTab : _editorTabs)
+		{
+			if (editorTab->IsSelected())
+			{
+				return editorTab;
+			}
+		}
+		return nullptr;
 	}
 
 	/// @brief

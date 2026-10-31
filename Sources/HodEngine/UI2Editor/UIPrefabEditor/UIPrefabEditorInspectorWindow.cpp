@@ -334,7 +334,7 @@ namespace hod::inline editor
 		{
 			if (DrawCanvasBlock(tab->GetCanvas()))
 			{
-				GetOwner()->MarkAsDirty();
+				GetOwner()->MarkAsDirty("Edit Canvas");
 			}
 			return;
 		}
@@ -408,7 +408,7 @@ namespace hod::inline editor
 
 		if (changed)
 		{
-			GetOwner()->MarkAsDirty();
+			GetOwner()->MarkAsDirty(multiple ? fmt::format("Edit {} Nodes", nodes.Size()) : fmt::format("Edit {}", node->GetName()));
 		}
 
 		// Last: the conversion deletes the node everything above was drawing.

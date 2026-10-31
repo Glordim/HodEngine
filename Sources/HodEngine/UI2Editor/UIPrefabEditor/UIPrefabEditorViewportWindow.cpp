@@ -496,7 +496,7 @@ namespace hod::inline editor
 				parent->AddChild(newNode, layoutParams);
 
 				tab->SetSelectedNode(newNode);
-				tab->MarkAsDirty();
+				tab->MarkAsDirty(fmt::format("Add {}", nodeDescriptor->GetDisplayName()));
 			}
 			ImGui::EndDragDropTarget();
 		}
@@ -1330,7 +1330,7 @@ namespace hod::inline editor
 				}
 				_draggedGizmoHandle = GizmoHandle::None;
 				_gizmoDragStarts.Clear();
-				GetOwner()->MarkAsDirty();
+				GetOwner()->MarkAsDirty(); // back as it was: no undo step
 				return;
 			}
 
@@ -1394,7 +1394,7 @@ namespace hod::inline editor
 				}
 			}
 
-			GetOwner()->MarkAsDirty();
+			GetOwner()->MarkAsDirty(handle == GizmoHandle::Move ? "Move" : "Resize");
 			return;
 		}
 

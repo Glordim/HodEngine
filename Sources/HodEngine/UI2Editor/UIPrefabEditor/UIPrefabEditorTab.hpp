@@ -210,6 +210,13 @@ namespace hod::inline editor
 		void	DrawMenuBar() override;
 		bool	OnSave() override;
 
+		// Undo: the canvas as OnSave writes it (as authored, plus the recorded state's overrides). Restoring it rebuilds every node
+		// (see GetRebuildCount), the selection kept by the nodes' ids, recording going on if its Button is still there.
+		bool	CaptureUndoState(Document& document) override;
+		bool	RestoreUndoState(const Document& document) override;
+		// Not while playing: editing is suspended
+		bool	IsUndoAvailable() const override;
+
 	private:
 
 		void	LoadNodes();
@@ -247,7 +254,15 @@ namespace hod::inline editor
 		void						RefreshInstances(const UID& savedPrefab);
 		void						RebuildInstance(ui2::Node* instanceRoot);
 
+		// Undo (see RestoreUndoState): node's local ids from the prefab root down, one per nested prefab instance it is in (the
+		// instance root's in its containing prefab, then the node's in the instance's prefab), found back by FindByScopedLocalIds
+		// in another tree of the same prefab. Empty if one of them has no id.
+		static Vector<uint64_t>	GetScopedLocalIds(const ui2::Node* node);
+		ui2::Node*				FindByScopedLocalIds(const Vector<uint64_t>& scopedLocalIds) const;
+
 		// Record mode (see StartRecording)
+		// Takes the overridable properties of every node as they are, as the authored values recording compares them to
+		void			CaptureRecordedBase();
 		ui2::Button*	FindRecordedButton() const;
 		void			UpdateRecording();
 		void			RestoreRecordedBase();

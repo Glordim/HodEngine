@@ -136,6 +136,18 @@ namespace hod::inline editor
 			return;
 		}
 
+		CaptureRecordedBase();
+
+		_recordedNode = buttonNode->GetLocalId();
+		_recordedState = state;
+
+		// Shows the state as it is so far
+		ApplyRecordedOverrides();
+	}
+
+	/// @brief
+	void UIPrefabEditorTab::CaptureRecordedBase()
+	{
 		// Every node needs an id: its properties are recorded by it
 		AssignLocalIds();
 
@@ -165,12 +177,6 @@ namespace hod::inline editor
 				nodes.PushBack(child);
 			}
 		}
-
-		_recordedNode = buttonNode->GetLocalId();
-		_recordedState = state;
-
-		// Shows the state as it is so far
-		ApplyRecordedOverrides();
 	}
 
 	/// @brief
@@ -203,6 +209,7 @@ namespace hod::inline editor
 			if (baseValue._target == target && baseValue._property == property)
 			{
 				baseValue._value.Write(*node, property);
+				MarkAsDirty("Revert Override"); // the override goes on the next UpdateRecording
 				break;
 			}
 		}
@@ -726,7 +733,7 @@ namespace hod::inline editor
 		}
 
 		DefaultAllocator::GetInstance().Delete(node);
-		MarkAsDirty();
+		MarkAsDirty(fmt::format("Convert to {}", nodeDescriptor.GetDisplayName()));
 		return newNode;
 	}
 
@@ -751,7 +758,7 @@ namespace hod::inline editor
 
 		if (deleted)
 		{
-			MarkAsDirty();
+			MarkAsDirty("Delete");
 		}
 		return deleted;
 	}
@@ -838,7 +845,7 @@ namespace hod::inline editor
 		node->RenewLocalIds(_nextLocalId, keepOutsideTargets);
 		parent->SetChildIndex(node, index);
 
-		MarkAsDirty();
+		MarkAsDirty(); // named by the callers
 		return node;
 	}
 
@@ -963,6 +970,7 @@ namespace hod::inline editor
 		if (instanceRoot != nullptr)
 		{
 			SetSelectedNode(instanceRoot);
+			MarkAsDirty("Instantiate Prefab");
 		}
 		return instanceRoot;
 	}
@@ -978,7 +986,7 @@ namespace hod::inline editor
 		}
 
 		instanceRoot->UnpackPrefabInstance(_nextLocalId);
-		MarkAsDirty();
+		MarkAsDirty("Unpack Prefab");
 		return true;
 	}
 
@@ -1107,7 +1115,7 @@ namespace hod::inline editor
 		{
 			SetNodeSelected(instanceRoot, true);
 		}
-		MarkAsDirty();
+		MarkAsDirty("Create Prefab");
 		return asset;
 	}
 
@@ -1338,7 +1346,7 @@ namespace hod::inline editor
 			oldParent->ReparentChild(node, parent);
 		}
 		parent->SetChildIndex(node, index);
-		MarkAsDirty();
+		MarkAsDirty(); // named by the callers
 	}
 
 	/// @brief
@@ -1403,6 +1411,7 @@ namespace hod::inline editor
 					}
 				}
 				SetSelectedNodes(cutNodes);
+				MarkAsDirty("Paste");
 				return cutNodes;
 			}
 		}
@@ -1442,6 +1451,7 @@ namespace hod::inline editor
 		if (pastedNodes.Empty() == false)
 		{
 			SetSelectedNodes(pastedNodes);
+			MarkAsDirty("Paste");
 		}
 		return pastedNodes;
 	}
@@ -1505,6 +1515,7 @@ namespace hod::inline editor
 		if (copies.Empty() == false)
 		{
 			SetSelectedNodes(copies);
+			MarkAsDirty("Duplicate");
 		}
 		return copies;
 	}
@@ -1550,6 +1561,7 @@ namespace hod::inline editor
 			MoveNode(node, parent, UINT32_MAX);
 		}
 		SetSelectedNodes(subtrees);
+		MarkAsDirty("Reparent");
 		return true;
 	}
 
@@ -1712,6 +1724,141 @@ namespace hod::inline editor
 		GenerateThumbnail();
 
 		return true;
+	}
+
+	/// @brief
+	/// @param document
+	/// @return
+	bool UIPrefabEditorTab::CaptureUndoState(Document& document)
+	{
+		// The new nodes get their id now: the selection is found back by them, and a redo gives them the same
+		AssignLocalIds();
+
+		// As in OnSave: as authored (with the overrides recorded so far), then back to the recorded state's look
+		UpdateRecording();
+		RestoreRecordedBase();
+		ScopedGuard reapplyRecordedOverrides = [&]()
+		{
+			if (IsRecording())
+			{
+				ApplyRecordedOverrides();
+			}
+		};
+
+		return _canvas.SerializeInDocument(document.GetRootNode());
+	}
+
+	/// @brief
+	/// @param document
+	/// @return
+	bool UIPrefabEditorTab::RestoreUndoState(const Document& document)
+	{
+		Vector<Vector<uint64_t>> selection;
+		for (const ui2::Node* node : _selectedNodes)
+		{
+			Vector<uint64_t> scopedLocalIds = GetScopedLocalIds(node);
+			if (scopedLocalIds.Empty() == false)
+			{
+				selection.PushBack(std::move(scopedLocalIds));
+			}
+		}
+		_selectedNodes.Clear();
+
+		// Every node is replaced: the canvas' root (the container) is emptied and given the step's children
+		ui2::Node* container = _canvas.GetRootNode();
+		while (container->GetChildren().Empty() == false)
+		{
+			ui2::Node* child = container->GetChildren()[container->GetChildren().Size() - 1];
+			container->RemoveChild(child);
+			DefaultAllocator::GetInstance().Delete(child);
+		}
+		++_rebuildCount;
+
+		bool restored = false;
+		{
+			std::optional<ui2::PrefabInstance::ScopedLoading> loading;
+			if (GetAsset() != nullptr)
+			{
+				loading.emplace(GetAsset()->GetUid());
+			}
+			restored = _canvas.DeserializeFromDocument(document.GetRootNode());
+		}
+		EnsurePrefabRoot();
+
+		for (const Vector<uint64_t>& scopedLocalIds : selection)
+		{
+			SetNodeSelected(FindByScopedLocalIds(scopedLocalIds), true);
+		}
+
+		// The step holds the nodes as authored: the recording goes on from them, unless its Button is gone
+		if (IsRecording())
+		{
+			ui2::Button* button = FindRecordedButton();
+			if (button == nullptr || button->GetOverrides(_recordedState) == nullptr)
+			{
+				_recordedNode = 0;
+				_recordedBase.Clear();
+			}
+			else
+			{
+				CaptureRecordedBase();
+				ApplyRecordedOverrides();
+			}
+		}
+
+		return restored;
+	}
+
+	/// @brief
+	/// @return
+	bool UIPrefabEditorTab::IsUndoAvailable() const
+	{
+		return IsPlaying() == false;
+	}
+
+	/// @brief
+	/// @param node
+	/// @return
+	Vector<uint64_t> UIPrefabEditorTab::GetScopedLocalIds(const ui2::Node* node)
+	{
+		Vector<uint64_t> scopedLocalIds;
+		for (; node != nullptr; node = node->GetParent())
+		{
+			// node's id in the scope holding it: an instance root's own (not its id in its prefab), the closest instance root
+			// above node being that scope
+			if (node->GetLocalId() == 0)
+			{
+				return {};
+			}
+			scopedLocalIds.Insert((uint32_t)0, node->GetLocalId());
+
+			while (node->GetParent() != nullptr && node->GetParent()->GetPrefabInstance() == nullptr)
+			{
+				node = node->GetParent();
+			}
+			if (node->GetParent() == nullptr)
+			{
+				break;
+			}
+		}
+		return scopedLocalIds;
+	}
+
+	/// @brief
+	/// @param scopedLocalIds
+	/// @return
+	ui2::Node* UIPrefabEditorTab::FindByScopedLocalIds(const Vector<uint64_t>& scopedLocalIds) const
+	{
+		ui2::Node* node = scopedLocalIds.Empty() ? nullptr : _canvas.GetRootNode();
+		for (uint64_t localId : scopedLocalIds)
+		{
+			node = node->FindByLocalId(localId);
+			if (node == nullptr)
+			{
+				return nullptr;
+			}
+		}
+		return node;
 	}
 
 	/// @brief Renders the prefab root framed (only the nodes: no grid, device frame nor gizmo), laid out

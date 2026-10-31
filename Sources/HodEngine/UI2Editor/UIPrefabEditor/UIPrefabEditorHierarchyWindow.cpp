@@ -294,7 +294,7 @@ namespace hod::inline editor
 		if (_renamedNode != nullptr && _renamedNode->GetName() != _renameBuffer)
 		{
 			_renamedNode->SetName(_renameBuffer);
-			GetOwner()->MarkAsDirty();
+			GetOwner()->MarkAsDirty("Rename");
 		}
 	}
 
@@ -442,7 +442,7 @@ namespace hod::inline editor
 				ImGui::GetStateStorage()->SetInt(ImGui::GetItemID(), 1);
 
 				tab->SetSelectedNode(newNode);
-				tab->MarkAsDirty();
+				tab->MarkAsDirty(fmt::format("Add {}", nodeDescriptor->GetDisplayName()));
 			}
 
 			// Only offered (highlighted, then accepted) when the move makes sense: not onto one of the dragged nodes, into one, or
@@ -508,7 +508,7 @@ namespace hod::inline editor
 			if (ImGui::MenuItem(ICON_MDI_PLUS_BOX " Add Child", nullptr, false, canEditStructure && single))
 			{
 				node->AddChild(ui2::NodeFactory::GetInstance()->CreateNode(ui2::Node::GetReflectionDescriptor()));
-				tab->MarkAsDirty();
+				tab->MarkAsDirty("Add Child");
 			}
 			if (ImGui::MenuItem(ICON_MDI_RENAME " Rename", "F2", false, UIPrefabEditorTab::CanEditProperties(node) && single))
 			{

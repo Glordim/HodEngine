@@ -59,7 +59,7 @@ namespace hod::inline editor
 				}
 
 				parent->AddChild(NodeFactory::GetInstance()->CreateNode(nodeDescriptor));
-				tab->MarkAsDirty();
+				tab->MarkAsDirty(fmt::format("Add {}", nodeDescriptor.GetDisplayName()));
 			}
 		}
 	}

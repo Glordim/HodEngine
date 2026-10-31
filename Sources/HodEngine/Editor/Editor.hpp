@@ -96,6 +96,8 @@ namespace hod::inline editor
 		{
 			return _editorTabs;
 		}
+		// The tab shown in the tab bar, nullptr if none
+		EditorTab* GetSelectedEditorTab() const;
 
 		Texture* GetHodTexture() const
 		{

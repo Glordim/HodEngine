@@ -9,6 +9,12 @@
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
 #include <HodEngine/Editor/AssetContainer.hpp>
+#include <HodEngine/Editor/UndoHistory.hpp>
+
+namespace hod::inline core
+{
+	class Document;
+}
 
 namespace hod::inline editor
 {
@@ -25,8 +31,22 @@ namespace hod::inline editor
 		std::shared_ptr<Asset> GetAsset() const;
 
 		bool IsDirty() const;
-		void MarkAsDirty();
+		// An edit was made. With undo (see CaptureUndoState), it becomes an undo step once over: at the end of the frame no widget
+		// is active nor the mouse's left button down, so a whole drag or text input makes one step. undoLabel names it (e.g.
+		// "Rename", shown as "Undo Rename"), the last one given before the step is made wins.
+		void MarkAsDirty(std::string_view undoLabel = {});
 		bool Save();
+
+		// Undo/redo, for the tabs implementing CaptureUndoState: each tab has its own history (see UndoHistory)
+		bool          CanUndo() const;
+		bool          CanRedo() const;
+		const String& GetUndoLabel() const;
+		const String& GetRedoLabel() const;
+		bool          Undo();
+		bool          Redo();
+
+		// Whether the tab is the one shown in the tab bar (the last frame it was drawn)
+		bool IsSelected() const;
 
 		template<typename _EditorTabWindow_>
 		_EditorTabWindow_* OpenWindow();
@@ -43,6 +63,14 @@ namespace hod::inline editor
 		/// @brief Serializes this tab's edited data to its Asset. Overridden by tabs that hold savable data.
 		virtual bool OnSave(); // TODO make it pure
 
+		/// @brief Undo: writes the whole edited state (what an undo step gives back) to document. Not overridden (returns false), the
+		/// tab has no undo. Must give the same document for the same state, the steps being compared to tell an edit from nothing.
+		virtual bool CaptureUndoState(Document& document);
+		/// @brief Gives the tab back the state document holds (see CaptureUndoState).
+		virtual bool RestoreUndoState(const Document& document);
+		/// @brief Whether undo and redo can be used now (e.g. not in a play mode where editing is suspended)
+		virtual bool IsUndoAvailable() const;
+
 	protected:
 		String  _title;
 		ImGuiID _dockSpaceId;
@@ -50,8 +78,22 @@ namespace hod::inline editor
 		AssetContainer _assetContainer;
 
 	private:
+		// Undo (see MarkAsDirty)
+		void InitUndoHistory();
+		void CommitUndoStep();
+		bool RestoreUndoStep(const String* state);
+		void HandleUndoShortcuts();
+
+	private:
 		bool _initialLayoutCreated = false;
 		bool _dirty = false;
+		bool _selected = false;
+
+		UndoHistory _undoHistory;
+		bool        _undoInitialized = false;
+		bool        _undoEnabled = false; // CaptureUndoState is implemented
+		bool        _undoCommitPending = false;
+		String      _pendingUndoLabel;
 
 		std::shared_ptr<Asset> _asset;
 

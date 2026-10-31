@@ -1,11 +1,13 @@
 #include <gtest/gtest.h>
 
 #include <HodEngine/Core/Document/Document.hpp>
+#include <HodEngine/Core/Document/DocumentWriterJson.hpp>
 #include <HodEngine/Core/Memory/DefaultAllocator.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 #include <HodEngine/Core/UID.hpp>
 #include <HodEngine/UI2/AnchoredLayoutParams.hpp>
 #include <HodEngine/UI2/Button.hpp>
+#include <HodEngine/UI2/Canvas.hpp>
 #include <HodEngine/UI2/InteractionFactory.hpp>
 #include <HodEngine/UI2/LayoutFactory.hpp>
 #include <HodEngine/UI2/LayoutParamsFactory.hpp>
@@ -286,5 +288,62 @@ namespace hod
 		const DocumentNode* overrides = saved.GetRootNode().GetChild("PrefabInstance")->GetChild("Overrides");
 		ASSERT_NE(overrides->GetFirstChild(), nullptr);
 		EXPECT_EQ(overrides->GetFirstChild()->GetChild("Target")->GetUInt64(), 5u);
+	}
+
+	// What the UI editor's undo relies on (see UIPrefabEditorTab::RestoreUndoState): a canvas emptied and given back its document
+	// writes that same document again, its nested instances (rebuilt from their prefab) and their overrides included
+	TEST_F(PrefabInstanceTest, CanvasDocumentRoundTripsInPlace)
+	{
+		Node* prefabRoot = NewNode("Root");
+		prefabRoot->AddChild(NewNode("Label"));
+		UID prefab = AddPrefab(prefabRoot);
+
+		Canvas                canvas;
+		Node*                 root = NewNode("Root");
+		AnchoredLayoutParams* layoutParams = DefaultAllocator::GetInstance().New<AnchoredLayoutParams>();
+		layoutParams->SetOffset(Vector2(10.0f, 20.0f));
+		canvas.AddChild(root, layoutParams);
+		Node* own = NewNode("Own");
+		root->AddChild(own);
+		Document entry;
+		WriteInstanceEntry(entry.GetRootNode(), prefab);
+		Node* instance = root->AddChildFromDocument(entry.GetRootNode());
+		ASSERT_NE(instance, nullptr);
+		instance->GetChildren()[0]->SetName("Overridden");
+		uint64_t nextLocalId = 1;
+		canvas.GetRootNode()->AssignLocalIds(nextLocalId);
+		uint64_t ownLocalId = own->GetLocalId();
+		Button&  button = own->SetInteraction<Button>();
+		button.GetOverrides(Button::State::Hovered)->PushBack(MakeNameOverride(ownLocalId, "Hovered"));
+
+		Document saved;
+		ASSERT_TRUE(canvas.SerializeInDocument(saved.GetRootNode()));
+		String             savedText;
+		DocumentWriterJson writer;
+		ASSERT_TRUE(writer.Write(saved, savedText));
+
+		Node* container = canvas.GetRootNode();
+		while (container->GetChildren().Empty() == false)
+		{
+			Node* child = container->GetChildren()[container->GetChildren().Size() - 1];
+			container->RemoveChild(child);
+			DefaultAllocator::GetInstance().Delete(child);
+		}
+		ASSERT_TRUE(canvas.DeserializeFromDocument(saved.GetRootNode()));
+
+		ASSERT_EQ(container->GetChildren().Size(), 1u);
+		Node* restoredRoot = container->GetChildren()[0];
+		ASSERT_EQ(restoredRoot->GetChildren().Size(), 2u);
+		EXPECT_EQ(container->FindByLocalId(ownLocalId), restoredRoot->GetChildren()[0]); // found back by its id
+		Node* restoredInstance = restoredRoot->GetChildren()[1];
+		ASSERT_NE(restoredInstance->GetPrefabInstance(), nullptr);
+		ASSERT_EQ(restoredInstance->GetChildren().Size(), 1u);
+		EXPECT_TRUE(restoredInstance->GetChildren()[0]->GetName() == "Overridden");
+
+		Document restored;
+		ASSERT_TRUE(canvas.SerializeInDocument(restored.GetRootNode()));
+		String restoredText;
+		ASSERT_TRUE(writer.Write(restored, restoredText));
+		EXPECT_TRUE(restoredText == savedText);
 	}
 }
