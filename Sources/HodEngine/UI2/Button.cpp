@@ -19,6 +19,7 @@ namespace hod::inline ui2
 		AddPropertyT(reflectionDescriptor, &Button::_action, "Action", &Button::SetAction);
 		AddPropertyT(reflectionDescriptor, &Button::_disabled, "Disabled", &Button::SetDisabled);
 		AddPropertyT(reflectionDescriptor, &Button::_transitionDuration, "TransitionDuration", &Button::SetTransitionDuration);
+		AddPropertyT(reflectionDescriptor, &Button::_transitionEasing, "TransitionEasing", &Button::SetTransitionEasing);
 
 		// Edited by the UI prefab editor's own drawer (target node and property pickers), not the generic one
 		AddPropertyT(reflectionDescriptor, &Button::_hoveredOverrides, "HoveredOverrides")->AddTrait<ReflectionTraitHide>();
@@ -118,6 +119,20 @@ namespace hod::inline ui2
 	void Button::SetTransitionDuration(float transitionDuration)
 	{
 		_transitionDuration = transitionDuration;
+	}
+
+	/// @brief
+	/// @return
+	AnimationKey::Easing Button::GetTransitionEasing() const
+	{
+		return _transitionEasing;
+	}
+
+	/// @brief
+	/// @param transitionEasing
+	void Button::SetTransitionEasing(AnimationKey::Easing transitionEasing)
+	{
+		_transitionEasing = transitionEasing;
 	}
 
 	/// @brief
@@ -288,7 +303,7 @@ namespace hod::inline ui2
 		_state = state;
 
 		Vector<const Vector<PropertyOverride>*> allSets = {&_hoveredOverrides, &_pressedOverrides, &_disabledOverrides};
-		_transition.Start(*GetNode(), GetOverrides(_state), allSets, transitionDuration);
+		_transition.Start(*GetNode(), GetOverrides(_state), allSets, transitionDuration, _transitionEasing);
 		SwitchAnimation(previous, _state);
 
 		_stateChangedEvent.Emit(_state);

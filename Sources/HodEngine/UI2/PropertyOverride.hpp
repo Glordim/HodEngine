@@ -1,4 +1,5 @@
 #pragma once
+#include "HodEngine/UI2/AnimationClip.hpp"
 #include "HodEngine/UI2/Export.hpp"
 
 #include <HodEngine/Core/Document/Document.hpp>
@@ -117,8 +118,10 @@ namespace hod::inline ui2
 	public:
 
 		// active: the overrides of the new state, null for none (every property back to its base value). allSets: the
-		// overrides of every state, active included. duration <= 0 applies the values on the next Update.
-		void	Start(Node& owner, const Vector<PropertyOverride>* active, const Vector<const Vector<PropertyOverride>*>& allSets, float duration);
+		// overrides of every state, active included. duration <= 0 applies the values on the next Update. easing shapes the
+		// blend over the duration (see AnimationKey::Ease), the values reached at its end whatever it is.
+		void	Start(Node& owner, const Vector<PropertyOverride>* active, const Vector<const Vector<PropertyOverride>*>& allSets, float duration,
+		              AnimationKey::Easing easing = AnimationKey::Easing::Linear);
 		void	Update(Node& owner, float deltaTime);
 
 		// Forgets the base values: re-read on the next Start (e.g. after the overrides were edited).
@@ -143,6 +146,7 @@ namespace hod::inline ui2
 		Vector<Track>	_tracks;
 		float			_elapsed = 0.0f;
 		float			_duration = 0.0f;
+		AnimationKey::Easing	_easing = AnimationKey::Easing::Linear;
 		bool			_running = false;
 	};
 }

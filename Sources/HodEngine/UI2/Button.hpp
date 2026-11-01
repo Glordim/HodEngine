@@ -57,6 +57,10 @@ namespace hod::inline ui2
 		float				GetTransitionDuration() const;
 		void				SetTransitionDuration(float transitionDuration);
 
+		// How the overrides ease over the transition's duration, when entering any state
+		AnimationKey::Easing	GetTransitionEasing() const;
+		void				SetTransitionEasing(AnimationKey::Easing transitionEasing);
+
 		ClickEvent&			GetClickEvent();
 		StateChangedEvent&	GetStateChangedEvent();
 
@@ -76,6 +80,7 @@ namespace hod::inline ui2
 		String				_action;
 		bool				_disabled = false;
 		float				_transitionDuration = 0.1f; // In seconds
+		AnimationKey::Easing	_transitionEasing = AnimationKey::Easing::Linear;
 
 		Vector<PropertyOverride>	_hoveredOverrides;
 		Vector<PropertyOverride>	_pressedOverrides;

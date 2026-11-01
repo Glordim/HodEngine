@@ -392,4 +392,40 @@ namespace hod::animation_tests // named: the other test files have helpers of th
 		EXPECT_TRUE(copiedButton->GetAnimation(Button::State::Hovered) == "Grow");
 		EXPECT_TRUE(copiedButton->GetAnimation(Button::State::Normal).Empty());
 	}
+
+	TEST_F(AnimationTest, ButtonTransitionEasesTheOverrides)
+	{
+		Button& button = _label->SetInteraction<Button>();
+		button.SetTransitionDuration(1.0f);
+		button.SetTransitionEasing(AnimationKey::Easing::QuadIn);
+		PropertyOverride& rotation = button.GetOverrides(Button::State::Hovered)->EmplaceBack();
+		rotation._target = 3;
+		rotation._property = "Rotation";
+		rotation.SetValue(RotationValue(10.0f));
+		button.Update(0.0f);
+
+		PointerEvent event;
+		event._type = PointerEvent::Type::Enter;
+		button.OnPointerEvent(event);
+		button.Update(0.5f);
+		EXPECT_FLOAT_EQ(_label->GetRotation(), 2.5f);
+		button.Update(0.5f);
+		EXPECT_FLOAT_EQ(_label->GetRotation(), 10.0f);
+
+		// Constant: holds until the end, then the target value
+		button.SetTransitionEasing(AnimationKey::Easing::Constant);
+		event._type = PointerEvent::Type::Exit;
+		button.OnPointerEvent(event);
+		button.Update(0.9f);
+		EXPECT_FLOAT_EQ(_label->GetRotation(), 10.0f);
+		button.Update(0.1f);
+		EXPECT_FLOAT_EQ(_label->GetRotation(), 0.0f);
+
+		Document document;
+		ASSERT_TRUE(_root->SerializeAsChildInDocument(document.GetRootNode()));
+		Node  other;
+		Node* copy = other.AddChildFromDocument(document.GetRootNode());
+		ASSERT_NE(copy, nullptr);
+		EXPECT_EQ(copy->GetChildren()[0]->GetInteraction<Button>()->GetTransitionEasing(), AnimationKey::Easing::Constant);
+	}
 }

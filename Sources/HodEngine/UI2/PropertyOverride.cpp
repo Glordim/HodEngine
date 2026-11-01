@@ -663,7 +663,9 @@ namespace hod::inline ui2
 	/// @param active
 	/// @param allSets
 	/// @param duration
-	void PropertyOverrideTransition::Start(Node& owner, const Vector<PropertyOverride>* active, const Vector<const Vector<PropertyOverride>*>& allSets, float duration)
+	/// @param easing
+	void PropertyOverrideTransition::Start(Node& owner, const Vector<PropertyOverride>* active, const Vector<const Vector<PropertyOverride>*>& allSets, float duration,
+	                                       AnimationKey::Easing easing)
 	{
 		// Every property any state overrides gets a track, its base value read before any override touched it.
 		for (const Vector<PropertyOverride>* overrides : allSets)
@@ -724,6 +726,7 @@ namespace hod::inline ui2
 
 		_elapsed = 0.0f;
 		_duration = duration;
+		_easing = easing;
 		_running = (_tracks.Empty() == false);
 	}
 
@@ -739,13 +742,15 @@ namespace hod::inline ui2
 
 		_elapsed += deltaTime;
 		float t = _duration > 0.0f ? Clamp(_elapsed / _duration, 0.0f, 1.0f) : 1.0f;
+		// Exactly the target values at the end (Constant would stay at 0)
+		float blend = t >= 1.0f ? 1.0f : AnimationKey::Ease(_easing, t);
 
 		for (Track& track : _tracks)
 		{
 			Node* target = FindTarget(owner, track._target);
 			if (target != nullptr)
 			{
-				PropertyValue::Lerp(track._from, track._to, t, track._current);
+				PropertyValue::Lerp(track._from, track._to, blend, track._current);
 				track._current.Write(*target, track._property);
 			}
 		}
