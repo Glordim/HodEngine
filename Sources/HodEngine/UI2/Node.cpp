@@ -1155,6 +1155,25 @@ namespace hod::inline ui2
 		return nullptr;
 	}
 
+	/// @brief
+	/// @param name
+	/// @return
+	Node* Node::FindAnimationOwner(std::string_view name)
+	{
+		for (Node* node = this; node != nullptr; node = node->_parent)
+		{
+			if (node->FindAnimation(name) != nullptr)
+			{
+				return node;
+			}
+			if (node->_prefabInstance != nullptr)
+			{
+				break; // its scope's root
+			}
+		}
+		return nullptr;
+	}
+
 	AnimationPlayer& Node::GetAnimationPlayer()
 	{
 		if (_animationPlayer == nullptr)

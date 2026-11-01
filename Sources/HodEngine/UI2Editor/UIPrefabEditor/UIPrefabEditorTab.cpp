@@ -751,6 +751,30 @@ namespace hod::inline editor
 		{
 			_previewedAnimation = newName;
 		}
+
+		// The Buttons of the prefab (not of its nested instances, which play their own prefab's clips) playing it follow
+		Vector<ui2::Node*> nodes = {GetPrefabRoot()};
+		for (uint32_t index = 0; index < nodes.Size(); ++index)
+		{
+			ui2::Node* node = nodes[index];
+			if (ui2::Button* button = node->GetInteraction<ui2::Button>(); button != nullptr && node->GetPrefabInstance() == nullptr)
+			{
+				for (ui2::Button::State state : {ui2::Button::State::Normal, ui2::Button::State::Hovered, ui2::Button::State::Pressed, ui2::Button::State::Disabled})
+				{
+					if (button->GetAnimation(state) == clipName)
+					{
+						button->SetAnimation(state, newName);
+					}
+				}
+			}
+			if (node->GetPrefabInstance() == nullptr)
+			{
+				for (ui2::Node* child : node->GetChildren())
+				{
+					nodes.PushBack(child);
+				}
+			}
+		}
 		MarkAsDirty("Rename Animation");
 		return true;
 	}

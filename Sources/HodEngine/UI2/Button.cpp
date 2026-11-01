@@ -1,6 +1,8 @@
 #include "HodEngine/UI2/Pch.hpp"
 #include "HodEngine/UI2/Button.hpp"
+#include "HodEngine/UI2/AnimationPlayer.hpp"
 #include "HodEngine/UI2/Canvas.hpp"
+#include "HodEngine/UI2/Node.hpp"
 #include "HodEngine/UI2/PointerEvent.hpp"
 
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
@@ -22,6 +24,12 @@ namespace hod::inline ui2
 		AddPropertyT(reflectionDescriptor, &Button::_hoveredOverrides, "HoveredOverrides")->AddTrait<ReflectionTraitHide>();
 		AddPropertyT(reflectionDescriptor, &Button::_pressedOverrides, "PressedOverrides")->AddTrait<ReflectionTraitHide>();
 		AddPropertyT(reflectionDescriptor, &Button::_disabledOverrides, "DisabledOverrides")->AddTrait<ReflectionTraitHide>();
+
+		// Picked among the prefab's clips by the UI prefab editor's drawer
+		AddPropertyT(reflectionDescriptor, &Button::_normalAnimation, "NormalAnimation")->AddTrait<ReflectionTraitHide>();
+		AddPropertyT(reflectionDescriptor, &Button::_hoveredAnimation, "HoveredAnimation")->AddTrait<ReflectionTraitHide>();
+		AddPropertyT(reflectionDescriptor, &Button::_pressedAnimation, "PressedAnimation")->AddTrait<ReflectionTraitHide>();
+		AddPropertyT(reflectionDescriptor, &Button::_disabledAnimation, "DisabledAnimation")->AddTrait<ReflectionTraitHide>();
 	}
 
 	/// @brief
@@ -73,6 +81,29 @@ namespace hod::inline ui2
 			case State::Disabled: return &_disabledOverrides;
 		}
 		return nullptr;
+	}
+
+	/// @brief
+	/// @param state
+	/// @return
+	const String& Button::GetAnimation(State state) const
+	{
+		switch (state)
+		{
+			case State::Normal: return _normalAnimation;
+			case State::Hovered: return _hoveredAnimation;
+			case State::Pressed: return _pressedAnimation;
+			case State::Disabled: return _disabledAnimation;
+		}
+		return _normalAnimation;
+	}
+
+	/// @brief
+	/// @param state
+	/// @param animation
+	void Button::SetAnimation(State state, const String& animation)
+	{
+		const_cast<String&>(GetAnimation(state)) = animation;
 	}
 
 	/// @brief
@@ -210,6 +241,33 @@ namespace hod::inline ui2
 		return state;
 	}
 
+	/// @brief
+	/// @param previous
+	/// @param next
+	void Button::SwitchAnimation(State previous, State next)
+	{
+		const String& previousAnimation = GetAnimation(previous);
+		const String& nextAnimation = GetAnimation(next);
+		std::string_view previousName(previousAnimation.CStr(), previousAnimation.Length());
+		std::string_view nextName(nextAnimation.CStr(), nextAnimation.Length());
+
+		// Stopped then the next one started in the same frame: no frame of the base values in between
+		if (previousName.empty() == false && previousName != nextName)
+		{
+			if (Node* owner = GetNode()->FindAnimationOwner(previousName))
+			{
+				owner->GetAnimationPlayer().Stop(previousName);
+			}
+		}
+		if (nextName.empty() == false)
+		{
+			if (Node* owner = GetNode()->FindAnimationOwner(nextName))
+			{
+				owner->GetAnimationPlayer().Play(nextName);
+			}
+		}
+	}
+
 	/// @brief Switches to the state the pointer and Disabled give, if it changed, easing to its overrides.
 	/// @param transitionDuration
 	void Button::RefreshState(float transitionDuration)
@@ -226,10 +284,12 @@ namespace hod::inline ui2
 		{
 			return;
 		}
+		State previous = _state;
 		_state = state;
 
 		Vector<const Vector<PropertyOverride>*> allSets = {&_hoveredOverrides, &_pressedOverrides, &_disabledOverrides};
 		_transition.Start(*GetNode(), GetOverrides(_state), allSets, transitionDuration);
+		SwitchAnimation(previous, _state);
 
 		_stateChangedEvent.Emit(_state);
 	}

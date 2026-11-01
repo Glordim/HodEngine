@@ -15,6 +15,10 @@ namespace hod::inline ui2
 	/// Its look follows its state through property overrides (see PropertyOverride): per state but Normal, values given to
 	/// properties of nodes of the prefab (its own shape's color, its label's scale...), eased over the transition duration.
 	/// Normal is the prefab as authored: what a state doesn't override goes back to it.
+	///
+	/// Each state, Normal included, can also play one of the prefab's animation clips when entered (see Node::FindAnimationOwner,
+	/// AnimationPlayer), e.g. a bounce when pressed: the clip of the state left is stopped (its properties back to their base
+	/// values) unless it is the one entered, which restarts. A clip drives its properties over the overrides touching the same ones.
 	class HOD_UI2_API Button : public Interaction
 	{
 		REFLECTED_CLASS(Button, Interaction)
@@ -46,6 +50,10 @@ namespace hod::inline ui2
 		// The overrides applied in state, null for Normal (none). Edited, they apply on the next state change.
 		Vector<PropertyOverride>*	GetOverrides(State state);
 
+		// The clip played when entering state, empty for none
+		const String&		GetAnimation(State state) const;
+		void				SetAnimation(State state, const String& animation);
+
 		float				GetTransitionDuration() const;
 		void				SetTransitionDuration(float transitionDuration);
 
@@ -60,6 +68,8 @@ namespace hod::inline ui2
 
 		State				ComputeState() const;
 		void				RefreshState(float transitionDuration);
+		// Stops previous' clip, plays next's
+		void				SwitchAnimation(State previous, State next);
 
 	private:
 
@@ -70,6 +80,11 @@ namespace hod::inline ui2
 		Vector<PropertyOverride>	_hoveredOverrides;
 		Vector<PropertyOverride>	_pressedOverrides;
 		Vector<PropertyOverride>	_disabledOverrides;
+
+		String				_normalAnimation;
+		String				_hoveredAnimation;
+		String				_pressedAnimation;
+		String				_disabledAnimation;
 
 		PropertyOverrideTransition	_transition;
 		bool				_stateApplied = false; // Whether the state was computed once (a button loaded disabled starts so, without transition)

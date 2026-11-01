@@ -217,6 +217,9 @@ namespace hod::inline ui2
 		Vector<AnimationClip>&			GetAnimations();
 		const Vector<AnimationClip>&	GetAnimations() const;
 		AnimationClip*					FindAnimation(std::string_view name);
+		// The node holding the clip of that name for this node: itself or its closest ancestor having one, up to its scope root
+		// (see GetScopeRoot), so the prefab root's for any node of the prefab. nullptr if none.
+		Node*							FindAnimationOwner(std::string_view name);
 		// Plays this node's clips, created on first call.
 		AnimationPlayer&				GetAnimationPlayer();
 		// Advances the player, if created. Called by Canvas::Update, after the Interactions.

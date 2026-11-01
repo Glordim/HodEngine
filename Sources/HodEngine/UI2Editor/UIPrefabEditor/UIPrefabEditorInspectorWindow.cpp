@@ -1013,8 +1013,9 @@ namespace hod::inline editor
 	/// @brief A Button's look per state: for Hovered, Pressed and Disabled, the list of property overrides applied in that state
 	/// (Normal is the prefab as authored), each a target node, one of its properties and the value it takes. Seen in play mode.
 	/// Each state can be recorded (see UIPrefabEditorTab::StartRecording): its overrides then follow the edits of the nodes, and are
-	/// only removable here (which puts the property back). The other states can't be edited meanwhile.
-	/// @return true if an override was added, removed or edited
+	/// only removable here (which puts the property back). The other states can't be edited meanwhile. Every state, Normal
+	/// included, also picks the clip of the prefab it plays when entered.
+	/// @return true if an override was added, removed or edited, or a clip picked
 	bool UIPrefabEditorInspectorWindow::DrawStateOverrides(ui2::Node* node, ui2::Button& button)
 	{
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
@@ -1026,6 +1027,7 @@ namespace hod::inline editor
 			const char*        _label;
 		};
 		constexpr StateEntry states[] = {
+			{ui2::Button::State::Normal, "Normal"},
 			{ui2::Button::State::Hovered, "Hovered"},
 			{ui2::Button::State::Pressed, "Pressed"},
 			{ui2::Button::State::Disabled, "Disabled"},
@@ -1061,28 +1063,90 @@ namespace hod::inline editor
 			{
 				ImGui::TextUnformatted(stateEntry._label);
 			}
-			ImGui::SameLine();
-			if (recording)
+			// Normal has no override: it is the prefab as authored
+			bool hasOverrides = button.GetOverrides(stateEntry._state) != nullptr;
+			if (hasOverrides)
 			{
-				ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 80, 80, 255));
-			}
-			if (ImGui::SmallButton(recording ? ICON_MDI_STOP : ICON_MDI_RECORD))
-			{
+				ImGui::SameLine();
 				if (recording)
 				{
-					tab->StopRecording();
+					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 80, 80, 255));
 				}
-				else
+				if (ImGui::SmallButton(recording ? ICON_MDI_STOP : ICON_MDI_RECORD))
 				{
-					tab->StartRecording(node, stateEntry._state);
+					if (recording)
+					{
+						tab->StopRecording();
+					}
+					else
+					{
+						tab->StartRecording(node, stateEntry._state);
+					}
 				}
+				if (recording)
+				{
+					ImGui::PopStyleColor();
+				}
+				ImGui::SetItemTooltip(recording ? "Stop recording, back to the prefab as authored"
+				                                : "Record: show this state, and record the properties edited on any node (inspector) as its overrides");
 			}
-			if (recording)
+			ImGui::Separator();
+
+			// The clip played when entering the state: one of the prefab's (held by the button's node or an ancestor, up to the root
+			// of its prefab, see ui2::Node::FindAnimationOwner)
 			{
-				ImGui::PopStyleColor();
+				const String&    animation = button.GetAnimation(stateEntry._state);
+				std::string_view animationName(animation.CStr(), animation.Length());
+				bool             missing = animation.Empty() == false && node->FindAnimationOwner(animationName) == nullptr;
+				String           preview = animation.Empty() ? String("No animation") : (missing ? animation + " (missing)" : animation);
+
+				ImGui::AlignTextToFramePadding();
+				ImGui::TextUnformatted(ICON_MDI_ANIMATION_PLAY);
+				ImGui::SameLine();
+				ImGui::SetNextItemWidth(-FLT_MIN);
+				if (missing)
+				{
+					ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(230, 80, 80, 255));
+				}
+				bool open = ImGui::BeginCombo("##Animation", preview.CStr());
+				if (missing)
+				{
+					ImGui::PopStyleColor();
+				}
+				if (open)
+				{
+					if (ImGui::Selectable("No animation", animation.Empty()) && animation.Empty() == false)
+					{
+						button.SetAnimation(stateEntry._state, String());
+						changed = true;
+					}
+					for (ui2::Node* owner = node; owner != nullptr; owner = owner->GetParent())
+					{
+						for (const ui2::AnimationClip& clip : owner->GetAnimations())
+						{
+							if (ImGui::Selectable(clip._name.CStr(), clip._name == animation) && clip._name != animation)
+							{
+								button.SetAnimation(stateEntry._state, clip._name);
+								changed = true;
+							}
+						}
+						if (owner->GetPrefabInstance() != nullptr)
+						{
+							break; // the root of its prefab
+						}
+					}
+					ImGui::EndCombo();
+				}
+				ImGui::SetItemTooltip("The animation played when entering the state (the previous state's is stopped). Made in the Animation window");
 			}
-			ImGui::SetItemTooltip(recording ? "Stop recording, back to the prefab as authored"
-			                                : "Record: show this state, and record the properties edited on any node (inspector) as its overrides");
+
+			if (hasOverrides == false)
+			{
+				ImGui::EndChild();
+				ImGui::EndDisabled();
+				ImGui::PopID();
+				continue;
+			}
 			ImGui::Separator();
 
 			Vector<ui2::PropertyOverride>& overrides = *button.GetOverrides(stateEntry._state);
