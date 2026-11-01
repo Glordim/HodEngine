@@ -6,11 +6,13 @@
 #include <HodEngine/UI2/AnchoredLayoutParams.hpp>
 #include <HodEngine/UI2/AnimationClip.hpp>
 #include <HodEngine/UI2/AnimationPlayer.hpp>
+#include <HodEngine/UI2/Button.hpp>
 #include <HodEngine/UI2/InteractionFactory.hpp>
 #include <HodEngine/UI2/LayoutFactory.hpp>
 #include <HodEngine/UI2/LayoutParamsFactory.hpp>
 #include <HodEngine/UI2/Node.hpp>
 #include <HodEngine/UI2/NodeFactory.hpp>
+#include <HodEngine/UI2/PointerEvent.hpp>
 #include <HodEngine/UI2/PrefabInstance.hpp>
 #include <HodEngine/UI2/PropertyOverride.hpp>
 
@@ -82,7 +84,7 @@ namespace hod::animation_tests // named: the other test files have helpers of th
 			NodeFactory::CreateInstance()->Register<Node>();
 			LayoutParamsFactory::CreateInstance()->Register<AnchoredLayoutParams>();
 			LayoutFactory::CreateInstance();
-			InteractionFactory::CreateInstance();
+			InteractionFactory::CreateInstance()->Register<Button>();
 		}
 
 		static void TearDownTestSuite()
@@ -331,5 +333,63 @@ namespace hod::animation_tests // named: the other test files have helpers of th
 		uint64_t unpackedLabelId = instance->GetChildren()[0]->GetLocalId();
 		EXPECT_NE(unpackedLabelId, 3u);
 		EXPECT_EQ(instance->GetAnimations()[0]._tracks[0]._target, unpackedLabelId);
+	}
+	TEST_F(AnimationTest, ButtonPlaysItsStatesClips)
+	{
+		// Grow: the label's Scale from 1 to 3; the clips are the prefab root's, the button deeper
+		AnimationClip grow;
+		grow._name = "Grow";
+		grow.SetKey(3, "Scale", 0.0f, ScaleValue(Vector2(1.0f, 1.0f)));
+		grow.SetKey(3, "Scale", 1.0f, ScaleValue(Vector2(3.0f, 3.0f)));
+		_root->GetAnimations().PushBack(grow);
+		_root->GetAnimations().PushBack(MakeSpin(3, AnimationClip::WrapMode::Loop));
+
+		Button& button = _label->SetInteraction<Button>();
+		button.SetAnimation(Button::State::Hovered, "Grow");
+		button.SetAnimation(Button::State::Pressed, "Spin");
+		EXPECT_EQ(_label->FindAnimationOwner("Grow"), _root);
+		EXPECT_EQ(_label->FindAnimationOwner("Missing"), nullptr);
+
+		auto send = [&button](PointerEvent::Type type)
+		{
+			PointerEvent event;
+			event._type = type;
+			button.OnPointerEvent(event);
+		};
+
+		send(PointerEvent::Type::Enter);
+		EXPECT_TRUE(_root->GetAnimationPlayer().IsPlaying("Grow"));
+		_root->UpdateAnimations(0.5f);
+		EXPECT_FLOAT_EQ(_label->GetScale().GetX(), 2.0f);
+
+		// Pressed: Grow stopped (Scale back to the prefab's), Spin played
+		send(PointerEvent::Type::Press);
+		EXPECT_FALSE(_root->GetAnimationPlayer().IsPlaying("Grow"));
+		EXPECT_FLOAT_EQ(_label->GetScale().GetX(), 1.0f);
+		EXPECT_TRUE(_root->GetAnimationPlayer().IsPlaying("Spin"));
+		_root->UpdateAnimations(0.25f);
+		EXPECT_FLOAT_EQ(_label->GetRotation(), 2.5f);
+
+		// Released over it: Hovered again, Spin stopped (Rotation back), Grow restarted
+		send(PointerEvent::Type::Release);
+		EXPECT_FALSE(_root->GetAnimationPlayer().IsPlaying("Spin"));
+		EXPECT_FLOAT_EQ(_label->GetRotation(), 0.0f);
+		EXPECT_TRUE(_root->GetAnimationPlayer().IsPlaying("Grow"));
+		EXPECT_FLOAT_EQ(_label->GetScale().GetX(), 1.0f);
+
+		// Out: Normal has no clip, Grow stopped
+		send(PointerEvent::Type::Exit);
+		EXPECT_FALSE(_root->GetAnimationPlayer().IsPlaying("Grow"));
+
+		// Round trip of the clips' names
+		Document document;
+		ASSERT_TRUE(_root->SerializeAsChildInDocument(document.GetRootNode()));
+		Node  other;
+		Node* copy = other.AddChildFromDocument(document.GetRootNode());
+		ASSERT_NE(copy, nullptr);
+		Button* copiedButton = copy->GetChildren()[0]->GetInteraction<Button>();
+		ASSERT_NE(copiedButton, nullptr);
+		EXPECT_TRUE(copiedButton->GetAnimation(Button::State::Hovered) == "Grow");
+		EXPECT_TRUE(copiedButton->GetAnimation(Button::State::Normal).Empty());
 	}
 }
