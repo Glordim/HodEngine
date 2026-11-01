@@ -2,6 +2,7 @@
 #include "HodEngine/UI2/View.hpp"
 #include "HodEngine/UI2/Node.hpp"
 #include "HodEngine/UI2/NodeRef.hpp"
+#include "HodEngine/UI2/AnimationPlayer.hpp"
 
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 
@@ -85,6 +86,26 @@ namespace hod::inline ui2
 		for (NodeRefBase* reference : references)
 		{
 			reference->Remap(oldToNew, keepOthers);
+		}
+	}
+
+	/// @brief
+	/// @param name
+	/// @param speed
+	/// @return
+	bool View::PlayAnimation(std::string_view name, float speed)
+	{
+		return _node != nullptr && _node->GetAnimationPlayer().Play(name, speed);
+	}
+
+	/// @brief
+	/// @param name
+	/// @param restore
+	void View::StopAnimation(std::string_view name, bool restore)
+	{
+		if (_node != nullptr)
+		{
+			_node->GetAnimationPlayer().Stop(name, restore);
 		}
 	}
 

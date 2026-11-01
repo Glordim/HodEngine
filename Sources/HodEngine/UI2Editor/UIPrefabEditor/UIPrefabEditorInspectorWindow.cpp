@@ -1,6 +1,7 @@
 #include "HodEngine/UI2Editor/Pch.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorInspectorWindow.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
+#include "HodEngine/UI2Editor/UIPrefabEditor/SerializedValueFormat.hpp"
 
 #include "HodEngine/UI2Editor/AnchorPresetsDrawer.hpp"
 #include "HodEngine/UI2Editor/CustomPropertyDrawer/NodeRefCustomPropertyDrawer.hpp"
@@ -1007,42 +1008,6 @@ namespace hod::inline editor
 			String name = node.GetName().Empty() ? String("(unnamed)") : node.GetName();
 			return String(DrawHelper::GetTypeIcon(node.GetReflectionDescriptorV(), ICON_MDI_VECTOR_SQUARE)) + " " + name;
 		}
-
-		/// @brief A value as serialized, on one line: objects and arrays as their values between parentheses.
-		String FormatValue(const DocumentNode& node)
-		{
-			char buffer[64] = {};
-			switch (node.GetType())
-			{
-				case DocumentNode::Type::Object:
-				case DocumentNode::Type::Array:
-				{
-					String text = "(";
-					for (const DocumentNode* child = node.GetFirstChild(); child != nullptr; child = child->GetNextSibling())
-					{
-						if (child != node.GetFirstChild())
-						{
-							text += ", ";
-						}
-						text += FormatValue(*child);
-					}
-					return text + ")";
-				}
-				case DocumentNode::Type::Bool: return node.GetBool() ? "true" : "false";
-				case DocumentNode::Type::Int8: std::snprintf(buffer, sizeof(buffer), "%d", (int)node.GetInt8()); break;
-				case DocumentNode::Type::Int16: std::snprintf(buffer, sizeof(buffer), "%d", (int)node.GetInt16()); break;
-				case DocumentNode::Type::Int32: std::snprintf(buffer, sizeof(buffer), "%d", (int)node.GetInt32()); break;
-				case DocumentNode::Type::Int64: std::snprintf(buffer, sizeof(buffer), "%lld", (long long)node.GetInt64()); break;
-				case DocumentNode::Type::UInt8: std::snprintf(buffer, sizeof(buffer), "%u", (unsigned)node.GetUInt8()); break;
-				case DocumentNode::Type::UInt16: std::snprintf(buffer, sizeof(buffer), "%u", (unsigned)node.GetUInt16()); break;
-				case DocumentNode::Type::UInt32: std::snprintf(buffer, sizeof(buffer), "%u", (unsigned)node.GetUInt32()); break;
-				case DocumentNode::Type::UInt64: std::snprintf(buffer, sizeof(buffer), "%llu", (unsigned long long)node.GetUInt64()); break;
-				case DocumentNode::Type::Float32: std::snprintf(buffer, sizeof(buffer), "%.3g", (double)node.GetFloat32()); break;
-				case DocumentNode::Type::Float64: std::snprintf(buffer, sizeof(buffer), "%.3g", node.GetFloat64()); break;
-				case DocumentNode::Type::String: return String("\"") + node.GetString() + "\"";
-			}
-			return buffer;
-		}
 	}
 
 	/// @brief A Button's look per state: for Hovered, Pressed and Disabled, the list of property overrides applied in that state
@@ -1197,7 +1162,7 @@ namespace hod::inline editor
 
 		// The value between the property and the remove button, clipped there
 		ImGui::SameLine();
-		String valueText = FormatValue(propertyOverride._value.GetRootNode());
+		String valueText = FormatSerializedValue(propertyOverride._value.GetRootNode());
 		ImVec2 valuePos = ImGui::GetCursorScreenPos();
 		float  valueWidth = Max(removeX - ImGui::GetCursorPosX() - ImGui::GetStyle().ItemSpacing.x, 0.0f);
 		ImGui::PushClipRect(valuePos, ImVec2(valuePos.x + valueWidth, valuePos.y + ImGui::GetFrameHeight()), true);

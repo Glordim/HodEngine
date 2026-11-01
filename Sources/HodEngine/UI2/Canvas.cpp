@@ -223,11 +223,25 @@ namespace hod::inline ui2
 		}
 	}
 
+	namespace
+	{
+		void UpdateAnimations(Node* node, float deltaTime)
+		{
+			node->UpdateAnimations(deltaTime);
+			for (Node* child : node->GetChildren())
+			{
+				UpdateAnimations(child, deltaTime);
+			}
+		}
+	}
+
 	/// @brief
 	/// @param deltaTime
 	void Canvas::Update(float deltaTime)
 	{
 		UpdateInteractions(_rootNode, deltaTime);
+		// After them: a clip drives its properties over a state transition touching the same ones
+		UpdateAnimations(_rootNode, deltaTime);
 	}
 
 	void Canvas::UpdateLayout()

@@ -18,6 +18,7 @@ namespace hod::inline core
 namespace hod::inline ui2
 {
 	class Node;
+	struct AnimationClip;
 }
 
 namespace hod::inline editor
@@ -203,6 +204,35 @@ namespace hod::inline editor
 		};
 		const Vector<InteractionLogEntry>& GetInteractionLog() const;
 
+		// Animation preview (the Animation window): the prefab shows one of its clips (see ui2::Node::GetAnimations, on the prefab
+		// root) at the timeline's time, over the prefab as authored, as state recording shows a state (exclusive with it). Edits
+		// change the prefab as authored, or, with the animation recording on, add keys at that time to the properties edited.
+		// Saved and undone as authored, the preview going on.
+		bool			IsPreviewingAnimation() const;
+		// The previewed clip, null if none (or gone)
+		ui2::AnimationClip*	GetPreviewedAnimation() const;
+		void			StartAnimationPreview(const String& clipName);
+		void			StopAnimationPreview();
+		float			GetAnimationTime() const;
+		void			SetAnimationTime(float time);
+		bool			IsRecordingAnimation() const;
+		void			SetRecordingAnimation(bool recording);
+		// The timeline playing, looping when the clip isn't Once
+		bool			IsPlayingAnimation() const;
+		void			SetPlayingAnimation(bool playing);
+		// The clip's keys, tracks or duration edited (not through the recording): shown again at the current time. Call it
+		// before MarkAsDirty.
+		void			RefreshAnimationPreview();
+		// While previewing: the value the prefab as authored gives that property (the clip's values left out). False for a node
+		// added since the preview started, or not of this prefab.
+		bool			GetAuthoredValue(uint64_t target, const String& property, ui2::PropertyValue& outValue) const;
+
+		// The prefab root's clips, by name: a new one named uniquely (previewed), renamed (refused if the name is taken or
+		// empty), deleted (the preview stopped if it was the previewed one).
+		ui2::AnimationClip*	AddAnimation();
+		bool			RenameAnimation(const String& clipName, const String& newName);
+		bool			DeleteAnimation(const String& clipName);
+
 	protected:
 
 		void	CreateDefaultLayout() override;
@@ -266,7 +296,18 @@ namespace hod::inline editor
 		ui2::Button*	FindRecordedButton() const;
 		void			UpdateRecording();
 		void			RestoreRecordedBase();
+		// Gives the nodes the recorded state's overrides, or the previewed clip's values (see ApplyAnimationSample)
 		void			ApplyRecordedOverrides();
+		// State recording or animation preview: the nodes show something else than the prefab as authored (_recordedBase)
+		bool			HasRecordedBase() const;
+
+		// Animation preview (see StartAnimationPreview)
+		// The prefab as authored, then the clip's values at the current time
+		void			ApplyAnimationSample();
+		// The properties edited since the last ApplyAnimationSample: keyed at the current time when recording the animation,
+		// taken as authored otherwise
+		void			UpdateAnimationPreview();
+		void			ClearAnimationPreview();
 
 	private:
 
@@ -290,6 +331,15 @@ namespace hod::inline editor
 		uint64_t					_recordedNode = 0;
 		ui2::Button::State			_recordedState = ui2::Button::State::Normal;
 		Vector<RecordedBaseValue>	_recordedBase;
+
+		// Animation preview: the clip's name (empty when none), the timeline's time, and the values of _recordedBase's properties
+		// as the last ApplyAnimationSample left them (same order), to tell the edits made since
+		String						_previewedAnimation;
+		float						_animationTime = 0.0f;
+		bool						_recordingAnimation = false;
+		bool						_playingAnimation = false;
+		bool						_animationPlayingBackwards = false; // Ping Pong's way back
+		Vector<ui2::PropertyValue>	_animationDisplayedValues;
 
 		ui2::Canvas*					_interactionCanvas = nullptr; // Play mode's copy, null when not playing
 		bool							_paused = false;

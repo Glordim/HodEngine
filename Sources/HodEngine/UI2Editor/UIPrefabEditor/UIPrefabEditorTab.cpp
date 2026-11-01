@@ -1,5 +1,6 @@
 #include "HodEngine/UI2Editor/Pch.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
+#include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorAnimationWindow.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorHierarchyWindow.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorInspectorWindow.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorLibraryWindow.hpp"
@@ -16,6 +17,7 @@
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 #include <HodEngine/UI2/AnchoredLayoutParams.hpp>
+#include <HodEngine/UI2/AnimationPlayer.hpp>
 #include <HodEngine/UI2/ImageNode.hpp>
 #include <HodEngine/UI2/Node.hpp>
 #include <HodEngine/UI2/NodeFactory.hpp>
@@ -40,6 +42,7 @@
 #include <HodEngine/Core/Output/OutputService.hpp>
 
 #include <algorithm>
+#include <cmath>
 #include <cstring>
 #include <optional>
 
@@ -123,6 +126,7 @@ namespace hod::inline editor
 	void UIPrefabEditorTab::StartRecording(ui2::Node* buttonNode, ui2::Button::State state)
 	{
 		StopRecording();
+		StopAnimationPreview();
 
 		// The Buttons of the nested instances are their prefab's: their states are edited there
 		if (GetNodeRole(buttonNode) != NodeRole::Authored)
@@ -228,6 +232,11 @@ namespace hod::inline editor
 	/// added while recording, missing targets) are left as they are. Stops recording if the button is gone.
 	void UIPrefabEditorTab::UpdateRecording()
 	{
+		if (IsPreviewingAnimation())
+		{
+			UpdateAnimationPreview();
+			return;
+		}
 		if (IsRecording() == false)
 		{
 			return;
@@ -314,6 +323,12 @@ namespace hod::inline editor
 	/// @brief Gives the nodes the recorded state's overrides: how they look in that state.
 	void UIPrefabEditorTab::ApplyRecordedOverrides()
 	{
+		if (IsPreviewingAnimation())
+		{
+			ApplyAnimationSample();
+			return;
+		}
+
 		ui2::Button* button = FindRecordedButton();
 		if (button == nullptr)
 		{
@@ -405,8 +420,9 @@ namespace hod::inline editor
 			return;
 		}
 
-		// The copy must be the prefab as authored, not the recorded state's look
+		// The copy must be the prefab as authored, not the recorded state's look nor the previewed clip's
 		StopRecording();
+		StopAnimationPreview();
 
 		// Copied through its document, as saved: the copy is what the prefab gives at runtime.
 		Document document;
@@ -448,6 +464,317 @@ namespace hod::inline editor
 	const Vector<UIPrefabEditorTab::InteractionLogEntry>& UIPrefabEditorTab::GetInteractionLog() const
 	{
 		return _interactionLog;
+	}
+
+	/// @brief
+	/// @return
+	bool UIPrefabEditorTab::HasRecordedBase() const
+	{
+		return IsRecording() || IsPreviewingAnimation();
+	}
+
+	/// @brief
+	/// @return
+	bool UIPrefabEditorTab::IsPreviewingAnimation() const
+	{
+		return _previewedAnimation.Empty() == false;
+	}
+
+	/// @brief
+	/// @return
+	ui2::AnimationClip* UIPrefabEditorTab::GetPreviewedAnimation() const
+	{
+		if (_previewedAnimation.Empty())
+		{
+			return nullptr;
+		}
+		return GetPrefabRoot()->FindAnimation(std::string_view(_previewedAnimation.CStr(), _previewedAnimation.Length()));
+	}
+
+	/// @brief
+	/// @param clipName
+	void UIPrefabEditorTab::StartAnimationPreview(const String& clipName)
+	{
+		if (_previewedAnimation == clipName)
+		{
+			return;
+		}
+		StopRecording();
+		StopAnimationPreview();
+		if (IsPlaying() || GetPrefabRoot()->FindAnimation(std::string_view(clipName.CStr(), clipName.Length())) == nullptr)
+		{
+			return;
+		}
+
+		CaptureRecordedBase();
+		_previewedAnimation = clipName;
+		_animationTime = 0.0f;
+		ApplyAnimationSample();
+	}
+
+	/// @brief
+	void UIPrefabEditorTab::StopAnimationPreview()
+	{
+		if (IsPreviewingAnimation() == false)
+		{
+			return;
+		}
+
+		UpdateAnimationPreview();
+		RestoreRecordedBase();
+		ClearAnimationPreview();
+	}
+
+	/// @brief
+	void UIPrefabEditorTab::ClearAnimationPreview()
+	{
+		_previewedAnimation.Clear();
+		_animationTime = 0.0f;
+		_recordingAnimation = false;
+		_playingAnimation = false;
+		_recordedBase.Clear();
+		_animationDisplayedValues.Clear();
+	}
+
+	/// @brief
+	/// @return
+	float UIPrefabEditorTab::GetAnimationTime() const
+	{
+		return _animationTime;
+	}
+
+	/// @brief
+	/// @param time
+	void UIPrefabEditorTab::SetAnimationTime(float time)
+	{
+		time = Max(time, 0.0f);
+		if (IsPreviewingAnimation() == false || time == _animationTime)
+		{
+			return;
+		}
+
+		// The edits made at the previous time are keyed there
+		UpdateAnimationPreview();
+		_animationTime = time;
+		ApplyAnimationSample();
+	}
+
+	/// @brief
+	/// @return
+	bool UIPrefabEditorTab::IsRecordingAnimation() const
+	{
+		return _recordingAnimation;
+	}
+
+	/// @brief
+	/// @param recording
+	void UIPrefabEditorTab::SetRecordingAnimation(bool recording)
+	{
+		if (IsPreviewingAnimation() == false || recording == _recordingAnimation)
+		{
+			return;
+		}
+		UpdateAnimationPreview(); // what was edited before goes the previous way
+		_recordingAnimation = recording;
+	}
+
+	/// @brief
+	/// @return
+	bool UIPrefabEditorTab::IsPlayingAnimation() const
+	{
+		return _playingAnimation;
+	}
+
+	/// @brief
+	/// @param playing
+	void UIPrefabEditorTab::SetPlayingAnimation(bool playing)
+	{
+		ui2::AnimationClip* clip = GetPreviewedAnimation();
+		if (clip == nullptr)
+		{
+			_playingAnimation = false;
+			return;
+		}
+		// From the start once at the end
+		if (playing && _playingAnimation == false && _animationTime >= clip->_duration)
+		{
+			SetAnimationTime(0.0f);
+		}
+		if (playing && _playingAnimation == false)
+		{
+			_animationPlayingBackwards = false;
+		}
+		_playingAnimation = playing;
+	}
+
+	/// @brief
+	void UIPrefabEditorTab::RefreshAnimationPreview()
+	{
+		if (IsPreviewingAnimation())
+		{
+			UpdateAnimationPreview(); // the edits not seen yet aren't lost
+			ApplyAnimationSample();
+		}
+	}
+
+	/// @brief
+	/// @param target
+	/// @param property
+	/// @param outValue
+	/// @return
+	bool UIPrefabEditorTab::GetAuthoredValue(uint64_t target, const String& property, ui2::PropertyValue& outValue) const
+	{
+		if (IsPreviewingAnimation() == false)
+		{
+			return false;
+		}
+		for (const RecordedBaseValue& baseValue : _recordedBase)
+		{
+			if (baseValue._target == target && baseValue._property == property)
+			{
+				outValue = baseValue._value;
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/// @brief
+	void UIPrefabEditorTab::ApplyAnimationSample()
+	{
+		RestoreRecordedBase();
+
+		ui2::AnimationClip* clip = GetPreviewedAnimation();
+		if (clip != nullptr)
+		{
+			GetPrefabRoot()->GetAnimationPlayer().Sample(std::string_view(clip->_name.CStr(), clip->_name.Length()), _animationTime);
+		}
+
+		_animationDisplayedValues.Clear();
+		_animationDisplayedValues.Reserve(_recordedBase.Size());
+		for (const RecordedBaseValue& baseValue : _recordedBase)
+		{
+			ui2::PropertyValue& value = _animationDisplayedValues.EmplaceBack();
+			if (ui2::Node* node = _canvas.GetRootNode()->FindByLocalId(baseValue._target))
+			{
+				value.Read(*node, baseValue._property);
+			}
+		}
+	}
+
+	/// @brief
+	void UIPrefabEditorTab::UpdateAnimationPreview()
+	{
+		ui2::AnimationClip* clip = GetPreviewedAnimation();
+		if (clip == nullptr)
+		{
+			// Gone (renamed or deleted by an undo...): back to the prefab as authored
+			if (IsPreviewingAnimation())
+			{
+				RestoreRecordedBase();
+				ClearAnimationPreview();
+			}
+			return;
+		}
+
+		bool keyed = false;
+		for (uint32_t index = 0; index < _recordedBase.Size() && index < _animationDisplayedValues.Size(); ++index)
+		{
+			RecordedBaseValue& baseValue = _recordedBase[index];
+			ui2::Node*         node = _canvas.GetRootNode()->FindByLocalId(baseValue._target);
+			ui2::PropertyValue value;
+			if (node == nullptr || value.Read(*node, baseValue._property) == false || value.Equals(_animationDisplayedValues[index]))
+			{
+				continue;
+			}
+
+			if (_recordingAnimation)
+			{
+				// A new track starts from the authored value: the clip goes from it to the recorded one
+				ui2::AnimationTrack* track = clip->FindTrack(baseValue._target, std::string_view(baseValue._property.CStr(), baseValue._property.Length()));
+				if (track == nullptr && _animationTime > 0.0f)
+				{
+					clip->SetKey(baseValue._target, std::string_view(baseValue._property.CStr(), baseValue._property.Length()), 0.0f, baseValue._value);
+				}
+				clip->SetKey(baseValue._target, std::string_view(baseValue._property.CStr(), baseValue._property.Length()), _animationTime, value);
+				keyed = true;
+			}
+			else
+			{
+				baseValue._value = value;
+			}
+			_animationDisplayedValues[index] = std::move(value);
+		}
+
+		if (keyed)
+		{
+			MarkAsDirty("Record Key");
+		}
+	}
+
+	/// @brief
+	/// @return
+	ui2::AnimationClip* UIPrefabEditorTab::AddAnimation()
+	{
+		Vector<ui2::AnimationClip>& clips = GetPrefabRoot()->GetAnimations();
+		String                      name;
+		for (uint32_t number = 1;; ++number)
+		{
+			name = (number == 1) ? String("Animation") : String(fmt::format("Animation{}", number).c_str());
+			if (GetPrefabRoot()->FindAnimation(std::string_view(name.CStr(), name.Length())) == nullptr)
+			{
+				break;
+			}
+		}
+
+		ui2::AnimationClip& clip = clips.EmplaceBack();
+		clip._name = name;
+		MarkAsDirty("Add Animation");
+		StartAnimationPreview(name);
+		return GetPreviewedAnimation();
+	}
+
+	/// @brief
+	/// @param clipName
+	/// @param newName
+	/// @return
+	bool UIPrefabEditorTab::RenameAnimation(const String& clipName, const String& newName)
+	{
+		ui2::AnimationClip* clip = GetPrefabRoot()->FindAnimation(std::string_view(clipName.CStr(), clipName.Length()));
+		if (clip == nullptr || newName.Empty() || newName == clipName || GetPrefabRoot()->FindAnimation(std::string_view(newName.CStr(), newName.Length())) != nullptr)
+		{
+			return false;
+		}
+
+		clip->_name = newName;
+		if (_previewedAnimation == clipName)
+		{
+			_previewedAnimation = newName;
+		}
+		MarkAsDirty("Rename Animation");
+		return true;
+	}
+
+	/// @brief
+	/// @param clipName
+	/// @return
+	bool UIPrefabEditorTab::DeleteAnimation(const String& clipName)
+	{
+		Vector<ui2::AnimationClip>& clips = GetPrefabRoot()->GetAnimations();
+		for (uint32_t index = 0; index < clips.Size(); ++index)
+		{
+			if (clips[index]._name == clipName)
+			{
+				if (_previewedAnimation == clipName)
+				{
+					StopAnimationPreview();
+				}
+				clips.Erase(index);
+				MarkAsDirty("Delete Animation");
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/// @brief
@@ -794,7 +1121,7 @@ namespace hod::inline editor
 		RestoreRecordedBase();
 		ScopedGuard reapplyRecordedOverrides = [&]()
 		{
-			if (IsRecording())
+			if (HasRecordedBase())
 			{
 				ApplyRecordedOverrides();
 			}
@@ -1018,9 +1345,9 @@ namespace hod::inline editor
 			OUTPUT_ERROR("Only the nodes of the prefab itself, but its root, can make a UI prefab (an instance is unpacked first)");
 			return nullptr;
 		}
-		if (IsRecording() || IsPlaying())
+		if (IsRecording() || IsPreviewingAnimation() || IsPlaying())
 		{
-			OUTPUT_ERROR("A UI prefab can't be made of a node while recording a state or playing");
+			OUTPUT_ERROR("A UI prefab can't be made of a node while recording a state, previewing an animation or playing");
 			return nullptr;
 		}
 
@@ -1196,7 +1523,7 @@ namespace hod::inline editor
 		RestoreRecordedBase();
 		ScopedGuard reapplyRecordedOverrides = [&]()
 		{
-			if (IsRecording())
+			if (HasRecordedBase())
 			{
 				ApplyRecordedOverrides();
 			}
@@ -1601,6 +1928,7 @@ namespace hod::inline editor
 		UIPrefabEditorLibraryWindow*   libraryWindow = OpenWindow<UIPrefabEditorLibraryWindow>();
 		UIPrefabEditorInspectorWindow* inspectorWindow = OpenWindow<UIPrefabEditorInspectorWindow>();
 		UIPrefabEditorViewportWindow*  viewportWindow = OpenWindow<UIPrefabEditorViewportWindow>();
+		UIPrefabEditorAnimationWindow* animationWindow = OpenWindow<UIPrefabEditorAnimationWindow>();
 
 		ImGui::DockBuilderRemoveNode(_dockSpaceId);
 		ImGui::DockBuilderRemoveNodeChildNodes(_dockSpaceId);
@@ -1612,10 +1940,12 @@ namespace hod::inline editor
 		ImGuiID dockLeft = ImGui::DockBuilderSplitNode(_dockSpaceId, ImGuiDir_Left, 0.2f, nullptr, &opposite);
 		ImGuiID dockRight = ImGui::DockBuilderSplitNode(opposite, ImGuiDir_Right, 0.25f, nullptr, &opposite);
 		ImGuiID dockLeftBottom = ImGui::DockBuilderSplitNode(dockLeft, ImGuiDir_Down, 0.35f, nullptr, &dockLeft);
+		ImGuiID dockBottom = ImGui::DockBuilderSplitNode(opposite, ImGuiDir_Down, 0.3f, nullptr, &opposite);
 
 		ImGui::DockBuilderDockWindow(hierarchyWindow->GetIdentifier(), dockLeft);
 		ImGui::DockBuilderDockWindow(libraryWindow->GetIdentifier(), dockLeftBottom);
 		ImGui::DockBuilderDockWindow(inspectorWindow->GetIdentifier(), dockRight);
+		ImGui::DockBuilderDockWindow(animationWindow->GetIdentifier(), dockBottom);
 		ImGui::DockBuilderDockWindow(viewportWindow->GetIdentifier(), opposite);
 		ImGuiDockNode* viewportNode = ImGui::DockBuilderGetNode(opposite);
 		viewportNode->SetLocalFlags(viewportNode->LocalFlags | ImGuiDockNodeFlags_HiddenTabBar);
@@ -1627,6 +1957,44 @@ namespace hod::inline editor
 	bool UIPrefabEditorTab::DrawContent()
 	{
 		UpdateRecording();
+
+		if (_playingAnimation)
+		{
+			ui2::AnimationClip* clip = GetPreviewedAnimation();
+			if (clip == nullptr || clip->_duration <= 0.0f)
+			{
+				_playingAnimation = false;
+			}
+			else
+			{
+				// Ping Pong goes back once at the end, then forth again once at the start
+				float direction = (clip->_wrapMode == ui2::AnimationClip::WrapMode::PingPong && _animationPlayingBackwards) ? -1.0f : 1.0f;
+				float time = _animationTime + ImGui::GetIO().DeltaTime * direction;
+				if (time >= clip->_duration)
+				{
+					if (clip->_wrapMode == ui2::AnimationClip::WrapMode::Once)
+					{
+						time = clip->_duration;
+						_playingAnimation = false;
+					}
+					else if (clip->_wrapMode == ui2::AnimationClip::WrapMode::PingPong)
+					{
+						time = Max(clip->_duration * 2.0f - time, 0.0f);
+						_animationPlayingBackwards = true;
+					}
+					else
+					{
+						time = std::fmod(time, clip->_duration);
+					}
+				}
+				else if (time <= 0.0f && direction < 0.0f)
+				{
+					time = Min(-time, clip->_duration);
+					_animationPlayingBackwards = false;
+				}
+				SetAnimationTime(time);
+			}
+		}
 
 		// The asset is written after OnSave: the other tabs' instances are rebuilt from it once it is (still clean: the write went well)
 		if (_savedNotificationPending)
@@ -1701,7 +2069,7 @@ namespace hod::inline editor
 		RestoreRecordedBase();
 		ScopedGuard reapplyRecordedOverrides = [&]()
 		{
-			if (IsRecording())
+			if (HasRecordedBase())
 			{
 				ApplyRecordedOverrides();
 			}
@@ -1739,7 +2107,7 @@ namespace hod::inline editor
 		RestoreRecordedBase();
 		ScopedGuard reapplyRecordedOverrides = [&]()
 		{
-			if (IsRecording())
+			if (HasRecordedBase())
 			{
 				ApplyRecordedOverrides();
 			}
@@ -1788,6 +2156,20 @@ namespace hod::inline editor
 		for (const Vector<uint64_t>& scopedLocalIds : selection)
 		{
 			SetNodeSelected(FindByScopedLocalIds(scopedLocalIds), true);
+		}
+
+		// The step holds the nodes as authored: the preview goes on from them, unless its clip is gone
+		if (IsPreviewingAnimation())
+		{
+			if (GetPreviewedAnimation() == nullptr)
+			{
+				ClearAnimationPreview();
+			}
+			else
+			{
+				CaptureRecordedBase();
+				ApplyAnimationSample();
+			}
 		}
 
 		// The step holds the nodes as authored: the recording goes on from them, unless its Button is gone

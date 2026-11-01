@@ -15,6 +15,7 @@
 #include <HodEngine/UI2/BoxLayout.hpp>
 #include <HodEngine/UI2/BoxLayoutParams.hpp>
 #include <HodEngine/UI2/Button.hpp>
+#include <HodEngine/UI2/AnimationClip.hpp>
 #include <HodEngine/UI2/Canvas.hpp>
 #include <HodEngine/UI2/LayoutParams.hpp>
 #include <HodEngine/UI2/Node.hpp>
@@ -437,9 +438,9 @@ namespace hod::inline editor
 		}
 
 		ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
-		if (tab->IsRecording())
+		if (tab->IsRecording() || tab->IsRecordingAnimation())
 		{
-			// Framed in red as long as the edits record a state rather than change the prefab
+			// Framed in red as long as the edits record a state (or animation keys) rather than change the prefab
 			ImGui::GetWindowDrawList()->AddRect(imagePos, imagePos + ImVec2((float)resolutionWidth, (float)resolutionHeight), IM_COL32(230, 60, 60, 255), 0.0f, 3.0f);
 		}
 		else if (playing)
@@ -551,6 +552,18 @@ namespace hod::inline editor
 			}
 			ImGui::PopStyleColor();
 			ImGui::SetItemTooltip("Edits to colors, scales... record the state's overrides. Click to stop and go back to the prefab as authored");
+			ImGui::SameLine();
+		}
+		else if (tab->IsRecordingAnimation() && tab->GetPreviewedAnimation() != nullptr)
+		{
+			String label = String(ICON_MDI_STOP " Recording ") + tab->GetPreviewedAnimation()->_name;
+			ImGui::PushStyleColor(ImGuiCol_Text, IM_COL32(255, 80, 80, 255));
+			if (FramedButton(label.CStr(), true))
+			{
+				tab->SetRecordingAnimation(false);
+			}
+			ImGui::PopStyleColor();
+			ImGui::SetItemTooltip("Edits to colors, scales... add keys to the animation at the timeline's time. Click to stop recording");
 			ImGui::SameLine();
 		}
 		if (FramedButton(ICON_MDI_EYE " Preview", _settings._preview))

@@ -12,6 +12,7 @@
 #include "HodEngine/UI2/NodeFactory.hpp"
 #include "HodEngine/UI2/DrawContext.hpp"
 #include "HodEngine/UI2/PrefabInstance.hpp"
+#include "HodEngine/UI2/AnimationPlayer.hpp"
 #include "HodEngine/UI2/PropertyOverride.hpp"
 
 #include <HodEngine/Core/Document/Document.hpp>
@@ -99,6 +100,7 @@ namespace hod::inline ui2
 		DefaultAllocator::GetInstance().Delete(_view);
 		DefaultAllocator::GetInstance().Delete(_unknownView);
 
+		DefaultAllocator::GetInstance().Delete(_animationPlayer);
 		DefaultAllocator::GetInstance().Delete(_layout);
 		DefaultAllocator::GetInstance().Delete(_interaction);
 		DefaultAllocator::GetInstance().Delete(_prefabInstance);
@@ -221,6 +223,10 @@ namespace hod::inline ui2
 			{
 				node->_interaction->RemapTargets(oldToNew, keepOutsideTargets);
 			}
+			for (AnimationClip& clip : node->_animations)
+			{
+				clip.RemapTargets(oldToNew, keepOutsideTargets);
+			}
 			if (node->_view != nullptr)
 			{
 				node->_view->RemapReferences(oldToNew, keepOutsideTargets);
@@ -339,10 +345,14 @@ namespace hod::inline ui2
 			}
 		}
 
-		// The prefab's Interactions and Views only referenced its own nodes
+		// The prefab's Interactions, Views and clips only referenced its own nodes
 		if (_interaction != nullptr)
 		{
 			_interaction->RemapTargets(prefabToNew, false);
+		}
+		for (AnimationClip& clip : _animations)
+		{
+			clip.RemapTargets(prefabToNew, false);
 		}
 		if (_view != nullptr)
 		{
@@ -357,6 +367,10 @@ namespace hod::inline ui2
 			if (node->_interaction != nullptr)
 			{
 				node->_interaction->RemapTargets(prefabToNew, false);
+			}
+			for (AnimationClip& clip : node->_animations)
+			{
+				clip.RemapTargets(prefabToNew, false);
 			}
 			if (node->_view != nullptr)
 			{
@@ -484,6 +498,16 @@ namespace hod::inline ui2
 		}
 		replacement->_unknownView = _unknownView;
 		_unknownView = nullptr;
+
+		replacement->_animations = std::move(_animations);
+		_animations.Clear();
+		DefaultAllocator::GetInstance().Delete(replacement->_animationPlayer);
+		replacement->_animationPlayer = _animationPlayer;
+		if (_animationPlayer != nullptr)
+		{
+			_animationPlayer->_owner = replacement;
+			_animationPlayer = nullptr;
+		}
 
 		replacement->_children = std::move(_children);
 		_children.Clear();
@@ -1106,6 +1130,50 @@ namespace hod::inline ui2
 	}
 
 	/// @brief
+	Vector<AnimationClip>& Node::GetAnimations()
+	{
+		return _animations;
+	}
+
+	const Vector<AnimationClip>& Node::GetAnimations() const
+	{
+		return _animations;
+	}
+
+	/// @brief
+	/// @param name
+	/// @return nullptr if there is none
+	AnimationClip* Node::FindAnimation(std::string_view name)
+	{
+		for (AnimationClip& clip : _animations)
+		{
+			if (std::string_view(clip._name.CStr(), clip._name.Length()) == name)
+			{
+				return &clip;
+			}
+		}
+		return nullptr;
+	}
+
+	AnimationPlayer& Node::GetAnimationPlayer()
+	{
+		if (_animationPlayer == nullptr)
+		{
+			_animationPlayer = DefaultAllocator::GetInstance().New<AnimationPlayer>(*this);
+		}
+		return *_animationPlayer;
+	}
+
+	/// @brief
+	/// @param deltaTime
+	void Node::UpdateAnimations(float deltaTime)
+	{
+		if (_animationPlayer != nullptr)
+		{
+			_animationPlayer->Update(deltaTime);
+		}
+	}
+
 	void Node::BindViews()
 	{
 		for (Node* child : _children)
@@ -1260,6 +1328,18 @@ namespace hod::inline ui2
 		else if (_unknownView != nullptr)
 		{
 			documentNode.AddChild("View").Copy(_unknownView->GetRootNode());
+		}
+
+		if (_animations.Empty() == false)
+		{
+			DocumentNode& animationsNode = documentNode.AddChild("Animations");
+			for (const AnimationClip& clip : _animations)
+			{
+				if (Serializer::Serialize(clip, animationsNode.AddChild("")) == false)
+				{
+					return false;
+				}
+			}
 		}
 
 		DocumentNode& childrenNode = documentNode.AddChild("Children");
@@ -1535,6 +1615,15 @@ namespace hod::inline ui2
 					_unknownView = DefaultAllocator::GetInstance().New<Document>();
 					_unknownView->GetRootNode().Copy(*viewNode);
 				}
+			}
+		}
+
+		_animations.Clear();
+		if (const DocumentNode* animationsNode = documentNode.GetChild("Animations"))
+		{
+			for (const DocumentNode* clipNode = animationsNode->GetFirstChild(); clipNode != nullptr; clipNode = clipNode->GetNextSibling())
+			{
+				Serializer::Deserialize(_animations.EmplaceBack(), *clipNode);
 			}
 		}
 

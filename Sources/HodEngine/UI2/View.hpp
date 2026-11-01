@@ -6,6 +6,7 @@
 
 #include <cstdint>
 #include <map>
+#include <string_view>
 
 namespace hod::inline ui2
 {
@@ -50,6 +51,10 @@ namespace hod::inline ui2
 		void						CollectReferences(Vector<NodeRefBase*>& outReferences);
 		// Follows the nodes it references getting new ids (see Node::RenewLocalIds, Interaction::RemapTargets)
 		void						RemapReferences(const std::map<uint64_t, uint64_t>& oldToNew, bool keepOthers);
+
+		// The clips of the view's node, i.e. of its prefab (see Node::GetAnimationPlayer, AnimationPlayer::Play/Stop)
+		bool						PlayAnimation(std::string_view name, float speed = 1.0f);
+		void						StopAnimation(std::string_view name, bool restore = true);
 
 	protected:
 

@@ -14,6 +14,7 @@
 #include "HodEngine/UI2/Layout.hpp"
 #include "HodEngine/UI2/Interaction.hpp"
 #include "HodEngine/UI2/View.hpp"
+#include "HodEngine/UI2/AnimationClip.hpp"
 
 namespace hod::inline core
 {
@@ -26,6 +27,7 @@ namespace hod::inline ui2
 	class LayoutParams;
 	class DrawContext;
 	class PrefabInstance;
+	class AnimationPlayer;
 
 	/// @brief
 	class HOD_UI2_API Node
@@ -210,6 +212,16 @@ namespace hod::inline ui2
 		bool						HasUnknownView() const;
 		void						DropUnknownView();
 
+		// The animation clips of the prefab this node roots (the editor offers them on the prefab's root only), their tracks
+		// targeting nodes of its scope (see GetScopeRoot). An instance root has its prefab's. Played by GetAnimationPlayer.
+		Vector<AnimationClip>&			GetAnimations();
+		const Vector<AnimationClip>&	GetAnimations() const;
+		AnimationClip*					FindAnimation(std::string_view name);
+		// Plays this node's clips, created on first call.
+		AnimationPlayer&				GetAnimationPlayer();
+		// Advances the player, if created. Called by Canvas::Update, after the Interactions.
+		void							UpdateAnimations(float deltaTime);
+
 		// Binds the views of this subtree (see View::Bind), the nested prefab instances' included: the deepest first, so a view
 		// can use the views of the nodes below it once bound. UnbindViews unbinds them, the highest first.
 		void						BindViews();
@@ -347,6 +359,11 @@ namespace hod::inline ui2
 		// Single, optional, owned (see SetView above). _unknownView: owned, see HasUnknownView.
 		View*						_view = nullptr;
 		Document*					_unknownView = nullptr;
+
+		// See GetAnimations. Serialized by SerializeInDocument, only when there are some.
+		Vector<AnimationClip>		_animations;
+		// Owned, see GetAnimationPlayer
+		AnimationPlayer*			_animationPlayer = nullptr;
 
 		// Owned, see GetPrefabInstance
 		PrefabInstance*				_prefabInstance = nullptr;

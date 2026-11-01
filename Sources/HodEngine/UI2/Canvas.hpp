@@ -98,7 +98,8 @@ namespace hod::inline ui2
 		// Pixels per canvas unit at the target resolution (see CanvasScaler).
 		float				GetScaleFactor() const;
 
-		// Advances what plays over time in the tree (the Interactions' state transitions, see Interaction::Update). Before
+		// Advances what plays over time in the tree (the Interactions' state transitions, see Interaction::Update, then the
+		// animation clips, see AnimationPlayer). Before
 		// UpdateLayout(): what it changes (sizes, scales...) is laid out in the same frame.
 		void	Update(float deltaTime);
 
