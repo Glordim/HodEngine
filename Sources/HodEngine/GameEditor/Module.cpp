@@ -79,11 +79,10 @@ using namespace hod::editor;
 
 namespace
 {
-	EditorModuleRegistration registration;
 	EditorModuleRegistration dataStructRegistration; // The "Create/DataItem|DataTable/<data struct>" actions: from the project modules, registered again when they reload
 
 	/// @brief "Create/<label>": an empty asset of this type
-	void RegisterCreateEmptyAsset(const char* label, const char* assetType, const char* fileName)
+	void RegisterCreateEmptyAsset(EditorModuleRegistration& registration, const char* label, const char* assetType, const char* fileName)
 	{
 		// Captured: the strings are literals
 		registration.RegisterContextualMenuAction({
@@ -106,7 +105,7 @@ namespace
 	}
 
 	/// @brief "Set as startup scene" of the project
-	void RegisterSetAsStartupScene()
+	void RegisterSetAsStartupScene(EditorModuleRegistration& registration)
 	{
 		registration.RegisterContextualMenuAction({
 			.path = "Set as startup scene",
@@ -199,7 +198,7 @@ namespace
 	Event<>::Slot onProjectModulesReloadedSlot(&RegisterCreateDataStructActions);
 }
 
-HOD_STARTUP_MODULE(GameEditor)
+HOD_STARTUP_EDITOR_MODULE(GameEditor, registration)
 {
 	registration.RegisterCustomPropertyDrawer<ZOrder, ZOrderCustomPropertyDrawer>();
 	registration.RegisterCustomPropertyDrawer<WeakComponentBase, WeakComponentCustomPropertyDrawer>();
@@ -230,9 +229,9 @@ HOD_STARTUP_MODULE(GameEditor)
 	registration.RegisterResource<DataTableResource>("DataTable");
 	registration.RegisterEditorTab<DataTableEditorTab>("DataTable");
 
-	RegisterCreateEmptyAsset("Scene", "Scene", "NewScene.scene");
-	RegisterCreateEmptyAsset("Prefab", "Prefab", "NewPrefab.prefab");
-	RegisterSetAsStartupScene();
+	RegisterCreateEmptyAsset(registration, "Scene", "Scene", "NewScene.scene");
+	RegisterCreateEmptyAsset(registration, "Prefab", "Prefab", "NewPrefab.prefab");
+	RegisterSetAsStartupScene(registration);
 
 	RegisterCreateDataStructActions();
 	Project::GetInstance()->GetOnModulesReloadedEvent().Connect(onProjectModulesReloadedSlot);
@@ -245,7 +244,7 @@ HOD_STARTUP_MODULE(GameEditor)
 	return 0;
 }
 
-HOD_SHUTDOWN_MODULE(GameEditor)
+HOD_SHUTDOWN_EDITOR_MODULE(GameEditor)
 {
 	if (ui2::CanvasManager* canvasManager = ui2::CanvasManager::GetInstance())
 	{
@@ -253,6 +252,5 @@ HOD_SHUTDOWN_MODULE(GameEditor)
 	}
 	onProjectModulesReloadedSlot.Disconnect();
 	dataStructRegistration.UnregisterAll();
-	registration.UnregisterAll();
 	return 0;
 }

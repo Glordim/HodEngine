@@ -15,22 +15,11 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 using namespace hod;
 using namespace hod::editor;
 
-namespace
-{
-	EditorModuleRegistration registration;
-}
-
-HOD_STARTUP_MODULE(AudioEditor)
+HOD_STARTUP_EDITOR_MODULE(AudioEditor, registration)
 {
 	registration.RegisterImporter<AudioImporter>("wav");
 	registration.RegisterCooker<AudioCooker>("Audio");
 	registration.RegisterResource<AudioResource>("Audio");
 	registration.RegisterEditorTab<AudioEditorTab>("Audio");
-	return 0;
-}
-
-HOD_SHUTDOWN_MODULE(AudioEditor)
-{
-	registration.UnregisterAll();
 	return 0;
 }

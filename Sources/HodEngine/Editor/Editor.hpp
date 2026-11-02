@@ -34,6 +34,7 @@ namespace hod::inline rhi
 namespace hod::inline editor
 {
 	class MainBar;
+	class EditorModuleRegistration;
 	class Project;
 	class Asset;
 	class EditorTab;
@@ -168,7 +169,13 @@ namespace hod::inline editor
 	private:
 		Event<>::Slot _onProjectModulesReloadedSlot;
 
-		Vector<DynamicLibrary*> _editorModules;
+		// What an editor module registered goes with it (see HOD_DECLARE_EDITOR_MODULE)
+		struct EditorModule
+		{
+			DynamicLibrary*           _library = nullptr;
+			EditorModuleRegistration* _registration = nullptr;
+		};
+		Vector<EditorModule> _editorModules;
 
 		Vector<EditorTab*>                                                            _editorTabs;
 		std::unordered_map<uint64_t, std::function<EditorTab*(std::shared_ptr<Asset>)>> _editorTabFactory;

@@ -1,5 +1,5 @@
 #pragma once
 #include <HodEngine/InputEditor/Export.hpp>
-#include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
+#include <HodEngine/Editor/EditorModule.hpp>
 
-HOD_DECLARE_MODULE(InputEditor, HOD_INPUT_EDITOR_API)
+HOD_DECLARE_EDITOR_MODULE(InputEditor, HOD_INPUT_EDITOR_API)

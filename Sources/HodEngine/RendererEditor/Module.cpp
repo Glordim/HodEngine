@@ -41,10 +41,8 @@ using namespace hod::editor;
 
 namespace
 {
-	EditorModuleRegistration registration;
-
 	/// @brief "Create/Material Instance": of the selected material
-	void RegisterCreateMaterialInstance()
+	void RegisterCreateMaterialInstance(EditorModuleRegistration& registration)
 	{
 		registration.RegisterContextualMenuAction({
 			.path = "Create/Material Instance",
@@ -95,7 +93,7 @@ namespace
 	}
 
 	/// @brief "Create/Font": from the selected faces
-	void RegisterCreateFont()
+	void RegisterCreateFont(EditorModuleRegistration& registration)
 	{
 		registration.RegisterContextualMenuAction({
 			.path = "Create/Font",
@@ -138,7 +136,7 @@ namespace
 	}
 }
 
-HOD_STARTUP_MODULE(RendererEditor)
+HOD_STARTUP_EDITOR_MODULE(RendererEditor, registration)
 {
 	registration.RegisterImporter<TextureImporter>("png", "tga", "jpg", "bmp", "psd", "gif", "hdr", "pic");
 	registration.RegisterCooker<TextureCooker>("Texture");
@@ -163,14 +161,8 @@ HOD_STARTUP_MODULE(RendererEditor)
 	registration.RegisterResource<MaterialInstanceResource>("MaterialInstance");
 	registration.RegisterEditorTab<MaterialInstanceEditorTab>("MaterialInstance");
 
-	RegisterCreateMaterialInstance();
-	RegisterCreateFont();
+	RegisterCreateMaterialInstance(registration);
+	RegisterCreateFont(registration);
 
-	return 0;
-}
-
-HOD_SHUTDOWN_MODULE(RendererEditor)
-{
-	registration.UnregisterAll();
 	return 0;
 }

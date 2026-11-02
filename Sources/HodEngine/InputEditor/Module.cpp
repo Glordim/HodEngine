@@ -11,19 +11,8 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 using namespace hod;
 using namespace hod::editor;
 
-namespace
-{
-	EditorModuleRegistration registration;
-}
-
-HOD_STARTUP_MODULE(InputEditor)
+HOD_STARTUP_EDITOR_MODULE(InputEditor, registration)
 {
 	registration.RegisterWindow<InputManagerWindow>("");
-	return 0;
-}
-
-HOD_SHUTDOWN_MODULE(InputEditor)
-{
-	registration.UnregisterAll();
 	return 0;
 }

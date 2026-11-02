@@ -4,6 +4,7 @@
 #include "HodEngine/Editor/Cooker/Cooker.hpp"
 #include "HodEngine/Editor/Cooker/CookJob.hpp"
 #include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/EditorModuleRegistration.hpp"
 #include "HodEngine/Editor/EditorTab.hpp"
 
 #include "HodEngine/Editor/Project.hpp"
@@ -245,32 +246,34 @@ namespace hod::inline editor
 				return false;
 			}
 
-			auto startupFunc = module->LoadFunction<int (*)()>("StartupModule");
+			auto startupFunc = module->LoadFunction<int (*)(EditorModuleRegistration&)>("StartupEditorModule");
 			if (startupFunc == nullptr)
 			{
 				DefaultAllocator::GetInstance().Delete(module);
 				return false;
 			}
-			startupFunc();
+			EditorModuleRegistration* registration = DefaultAllocator::GetInstance().New<EditorModuleRegistration>();
+			startupFunc(*registration);
 
-			_editorModules.push_back(module);
+			_editorModules.PushBack({module, registration});
 		}
 		return true;
 	}
 
-	/// @brief
+	/// @brief The module's shutdown first, then what it registered, while its code is still loaded
 	/// @return
 	bool Editor::UnloadEditorModules()
 	{
-		for (DynamicLibrary* module : _editorModules)
+		for (EditorModule& editorModule : _editorModules)
 		{
-			auto shutdownFunc = module->LoadFunction<int (*)()>("ShutdownModule");
+			auto shutdownFunc = editorModule._library->LoadFunction<int (*)()>("ShutdownEditorModule");
 			if (shutdownFunc != nullptr)
 			{
 				shutdownFunc();
 			}
-			module->Unload();
-			DefaultAllocator::GetInstance().Delete(module);
+			DefaultAllocator::GetInstance().Delete(editorModule._registration); // Unregisters all of it
+			editorModule._library->Unload();
+			DefaultAllocator::GetInstance().Delete(editorModule._library);
 		}
 		_editorModules.Clear();
 		return true;

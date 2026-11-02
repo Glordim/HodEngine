@@ -1,5 +1,5 @@
 #pragma once
 #include <HodEngine/GameEditor/Export.hpp>
-#include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
+#include <HodEngine/Editor/EditorModule.hpp>
 
-HOD_DECLARE_MODULE(GameEditor, HOD_GAME_EDITOR_API)
+HOD_DECLARE_EDITOR_MODULE(GameEditor, HOD_GAME_EDITOR_API)

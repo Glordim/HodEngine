@@ -34,8 +34,6 @@ using namespace hod::editor;
 
 namespace
 {
-	EditorModuleRegistration registration;
-
 	/// @brief The nested prefabs' instances are built from the UI prefab assets as last saved, rather than from the cooked
 	/// resources (see ui2::PrefabInstance::SourceProvider): a resource still in use isn't reloaded when its asset changes.
 	bool LoadUIPrefabAsset(const UID& prefab, Document& outDocument)
@@ -108,7 +106,7 @@ namespace
 	}
 }
 
-HOD_STARTUP_MODULE(UI2Editor)
+HOD_STARTUP_EDITOR_MODULE(UI2Editor, registration)
 {
 	// The same cross for both, pointing the way each one pushes
 	registration.RegisterCustomPropertyDrawer(ui2::Margin::GetReflectionDescriptor(),
@@ -179,9 +177,8 @@ HOD_STARTUP_MODULE(UI2Editor)
 	return 0;
 }
 
-HOD_SHUTDOWN_MODULE(UI2Editor)
+HOD_SHUTDOWN_EDITOR_MODULE(UI2Editor)
 {
-	registration.UnregisterAll();
 	ui2::PrefabInstance::SetSourceProvider(nullptr); // Its code goes with this module
 	if (const EnumDescriptor* easingEnum = GetEasingEnumDescriptor())
 	{

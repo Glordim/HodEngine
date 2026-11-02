@@ -18,22 +18,11 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 using namespace hod;
 using namespace hod::editor;
 
-namespace
-{
-	EditorModuleRegistration registration;
-}
-
-HOD_STARTUP_MODULE(CoreEditor)
+HOD_STARTUP_EDITOR_MODULE(CoreEditor, registration)
 {
 	registration.RegisterCustomPropertyDrawer<Color, ColorCustomPropertyDrawer>();
 	registration.RegisterCustomPropertyDrawer<Vector2, Vector2CustomPropertyDrawer>();
 	registration.RegisterCustomPropertyDrawer<Vector4, Vector4CustomPropertyDrawer>();
 	registration.RegisterCustomPropertyDrawer<WeakResourceBase, WeakResourceCustomPropertyDrawer>();
-	return 0;
-}
-
-HOD_SHUTDOWN_MODULE(CoreEditor)
-{
-	registration.UnregisterAll();
 	return 0;
 }
