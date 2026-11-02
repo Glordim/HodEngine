@@ -81,6 +81,15 @@ namespace hod::inline editor
 		bool			CanRemove(const ui2::Node* node) const;
 		// Properties edited: every node but the ReadOnly ones and the missing prefabs' placeholders
 		static bool		CanEditProperties(const ui2::Node* node);
+		// The root of the prefab its tab edits (the single child of the canvas' hidden container, see GetPrefabRoot)
+		static bool		IsPrefabRoot(const ui2::Node* node);
+		// Renamed: what can have its properties edited but the prefab root, always named after its asset (rename the asset to
+		// rename it, see NamePrefabRootAfterAsset)
+		static bool		CanRename(const ui2::Node* node);
+		// Gives the root of a UI prefab's document (as its tab saves it, see OnSave) the name of its asset: what its instances
+		// are named after, without an override each
+		// @return true if the name changed
+		static bool		NamePrefabRootAfterAsset(Document& prefabDocument, std::string_view assetName);
 		// For an instance's root or content: the node as its prefab authors it (see ui2::PrefabInstance::FindSourceNode), what
 		// its properties are compared to (overrides) and reverted to. Null for the other nodes.
 		static ui2::Node*	FindSourceNode(const ui2::Node* node);
@@ -113,6 +122,9 @@ namespace hod::inline editor
 		static bool				CreateEmptyPrefab(const Path& assetPath);
 		// The open UI prefab tab editing node, nullptr if none
 		static UIPrefabEditorTab*	FindTabOf(const ui2::Node* node);
+		// The UI prefab asset prefab written outside of its tab (renamed...): the open tabs rebuild their instances of it, as when
+		// it is saved (see RefreshInstances)
+		static void					NotifyPrefabWritten(const UID& prefab);
 		// Bumped whenever instances are rebuilt from their saved prefab (see RefreshInstances): the nodes they had are deleted, a
 		// window keeping node pointers across frames drops them on a change.
 		uint32_t		GetRebuildCount() const;
@@ -257,8 +269,11 @@ namespace hod::inline editor
 		// with several children), wraps those children in a stretched prefab root so they keep their
 		// placement.
 		void	EnsurePrefabRoot();
-		// The root of a new prefab: an Image rather than a plain Node, drawn (its color filling it) for its preview and thumbnail not to be empty
-		static ui2::Node*	CreateDefaultPrefabRoot();
+		// Names the prefab root after the asset (see CanRename): on load, undo/redo, and each frame for an asset renamed meanwhile
+		void	SyncPrefabRootName();
+		// The root of a new prefab: an Image rather than a plain Node, drawn (its color filling it) for its preview and thumbnail
+		// not to be empty, named name
+		static ui2::Node*	CreateDefaultPrefabRoot(std::string_view name);
 
 		void	GenerateThumbnail();
 		// The thumbnail of the prefab canvas holds (see GenerateThumbnail), encoded (see Thumbnail)

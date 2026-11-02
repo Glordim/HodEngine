@@ -60,7 +60,7 @@ namespace hod::inline editor
 
 		// F2 renames the selected node, as in the explorer.
 		if (ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGuiKey_F2) && ImGui::GetIO().WantTextInput == false && selection != nullptr && _renamedNode == nullptr &&
-		    UIPrefabEditorTab::CanEditProperties(selection))
+		    UIPrefabEditorTab::CanRename(selection))
 		{
 			StartRename(selection);
 		}
@@ -486,9 +486,11 @@ namespace hod::inline editor
 			Vector<ui2::Node*> targets = tab->IsSelected(node) ? tab->GetSelectedSubtrees() : Vector<ui2::Node*>{node};
 			bool               single = (targets.Size() <= 1);
 			bool               canRemove = targets.Empty() == false;
+			bool               hasPrefabRoot = false; // Not removed: what Cut, Duplicate and Delete tell when greyed out for it
 			for (ui2::Node* target : targets)
 			{
 				canRemove &= tab->CanRemove(target);
+				hasPrefabRoot |= UIPrefabEditorTab::IsPrefabRoot(target);
 			}
 
 			if (prefabInstance != nullptr && single)
@@ -527,9 +529,13 @@ namespace hod::inline editor
 				}
 				ImGui::EndMenu();
 			}
-			if (ImGui::MenuItem(ICON_MDI_RENAME " Rename", "F2", false, UIPrefabEditorTab::CanEditProperties(node) && single))
+			if (ImGui::MenuItem(ICON_MDI_RENAME " Rename", "F2", false, UIPrefabEditorTab::CanRename(node) && single))
 			{
 				StartRename(node);
+			}
+			if (UIPrefabEditorTab::IsPrefabRoot(node))
+			{
+				ImGui::SetItemTooltip("Named after the asset: rename the asset to rename it");
 			}
 			if (ImGui::BeginMenu(ICON_MDI_SWAP_HORIZONTAL " Convert To", canEditStructure && single))
 			{
@@ -555,6 +561,10 @@ namespace hod::inline editor
 			{
 				tab->CutNodes(targets); // only marked, moved by the paste
 			}
+			if (hasPrefabRoot)
+			{
+				ImGui::SetItemTooltip("The prefab root can't be cut");
+			}
 			bool canPaste = tab->CanPasteNode();
 			if (ImGui::MenuItem(ICON_MDI_CONTENT_PASTE " Paste", "Ctrl+V", false, canPaste))
 			{
@@ -569,10 +579,18 @@ namespace hod::inline editor
 			{
 				_pendingDuplicateNodes = targets;
 			}
+			if (hasPrefabRoot)
+			{
+				ImGui::SetItemTooltip("The prefab root can't be duplicated");
+			}
 			ImGui::Separator();
 			if (ImGui::MenuItem(ICON_MDI_DELETE " Delete", "Del", false, canRemove))
 			{
 				_pendingDeleteNodes = targets;
+			}
+			if (hasPrefabRoot)
+			{
+				ImGui::SetItemTooltip("The prefab root can't be deleted");
 			}
 			ImGui::EndPopup();
 		}

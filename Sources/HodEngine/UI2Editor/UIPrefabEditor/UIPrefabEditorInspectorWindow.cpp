@@ -442,11 +442,26 @@ namespace hod::inline editor
 		}
 		ImGui::SameLine();
 
+		// The prefab root is named after its asset (see UIPrefabEditorTab::CanRename)
+		bool canRename = true;
+		bool hasPrefabRoot = false;
+		for (const ui2::Node* renamedNode : nodes)
+		{
+			canRename &= UIPrefabEditorTab::CanRename(renamedNode);
+			hasPrefabRoot |= UIPrefabEditorTab::IsPrefabRoot(renamedNode);
+		}
+
 		bool                     changed = false;
 		EditorReflectedProperty* nameProperty = nodeObject.FindProperty(NameProperty);
 		if (nameProperty != nullptr)
 		{
+			ImGui::BeginDisabled(canRename == false);
 			changed = PropertyDrawer::DrawProperty(*nameProperty, true);
+			ImGui::EndDisabled();
+			if (hasPrefabRoot)
+			{
+				ImGui::SetItemTooltip("The prefab root is named after the asset: rename the asset to rename it");
+			}
 		}
 		ImGui::Spacing();
 		return changed;

@@ -25,6 +25,7 @@
 #include <HodEngine/UI2/UIPrefabResource.hpp>
 #include "HodEngine/Editor/Asset.hpp"
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
+#include <HodEngine/Core/Document/DocumentWriterJson.hpp>
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
@@ -57,7 +58,45 @@ namespace
 		}
 
 		DocumentReaderJson documentReader;
-		return documentReader.Read(outDocument, *nodesDataBlock->_stream);
+		if (documentReader.Read(outDocument, *nodesDataBlock->_stream) == false)
+		{
+			return false;
+		}
+		// A prefab renamed outside of the editor, or saved before its root was named after it, isn't renamed in its file yet
+		UIPrefabEditorTab::NamePrefabRootAfterAsset(outDocument, asset->GetName());
+		return true;
+	}
+
+	/// @brief A UI prefab's root is named after its asset (see UIPrefabEditorTab::CanRename): renamed in its file along with it,
+	/// its instances following (with their name as an override only when given one of their own)
+	void OnUIPrefabRenamed(Asset& asset)
+	{
+		AssetContainer assetContainer;
+		if (assetContainer.Load(asset.GetPath()) == false)
+		{
+			return;
+		}
+		const AssetContainer::DataBlockInfo* nodesDataBlock = assetContainer.FindDataBlock("Nodes");
+		Document                             document;
+		DocumentReaderJson                   documentReader;
+		if (nodesDataBlock == nullptr || documentReader.Read(document, *nodesDataBlock->_stream) == false)
+		{
+			OUTPUT_ERROR("Can't read the UI prefab {} to name its root after it", asset.GetPath());
+			return;
+		}
+		if (UIPrefabEditorTab::NamePrefabRootAfterAsset(document, asset.GetName()) == false)
+		{
+			return;
+		}
+
+		DocumentWriterJson documentWriter;
+		if (documentWriter.Write(document, assetContainer.AddDataBlock("Nodes", false)) == false || assetContainer.Save(asset.GetPath()) == false)
+		{
+			OUTPUT_ERROR("Can't write the UI prefab {} to name its root after it", asset.GetPath());
+			return;
+		}
+		// The open tabs' instances of it are rebuilt as after a save (an open tab of the prefab itself follows on its own)
+		UIPrefabEditorTab::NotifyPrefabWritten(asset.GetUid());
 	}
 
 	/// @brief The easing enum as UI2 registered it on its properties (a Button's TransitionEasing...): each module (DLL) has its
@@ -89,6 +128,7 @@ HOD_STARTUP_MODULE(UI2Editor)
 	registration.RegisterCooker<UIPrefabCooker>("UIPrefab");
 	registration.RegisterResource<UIPrefabResource>("UIPrefab");
 	registration.RegisterEditorTab<UIPrefabEditorTab>("UIPrefab");
+	registration.RegisterRenameHandler("UIPrefab", &OnUIPrefabRenamed);
 
 	registration.RegisterContextualMenuAction({
 		.path = "Create/UI Prefab",

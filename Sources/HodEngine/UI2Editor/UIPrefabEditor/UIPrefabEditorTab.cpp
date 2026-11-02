@@ -66,6 +66,7 @@ namespace hod::inline editor
 			LoadNodes();
 		}
 		EnsurePrefabRoot();
+		SyncPrefabRootName();
 
 		GetPrefabSavedEvent().Connect(_onPrefabSaved);
 	}
@@ -836,7 +837,7 @@ namespace hod::inline editor
 
 		if (container->GetChildren().Empty())
 		{
-			container->AddChild(CreateDefaultPrefabRoot());
+			container->AddChild(CreateDefaultPrefabRoot("Root")); // Named after the asset (see SyncPrefabRootName)
 			return;
 		}
 
@@ -856,12 +857,24 @@ namespace hod::inline editor
 		}
 	}
 
+	/// @brief Not marked as an edit: the asset's name was given to the prefab's file already (see the rename of an asset in
+	/// UI2Editor's module), a tab only follows it
+	void UIPrefabEditorTab::SyncPrefabRootName()
+	{
+		if (GetAsset() == nullptr)
+		{
+			return;
+		}
+		GetPrefabRoot()->SetName(GetAsset()->GetName());
+	}
+
 	/// @brief
+	/// @param name
 	/// @return
-	ui2::Node* UIPrefabEditorTab::CreateDefaultPrefabRoot()
+	ui2::Node* UIPrefabEditorTab::CreateDefaultPrefabRoot(std::string_view name)
 	{
 		ui2::Node* prefabRoot = DefaultAllocator::GetInstance().New<ui2::ImageNode>();
-		prefabRoot->SetName("Root");
+		prefabRoot->SetName(String(name));
 		return prefabRoot;
 	}
 
@@ -871,7 +884,7 @@ namespace hod::inline editor
 	bool UIPrefabEditorTab::CreateEmptyPrefab(const Path& assetPath)
 	{
 		ui2::Canvas prefabCanvas;
-		prefabCanvas.GetRootNode()->AddChild(CreateDefaultPrefabRoot());
+		prefabCanvas.GetRootNode()->AddChild(CreateDefaultPrefabRoot(assetPath.Stem().GetString()));
 
 		Document prefabDocument;
 		if (prefabCanvas.SerializeInDocument(prefabDocument.GetRootNode()) == false)
@@ -1279,6 +1292,43 @@ namespace hod::inline editor
 	/// @brief
 	/// @param node
 	/// @return
+	bool UIPrefabEditorTab::IsPrefabRoot(const ui2::Node* node)
+	{
+		return node != nullptr && node->GetParent() != nullptr && node->GetParent()->GetParent() == nullptr;
+	}
+
+	/// @brief
+	/// @param node
+	/// @return
+	bool UIPrefabEditorTab::CanRename(const ui2::Node* node)
+	{
+		return CanEditProperties(node) && IsPrefabRoot(node) == false;
+	}
+
+	/// @brief
+	/// @param prefabDocument
+	/// @param assetName
+	/// @return
+	bool UIPrefabEditorTab::NamePrefabRootAfterAsset(Document& prefabDocument, std::string_view assetName)
+	{
+		// The single child of the canvas' root node (see GetPrefabRoot): a legacy prefab without one is wrapped on load (see EnsurePrefabRoot)
+		const DocumentNode* childrenNode = prefabDocument.GetRootNode().GetChild("Children");
+		if (childrenNode == nullptr || childrenNode->GetFirstChild() == nullptr || childrenNode->GetFirstChild()->GetNextSibling() != nullptr)
+		{
+			return false;
+		}
+		DocumentNode& nameNode = childrenNode->GetFirstChild()->GetOrAddChild("Name");
+		if (nameNode.GetType() == DocumentNode::Type::String && std::string_view(nameNode.GetString().CStr(), nameNode.GetString().Length()) == assetName)
+		{
+			return false;
+		}
+		nameNode.SetString(assetName);
+		return true;
+	}
+
+	/// @brief
+	/// @param node
+	/// @return
 	ui2::Node* UIPrefabEditorTab::FindSourceNode(const ui2::Node* node)
 	{
 		switch (GetNodeRole(node))
@@ -1392,6 +1442,10 @@ namespace hod::inline editor
 		uint64_t nextLocalId = 1;
 		prefabRoot->RenewLocalIds(nextLocalId, false);
 
+		// Named after its asset (see CanRename): node's name, unless it had to be changed into a file name, or a free one
+		Path assetPath = AssetDatabase::GenerateUniqueAssetPath(folder / (GetPrefabFileName(*node) + ".uiprefab"));
+		prefabRoot->SetName(assetPath.Stem().GetString());
+
 		Document prefabDocument;
 		if (prefabCanvas.SerializeInDocument(prefabDocument.GetRootNode()) == false)
 		{
@@ -1399,7 +1453,6 @@ namespace hod::inline editor
 		}
 		prefabDocument.GetRootNode().AddChild("NextLocalId").SetUInt64(nextLocalId);
 
-		Path               assetPath = AssetDatabase::GenerateUniqueAssetPath(folder / (GetPrefabFileName(*node) + ".uiprefab"));
 		AssetContainer     assetContainer;
 		DocumentWriterJson documentWriter;
 		assetContainer.SetAssetType(Hash::ComputeXxh3_64("UIPrefab"));
@@ -1497,6 +1550,13 @@ namespace hod::inline editor
 	uint32_t UIPrefabEditorTab::GetRebuildCount() const
 	{
 		return _rebuildCount;
+	}
+
+	/// @brief
+	/// @param prefab
+	void UIPrefabEditorTab::NotifyPrefabWritten(const UID& prefab)
+	{
+		GetPrefabSavedEvent().Emit(prefab);
 	}
 
 	/// @brief
@@ -1977,6 +2037,7 @@ namespace hod::inline editor
 	/// @return
 	bool UIPrefabEditorTab::DrawContent()
 	{
+		SyncPrefabRootName(); // The asset may have been renamed since the last frame
 		UpdateRecording();
 
 		if (_playingAnimation)
@@ -2173,6 +2234,7 @@ namespace hod::inline editor
 			restored = _canvas.DeserializeFromDocument(document.GetRootNode());
 		}
 		EnsurePrefabRoot();
+		SyncPrefabRootName(); // A step from before a rename of the asset
 
 		for (const Vector<uint64_t>& scopedLocalIds : selection)
 		{

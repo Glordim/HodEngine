@@ -1,5 +1,6 @@
 #include "HodEngine/UI2Editor/Pch.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabCooker.hpp"
+#include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetContainer.hpp"
@@ -29,6 +30,8 @@ namespace hod::inline editor
 		{
 			return false;
 		}
+		// A prefab renamed outside of the editor, or saved before its root was named after it, isn't renamed in its file yet
+		UIPrefabEditorTab::NamePrefabRootAfterAsset(document, asset.GetName());
 
 		Stream& nodesStream = AddDataBlockStream("Nodes", false, std::to_underlying(Platform::All), std::to_underlying(Config::All), std::to_underlying(ResourceVariant::Language::All));
 		DocumentWriterJson documentWriter;
