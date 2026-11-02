@@ -47,9 +47,10 @@ namespace hod::inline ui2
 		PointerSource	GetPointerSource() const;
 		void			SetPointerSource(PointerSource pointerSource);
 
-		// Manual source: the pointer over the view this frame (position: see PointerMapping), with its primary button's state.
-		// Without a call in a frame, there is no pointer (out of the view, or not playing). Ignored with the Window source.
-		void	SetPointer(const Vector2& viewPosition, const Vector2& viewSize, bool pressed);
+		// Manual source: the pointer over the view this frame (position: see PointerMapping), with its primary button's state
+		// and the wheel's notches turned (see PointerEvent::Scroll). Without a call in a frame, there is no pointer (out of the
+		// view, or not playing). Ignored with the Window source.
+		void	SetPointer(const Vector2& viewPosition, const Vector2& viewSize, bool pressed, const Vector2& scroll = Vector2::Zero);
 
 		// Whether the pointer was over a canvas' node catching it, or pressing one of them, at the last Update(): the input is
 		// the UI's, the game shouldn't act on what is under it.
@@ -82,6 +83,7 @@ namespace hod::inline ui2
 		Vector2			_pointerPosition;
 		Vector2			_viewSize;
 		bool			_pointerPressed = false;
+		Vector2			_pointerScroll;
 		bool			_previousPointerPressed = false;
 		bool			_pointerOverUI = false;
 

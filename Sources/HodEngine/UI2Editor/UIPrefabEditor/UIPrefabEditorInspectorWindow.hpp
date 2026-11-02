@@ -10,7 +10,7 @@ namespace hod::inline ui2
 	class Node;
 	class LayoutParams;
 	class AnchoredLayoutParams;
-	class Button;
+	class Selectable;
 	struct PropertyOverride;
 }
 
@@ -57,7 +57,7 @@ namespace hod::inline editor
 		bool		DrawSizeFields(const Vector<ui2::LayoutParams*>& layoutParamsList, EditorReflectedObject& layoutParamsObject);
 		bool		DrawContentBlock(const Vector<ui2::Node*>& nodes, EditorReflectedObject& nodeObject, const ReflectionDescriptor*& convertDescriptor);
 		bool		DrawInteractionBlock(const Vector<ui2::Node*>& nodes, ui2::Node* sourceNode);
-		bool		DrawStateOverrides(ui2::Node* node, ui2::Button& button);
+		bool		DrawLooks(ui2::Node* node, ui2::Selectable& selectable);
 		void		DrawPropertyOverride(ui2::Node* owner, const ui2::PropertyOverride& propertyOverride, bool recording, bool& removeRequested);
 		bool		DrawLayoutBlock(const Vector<ui2::Node*>& nodes, ui2::Node* sourceNode);
 		bool		DrawViewBlock(ui2::Node* node);

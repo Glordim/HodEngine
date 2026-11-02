@@ -35,6 +35,9 @@ namespace hod::inline ui2
 		// Receives the pointer events the canvas dispatches to the owner node (see PointerEvent::Type for which ones bubble).
 		// Returns true when handled: a bubbling event then stops here. Default: handles nothing.
 		virtual bool				OnPointerEvent(const PointerEvent& event);
+		// Whether the pointer must move a little, once pressed, before a drag begins (see PointerEvent::DragBegin): true by default,
+		// so a press slightly moving stays a click. False for an Interaction following the pointer right away (Slider).
+		virtual bool				UsesDragThreshold() const;
 
 		// Advances what plays over time (e.g. Button's state transitions). Called by Canvas::Update, before the layout.
 		virtual void				Update(float deltaTime);

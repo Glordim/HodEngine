@@ -2,7 +2,7 @@
 #include "HodEngine/UI2Editor/Export.hpp"
 #include "HodEngine/Editor/EditorTab.hpp"
 
-#include <HodEngine/UI2/Button.hpp>
+#include <HodEngine/UI2/Selectable.hpp>
 #include <HodEngine/UI2/Canvas.hpp>
 #include <HodEngine/UI2/PropertyOverride.hpp>
 
@@ -161,15 +161,16 @@ namespace hod::inline editor
 		// them right away, e.g. a property override's target.
 		void			AssignLocalIds();
 
-		// Record mode: the prefab shows a Button's state (its overrides applied), and editing the nodes' overridable properties
-		// (theirs, their LayoutParams' and Layout's: see ui2::PropertyValue) records the state's overrides instead of changing the
+		// Record mode: the prefab shows a look of a Selectable (a Button's state, a Toggle's On...: its overrides applied, see
+		// ui2::Selectable::GetLookOverrides), and editing the nodes' overridable properties
+		// (theirs, their LayoutParams' and Layout's: see ui2::PropertyValue) records the look's overrides instead of changing the
 		// prefab: the state's overrides are kept equal to what differs from the prefab as authored, until StopRecording() puts
 		// that back. Other edits (nodes added, removed, moved, layout type changed...) still change the prefab itself. Saving while recording saves the prefab as
 		// authored, plus the overrides recorded so far, and keeps recording.
 		bool			IsRecording() const;
-		bool			IsRecording(const ui2::Node* buttonNode, ui2::Button::State state) const;
+		bool			IsRecording(const ui2::Node* selectableNode, uint32_t look) const;
 		const char*		GetRecordedStateName() const;
-		void			StartRecording(ui2::Node* buttonNode, ui2::Button::State state);
+		void			StartRecording(ui2::Node* selectableNode, uint32_t look);
 		void			StopRecording();
 
 		// While recording, the override of that property is removed by putting the property back to its authored value.
@@ -241,7 +242,7 @@ namespace hod::inline editor
 		bool	OnSave() override;
 
 		// Undo: the canvas as OnSave writes it (as authored, plus the recorded state's overrides). Restoring it rebuilds every node
-		// (see GetRebuildCount), the selection kept by the nodes' ids, recording going on if its Button is still there.
+		// (see GetRebuildCount), the selection kept by the nodes' ids, recording going on if its Selectable is still there.
 		bool	CaptureUndoState(Document& document) override;
 		bool	RestoreUndoState(const Document& document) override;
 		// Not while playing: editing is suspended
@@ -293,7 +294,7 @@ namespace hod::inline editor
 		// Record mode (see StartRecording)
 		// Takes the overridable properties of every node as they are, as the authored values recording compares them to
 		void			CaptureRecordedBase();
-		ui2::Button*	FindRecordedButton() const;
+		ui2::Selectable*	FindRecordedSelectable() const;
 		void			UpdateRecording();
 		void			RestoreRecordedBase();
 		// Gives the nodes the recorded state's overrides, or the previewed clip's values (see ApplyAnimationSample)
@@ -320,7 +321,7 @@ namespace hod::inline editor
 		// nodes in the asset's document: it belongs to the authored prefab, not to the canvas.
 		uint64_t	_nextLocalId = 1;
 
-		// Record mode: the recorded Button's node (local id, 0 when not recording), its state, and the overridable properties
+		// Record mode: the recorded Selectable's node (local id, 0 when not recording), its look, and the overridable properties
 		// of every node as authored when recording started
 		struct RecordedBaseValue
 		{
@@ -329,7 +330,7 @@ namespace hod::inline editor
 			ui2::PropertyValue	_value;
 		};
 		uint64_t					_recordedNode = 0;
-		ui2::Button::State			_recordedState = ui2::Button::State::Normal;
+		uint32_t					_recordedLook = 0;
 		Vector<RecordedBaseValue>	_recordedBase;
 
 		// Animation preview: the clip's name (empty when none), the timeline's time, and the values of _recordedBase's properties

@@ -98,52 +98,46 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @param buttonNode
-	/// @param state
+	/// @param selectableNode
+	/// @param look
 	/// @return
-	bool UIPrefabEditorTab::IsRecording(const ui2::Node* buttonNode, ui2::Button::State state) const
+	bool UIPrefabEditorTab::IsRecording(const ui2::Node* selectableNode, uint32_t look) const
 	{
-		return IsRecording() && buttonNode != nullptr && buttonNode->GetLocalId() == _recordedNode && state == _recordedState;
+		return IsRecording() && selectableNode != nullptr && selectableNode->GetLocalId() == _recordedNode && look == _recordedLook;
 	}
 
 	/// @brief
 	/// @return
 	const char* UIPrefabEditorTab::GetRecordedStateName() const
 	{
-		switch (_recordedState)
-		{
-			case ui2::Button::State::Normal: return "Normal";
-			case ui2::Button::State::Hovered: return "Hovered";
-			case ui2::Button::State::Pressed: return "Pressed";
-			case ui2::Button::State::Disabled: return "Disabled";
-		}
-		return "";
+		ui2::Selectable* selectable = FindRecordedSelectable();
+		return (selectable != nullptr) ? selectable->GetLookName(_recordedLook) : "";
 	}
 
 	/// @brief
-	/// @param buttonNode
-	/// @param state
-	void UIPrefabEditorTab::StartRecording(ui2::Node* buttonNode, ui2::Button::State state)
+	/// @param selectableNode
+	/// @param look
+	void UIPrefabEditorTab::StartRecording(ui2::Node* selectableNode, uint32_t look)
 	{
 		StopRecording();
 		StopAnimationPreview();
 
-		// The Buttons of the nested instances are their prefab's: their states are edited there
-		if (GetNodeRole(buttonNode) != NodeRole::Authored)
+		// The Selectables of the nested instances are their prefab's: their looks are edited there
+		if (GetNodeRole(selectableNode) != NodeRole::Authored)
 		{
 			return;
 		}
 
-		ui2::Button* button = (buttonNode != nullptr) ? buttonNode->GetInteraction<ui2::Button>() : nullptr;
-		if (button == nullptr || button->GetOverrides(state) == nullptr)
+		ui2::Selectable* selectable = (selectableNode != nullptr) ? selectableNode->GetInteraction<ui2::Selectable>() : nullptr;
+		if (selectable == nullptr || selectable->GetLookOverrides(look) == nullptr)
 		{
 			return;
 		}
 
 		CaptureRecordedBase();
 
-		_recordedNode = buttonNode->GetLocalId();
-		_recordedState = state;
+		_recordedNode = selectableNode->GetLocalId();
+		_recordedLook = look;
 
 		// Shows the state as it is so far
 		ApplyRecordedOverrides();
@@ -219,12 +213,12 @@ namespace hod::inline editor
 		}
 	}
 
-	/// @brief The recorded Button, null if it is gone (node deleted, interaction removed or replaced).
+	/// @brief The recorded Selectable, null if it is gone (node deleted, interaction removed or replaced).
 	/// @return
-	ui2::Button* UIPrefabEditorTab::FindRecordedButton() const
+	ui2::Selectable* UIPrefabEditorTab::FindRecordedSelectable() const
 	{
 		ui2::Node* node = _canvas.GetRootNode()->FindByLocalId(_recordedNode);
-		return (node != nullptr) ? node->GetInteraction<ui2::Button>() : nullptr;
+		return (node != nullptr) ? node->GetInteraction<ui2::Selectable>() : nullptr;
 	}
 
 	/// @brief Makes the recorded state's overrides what differs from the authored values: added or updated for the properties
@@ -242,8 +236,9 @@ namespace hod::inline editor
 			return;
 		}
 
-		ui2::Button* button = FindRecordedButton();
-		if (button == nullptr)
+		ui2::Selectable*               selectable = FindRecordedSelectable();
+		Vector<ui2::PropertyOverride>* recordedOverrides = (selectable != nullptr) ? selectable->GetLookOverrides(_recordedLook) : nullptr;
+		if (recordedOverrides == nullptr)
 		{
 			RestoreRecordedBase();
 			_recordedNode = 0;
@@ -251,7 +246,7 @@ namespace hod::inline editor
 			return;
 		}
 
-		Vector<ui2::PropertyOverride>& overrides = *button->GetOverrides(_recordedState);
+		Vector<ui2::PropertyOverride>& overrides = *recordedOverrides;
 		bool                           changed = false;
 		for (const RecordedBaseValue& baseValue : _recordedBase)
 		{
@@ -329,12 +324,13 @@ namespace hod::inline editor
 			return;
 		}
 
-		ui2::Button* button = FindRecordedButton();
-		if (button == nullptr)
+		ui2::Selectable*               selectable = FindRecordedSelectable();
+		Vector<ui2::PropertyOverride>* overrides = (selectable != nullptr) ? selectable->GetLookOverrides(_recordedLook) : nullptr;
+		if (overrides == nullptr)
 		{
 			return;
 		}
-		for (const ui2::PropertyOverride& propertyOverride : *button->GetOverrides(_recordedState))
+		for (const ui2::PropertyOverride& propertyOverride : *overrides)
 		{
 			ui2::Node*         node = _canvas.GetRootNode()->FindByLocalId(propertyOverride._target);
 			ui2::PropertyValue value;
@@ -752,18 +748,19 @@ namespace hod::inline editor
 			_previewedAnimation = newName;
 		}
 
-		// The Buttons of the prefab (not of its nested instances, which play their own prefab's clips) playing it follow
+		// The Selectables of the prefab (not of its nested instances, which play their own prefab's clips) playing it follow
 		Vector<ui2::Node*> nodes = {GetPrefabRoot()};
 		for (uint32_t index = 0; index < nodes.Size(); ++index)
 		{
 			ui2::Node* node = nodes[index];
-			if (ui2::Button* button = node->GetInteraction<ui2::Button>(); button != nullptr && node->GetPrefabInstance() == nullptr)
+			if (ui2::Selectable* selectable = node->GetInteraction<ui2::Selectable>(); selectable != nullptr && node->GetPrefabInstance() == nullptr)
 			{
-				for (ui2::Button::State state : {ui2::Button::State::Normal, ui2::Button::State::Hovered, ui2::Button::State::Pressed, ui2::Button::State::Disabled})
+				for (uint32_t look = 0; look < selectable->GetLookCount(); ++look)
 				{
-					if (button->GetAnimation(state) == clipName)
+					String* animation = selectable->GetLookAnimation(look);
+					if (animation != nullptr && *animation == clipName)
 					{
-						button->SetAnimation(state, newName);
+						*animation = newName;
 					}
 				}
 			}
@@ -2196,11 +2193,11 @@ namespace hod::inline editor
 			}
 		}
 
-		// The step holds the nodes as authored: the recording goes on from them, unless its Button is gone
+		// The step holds the nodes as authored: the recording goes on from them, unless its Selectable is gone
 		if (IsRecording())
 		{
-			ui2::Button* button = FindRecordedButton();
-			if (button == nullptr || button->GetOverrides(_recordedState) == nullptr)
+			ui2::Selectable* selectable = FindRecordedSelectable();
+			if (selectable == nullptr || selectable->GetLookOverrides(_recordedLook) == nullptr)
 			{
 				_recordedNode = 0;
 				_recordedBase.Clear();

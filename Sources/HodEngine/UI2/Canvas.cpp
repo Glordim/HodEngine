@@ -301,8 +301,9 @@ namespace hod::inline ui2
 	/// @brief
 	/// @param position
 	/// @param pressed
+	/// @param scroll
 	/// @return
-	bool Canvas::UpdatePointer(const Vector2& position, bool pressed)
+	bool Canvas::UpdatePointer(const Vector2& position, bool pressed, const Vector2& scroll)
 	{
 		ForgetRemovedNodes();
 
@@ -319,6 +320,17 @@ namespace hod::inline ui2
 
 		if (pressed && _pointerPressed == false)
 		{
+			_pressHitNode = hitNode;
+			_pressPosition = position;
+			_lastPosition = position;
+			_dragTried = false;
+			_dragging = false;
+			for (Node* node = hitNode; node != nullptr; node = node->GetParent())
+			{
+				SendPointerEvent(node, PointerEvent::Type::PressWithin, position);
+			}
+			ForgetRemovedNodes();
+			hitNode = _pressHitNode;
 			for (Node* node = hitNode; node != nullptr; node = node->GetParent())
 			{
 				if (SendPointerEvent(node, PointerEvent::Type::Press, position))
@@ -327,22 +339,115 @@ namespace hod::inline ui2
 					break;
 				}
 			}
+			ForgetRemovedNodes();
+			// Following the pointer right away (a Slider): its drag begins with the press
+			if (_pressedNode != nullptr && _pressedNode->GetInteraction() != nullptr && _pressedNode->GetInteraction()->UsesDragThreshold() == false)
+			{
+				TryBeginDrag(position);
+			}
+		}
+		else if (pressed && _pointerPressed)
+		{
+			if (_dragTried == false && _pressHitNode != nullptr && Vector2::Distance(position, _pressPosition) > DragThreshold)
+			{
+				TryBeginDrag(position);
+			}
+			if (_dragging && _pressedNode != nullptr && position != _lastPosition)
+			{
+				PointerEvent event;
+				event._type = PointerEvent::Type::Drag;
+				event._position = position;
+				event._delta = position - _lastPosition;
+				SendPointerEvent(_pressedNode, event);
+				ForgetRemovedNodes();
+			}
 		}
 		else if (pressed == false && _pointerPressed && _pressedNode != nullptr)
 		{
 			Node* pressedNode = _pressedNode;
+			bool  dragged = _dragging;
 			_pressedNode = nullptr;
-			SendPointerEvent(pressedNode, PointerEvent::Type::Release, position);
+			_dragging = false;
+			if (dragged)
+			{
+				SendPointerEvent(pressedNode, PointerEvent::Type::DragEnd, position);
+				ForgetRemovedNodes();
+			}
+			if (ContainsNode(_rootNode, pressedNode))
+			{
+				SendPointerEvent(pressedNode, PointerEvent::Type::Release, position);
+			}
 			// The Release handler may have removed it
 			ForgetRemovedNodes();
-			if (ContainsNode(_rootNode, pressedNode) && hitNode != nullptr && (hitNode == pressedNode || hitNode->IsDescendantOf(pressedNode)))
+			if (dragged == false && ContainsNode(_rootNode, pressedNode) && hitNode != nullptr && (hitNode == pressedNode || hitNode->IsDescendantOf(pressedNode)))
 			{
 				SendPointerEvent(pressedNode, PointerEvent::Type::Click, position);
 			}
 		}
+		if (pressed == false)
+		{
+			_pressHitNode = nullptr;
+		}
 		_pointerPressed = pressed;
+		_lastPosition = position;
+
+		if (scroll != Vector2::Zero)
+		{
+			ForgetRemovedNodes();
+			hitNode = _rootNode->HitTest(position); // the events above may have changed the tree
+			for (Node* node = hitNode; node != nullptr; node = node->GetParent())
+			{
+				PointerEvent event;
+				event._type = PointerEvent::Type::Scroll;
+				event._position = position;
+				event._scroll = scroll;
+				if (SendPointerEvent(node, event))
+				{
+					break;
+				}
+			}
+		}
 
 		return hitNode != nullptr;
+	}
+
+	/// @brief
+	/// @param position
+	void Canvas::TryBeginDrag(const Vector2& position)
+	{
+		_dragTried = true;
+		for (Node* node = _pressHitNode; node != nullptr; node = node->GetParent())
+		{
+			PointerEvent event;
+			event._type = PointerEvent::Type::DragBegin;
+			event._position = position;
+			if (SendPointerEvent(node, event) == false)
+			{
+				continue;
+			}
+
+			ForgetRemovedNodes();
+			if (ContainsNode(_rootNode, node) == false)
+			{
+				return;
+			}
+			// Taken from the node holding the press: it is released, without click (a Button pressed in a ScrollView)
+			if (_pressedNode != nullptr && _pressedNode != node)
+			{
+				Node* pressedNode = _pressedNode;
+				_pressedNode = nullptr;
+				SendPointerEvent(pressedNode, PointerEvent::Type::Release, position);
+				ForgetRemovedNodes();
+				if (ContainsNode(_rootNode, node) == false)
+				{
+					return;
+				}
+			}
+			_pressedNode = node;
+			_dragging = true;
+			_lastPosition = position;
+			return;
+		}
 	}
 
 	/// @brief
@@ -352,11 +457,23 @@ namespace hod::inline ui2
 
 		Node* hoveredNode = _hoveredNode;
 		Node* pressedNode = _pressedNode;
+		bool  dragged = _dragging;
 		_hoveredNode = nullptr;
 		_pressedNode = nullptr;
+		_pressHitNode = nullptr;
 		_pointerPressed = false;
+		_dragging = false;
 
 		SendPointerEvent(hoveredNode, PointerEvent::Type::Exit, Vector2::Zero);
+		if (dragged)
+		{
+			SendPointerEvent(pressedNode, PointerEvent::Type::DragEnd, Vector2::Zero);
+			ForgetRemovedNodes();
+			if (ContainsNode(_rootNode, pressedNode) == false)
+			{
+				return;
+			}
+		}
 		SendPointerEvent(pressedNode, PointerEvent::Type::Release, Vector2::Zero);
 	}
 
@@ -404,6 +521,20 @@ namespace hod::inline ui2
 		PointerEvent event;
 		event._type = type;
 		event._position = position;
+		return SendPointerEvent(node, event);
+	}
+
+	/// @brief
+	/// @param node null sends nothing
+	/// @param event its canvas set here
+	/// @return whether node's Interaction handled it
+	bool Canvas::SendPointerEvent(Node* node, PointerEvent& event)
+	{
+		if (node == nullptr || node->GetInteraction() == nullptr)
+		{
+			return false;
+		}
+
 		event._canvas = this;
 		return node->GetInteraction()->OnPointerEvent(event);
 	}
@@ -418,6 +549,11 @@ namespace hod::inline ui2
 		if (_pressedNode != nullptr && ContainsNode(_rootNode, _pressedNode) == false)
 		{
 			_pressedNode = nullptr;
+			_dragging = false;
+		}
+		if (_pressHitNode != nullptr && ContainsNode(_rootNode, _pressHitNode) == false)
+		{
+			_pressHitNode = nullptr;
 		}
 	}
 }

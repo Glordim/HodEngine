@@ -25,6 +25,13 @@ namespace hod::inline ui2
 	}
 
 	/// @brief
+	/// @return
+	bool Interaction::UsesDragThreshold() const
+	{
+		return true;
+	}
+
+	/// @brief
 	/// @param deltaTime
 	void Interaction::Update(float deltaTime)
 	{

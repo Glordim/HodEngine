@@ -17,6 +17,9 @@
 
 #include "HodEngine/UI2/InteractionFactory.hpp"
 #include "HodEngine/UI2/Button.hpp"
+#include "HodEngine/UI2/ScrollView.hpp"
+#include "HodEngine/UI2/Slider.hpp"
+#include "HodEngine/UI2/Toggle.hpp"
 
 #include "HodEngine/UI2/UISettings.hpp"
 
@@ -44,6 +47,9 @@ namespace hod::inline ui2
 
 		InteractionFactory* interactionFactory = InteractionFactory::GetInstance();
 		interactionFactory->Register<Button>();
+		interactionFactory->Register<Toggle>();
+		interactionFactory->Register<Slider>();
+		interactionFactory->Register<ScrollView>();
 
 		ProjectSettingsManager::GetInstance()->Register<UISettings>();
 	}

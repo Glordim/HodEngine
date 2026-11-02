@@ -14,7 +14,7 @@
 #include <HodEngine/UI2/AnchoredLayoutParams.hpp>
 #include <HodEngine/UI2/BoxLayout.hpp>
 #include <HodEngine/UI2/BoxLayoutParams.hpp>
-#include <HodEngine/UI2/Button.hpp>
+#include <HodEngine/UI2/Selectable.hpp>
 #include <HodEngine/UI2/AnimationClip.hpp>
 #include <HodEngine/UI2/Canvas.hpp>
 #include <HodEngine/UI2/LayoutParams.hpp>
@@ -224,7 +224,8 @@ namespace hod::inline editor
 		float baseScale = _baseScale;
 
 		bool hovered = ImGui::IsWindowHovered() && mouseOverToolbar == false;
-		if (hovered && ImGui::GetIO().MouseWheel != 0.0f)
+		// Playing, the wheel is the UI's (its scroll views): Ctrl + wheel zooms then
+		if (hovered && ImGui::GetIO().MouseWheel != 0.0f && (playing == false || ImGui::GetIO().KeyCtrl))
 		{
 			_camera.ZoomBy(ImGui::GetIO().MouseWheel);
 		}
@@ -889,7 +890,8 @@ namespace hod::inline editor
 	/// the viewport until it is released, as a game window captures the mouse.
 	/// @param canvas the play mode's canvas, laid out
 	/// @param canvasMousePosition
-	/// @param mouseAvailable whether the mouse is over the viewport's image, and not used by the toolbar
+	/// @param mouseAvailable whether the mouse is over the viewport's image, and not used by the toolbar (its wheel then scrolls
+	/// the UI, unless Ctrl zooms the view)
 	/// @return the node the hit-test finds under the mouse, null if none or not over the viewport
 	ui2::Node* UIPrefabEditorViewportWindow::UpdateInteraction(ui2::Canvas& canvas, const Vector2& canvasMousePosition, bool mouseAvailable)
 	{
@@ -908,12 +910,15 @@ namespace hod::inline editor
 			return nullptr;
 		}
 
-		canvas.UpdatePointer(canvasMousePosition, _interactionPointerDown);
+		// ImGui's horizontal wheel is > 0 towards the left
+		const ImGuiIO& io = ImGui::GetIO();
+		Vector2        scroll = (mouseAvailable && io.KeyCtrl == false) ? Vector2(-io.MouseWheelH, io.MouseWheel) : Vector2::Zero;
+		canvas.UpdatePointer(canvasMousePosition, _interactionPointerDown, scroll);
 		return mouseAvailable ? canvas.GetRootNode()->HitTest(canvasMousePosition) : nullptr;
 	}
 
 	/// @brief Play mode's overlay: what the pointer reaches. The node the hit-test finds under the mouse in white, and the
-	/// node whose Interaction gets the pointer (hovered, or holding the press) colored after its state when it is a Button.
+	/// node whose Interaction gets the pointer (hovered, or holding the press) colored after its state when it is a Selectable.
 	/// Drawn with their canvas matrix: exactly the rect the hit-test uses, rotated and scaled, unlike the edit mode's outlines.
 	/// @param canvas the play mode's canvas
 	/// @param hitNode
@@ -928,14 +933,14 @@ namespace hod::inline editor
 		auto drawInteractive = [&](ui2::Node* node)
 		{
 			Color color(0.0f, 170.0f / 255.0f, 1.0f, 1.0f);
-			if (const ui2::Button* button = node->GetInteraction<ui2::Button>())
+			if (const ui2::Selectable* selectable = node->GetInteraction<ui2::Selectable>())
 			{
-				switch (button->GetState())
+				switch (selectable->GetState())
 				{
-					case ui2::Button::State::Normal: break;
-					case ui2::Button::State::Hovered: color = Color(1.0f, 200.0f / 255.0f, 50.0f / 255.0f, 1.0f); break;
-					case ui2::Button::State::Pressed: color = Color(80.0f / 255.0f, 220.0f / 255.0f, 100.0f / 255.0f, 1.0f); break;
-					case ui2::Button::State::Disabled: color = Color(0.5f, 0.5f, 0.5f, 1.0f); break;
+					case ui2::Selectable::State::Normal: break;
+					case ui2::Selectable::State::Hovered: color = Color(1.0f, 200.0f / 255.0f, 50.0f / 255.0f, 1.0f); break;
+					case ui2::Selectable::State::Pressed: color = Color(80.0f / 255.0f, 220.0f / 255.0f, 100.0f / 255.0f, 1.0f); break;
+					case ui2::Selectable::State::Disabled: color = Color(0.5f, 0.5f, 0.5f, 1.0f); break;
 				}
 			}
 			Gizmos::Rect(node->ComputeCanvasMatrix(), node->GetSize(), color, renderView);

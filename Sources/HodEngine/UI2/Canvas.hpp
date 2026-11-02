@@ -125,16 +125,21 @@ namespace hod::inline ui2
 		// input, the UI editor from its viewport's mouse). Call it once per frame while the pointer is over the canvas, with
 		// the primary button's state: the canvas sends the hovered node's Interaction its Enter/Exit, and on the button's
 		// transitions the Press (bubbling from the hit node up to the first Interaction handling it), then Release and Click
-		// to that one (see PointerEvent). Layout must be up to date (UpdateLayout()).
+		// to that one (see PointerEvent). While pressed, once the pointer moved beyond DragThreshold, the drag (DragBegin, Drag,
+		// DragEnd) goes to the first Interaction taking it from the node hit by the press up, which then holds the press. scroll:
+		// the wheel's notches turned since the previous call (see PointerEvent::Scroll). Layout must be up to date (UpdateLayout()).
 		// @return whether the pointer is over a node catching it (see Node::HitTest): the input is the UI's, not what is under it
-		bool	UpdatePointer(const Vector2& position, bool pressed);
+		bool	UpdatePointer(const Vector2& position, bool pressed, const Vector2& scroll = Vector2::Zero);
+
+		// How far (canvas units) the pointer moves, pressed, before a drag begins
+		static constexpr float DragThreshold = 8.0f;
 
 		// The pointer is not over the canvas anymore (out of the view, or taken by something above it): the hovered node gets
 		// its Exit, and a press in progress its Release, without Click.
 		void	ClearPointer();
 
 		// What the pointer is over (the node whose Interaction got Enter, null if none), and the node whose Interaction
-		// handled the press in progress (null if none).
+		// holds the press in progress (null if none): the one that handled it, or the one that took its drag.
 		Node*	GetHoveredNode() const;
 		Node*	GetPressedNode() const;
 
@@ -148,6 +153,10 @@ namespace hod::inline ui2
 		void	UpdateScaling();
 
 		bool	SendPointerEvent(Node* node, PointerEvent::Type type, const Vector2& position);
+		bool	SendPointerEvent(Node* node, PointerEvent& event);
+		// From the node hit by the press up: the first Interaction handling DragBegin holds the press from then on (the one that
+		// held it gets its Release, without Click). Tried once per press.
+		void	TryBeginDrag(const Vector2& position);
 
 		// Drops the tracked nodes (hovered, pressed) that are not in the tree anymore: removed and deleted since the last
 		// pointer update. Only compares addresses, never reads a node that may be deleted.
@@ -166,6 +175,11 @@ namespace hod::inline ui2
 		Node*			_hoveredNode = nullptr;
 		Node*			_pressedNode = nullptr;
 		bool			_pointerPressed = false;
+		Node*			_pressHitNode = nullptr; // what the press hit, where DragBegin bubbles from
+		Vector2			_pressPosition = Vector2::Zero;
+		Vector2			_lastPosition = Vector2::Zero;
+		bool			_dragTried = false;
+		bool			_dragging = false; // _pressedNode took the drag
 
 		ActionEvent		_actionEvent;
 	};

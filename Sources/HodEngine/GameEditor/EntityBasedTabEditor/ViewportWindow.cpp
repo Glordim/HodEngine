@@ -427,8 +427,10 @@ namespace hod::inline editor
 
 				if (mouseOverImage || _canvasPointerDown)
 				{
+					// The wheel over the image only (ImGui's horizontal one is > 0 towards the left)
+					Vector2 scroll = mouseOverImage ? Vector2(-ImGui::GetIO().MouseWheelH, ImGui::GetIO().MouseWheel) : Vector2::Zero;
 					ui2::CanvasManager::GetInstance()->SetPointer(Vector2(mouseImagePos.x, mouseImagePos.y), Vector2((float)resolutionWidth, (float)resolutionHeight),
-					                                              _canvasPointerDown);
+					                                              _canvasPointerDown, scroll);
 				}
 			}
 			else

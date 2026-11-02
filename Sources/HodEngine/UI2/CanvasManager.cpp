@@ -7,6 +7,8 @@
 #include <HodEngine/Input/InputManager.hpp>
 #include <HodEngine/Window/DisplayManager.hpp>
 #include <HodEngine/Window/Window.hpp>
+
+#include <cmath>
 #if defined(PLATFORM_WINDOWS) || defined(PLATFORM_MACOS) || defined(PLATFORM_LINUX)
 	#include <HodEngine/Window/Desktop/DesktopWindow.hpp>
 #endif
@@ -90,7 +92,8 @@ namespace hod::inline ui2
 	/// @param viewPosition
 	/// @param viewSize
 	/// @param pressed
-	void CanvasManager::SetPointer(const Vector2& viewPosition, const Vector2& viewSize, bool pressed)
+	/// @param scroll
+	void CanvasManager::SetPointer(const Vector2& viewPosition, const Vector2& viewSize, bool pressed, const Vector2& scroll)
 	{
 		if (_pointerSource != PointerSource::Manual)
 		{
@@ -100,6 +103,7 @@ namespace hod::inline ui2
 		_pointerPosition = viewPosition;
 		_viewSize = viewSize;
 		_pointerPressed = pressed;
+		_pointerScroll = scroll;
 	}
 
 	/// @brief
@@ -163,6 +167,8 @@ namespace hod::inline ui2
 		_pointerPosition = static_cast<DesktopWindow*>(window)->GetMousePosition();
 		_viewSize = Vector2((float)window->GetWidth(), (float)window->GetHeight());
 		_pointerPressed = mouse != nullptr && mouse->GetButtonLeft().IsPressed();
+		// Whole notches, the axis being normalized over its signed byte
+		_pointerScroll = Vector2(0.0f, mouse != nullptr ? std::round(mouse->GetAxisWheel().ReadValue() * 127.0f) : 0.0f);
 #endif
 	}
 
@@ -226,7 +232,7 @@ namespace hod::inline ui2
 				continue;
 			}
 
-			bool hit = canvas->UpdatePointer(canvasPosition, pressed && (entry->_pressed || pressStarted));
+			bool hit = canvas->UpdatePointer(canvasPosition, pressed && (entry->_pressed || pressStarted), _pointerScroll);
 			entry = FindEntry(canvas);
 			if (entry != nullptr)
 			{
@@ -245,5 +251,6 @@ namespace hod::inline ui2
 		_pointerOverUI = consumed;
 		_previousPointerPressed = pressed;
 		_hasPointer = false;
+		_pointerScroll = Vector2::Zero;
 	}
 }

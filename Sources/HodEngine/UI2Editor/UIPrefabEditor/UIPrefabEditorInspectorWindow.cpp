@@ -27,7 +27,7 @@
 #include <HodEngine/UI2/LayoutParams.hpp>
 #include <HodEngine/UI2/Layout.hpp>
 #include <HodEngine/UI2/LayoutFactory.hpp>
-#include <HodEngine/UI2/Button.hpp>
+#include <HodEngine/UI2/Selectable.hpp>
 #include <HodEngine/UI2/Interaction.hpp>
 #include <HodEngine/UI2/InteractionFactory.hpp>
 #include <HodEngine/UI2/PrefabInstance.hpp>
@@ -934,18 +934,22 @@ namespace hod::inline editor
 					sourceInteraction = nullptr;
 				}
 				EditorReflectedObject interactionObject(ToInstances(interactions), interactionDescriptor, sourceInteraction, this);
-				changed |= PropertyDrawer::DrawDescriptor(interactionObject);
+				{
+					// Its node references (a Slider's fill, a ScrollView's content) pick among the nodes of its prefab
+					NodeRefCustomPropertyDrawer::Scope scope(*GetOwner<UIPrefabEditorTab>(), *nodes[0]->GetScopeRoot());
+					changed |= PropertyDrawer::DrawDescriptor(interactionObject);
+				}
 
-				if (ui2::Button* button = ui2::Interaction::Cast<ui2::Button>(interactions[0]))
+				if (ui2::Selectable* selectable = ui2::Interaction::Cast<ui2::Selectable>(interactions[0]))
 				{
 					if (nodes.Size() > 1)
 					{
-						ImGui::TextDisabled("States: edited one node at a time");
+						ImGui::TextDisabled("Looks: edited one node at a time");
 					}
 					else
 					{
 						ImGui::BeginDisabled(canEditStructure == false);
-						changed |= DrawStateOverrides(nodes[0], *button);
+						changed |= DrawLooks(nodes[0], *selectable);
 						ImGui::EndDisabled();
 					}
 				}
@@ -1010,39 +1014,28 @@ namespace hod::inline editor
 		}
 	}
 
-	/// @brief A Button's look per state: for Hovered, Pressed and Disabled, the list of property overrides applied in that state
-	/// (Normal is the prefab as authored), each a target node, one of its properties and the value it takes. Seen in play mode.
-	/// Each state can be recorded (see UIPrefabEditorTab::StartRecording): its overrides then follow the edits of the nodes, and are
-	/// only removable here (which puts the property back). The other states can't be edited meanwhile. Every state, Normal
-	/// included, also picks the clip of the prefab it plays when entered.
+	/// @brief A Selectable's looks (see ui2::Selectable::GetLookCount): its states, then its type's own (a Toggle's Off and On).
+	/// Each but the ones as authored (Normal, Off) has its list of property overrides, each a target node, one of its properties
+	/// and the value it takes. Seen in play mode. Each can be recorded (see UIPrefabEditorTab::StartRecording): its overrides then
+	/// follow the edits of the nodes, and are only removable here (which puts the property back). The other looks can't be edited
+	/// meanwhile. Every look also picks the clip of the prefab it plays when entered.
 	/// @return true if an override was added, removed or edited, or a clip picked
-	bool UIPrefabEditorInspectorWindow::DrawStateOverrides(ui2::Node* node, ui2::Button& button)
+	bool UIPrefabEditorInspectorWindow::DrawLooks(ui2::Node* node, ui2::Selectable& selectable)
 	{
 		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
 		bool               changed = false;
 
-		struct StateEntry
+		for (uint32_t look = 0; look < selectable.GetLookCount(); ++look)
 		{
-			ui2::Button::State _state;
-			const char*        _label;
-		};
-		constexpr StateEntry states[] = {
-			{ui2::Button::State::Normal, "Normal"},
-			{ui2::Button::State::Hovered, "Hovered"},
-			{ui2::Button::State::Pressed, "Pressed"},
-			{ui2::Button::State::Disabled, "Disabled"},
-		};
+			const char* lookName = selectable.GetLookName(look);
+			ImGui::PushID((int)look);
 
-		for (const StateEntry& stateEntry : states)
-		{
-			ImGui::PushID(stateEntry._label);
-
-			bool recording = tab->IsRecording(node, stateEntry._state);
+			bool recording = tab->IsRecording(node, look);
 			bool otherRecorded = tab->IsRecording() && recording == false;
 
 			ImGui::BeginDisabled(otherRecorded);
 
-			// One framed block per state (red framed while recorded): its name followed by its record button, then its overrides
+			// One framed block per look (red framed while recorded): its name followed by its record button, then its overrides
 			ImGui::PushStyleColor(ImGuiCol_Border, recording ? ImVec4(1.0f, 80.0f / 255.0f, 80.0f / 255.0f, 1.0f) : ImGui::GetStyleColorVec4(ImGuiCol_Border));
 			bool blockVisible = ImGui::BeginChild("State", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_Borders);
 			ImGui::PopStyleColor();
@@ -1057,14 +1050,14 @@ namespace hod::inline editor
 			ImGui::AlignTextToFramePadding();
 			if (recording)
 			{
-				ImGui::TextColored(ImVec4(1.0f, 80.0f / 255.0f, 80.0f / 255.0f, 1.0f), "%s", stateEntry._label);
+				ImGui::TextColored(ImVec4(1.0f, 80.0f / 255.0f, 80.0f / 255.0f, 1.0f), "%s", lookName);
 			}
 			else
 			{
-				ImGui::TextUnformatted(stateEntry._label);
+				ImGui::TextUnformatted(lookName);
 			}
-			// Normal has no override: it is the prefab as authored
-			bool hasOverrides = button.GetOverrides(stateEntry._state) != nullptr;
+			// Normal (or Off) has no override: it is the prefab as authored
+			bool hasOverrides = selectable.GetLookOverrides(look) != nullptr;
 			if (hasOverrides)
 			{
 				ImGui::SameLine();
@@ -1080,7 +1073,7 @@ namespace hod::inline editor
 					}
 					else
 					{
-						tab->StartRecording(node, stateEntry._state);
+						tab->StartRecording(node, look);
 					}
 				}
 				if (recording)
@@ -1088,14 +1081,15 @@ namespace hod::inline editor
 					ImGui::PopStyleColor();
 				}
 				ImGui::SetItemTooltip(recording ? "Stop recording, back to the prefab as authored"
-				                                : "Record: show this state, and record the properties edited on any node (inspector) as its overrides");
+				                                : "Record: show this look, and record the properties edited on any node (inspector) as its overrides");
 			}
 			ImGui::Separator();
 
-			// The clip played when entering the state: one of the prefab's (held by the button's node or an ancestor, up to the root
-			// of its prefab, see ui2::Node::FindAnimationOwner)
+			// The clip played when entering the look: one of the prefab's (held by the selectable's node or an ancestor, up to the
+			// root of its prefab, see ui2::Node::FindAnimationOwner)
+			if (String* lookAnimation = selectable.GetLookAnimation(look))
 			{
-				const String&    animation = button.GetAnimation(stateEntry._state);
+				const String     animation = *lookAnimation; // a copy: the combo sets it
 				std::string_view animationName(animation.CStr(), animation.Length());
 				bool             missing = animation.Empty() == false && node->FindAnimationOwner(animationName) == nullptr;
 				String           preview = animation.Empty() ? String("No animation") : (missing ? animation + " (missing)" : animation);
@@ -1117,7 +1111,7 @@ namespace hod::inline editor
 				{
 					if (ImGui::Selectable("No animation", animation.Empty()) && animation.Empty() == false)
 					{
-						button.SetAnimation(stateEntry._state, String());
+						*lookAnimation = String();
 						changed = true;
 					}
 					for (ui2::Node* owner = node; owner != nullptr; owner = owner->GetParent())
@@ -1126,7 +1120,7 @@ namespace hod::inline editor
 						{
 							if (ImGui::Selectable(clip._name.CStr(), clip._name == animation) && clip._name != animation)
 							{
-								button.SetAnimation(stateEntry._state, clip._name);
+								*lookAnimation = clip._name;
 								changed = true;
 							}
 						}
@@ -1137,7 +1131,7 @@ namespace hod::inline editor
 					}
 					ImGui::EndCombo();
 				}
-				ImGui::SetItemTooltip("The animation played when entering the state (the previous state's is stopped). Made in the Animation window");
+				ImGui::SetItemTooltip("The animation played when entering the look (the previous one's is stopped). Made in the Animation window");
 			}
 
 			if (hasOverrides == false)
@@ -1149,7 +1143,7 @@ namespace hod::inline editor
 			}
 			ImGui::Separator();
 
-			Vector<ui2::PropertyOverride>& overrides = *button.GetOverrides(stateEntry._state);
+			Vector<ui2::PropertyOverride>& overrides = *selectable.GetLookOverrides(look);
 			int32_t                        removeIndex = -1;
 			for (uint32_t index = 0; index < overrides.Size(); ++index)
 			{
@@ -1265,10 +1259,9 @@ namespace hod::inline editor
 			}
 
 			String text = String(DrawHelper::GetTypeIcon(node->GetReflectionDescriptorV(), ICON_MDI_VECTOR_SQUARE)) + " " + node->GetName();
-			if (const ui2::Button* button = node->GetInteraction<ui2::Button>())
+			if (const ui2::Selectable* selectable = node->GetInteraction<ui2::Selectable>())
 			{
-				constexpr const char* stateNames[] = {"Normal", "Hovered", "Pressed", "Disabled"};
-				text += String(" (") + stateNames[(uint8_t)button->GetState()] + ")";
+				text += String(" (") + selectable->GetLookName((uint32_t)selectable->GetState()) + ")";
 			}
 			ImGui::TextUnformatted(text.CStr());
 		};
