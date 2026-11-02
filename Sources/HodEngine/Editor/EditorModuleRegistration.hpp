@@ -50,6 +50,8 @@ namespace hod::inline editor
 		template<typename _EditorTabType_>
 		void RegisterEditorTab(std::string_view assetType);
 
+		void RegisterRenameHandler(std::string_view assetType, AssetDatabase::RenameHandler renameHandler);
+
 		void RegisterContextualMenuAction(AssetBrowserWindow::ContextualMenuAction contextualMenuAction);
 		void RegisterDropAction(AssetBrowserWindow::DropAction dropAction);
 
@@ -74,6 +76,7 @@ namespace hod::inline editor
 		Vector<String>     _cookerAssetTypes;
 		Vector<String>     _resourceAssetTypes;
 		Vector<String>     _editorTabAssetTypes;
+		Vector<String>     _renameHandlerAssetTypes;
 		Vector<uint32_t>   _contextualMenuActionIds;
 		Vector<uint32_t>   _dropActionIds;
 

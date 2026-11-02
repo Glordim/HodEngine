@@ -99,6 +99,7 @@ namespace hod::inline editor
 		void Move(FileSystemMapping& node, const Path& newPath);
 		void Delete(FileSystemMapping& node);
 
+
 		template<typename _Cooker_>
 		bool                   RegisterCooker(std::string_view assetType);
 
@@ -113,6 +114,12 @@ namespace hod::inline editor
 		template<typename _Importer_>
 		void                   UnregisterImporter();
 		void                   UnregisterResource(std::string_view assetType);
+
+		/// @brief Called on an asset of assetType given another name (not only moved to another folder), by Move or on disk, once
+		/// its path is the new one: for the asset types holding their name (a UI prefab's root...). One per asset type.
+		using RenameHandler = void (*)(Asset& asset);
+		void                   RegisterRenameHandler(std::string_view assetType, RenameHandler renameHandler);
+		void                   UnregisterRenameHandler(std::string_view assetType);
 
 		bool ReimportAssetIfNecessary(std::shared_ptr<Asset> asset);
 
@@ -204,6 +211,8 @@ namespace hod::inline editor
 		Vector<ResourceEntry*> _resourceEntries;
 
 		MemberFunctionJob<AssetDatabase> _updateJob;
+
+		std::unordered_map<uint64_t, RenameHandler> _renameHandlers; // By asset type
 	};
 }
 

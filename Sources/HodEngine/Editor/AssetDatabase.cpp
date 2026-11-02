@@ -496,7 +496,11 @@ namespace hod::inline editor
 
 		Path finalPath = GenerateUniqueAssetPath(newPath);
 
-		FileSystem::GetInstance()->Rename(node._path, finalPath);
+		if (FileSystem::GetInstance()->Rename(node._path, finalPath) == false)
+		{
+			OUTPUT_ERROR("Can't move {} to {}", node._path, finalPath);
+			return;
+		}
 		MoveNode(node, finalPath);
 	}
 
@@ -643,6 +647,21 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @param assetType
+	/// @param renameHandler
+	void AssetDatabase::RegisterRenameHandler(std::string_view assetType, RenameHandler renameHandler)
+	{
+		_renameHandlers[Hash::ComputeXxh3_64(assetType)] = renameHandler;
+	}
+
+	/// @brief
+	/// @param assetType
+	void AssetDatabase::UnregisterRenameHandler(std::string_view assetType)
+	{
+		_renameHandlers.erase(Hash::ComputeXxh3_64(assetType));
+	}
+
+	/// @brief
 	/// @param result
 	/// @param from
 	/// @param resourceDescriptor
@@ -742,7 +761,13 @@ namespace hod::inline editor
 		{
 			if (node._asset != nullptr)
 			{
+				String oldName = node._asset->GetName();
 				node._asset->SetPath(newPath);
+				auto it = _renameHandlers.find(node._asset->GetType());
+				if (node._asset->GetName() != oldName && it != _renameHandlers.end())
+				{
+					it->second(*node._asset);
+				}
 			}
 		}
 	}

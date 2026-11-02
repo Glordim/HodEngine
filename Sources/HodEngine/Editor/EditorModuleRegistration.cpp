@@ -13,6 +13,15 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @param assetType
+	/// @param renameHandler
+	void EditorModuleRegistration::RegisterRenameHandler(std::string_view assetType, AssetDatabase::RenameHandler renameHandler)
+	{
+		AssetDatabase::GetInstance()->RegisterRenameHandler(assetType, renameHandler);
+		_renameHandlerAssetTypes.PushBack(String(assetType));
+	}
+
+	/// @brief
 	/// @param contextualMenuAction
 	void EditorModuleRegistration::RegisterContextualMenuAction(AssetBrowserWindow::ContextualMenuAction contextualMenuAction)
 	{
@@ -92,6 +101,12 @@ namespace hod::inline editor
 			Editor::GetInstance()->UnregisterEditorTab(assetType);
 		}
 		_editorTabAssetTypes.Clear();
+
+		for (const String& assetType : _renameHandlerAssetTypes)
+		{
+			AssetDatabase::GetInstance()->UnregisterRenameHandler(assetType);
+		}
+		_renameHandlerAssetTypes.Clear();
 
 		for (const String& assetType : _resourceAssetTypes)
 		{
