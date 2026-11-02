@@ -374,6 +374,9 @@ namespace hod::inline editor
 		ImGui::SetNextItemSelectionUserData(static_cast<ImGuiSelectionUserData>(reinterpret_cast<intptr_t>(node)));
 		_visibleNodes.PushBack(node);
 		bool opened = renaming ? ImGui::TreeNodeEx("##Node", treeNodeFlags, "%s", icon) : ImGui::TreeNodeEx("##Node", treeNodeFlags, "%s %s", icon, displayedLabel.CStr());
+		// Kept to open the tree node from its context menu, where the current item and storage are the popup's
+		ImGuiID       treeNodeId = ImGui::GetItemID();
+		ImGuiStorage* treeNodeStorage = ImGui::GetStateStorage();
 		if (pushedColor)
 		{
 			ImGui::PopStyleColor();
@@ -505,10 +508,24 @@ namespace hod::inline editor
 				}
 				ImGui::Separator();
 			}
-			if (ImGui::MenuItem(ICON_MDI_PLUS_BOX " Add Child", nullptr, false, canEditStructure && single))
+			if (ImGui::BeginMenu(ICON_MDI_PLUS_BOX " Add Child", canEditStructure && single))
 			{
-				node->AddChild(ui2::NodeFactory::GetInstance()->CreateNode(ui2::Node::GetReflectionDescriptor()));
-				tab->MarkAsDirty("Add Child");
+				for (const auto& descriptorPair : ui2::NodeFactory::GetInstance()->GetAllDescriptors())
+				{
+					String typeLabel = String(DrawHelper::GetTypeIcon(*descriptorPair.second)) + " " + descriptorPair.second->GetDisplayName();
+					if (ImGui::MenuItem(typeLabel.CStr()))
+					{
+						ui2::Node* newNode = ui2::NodeFactory::GetInstance()->CreateNode(*descriptorPair.second);
+						node->AddChild(newNode);
+
+						// Keep the new child visible: a previously leaf/collapsed node would otherwise hide it.
+						treeNodeStorage->SetInt(treeNodeId, 1);
+
+						tab->SetSelectedNode(newNode);
+						tab->MarkAsDirty(fmt::format("Add {}", descriptorPair.second->GetDisplayName()));
+					}
+				}
+				ImGui::EndMenu();
 			}
 			if (ImGui::MenuItem(ICON_MDI_RENAME " Rename", "F2", false, UIPrefabEditorTab::CanEditProperties(node) && single))
 			{
