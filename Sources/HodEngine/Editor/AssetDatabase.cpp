@@ -763,6 +763,48 @@ namespace hod::inline editor
 			node._parentFolder->_childrenFolder.Erase(it);
 		}
 
+		ReleaseNode(node);
+	}
+
+	/// @brief Deletes node and its whole content (a deleted folder takes its assets with it), unregistering their assets
+	/// @param node Already detached from its parent
+	void AssetDatabase::ReleaseNode(FileSystemMapping& node)
+	{
+		for (FileSystemMapping* child : node._childrenFolder)
+		{
+			ReleaseNode(*child);
+		}
+		node._childrenFolder.Clear();
+
+		for (FileSystemMapping* child : node._childrenAsset)
+		{
+			ReleaseNode(*child);
+		}
+		node._childrenAsset.Clear();
+
+		std::shared_ptr<Asset> asset = node._asset;
+		if (asset != nullptr)
+		{
+			for (const AssetContainer::SourceInfo& source : asset->GetSources())
+			{
+				auto range = _sourcePathToAssetMap.equal_range(source._path);
+				for (auto it = range.first; it != range.second; ++it)
+				{
+					if (it->second == asset)
+					{
+						_sourcePathToAssetMap.erase(it);
+						break;
+					}
+				}
+			}
+
+			auto it = _uidToAssetMap.find(asset->GetUid());
+			if (it != _uidToAssetMap.end() && it->second == asset)
+			{
+				_uidToAssetMap.erase(it);
+			}
+		}
+
 		DefaultAllocator::GetInstance().Delete(&node);
 	}
 
@@ -812,33 +854,10 @@ namespace hod::inline editor
 	/// @param path
 	void AssetDatabase::FileSystemWatcherAssetOnDeleteFile(const Path& path)
 	{
-		FileSystemMapping* nodeToMove = FindFileSystemMappingFromPath(path);
-		if (nodeToMove != nullptr)
+		FileSystemMapping* nodeToDelete = FindFileSystemMappingFromPath(path);
+		if (nodeToDelete != nullptr && nodeToDelete != &_rootFileSystemMapping)
 		{
-			std::shared_ptr<Asset> asset = nodeToMove->_asset;
-			if (asset != nullptr)
-			{
-				for (const AssetContainer::SourceInfo& source : asset->GetSources())
-				{
-					auto range = _sourcePathToAssetMap.equal_range(source._path);
-					for (auto it = range.first; it != range.second; ++it)
-					{
-						if (it->second == asset)
-						{
-							_sourcePathToAssetMap.erase(it);
-							break;
-						}
-					}
-				}
-
-				auto it = _uidToAssetMap.find(asset->GetUid());
-				if (it != _uidToAssetMap.end())
-				{
-					_uidToAssetMap.erase(it);
-				}
-			}
-
-			DeleteNode(*nodeToMove);
+			DeleteNode(*nodeToDelete);
 		}
 	}
 

@@ -134,6 +134,7 @@ namespace hod::inline editor
 
 		void MoveNode(FileSystemMapping& node, const Path& newPath);
 		void DeleteNode(FileSystemMapping& node);
+		void ReleaseNode(FileSystemMapping& node);
 
 		/// @brief A path the file watcher reported something on. It is only applied once quiet and readable (see ProcessPendingChanges()):
 		/// the watcher notifies from the creation of a file, while it may still be being written
