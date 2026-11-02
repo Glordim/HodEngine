@@ -226,6 +226,61 @@ namespace hod::inline ui2
 			}
 		}
 
+		/// @brief Weighted sum of variable in the four instances into out: floats only, the others switch from the second to the third halfway.
+		void BlendVariable(const ReflectionPropertyVariable& variable, const void* const values[4], const float weights[4], void* out, float t)
+		{
+			if (variable.GetEnumDescriptor() == nullptr)
+			{
+				if (variable.GetType() == ReflectionPropertyVariable::Type::Float32)
+				{
+					float sum = 0.0f;
+					for (uint32_t index = 0; index < 4; ++index)
+					{
+						sum += variable.GetValue<float>(values[index]) * weights[index];
+					}
+					variable.SetValue<float>(out, sum);
+					return;
+				}
+				if (variable.GetType() == ReflectionPropertyVariable::Type::Float64)
+				{
+					double sum = 0.0;
+					for (uint32_t index = 0; index < 4; ++index)
+					{
+						sum += variable.GetValue<double>(values[index]) * (double)weights[index];
+					}
+					variable.SetValue<double>(out, sum);
+					return;
+				}
+			}
+			variable.Copy(t < 0.5f ? values[1] : values[2], out);
+		}
+
+		/// @brief Weighted sum of every property of instances of descriptor's type (supported object, see IsSupportedObject).
+		void BlendObject(const ReflectionDescriptor& descriptor, const void* const values[4], const float weights[4], void* out, float t)
+		{
+			if (descriptor.GetParent() != nullptr)
+			{
+				BlendObject(*descriptor.GetParent(), values, weights, out, t);
+			}
+			for (const ReflectionProperty* property : descriptor.GetProperties())
+			{
+				if (property->GetRttiType() == ReflectionPropertyVariable::GetRttiTypeStatic())
+				{
+					BlendVariable(*static_cast<const ReflectionPropertyVariable*>(property), values, weights, out, t);
+				}
+				else if (property->GetRttiType() == ReflectionPropertyObject::GetRttiTypeStatic())
+				{
+					const ReflectionPropertyObject* object = static_cast<const ReflectionPropertyObject*>(property);
+					const void* members[4];
+					for (uint32_t index = 0; index < 4; ++index)
+					{
+						members[index] = object->GetInstance(values[index]);
+					}
+					BlendObject(*object->GetReflectionDescriptor(), members, weights, object->GetInstance(out), t);
+				}
+			}
+		}
+
 		/// @brief Compares every property of instances of descriptor's type (supported object, see IsSupportedObject).
 		bool EqualsObject(const ReflectionDescriptor& descriptor, const void* left, const void* right)
 		{
@@ -572,6 +627,37 @@ namespace hod::inline ui2
 		else
 		{
 			LerpObject(*static_cast<const ReflectionPropertyObject*>(out._property)->GetReflectionDescriptor(), from._storage, to._storage, out._storage, t);
+		}
+	}
+
+	/// @brief
+	/// @param values
+	/// @param weights
+	/// @param t
+	/// @param out
+	void PropertyValue::Blend(const PropertyValue* const values[4], const float weights[4], float t, PropertyValue& out)
+	{
+		for (uint32_t index = 0; index < 4; ++index)
+		{
+			if (values[index]->IsSameType(*values[2]) == false)
+			{
+				Lerp(*values[1], *values[2], t, out);
+				return;
+			}
+		}
+		if (out.IsSameType(*values[2]) == false)
+		{
+			out = *values[2];
+		}
+
+		const void* storages[4] = {values[0]->_storage, values[1]->_storage, values[2]->_storage, values[3]->_storage};
+		if (out._variable != nullptr)
+		{
+			BlendVariable(*out._variable, storages, weights, out._storage, t);
+		}
+		else
+		{
+			BlendObject(*static_cast<const ReflectionPropertyObject*>(out._property)->GetReflectionDescriptor(), storages, weights, out._storage, t);
 		}
 	}
 

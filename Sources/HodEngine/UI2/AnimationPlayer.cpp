@@ -190,7 +190,24 @@ namespace hod::inline ui2
 				uint32_t previous = next - 1;
 				float    span = track._times[next] - track._times[previous];
 				float    t = span > 0.0f ? (time - track._times[previous]) / span : 1.0f;
-				PropertyValue::Lerp(track._values[previous], track._values[next], AnimationKey::Ease(track._easings[previous], t), track._current);
+				if (track._easings[previous] == AnimationKey::Easing::Smooth)
+				{
+					// Through the keys around the segment (themselves at the clip's ends)
+					uint32_t before = (previous > 0) ? previous - 1 : previous;
+					uint32_t after = (next + 1 < track._times.Size()) ? next + 1 : next;
+					bool     flatStart = before == previous || track._values[previous].Equals(track._values[before]) || track._values[previous].Equals(track._values[next]);
+					bool     flatEnd = after == next || track._values[next].Equals(track._values[after]) || track._values[next].Equals(track._values[previous]);
+
+					float times[4] = {track._times[before], track._times[previous], track._times[next], track._times[after]};
+					float weights[4];
+					AnimationKey::SmoothWeights(times, flatStart, flatEnd, t, weights);
+					const PropertyValue* values[4] = {&track._values[before], &track._values[previous], &track._values[next], &track._values[after]};
+					PropertyValue::Blend(values, weights, t, track._current);
+				}
+				else
+				{
+					PropertyValue::Lerp(track._values[previous], track._values[next], AnimationKey::Ease(track._easings[previous], t), track._current);
+				}
 			}
 			track._current.Write(*target, track._property);
 		}

@@ -64,6 +64,9 @@ namespace hod::inline ui2
 		// Between two values of the same type, into out: the floats (also inside objects, e.g. a color's channels) are eased,
 		// the other variables (integers, booleans, enums, strings, ids) switch from from to to halfway. out takes to's type.
 		static void			Lerp(const PropertyValue& from, const PropertyValue& to, float t, PropertyValue& out);
+		// The floats as the weighted sum of four values of the same type (see AnimationKey::SmoothWeights), the other variables
+		// switching from values[1] to values[2] halfway (at t 0.5). As Lerp from values[1] to values[2] if their types differ.
+		static void			Blend(const PropertyValue* const values[4], const float weights[4], float t, PropertyValue& out);
 
 	private:
 

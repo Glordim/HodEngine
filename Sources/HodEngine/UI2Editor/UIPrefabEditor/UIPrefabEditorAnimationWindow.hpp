@@ -9,6 +9,8 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
+#include <utility>
+
 namespace hod::inline editor
 {
 	class UIPrefabEditorTab;
@@ -17,7 +19,8 @@ namespace hod::inline editor
 	/// previews (see UIPrefabEditorTab::StartAnimationPreview), scrubs and plays it, and edits it as a dopesheet: a row per track,
 	/// its keys moved (snapped to 1/60 s, Alt not to), deleted, copied, given an easing; new keys recorded from the edits (Record),
 	/// added on a row (double-click) or by adding a track for a property of the selected node. Several selected keys can also be
-	/// scaled in time by the handles of the band over them.
+	/// scaled in time by the handles of the band over them. A curve view shows the floats of the values over time instead, with
+	/// their easings, and edits them.
 	class HOD_UI2_EDITOR_API UIPrefabEditorAnimationWindow : public EditorTabWindow
 	{
 		REFLECTED_CLASS(UIPrefabEditorAnimationWindow, EditorTabWindow)
@@ -50,10 +53,27 @@ namespace hod::inline editor
 			ui2::AnimationKey	_key;
 		};
 
+		// Asked from a track's label context menu, done once the tracks are drawn
+		enum class TrackAction
+		{
+			None,
+			KeyAuthoredValue,
+			Delete,
+		};
+
 	private:
 
 		void		DrawToolbar(UIPrefabEditorTab& tab, ui2::AnimationClip* clip);
 		void		DrawTimeline(UIPrefabEditorTab& tab, ui2::AnimationClip& clip);
+		// The curve view, in place of the dopesheet's rows: the tracks' labels on the left (the selected ones' curves shown, all when
+		// none is), a curve per float of their values (as serialized: a Vector2's x and y, a Color's channels...) sampled with the
+		// keys' easings. Its points move the keys in time and change those floats.
+		void		DrawCurves(UIPrefabEditorTab& tab, ui2::AnimationClip& clip, const ImVec2& origin, const ImVec2& size, float labelWidth, float rowHeight);
+		// A row's label (node, property, value at the timeline's time), selecting the track. Its context menu's action is returned.
+		TrackAction	DrawTrackLabel(UIPrefabEditorTab& tab, ui2::AnimationClip& clip, uint32_t trackIndex, const ImVec2& position, float width, float height);
+		void		ApplyTrackAction(UIPrefabEditorTab& tab, ui2::AnimationClip& clip, TrackAction action, uint32_t trackIndex);
+		// Ctrl + wheel zooms the time around the mouse, Shift + wheel (or the middle button) pans
+		void		HandleViewInput(float laneWidth, float duration);
 		void		DrawRuler(UIPrefabEditorTab& tab, ui2::AnimationClip& clip, const ImVec2& origin, float width, float height);
 		void		DrawAddTrackPopup(UIPrefabEditorTab& tab, ui2::AnimationClip& clip);
 		void		DrawKeyContextPopup(UIPrefabEditorTab& tab, ui2::AnimationClip& clip);
@@ -67,6 +87,7 @@ namespace hod::inline editor
 		static float	Snap(float time);
 
 		bool		IsKeySelected(const KeyRef& keyRef) const;
+		bool		IsTrackSelected(uint32_t trackIndex) const;
 		// The selection without the keys (or tracks) that don't exist anymore
 		void		ValidateSelection(const ui2::AnimationClip& clip);
 		void		DeleteSelectedKeys(UIPrefabEditorTab& tab, ui2::AnimationClip& clip);
@@ -102,6 +123,18 @@ namespace hod::inline editor
 		float			_scaleStartEdge = 0.0f; // the dragged edge's time when grabbed
 		bool			_boxSelecting = false;
 		ImVec2			_boxStart;
+
+		Vector<uint32_t>	_selectedTracks; // whose curves the curve view shows (all when empty)
+
+		bool			_curveView = false;
+		bool			_normalizedCurves = false; // each curve over the whole height, instead of one scale for all
+		// A curve's point dragged: the selected keys move in time, the float of that curve changes on the selected keys of its track
+		bool			_curveDragging = false;
+		ImVec2			_curveDragStart;
+		uint32_t		_dragTrack = 0;
+		uint32_t		_dragFloat = 0;
+		Vector<double>	_moveStartValues; // per selected key: its float of the dragged curve, NaN for the other tracks' keys
+		Vector<std::pair<double, double>>	_frozenRanges; // the curves' value ranges, kept while dragging (not to rescale under the mouse)
 
 		char			_renameBuffer[128] = {};
 

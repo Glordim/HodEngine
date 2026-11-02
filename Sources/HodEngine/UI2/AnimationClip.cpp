@@ -25,6 +25,7 @@ namespace hod::inline ui2
 		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::BackInOut, "BackInOut");
 		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::BounceOut, "BounceOut");
 		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::ElasticOut, "ElasticOut");
+		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::Smooth, "Smooth");
 	}
 
 	DESCRIBE_REFLECTED_CLASS(AnimationKey, reflectionDescriptor)
@@ -163,8 +164,37 @@ namespace hod::inline ui2
 				constexpr float c4 = (2.0f * std::numbers::pi_v<float>) / 3.0f;
 				return std::pow(2.0f, -10.0f * t) * std::sin((t * 10.0f - 0.75f) * c4) + 1.0f;
 			}
+
+			case Easing::Smooth: return t * t * (3.0f - 2.0f * t); // without neighbors, see SmoothWeights
 		}
 		return t;
+	}
+
+	/// @brief
+	/// @param times
+	/// @param flatStart
+	/// @param flatEnd
+	/// @param t
+	/// @param outWeights
+	void AnimationKey::SmoothWeights(const float times[4], bool flatStart, bool flatEnd, float t, float outWeights[4])
+	{
+		// The tangents (Catmull-Rom: towards the next key's value from the previous one's), scaled to the segment's duration
+		float duration = times[2] - times[1];
+		float startScale = (flatStart || times[2] - times[0] <= 0.0f) ? 0.0f : duration / (times[2] - times[0]);
+		float endScale = (flatEnd || times[3] - times[1] <= 0.0f) ? 0.0f : duration / (times[3] - times[1]);
+
+		float t2 = t * t;
+		float t3 = t2 * t;
+		float h00 = 2.0f * t3 - 3.0f * t2 + 1.0f;
+		float h10 = t3 - 2.0f * t2 + t;
+		float h01 = -2.0f * t3 + 3.0f * t2;
+		float h11 = t3 - t2;
+
+		// h00 p1 + h10 startScale (p2 - p0) + h01 p2 + h11 endScale (p3 - p1)
+		outWeights[0] = -h10 * startScale;
+		outWeights[1] = h00 - h11 * endScale;
+		outWeights[2] = h01 + h10 * startScale;
+		outWeights[3] = h11 * endScale;
 	}
 
 	/// @brief

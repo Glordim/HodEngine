@@ -180,6 +180,47 @@ namespace hod::animation_tests // named: the other test files have helpers of th
 		EXPECT_GT(AnimationKey::Ease(AnimationKey::Easing::BackOut, 0.5f), 1.0f); // overshoots
 	}
 
+	TEST_F(AnimationTest, SmoothGoesThroughTheKeys)
+	{
+		// Scale (1, 1) -> (3, 5) -> (5, 9) over 2 s: through the middle key at the speed its neighbors give, from and to rest at the ends
+		AnimationClip clip;
+		clip._name = "Grow";
+		clip._duration = 2.0f;
+		clip.SetKey(3, "Scale", 0.0f, ScaleValue(Vector2(1.0f, 1.0f)));
+		clip.SetKey(3, "Scale", 1.0f, ScaleValue(Vector2(3.0f, 5.0f)));
+		clip.SetKey(3, "Scale", 2.0f, ScaleValue(Vector2(5.0f, 9.0f)));
+		for (AnimationKey& key : clip._tracks[0]._keys)
+		{
+			key._easing = AnimationKey::Easing::Smooth;
+		}
+		_root->GetAnimations().PushBack(clip);
+		AnimationPlayer& player = _root->GetAnimationPlayer();
+
+		player.Sample("Grow", 0.5f);
+		EXPECT_FLOAT_EQ(_label->GetScale().GetX(), 1.75f);
+		EXPECT_FLOAT_EQ(_label->GetScale().GetY(), 2.5f);
+		player.Sample("Grow", 1.0f);
+		EXPECT_FLOAT_EQ(_label->GetScale().GetX(), 3.0f);
+		player.Sample("Grow", 1.5f);
+		EXPECT_FLOAT_EQ(_label->GetScale().GetX(), 4.25f); // mirrored
+
+		// The same speed on both sides of the middle key
+		player.Sample("Grow", 0.99f);
+		float before = _label->GetScale().GetX();
+		player.Sample("Grow", 1.01f);
+		float after = _label->GetScale().GetX();
+		EXPECT_NEAR((after - before) / 0.02f, 2.0f, 0.05f); // a break would give 0 or 4 (Quad In Out, Linear then Quad Out...)
+
+		// A held value doesn't overshoot: (1) -> (3) -> (3)
+		_root->GetAnimations()[0]._tracks[0]._keys[2].SetValue(ScaleValue(Vector2(3.0f, 5.0f)));
+		player.Sample("Grow", 1.5f);
+		EXPECT_FLOAT_EQ(_label->GetScale().GetX(), 3.0f);
+		player.Sample("Grow", 0.5f);
+		EXPECT_FLOAT_EQ(_label->GetScale().GetX(), 2.0f); // a smoothstep
+
+		EXPECT_FLOAT_EQ(AnimationKey::Ease(AnimationKey::Easing::Smooth, 0.25f), 0.15625f);
+	}
+
 	TEST_F(AnimationTest, LoopAndPingPongWrapTheTime)
 	{
 		_root->GetAnimations().PushBack(MakeSpin(3, AnimationClip::WrapMode::Loop));

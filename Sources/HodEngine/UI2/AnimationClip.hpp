@@ -24,6 +24,8 @@ namespace hod::inline ui2
 
 		// How the value goes from this key to the next one: t (0..1 between the two keys) mapped to the blend factor. Constant
 		// holds this key's value until the next one. Back and Elastic overshoot (the floats go past the next key's value).
+		// Smooth goes through the keys without a break: its curve depends on the keys around the segment (see SmoothWeights), a
+		// smoothstep between two keys alone.
 		enum class Easing : uint8_t
 		{
 			Linear,
@@ -39,6 +41,7 @@ namespace hod::inline ui2
 			BackInOut,
 			BounceOut,
 			ElasticOut,
+			Smooth,
 		};
 		REFLECTED_ENUM(HOD_UI2_API, Easing);
 
@@ -55,6 +58,10 @@ namespace hod::inline ui2
 	public:
 
 		static float		Ease(Easing easing, float t);
+		// A Smooth segment, at t (0..1) in it: the weights of the values of the key before it, its start key, its end key and the
+		// key after it, whose times are given (a cubic Hermite with Catmull-Rom tangents). flatStart/flatEnd: no tangent at that
+		// end (no key beyond it, or a value held: the same as a neighbor's), so neither a hold nor an extreme overshoots.
+		static void			SmoothWeights(const float times[4], bool flatStart, bool flatEnd, float t, float outWeights[4]);
 
 		// The value, as an instance of target's property type. False when target has no such property (anymore).
 		bool				GetValue(const Node& target, std::string_view property, PropertyValue& outValue) const;
