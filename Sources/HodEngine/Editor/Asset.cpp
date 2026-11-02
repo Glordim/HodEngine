@@ -3,17 +3,7 @@
 #include "HodEngine/Editor/Asset.hpp"
 
 #include "HodEngine/Editor/AssetContainer.hpp"
-#include "HodEngine/Editor/AssetDatabase.hpp"
-#include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/Project.hpp"
 #include "HodEngine/Editor/Thumbnail.hpp"
-
-#include "HodEngine/Core/Document/DocumentReaderJson.hpp"
-#include "HodEngine/Core/Document/DocumentWriterJson.hpp"
-
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
-#include "HodEngine/Core/Serialization/Serializer.hpp"
 
 #include "HodEngine/RHI/RhiDevice.hpp"
 #include "HodEngine/RHI/Texture.hpp"
@@ -85,43 +75,6 @@ namespace hod::inline editor
 		_sources = assetContainer.GetSources();
 
 		ReleaseThumbnail();
-
-		/*
-		Path metaPath = _path;
-		metaPath += ".meta";
-
-		if (FileSystem::GetInstance()->Exists(metaPath) == false)
-		{
-			// TODO generate new meta if not exist
-			if (AssetDatabase::GetInstance()->Import(_path) == false)
-			{
-				return false;
-			}
-			if (FileSystem::GetInstance()->Exists(metaPath) == false)
-			{
-				return false;
-			}
-		}
-
-		Document           document;
-		DocumentReaderJson documentReader;
-		if (documentReader.Read(document, metaPath) == false)
-		{
-			return false;
-		}
-
-		if (Serializer::Deserialize(_meta, document.GetRootNode()) == false)
-		{
-			return false;
-		}
-		const DocumentNode* importerSettingsNode = document.GetRootNode().GetChild("importerSettings");
-		if (importerSettingsNode != nullptr && _meta.LoadImporterConfig(*importerSettingsNode) == false) // TODO improve reflection
-		{
-			return false;
-		}
-
-		AssetDatabase::GetInstance()->ReimportAssetIfNecessary(shared_from_this());
-		*/
 
 		return true;
 	}

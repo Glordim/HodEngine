@@ -304,10 +304,6 @@ namespace hod::inline editor
 		for (const std::filesystem::directory_entry& entry : entries)
 		{
 			Path path = entry.path().string().c_str();
-			if (path.HasExtension() && path.Extension().GetString() == ".meta")
-			{
-				continue;
-			}
 
 			if (entry.is_directory() == true)
 			{
@@ -500,20 +496,7 @@ namespace hod::inline editor
 
 		Path finalPath = GenerateUniqueAssetPath(newPath);
 
-		if (node._type == FileSystemMapping::Type::FolderType)
-		{
-			FileSystem::GetInstance()->Rename(node._path, finalPath);
-		}
-		else
-		{
-			FileSystem::GetInstance()->Rename(node._path, finalPath);
-			Path metaPath = node._path;
-			metaPath.Concat(".meta");
-			Path newMetaPath = finalPath;
-			newMetaPath.Concat(".meta");
-			FileSystem::GetInstance()->Rename(metaPath, newMetaPath);
-		}
-
+		FileSystem::GetInstance()->Rename(node._path, finalPath);
 		MoveNode(node, finalPath);
 	}
 
@@ -542,7 +525,6 @@ namespace hod::inline editor
 	void AssetDatabase::Delete(FileSystemMapping& node)
 	{
 		FileSystem::GetInstance()->RemoveAll(node._path);
-		FileSystem::GetInstance()->RemoveAll(node._path.Concat(".meta"));
 
 		DeleteNode(node);
 	}
