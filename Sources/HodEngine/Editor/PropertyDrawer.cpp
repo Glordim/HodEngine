@@ -19,8 +19,43 @@
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 
+#include <unordered_map>
+
 namespace hod::inline editor
 {
+	namespace
+	{
+		std::unordered_map<const EnumDescriptor*, PropertyDrawer::EnumValuePreview> enumValuePreviews;
+
+		void DrawEnumValuePreview(PropertyDrawer::EnumValuePreview preview, uint64_t value, const char* label)
+		{
+			if (preview != nullptr && ImGui::BeginItemTooltip())
+			{
+				if (label != nullptr)
+				{
+					ImGui::TextUnformatted(label);
+				}
+				preview(value);
+				ImGui::EndTooltip();
+			}
+		}
+	}
+
+	/// @brief
+	/// @param enumDescriptor
+	/// @param preview
+	void PropertyDrawer::SetEnumValuePreview(const EnumDescriptor& enumDescriptor, EnumValuePreview preview)
+	{
+		if (preview != nullptr)
+		{
+			enumValuePreviews[&enumDescriptor] = preview;
+		}
+		else
+		{
+			enumValuePreviews.erase(&enumDescriptor);
+		}
+	}
+
 	bool PropertyDrawer::DrawDescriptor(EditorReflectedObject& reflectedObject)
 	{
 		bool changed = false;
@@ -85,6 +120,9 @@ namespace hod::inline editor
 			}
 		}
 
+		auto                             it = enumValuePreviews.find(enumDescriptor);
+		PropertyDrawer::EnumValuePreview preview = (it != enumValuePreviews.end()) ? it->second : nullptr;
+
 		if (ImGui::BeginCombo("", label))
 		{
 			for (const std::pair<uint64_t, String>& enumValue : enumDescriptor->GetValues())
@@ -95,8 +133,13 @@ namespace hod::inline editor
 					value = static_cast<__TYPE__>(enumValue.first);
 					changed = true;
 				}
+				DrawEnumValuePreview(preview, enumValue.first, nullptr);
 			}
 			ImGui::EndCombo();
+		}
+		else if (mixed == false)
+		{
+			DrawEnumValuePreview(preview, static_cast<uint64_t>(value), label);
 		}
 
 		return changed;

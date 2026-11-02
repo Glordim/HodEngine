@@ -2,6 +2,7 @@
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorAnimationWindow.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/SerializedValueFormat.hpp"
+#include "HodEngine/UI2Editor/EasingPreview.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
@@ -1633,6 +1634,11 @@ namespace hod::inline editor
 					}
 					tab.RefreshAnimationPreview();
 					tab.MarkAsDirty("Key Easing");
+				}
+				if (ImGui::BeginItemTooltip())
+				{
+					DrawEasingPreview((ui2::AnimationKey::Easing)easing);
+					ImGui::EndTooltip();
 				}
 			}
 			ImGui::EndMenu();

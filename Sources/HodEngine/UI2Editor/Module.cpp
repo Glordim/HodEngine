@@ -3,6 +3,8 @@
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
 #include "HodEngine/Editor/EditorModuleRegistration.hpp"
+#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/UI2Editor/EasingPreview.hpp"
 #include "HodEngine/UI2Editor/CustomPropertyDrawer/NodeRefCustomPropertyDrawer.hpp"
 #include "HodEngine/UI2Editor/CustomPropertyDrawer/RectOffsetsCustomPropertyDrawer.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabCooker.hpp"
@@ -13,6 +15,9 @@
 
 #include <HodEngine/Core/Hash.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
+#include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
+#include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
+#include <HodEngine/UI2/AnimationClip.hpp>
 #include <HodEngine/UI2/Margin.hpp>
 #include <HodEngine/UI2/NodeRef.hpp>
 #include <HodEngine/UI2/Padding.hpp>
@@ -54,6 +59,14 @@ namespace
 		DocumentReaderJson documentReader;
 		return documentReader.Read(outDocument, *nodesDataBlock->_stream);
 	}
+
+	/// @brief The easing enum as UI2 registered it on its properties (a Button's TransitionEasing...): each module (DLL) has its
+	/// own instance of an enum's descriptor, this one's is UI2's.
+	const EnumDescriptor* GetEasingEnumDescriptor()
+	{
+		ReflectionPropertyVariable* property = ui2::AnimationKey::GetReflectionDescriptor().FindProperty<ReflectionPropertyVariable>("Easing");
+		return (property != nullptr) ? property->GetEnumDescriptor() : nullptr;
+	}
 }
 
 HOD_STARTUP_MODULE(UI2Editor)
@@ -67,6 +80,11 @@ HOD_STARTUP_MODULE(UI2Editor)
 	registration.RegisterCustomPropertyDrawer<ui2::NodeRefBase, NodeRefCustomPropertyDrawer>();
 
 	ui2::PrefabInstance::SetSourceProvider(&LoadUIPrefabAsset);
+
+	if (const EnumDescriptor* easingEnum = GetEasingEnumDescriptor())
+	{
+		PropertyDrawer::SetEnumValuePreview(*easingEnum, +[](uint64_t value) { DrawEasingPreview((ui2::AnimationKey::Easing)value); });
+	}
 
 	registration.RegisterCooker<UIPrefabCooker>("UIPrefab");
 	registration.RegisterResource<UIPrefabResource>("UIPrefab");
@@ -125,5 +143,9 @@ HOD_SHUTDOWN_MODULE(UI2Editor)
 {
 	registration.UnregisterAll();
 	ui2::PrefabInstance::SetSourceProvider(nullptr); // Its code goes with this module
+	if (const EnumDescriptor* easingEnum = GetEasingEnumDescriptor())
+	{
+		PropertyDrawer::SetEnumValuePreview(*easingEnum, nullptr);
+	}
 	return 0;
 }
