@@ -1,5 +1,6 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/EditorModuleRegistration.hpp"
+#include "HodEngine/Editor/AssetType.hpp"
 #include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
 #include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawerRegistry.hpp"
 #include "HodEngine/Editor/WindowFactory.hpp"
@@ -14,11 +15,17 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param assetType
-	/// @param renameHandler
-	void EditorModuleRegistration::RegisterRenameHandler(std::string_view assetType, AssetDatabase::RenameHandler renameHandler)
+	/// @return
+	bool EditorModuleRegistration::RegisterAssetType(AssetType* assetType)
 	{
-		AssetDatabase::GetInstance()->RegisterRenameHandler(assetType, renameHandler);
-		_renameHandlerAssetTypes.PushBack(String(assetType));
+		if (AssetDatabase::GetInstance()->RegisterAssetType(*assetType) == false)
+		{
+			DefaultAllocator::GetInstance().Delete(assetType);
+			return false;
+		}
+		_assetTypes.PushBack(assetType);
+		assetType->OnRegistered(*this);
+		return true;
 	}
 
 	/// @brief
@@ -95,35 +102,24 @@ namespace hod::inline editor
 		}
 		_dropActionIds.Clear();
 
-		// The tabs first: closing them can still use the asset types
-		for (const String& assetType : _editorTabAssetTypes)
-		{
-			Editor::GetInstance()->UnregisterEditorTab(assetType);
-		}
-		_editorTabAssetTypes.Clear();
-
-		for (const String& assetType : _renameHandlerAssetTypes)
-		{
-			AssetDatabase::GetInstance()->UnregisterRenameHandler(assetType);
-		}
-		_renameHandlerAssetTypes.Clear();
-
-		for (const String& assetType : _resourceAssetTypes)
-		{
-			AssetDatabase::GetInstance()->UnregisterResource(assetType);
-		}
-		_resourceAssetTypes.Clear();
-
-		for (const String& assetType : _cookerAssetTypes)
-		{
-			AssetDatabase::GetInstance()->UnregisterCooker(assetType);
-		}
-		_cookerAssetTypes.Clear();
-
+		// The importers before the asset types they import into
 		for (void (*importerUnregister)() : _importerUnregisters)
 		{
 			importerUnregister();
 		}
 		_importerUnregisters.Clear();
+
+		// Their tabs first: closing them can still use the asset types
+		for (AssetType* assetType : _assetTypes)
+		{
+			Editor::GetInstance()->CloseEditorTabsOf(assetType->GetHashV());
+		}
+		for (AssetType* assetType : _assetTypes)
+		{
+			assetType->OnUnregistered();
+			AssetDatabase::GetInstance()->UnregisterAssetType(*assetType);
+			DefaultAllocator::GetInstance().Delete(assetType);
+		}
+		_assetTypes.Clear();
 	}
 }

@@ -1,5 +1,6 @@
 #include "HodEngine/RendererEditor/Pch.hpp"
 #include "HodEngine/RendererEditor/FontEditor/FontHelper.hpp"
+#include "HodEngine/RendererEditor/FontEditor/FontAssetType.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetContainer.hpp"
@@ -9,7 +10,6 @@
 
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentWriterJson.hpp>
-#include <HodEngine/Core/Hash.hpp>
 #include <HodEngine/Core/Math.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 #include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
@@ -158,7 +158,7 @@ namespace hod::inline editor
 		}
 
 		AssetContainer assetContainer;
-		assetContainer.SetAssetType(Hash::ComputeXxh3_64("Font"));
+		assetContainer.SetAssetType(FontAssetType::GetHash());
 		assetContainer.SetUid(UID::GenerateUID());
 
 		Stream&            settingsStream = assetContainer.AddDataBlock("Settings", false);

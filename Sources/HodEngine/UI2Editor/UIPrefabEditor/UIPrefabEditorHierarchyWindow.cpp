@@ -1,5 +1,6 @@
 #include "HodEngine/UI2Editor/Pch.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorHierarchyWindow.hpp"
+#include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabAssetType.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/Asset.hpp"
@@ -14,7 +15,6 @@
 #include <HodEngine/UI2/Node.hpp>
 #include <HodEngine/UI2/NodeFactory.hpp>
 #include <HodEngine/UI2/PrefabInstance.hpp>
-#include <HodEngine/Core/Hash.hpp>
 #include <HodEngine/Core/Memory/DefaultAllocator.hpp>
 
 #include <algorithm>
@@ -424,7 +424,7 @@ namespace hod::inline editor
 			if (assetPayload != nullptr && assetPayload->IsDataType("FileSystemMapping"))
 			{
 				AssetDatabase::FileSystemMapping* mapping = *static_cast<AssetDatabase::FileSystemMapping**>(assetPayload->Data);
-				if (mapping->_asset != nullptr && mapping->_asset->GetType() == Hash::ComputeXxh3_64("UIPrefab") && ImGui::AcceptDragDropPayload("FileSystemMapping") != nullptr)
+				if (mapping->_asset != nullptr && mapping->_asset->GetType() == UIPrefabAssetType::GetHash() && ImGui::AcceptDragDropPayload("FileSystemMapping") != nullptr)
 				{
 					if (tab->InstantiatePrefab(mapping->_asset->GetUid(), node) != nullptr)
 					{

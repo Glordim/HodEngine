@@ -5,6 +5,7 @@
 #include "HodEngine/Core/Hash.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/RendererEditor/MaterialEditor/MaterialImporter.hpp"
+#include "HodEngine/RendererEditor/MaterialEditor/MaterialAssetType.hpp"
 
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"
 
@@ -118,7 +119,7 @@ namespace hod::inline editor
 	MaterialImporter::MaterialImporter()
 	{
 		SetAssetExtension("material");
-		SetAssetType("Material");
+		SetAssetType<MaterialAssetType>();
 	}
 
 	bool MaterialImporter::FillDataBlock(Stream& source, ImporterSettings* importSettings)

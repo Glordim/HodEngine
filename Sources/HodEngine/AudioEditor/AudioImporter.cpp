@@ -2,6 +2,7 @@
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/AudioEditor/AudioImporter.hpp"
+#include "HodEngine/AudioEditor/AudioAssetType.hpp"
 
 #include <cstdint>
 
@@ -10,7 +11,7 @@ namespace hod::inline editor
 	AudioImporter::AudioImporter()
 	{
 		SetAssetExtension("audio");
-		SetAssetType("Audio");
+		SetAssetType<AudioAssetType>();
 	}
 
 	/// @brief

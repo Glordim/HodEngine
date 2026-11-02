@@ -23,6 +23,7 @@
 namespace hod::inline editor
 {
 	class Asset;
+	class AssetType;
 	class Project;
 	class Importer;
 	class Cooker;
@@ -75,8 +76,8 @@ namespace hod::inline editor
 		Cooker* AcquireCooker(uint64_t type);
 		void    ReleaseCooker(Cooker* cooker);
 
-		/// @brief Name an asset type was registered with (RegisterCooker), empty if unknown
-		std::string_view GetAssetTypeName(uint64_t assetType) const;
+		/// @brief The registered type of this hash (Asset::GetType()), nullptr if none
+		const AssetType* FindAssetType(uint64_t assetType) const;
 
 		/// @brief Same as AcquireCooker/ReleaseCooker, for Importer batch/parallel usage.
 		Importer* AcquireImporter(std::string_view extension);
@@ -99,32 +100,25 @@ namespace hod::inline editor
 		void Move(FileSystemMapping& node, const Path& newPath);
 		void Delete(FileSystemMapping& node);
 
+		/// @brief By the editor module adding the type (through EditorModuleRegistration, which owns it)
+		/// @return false (with an error) if a type of the same hash is registered already: by one module only
+		bool RegisterAssetType(const AssetType& assetType);
 
-		template<typename _Cooker_>
-		bool                   RegisterCooker(std::string_view assetType);
-
+		/// @brief Its asset type is expected registered first (warned otherwise)
+		/// @return false (with an error) if one of the extensions has an importer already: nothing registered then
 		template<typename _Importer_, typename... Args>
-		bool                   RegisterImporter(Args... extensions);
+		bool RegisterImporter(Args... extensions);
 
-		template<typename _Resource_>
-		bool                   RegisterResource(std::string_view assetType);
-
-		// By the editor modules when they unload (through EditorModuleRegistration): their factories are in their code
-		void                   UnregisterCooker(std::string_view assetType);
+		// By the editor modules when they unload (through EditorModuleRegistration): their code goes with them
+		void UnregisterAssetType(const AssetType& assetType);
 		template<typename _Importer_>
-		void                   UnregisterImporter();
-		void                   UnregisterResource(std::string_view assetType);
-
-		/// @brief Called on an asset of assetType given another name (not only moved to another folder), by Move or on disk, once
-		/// its path is the new one: for the asset types holding their name (a UI prefab's root...). One per asset type.
-		using RenameHandler = void (*)(Asset& asset);
-		void                   RegisterRenameHandler(std::string_view assetType, RenameHandler renameHandler);
-		void                   UnregisterRenameHandler(std::string_view assetType);
+		void UnregisterImporter();
 
 		bool ReimportAssetIfNecessary(std::shared_ptr<Asset> asset);
 
-		/// @brief expectedSubType, when non-zero, additionally restricts the result to assets whose cooked
-		/// asset subType (row/item RttiType, see ReflectionTraitAssetSubType) matches.
+		/// @brief The assets of the types cooking into resourceDescriptor (AssetType::GetCookedResource()). expectedSubType, when
+		/// non-zero, additionally restricts the result to assets whose cooked asset subType (row/item RttiType, see
+		/// ReflectionTraitAssetSubType) matches.
 		void ListAsset(Vector<FileSystemMapping*>& result, const FileSystemMapping& from, const ReflectionDescriptor& resourceDescriptor, uint64_t expectedSubType = 0);
 
 		void UpdateFileWatchers();
@@ -171,30 +165,16 @@ namespace hod::inline editor
 		void             UnregisterImporter(Importer* (*factory)());
 
 	private:
-		/// @brief One entry per registered Cooker type. _assetType is cached at registration so matching a
-		/// type doesn't require an instance. Acquire allocates a fresh instance via _factory, Release
-		/// destroys it, so concurrent batch jobs on the same type never share an instance. _cookerEntries is
-		/// only changed at startup (RegisterCooker) and when an editor module unloads, while no Cook job runs, so no locking is needed.
-		struct CookerEntry
-		{
-			Cooker* (*_factory)() = nullptr;
-			uint64_t _assetType = 0;
-			String   _assetTypeName;
-		};
-
-		/// @brief Same as CookerEntry, for Importer; matching is by supported file extension instead of a
-		/// single type value, so _extensions is a list instead of a scalar.
+		/// @brief One entry per registered importer type, matched by supported file extension. AcquireImporter allocates a fresh
+		/// instance via _factory, ReleaseImporter destroys it, so concurrent batch jobs never share an instance. The entries (and
+		/// _assetTypes) are only changed at startup and when an editor module unloads, while no import/cook job runs, so no
+		/// locking is needed.
 		struct ImporterEntry
 		{
 			Importer* (*_factory)() = nullptr;
 			Vector<String> _extensions;
 		};
-
-		struct ResourceEntry
-		{
-			const ReflectionDescriptor* _resourceDescriptor = nullptr;
-			uint64_t _assetType = 0;
-		};
+		bool HasImporter(std::string_view extension) const;
 
 		std::map<UID, std::shared_ptr<Asset>> _uidToAssetMap;
 		std::unordered_multimap<Path, std::shared_ptr<Asset>> _sourcePathToAssetMap;
@@ -206,13 +186,10 @@ namespace hod::inline editor
 		Vector<PendingChange> _pendingAssetChanges;
 		Vector<PendingChange> _pendingSourceChanges;
 
-		Vector<ImporterEntry*> _importerEntries;
-		Vector<CookerEntry*> _cookerEntries;
-		Vector<ResourceEntry*> _resourceEntries;
+		Vector<ImporterEntry*>   _importerEntries;
+		Vector<const AssetType*> _assetTypes; // Owned by the EditorModuleRegistration of their module
 
 		MemberFunctionJob<AssetDatabase> _updateJob;
-
-		std::unordered_map<uint64_t, RenameHandler> _renameHandlers; // By asset type
 	};
 }
 

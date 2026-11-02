@@ -2,11 +2,8 @@
 #include "HodEngine/AudioEditor/Module.hpp"
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
-#include "HodEngine/AudioEditor/AudioCooker.hpp"
-#include "HodEngine/AudioEditor/AudioEditorTab.hpp"
+#include "HodEngine/AudioEditor/AudioAssetType.hpp"
 #include "HodEngine/AudioEditor/AudioImporter.hpp"
-
-#include "HodEngine/Audio/AudioResource.hpp"
 
 #include "HodEngine/Editor/EditorModuleRegistration.hpp"
 
@@ -17,9 +14,9 @@ using namespace hod::editor;
 
 HOD_STARTUP_EDITOR_MODULE(AudioEditor, registration)
 {
-	registration.RegisterImporter<AudioImporter>("wav");
-	registration.RegisterCooker<AudioCooker>("Audio");
-	registration.RegisterResource<AudioResource>("Audio");
-	registration.RegisterEditorTab<AudioEditorTab>("Audio");
+	if (registration.RegisterAssetType<AudioAssetType>())
+	{
+		registration.RegisterImporter<AudioImporter>("wav");
+	}
 	return 0;
 }

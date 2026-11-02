@@ -20,12 +20,14 @@ namespace hod::inline core
 
 namespace hod::inline editor
 {
+	class AssetType;
 	class CustomPropertyDrawer;
 	class CustomComponentDrawer;
 
-	/// @brief What an editor module adds to the editor (importers, cookers, resources, tabs, asset browser actions, drawers, windows).
-	/// Registered through it in HOD_STARTUP_MODULE, all of it is unregistered by UnregisterAll in HOD_SHUTDOWN_MODULE
-	/// (or the destructor): the module code goes away on unload, "Hot Reload" included.
+	/// @brief What an editor module adds to the editor (importers, asset types, asset browser actions, drawers, windows). Given
+	/// to the module's startup by the editor (see HOD_DECLARE_EDITOR_MODULE), which unregisters all of it (UnregisterAll, or the
+	/// destructor) before unloading the module: its code goes away, "Hot Reload" included. Only what was actually registered is
+	/// unregistered: what another module has registered already is refused, not taken over.
 	class HOD_EDITOR_API EditorModuleRegistration
 	{
 	public:
@@ -38,19 +40,15 @@ namespace hod::inline editor
 		EditorModuleRegistration& operator=(EditorModuleRegistration&&) = delete;
 
 	public:
+		/// @brief An instance of _AssetType_ (see AssetType), owned by the registration, then what it adds (AssetType::OnRegistered)
+		/// @return false (with an error) if the type is registered already (by another module): nothing registered then
+		template<typename _AssetType_>
+		bool RegisterAssetType();
+
+		/// @brief After the asset type it imports into (see Importer::SetAssetType)
+		/// @return false (with an error) if one of the extensions has an importer already
 		template<typename _Importer_, typename... Args>
-		void RegisterImporter(Args... extensions);
-
-		template<typename _Cooker_>
-		void RegisterCooker(std::string_view assetType);
-
-		template<typename _Resource_>
-		void RegisterResource(std::string_view assetType);
-
-		template<typename _EditorTabType_>
-		void RegisterEditorTab(std::string_view assetType);
-
-		void RegisterRenameHandler(std::string_view assetType, AssetDatabase::RenameHandler renameHandler);
+		bool RegisterImporter(Args... extensions);
 
 		void RegisterContextualMenuAction(AssetBrowserWindow::ContextualMenuAction contextualMenuAction);
 		void RegisterDropAction(AssetBrowserWindow::DropAction dropAction);
@@ -72,11 +70,12 @@ namespace hod::inline editor
 		void UnregisterAll();
 
 	private:
+		/// @param assetType Owned by the registration, deleted right away if refused
+		bool RegisterAssetType(AssetType* assetType);
+
+	private:
 		Vector<void (*)()> _importerUnregisters; // One per importer type, the importers being identified by their type
-		Vector<String>     _cookerAssetTypes;
-		Vector<String>     _resourceAssetTypes;
-		Vector<String>     _editorTabAssetTypes;
-		Vector<String>     _renameHandlerAssetTypes;
+		Vector<AssetType*> _assetTypes;
 		Vector<uint32_t>   _contextualMenuActionIds;
 		Vector<uint32_t>   _dropActionIds;
 
@@ -85,32 +84,21 @@ namespace hod::inline editor
 		Vector<ReflectionDescriptor*>       _windowDescriptors;
 	};
 
+	template<typename _AssetType_>
+	bool EditorModuleRegistration::RegisterAssetType()
+	{
+		return RegisterAssetType(DefaultAllocator::GetInstance().New<_AssetType_>());
+	}
+
 	template<typename _Importer_, typename... Args>
-	void EditorModuleRegistration::RegisterImporter(Args... extensions)
+	bool EditorModuleRegistration::RegisterImporter(Args... extensions)
 	{
-		AssetDatabase::GetInstance()->RegisterImporter<_Importer_>(extensions...);
+		if (AssetDatabase::GetInstance()->RegisterImporter<_Importer_>(extensions...) == false)
+		{
+			return false;
+		}
 		_importerUnregisters.PushBack(+[]() { AssetDatabase::GetInstance()->UnregisterImporter<_Importer_>(); });
-	}
-
-	template<typename _Cooker_>
-	void EditorModuleRegistration::RegisterCooker(std::string_view assetType)
-	{
-		AssetDatabase::GetInstance()->RegisterCooker<_Cooker_>(assetType);
-		_cookerAssetTypes.PushBack(String(assetType));
-	}
-
-	template<typename _Resource_>
-	void EditorModuleRegistration::RegisterResource(std::string_view assetType)
-	{
-		AssetDatabase::GetInstance()->RegisterResource<_Resource_>(assetType);
-		_resourceAssetTypes.PushBack(String(assetType));
-	}
-
-	template<typename _EditorTabType_>
-	void EditorModuleRegistration::RegisterEditorTab(std::string_view assetType)
-	{
-		Editor::GetInstance()->RegisterEditorTab<_EditorTabType_>(assetType);
-		_editorTabAssetTypes.PushBack(String(assetType));
+		return true;
 	}
 
 	template<typename _Type_, typename _Drawer_>

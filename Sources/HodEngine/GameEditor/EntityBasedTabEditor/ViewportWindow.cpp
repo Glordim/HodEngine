@@ -1,9 +1,9 @@
 #include "HodEngine/GameEditor/Pch.hpp"
-#include "HodEngine/Core/Hash.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/GameEditor/EntityBasedTabEditor/EntityEditorTab.hpp"
+#include "HodEngine/GameEditor/PrefabEditor/PrefabAssetType.hpp"
 #include "HodEngine/GameEditor/EntityBasedTabEditor/ViewportWindow.hpp"
 
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
@@ -452,7 +452,7 @@ namespace hod::inline editor
 						std::shared_ptr<Asset>            asset = node->_asset;
 						if (asset != nullptr)
 						{
-							if (asset->GetType() == Hash::ComputeXxh3_64("Prefab"))
+							if (asset->GetType() == PrefabAssetType::GetHash())
 							{
 								std::shared_ptr<PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<PrefabResource>(asset->GetUid());
 

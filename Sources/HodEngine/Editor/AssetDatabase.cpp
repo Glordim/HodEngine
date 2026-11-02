@@ -3,6 +3,7 @@
 #include "HodEngine/Editor/AssetDatabase.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetType.hpp"
 #include "HodEngine/Editor/Cooker/Cooker.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
@@ -61,16 +62,6 @@ namespace hod::inline editor
 		_uidToAssetMap.clear();
 
 		for (ImporterEntry* entry : _importerEntries)
-		{
-			DefaultAllocator::GetInstance().Delete(entry);
-		}
-
-		for (CookerEntry* entry : _cookerEntries)
-		{
-			DefaultAllocator::GetInstance().Delete(entry);
-		}
-
-		for (ResourceEntry* entry : _resourceEntries)
 		{
 			DefaultAllocator::GetInstance().Delete(entry);
 		}
@@ -548,34 +539,13 @@ namespace hod::inline editor
 
 	Cooker* AssetDatabase::AcquireCooker(uint64_t type)
 	{
-		for (CookerEntry* entry : _cookerEntries)
-		{
-			if (entry->_assetType == type)
-			{
-				return entry->_factory();
-			}
-		}
-		return nullptr;
+		const AssetType* assetType = FindAssetType(type);
+		return (assetType != nullptr) ? assetType->CreateCooker() : nullptr;
 	}
 
 	void AssetDatabase::ReleaseCooker(Cooker* cooker)
 	{
 		DefaultAllocator::GetInstance().Delete(cooker);
-	}
-
-	/// @brief
-	/// @param assetType
-	/// @return
-	std::string_view AssetDatabase::GetAssetTypeName(uint64_t assetType) const
-	{
-		for (const CookerEntry* entry : _cookerEntries)
-		{
-			if (entry->_assetType == assetType)
-			{
-				return std::string_view(entry->_assetTypeName.CStr(), entry->_assetTypeName.Length());
-			}
-		}
-		return std::string_view();
 	}
 
 	Importer* AssetDatabase::AcquireImporter(std::string_view extension)
@@ -601,18 +571,65 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param assetType
-	void AssetDatabase::UnregisterCooker(std::string_view assetType)
+	/// @return
+	const AssetType* AssetDatabase::FindAssetType(uint64_t assetType) const
 	{
-		const uint64_t type = Hash::ComputeXxh3_64(assetType);
-		for (uint32_t index = 0; index < _cookerEntries.Size(); ++index)
+		for (const AssetType* registeredAssetType : _assetTypes)
 		{
-			if (_cookerEntries[index]->_assetType == type)
+			if (registeredAssetType->GetHashV() == assetType)
 			{
-				DefaultAllocator::GetInstance().Delete(_cookerEntries[index]);
-				_cookerEntries.Erase(index);
+				return registeredAssetType;
+			}
+		}
+		return nullptr;
+	}
+
+	/// @brief
+	/// @param assetType
+	/// @return
+	bool AssetDatabase::RegisterAssetType(const AssetType& assetType)
+	{
+		if (FindAssetType(assetType.GetHashV()) != nullptr)
+		{
+			OUTPUT_ERROR("AssetDatabase::RegisterAssetType: the asset type {} is registered already", assetType.GetNameV());
+			return false;
+		}
+
+		_assetTypes.PushBack(&assetType);
+		return true;
+	}
+
+	/// @brief
+	/// @param assetType
+	void AssetDatabase::UnregisterAssetType(const AssetType& assetType)
+	{
+		for (uint32_t index = 0; index < _assetTypes.Size(); ++index)
+		{
+			if (_assetTypes[index] == &assetType)
+			{
+				_assetTypes.Erase(index);
 				return;
 			}
 		}
+	}
+
+	/// @brief
+	/// @param extension
+	/// @return
+	bool AssetDatabase::HasImporter(std::string_view extension) const
+	{
+		String extensionLower = ToLowerCopy(extension);
+		for (const ImporterEntry* entry : _importerEntries)
+		{
+			for (const String& supportedExtension : entry->_extensions)
+			{
+				if (extensionLower == supportedExtension)
+				{
+					return true;
+				}
+			}
+		}
+		return false;
 	}
 
 	/// @brief
@@ -631,60 +648,18 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @param assetType
-	void AssetDatabase::UnregisterResource(std::string_view assetType)
-	{
-		const uint64_t type = Hash::ComputeXxh3_64(assetType);
-		for (uint32_t index = 0; index < _resourceEntries.Size(); ++index)
-		{
-			if (_resourceEntries[index]->_assetType == type)
-			{
-				DefaultAllocator::GetInstance().Delete(_resourceEntries[index]);
-				_resourceEntries.Erase(index);
-				return;
-			}
-		}
-	}
-
-	/// @brief
-	/// @param assetType
-	/// @param renameHandler
-	void AssetDatabase::RegisterRenameHandler(std::string_view assetType, RenameHandler renameHandler)
-	{
-		_renameHandlers[Hash::ComputeXxh3_64(assetType)] = renameHandler;
-	}
-
-	/// @brief
-	/// @param assetType
-	void AssetDatabase::UnregisterRenameHandler(std::string_view assetType)
-	{
-		_renameHandlers.erase(Hash::ComputeXxh3_64(assetType));
-	}
-
-	/// @brief
 	/// @param result
 	/// @param from
 	/// @param resourceDescriptor
 	void AssetDatabase::ListAsset(Vector<FileSystemMapping*>& result, const FileSystemMapping& from, const ReflectionDescriptor& resourceDescriptor, uint64_t expectedSubType)
 	{
-		uint64_t assetType = 0;
-		for (const ResourceEntry* resourceEntry : _resourceEntries)
-		{
-			if (resourceEntry->_resourceDescriptor == &resourceDescriptor)
-			{
-				assetType = resourceEntry->_assetType;
-				break;
-			}
-		}
-		if (assetType == 0)
-		{
-			OUTPUT_ERROR("AssetDatabase::ListAsset: No assetType associated to resourceDescriptor");
-			return;
-		}
-
 		for (FileSystemMapping* assetNode : from._childrenAsset)
 		{
-			if (assetType == assetNode->_asset->GetType() && (expectedSubType == 0 || assetNode->_asset->GetSubType() == expectedSubType))
+			// Compared by type: each module (DLL) has its own instance of a descriptor
+			const AssetType*            assetType = FindAssetType(assetNode->_asset->GetType());
+			const ReflectionDescriptor* cookedResource = (assetType != nullptr) ? assetType->GetCookedResource() : nullptr;
+			if (cookedResource != nullptr && cookedResource->GetType() == resourceDescriptor.GetType() &&
+			    (expectedSubType == 0 || assetNode->_asset->GetSubType() == expectedSubType))
 			{
 				result.push_back(assetNode);
 			}
@@ -763,10 +738,10 @@ namespace hod::inline editor
 			{
 				String oldName = node._asset->GetName();
 				node._asset->SetPath(newPath);
-				auto it = _renameHandlers.find(node._asset->GetType());
-				if (node._asset->GetName() != oldName && it != _renameHandlers.end())
+				const AssetType* assetType = FindAssetType(node._asset->GetType());
+				if (node._asset->GetName() != oldName && assetType != nullptr)
 				{
-					it->second(*node._asset);
+					assetType->OnRenamed(*node._asset);
 				}
 			}
 		}

@@ -1,9 +1,9 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Core/Hash.hpp"
 #include "HodEngine/Core/Math.hpp"
 #include "HodEngine/Core/ScopedGuard.hpp"
 #include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/Editor/AssetType.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
@@ -1287,37 +1287,9 @@ namespace hod::inline editor
 			return thumbnailTexture;
 		}
 
-		Editor*  editor = Editor::GetInstance();
-		uint64_t type = asset.GetType();
-		if (type == Hash::ComputeXxh3_64("Prefab"))
-		{
-			return editor->GetPrefabTexture();
-		}
-		if (type == Hash::ComputeXxh3_64("Scene"))
-		{
-			return editor->GetSceneTexture();
-		}
-		if (type == Hash::ComputeXxh3_64("Material"))
-		{
-			return editor->GetMaterialTexture();
-		}
-		if (type == Hash::ComputeXxh3_64("Font") || type == Hash::ComputeXxh3_64("FontFace"))
-		{
-			return editor->GetFontTexture();
-		}
-		if (type == Hash::ComputeXxh3_64("Audio"))
-		{
-			return editor->GetAudioTexture();
-		}
-		if (type == Hash::ComputeXxh3_64("DataItem"))
-		{
-			return editor->GetDataItemTexture();
-		}
-		if (type == Hash::ComputeXxh3_64("DataTable"))
-		{
-			return editor->GetDataTableTexture();
-		}
-		return editor->GetCheckerTexture();
+		const AssetType* assetType = AssetDatabase::GetInstance()->FindAssetType(asset.GetType());
+		Texture*         icon = (assetType != nullptr) ? assetType->GetIcon() : nullptr;
+		return (icon != nullptr) ? icon : Editor::GetInstance()->GetCheckerTexture();
 	}
 
 	/// @brief
@@ -1478,7 +1450,8 @@ namespace hod::inline editor
 
 		if (isAsset)
 		{
-			std::string_view typeName = AssetDatabase::GetInstance()->GetAssetTypeName(item->_asset->GetType());
+			const AssetType* assetType = AssetDatabase::GetInstance()->FindAssetType(item->_asset->GetType());
+			std::string_view typeName = (assetType != nullptr) ? assetType->GetNameV() : std::string_view();
 			const ImVec2     typeMin(nameMin.x, nameMax.y);
 			const ImVec2     typeMax(nameMax.x, typeMin.y + lineHeight);
 			ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));

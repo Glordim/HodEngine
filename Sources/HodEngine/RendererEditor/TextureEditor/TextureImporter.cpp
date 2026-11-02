@@ -2,6 +2,7 @@
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/RendererEditor/TextureEditor/TextureImporter.hpp"
+#include "HodEngine/RendererEditor/TextureEditor/TextureAssetType.hpp"
 
 #include <cstdint>
 #include <stb_image.h>
@@ -12,7 +13,7 @@ namespace hod::inline editor
 	TextureImporter::TextureImporter()
 	{
 		SetAssetExtension("texture");
-		SetAssetType("Texture");
+		SetAssetType<TextureAssetType>();
 	}
 
 	bool TextureImporter::FillDataBlock(Stream& source, ImporterSettings* /*importSettings*/)

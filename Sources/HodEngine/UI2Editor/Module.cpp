@@ -7,25 +7,15 @@
 #include "HodEngine/UI2Editor/EasingPreview.hpp"
 #include "HodEngine/UI2Editor/CustomPropertyDrawer/NodeRefCustomPropertyDrawer.hpp"
 #include "HodEngine/UI2Editor/CustomPropertyDrawer/RectOffsetsCustomPropertyDrawer.hpp"
-#include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabCooker.hpp"
-#include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
+#include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabAssetType.hpp"
 
-#include "HodEngine/Editor/AssetContainer.hpp"
-#include "HodEngine/Editor/AssetDatabase.hpp"
 
-#include <HodEngine/Core/Hash.hpp>
-#include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <HodEngine/UI2/AnimationClip.hpp>
 #include <HodEngine/UI2/Margin.hpp>
 #include <HodEngine/UI2/NodeRef.hpp>
 #include <HodEngine/UI2/Padding.hpp>
-#include <HodEngine/UI2/PrefabInstance.hpp>
-#include <HodEngine/UI2/UIPrefabResource.hpp>
-#include "HodEngine/Editor/Asset.hpp"
-#include <HodEngine/Core/Document/DocumentReaderJson.hpp>
-#include <HodEngine/Core/Document/DocumentWriterJson.hpp>
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
@@ -34,69 +24,6 @@ using namespace hod::editor;
 
 namespace
 {
-	/// @brief The nested prefabs' instances are built from the UI prefab assets as last saved, rather than from the cooked
-	/// resources (see ui2::PrefabInstance::SourceProvider): a resource still in use isn't reloaded when its asset changes.
-	bool LoadUIPrefabAsset(const UID& prefab, Document& outDocument)
-	{
-		std::shared_ptr<Asset> asset = AssetDatabase::GetInstance()->Find(prefab);
-		if (asset == nullptr || asset->GetType() != Hash::ComputeXxh3_64("UIPrefab"))
-		{
-			return false;
-		}
-
-		AssetContainer assetContainer;
-		if (assetContainer.Load(asset->GetPath()) == false)
-		{
-			return false;
-		}
-		const AssetContainer::DataBlockInfo* nodesDataBlock = assetContainer.FindDataBlock("Nodes");
-		if (nodesDataBlock == nullptr)
-		{
-			return false;
-		}
-
-		DocumentReaderJson documentReader;
-		if (documentReader.Read(outDocument, *nodesDataBlock->_stream) == false)
-		{
-			return false;
-		}
-		// A prefab renamed outside of the editor, or saved before its root was named after it, isn't renamed in its file yet
-		UIPrefabEditorTab::NamePrefabRootAfterAsset(outDocument, asset->GetName());
-		return true;
-	}
-
-	/// @brief A UI prefab's root is named after its asset (see UIPrefabEditorTab::CanRename): renamed in its file along with it,
-	/// its instances following (with their name as an override only when given one of their own)
-	void OnUIPrefabRenamed(Asset& asset)
-	{
-		AssetContainer assetContainer;
-		if (assetContainer.Load(asset.GetPath()) == false)
-		{
-			return;
-		}
-		const AssetContainer::DataBlockInfo* nodesDataBlock = assetContainer.FindDataBlock("Nodes");
-		Document                             document;
-		DocumentReaderJson                   documentReader;
-		if (nodesDataBlock == nullptr || documentReader.Read(document, *nodesDataBlock->_stream) == false)
-		{
-			OUTPUT_ERROR("Can't read the UI prefab {} to name its root after it", asset.GetPath());
-			return;
-		}
-		if (UIPrefabEditorTab::NamePrefabRootAfterAsset(document, asset.GetName()) == false)
-		{
-			return;
-		}
-
-		DocumentWriterJson documentWriter;
-		if (documentWriter.Write(document, assetContainer.AddDataBlock("Nodes", false)) == false || assetContainer.Save(asset.GetPath()) == false)
-		{
-			OUTPUT_ERROR("Can't write the UI prefab {} to name its root after it", asset.GetPath());
-			return;
-		}
-		// The open tabs' instances of it are rebuilt as after a save (an open tab of the prefab itself follows on its own)
-		UIPrefabEditorTab::NotifyPrefabWritten(asset.GetUid());
-	}
-
 	/// @brief The easing enum as UI2 registered it on its properties (a Button's TransitionEasing...): each module (DLL) has its
 	/// own instance of an enum's descriptor, this one's is UI2's.
 	const EnumDescriptor* GetEasingEnumDescriptor()
@@ -116,70 +43,18 @@ HOD_STARTUP_EDITOR_MODULE(UI2Editor, registration)
 
 	registration.RegisterCustomPropertyDrawer<ui2::NodeRefBase, NodeRefCustomPropertyDrawer>();
 
-	ui2::PrefabInstance::SetSourceProvider(&LoadUIPrefabAsset);
-
 	if (const EnumDescriptor* easingEnum = GetEasingEnumDescriptor())
 	{
 		PropertyDrawer::SetEnumValuePreview(*easingEnum, +[](uint64_t value) { DrawEasingPreview((ui2::AnimationKey::Easing)value); });
 	}
 
-	registration.RegisterCooker<UIPrefabCooker>("UIPrefab");
-	registration.RegisterResource<UIPrefabResource>("UIPrefab");
-	registration.RegisterEditorTab<UIPrefabEditorTab>("UIPrefab");
-	registration.RegisterRenameHandler("UIPrefab", &OnUIPrefabRenamed);
+	registration.RegisterAssetType<UIPrefabAssetType>();
 
-	registration.RegisterContextualMenuAction({
-		.path = "Create/UI Prefab",
-		.group = "New",
-		.available = +[](const AssetBrowserWindow::Context& context) { return context.selectedItems.Empty(); },
-		.execute =
-			+[](const AssetBrowserWindow::Context& context)
-			{
-				// With its root and thumbnail already: not an empty thumbnail until the prefab is first saved
-				Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / "NewUIPrefab.uiprefab");
-				if (UIPrefabEditorTab::CreateEmptyPrefab(assetPath) == false)
-				{
-					OUTPUT_ERROR("Can't write the UI prefab {}", assetPath);
-					return;
-				}
-
-				context.assetBrowserWindow.Rename(assetPath);
-			},
-	});
-
-	// A node dragged from a UI prefab's hierarchy becomes a UI prefab of its own, the node an instance of it
-	registration.RegisterDropAction({
-		.payloadType = "UI2Node",
-		.available =
-			+[](const void* payloadData)
-			{
-				ui2::Node* node = *static_cast<ui2::Node* const*>(payloadData);
-				UIPrefabEditorTab* tab = UIPrefabEditorTab::FindTabOf(node);
-				return tab != nullptr && UIPrefabEditorTab::GetNodeRole(node) == UIPrefabEditorTab::NodeRole::Authored && tab->IsRecording() == false &&
-				       tab->IsPlaying() == false;
-			},
-		.execute =
-			+[](const void* payloadData, const Path& folder, AssetBrowserWindow& assetBrowserWindow)
-			{
-				ui2::Node* node = *static_cast<ui2::Node* const*>(payloadData);
-				UIPrefabEditorTab* tab = UIPrefabEditorTab::FindTabOf(node);
-				if (tab == nullptr)
-				{
-					return;
-				}
-				std::shared_ptr<Asset> asset = tab->CreatePrefabFromNode(node, folder);
-				if (asset != nullptr)
-				{
-					assetBrowserWindow.PingAsset(*asset);
-				}
-			},
-	});
 	return 0;
 }
 
 HOD_SHUTDOWN_EDITOR_MODULE(UI2Editor)
 {
-	ui2::PrefabInstance::SetSourceProvider(nullptr); // Its code goes with this module
 	if (const EnumDescriptor* easingEnum = GetEasingEnumDescriptor())
 	{
 		PropertyDrawer::SetEnumValuePreview(*easingEnum, nullptr);

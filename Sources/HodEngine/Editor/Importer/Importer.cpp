@@ -31,11 +31,6 @@ namespace hod::inline editor
 		(void)reflectionDescriptor;
 	}
 
-	void Importer::SetAssetType(std::string_view assetType)
-	{
-		_assetType = Hash::ComputeXxh3_64(assetType);
-	}
-
 	bool Importer::Import(const Path& sourcePath, const Path& destinationPath, const UID& uid, ImporterSettings* importSettings, uint64_t taskId)
 	{
 		_taskId = taskId;

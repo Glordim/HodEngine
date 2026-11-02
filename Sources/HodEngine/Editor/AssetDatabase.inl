@@ -1,3 +1,4 @@
+#include <HodEngine/Core/Output/OutputService.hpp>
 
 namespace hod::inline editor
 {
@@ -7,7 +8,24 @@ namespace hod::inline editor
 	template<typename _Importer_, typename... Args>
 	bool AssetDatabase::RegisterImporter(Args... extensions)
 	{
-		// TODO check duplicate
+		for (const char* extension : {extensions...})
+		{
+			if (HasImporter(extension))
+			{
+				OUTPUT_ERROR("AssetDatabase::RegisterImporter: the extension {} has an importer already", extension);
+				return false;
+			}
+		}
+
+		// The asset type it imports into is known from an instance only (see Importer::SetAssetType)
+		_Importer_* importer = DefaultAllocator::GetInstance().New<_Importer_>();
+		if (FindAssetType(importer->GetAssetType()) == nullptr)
+		{
+			OUTPUT_WARNING("AssetDatabase::RegisterImporter: the importer of the .{} assets imports into an asset type not registered (register it first)",
+			               importer->GetAssetExtension());
+		}
+		DefaultAllocator::GetInstance().Delete(importer);
+
 		ImporterEntry* entry = DefaultAllocator::GetInstance().New<ImporterEntry>();
 		entry->_factory = &NewImporter<_Importer_>;
 		for (const char* extension : {extensions...})
@@ -29,31 +47,6 @@ namespace hod::inline editor
 	Importer* AssetDatabase::NewImporter()
 	{
 		return DefaultAllocator::GetInstance().New<_Importer_>();
-	}
-
-	template<typename _Cooker_>
-	bool AssetDatabase::RegisterCooker(std::string_view assetType)
-	{
-		// TODO check duplicate
-		CookerEntry* entry = DefaultAllocator::GetInstance().New<CookerEntry>();
-		entry->_factory = []() -> Cooker* { return DefaultAllocator::GetInstance().New<_Cooker_>(); };
-		entry->_assetType = Hash::ComputeXxh3_64(assetType);
-		entry->_assetTypeName = assetType;
-
-		_cookerEntries.PushBack(entry);
-		return true;
-	}
-
-	template<typename _Resource_>
-	bool AssetDatabase::RegisterResource(std::string_view assetType)
-	{
-		// TODO check duplicate
-		ResourceEntry* entry = DefaultAllocator::GetInstance().New<ResourceEntry>();
-		entry->_resourceDescriptor = &_Resource_::GetReflectionDescriptor();
-		entry->_assetType = Hash::ComputeXxh3_64(assetType);
-
-		_resourceEntries.PushBack(entry);
-		return true;
 	}
 
 	/// @brief

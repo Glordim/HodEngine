@@ -86,10 +86,9 @@ namespace hod::inline editor
 		template<typename _EditorTabType_>
 		_EditorTabType_* OpenEditorTab();
 
-		template<typename _EditorTabType_>
-		void RegisterEditorTab(std::string_view name);
-		/// @brief By the editor modules when they unload: closes the tabs of this asset type, their code goes with the module (unsaved changes are lost)
-		void UnregisterEditorTab(std::string_view name);
+		/// @brief By the editor modules when they unload: closes the tabs of the assets of this type (AssetType::CreateEditorTab), their
+		/// code goes with the module (unsaved changes are lost)
+		void CloseEditorTabsOf(uint64_t assetType);
 
 		void PingAsset(std::shared_ptr<Asset> asset);
 
@@ -178,7 +177,6 @@ namespace hod::inline editor
 		Vector<EditorModule> _editorModules;
 
 		Vector<EditorTab*>                                                            _editorTabs;
-		std::unordered_map<uint64_t, std::function<EditorTab*(std::shared_ptr<Asset>)>> _editorTabFactory;
 
 		Texture* _hodTexture = nullptr;
 		Texture* _folderTexture = nullptr;
@@ -218,11 +216,5 @@ namespace hod::inline editor
 		_EditorTabType_* editorTab = DefaultAllocator::GetInstance().New<_EditorTabType_>(nullptr);
 		_editorTabs.push_back(editorTab);
 		return editorTab;
-	}
-
-	template<typename _EditorTabType_>
-	void Editor::RegisterEditorTab(std::string_view name)
-	{
-		_editorTabFactory.emplace(Hash::ComputeXxh3_64(name), [](std::shared_ptr<Asset> asset) { return DefaultAllocator::GetInstance().New<_EditorTabType_>(asset); });
 	}
 }

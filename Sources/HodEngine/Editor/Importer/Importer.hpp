@@ -47,11 +47,14 @@ namespace hod::inline editor
 		bool Import(const Path& sourcePath, const Path& destinationPath, const UID& uid, ImporterSettings* importSettings, uint64_t taskId);
 		bool Import(const Path& path);
 
+		/// @brief The hash of the asset type it imports into (see SetAssetType)
 		uint64_t GetAssetType() const { return _assetType; }
 
 	protected:
 
-		void SetAssetType(std::string_view assetType);
+		/// @brief In the constructor: the asset type it imports into (see AssetType), registered by its module before the importer
+		template<typename _AssetType_>
+		void SetAssetType() { _assetType = _AssetType_::GetHash(); }
 
 		virtual bool FillDataBlock(Stream& source, ImporterSettings* importSettings) = 0;
 

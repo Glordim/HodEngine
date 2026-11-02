@@ -1,5 +1,6 @@
 #include "HodEngine/RendererEditor/Pch.hpp"
 #include "HodEngine/RendererEditor/FontFaceEditor/FontFaceImporter.hpp"
+#include "HodEngine/RendererEditor/FontFaceEditor/FontFaceAssetType.hpp"
 #include "HodEngine/RendererEditor/FontFaceEditor/FontThumbnail.hpp"
 
 #include <HodEngine/Text/FontFace.hpp>
@@ -10,7 +11,7 @@ namespace hod::inline editor
 	FontFaceImporter::FontFaceImporter()
 	{
 		SetAssetExtension("fontface");
-		SetAssetType("FontFace");
+		SetAssetType<FontFaceAssetType>();
 	}
 
 	bool FontFaceImporter::FillDataBlock(Stream& source, ImporterSettings* /*importSettings*/)

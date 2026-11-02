@@ -1,5 +1,6 @@
 #include "HodEngine/UI2Editor/Pch.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorTab.hpp"
+#include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabAssetType.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorAnimationWindow.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorHierarchyWindow.hpp"
 #include "HodEngine/UI2Editor/UIPrefabEditor/UIPrefabEditorInspectorWindow.hpp"
@@ -37,7 +38,6 @@
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 #include <HodEngine/Core/Document/DocumentWriterJson.hpp>
-#include <HodEngine/Core/Hash.hpp>
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 
@@ -895,7 +895,7 @@ namespace hod::inline editor
 
 		AssetContainer     assetContainer;
 		DocumentWriterJson documentWriter;
-		assetContainer.SetAssetType(Hash::ComputeXxh3_64("UIPrefab"));
+		assetContainer.SetAssetType(UIPrefabAssetType::GetHash());
 		assetContainer.SetUid(UID::GenerateUID());
 		Vector<uint8_t> thumbnail;
 		if (RenderThumbnail(prefabCanvas, thumbnail))
@@ -1455,7 +1455,7 @@ namespace hod::inline editor
 
 		AssetContainer     assetContainer;
 		DocumentWriterJson documentWriter;
-		assetContainer.SetAssetType(Hash::ComputeXxh3_64("UIPrefab"));
+		assetContainer.SetAssetType(UIPrefabAssetType::GetHash());
 		assetContainer.SetUid(UID::GenerateUID());
 		Vector<uint8_t> thumbnail;
 		if (RenderThumbnail(prefabCanvas, thumbnail))
@@ -1532,7 +1532,7 @@ namespace hod::inline editor
 
 		for (EditorTab* editorTab : Editor::GetInstance()->GetEditorTabs())
 		{
-			if (editorTab->GetAsset() == nullptr || editorTab->GetAsset()->GetType() != Hash::ComputeXxh3_64("UIPrefab"))
+			if (editorTab->GetAsset() == nullptr || editorTab->GetAsset()->GetType() != UIPrefabAssetType::GetHash())
 			{
 				continue;
 			}

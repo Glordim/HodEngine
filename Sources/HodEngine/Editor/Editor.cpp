@@ -35,6 +35,7 @@
 #include "HodEngine/Editor/WindowFactory.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetType.hpp"
 #include "HodEngine/Editor/CMakeHelper.hpp"
 #include "HodEngine/Editor/Importer/ImportJob.hpp"
 #include "HodEngine/Editor/RecentProjects.hpp"
@@ -741,16 +742,13 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @param name
-	void Editor::UnregisterEditorTab(std::string_view name)
+	/// @param assetType
+	void Editor::CloseEditorTabsOf(uint64_t assetType)
 	{
-		const uint64_t type = Hash::ComputeXxh3_64(name);
-		_editorTabFactory.erase(type);
-
 		uint32_t index = 0;
 		while (index < _editorTabs.Size())
 		{
-			if (_editorTabs[index]->GetAsset() != nullptr && _editorTabs[index]->GetAsset()->GetType() == type)
+			if (_editorTabs[index]->GetAsset() != nullptr && _editorTabs[index]->GetAsset()->GetType() == assetType)
 			{
 				DefaultAllocator::GetInstance().Delete(_editorTabs[index]);
 				_editorTabs.Erase(index);
@@ -791,13 +789,13 @@ namespace hod::inline editor
 			}
 		}
 
-		auto it = _editorTabFactory.find(asset->GetType());
-		if (it == _editorTabFactory.end())
+		const AssetType* assetType = AssetDatabase::GetInstance()->FindAssetType(asset->GetType());
+		EditorTab*       editorTab = (assetType != nullptr) ? assetType->CreateEditorTab(asset) : nullptr;
+		if (editorTab == nullptr)
 		{
 			return nullptr; // todo message
 		}
 
-		EditorTab* editorTab = it->second(asset);
 		_editorTabs.push_back(editorTab);
 
 		_showFloatingAssetBrowser = false;
