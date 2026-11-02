@@ -3,6 +3,7 @@
 
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/PropertyDrawer.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include <HodEngine/Core/String.hpp>
@@ -15,6 +16,7 @@
 
 namespace hod::inline core
 {
+	class EnumDescriptor;
 	class ReflectionDescriptor;
 }
 
@@ -61,6 +63,10 @@ namespace hod::inline editor
 		void RegisterCustomComponentDrawer();
 		void RegisterCustomComponentDrawer(const ReflectionDescriptor& descriptor, CustomComponentDrawer* drawer);
 
+		/// @brief See PropertyDrawer::EnumValuePreview
+		/// @return false (with an error) if the enum has a preview already (from another module)
+		bool RegisterEnumValuePreview(const EnumDescriptor& enumDescriptor, PropertyDrawer::EnumValuePreview preview);
+
 		/// @brief In the "Window" menu, under route
 		template<typename _Window_>
 		void RegisterWindow(const String& route);
@@ -81,6 +87,7 @@ namespace hod::inline editor
 
 		Vector<const ReflectionDescriptor*> _customPropertyDrawerDescriptors;
 		Vector<const ReflectionDescriptor*> _customComponentDrawerDescriptors;
+		Vector<const EnumDescriptor*>       _enumValuePreviewDescriptors;
 		Vector<ReflectionDescriptor*>       _windowDescriptors;
 	};
 

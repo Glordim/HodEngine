@@ -61,6 +61,20 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @param enumDescriptor
+	/// @param preview
+	/// @return
+	bool EditorModuleRegistration::RegisterEnumValuePreview(const EnumDescriptor& enumDescriptor, PropertyDrawer::EnumValuePreview preview)
+	{
+		if (PropertyDrawer::RegisterEnumValuePreview(enumDescriptor, preview) == false)
+		{
+			return false;
+		}
+		_enumValuePreviewDescriptors.PushBack(&enumDescriptor);
+		return true;
+	}
+
+	/// @brief
 	/// @param route
 	/// @param descriptor
 	void EditorModuleRegistration::RegisterWindow(const String& route, ReflectionDescriptor& descriptor)
@@ -77,6 +91,12 @@ namespace hod::inline editor
 			WindowFactory::GetInstance()->Unregister(*descriptor);
 		}
 		_windowDescriptors.Clear();
+
+		for (const EnumDescriptor* enumDescriptor : _enumValuePreviewDescriptors)
+		{
+			PropertyDrawer::UnregisterEnumValuePreview(*enumDescriptor);
+		}
+		_enumValuePreviewDescriptors.Clear();
 
 		for (const ReflectionDescriptor* descriptor : _customComponentDrawerDescriptors)
 		{

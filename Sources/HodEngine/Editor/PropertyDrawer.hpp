@@ -39,9 +39,11 @@ namespace hod::inline editor
 		static bool     DrawPropertyObject(EditorReflectedProperty& reflectedProperty, bool onlyValue = false);
 
         // Draws a value of an enum (e.g. an easing's shape) in a tooltip: of each entry of the enum's combos, and of a closed combo
-        // for its value. Set by the module owning the enum's editor (nullptr removes it, e.g. when that module is unloaded).
+        // for its value. Registered by the module owning the enum's editor, through its EditorModuleRegistration.
         using EnumValuePreview = void (*)(uint64_t value);
-        static void     SetEnumValuePreview(const EnumDescriptor& enumDescriptor, EnumValuePreview preview);
+        // @return false (with an error) if the enum has a preview already
+        static bool     RegisterEnumValuePreview(const EnumDescriptor& enumDescriptor, EnumValuePreview preview);
+        static void     UnregisterEnumValuePreview(const EnumDescriptor& enumDescriptor);
 
         static bool     BeginProperty(EditorReflectedProperty& editorReflectedProperty);
         static bool     DrawContextMenu(EditorReflectedProperty& editorReflectedProperty);

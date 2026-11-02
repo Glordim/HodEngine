@@ -44,16 +44,22 @@ namespace hod::inline editor
 	/// @brief
 	/// @param enumDescriptor
 	/// @param preview
-	void PropertyDrawer::SetEnumValuePreview(const EnumDescriptor& enumDescriptor, EnumValuePreview preview)
+	/// @return
+	bool PropertyDrawer::RegisterEnumValuePreview(const EnumDescriptor& enumDescriptor, EnumValuePreview preview)
 	{
-		if (preview != nullptr)
+		if (enumValuePreviews.emplace(&enumDescriptor, preview).second == false)
 		{
-			enumValuePreviews[&enumDescriptor] = preview;
+			OUTPUT_ERROR("PropertyDrawer::RegisterEnumValuePreview: the enum has a preview already");
+			return false;
 		}
-		else
-		{
-			enumValuePreviews.erase(&enumDescriptor);
-		}
+		return true;
+	}
+
+	/// @brief
+	/// @param enumDescriptor
+	void PropertyDrawer::UnregisterEnumValuePreview(const EnumDescriptor& enumDescriptor)
+	{
+		enumValuePreviews.erase(&enumDescriptor);
 	}
 
 	bool PropertyDrawer::DrawDescriptor(EditorReflectedObject& reflectedObject)

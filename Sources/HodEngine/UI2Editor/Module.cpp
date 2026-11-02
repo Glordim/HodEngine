@@ -3,7 +3,6 @@
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
 #include "HodEngine/Editor/EditorModuleRegistration.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
 #include "HodEngine/UI2Editor/EasingPreview.hpp"
 #include "HodEngine/UI2Editor/CustomPropertyDrawer/NodeRefCustomPropertyDrawer.hpp"
 #include "HodEngine/UI2Editor/CustomPropertyDrawer/RectOffsetsCustomPropertyDrawer.hpp"
@@ -45,19 +44,10 @@ HOD_STARTUP_EDITOR_MODULE(UI2Editor, registration)
 
 	if (const EnumDescriptor* easingEnum = GetEasingEnumDescriptor())
 	{
-		PropertyDrawer::SetEnumValuePreview(*easingEnum, +[](uint64_t value) { DrawEasingPreview((ui2::AnimationKey::Easing)value); });
+		registration.RegisterEnumValuePreview(*easingEnum, +[](uint64_t value) { DrawEasingPreview((ui2::AnimationKey::Easing)value); });
 	}
 
 	registration.RegisterAssetType<UIPrefabAssetType>();
 
-	return 0;
-}
-
-HOD_SHUTDOWN_EDITOR_MODULE(UI2Editor)
-{
-	if (const EnumDescriptor* easingEnum = GetEasingEnumDescriptor())
-	{
-		PropertyDrawer::SetEnumValuePreview(*easingEnum, nullptr);
-	}
 	return 0;
 }
