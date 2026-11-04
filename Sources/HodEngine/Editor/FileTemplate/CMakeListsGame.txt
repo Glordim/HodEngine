@@ -48,7 +48,7 @@ target_link_libraries([[PROJECT_GAME_NAME]]
 )
 if(HOD_GAME_BUILD_TYPE STREQUAL "Application")
 	if(ANDROID)
-		target_link_options(CircleGame PRIVATE
+		target_link_options([[PROJECT_GAME_NAME]] PRIVATE
 			"-Wl,--undefined=Java_com_google_androidgamesdk_GameActivity_initializeNativeCode"
 		)
 	endif()

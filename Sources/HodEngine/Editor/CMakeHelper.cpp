@@ -85,7 +85,8 @@ namespace hod::inline editor
 		}
 
 		String contentStr(content.data(), (uint32_t)content.size());
-		if (FileSystem::GetInstance()->WriteAllText(outputPath, contentStr) == false)
+		if (FileSystem::GetInstance()->CreateDirectories(outputPath.ParentPath()) == false ||
+			FileSystem::GetInstance()->WriteAllText(outputPath, contentStr) == false)
 		{
 			OUTPUT_ERROR("Failed to generate CMakeLists.txt at {}", outputPath);
 			return false;

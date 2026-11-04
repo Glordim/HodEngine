@@ -15,13 +15,14 @@
 #include "HodEngine/GameSystems/Resource/ResourceVariant.hpp"
 #include <algorithm>
 #include <fmt/format.h>
-#include <functional>
 
 #include "FileTemplates/CMakeListsEditor.txt.hpp"
 #include "FileTemplates/CMakeListsGame.txt.hpp"
 #include "FileTemplates/CMakeListsRoot.txt.hpp"
 #include "FileTemplates/Component.cpp.hpp"
 #include "FileTemplates/Component.hpp.hpp"
+#include "FileTemplates/EditorModule.cpp.hpp"
+#include "FileTemplates/Export.hpp.hpp"
 #include "FileTemplates/Module.cpp.hpp"
 #include "FileTemplates/Module.hpp.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
@@ -82,80 +83,97 @@ namespace hod::inline editor
 		return Save();
 	}
 
-	/// @brief
+	/// @brief Write a module source file from a template, replacing [[MODULE_NAME]], [[MODULE_API]] and [[MODULE_EXPORT]]
+	/// @param path
+	/// @param templateContent
+	/// @param moduleName ex: CircleGame
+	/// @param macroPrefix ex: Circle_GAME (uppercased to give CIRCLE_GAME_API / CIRCLE_GAME_EXPORT)
+	/// @return
+	bool Project::WriteModuleSourceFile(const Path& path, std::string_view templateContent, const String& moduleName, const String& macroPrefix)
+	{
+		String moduleApi = macroPrefix + "_API";
+		String moduleExport = macroPrefix + "_EXPORT";
+		std::transform(moduleApi.begin(), moduleApi.end(), moduleApi.begin(), [](char c) { return static_cast<char>(std::toupper(c)); });
+		std::transform(moduleExport.begin(), moduleExport.end(), moduleExport.begin(), [](char c) { return static_cast<char>(std::toupper(c)); });
+
+		String content(templateContent);
+		const std::pair<std::string_view, const String&> replacements[] = {
+			{"[[MODULE_NAME]]", moduleName},
+			{"[[MODULE_API]]", moduleApi},
+			{"[[MODULE_EXPORT]]", moduleExport},
+		};
+		for (const auto& [tag, value] : replacements)
+		{
+			uint32_t replaceIndex = content.Find(tag);
+			while (replaceIndex != String::Npos)
+			{
+				content.Replace(replaceIndex, static_cast<uint32_t>(tag.size()), value);
+				replaceIndex = content.Find(tag, replaceIndex + value.Size());
+			}
+		}
+
+		if (FileSystem::GetInstance()->WriteAllText(path, content) == false)
+		{
+			OUTPUT_ERROR("Failed to generate MinimalSourceForModule at {}", path);
+			return false;
+		}
+		OUTPUT_MESSAGE("MinimalSourceForModule generated at {}", path);
+		return true;
+	}
+
+	/// @brief Generate the minimal sources of the game and editor modules
+	/// Layout expected by GenerateGameModuleCMakeList: Code/<Name>Game and Code/<Name>Editor
+	/// @param directory
 	/// @return
 	bool Project::CreateMinimalSourceForModule(const Path& directory)
 	{
-		Path sourcesDirPath = directory / "Code" / _name;
-		Path sourcesComponentsDirPath = sourcesDirPath / "Components";
-		if (FileSystem::GetInstance()->Exists(sourcesDirPath) == false && FileSystem::GetInstance()->CreateDirectories(sourcesDirPath) == false)
+		// Game module (macro prefix gives <NAME>_GAME_EXPORT, matching GenerateGameModuleCMakeList)
+		String gameModuleName = _name + "Game";
+		String gameMacroPrefix = _name + "_GAME";
+		Path   gameDirPath = directory / "Code" / gameModuleName;
+		Path   gameComponentsDirPath = gameDirPath / "Components";
+		if (FileSystem::GetInstance()->Exists(gameComponentsDirPath) == false && FileSystem::GetInstance()->CreateDirectories(gameComponentsDirPath) == false)
 		{
 			return false;
 		}
-		if (FileSystem::GetInstance()->Exists(sourcesComponentsDirPath) == false && FileSystem::GetInstance()->CreateDirectories(sourcesComponentsDirPath) == false)
+
+		// Editor module
+		String editorModuleName = _name + "Editor";
+		String editorMacroPrefix = _name + "_EDITOR";
+		Path   editorDirPath = directory / "Code" / editorModuleName;
+		if (FileSystem::GetInstance()->Exists(editorDirPath) == false && FileSystem::GetInstance()->CreateDirectories(editorDirPath) == false)
 		{
 			return false;
 		}
 
-		std::function<bool(const Path&, std::string_view, const String&)> writeFileFunc = [](const Path& path, std::string_view contentIn, const String& projectName)
+		struct FileToWrite
 		{
-			String content(contentIn);
-
-			constexpr std::string_view projectNameTag = "[[PROJECT_NAME]]";
-			uint32_t                     replaceIndex = content.Find(projectNameTag);
-			while (replaceIndex != String::Npos)
-			{
-				content.Replace(replaceIndex, projectNameTag.size(), projectName);
-				replaceIndex = content.Find(projectNameTag);
-			}
-
-			String projectExport = projectName + "_EXPORT";
-			std::transform(projectExport.begin(), projectExport.end(), projectExport.begin(), [](char c) { return std::toupper(c); });
-			constexpr std::string_view projectExportTag = "[[PROJECT_EXPORT]]";
-			replaceIndex = content.Find(projectExportTag);
-			while (replaceIndex != String::Npos)
-			{
-				content.Replace(replaceIndex, projectExportTag.size(), projectExport);
-				replaceIndex = content.Find(projectExportTag);
-			}
-
-			String api = projectName + "_API";
-			std::transform(api.begin(), api.end(), api.begin(), [](char c) { return std::toupper(c); });
-			constexpr std::string_view apiTag = "[[API]]";
-			replaceIndex = content.Find(apiTag);
-			while (replaceIndex != String::Npos)
-			{
-				content.Replace(replaceIndex, apiTag.size(), api);
-				replaceIndex = content.Find(apiTag);
-			}
-
-			if (FileSystem::GetInstance()->WriteAllText(path, content) == false)
-			{
-				OUTPUT_ERROR("Failed to generate MinimalSourceForModule at {}", path);
-				return false;
-			}
-			OUTPUT_MESSAGE("MinimalSourceForModule generated at {}", path);
-			return true;
+			Path             _path;
+			std::string_view _template;
+			const String&    _moduleName;
+			const String&    _macroPrefix;
 		};
 
-		if (writeFileFunc(sourcesDirPath / (_name + ".hpp").CStr(), Module_hpp, _name) == false)
+		const FileToWrite files[] = {
+			{gameDirPath / "Export.hpp", Export_hpp, gameModuleName, gameMacroPrefix},
+			{gameDirPath / (gameModuleName + "Module.hpp").CStr(), Module_hpp, gameModuleName, gameMacroPrefix},
+			{gameDirPath / (gameModuleName + "Module.cpp").CStr(), Module_cpp, gameModuleName, gameMacroPrefix},
+			{gameComponentsDirPath / "MyFirstComponent.hpp", Component_hpp, gameModuleName, gameMacroPrefix},
+			{gameComponentsDirPath / "MyFirstComponent.cpp", Component_cpp, gameModuleName, gameMacroPrefix},
+			{editorDirPath / "Export.hpp", Export_hpp, editorModuleName, editorMacroPrefix},
+			{editorDirPath / (editorModuleName + "Module.hpp").CStr(), Module_hpp, editorModuleName, editorMacroPrefix},
+			{editorDirPath / (editorModuleName + "Module.cpp").CStr(), EditorModule_cpp, editorModuleName, editorMacroPrefix},
+		};
+		for (const FileToWrite& file : files)
 		{
-			return false;
-		}
-
-		if (writeFileFunc(sourcesDirPath / (_name + ".cpp").CStr(), Module_cpp, _name) == false)
-		{
-			return false;
-		}
-
-		if (writeFileFunc(sourcesComponentsDirPath / "MyFirstComponent.hpp", Component_hpp, _name) == false)
-		{
-			return false;
-		}
-
-		if (writeFileFunc(sourcesComponentsDirPath / "MyFirstComponent.cpp", Component_cpp, _name) == false)
-		{
-			return false;
+			if (FileSystem::GetInstance()->Exists(file._path))
+			{
+				continue; // Never overwrite user code
+			}
+			if (WriteModuleSourceFile(file._path, file._template, file._moduleName, file._macroPrefix) == false)
+			{
+				return false;
+			}
 		}
 
 		return true;

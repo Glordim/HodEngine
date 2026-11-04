@@ -1,6 +1,6 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/MissingGameModuleModal.hpp"
+#include "HodEngine/Editor/MissingProjectModuleModal.hpp"
 #include "HodEngine/Editor/TitleBar.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -15,14 +15,14 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(MissingGameModuleModal, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(MissingProjectModuleModal, reflectionDescriptor)
 	{
 		(void)reflectionDescriptor;
 	}
 
 	/// @brief
-	MissingGameModuleModal::MissingGameModuleModal()
-	: _generationJob(this, &MissingGameModuleModal::GenerationJob)
+	MissingProjectModuleModal::MissingProjectModuleModal()
+	: _generationJob(this, &MissingProjectModuleModal::GenerationJob)
 	{
 		DesktopWindow* mainWindow = static_cast<DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow());
 		mainWindow->SetSize(800, 600);
@@ -30,7 +30,7 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	bool MissingGameModuleModal::Draw()
+	bool MissingProjectModuleModal::Draw()
 	{
 		// Viewports are enabled: positions are in screen space, so stick to the main viewport (the OS window)
 		ImGuiViewport* mainViewport = ImGui::GetMainViewport();
@@ -39,7 +39,7 @@ namespace hod::inline editor
 		ImGui::SetNextWindowViewport(mainViewport->ID);
 		ImGui::PushStyleVar(ImGuiStyleVar_WindowRounding, 0.0f);
 
-		if (ImGui::Begin("MissingGameModuleModal", nullptr, ImGuiWindowFlags_NoDecoration))
+		if (ImGui::Begin("MissingProjectModuleModal", nullptr, ImGuiWindowFlags_NoDecoration))
 		{
 			TitleBar::DrawAtTopOfWindow("HodEngine");
 			DrawContent();
@@ -52,7 +52,7 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	void MissingGameModuleModal::DrawContent()
+	void MissingProjectModuleModal::DrawContent()
 	{
 		// Started from the first Draw and not the constructor: the modal can be opened during Editor::Init, before the JobScheduler is initialized
 		if (_generationStarted == false)
@@ -98,7 +98,7 @@ namespace hod::inline editor
 	/// @brief
 	/// @param step
 	/// @param stepStatus
-	void MissingGameModuleModal::DrawStep(const char* step, StepStatus stepStatus)
+	void MissingProjectModuleModal::DrawStep(const char* step, StepStatus stepStatus)
 	{
 		static ImVec4 stepStatusToColor[std::to_underlying(StepStatus::Count)] = {
 			ImVec4(0.7f, 0.7f, 0.7f, 1.0f),
@@ -120,7 +120,7 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	void MissingGameModuleModal::GenerationJob()
+	void MissingProjectModuleModal::GenerationJob()
 	{
 		_outputBucket.Clear();
 		ScopedEnableOutputBucket scopedEnableOutputBucket(_outputBucket);
@@ -156,7 +156,7 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param outputs
-	void MissingGameModuleModal::DrawOutputs() const
+	void MissingProjectModuleModal::DrawOutputs() const
 	{
 		/*
 		static ImVec4 outputTypeToColor[std::to_underlying(Output::Type::Count)] = {

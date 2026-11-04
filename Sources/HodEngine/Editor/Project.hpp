@@ -64,6 +64,9 @@ namespace hod::inline editor
 		Event<>& GetOnModulesReloadedEvent() { return _onModulesReloadedEvent; }
 
 	private:
+		static bool WriteModuleSourceFile(const Path& path, std::string_view templateContent, const String& moduleName, const String& macroPrefix);
+
+	private:
 		Path _projectPath;
 		Path _sourceDirPath;
 		Path _assetDirPath;

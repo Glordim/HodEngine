@@ -60,21 +60,12 @@
 #include "Icons/DataItem.png.hpp"
 #include "Icons/DataTable.png.hpp"
 
-#include "HodEngine/Editor/MissingGameModuleModal.hpp"
+#include "HodEngine/Editor/MissingProjectModuleModal.hpp"
 
 #include <filesystem> // todo remove
 #include <string>
 
 #include "portable-file-dialogs.h"
-
-
-
-
-
-
-
-
-
 
 #include "HodEngine/Core/StaticArray.hpp"
 
@@ -295,7 +286,7 @@ namespace hod::inline editor
 		if (Project::GetInstance()->HasGameModule() == false || Project::GetInstance()->CanLoadProjectModules() == false)
 		{
 			ImGuiManager::GetInstance()->CloseAllWindow();
-			ImGuiManager::GetInstance()->OpenWindow<MissingGameModuleModal>();
+			ImGuiManager::GetInstance()->OpenWindow<MissingProjectModuleModal>();
 			return true;
 		}
 		else

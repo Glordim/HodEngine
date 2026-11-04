@@ -11,9 +11,9 @@ namespace hod::inline editor
 	class EditorReflectedObject;
 
 	/// @brief 
-	class HOD_EDITOR_API MissingGameModuleModal : public Modal
+	class HOD_EDITOR_API MissingProjectModuleModal : public Modal
 	{
-		REFLECTED_CLASS(MissingGameModuleModal, Window)
+		REFLECTED_CLASS(MissingProjectModuleModal, Window)
 
 		enum class StepStatus
 		{
@@ -27,8 +27,8 @@ namespace hod::inline editor
 
 	public:
 
-					MissingGameModuleModal();
-					~MissingGameModuleModal() override = default;
+					MissingProjectModuleModal();
+					~MissingProjectModuleModal() override = default;
 
 	public:
 
@@ -52,6 +52,6 @@ namespace hod::inline editor
 
 		OutputBucket _outputBucket;
 
-		MemberFunctionJob<MissingGameModuleModal> _generationJob;
+		MemberFunctionJob<MissingProjectModuleModal> _generationJob;
 	};
 }
