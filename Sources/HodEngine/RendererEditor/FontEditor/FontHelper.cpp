@@ -175,7 +175,7 @@ namespace hod::inline editor
 			assetContainer.SetThumbnail(std::move(thumbnail), filterMode);
 		}
 
-		const Path assetPath = AssetDatabase::GenerateUniqueAssetPath(directory / (name + ".font"));
+		const Path assetPath = AssetDatabase::GenerateUniqueAssetPath(directory / FontAssetType::GetFileName(name));
 		if (assetContainer.Save(assetPath) == false)
 		{
 			return Path();

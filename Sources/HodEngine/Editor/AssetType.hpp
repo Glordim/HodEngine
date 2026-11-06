@@ -2,6 +2,7 @@
 #include "HodEngine/Editor/Export.hpp"
 
 #include <HodEngine/Core/Hash.hpp>
+#include <HodEngine/Core/String.hpp>
 
 #include <cstdint>
 #include <memory>
@@ -25,7 +26,8 @@ namespace hod::inline editor
 	class EditorTab;
 
 	/// @brief A type of asset and what the editor does with its assets. Declared once by the editor module adding it (with
-	/// HOD_ASSET_TYPE, its name and hash given to all the code using it: TextureAssetType::GetHash()...) and registered by it
+	/// HOD_ASSET_TYPE, its name, hash and extension given to all the code using it: TextureAssetType::GetHash(),
+	/// TextureAssetType::GetFileName("Goblin")...) and registered by it
 	/// (EditorModuleRegistration::RegisterAssetType<_AssetType_>()), by one module only. Each part is optional.
 	class HOD_EDITOR_API AssetType
 	{
@@ -42,6 +44,12 @@ namespace hod::inline editor
 		virtual std::string_view GetNameV() const = 0;
 		/// @brief Of the name: what the asset files store (see AssetContainer::GetAssetType())
 		virtual uint64_t GetHashV() const = 0;
+		/// @brief Of its asset files, without the dot ("texture"), its own (see AssetDatabase::RegisterAssetType). Only for the
+		/// users and their tools (version control attributes, searches...): the editor knows an asset by its header, not by it
+		virtual std::string_view GetExtensionV() const = 0;
+
+		/// @brief baseName + '.' + extension
+		static String MakeFileName(std::string_view baseName, std::string_view extension);
 
 		/// @brief A new instance per call, usable concurrently with the other ones (see AssetDatabase::AcquireCooker)
 		virtual Cooker* CreateCooker() const;
@@ -66,28 +74,45 @@ namespace hod::inline editor
 	};
 }
 
-/// @brief In an AssetType's declaration: its name, and its hash computed once (xxh3, as the asset files store it)
-#define HOD_ASSET_TYPE(NAME)                                          \
-public:                                                               \
-	static std::string_view GetName()                                 \
-	{                                                                 \
-		return NAME;                                                  \
-	}                                                                 \
-                                                                      \
-	static uint64_t GetHash()                                         \
-	{                                                                 \
-		static const uint64_t hash = hod::Hash::ComputeXxh3_64(NAME); \
-		return hash;                                                  \
-	}                                                                 \
-                                                                      \
-	std::string_view GetNameV() const override                        \
-	{                                                                 \
-		return GetName();                                             \
-	}                                                                 \
-                                                                      \
-	uint64_t GetHashV() const override                                \
-	{                                                                 \
-		return GetHash();                                             \
-	}                                                                 \
-                                                                      \
+/// @brief In an AssetType's declaration: its name, its hash computed once (xxh3, as the asset files store it), and the extension of
+/// its asset files (without the dot, lowercase: "texture")
+#define HOD_ASSET_TYPE(NAME, EXTENSION)                                         \
+public:                                                                         \
+	static std::string_view GetName()                                           \
+	{                                                                           \
+		return NAME;                                                            \
+	}                                                                           \
+                                                                                \
+	static uint64_t GetHash()                                                   \
+	{                                                                           \
+		static const uint64_t hash = hod::Hash::ComputeXxh3_64(NAME);           \
+		return hash;                                                            \
+	}                                                                           \
+                                                                                \
+	static std::string_view GetExtension()                                      \
+	{                                                                           \
+		return EXTENSION;                                                       \
+	}                                                                           \
+                                                                                \
+	/** @brief The file name of one of its assets: baseName.extension */        \
+	static hod::String GetFileName(std::string_view baseName)                   \
+	{                                                                           \
+		return hod::editor::AssetType::MakeFileName(baseName, GetExtension()); \
+	}                                                                           \
+                                                                                \
+	std::string_view GetNameV() const override                                  \
+	{                                                                           \
+		return GetName();                                                       \
+	}                                                                           \
+                                                                                \
+	uint64_t GetHashV() const override                                          \
+	{                                                                           \
+		return GetHash();                                                       \
+	}                                                                           \
+                                                                                \
+	std::string_view GetExtensionV() const override                             \
+	{                                                                           \
+		return GetExtension();                                                  \
+	}                                                                           \
+                                                                                \
 private:

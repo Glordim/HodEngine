@@ -1443,7 +1443,7 @@ namespace hod::inline editor
 		prefabRoot->RenewLocalIds(nextLocalId, false);
 
 		// Named after its asset (see CanRename): node's name, unless it had to be changed into a file name, or a free one
-		Path assetPath = AssetDatabase::GenerateUniqueAssetPath(folder / (GetPrefabFileName(*node) + ".uiprefab"));
+		Path assetPath = AssetDatabase::GenerateUniqueAssetPath(folder / UIPrefabAssetType::GetFileName(GetPrefabFileName(*node)));
 		prefabRoot->SetName(assetPath.Stem().GetString());
 
 		Document prefabDocument;

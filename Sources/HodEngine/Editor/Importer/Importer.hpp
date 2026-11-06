@@ -42,7 +42,8 @@ namespace hod::inline editor
 		Importer& operator=(Importer&&) = delete;
 
 	public:
-		const String& GetAssetExtension() const { return _assetExtension; }
+		/// @brief The extension of the asset type it imports into (see SetAssetType)
+		std::string_view GetAssetExtension() const { return _assetExtension; }
 
 		bool Import(const Path& sourcePath, const Path& destinationPath, const UID& uid, ImporterSettings* importSettings, uint64_t taskId);
 		bool Import(const Path& path);
@@ -54,14 +55,16 @@ namespace hod::inline editor
 
 		/// @brief In the constructor: the asset type it imports into (see AssetType), registered by its module before the importer
 		template<typename _AssetType_>
-		void SetAssetType() { _assetType = _AssetType_::GetHash(); }
+		void SetAssetType()
+		{
+			_assetType = _AssetType_::GetHash();
+			_assetExtension = _AssetType_::GetExtension();
+		}
 
 		virtual bool FillDataBlock(Stream& source, ImporterSettings* importSettings) = 0;
 
 		void UpdateFillDataBlockProgress(float percent);
 		void UpdateFillDataBlockDescription(std::string_view description);
-
-		void SetAssetExtension(const char* extension) { _assetExtension = extension; }
 
 		Stream& AddDataBlockStream(std::string_view name, bool compressed);
 
@@ -75,7 +78,7 @@ namespace hod::inline editor
 		void SetThumbnail(const uint8_t* rgbaPixels, uint32_t width, uint32_t height);
 
 	private:
-		String _assetExtension;
+		std::string_view _assetExtension; // The asset type's, a literal of its module (like the importer itself)
 
 		Path _tmpDir;
 		Path _sourcePath;

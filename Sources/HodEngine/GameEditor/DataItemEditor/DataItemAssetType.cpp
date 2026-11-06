@@ -94,7 +94,7 @@ namespace hod::inline editor
 						DocumentWriterJson documentWriter;
 						documentWriter.Write(settingsDocument, settingsStream);
 
-						Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / (descriptor->GetDisplayName() + ".dataitem"));
+						Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / GetFileName(descriptor->GetDisplayName()));
 						assetContainer.Save(assetPath);
 						context.assetBrowserWindow.Rename(assetPath);
 					},

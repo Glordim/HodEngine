@@ -8,7 +8,7 @@ namespace hod::inline editor
 	/// @brief The UI2 prefabs: nodes edited in a UIPrefabEditorTab, nested in each other as instances
 	class HOD_UI2_EDITOR_API UIPrefabAssetType : public AssetType
 	{
-		HOD_ASSET_TYPE("UIPrefab")
+		HOD_ASSET_TYPE("UIPrefab", "uiprefab")
 
 	public:
 		Cooker*                     CreateCooker() const override;

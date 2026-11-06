@@ -595,6 +595,30 @@ namespace hod::inline editor
 			return false;
 		}
 
+		// Lowercase letters and digits only: no dot, nothing a file system or an attributes file (.gitattributes...) could mistake
+		const std::string_view extension = assetType.GetExtensionV();
+		bool                   validExtension = (extension.empty() == false);
+		for (char character : extension)
+		{
+			validExtension &= ((character >= 'a' && character <= 'z') || (character >= '0' && character <= '9'));
+		}
+		if (validExtension == false)
+		{
+			OUTPUT_ERROR("AssetDatabase::RegisterAssetType: the asset type {} has an invalid extension '{}' (lowercase letters and digits, without the dot)",
+			             assetType.GetNameV(), extension);
+			return false;
+		}
+
+		for (const AssetType* registeredAssetType : _assetTypes)
+		{
+			if (registeredAssetType->GetExtensionV() == extension)
+			{
+				OUTPUT_ERROR("AssetDatabase::RegisterAssetType: the extension .{} of the asset type {} is the one of {} already", extension, assetType.GetNameV(),
+				             registeredAssetType->GetNameV());
+				return false;
+			}
+		}
+
 		_assetTypes.PushBack(&assetType);
 		return true;
 	}

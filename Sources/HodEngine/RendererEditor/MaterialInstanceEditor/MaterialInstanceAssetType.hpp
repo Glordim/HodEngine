@@ -8,7 +8,7 @@ namespace hod::inline editor
 	/// @brief A material with its own parameter values
 	class HOD_RENDERER_EDITOR_API MaterialInstanceAssetType : public AssetType
 	{
-		HOD_ASSET_TYPE("MaterialInstance")
+		HOD_ASSET_TYPE("MaterialInstance", "materialinstance")
 
 	public:
 		Cooker*                     CreateCooker() const override;

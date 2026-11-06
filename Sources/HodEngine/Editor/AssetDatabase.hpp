@@ -101,7 +101,8 @@ namespace hod::inline editor
 		void Delete(FileSystemMapping& node);
 
 		/// @brief By the editor module adding the type (through EditorModuleRegistration, which owns it)
-		/// @return false (with an error) if a type of the same hash is registered already: by one module only
+		/// @return false (with an error) if a type of the same hash or of the same extension is registered already (by one module only),
+		/// or if its extension is invalid (see AssetType::GetExtensionV)
 		bool RegisterAssetType(const AssetType& assetType);
 
 		/// @brief Its asset type is expected registered first (warned otherwise)

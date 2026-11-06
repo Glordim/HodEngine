@@ -11,7 +11,7 @@ namespace hod::inline editor
 	/// @brief An instance of a data struct of the project modules (see DataStructFactory)
 	class HOD_GAME_EDITOR_API DataItemAssetType : public AssetType
 	{
-		HOD_ASSET_TYPE("DataItem")
+		HOD_ASSET_TYPE("DataItem", "dataitem")
 
 	public:
 		DataItemAssetType();

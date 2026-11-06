@@ -8,7 +8,7 @@ namespace hod::inline editor
 	/// @brief The prefabs: entities instantiated in scenes and other prefabs
 	class HOD_GAME_EDITOR_API PrefabAssetType : public AssetType
 	{
-		HOD_ASSET_TYPE("Prefab")
+		HOD_ASSET_TYPE("Prefab", "prefab")
 
 	public:
 		Cooker*                     CreateCooker() const override;

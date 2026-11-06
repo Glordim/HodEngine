@@ -57,7 +57,7 @@ namespace hod::inline editor
 			.execute =
 				+[](const AssetBrowserWindow::Context& context)
 				{
-					Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / "NewPrefab.prefab");
+					Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / GetFileName("NewPrefab"));
 
 					AssetContainer assetContainer;
 					assetContainer.SetAssetType(GetHash());

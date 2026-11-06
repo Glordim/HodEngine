@@ -11,7 +11,7 @@ namespace hod::inline editor
 	/// @brief Rows of a data struct of the project modules (see DataStructFactory)
 	class HOD_GAME_EDITOR_API DataTableAssetType : public AssetType
 	{
-		HOD_ASSET_TYPE("DataTable")
+		HOD_ASSET_TYPE("DataTable", "datatable")
 
 	public:
 		DataTableAssetType();

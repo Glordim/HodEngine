@@ -59,7 +59,7 @@ namespace hod::inline editor
 			.execute =
 				+[](const AssetBrowserWindow::Context& context)
 				{
-					Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / "NewScene.scene");
+					Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / GetFileName("NewScene"));
 
 					AssetContainer assetContainer;
 					assetContainer.SetAssetType(GetHash());

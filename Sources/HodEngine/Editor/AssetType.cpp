@@ -7,6 +7,20 @@ namespace hod::inline editor
 	AssetType::~AssetType() = default;
 
 	/// @brief
+	/// @param baseName
+	/// @param extension
+	/// @return
+	String AssetType::MakeFileName(std::string_view baseName, std::string_view extension)
+	{
+		String fileName;
+		fileName.Reserve(baseName.size() + 1 + extension.size());
+		fileName = baseName;
+		fileName += ".";
+		fileName += extension;
+		return fileName;
+	}
+
+	/// @brief
 	/// @return
 	Cooker* AssetType::CreateCooker() const
 	{

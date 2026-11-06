@@ -10,7 +10,6 @@ namespace hod::inline editor
 {
 	FontFaceImporter::FontFaceImporter()
 	{
-		SetAssetExtension("fontface");
 		SetAssetType<FontFaceAssetType>();
 	}
 

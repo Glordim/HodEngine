@@ -119,7 +119,7 @@ namespace hod::inline editor
 				+[](const AssetBrowserWindow::Context& context)
 				{
 					// With its root and thumbnail already: not an empty thumbnail until the prefab is first saved
-					Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / "NewUIPrefab.uiprefab");
+					Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / GetFileName("NewUIPrefab"));
 					if (UIPrefabEditorTab::CreateEmptyPrefab(assetPath) == false)
 					{
 						OUTPUT_ERROR("Can't write the UI prefab {}", assetPath);

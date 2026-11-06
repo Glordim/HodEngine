@@ -10,7 +10,6 @@ namespace hod::inline editor
 {
 	AudioImporter::AudioImporter()
 	{
-		SetAssetExtension("audio");
 		SetAssetType<AudioAssetType>();
 	}
 

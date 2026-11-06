@@ -69,7 +69,7 @@ namespace hod::inline editor
 						return;
 					}
 
-					Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / (materialNode->_asset->GetName() + ".materialinstance"));
+					Path assetPath = AssetDatabase::GenerateUniqueAssetPath(context.currentDirectory / GetFileName(materialNode->_asset->GetName()));
 
 					MaterialInstanceSettings materialInstanceSettings;
 					materialInstanceSettings._material.SetUid(materialNode->_asset->GetUid());

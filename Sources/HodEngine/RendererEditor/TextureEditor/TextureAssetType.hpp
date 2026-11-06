@@ -8,7 +8,7 @@ namespace hod::inline editor
 	/// @brief The textures, imported from image files
 	class HOD_RENDERER_EDITOR_API TextureAssetType : public AssetType
 	{
-		HOD_ASSET_TYPE("Texture")
+		HOD_ASSET_TYPE("Texture", "texture")
 
 	public:
 		Cooker*                     CreateCooker() const override;

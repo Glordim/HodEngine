@@ -8,7 +8,7 @@ namespace hod::inline editor
 	/// @brief The sounds, imported from .wav files
 	class HOD_AUDIO_EDITOR_API AudioAssetType : public AssetType
 	{
-		HOD_ASSET_TYPE("Audio")
+		HOD_ASSET_TYPE("Audio", "audio")
 
 	public:
 		Cooker*                     CreateCooker() const override;

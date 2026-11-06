@@ -8,7 +8,7 @@ namespace hod::inline editor
 	/// @brief A font family: the faces of its styles, what a text is drawn with
 	class HOD_RENDERER_EDITOR_API FontAssetType : public AssetType
 	{
-		HOD_ASSET_TYPE("Font")
+		HOD_ASSET_TYPE("Font", "font")
 
 	public:
 		Cooker*                     CreateCooker() const override;

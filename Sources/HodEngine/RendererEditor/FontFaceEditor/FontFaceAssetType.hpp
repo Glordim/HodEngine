@@ -8,7 +8,7 @@ namespace hod::inline editor
 	/// @brief A style of a font (regular, bold...), imported from .ttf/.otf files
 	class HOD_RENDERER_EDITOR_API FontFaceAssetType : public AssetType
 	{
-		HOD_ASSET_TYPE("FontFace")
+		HOD_ASSET_TYPE("FontFace", "fontface")
 
 	public:
 		Cooker*                     CreateCooker() const override;

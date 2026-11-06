@@ -118,7 +118,6 @@ namespace hod::inline editor
 
 	MaterialImporter::MaterialImporter()
 	{
-		SetAssetExtension("material");
 		SetAssetType<MaterialAssetType>();
 	}
 

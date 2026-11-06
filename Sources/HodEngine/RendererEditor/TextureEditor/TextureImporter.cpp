@@ -12,7 +12,6 @@ namespace hod::inline editor
 	/// @brief
 	TextureImporter::TextureImporter()
 	{
-		SetAssetExtension("texture");
 		SetAssetType<TextureAssetType>();
 	}
 
