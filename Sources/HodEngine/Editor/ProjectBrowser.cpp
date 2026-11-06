@@ -96,7 +96,16 @@ namespace hod::inline editor
 				Path path = GetFolderDialog();
 				if (path.Empty() == false)
 				{
-					Editor::GetInstance()->CreateProject(path);
+					if (Project::IsValidName(path.Filename().GetString()) == false)
+					{
+						pfd::message("New project",
+						             std::format("'{}' is not a valid project name.\nUse only letters, digits and '_', not starting with a digit.", path.Filename().GetString().CStr()),
+						             pfd::choice::ok, pfd::icon::error);
+					}
+					else
+					{
+						Editor::GetInstance()->CreateProject(path);
+					}
 				}
 			}
 

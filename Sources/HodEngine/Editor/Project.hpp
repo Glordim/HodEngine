@@ -30,6 +30,8 @@ namespace hod::inline editor
 		~Project();
 
 		bool Create(const Path& directory);
+
+		static bool IsValidName(const String& name);
 		bool Open(const Path& projectPath);
 
 		bool Load();

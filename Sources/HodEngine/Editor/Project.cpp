@@ -67,6 +67,12 @@ namespace hod::inline editor
 	/// @return
 	bool Project::Create(const Path& directory)
 	{
+		if (IsValidName(directory.Filename().GetString()) == false)
+		{
+			OUTPUT_ERROR("Project::Create fail: '{}' is not a valid project name (letters, digits and '_' only, not starting with a digit)", directory.Filename());
+			return false;
+		}
+
 		if (FileSystem::GetInstance()->Exists(directory) == false && FileSystem::GetInstance()->CreateDirectories(directory) == false)
 		{
 			return false;
@@ -81,6 +87,26 @@ namespace hod::inline editor
 		}
 
 		return Save();
+	}
+
+	/// @brief The project name is used for the CMake targets and the C++ export macros of its modules, it must be a valid C identifier
+	/// @param name
+	/// @return
+	bool Project::IsValidName(const String& name)
+	{
+		if (name.Empty() || (name[0] >= '0' && name[0] <= '9'))
+		{
+			return false;
+		}
+		for (char c : name)
+		{
+			bool valid = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_';
+			if (valid == false)
+			{
+				return false;
+			}
+		}
+		return true;
 	}
 
 	/// @brief Write a module source file from a template, replacing [[MODULE_NAME]], [[MODULE_API]] and [[MODULE_EXPORT]]
