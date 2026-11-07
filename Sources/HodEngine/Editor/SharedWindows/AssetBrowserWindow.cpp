@@ -6,6 +6,8 @@
 #include "HodEngine/Editor/AssetType.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
+#include "HodEngine/Editor/VersionControl/VersionControl.hpp"
+#include "HodEngine/Editor/VersionControl/VersionControlGui.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
 
@@ -251,6 +253,7 @@ namespace hod::inline editor
 					}
 				},
 		});
+		VersionControlGui::RegisterContextualMenuActions();
 		_populatingContextualMenuActions = false;
 
 		for (const ContextualMenuAction& moduleAction : moduleActions)
@@ -406,9 +409,11 @@ namespace hod::inline editor
 		PushDockTabStyle();
 		ImGui::DockSpace(_dockSpaceId, ImVec2(0.0f, 0.0f), ImGuiDockNodeFlags_None, &windowClass);
 		PopDockTabStyle();
+
+		VersionControlGui::DrawModals();
 	}
 
-	/// @brief Path of the current folder on the left, Create/Import on the right
+	/// @brief Path of the current folder on the left, the version control then Create/Import on the right
 	void AssetBrowserWindow::DrawToolbar()
 	{
 		const ImGuiStyle& style = ImGui::GetStyle();
@@ -417,7 +422,12 @@ namespace hod::inline editor
 		const char* importLabel = ICON_MDI_IMPORT " Import";
 		float       createWidth = ImGui::CalcTextSize(createLabel).x + style.FramePadding.x * 2.0f;
 		float       importWidth = ImGui::CalcTextSize(importLabel).x + style.FramePadding.x * 2.0f;
+		float       versionControlWidth = VersionControlGui::CalcToolbarWidth();
 		float       buttonsWidth = createWidth + style.ItemSpacing.x + importWidth;
+		if (versionControlWidth > 0.0f)
+		{
+			buttonsWidth += versionControlWidth + style.ItemSpacing.x * 3.0f; // A gap between the two groups
+		}
 
 		float lineStartX = ImGui::GetCursorPosX();
 		float buttonsX = lineStartX + ImGui::GetContentRegionAvail().x - buttonsWidth;
@@ -429,6 +439,11 @@ namespace hod::inline editor
 
 		ImGui::SameLine();
 		ImGui::SetCursorPosX(Max(ImGui::GetCursorPosX(), buttonsX));
+		if (versionControlWidth > 0.0f)
+		{
+			VersionControlGui::DrawToolbar();
+			ImGui::SameLine(0.0f, style.ItemSpacing.x * 3.0f);
+		}
 		if (ImGui::Button(createLabel) == true)
 		{
 			ImGui::OpenPopup("CreateMenu");
@@ -513,6 +528,7 @@ namespace hod::inline editor
 			menuItem.label = label;
 			menuItem.isSeparator = false;
 			menuItem.callback = &menuAction.execute;
+			menuItem.disabledReason = menuAction.disabledReason != nullptr ? menuAction.disabledReason(context) : String();
 			menuItems.PushBack(menuItem);
 		}
 
@@ -659,6 +675,28 @@ namespace hod::inline editor
 				ImGui::CloseCurrentPopup();
 			}
 
+			// The same "Version Control/..." actions as the explorer's, on this folder
+			Context                    context({.assetBrowserWindow = *this, .currentDirectory = node->_path, .selectedItems = {node->_path}});
+			Vector<ContextualMenuItem> versionControlItems;
+			for (const ContextualMenuAction& menuAction : _contextualMenuActions)
+			{
+				if (menuAction.group == "Version Control" && (menuAction.available == nullptr || menuAction.available(context)))
+				{
+					versionControlItems.PushBack({.label = menuAction.path,
+					                              .isSeparator = false,
+					                              .callback = &menuAction.execute,
+					                              .disabledReason = menuAction.disabledReason != nullptr ? menuAction.disabledReason(context) : String()});
+				}
+			}
+			if (versionControlItems.Empty() == false)
+			{
+				ImGui::Separator();
+				if (const ContextualMenuItem* clickedMenuItem = DrawContextualMenuItems(versionControlItems, ""); clickedMenuItem != nullptr)
+				{
+					(*clickedMenuItem->callback)(context);
+				}
+			}
+
 			ImGui::EndPopup();
 		}
 
@@ -697,6 +735,15 @@ namespace hod::inline editor
 		else
 		{
 			ImGui::Text("%s %s", icon, node->_path.Filename().GetString().CStr());
+			if (VersionControl* versionControl = VersionControl::GetInstance(); versionControl != nullptr)
+			{
+				const VersionControlStatus status = versionControl->GetFolderStatus(node->_path);
+				if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && ImGui::IsDragDropActive() == false)
+				{
+					VersionControlGui::DrawTooltip(status, true);
+				}
+				VersionControlGui::DrawInlineBadges(status);
+			}
 		}
 		ImGui::PopStyleVar();
 
@@ -952,6 +999,7 @@ namespace hod::inline editor
 						menuItem.callback = &menuAction.execute;
 						menuItem.label = menuAction.path;
 						menuItem.isSeparator = false;
+						menuItem.disabledReason = menuAction.disabledReason != nullptr ? menuAction.disabledReason(context) : String();
 						_contextualMenuData.PushBack(menuItem);
 					}
 				}
@@ -1240,9 +1288,13 @@ namespace hod::inline editor
 			{
 				// The label is the id, not the item address: the Create button rebuilds its items every frame,
 				// a press and its release (where a menu item validates) would not be on the same id
-				if (ImGui::MenuItem(remaining.data()))
+				if (ImGui::MenuItem(remaining.data(), nullptr, false, menuItem.disabledReason.Empty()))
 				{
 					clickedMenuItem = &menuItem;
+				}
+				if (menuItem.disabledReason.Empty() == false && ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled))
+				{
+					ImGui::SetTooltip("%s", menuItem.disabledReason.CStr());
 				}
 				continue;
 			}
@@ -1384,6 +1436,16 @@ namespace hod::inline editor
 			imageOffset.x = (imageSize.y - imageSize.x) * 0.5f;
 		}
 		drawList->AddImage(texture, imageMin + imageOffset, imageMin + imageOffset + imageSize);
+
+		if (VersionControl* versionControl = VersionControl::GetInstance(); versionControl != nullptr && versionControl->IsConnected())
+		{
+			const VersionControlStatus status = isAsset ? versionControl->GetAssetStatus(*item->_asset) : versionControl->GetFolderStatus(item->_path);
+			VersionControlGui::DrawBadges(drawList, imageMin, imageMin + ImVec2(ExplorerItemImageSize, ExplorerItemImageSize), status);
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && ImGui::IsDragDropActive() == false)
+			{
+				VersionControlGui::DrawTooltip(status, isAsset == false);
+			}
+		}
 
 		// Selection (and press) is an outline only, hover a lighter one
 		if (selected == true || held == true)

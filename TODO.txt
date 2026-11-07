@@ -32,3 +32,19 @@ Build: bc7enc_rdo / astcenc -thorough
 Ctrl + S for Save tab Editor
 Missing Source dir (Project)
 Anchor Ctrl/shift shortcut
+
+---------
+
+# Editor: Version control, before calling it v1
+
+- Close / Hot Reload during a long operation (Pull, Push: up to 30 min with LFS) blocks invisibly: OnProjectClosed waits for the whole queue
+	- On close, only run the ReleaseEdit, drop the rest, and show what is waited for
+- With LFS lockable files, a save during a Pull/Push (or the first fetch after opening, up to 60s) freezes the editor: PrepareWrite waits behind it
+	- Refuse the save with a clear message when the worker is busy with a long operation (or wait a few seconds at most)
+- SSH remotes can hang 2 to 30 min: ssh asks for a passphrase / host key confirmation in the hidden console (CREATE_NO_WINDOW)
+	- -o BatchMode=yes, without overriding a core.sshCommand set by the user
+- A timeout kills git only (TerminateProcess): git-remote-https / git-lfs / ssh stay alive, a .git/index.lock may stay and make every command fail
+	- Kill the whole tree (Job Object in Process.windows), recognize the index.lock error and explain it
+- Non ASCII names: FileSystem uses the ANSI functions (GetFileAttributesA, CreateFileA; code page 1252 here)
+	- GitProvider::Add skips them silently, GetFilesToCheckout never checks them out, Submit classifies them as deleted (still committed right thanks to git commit --only)
+	- Locally: ask git (status) what exists rather than FileSystem. For real: FileSystem on the W functions (whole engine)

@@ -42,6 +42,7 @@ namespace hod::inline editor
 			String group;
 			std::function<bool(const Context&)> available;
 			std::function<void(const Context&)> execute;
+			std::function<String(const Context&)> disabledReason = nullptr; // Optional: not empty, the item is disabled, the reason in its tooltip
 			uint32_t id = 0; // Given by RegisterContextualMenuAction, 0 for the ones of the editor itself (PopulateContextualMenuActions)
 		};
 
@@ -168,6 +169,7 @@ namespace hod::inline editor
 			bool isSeparator;
 			// Not a copy: the lambdas of an editor module must not outlive its unload (hot reload, editor shutdown)
 			const std::function<void(const Context&)>* callback = nullptr;
+			String disabledReason {};
 		};
 		Vector<ContextualMenuItem> _contextualMenuData;
 		uint32_t                   _contextualMenuDataVersion = 0;

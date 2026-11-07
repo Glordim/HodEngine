@@ -23,6 +23,7 @@
 #include "HodEngine/Editor/TaskTracker/TaskTrackerWindow.hpp"
 #include "HodEngine/Editor/TitleBar.hpp"
 #include "HodEngine/Editor/VersionControl/VersionControl.hpp"
+#include "HodEngine/Editor/VersionControl/VersionControlChangesWindow.hpp"
 
 #include "HodEngine/Core/ArgumentParser.hpp"
 #include "HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp"
@@ -400,6 +401,10 @@ namespace hod::inline editor
 						if (ImGui::MenuItem("Asset Browser") == true)
 						{
 							ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
+						}
+						if (ImGui::MenuItem("Version Control Changes") == true)
+						{
+							VersionControlChangesWindow::Open();
 						}
 						if (ImGui::MenuItem("ImGui demo"))
 						{
