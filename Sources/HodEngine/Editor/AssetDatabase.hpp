@@ -110,6 +110,10 @@ namespace hod::inline editor
 		template<typename _Importer_, typename... Args>
 		bool RegisterImporter(Args... extensions);
 
+		/// @brief Of the registered asset types (AssetType::GetExtensionV) and importers (lowercase), without the dot
+		Vector<String> GetAssetExtensions() const;
+		Vector<String> GetImporterExtensions() const;
+
 		// By the editor modules when they unload (through EditorModuleRegistration): their code goes with them
 		void UnregisterAssetType(const AssetType& assetType);
 		template<typename _Importer_>

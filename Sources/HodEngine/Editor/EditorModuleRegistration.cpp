@@ -3,6 +3,7 @@
 #include "HodEngine/Editor/AssetType.hpp"
 #include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
 #include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawerRegistry.hpp"
+#include "HodEngine/Editor/VersionControl/VersionControl.hpp"
 #include "HodEngine/Editor/WindowFactory.hpp"
 
 namespace hod::inline editor
@@ -25,6 +26,21 @@ namespace hod::inline editor
 		}
 		_assetTypes.PushBack(assetType);
 		assetType->OnRegistered(*this);
+		return true;
+	}
+
+	/// @brief
+	/// @param provider
+	/// @return
+	bool EditorModuleRegistration::RegisterVersionControlProvider(VersionControlProvider* provider)
+	{
+		if (VersionControl::GetInstance()->RegisterProvider(*provider) == false)
+		{
+			OUTPUT_ERROR("EditorModuleRegistration::RegisterVersionControlProvider: a version control provider named {} is registered already", provider->GetName());
+			DefaultAllocator::GetInstance().Delete(provider);
+			return false;
+		}
+		_versionControlProviders.PushBack(provider);
 		return true;
 	}
 
@@ -86,6 +102,14 @@ namespace hod::inline editor
 	/// @brief
 	void EditorModuleRegistration::UnregisterAll()
 	{
+		// First: the connected one is disconnected, its worker stopped, before anything else of the module goes
+		for (VersionControlProvider* provider : _versionControlProviders)
+		{
+			VersionControl::GetInstance()->UnregisterProvider(*provider);
+			DefaultAllocator::GetInstance().Delete(provider);
+		}
+		_versionControlProviders.Clear();
+
 		for (ReflectionDescriptor* descriptor : _windowDescriptors)
 		{
 			WindowFactory::GetInstance()->Unregister(*descriptor);

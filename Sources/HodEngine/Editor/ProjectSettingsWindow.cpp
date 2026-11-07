@@ -3,6 +3,7 @@
 
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/VersionControl/VersionControl.hpp"
 
 #include <HodEngine/GameSystems/ProjectSettings/ProjectSettingsManager.hpp>
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
@@ -15,6 +16,22 @@ namespace hod::inline editor
 	DESCRIBE_REFLECTED_CLASS(ProjectSettingsWindow, reflectionDescriptor)
 	{
 		(void)reflectionDescriptor;
+	}
+
+	namespace
+	{
+		/// @brief Checked out first if the version control needs it
+		void SaveSettings(const ProjectSettingsManager& projectSettingsManager, const ProjectSettings& settings)
+		{
+			const Path path = ProjectSettingsManager::GetFilePath(projectSettingsManager.GetDirectory(), settings.GetReflectionDescriptorV());
+			String     error;
+			if (VersionControl::GetInstance()->PrepareWrite(ArrayView<Path>(&path, 1), &error) == false)
+			{
+				OUTPUT_ERROR("Can't save {}: {}", path, error);
+				return;
+			}
+			projectSettingsManager.Save(settings);
+		}
 	}
 
 	/// @brief
@@ -91,7 +108,7 @@ namespace hod::inline editor
 				{
 					if (pendingSaveSettings != nullptr && pendingSaveSettings != selectedSettings)
 					{
-						projectSettingsManager->Save(*pendingSaveSettings);
+						SaveSettings(*projectSettingsManager, *pendingSaveSettings);
 					}
 					pendingSaveSettings = selectedSettings;
 					_pendingSaveType = _selectedType;
@@ -107,7 +124,7 @@ namespace hod::inline editor
 		// Saved once the edit ends rather than on every frame of a drag
 		if (pendingSaveSettings != nullptr && ImGui::IsAnyItemActive() == false)
 		{
-			projectSettingsManager->Save(*pendingSaveSettings);
+			SaveSettings(*projectSettingsManager, *pendingSaveSettings);
 			_pendingSaveType = 0;
 		}
 	}

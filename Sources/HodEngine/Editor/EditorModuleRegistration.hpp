@@ -25,6 +25,7 @@ namespace hod::inline editor
 	class AssetType;
 	class CustomPropertyDrawer;
 	class CustomComponentDrawer;
+	class VersionControlProvider;
 
 	/// @brief What an editor module adds to the editor (importers, asset types, asset browser actions, drawers, windows). Given
 	/// to the module's startup by the editor (see HOD_DECLARE_EDITOR_MODULE), which unregisters all of it (UnregisterAll, or the
@@ -72,14 +73,23 @@ namespace hod::inline editor
 		void RegisterWindow(const String& route);
 		void RegisterWindow(const String& route, ReflectionDescriptor& descriptor);
 
+		/// @brief An instance of _Provider_ (see VersionControlProvider), owned by the registration, offered to the user's choice
+		/// (see VersionControl::SetProviderChoice). Disconnected before its module unloads if it was the connected one
+		/// @return false (with an error) if a provider of the same name is registered already
+		template<typename _Provider_>
+		bool RegisterVersionControlProvider();
+
 		/// @brief In the reverse order of the registrations
 		void UnregisterAll();
 
 	private:
 		/// @param assetType Owned by the registration, deleted right away if refused
 		bool RegisterAssetType(AssetType* assetType);
+		/// @param provider Owned by the registration, deleted right away if refused
+		bool RegisterVersionControlProvider(VersionControlProvider* provider);
 
 	private:
+		Vector<VersionControlProvider*> _versionControlProviders;
 		Vector<void (*)()> _importerUnregisters; // One per importer type, the importers being identified by their type
 		Vector<AssetType*> _assetTypes;
 		Vector<uint32_t>   _contextualMenuActionIds;
@@ -95,6 +105,12 @@ namespace hod::inline editor
 	bool EditorModuleRegistration::RegisterAssetType()
 	{
 		return RegisterAssetType(DefaultAllocator::GetInstance().New<_AssetType_>());
+	}
+
+	template<typename _Provider_>
+	bool EditorModuleRegistration::RegisterVersionControlProvider()
+	{
+		return RegisterVersionControlProvider(DefaultAllocator::GetInstance().New<_Provider_>());
 	}
 
 	template<typename _Importer_, typename... Args>

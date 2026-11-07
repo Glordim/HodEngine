@@ -5,6 +5,7 @@
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/VersionControl/VersionControl.hpp"
 
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
@@ -38,6 +39,12 @@ namespace hod::inline editor
 	/// @brief
 	EditorTab::~EditorTab()
 	{
+		// Its checkouts made for nothing (closed without saving, or saved unchanged) are released
+		if (_editPrepared && _asset != nullptr && VersionControl::GetInstance() != nullptr)
+		{
+			VersionControl::GetInstance()->ReleaseEdit(VersionControl::GetAssetFiles(*_asset));
+		}
+
 		for (EditorTabWindow* window : _windows)
 		{
 			DefaultAllocator::GetInstance().Delete(window);
@@ -174,6 +181,13 @@ namespace hod::inline editor
 	/// @param undoLabel
 	void EditorTab::MarkAsDirty(std::string_view undoLabel)
 	{
+		// The first change: checked out now rather than on save, a lock taken meanwhile is known right away
+		if (_dirty == false && _asset != nullptr && VersionControl::GetInstance() != nullptr)
+		{
+			VersionControl::GetInstance()->PrepareEdit(VersionControl::GetAssetFiles(*_asset));
+			_editPrepared = true;
+		}
+
 		_dirty = true;
 		_undoCommitPending = true;
 		if (undoLabel.empty() == false)

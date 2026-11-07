@@ -22,6 +22,7 @@
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/TaskTracker/TaskTrackerWindow.hpp"
 #include "HodEngine/Editor/TitleBar.hpp"
+#include "HodEngine/Editor/VersionControl/VersionControl.hpp"
 
 #include "HodEngine/Core/ArgumentParser.hpp"
 #include "HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp"
@@ -90,7 +91,10 @@ namespace hod::inline editor
 		}
 		_editorTabs.Clear();
 
+		// After the tabs (they release their checkouts) and before the modules (the providers go with them): runs what's queued
+		VersionControl::GetInstance()->OnProjectClosed();
 		UnloadEditorModules();
+		VersionControl::DestroyInstance();
 
 		DefaultAllocator::GetInstance().Delete(_floatingAssetBrowserWindow);
 		DefaultAllocator::GetInstance().Delete(_floatingTaskTrackerWindow);
@@ -129,6 +133,7 @@ namespace hod::inline editor
 
 		WindowFactory::CreateInstance();
 		AssetDatabase::CreateInstance(); // Before the editor modules: they register their asset types into it
+		VersionControl::CreateInstance(); // Same for their version control providers
 
 		if (LoadEditorModules() == false)
 		{
@@ -303,12 +308,15 @@ namespace hod::inline editor
 		}
 
 		AssetDatabase::GetInstance()->Init();
+		VersionControl::GetInstance()->OnProjectOpened(*Project::GetInstance());
 
 		ImGuiManager::GetInstance()->CloseAllWindow();
 
 		ImGuiManager::GetInstance()->SetDrawCallback(
 			[this]()
 			{
+				VersionControl::GetInstance()->Update(static_cast<DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow())->IsFocused());
+
 				static bool ImguiDemo = false;
 				if (ImguiDemo)
 				{

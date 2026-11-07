@@ -87,6 +87,7 @@ namespace hod::inline editor
 	private:
 		bool _initialLayoutCreated = false;
 		bool _dirty = false;
+		bool _editPrepared = false; // VersionControl::PrepareEdit called, ReleaseEdit when closed
 		bool _selected = false;
 
 		UndoHistory _undoHistory;

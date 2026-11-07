@@ -8,6 +8,7 @@
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Importer/Importer.hpp"
 #include "HodEngine/Editor/Project.hpp"
+#include "HodEngine/Editor/VersionControl/VersionControl.hpp"
 
 
 #include "HodEngine/GameSystems/Frame/FrameSequencer.hpp"
@@ -239,6 +240,11 @@ namespace hod::inline editor
 	/// @param path
 	void AssetDatabase::ApplyAssetChange(const Path& path)
 	{
+		if (VersionControl::GetInstance() != nullptr)
+		{
+			VersionControl::GetInstance()->RequestRefresh(ArrayView<Path>(&path, 1));
+		}
+
 		FileSystemMapping* node = FindFileSystemMappingFromPath(path);
 		if (FileSystem::GetInstance()->Exists(path) == false)
 		{
@@ -276,6 +282,11 @@ namespace hod::inline editor
 	/// @param path
 	void AssetDatabase::ApplySourceChange(const Path& path)
 	{
+		if (VersionControl::GetInstance() != nullptr)
+		{
+			VersionControl::GetInstance()->RequestRefresh(ArrayView<Path>(&path, 1));
+		}
+
 		if (FileSystem::GetInstance()->Exists(path))
 		{
 			FileSystemWatcherSourceOnChangeFile(path);
@@ -487,7 +498,14 @@ namespace hod::inline editor
 
 		Path finalPath = GenerateUniqueAssetPath(newPath);
 
-		if (FileSystem::GetInstance()->Rename(node._path, finalPath) == false)
+		String                     error;
+		VersionControl::Delegation delegation = VersionControl::GetInstance() == nullptr ? VersionControl::Delegation::NotHandled : VersionControl::GetInstance()->Move(node._path, finalPath, &error);
+		if (delegation == VersionControl::Delegation::Failed)
+		{
+			OUTPUT_ERROR("Can't move {} to {}: {}", node._path, finalPath, error);
+			return;
+		}
+		if (delegation == VersionControl::Delegation::NotHandled && FileSystem::GetInstance()->Rename(node._path, finalPath) == false)
 		{
 			OUTPUT_ERROR("Can't move {} to {}", node._path, finalPath);
 			return;
@@ -519,7 +537,17 @@ namespace hod::inline editor
 	/// @param node
 	void AssetDatabase::Delete(FileSystemMapping& node)
 	{
-		FileSystem::GetInstance()->RemoveAll(node._path);
+		String                     error;
+		VersionControl::Delegation delegation = VersionControl::GetInstance() == nullptr ? VersionControl::Delegation::NotHandled : VersionControl::GetInstance()->Delete(ArrayView<Path>(&node._path, 1), &error);
+		if (delegation == VersionControl::Delegation::Failed)
+		{
+			OUTPUT_ERROR("Can't delete {}: {}", node._path, error);
+			return;
+		}
+		if (delegation == VersionControl::Delegation::NotHandled)
+		{
+			FileSystem::GetInstance()->RemoveAll(node._path);
+		}
 
 		DeleteNode(node);
 	}
@@ -621,6 +649,33 @@ namespace hod::inline editor
 
 		_assetTypes.PushBack(&assetType);
 		return true;
+	}
+
+	/// @brief
+	/// @return
+	Vector<String> AssetDatabase::GetAssetExtensions() const
+	{
+		Vector<String> extensions;
+		for (const AssetType* assetType : _assetTypes)
+		{
+			extensions.PushBack(String(assetType->GetExtensionV()));
+		}
+		return extensions;
+	}
+
+	/// @brief
+	/// @return
+	Vector<String> AssetDatabase::GetImporterExtensions() const
+	{
+		Vector<String> extensions;
+		for (const ImporterEntry* entry : _importerEntries)
+		{
+			for (const String& extension : entry->_extensions)
+			{
+				extensions.PushBack(extension);
+			}
+		}
+		return extensions;
 	}
 
 	/// @brief
@@ -870,6 +925,11 @@ namespace hod::inline editor
 				node->_parentFolder->_childrenAsset.push_back(node);
 				node->_type = FileSystemMapping::Type::AssetType;
 				node->_asset = asset;
+
+				if (VersionControl::GetInstance() != nullptr)
+				{
+					VersionControl::GetInstance()->OnFilesCreated(VersionControl::GetAssetFiles(*asset));
+				}
 			}
 		}
 	}

@@ -4,6 +4,7 @@
 #include "HodEngine/Core/Stream/Stream.hpp"
 #include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/Project.hpp"
+#include "HodEngine/Editor/VersionControl/VersionControl.hpp"
 
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
@@ -231,6 +232,17 @@ namespace hod::inline editor
 	/// @return
 	bool AssetContainer::Save(const Path& path, const Path& tmpDir)
 	{
+		// Checked out first if the version control needs it (read-only until then)
+		if (VersionControl* versionControl = VersionControl::GetInstance(); versionControl != nullptr)
+		{
+			String error;
+			if (versionControl->PrepareWrite(ArrayView<Path>(&path, 1), &error) == false)
+			{
+				OUTPUT_ERROR("AssetContainer::Save: can't write {}: {}", path, error);
+				return false;
+			}
+		}
+
 		Path        tmpFile;
 		ScopedGuard cleanupTmp = [&]() {};
 		if (tmpDir.Empty())
