@@ -231,7 +231,7 @@ namespace hod::inline editor
 	/// @return
 	bool Editor::LoadEditorModules()
 	{
-		StaticArray<const char*, 6> editorModules = {"CoreEditor", "InputEditor", "GameEditor", "UI2Editor", "RendererEditor", "AudioEditor"};
+		StaticArray<const char*, 7> editorModules = {"CoreEditor", "InputEditor", "GameEditor", "UI2Editor", "RendererEditor", "AudioEditor", "VersionControlEditor"};
 
 		for (const char* moduleName : editorModules)
 		{

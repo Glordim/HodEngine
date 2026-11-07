@@ -1,0 +1,8 @@
+#pragma once
+#include <HodEngine/HodEngine.hpp>
+
+#ifdef HOD_VERSION_CONTROL_EDITOR_EXPORT
+	#define HOD_VERSION_CONTROL_EDITOR_API HOD_EXPORT
+#else
+	#define HOD_VERSION_CONTROL_EDITOR_API HOD_IMPORT
+#endif

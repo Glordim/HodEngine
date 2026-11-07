@@ -62,6 +62,7 @@ if (BUILD_EDITOR AND NOT ANDROID AND BUILD_SHARED_LIBS)
 	add_subdirectory("Sources/HodEngine/Editor")
 	add_subdirectory("Sources/HodEngine/RendererEditor")
 	add_subdirectory("Sources/HodEngine/AudioEditor")
+	add_subdirectory("Sources/HodEngine/VersionControlEditor")
 	add_subdirectory("Sources/HodEditor")
 endif()
 
@@ -85,6 +86,11 @@ if (BUILD_UNIT_TESTS AND NOT ANDROID)
 	set_target_properties(TestsRenderer PROPERTIES FOLDER "Test/")
 	set_target_properties(TestsText PROPERTIES FOLDER "Test/")
 	set_target_properties(TestsUI2 PROPERTIES FOLDER "Test/")
+
+	if (TARGET VersionControlEditor)
+		add_subdirectory("Sources/Tests/VersionControl")
+		set_target_properties(TestsVersionControl PROPERTIES FOLDER "Test/")
+	endif()
 endif()
 
 install(EXPORT HodEngineTargets

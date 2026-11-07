@@ -41,6 +41,7 @@ add_dependencies(HodEditor
 	UI2Editor
 	RendererEditor
 	AudioEditor
+	VersionControlEditor
 )
 
 target_link_libraries(HodEditor
