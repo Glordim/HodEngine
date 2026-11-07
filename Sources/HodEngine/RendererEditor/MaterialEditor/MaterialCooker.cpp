@@ -167,16 +167,34 @@ namespace hod::inline editor
 		Path toolsDir = FileSystem::GetExecutablePath().ParentPath() / "Tools";
 		// ShaderLib is what the shaders import from the engine, like its attributes.
 		// Row major is the layout of Matrix4: matrices are given to the shaders as they are.
-		String stageParameter(fmt::format("-entry {} -stage {} -I {} -matrix-layout-row-major", entryPoint, stage, toolsDir / "ShaderLib"));
-#if defined(PLATFORM_WINDOWS) && defined(HOD_SHADER_TARGET_D3D12)
-		bool slangResult = Process::Create((toolsDir / "slangc.exe").GetString(), fmt::format("{} -target dxil -profile sm_6_0 {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
-#elif defined(PLATFORM_WINDOWS)
-		bool slangResult = Process::Create((toolsDir / "slangc.exe").GetString(), fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
-#elif defined(PLATFORM_LINUX)
-		bool slangResult = Process::Create((toolsDir / "slangc").GetString(), fmt::format("{} -target spirv -profile glsl_450+spirv_1_3 {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
+		Process::Desc desc;
+#if defined(PLATFORM_WINDOWS)
+		desc._program = (toolsDir / "slangc.exe").GetString();
 #else
-		bool slangResult = Process::Create((toolsDir / "slangc").GetString(), fmt::format("{} -target metallib {} -o {} -reflection-json {}", slangRootPath, stageParameter, stageOutput, stageReflectionOutput), false);
+		desc._program = (toolsDir / "slangc").GetString();
 #endif
+		// One argument each: the paths may have spaces
+		desc._arguments = {slangRootPath.GetString(), "-entry", String(entryPoint), "-stage", String(stage), "-I", (toolsDir / "ShaderLib").GetString(),
+		                   "-matrix-layout-row-major"};
+#if defined(PLATFORM_WINDOWS) && defined(HOD_SHADER_TARGET_D3D12)
+		desc._arguments.PushBack("-target");
+		desc._arguments.PushBack("dxil");
+		desc._arguments.PushBack("-profile");
+		desc._arguments.PushBack("sm_6_0");
+#elif defined(PLATFORM_WINDOWS) || defined(PLATFORM_LINUX)
+		desc._arguments.PushBack("-target");
+		desc._arguments.PushBack("spirv");
+		desc._arguments.PushBack("-profile");
+		desc._arguments.PushBack("glsl_450+spirv_1_3");
+#else
+		desc._arguments.PushBack("-target");
+		desc._arguments.PushBack("metallib");
+#endif
+		desc._arguments.PushBack("-o");
+		desc._arguments.PushBack(stageOutput.GetString());
+		desc._arguments.PushBack("-reflection-json");
+		desc._arguments.PushBack(stageReflectionOutput.GetString());
+		bool slangResult = Process::RunToOutput(std::move(desc));
 		if (slangResult == false)
 		{
 			OUTPUT_ERROR("MaterialCooker: slangc failed for '{}' stage", stage);

@@ -132,7 +132,6 @@ namespace hod::inline editor
 					ImGui::TextUnformatted(it->CStr());
 					ImGui::EndDisabled();
 					ImGui::PopFont();
-					// ImGui::Text("C:\\users\\glordim\\Desltop\\Dev\\Toto");
 
 					ImGui::TableNextColumn();
 					ImGui::AlignTextToFramePadding();
@@ -146,14 +145,6 @@ namespace hod::inline editor
 							OUTPUT_ERROR("Unable to open {}", *it);
 							exit(-1);
 						}
-						/*
-						String arguments = "--ProjectPath ";
-						arguments += *it;
-						if (Process::Create(FileSystem::GetExecutablePath().string(), arguments, true) == true)
-						{
-						    Application::GetInstance()->Quit();
-						}
-						*/
 					}
 					ImGui::SameLine();
 					ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(150, 0, 0, 255));

@@ -13,6 +13,26 @@
 
 namespace hod::inline editor
 {
+	namespace
+	{
+		/// @brief cmake with these arguments, its output in the console as it comes
+		bool RunCMake(Vector<String> arguments)
+		{
+			String commandLine = "cmake";
+			for (const String& argument : arguments)
+			{
+				commandLine += " ";
+				commandLine += argument;
+			}
+			OUTPUT_MESSAGE("Execute: {}", std::string_view(commandLine));
+
+			Process::Desc desc;
+			desc._program = "cmake";
+			desc._arguments = std::move(arguments);
+			return Process::RunToOutput(std::move(desc));
+		}
+	}
+
 	std::string_view CMakeHelper::GetCurrentPlatform()
 	{
 		return TO_STRING(HOD_PLATFORM);
@@ -115,39 +135,33 @@ namespace hod::inline editor
 				break;
 		}
 
-		String installDirArg;
+		// One argument each: the paths may have spaces
+		Vector<String> arguments = {
+			fmt::format("-DCMAKE_TOOLCHAIN_FILE:FILEPATH={}", toolchainPath).c_str(),
+			fmt::format("-DHodEngine_DIR={}", engineDirPath).c_str(),
+			fmt::format("-DHOD_GAME_BUILD_TYPE={}", gameBuildType).c_str(),
+			"--no-warn-unused-cli",
+			"-B",
+			buildDir.GetString(),
+			"-S",
+			sourceDir.GetString(),
+			"-G",
+			"Ninja",
+		};
 		if (installDir.Empty() == false)
-			installDirArg = fmt::format("-DCMAKE_INSTALL_PREFIX={}", installDir);
-
-		std::string arguments = fmt::format("-DCMAKE_TOOLCHAIN_FILE:FILEPATH={} -DHodEngine_DIR={} -DHOD_GAME_BUILD_TYPE={} --no-warn-unused-cli -B {} -S {} {} -G Ninja",
-		                                    toolchainPath,
-		                                    engineDirPath,
-		                                    gameBuildType,
-		                                    buildDir,
-		                                    sourceDir,
-		                                    installDirArg);
- 
-		OUTPUT_MESSAGE("Execute: cmake {}", arguments);
-		return Process::Create("cmake", arguments, false);
+		{
+			arguments.PushBack(fmt::format("-DCMAKE_INSTALL_PREFIX={}", installDir).c_str());
+		}
+		return RunCMake(std::move(arguments));
 	}
 
 	bool CMakeHelper::Build(const Path& buildDir, const char* config)
 	{
-		std::string arguments = fmt::format("--build {} --config {} --parallel",
-		                                    buildDir.GetString().CStr(),
-		                                    config);
-
-		OUTPUT_MESSAGE("Execute: cmake {}", arguments);
-		return Process::Create("cmake", arguments, false);
+		return RunCMake({"--build", buildDir.GetString(), "--config", config, "--parallel"});
 	}
 
 	bool CMakeHelper::Install(const Path& buildDir, const char* config)
 	{
-		std::string arguments = fmt::format("--install {} --config {}",
-		                                    buildDir.GetString().CStr(),
-		                                    config);
-
-		OUTPUT_MESSAGE("Execute: cmake {}", arguments);
-		return Process::Create("cmake", arguments, false);
+		return RunCMake({"--install", buildDir.GetString(), "--config", config});
 	}
 }

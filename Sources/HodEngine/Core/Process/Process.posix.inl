@@ -377,10 +377,17 @@ namespace hod::inline core
 		size_t         inputWritten = 0;
 		bool           exited = false;
 		int            status = 0;
+		uint32_t       outputEmitted = 0;
+		uint32_t       errorEmitted = 0;
 		while (true)
 		{
 			bool readSomething = ReadAvailable(outputPipe[0], result._output);
 			readSomething |= ReadAvailable(errorPipe[0], result._error);
+			if (readSomething)
+			{
+				EmitLines(desc, result._output, outputEmitted, false, false);
+				EmitLines(desc, result._error, errorEmitted, true, false);
+			}
 
 			// Its input written along with its outputs read: it may wait for the whole input before writing, or the opposite
 			while (inputPipe[1] != -1)
@@ -459,6 +466,9 @@ namespace hod::inline core
 				poll(pollFds, pollFdCount, 5); // Woken up by its outputs, otherwise to check its exit
 			}
 		}
+
+		EmitLines(desc, result._output, outputEmitted, false, true);
+		EmitLines(desc, result._error, errorEmitted, true, true);
 
 		result._exitCode = ExitCode(status);
 		closeAll();

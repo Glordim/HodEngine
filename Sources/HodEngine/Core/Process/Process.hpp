@@ -7,6 +7,7 @@
 
 #include <atomic>
 #include <cstdint>
+#include <functional>
 #include <string_view>
 
 namespace hod::inline core
@@ -30,6 +31,10 @@ namespace hod::inline core
 			std::string_view         _input;            // Written to stdin, then closed (p4 -x -, git commit -F -). Empty: stdin is null
 			uint32_t                 _timeoutMs = 0;    // 0: none. Killed once reached
 			const std::atomic<bool>* _cancel = nullptr; // Checked while it runs: killed once true
+
+			/// @brief Optional: each line of its stdout (error false) and stderr (error true) as it comes, without its end of line, on
+			/// the thread of Run (a long build shown live in the console). The outputs are still kept whole in Result
+			std::function<void(std::string_view line, bool error)> _onOutputLine;
 		};
 
 		struct Result
@@ -42,14 +47,21 @@ namespace hod::inline core
 		};
 
 	public:
-		static bool Create(const std::string_view& program, const std::string_view& argument,
-		                   bool detach); // TODO argument should be pass as array because split string by space can split a textual argument with a space inside ?
-
 		/// @brief Runs it and waits for its end, both outputs read concurrently (no deadlock on a full pipe), no console window
 		/// @return false if it couldn't be started (program not found...), result._exitCode tells the rest
 		static bool Run(const Desc& desc, Result& result);
 
+		/// @brief Run for the tools run for the user (cmake, slangc): each line in the console as it comes (stdout as messages,
+		/// stderr as errors), with the failure to start it
+		/// @return true if it exited with 0
+		static bool RunToOutput(Desc desc);
+
 		/// @brief Started and left running (a diff tool, an external client): its outputs are dropped
 		static bool Launch(const Desc& desc);
+
+	private:
+		/// @brief By Run, after each read: the lines of output after emitted given to desc._onOutputLine, emitted moved after them.
+		/// end: the last one too, even without its end of line
+		static void EmitLines(const Desc& desc, const String& output, uint32_t& emitted, bool error, bool end);
 	};
 }

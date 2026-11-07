@@ -28,126 +28,6 @@ extern "C"
 
 namespace hod::inline core
 {
-	/// @brief
-	/// @param program
-	/// @param argument
-	/// @return
-	bool Process::Create(const std::string_view& program, const std::string_view& argument, bool detach)
-	{
-		SECURITY_ATTRIBUTES saAttr;
-		saAttr.nLength = sizeof(SECURITY_ATTRIBUTES);
-		saAttr.bInheritHandle = TRUE;
-		saAttr.lpSecurityDescriptor = NULL;
-
-		HANDLE hStdOutRead, hStdOutWrite;
-		HANDLE hStdErrRead, hStdErrWrite;
-
-		if (!CreatePipe(&hStdOutRead, &hStdOutWrite, &saAttr, 0) || !CreatePipe(&hStdErrRead, &hStdErrWrite, &saAttr, 0))
-		{
-			OUTPUT_ERROR("Failed to create pipes ({})", GetLastError());
-			return false;
-		}
-
-		SetHandleInformation(hStdOutRead, HANDLE_FLAG_INHERIT, 0);
-		SetHandleInformation(hStdErrRead, HANDLE_FLAG_INHERIT, 0);
-
-		STARTUPINFOA si = {};
-		si.cb = sizeof(si);
-		si.dwFlags = STARTF_USESTDHANDLES;
-		si.hStdOutput = hStdOutWrite;
-		si.hStdError = hStdErrWrite;
-		si.hStdInput = NULL;
-
-		PROCESS_INFORMATION pi = {};
-
-		String commandLine = program.data();
-		commandLine += " ";
-		commandLine += argument;
-
-		if (!CreateProcessA(NULL, (char*)commandLine.CStr(), NULL, NULL, TRUE, CREATE_NO_WINDOW | (detach ? DETACHED_PROCESS : 0), NULL, NULL, &si, &pi))
-		{
-			OUTPUT_ERROR("Failed to create process ({})", GetLastError());
-			CloseHandle(hStdOutRead);
-			CloseHandle(hStdOutWrite);
-			CloseHandle(hStdErrRead);
-			CloseHandle(hStdErrWrite);
-			return false;
-		}
-
-		CloseHandle(hStdOutWrite);
-		CloseHandle(hStdErrWrite);
-
-		bool result;
-		if (detach == true)
-		{
-			result = true;
-		}
-		else
-		{
-			char  buffer[4096];
-			DWORD bytesRead;
-			BOOL  success;
-			DWORD exitCode;
-
-			while (true)
-			{
-				// Vérifier si le processus est terminé
-				if (WaitForSingleObject(pi.hProcess, 0) == WAIT_OBJECT_0)
-				{
-					break;
-				}
-
-				// Lire les données de stdout en temps réel
-				while (PeekNamedPipe(hStdOutRead, NULL, 0, NULL, &bytesRead, NULL) && bytesRead > 0)
-				{
-					success = ReadFile(hStdOutRead, buffer, sizeof(buffer) - 1, &bytesRead, NULL);
-					if (success && bytesRead > 0)
-					{
-						buffer[bytesRead] = '\0';
-						OUTPUT_MESSAGE(buffer);
-					}
-				}
-
-				// Lire les données de stderr en temps réel
-				while (PeekNamedPipe(hStdErrRead, NULL, 0, NULL, &bytesRead, NULL) && bytesRead > 0)
-				{
-					success = ReadFile(hStdErrRead, buffer, sizeof(buffer) - 1, &bytesRead, NULL);
-					if (success && bytesRead > 0)
-					{
-						buffer[bytesRead] = '\0';
-						OUTPUT_ERROR(buffer);
-					}
-				}
-
-				Sleep(10);
-			}
-
-			// Assurez-vous de lire toute sortie restante après la fin du processus
-			while (ReadFile(hStdOutRead, buffer, sizeof(buffer) - 1, &bytesRead, NULL) && bytesRead > 0)
-			{
-				buffer[bytesRead] = '\0';
-				OUTPUT_MESSAGE(buffer);
-			}
-
-			while (ReadFile(hStdErrRead, buffer, sizeof(buffer) - 1, &bytesRead, NULL) && bytesRead > 0)
-			{
-				buffer[bytesRead] = '\0';
-				OUTPUT_ERROR(buffer);
-			}
-
-			// Récupérer le code de sortie du processus
-			GetExitCodeProcess(pi.hProcess, &exitCode);
-			result = (exitCode == EXIT_SUCCESS);
-		}
-
-		CloseHandle(hStdOutRead);
-		CloseHandle(hStdErrRead);
-		CloseHandle(pi.hProcess);
-		CloseHandle(pi.hThread);
-
-		return result;
-	}
-
 	namespace
 	{
 		/// @brief One argument for CommandLineToArgvW (what the C runtime of the child parses): quoted if needed, the backslashes
@@ -447,10 +327,17 @@ namespace hod::inline core
 		// open after its exit
 		const ULONGLONG startTime = GetTickCount64();
 		bool            exited = false;
+		uint32_t        outputEmitted = 0;
+		uint32_t        errorEmitted = 0;
 		while (true)
 		{
 			bool readSomething = ReadAvailable(outputRead, result._output);
 			readSomething |= ReadAvailable(errorRead, result._error);
+			if (readSomething)
+			{
+				EmitLines(desc, result._output, outputEmitted, false, false);
+				EmitLines(desc, result._error, errorEmitted, true, false);
+			}
 
 			if (exited)
 			{
@@ -478,6 +365,9 @@ namespace hod::inline core
 				exited = true;
 			}
 		}
+
+		EmitLines(desc, result._output, outputEmitted, false, true);
+		EmitLines(desc, result._error, errorEmitted, true, true);
 
 		if (inputWriter.joinable())
 		{

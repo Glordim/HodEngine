@@ -5,6 +5,7 @@
 #include <HodEngine/Core/String.hpp>
 #include <HodEngine/Core/Vector.hpp>
 
+#include <algorithm>
 #include <atomic>
 #include <chrono>
 #include <cstdio>
@@ -100,6 +101,12 @@ TEST(ProcessChild, DISABLED_Main)
 	else if (command == "cwd")
 	{
 		std::cout << std::filesystem::current_path().string();
+	}
+	else if (command == "partial") // Its last line without end of line, no end marker
+	{
+		std::cout << "last without end of line";
+		std::cout.flush();
+		std::exit(0);
 	}
 	else if (command == "sleep")
 	{
@@ -257,4 +264,41 @@ TEST(Process, LaunchDoesNotWait)
 	Process::Desc missing;
 	missing._program = "hod-this-program-does-not-exist";
 	EXPECT_FALSE(Process::Launch(missing));
+}
+
+TEST(Process, RunGivesTheLinesAsTheyCome)
+{
+	std::vector<std::string> outputLines;
+	std::vector<std::string> errorLines;
+	Process::Desc            desc = ChildDesc({"big"});
+	desc._onOutputLine = [&](std::string_view line, bool error) { (error ? errorLines : outputLines).emplace_back(line); };
+
+	Process::Result result;
+	ASSERT_TRUE(Process::Run(desc, result));
+	EXPECT_EQ(result._exitCode, 0);
+
+	// Each line whole, without its end of line ("\r\n" too), none lost: the 2048 ones of each output, around gtest's own lines
+	const std::string line(1023, 'x');
+	EXPECT_EQ(std::count(outputLines.begin(), outputLines.end(), line), 2048);
+	EXPECT_EQ(std::count(errorLines.begin(), errorLines.end(), line), 2048);
+	EXPECT_EQ(std::count(outputLines.begin(), outputLines.end(), std::string("@@END@@")), 1);
+	EXPECT_FALSE(result._output.Empty()); // Still kept whole
+}
+
+TEST(Process, RunGivesTheLastLineWithoutEndOfLine)
+{
+	std::vector<std::string> outputLines;
+	Process::Desc            desc = ChildDesc({"partial"});
+	desc._onOutputLine = [&](std::string_view line, bool error)
+	{
+		if (error == false)
+		{
+			outputLines.emplace_back(line);
+		}
+	};
+
+	Process::Result result;
+	ASSERT_TRUE(Process::Run(desc, result));
+	ASSERT_FALSE(outputLines.empty());
+	EXPECT_EQ(outputLines.back(), "last without end of line");
 }
