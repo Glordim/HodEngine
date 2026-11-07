@@ -206,3 +206,5 @@ namespace hod::inline core
 		return result;
 	}
 }
+
+#include "HodEngine/Core/Process/Process.posix.inl"
