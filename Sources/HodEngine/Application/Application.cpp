@@ -12,9 +12,6 @@
 #include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Game/DataStruct/DataStructFactory.hpp"
 
-#include "HodEngine/UI/Builtin.hpp"
-
-
 #include "HodEngine/Game/RuntimeModule.hpp"
 
 #include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
@@ -113,7 +110,6 @@ namespace hod::inline application
 		ComponentFactory::CreateInstance();
 		DataStructFactory::CreateInstance();
 		game::RegisterBuiltin();
-		ui::RegisterBuiltin();
 
 		// Register phase of the runtime modules, in their order: their types, nothing else
 		_runtimeModuleHost = DefaultAllocator::GetInstance().New<RuntimeModuleHost>();
