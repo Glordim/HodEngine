@@ -47,6 +47,7 @@ namespace hod::inline editor
 		void DrawChanges();
 		void DrawChangeContextMenu(const Change& change);
 		void DrawSubmit();
+		void DrawSubmitContent();
 
 		void   RefreshChanges();
 		bool   IsChecked(const Change& change) const;
@@ -63,5 +64,6 @@ namespace hod::inline editor
 
 		char                         _message[8192] = {'\0'};
 		std::shared_ptr<SubmitState> _submit = std::make_shared<SubmitState>();
+		float                        _submitHeight = 0.0f; // Measured on the previous frame (its error/warning lines come and go), the table takes the rest
 	};
 }

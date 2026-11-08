@@ -197,9 +197,11 @@ namespace hod::inline editor
 	/// @brief One line per file: its check, its state, its path in the project
 	void VersionControlChangesWindow::DrawChanges()
 	{
-		const ImGuiStyle& style = ImGui::GetStyle();
-		const float       submitHeight = ImGui::GetTextLineHeightWithSpacing() * 8.0f + ImGui::GetFrameHeightWithSpacing() * 2.0f + style.ItemSpacing.y * 4.0f;
-		const float       tableHeight = Max(ImGui::GetContentRegionAvail().y - submitHeight, ImGui::GetFrameHeight() * 4.0f);
+		if (_submitHeight <= 0.0f) // First frame: estimate of the label, the message box and the buttons
+		{
+			_submitHeight = ImGui::GetTextLineHeightWithSpacing() * 7.0f + ImGui::GetFrameHeightWithSpacing() * 2.0f;
+		}
+		const float tableHeight = Max(ImGui::GetContentRegionAvail().y - _submitHeight, ImGui::GetFrameHeight() * 4.0f);
 
 		if (_changes.Empty())
 		{
@@ -364,6 +366,14 @@ namespace hod::inline editor
 
 	/// @brief The message and the buttons
 	void VersionControlChangesWindow::DrawSubmit()
+	{
+		const float startY = ImGui::GetCursorPosY();
+		DrawSubmitContent();
+		// Includes the trailing item spacing, which cancels the one after the table: the table ends exactly where the submit fits
+		_submitHeight = ImGui::GetCursorPosY() - startY;
+	}
+
+	void VersionControlChangesWindow::DrawSubmitContent()
 	{
 		VersionControl* versionControl = VersionControl::GetInstance();
 
