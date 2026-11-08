@@ -369,7 +369,7 @@ namespace hod::inline imgui
 		colors[ImGuiCol_TextDisabled] = ImVec4(0.35f, 0.35f, 0.35f, 1.00f);
 		colors[ImGuiCol_WindowBg] = ImVec4(0.14f, 0.14f, 0.14f, 1.0f);
 		colors[ImGuiCol_ChildBg] = ImVec4(0.13f, 0.13f, 0.13f, 1.00f);
-		colors[ImGuiCol_PopupBg] = ImVec4(0.19f, 0.19f, 0.19f, 0.92f);
+		colors[ImGuiCol_PopupBg] = ImVec4(0.19f, 0.19f, 0.19f, 1.00f); // Opaque: also the background of the modals
 		colors[ImGuiCol_Border] = ImVec4(0.00f, 0.00f, 0.00f, 1.00f);
 		colors[ImGuiCol_BorderShadow] = ImVec4(0.00f, 0.00f, 0.00f, 0.24f);
 		colors[ImGuiCol_FrameBg] = ImVec4(0.05f, 0.05f, 0.05f, 0.54f);
@@ -421,7 +421,7 @@ namespace hod::inline imgui
 		colors[ImGuiCol_NavCursor] = navColor;
 		colors[ImGuiCol_NavWindowingHighlight] = ImVec4(navColor.x, navColor.y, navColor.z, 0.70f);
 		colors[ImGuiCol_NavWindowingDimBg] = ImVec4(navColor.x, navColor.y, navColor.z, 0.20f);
-		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(1.00f, 0.00f, 0.00f, 0.35f);
+		colors[ImGuiCol_ModalWindowDimBg] = ImVec4(0.00f, 0.00f, 0.00f, 0.31f); // #00000050
 
 		ImGuiStyle& style = ImGui::GetStyle();
 		style.WindowPadding = ImVec2(8.00f, 8.00f);
