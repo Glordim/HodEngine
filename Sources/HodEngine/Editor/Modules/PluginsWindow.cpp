@@ -204,7 +204,12 @@ namespace hod::inline editor
 				}
 
 				ImGui::TableNextColumn();
-				if (module._enabled == false)
+				if (module._enabled == false && asked)
+				{
+					// Asked for but not enabled all the same (another provides the same thing, or it needs a disabled module): a warning
+					ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1.0f), ICON_MDI_ALERT " %s", module._disabledReason.CStr());
+				}
+				else if (module._enabled == false)
 				{
 					ImGui::TextDisabled("%s", module._disabledReason.CStr());
 				}
