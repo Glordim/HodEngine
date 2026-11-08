@@ -54,7 +54,7 @@ namespace hod
 	TEST(ModuleGraph, SortsDependenciesFirstThenByName)
 	{
 		Vector<ModuleManifest> manifests;
-		manifests.PushBack(Manifest("UI2", {"Core"}));
+		manifests.PushBack(Manifest("UI", {"Core"}));
 		manifests.PushBack(Manifest("Physics", {"Game"}));
 		manifests.PushBack(Manifest("Game", {"Core"}));
 		manifests.PushBack(Manifest("Core"));
@@ -62,7 +62,7 @@ namespace hod
 
 		ModuleGraph graph;
 		EXPECT_TRUE(graph.Build(manifests));
-		std::vector<std::string> expected {"Core", "Audio", "Game", "Physics", "UI2"};
+		std::vector<std::string> expected {"Core", "Audio", "Game", "Physics", "UI"};
 		EXPECT_EQ(Names(graph), expected);
 	}
 

@@ -167,6 +167,6 @@ namespace hod::inline game
 	/// @param texture
 	void TextRendererComponent::SetFont(const WeakResource<FontResource>& font)
 	{
-		_fontResource = font; // TODO: drawn as UI2 TextNode is, see PushRenderCommand
+		_fontResource = font; // TODO: drawn as UI TextNode is, see PushRenderCommand
 	}
 }

@@ -5,7 +5,7 @@
 
 namespace hod::inline gamesystems
 {
-	/// @brief Base of a project wide settings class: one reflected class per module or game (ui2::UISettings...),
+	/// @brief Base of a project wide settings class: one reflected class per module or game (ui::UISettings...),
 	/// registered in ProjectSettingsManager which owns its single instance. The editor edits them (Edit > Project
 	/// Settings) and saves each in <Project>/ProjectSettings/<TypeName>.json, the build ships them with the game data.
 	class HOD_GAME_SYSTEMS_API ProjectSettings

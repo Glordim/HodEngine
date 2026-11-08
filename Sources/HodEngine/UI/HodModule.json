@@ -1,0 +1,13 @@
+{
+	"_name": "UI",
+	"_description": "UI prefabs, layouts, interactions, animations, the UIComponent",
+	"_runtimeLibrary": "UI",
+	"_editorLibrary": "UIEditor",
+	"_dependencies": [
+		"Game"
+	],
+	"_provides": [
+		"UI"
+	],
+	"_required": false
+}

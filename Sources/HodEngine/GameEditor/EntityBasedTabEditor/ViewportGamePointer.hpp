@@ -6,8 +6,8 @@
 
 namespace hod::inline editor
 {
-	/// @brief Playing, the mouse over a viewport's game image, given to the modules that want it as the game window's would be (UI2's
-	/// canvases, see UI2Editor): the game is drawn in the viewport, not in a window of its own
+	/// @brief Playing, the mouse over a viewport's game image, given to the modules that want it as the game window's would be (UI's
+	/// canvases, see UIEditor): the game is drawn in the viewport, not in a window of its own
 	class HOD_GAME_EDITOR_API ViewportGamePointer
 	{
 	public:

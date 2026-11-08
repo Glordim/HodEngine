@@ -876,7 +876,7 @@ TEST_F(MaterialRender, TextPixelHasNoPixelBetweenTheColorAndTheBackground)
 // Shapes
 // ============================================================================
 
-// P2fT2f_Shape (what ui2::ShapeNode draws with), one unit per pixel of the target, the shape centered on it
+// P2fT2f_Shape (what ui::ShapeNode draws with), one unit per pixel of the target, the shape centered on it
 class ShapeRender : public MaterialRender
 {
 protected:

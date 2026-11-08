@@ -634,7 +634,7 @@ namespace hod::inline editor
 	}
 
 	/// @brief Copies the property's value from source to destination through its set method, when it has one, so the owner
-	/// reacts as to any edit (e.g. a ui2 node marked for a new layout pass). ReflectionPropertyObject::Copy writes the object
+	/// reacts as to any edit (e.g. a ui node marked for a new layout pass). ReflectionPropertyObject::Copy writes the object
 	/// in place, bypassing it.
 	static void CopyThroughSetter(ReflectionProperty* reflectionProperty, const void* source, void* destination)
 	{
