@@ -980,7 +980,12 @@ namespace hod::inline editor
 		}
 
 		const AssetType* assetType = AssetDatabase::GetInstance()->FindAssetType(asset->GetType());
-		EditorTab*       editorTab = (assetType != nullptr) ? assetType->CreateEditorTab(asset) : nullptr;
+		if (assetType == nullptr)
+		{
+			OUTPUT_WARNING("{}: its asset type is unknown, its module is disabled or missing (see Edit > Plugins)", asset->GetPath());
+			return nullptr;
+		}
+		EditorTab* editorTab = assetType->CreateEditorTab(asset);
 		if (editorTab == nullptr)
 		{
 			return nullptr; // todo message

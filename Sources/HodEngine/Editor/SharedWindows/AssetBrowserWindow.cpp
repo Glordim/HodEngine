@@ -1421,6 +1421,12 @@ namespace hod::inline editor
 			drawList->AddRectFilled(boundingBox.Min, boundingBox.Max, ImGui::GetColorU32(ImVec4(1.0f, 0.5f, 0.2f, _pingAnimValue)), style.FrameRounding);
 		}
 
+		// An asset whose type isn't registered (its module disabled or gone): kept as it is but can't be opened, its thumbnail
+		// dimmed under a warning so it doesn't look usable
+		const AssetType* assetType = isAsset ? AssetDatabase::GetInstance()->FindAssetType(item->_asset->GetType()) : nullptr;
+		const bool       unknownType = isAsset && assetType == nullptr;
+		const ImU32      warningColor = ImGui::GetColorU32(ImVec4(1.0f, 0.6f, 0.15f, 1.0f));
+
 		const ImVec2 imageMin(boundingBox.Min.x + padding, boundingBox.Min.y + padding);
 		Texture*     texture = isAsset ? GetExplorerItemTexture(*item->_asset) : Editor::GetInstance()->GetFolderTexture();
 		ImVec2       imageSize(ExplorerItemImageSize, ExplorerItemImageSize);
@@ -1435,7 +1441,30 @@ namespace hod::inline editor
 			imageSize.x = imageSize.y * ((float)texture->GetWidth() / (float)texture->GetHeight());
 			imageOffset.x = (imageSize.y - imageSize.x) * 0.5f;
 		}
-		drawList->AddImage(texture, imageMin + imageOffset, imageMin + imageOffset + imageSize);
+		drawList->AddImage(texture, imageMin + imageOffset, imageMin + imageOffset + imageSize, ImVec2(0.0f, 0.0f), ImVec2(1.0f, 1.0f),
+		                   unknownType ? IM_COL32(255, 255, 255, 70) : IM_COL32_WHITE);
+
+		if (unknownType)
+		{
+			const float  iconSize = ExplorerItemImageSize * 0.6f;
+			const ImVec2 iconTextSize = ImGui::GetFont()->CalcTextSizeA(iconSize, FLT_MAX, 0.0f, ICON_MDI_ALERT);
+			const ImVec2 iconPosition = imageMin + (ImVec2(ExplorerItemImageSize, ExplorerItemImageSize) - iconTextSize) * 0.5f;
+			drawList->AddText(ImGui::GetFont(), iconSize, iconPosition + ImVec2(1.0f, 1.0f), IM_COL32(0, 0, 0, 160), ICON_MDI_ALERT); // Shadow
+			drawList->AddText(ImGui::GetFont(), iconSize, iconPosition, warningColor, ICON_MDI_ALERT);
+
+			if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip) && ImGui::IsDragDropActive() == false)
+			{
+				ImGui::BeginTooltip();
+				ImGui::PushStyleColor(ImGuiCol_Text, warningColor);
+				ImGui::TextUnformatted(ICON_MDI_ALERT " Unknown asset type");
+				ImGui::PopStyleColor();
+				ImGui::PushTextWrapPos(ImGui::GetFontSize() * 24.0f);
+				ImGui::TextUnformatted("The module defining this type of asset is disabled or missing: the asset can't be opened. It is kept as it is.");
+				ImGui::TextDisabled("Enable its module in Edit > Plugins.");
+				ImGui::PopTextWrapPos();
+				ImGui::EndTooltip();
+			}
+		}
 
 		if (VersionControl* versionControl = VersionControl::GetInstance(); versionControl != nullptr && versionControl->IsConnected())
 		{
@@ -1512,11 +1541,11 @@ namespace hod::inline editor
 
 		if (isAsset)
 		{
-			const AssetType* assetType = AssetDatabase::GetInstance()->FindAssetType(item->_asset->GetType());
-			std::string_view typeName = (assetType != nullptr) ? assetType->GetNameV() : std::string_view();
+			// Never an empty view: ImGui reads a null text as a C string
+			std::string_view typeName = unknownType ? std::string_view("Unknown type") : assetType->GetNameV();
 			const ImVec2     typeMin(nameMin.x, nameMax.y);
 			const ImVec2     typeMax(nameMax.x, typeMin.y + lineHeight);
-			ImGui::PushStyleColor(ImGuiCol_Text, ImGui::GetColorU32(ImGuiCol_TextDisabled));
+			ImGui::PushStyleColor(ImGuiCol_Text, unknownType ? warningColor : ImGui::GetColorU32(ImGuiCol_TextDisabled));
 			ImGui::RenderTextClipped(typeMin, typeMax, typeName.data(), typeName.data() + typeName.size(), nullptr, style.ButtonTextAlign, nullptr);
 			ImGui::PopStyleColor();
 		}
