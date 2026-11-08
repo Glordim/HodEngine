@@ -228,6 +228,10 @@ namespace hod::inline editor
 		_name = _projectPath.Stem().GetString();
 
 		_sourceDirPath = _projectPath.ParentPath() / "Source";
+		if (FileSystem::GetInstance()->Exists(_sourceDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_sourceDirPath) == false)
+		{
+			return false;
+		}
 
 		_assetDirPath = _projectPath.ParentPath() / "Asset";
 		if (FileSystem::GetInstance()->Exists(_assetDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_assetDirPath) == false)
