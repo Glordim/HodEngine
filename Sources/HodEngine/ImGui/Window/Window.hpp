@@ -40,6 +40,17 @@ namespace hod::inline imgui
 
 		void SetTitle(std::string_view title);
 
+		/// @brief On its next draw, centered on the window drawing now: the one opening it (from its menus, its buttons), the OS window
+		/// for the main menu bar. Call it right after opening it (see ImGuiManager::OpenWindow)
+		void CenterOnCurrentWindow();
+
+		/// @brief For a popup or a modal: ImGui::SetNextWindowPos centered on the window drawing now (see CenterOnCurrentWindow), when it
+		/// appears. Call it right before ImGui::BeginPopup / BeginPopupModal
+		static void CenterNextWindowOnCurrentWindow();
+
+		/// @brief Its size the first time it is ever shown (no size saved from a previous session)
+		void SetInitialSize(const ImVec2& size);
+
 	public:
 		// ImGui has no dedicated tab padding: dock tab bars and docked window title bars use style.FramePadding.
 		// Push it around ImGui::Begin() of dockable windows, ImGui::DockSpace() and ImGui::NewFrame() (floating dock nodes).
@@ -61,5 +72,9 @@ namespace hod::inline imgui
 		uint64_t _id = 0;
 
 		ImGuiWindowFlags _flags = 0;
+
+		ImVec2 _initialSize = ImVec2(0.0f, 0.0f);
+		bool   _centerOnNextDraw = false;
+		ImVec2 _centerPosition;
 	};
 }

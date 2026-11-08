@@ -12,6 +12,50 @@ namespace hod::inline imgui
 		(void)reflectionDescriptor;
 	}
 
+	namespace
+	{
+		/// @brief The center of the window drawing now: from a menu or a popup, the window they belong to; the main menu bar (or no
+		/// window): its OS window's work area
+		ImVec2 GetCurrentWindowCenter()
+		{
+			ImGuiWindow* window = ImGui::GetCurrentContext() != nullptr ? ImGui::GetCurrentContext()->CurrentWindow : nullptr;
+			while (window != nullptr && window->ParentWindow != nullptr &&
+			       (window->Flags & (ImGuiWindowFlags_Popup | ImGuiWindowFlags_ChildMenu | ImGuiWindowFlags_ChildWindow | ImGuiWindowFlags_Tooltip)) != 0)
+			{
+				window = window->ParentWindow;
+			}
+			if (window == nullptr || window->Viewport == nullptr)
+			{
+				return ImGui::GetMainViewport()->GetWorkCenter();
+			}
+			if (std::strcmp(window->Name, "##MainMenuBar") == 0) // A bar along the OS window (see ImGui::BeginMainMenuBar)
+			{
+				return window->Viewport->GetWorkCenter();
+			}
+			return ImVec2(window->Pos.x + window->Size.x * 0.5f, window->Pos.y + window->Size.y * 0.5f);
+		}
+	}
+
+	/// @brief
+	void Window::CenterOnCurrentWindow()
+	{
+		_centerOnNextDraw = true;
+		_centerPosition = GetCurrentWindowCenter();
+	}
+
+	/// @brief
+	/// @param size
+	void Window::SetInitialSize(const ImVec2& size)
+	{
+		_initialSize = size;
+	}
+
+	/// @brief
+	void Window::CenterNextWindowOnCurrentWindow()
+	{
+		ImGui::SetNextWindowPos(GetCurrentWindowCenter(), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+	}
+
 	/// @brief
 	Window::Window() {}
 
@@ -33,6 +77,16 @@ namespace hod::inline imgui
 	bool Window::Draw()
 	{
 		bool open = true;
+		if (_initialSize.x > 0.0f && _initialSize.y > 0.0f)
+		{
+			ImGui::SetNextWindowSize(_initialSize, ImGuiCond_FirstUseEver);
+		}
+		if (_centerOnNextDraw)
+		{
+			// Always, not Appearing: its position saved from a previous session would win otherwise
+			ImGui::SetNextWindowPos(_centerPosition, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
+			_centerOnNextDraw = false;
+		}
 		PushDockTabStyle();
 		bool visible = ImGui::Begin(GetIdentifier(), &open, _flags);
 		PopDockTabStyle();

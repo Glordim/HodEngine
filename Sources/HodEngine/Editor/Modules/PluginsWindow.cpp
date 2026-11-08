@@ -55,7 +55,7 @@ namespace hod::inline editor
 		imgui::Window* window = ImGuiManager::GetInstance()->FindWindow(GetReflectionDescriptor());
 		if (window == nullptr)
 		{
-			ImGuiManager::GetInstance()->OpenWindow<PluginsWindow>();
+			ImGuiManager::GetInstance()->OpenWindow<PluginsWindow>()->CenterOnCurrentWindow();
 		}
 		else
 		{
@@ -68,6 +68,7 @@ namespace hod::inline editor
 	: _disabledModules(Project::GetInstance()->GetDisabledModules())
 	{
 		SetTitle("Plugins");
+		SetInitialSize(ImVec2(720.0f, 420.0f));
 	}
 
 	/// @brief Enabling a module enables what it needs too, disabling it shows the ones needing it disabled (see ModuleGraph::Resolve)
@@ -253,6 +254,7 @@ namespace hod::inline editor
 			ImGui::TextDisabled("The editor restarts, the game module is rebuilt");
 		}
 
+		CenterNextWindowOnCurrentWindow();
 		if (ImGui::BeginPopupModal(ApplyModalName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			bool dirtyTabs = Editor::GetInstance()->HasDirtyTabs();

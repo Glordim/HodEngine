@@ -60,7 +60,7 @@ namespace hod::inline editor
 		VersionControlChangesWindow* window = static_cast<VersionControlChangesWindow*>(ImGuiManager::GetInstance()->FindWindow(GetReflectionDescriptor()));
 		if (window == nullptr)
 		{
-			ImGuiManager::GetInstance()->OpenWindow<VersionControlChangesWindow>();
+			ImGuiManager::GetInstance()->OpenWindow<VersionControlChangesWindow>()->CenterOnCurrentWindow();
 		}
 		else
 		{

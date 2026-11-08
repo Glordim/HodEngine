@@ -40,7 +40,7 @@ namespace hod::inline editor
 		imgui::Window* window = ImGuiManager::GetInstance()->FindWindow(GetReflectionDescriptor());
 		if (window == nullptr)
 		{
-			ImGuiManager::GetInstance()->OpenWindow<ProjectSettingsWindow>();
+			ImGuiManager::GetInstance()->OpenWindow<ProjectSettingsWindow>()->CenterOnCurrentWindow();
 		}
 		else
 		{
