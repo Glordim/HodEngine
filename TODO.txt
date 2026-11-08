@@ -29,7 +29,6 @@ Build: bc7enc_rdo / astcenc -thorough
 
 ---------
 
-Ctrl + S for Save tab Editor
 Missing Source dir (Project)
 Anchor Ctrl/shift shortcut
 

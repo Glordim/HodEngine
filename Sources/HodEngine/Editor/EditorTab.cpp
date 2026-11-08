@@ -4,6 +4,8 @@
 #include "HodEngine/Editor/EditorTabWindow.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
+#include "HodEngine/Editor/AssetType.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/VersionControl/VersionControl.hpp"
 
@@ -22,6 +24,7 @@ namespace hod::inline editor
 	EditorTab::EditorTab(std::shared_ptr<Asset> asset, const char* icon)
 	{
 		_asset = asset;
+		_icon = icon;
 		if (_asset == nullptr)
 		{
 			_assetContainer.SetUid(UID::GenerateUID());
@@ -83,7 +86,9 @@ namespace hod::inline editor
 			_focus = false;
 			tabItemFlags |= ImGuiTabItemFlags_SetSelected;
 		}
-		bool draw = ImGui::BeginTabItem(_title.CStr(), &open, tabItemFlags);
+		// "###": the tab keeps its id when its title changes (see SaveAs)
+		const String label(fmt::format("{}###EditorTab{}", _title, static_cast<const void*>(this)));
+		bool         draw = ImGui::BeginTabItem(label.CStr(), &open, tabItemFlags);
 		ImGui::PopStyleVar();
 		if (open == false && IsDirty())
 		{
@@ -120,7 +125,7 @@ namespace hod::inline editor
 				}
 				else
 				{
-					// TODO SaveAs
+					RequestSaveAs();
 				}
 			}
 			ImGui::EndDisabled();
@@ -181,6 +186,10 @@ namespace hod::inline editor
 		{
 			_closeConfirmed = true;
 		}
+		if (_saveAsRequested)
+		{
+			DrawSaveAs();
+		}
 		return open;
 	}
 
@@ -204,10 +213,20 @@ namespace hod::inline editor
 			ImGui::TextUnformatted("Save them before closing?");
 			ImGui::Spacing();
 
-			ImGui::BeginDisabled(_asset == nullptr); // todo SaveAs
-			if (ImGui::Button(ICON_MDI_CONTENT_SAVE " Save") || (_asset != nullptr && ImGui::IsKeyPressed(ImGuiKey_Enter)))
+			const bool canSave = _asset != nullptr || CanSaveAs();
+			ImGui::BeginDisabled(canSave == false);
+			if (ImGui::Button(ICON_MDI_CONTENT_SAVE " Save") || (canSave && ImGui::IsKeyPressed(ImGuiKey_Enter)))
 			{
-				close = Save(); // Failed: stays open, with its changes (the error is in the output log)
+				if (_asset != nullptr)
+				{
+					close = Save(); // Failed: stays open, with its changes (the error is in the output log)
+				}
+				else
+				{
+					// Closed once saved where the Save As modal says (see DrawSaveAs)
+					RequestSaveAs();
+					_closeAfterSaveAs = true;
+				}
 				_closeRequested = false;
 				ImGui::CloseCurrentPopup();
 			}
@@ -229,6 +248,266 @@ namespace hod::inline editor
 		}
 		ImGui::PopID();
 		return close;
+	}
+
+	/// @brief Its type is known: the extension of the new file, and what is done when the asset gets another name
+	bool EditorTab::CanSaveAs() const
+	{
+		return AssetDatabase::GetInstance()->FindAssetType(_assetContainer.GetAssetType()) != nullptr;
+	}
+
+	/// @brief Opens the Save As modal (drawn by Draw), in the folder of the asset with its name
+	void EditorTab::RequestSaveAs()
+	{
+		if (CanSaveAs() == false)
+		{
+			return;
+		}
+
+		_saveAsRequested = true;
+		const String name = _asset != nullptr ? _asset->GetName() : String("Untitled");
+		std::snprintf(_saveAsName, sizeof(_saveAsName), "%s", name.CStr());
+		_saveAsFolder = _asset != nullptr ? _asset->GetPath().ParentPath() : AssetDatabase::GetInstance()->GetAssetRootNode()._path;
+	}
+
+	/// @brief
+	/// @param path A file that doesn't exist yet, in a folder of the asset database
+	/// @return false (with an error) if it couldn't be written: the tab is left as it was, with its changes
+	bool EditorTab::SaveAs(const Path& path)
+	{
+		const AssetType* assetType = AssetDatabase::GetInstance()->FindAssetType(_assetContainer.GetAssetType());
+		if (assetType == nullptr)
+		{
+			OUTPUT_ERROR("Can't save {} as {}: its asset type isn't registered", _title, path);
+			return false;
+		}
+		if (FileSystem::GetInstance()->Exists(path))
+		{
+			OUTPUT_ERROR("Can't save {} as {}: the file exists already", _title, path);
+			return false;
+		}
+
+		// The edit in progress, if any, is what gets saved (see Save)
+		if (_undoCommitPending)
+		{
+			CommitUndoStep();
+		}
+
+		if (OnSave() == false)
+		{
+			return false;
+		}
+
+		// A new asset: the references to the one it was opened from stay on it
+		const UID previousUid = _assetContainer.GetUid();
+		_assetContainer.SetUid(UID::GenerateUID());
+		if (_assetContainer.Save(path) == false)
+		{
+			// Save clears the data blocks, restored as in Save
+			_assetContainer = AssetContainer();
+			if (_asset != nullptr)
+			{
+				_assetContainer.Load(_asset->GetPath());
+			}
+			else
+			{
+				_assetContainer.SetUid(previousUid);
+				_assetContainer.SetAssetType(assetType->GetHashV());
+			}
+			return false;
+		}
+
+		std::shared_ptr<Asset> newAsset = AssetDatabase::GetInstance()->AddWrittenAsset(path);
+		if (newAsset == nullptr)
+		{
+			OUTPUT_ERROR("Can't save {} as {}: written, but not loadable as an asset", _title, path);
+			return false;
+		}
+		// The content was saved with the name of the asset it came from (a UI prefab's root...)
+		if (_asset == nullptr || newAsset->GetName() != _asset->GetName())
+		{
+			assetType->OnRenamed(*newAsset);
+		}
+
+		// The checkout of the asset it was opened from was made for nothing: it is left as last saved
+		if (_editPrepared && _asset != nullptr && VersionControl::GetInstance() != nullptr)
+		{
+			VersionControl::GetInstance()->ReleaseEdit(VersionControl::GetAssetFiles(*_asset));
+		}
+		_editPrepared = false;
+
+		_asset = newAsset;
+		_title = fmt::format("{}   {}", _icon, _asset->GetName());
+		_dirty = false;
+		_undoHistory.MarkSaved();
+		return true;
+	}
+
+	/// @brief Of the Save As modal: a folder of the asset database and its tree nodes below, the selected one opened on appearing
+	static void DrawSaveAsFolderNode(const AssetDatabase::FileSystemMapping& node, const AssetDatabase::FileSystemMapping* selectedNode, bool reveal, Path& selectedFolder)
+	{
+		ImGuiTreeNodeFlags flags = ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_OpenOnDoubleClick | ImGuiTreeNodeFlags_SpanAvailWidth;
+		if (node._childrenFolder.Empty())
+		{
+			flags |= ImGuiTreeNodeFlags_Leaf;
+		}
+		if (node._parentFolder == nullptr)
+		{
+			flags |= ImGuiTreeNodeFlags_DefaultOpen;
+		}
+		if (&node == selectedNode)
+		{
+			flags |= ImGuiTreeNodeFlags_Selected;
+		}
+		if (reveal && selectedNode != nullptr)
+		{
+			for (const AssetDatabase::FileSystemMapping* ancestor = selectedNode->_parentFolder; ancestor != nullptr; ancestor = ancestor->_parentFolder)
+			{
+				if (ancestor == &node)
+				{
+					ImGui::SetNextItemOpen(true);
+					break;
+				}
+			}
+		}
+
+		const String name = node._path.Filename().GetString();
+		ImGui::PushID(name.CStr());
+		const bool opened = ImGui::TreeNodeEx("##Folder", flags, ICON_MDI_FOLDER " %s", name.CStr());
+		if (ImGui::IsItemClicked() && ImGui::IsItemToggledOpen() == false)
+		{
+			selectedFolder = node._path;
+		}
+		if (reveal && &node == selectedNode)
+		{
+			ImGui::SetScrollHereY();
+		}
+		if (opened)
+		{
+			for (const AssetDatabase::FileSystemMapping* child : node._childrenFolder)
+			{
+				DrawSaveAsFolderNode(*child, selectedNode, reveal, selectedFolder);
+			}
+			ImGui::TreePop();
+		}
+		ImGui::PopID();
+	}
+
+	/// @brief The modal of RequestSaveAs: a folder of the asset database and a name, of a file that doesn't exist yet
+	void EditorTab::DrawSaveAs()
+	{
+		constexpr const char* ModalName = "Save As###EditorTabSaveAs";
+
+		const AssetType* assetType = AssetDatabase::GetInstance()->FindAssetType(_assetContainer.GetAssetType());
+		bool             done = false;
+		ImGui::PushID(this);
+		if (ImGui::IsPopupOpen(ModalName) == false)
+		{
+			ImGui::OpenPopup(ModalName);
+		}
+		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+		if (ImGui::BeginPopupModal(ModalName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			if (assetType == nullptr) // Its module unloaded meanwhile
+			{
+				done = true;
+			}
+			else
+			{
+				const bool appearing = ImGui::IsWindowAppearing();
+
+				// The folder may have been removed meanwhile (file watcher): back to the root then
+				AssetDatabase::FileSystemMapping* selectedNode = AssetDatabase::GetInstance()->FindFileSystemMappingFromPath(_saveAsFolder);
+				if (selectedNode == nullptr || selectedNode->_type != AssetDatabase::FileSystemMapping::Type::FolderType)
+				{
+					selectedNode = &AssetDatabase::GetInstance()->GetAssetRootNode();
+					_saveAsFolder = selectedNode->_path;
+				}
+
+				ImGui::TextUnformatted("Folder");
+				if (ImGui::BeginChild("Folders", ImVec2(420.0f, 260.0f), ImGuiChildFlags_Borders))
+				{
+					DrawSaveAsFolderNode(AssetDatabase::GetInstance()->GetAssetRootNode(), selectedNode, appearing, _saveAsFolder);
+				}
+				ImGui::EndChild();
+
+				ImGui::Spacing();
+				ImGui::TextUnformatted("Name");
+				if (appearing)
+				{
+					ImGui::SetKeyboardFocusHere();
+				}
+				String extension = ".";
+				extension += assetType->GetExtensionV();
+				ImGui::SetNextItemWidth(420.0f - ImGui::CalcTextSize(extension.CStr()).x - ImGui::GetStyle().ItemSpacing.x);
+				const bool submitted = ImGui::InputText("##Name", _saveAsName, sizeof(_saveAsName), ImGuiInputTextFlags_EnterReturnsTrue);
+				ImGui::SameLine();
+				ImGui::TextDisabled("%s", extension.CStr());
+
+				// What prevents saving, shown under the name
+				std::string_view name(_saveAsName);
+				const char*      error = nullptr;
+				Path             path;
+				if (name.find_first_not_of(' ') == std::string_view::npos)
+				{
+					error = "A name is needed";
+				}
+				else if (name.find_first_of("\\/:*?\"<>|") != std::string_view::npos)
+				{
+					error = "A name can't contain \\ / : * ? \" < > |";
+				}
+				else if (name.front() == ' ' || name.back() == ' ' || name.back() == '.')
+				{
+					error = "A name can't start with a space nor end with a space or a dot";
+				}
+				else
+				{
+					path = _saveAsFolder / AssetType::MakeFileName(name, assetType->GetExtensionV());
+					if (FileSystem::GetInstance()->Exists(path))
+					{
+						error = "A file of this name exists in this folder";
+					}
+				}
+				if (error != nullptr)
+				{
+					ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), "%s", error);
+				}
+				else
+				{
+					ImGui::TextDisabled("%s", path.GetString().CStr());
+				}
+
+				ImGui::Spacing();
+				ImGui::BeginDisabled(error != nullptr);
+				if (ImGui::Button(ICON_MDI_CONTENT_SAVE " Save") || (submitted && error == nullptr))
+				{
+					// Failed: the modal stays, the error is in the output log
+					if (SaveAs(path))
+					{
+						if (_closeAfterSaveAs)
+						{
+							_closeConfirmed = true; // Closed at the start of the next Draw (see DrawCloseConfirmation)
+						}
+						done = true;
+					}
+				}
+				ImGui::EndDisabled();
+				ImGui::SameLine();
+				if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGuiKey_Escape))
+				{
+					done = true;
+				}
+			}
+
+			if (done)
+			{
+				_saveAsRequested = false;
+				_closeAfterSaveAs = false;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+		ImGui::PopID();
 	}
 
 	/// @brief
@@ -463,9 +742,20 @@ namespace hod::inline editor
 	/// @brief Ctrl+S, from anywhere in the editor (its windows, the asset browser...): saves the tab shown, the only one drawing
 	void EditorTab::HandleSaveShortcut()
 	{
-		if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_S, ImGuiInputFlags_RouteGlobal) && _dirty && _asset != nullptr)
+		if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_S, ImGuiInputFlags_RouteGlobal) && _dirty)
 		{
-			Save();
+			if (_asset != nullptr)
+			{
+				Save();
+			}
+			else
+			{
+				RequestSaveAs();
+			}
+		}
+		if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiMod_Shift | ImGuiKey_S, ImGuiInputFlags_RouteGlobal))
+		{
+			RequestSaveAs();
 		}
 	}
 

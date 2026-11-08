@@ -69,7 +69,6 @@ namespace hod::inline editor
 		bool LoadEditor();
 
 		bool Save();
-		bool SaveSceneAs();
 
 		void OpenImportDialog(const Path& path);
 		void Import(const Path& sourceFilePath, const Path& destinationDirPath);

@@ -537,10 +537,9 @@ namespace hod::inline editor
 							Editor::GetInstance()->Save();
 						}
 
-						// todo: SaveSceneAs() predates the tabs, it does nothing
-						if (ImGui::MenuItem("Save scene As", nullptr, false, false) == true)
+						if (ImGui::MenuItem("Save As...", "CTRL+SHIFT+S", false, selectedTab != nullptr && selectedTab->CanSaveAs()) == true)
 						{
-							Editor::GetInstance()->SaveSceneAs();
+							selectedTab->RequestSaveAs();
 						}
 
 						ImGui::Separator();
@@ -916,43 +915,6 @@ namespace hod::inline editor
 		}
 
 		return result;
-	}
-
-	/// @brief
-	/// @return
-	bool Editor::SaveSceneAs()
-	{
-		/*
-		Path saveLocation = GetSaveFileDialog("Hod Asset", "asset", Project::GetInstance()->GetAssetDirPath());
-		if (saveLocation.empty() == true)
-		{
-		    return false;
-		}
-
-		Document worldDocument;
-
-		World* world = World::GetInstance();
-		if (world->SaveToDocument(worldDocument.GetRootNode()) == false)
-		{
-		    return false;
-		}
-
-		Scene scene;
-		if (scene.DeserializeFromDocument(worldDocument.GetRootNode()) == false)
-		{
-		    return false;
-		}
-
-		AssetDatabase::GetInstance()->CreateAsset(&scene, scene.GetReflectionDescriptorV(), saveLocation);
-		// Todo return value is unique path no way if failure ?
-		if (true == false)
-		{
-		    return false;
-		}
-
-		// todo open it
-		*/
-		return true;
 	}
 
 	/// @brief

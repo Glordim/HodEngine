@@ -37,6 +37,12 @@ namespace hod::inline editor
 		void MarkAsDirty(std::string_view undoLabel = {});
 		bool Save();
 
+		// Save As: the tab's content written as a new asset (new UID, the asset it was opened from left as last saved), which the
+		// tab then edits. RequestSaveAs asks where (a modal, see DrawSaveAs), SaveAs writes it.
+		bool CanSaveAs() const;
+		void RequestSaveAs();
+		bool SaveAs(const Path& path);
+
 		// Undo/redo, for the tabs implementing CaptureUndoState: each tab has its own history (see UndoHistory)
 		bool          CanUndo() const;
 		bool          CanRedo() const;
@@ -85,6 +91,7 @@ namespace hod::inline editor
 		void HandleUndoShortcuts();
 		void HandleSaveShortcut();
 		bool DrawCloseConfirmation();
+		void DrawSaveAs();
 
 	private:
 		bool _initialLayoutCreated = false;
@@ -93,6 +100,14 @@ namespace hod::inline editor
 		bool _selected = false;
 		bool _closeRequested = false; // Closed with unsaved changes: Save / Don't Save / Cancel asked first
 		bool _closeConfirmed = false; // Saved or discarded in the modal: closes at the start of the next Draw
+
+		// Save As (see RequestSaveAs)
+		bool _saveAsRequested = false;
+		bool _closeAfterSaveAs = false; // Save asked by the close confirmation of an untitled tab
+		Path _saveAsFolder;
+		char _saveAsName[256] = {};
+
+		String _icon; // Of the title, rebuilt when the asset changes (see SaveAs)
 
 		UndoHistory _undoHistory;
 		bool        _undoInitialized = false;
