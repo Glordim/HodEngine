@@ -39,8 +39,33 @@ namespace hod::inline imgui
 	/// @brief
 	void Window::CenterOnCurrentWindow()
 	{
-		_centerOnNextDraw = true;
-		_centerPosition = GetCurrentWindowCenter();
+		_placeOnNextDraw = true;
+		_placePosition = GetCurrentWindowCenter();
+		_placePivot = ImVec2(0.5f, 0.5f);
+	}
+
+	/// @brief
+	void Window::AnchorOnLastItem()
+	{
+		ImGuiContext* context = ImGui::GetCurrentContext();
+		if (context == nullptr || context->CurrentWindow == nullptr)
+		{
+			CenterOnCurrentWindow();
+			return;
+		}
+
+		const ImRect   item = context->LastItemData.Rect;
+		ImGuiViewport* viewport = context->CurrentWindow->Viewport != nullptr ? context->CurrentWindow->Viewport : ImGui::GetMainViewport();
+		const ImVec2   workCenter = viewport->GetWorkCenter();
+		const ImVec2   itemCenter = item.GetCenter();
+		const float    spacing = ImGui::GetStyle().ItemSpacing.y;
+
+		const bool above = itemCenter.y > workCenter.y;
+		const bool rightAligned = itemCenter.x > workCenter.x;
+
+		_placeOnNextDraw = true;
+		_placePosition = ImVec2(rightAligned ? item.Max.x : item.Min.x, above ? item.Min.y - spacing : item.Max.y + spacing);
+		_placePivot = ImVec2(rightAligned ? 1.0f : 0.0f, above ? 1.0f : 0.0f);
 	}
 
 	/// @brief
@@ -77,16 +102,7 @@ namespace hod::inline imgui
 	bool Window::Draw()
 	{
 		bool open = true;
-		if (_initialSize.x > 0.0f && _initialSize.y > 0.0f)
-		{
-			ImGui::SetNextWindowSize(_initialSize, ImGuiCond_FirstUseEver);
-		}
-		if (_centerOnNextDraw)
-		{
-			// Always, not Appearing: its position saved from a previous session would win otherwise
-			ImGui::SetNextWindowPos(_centerPosition, ImGuiCond_Always, ImVec2(0.5f, 0.5f));
-			_centerOnNextDraw = false;
-		}
+		SetNextWindowPlacement();
 		PushDockTabStyle();
 		bool visible = ImGui::Begin(GetIdentifier(), &open, _flags);
 		PopDockTabStyle();
@@ -102,6 +118,21 @@ namespace hod::inline imgui
 		}
 		ImGui::End();
 		return open;
+	}
+
+	/// @brief
+	void Window::SetNextWindowPlacement()
+	{
+		if (_initialSize.x > 0.0f && _initialSize.y > 0.0f)
+		{
+			ImGui::SetNextWindowSize(_initialSize, ImGuiCond_FirstUseEver);
+		}
+		if (_placeOnNextDraw)
+		{
+			// Always, not Appearing: its position saved from a previous session would win otherwise
+			ImGui::SetNextWindowPos(_placePosition, ImGuiCond_Always, _placePivot);
+			_placeOnNextDraw = false;
+		}
 	}
 
 	/// @brief

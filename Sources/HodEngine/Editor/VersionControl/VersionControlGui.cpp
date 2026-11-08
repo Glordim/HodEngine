@@ -509,7 +509,7 @@ namespace hod::inline editor
 			ImGui::SameLine();
 			if (ImGui::Button((state._changesLabel + "###VersionControlChanges").CStr()))
 			{
-				VersionControlChangesWindow::Open();
+				VersionControlChangesWindow::OpenOnLastItem();
 			}
 			if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
 			{

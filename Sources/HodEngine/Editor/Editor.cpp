@@ -221,6 +221,7 @@ namespace hod::inline editor
 		_checkerTexture->SetDefaultSampler(RhiDevice::GetInstance()->GetSampler(checkerSamplerCreateInfo));
 
 		_floatingAssetBrowserWindow = DefaultAllocator::GetInstance().New<AssetBrowserWindow>();
+		_floatingAssetBrowserWindow->SetFloating();
 		_floatingTaskTrackerWindow = DefaultAllocator::GetInstance().New<TaskTrackerWindow>();
 
 		const hod::Argument* projectPathArgument = argumentParser.GetArgument('p', "ProjectPath");
@@ -586,7 +587,8 @@ namespace hod::inline editor
 					{
 						if (ImGui::MenuItem("Asset Browser") == true)
 						{
-							ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
+							// A standalone one, beside the floating one of the bottom bar
+							ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>()->CenterOnCurrentWindow();
 						}
 						if (ImGui::MenuItem("Version Control Changes") == true)
 						{
@@ -713,7 +715,8 @@ namespace hod::inline editor
 					ImGui::SetNextItemShortcut(ImGuiMod_Ctrl | ImGuiKey_Space, ImGuiInputFlags_RouteGlobal | ImGuiInputFlags_Tooltip);
 					if (ImGui::Button(ICON_MDI_FOLDER_SEARCH " Asset Browser", ImVec2(0.0f, statusBarHeight)))
 					{
-						_showFloatingAssetBrowser = !_showFloatingAssetBrowser;
+						// Without editor tab, it is all there is to show: stays open (refocused)
+						_showFloatingAssetBrowser = _showFloatingAssetBrowser == false || _editorTabs.Empty();
 						if (_showFloatingAssetBrowser)
 						{
 							_focusFloatingAssetBrowserWindow = true;
@@ -743,7 +746,8 @@ namespace hod::inline editor
 				}
 				ImGui::End();
 
-				if (_showFloatingAssetBrowser)
+				// The tab bar above reopens it only on the next frame: without editor tab (the last one just closed), it never starts sliding down
+				if (_showFloatingAssetBrowser || _editorTabs.Empty())
 				{
 					_floatingAssetBrowserWindowPos = std::min(350.0f, _floatingAssetBrowserWindowPos + ImGui::GetIO().DeltaTime * 2000.0f);
 				}

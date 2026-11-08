@@ -135,7 +135,11 @@ namespace hod::inline editor
 	/// @brief
 	AssetBrowserWindow::AssetBrowserWindow()
 	{
-		SetFlags(ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+		// Its ImGui window, its dockspace and its panels are named after it: each instance needs its own
+		static uint64_t nextId = 0;
+		SetId(nextId++);
+
+		SetInitialSize(ImVec2(1000.0f, 500.0f));
 
 		_folderTree._path = Project::GetInstance()->GetAssetDirPath();
 
@@ -264,11 +268,27 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
+	void AssetBrowserWindow::SetFloating()
+	{
+		_floating = true;
+		SetFlags(ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoDocking | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoResize);
+	}
+
+	/// @brief
+	/// @return
 	bool AssetBrowserWindow::Draw()
 	{
-		ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
+		bool open = true;
+		if (_floating)
+		{
+			ImGui::SetNextWindowViewport(ImGui::GetMainViewport()->ID);
+		}
+		else
+		{
+			SetNextWindowPlacement();
+		}
 		PushDockTabStyle();
-		bool visible = ImGui::Begin(GetIdentifier(), nullptr, GetFlags());
+		bool visible = ImGui::Begin(GetIdentifier(), _floating ? nullptr : &open, GetFlags());
 		PopDockTabStyle();
 		if (visible)
 		{
@@ -285,7 +305,12 @@ namespace hod::inline editor
 			DrawPanel(Panel::FolderExplorer, &AssetBrowserWindow::DrawFolderExplorer);
 		}
 		ApplyPendingDrop();
-		return true;
+
+		if (open == false)
+		{
+			Close();
+		}
+		return open;
 	}
 
 	/// @brief Window name of a panel, unique per AssetBrowserWindow

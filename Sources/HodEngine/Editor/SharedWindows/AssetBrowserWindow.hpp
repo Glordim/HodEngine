@@ -20,6 +20,10 @@ namespace hod::inline editor
 		AssetBrowserWindow();
 		~AssetBrowserWindow() override = default;
 
+		/// @brief The editor's one, sliding from the bottom bar: no decoration, placed by the editor, never closed. The others (Window >
+		/// Asset Browser) are standalone windows
+		void SetFloating();
+
 	public:
 		bool Draw() override;
 		void DrawContent() override;
@@ -123,6 +127,7 @@ namespace hod::inline editor
 		void ApplyPendingDrop();
 
 	private:
+		bool                              _floating = false;
 		ImGuiID                           _dockSpaceId = 0;
 		ImGuiID                           _panelDockIds[2] = {0, 0}; // Last dock node of each Panel, to put it back when dropped outside
 		FolderItem                        _folderTree;

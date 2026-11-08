@@ -23,6 +23,8 @@ namespace hod::inline editor
 	public:
 		/// @brief Opens the window, or focuses it when already open
 		static void Open();
+		/// @brief Same, placed next to the last item (the button opening it) instead of centered
+		static void OpenOnLastItem();
 		/// @brief Same, with only the changes under these paths checked
 		static void Open(const Vector<Path>& only);
 

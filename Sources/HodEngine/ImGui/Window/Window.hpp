@@ -44,6 +44,10 @@ namespace hod::inline imgui
 		/// for the main menu bar. Call it right after opening it (see ImGuiManager::OpenWindow)
 		void CenterOnCurrentWindow();
 
+		/// @brief On its next draw, next to the last item (the button opening it): above it when the item is in the lower half of its OS
+		/// window, below otherwise, aligned on its right edge when in the right half, on its left edge otherwise
+		void AnchorOnLastItem();
+
 		/// @brief For a popup or a modal: ImGui::SetNextWindowPos centered on the window drawing now (see CenterOnCurrentWindow), when it
 		/// appears. Call it right before ImGui::BeginPopup / BeginPopupModal
 		static void CenterNextWindowOnCurrentWindow();
@@ -60,6 +64,10 @@ namespace hod::inline imgui
 		static void PopDockTabStyle();
 
 	protected:
+		/// @brief Its initial size and its pending placement (CenterOnCurrentWindow, AnchorOnLastItem): call it right before ImGui::Begin
+		/// in a Draw override
+		void SetNextWindowPlacement();
+
 		void DrawDockTabContextMenu();
 
 		static void ExtendClipRectToWindowLeftEdge();
@@ -74,7 +82,8 @@ namespace hod::inline imgui
 		ImGuiWindowFlags _flags = 0;
 
 		ImVec2 _initialSize = ImVec2(0.0f, 0.0f);
-		bool   _centerOnNextDraw = false;
-		ImVec2 _centerPosition;
+		bool   _placeOnNextDraw = false;
+		ImVec2 _placePosition;
+		ImVec2 _placePivot;
 	};
 }

@@ -69,6 +69,20 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	void VersionControlChangesWindow::OpenOnLastItem()
+	{
+		VersionControlChangesWindow* window = static_cast<VersionControlChangesWindow*>(ImGuiManager::GetInstance()->FindWindow(GetReflectionDescriptor()));
+		if (window == nullptr)
+		{
+			ImGuiManager::GetInstance()->OpenWindow<VersionControlChangesWindow>()->AnchorOnLastItem();
+		}
+		else
+		{
+			ImGui::SetWindowFocus(window->GetIdentifier());
+		}
+	}
+
+	/// @brief
 	/// @param only
 	void VersionControlChangesWindow::Open(const Vector<Path>& only)
 	{
