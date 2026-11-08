@@ -54,15 +54,15 @@ namespace hod::inline window
 
 	struct MouseButtonEventData
 	{
-		uint16_t    x;
-		uint16_t    y;
+		int32_t     x;
+		int32_t     y;
 		MouseButton button;
 	};
 
 	struct MouseMoveEventData
 	{
-		uint16_t x;
-		uint16_t y;
+		int32_t x;
+		int32_t y;
 	};
 
 	struct MouseScrollEventData
