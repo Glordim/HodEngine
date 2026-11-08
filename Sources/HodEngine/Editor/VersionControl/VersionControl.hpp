@@ -92,6 +92,10 @@ namespace hod::inline editor
 		/// under it yet. Once only: the request is cleared from the settings when it's taken into account
 		/// @return false (with an error) if the user settings can't be written
 		static bool RequestWorkspaceCreation(const Path& projectDir, std::string_view provider);
+		/// @brief For the opened project, not under version control yet (Version Control > Create Git repository): chooses this provider
+		/// and connects it, its workspace created first (VersionControlProvider::CreateWorkspace), then the project file and the
+		/// provider's files (.gitignore, .gitattributes) added. The rest of the project is left to the user (the changes window)
+		void CreateWorkspace(std::string_view provider);
 
 		/// @brief nullptr if none or not connected (yet)
 		const VersionControlProvider* GetConnectedProvider() const;

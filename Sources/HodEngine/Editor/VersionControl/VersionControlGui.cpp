@@ -24,6 +24,7 @@ namespace hod::inline editor
 
 		constexpr const char* RevertModalName = "Revert changes?###VersionControlRevert";
 		constexpr const char* PullModalName = "Pull with unsaved changes?###VersionControlPull";
+		constexpr const char* WorkspaceModalName = "Create a repository?###VersionControlCreateWorkspace";
 		constexpr uint32_t    MaxListedFiles = 12;
 
 		const ImU32 OutOfDateColor = IM_COL32(90, 190, 255, 255);
@@ -34,6 +35,15 @@ namespace hod::inline editor
 
 		Vector<Path> pendingRevert; // Waiting for its confirmation
 		bool         pendingPull = false;
+		String       pendingWorkspaceProvider; // Chosen, its workspace creation waiting for its confirmation
+
+		/// @brief The connection button that opened the menu: what the windows opened from the menu anchor on
+		struct
+		{
+			ImVec2         _min;
+			ImVec2         _max;
+			ImGuiViewport* _viewport = nullptr;
+		} menuButton;
 		int          modalsFrame = -1; // Drawn by the first asset browser of the frame only
 
 		bool IsChanged(VersionControlState state)
@@ -133,6 +143,38 @@ namespace hod::inline editor
 				return;
 			}
 			VersionControl::GetInstance()->UpdateWorkspace();
+		}
+
+		/// @brief A provider able to create its workspace (Git) and the project not under it: confirmed first (the creation offered),
+		/// chosen right away otherwise
+		void RequestProviderChoice(const VersionControlProvider& provider)
+		{
+			const Path projectDir = Project::GetInstance()->GetProjectPath().ParentPath();
+			if (provider.CanCreateWorkspace() && provider.Detect(projectDir) == false)
+			{
+				pendingWorkspaceProvider = provider.GetName();
+				return;
+			}
+			VersionControl::GetInstance()->SetProviderChoice(provider.GetName());
+		}
+
+		/// @brief The provider chosen by name, not connected because the project isn't under it, and able to create its workspace
+		const VersionControlProvider* FindCreatableChosenProvider()
+		{
+			VersionControl* versionControl = VersionControl::GetInstance();
+			if (versionControl->GetConnectedProvider() != nullptr || versionControl->IsBusy())
+			{
+				return nullptr;
+			}
+			const Path projectDir = Project::GetInstance()->GetProjectPath().ParentPath();
+			for (const VersionControlProvider* registered : versionControl->GetProviders())
+			{
+				if (registered->GetName() == versionControl->GetProviderChoice() && registered->CanCreateWorkspace() && registered->Detect(projectDir) == false)
+				{
+					return registered;
+				}
+			}
+			return nullptr;
 		}
 
 		/// @brief The connection button's look
@@ -242,6 +284,16 @@ namespace hod::inline editor
 				ImGui::TextUnformatted(error.CStr());
 				ImGui::PopTextWrapPos();
 				ImGui::PopStyleColor();
+
+				// The chosen system has no workspace here: the way out of the error
+				if (const VersionControlProvider* chosen = FindCreatableChosenProvider(); chosen != nullptr)
+				{
+					const String label = String::Format(ICON_MDI_SOURCE_REPOSITORY " Create %.*s repository...", static_cast<int>(chosen->GetName().size()), chosen->GetName().data());
+					if (ImGui::MenuItem(label.CStr()))
+					{
+						RequestProviderChoice(*chosen);
+					}
+				}
 			}
 			else
 			{
@@ -255,7 +307,8 @@ namespace hod::inline editor
 			}
 			if (versionControl->HasCapability(Capability::Submit) && ImGui::MenuItem(ICON_MDI_SOURCE_COMMIT " Changes..."))
 			{
-				VersionControlChangesWindow::Open();
+				// On the button of the menu, as its Changes neighbor
+				VersionControlChangesWindow::OpenOnItem(menuButton._min, menuButton._max, menuButton._viewport);
 			}
 			if (versionControl->HasCapability(Capability::UpdateWorkspace) && ImGui::MenuItem(ICON_MDI_TRAY_ARROW_DOWN " Pull"))
 			{
@@ -293,7 +346,7 @@ namespace hod::inline editor
 					const String name(registered->GetName());
 					if (ImGui::MenuItem(name.CStr(), nullptr, choice == registered->GetName()))
 					{
-						versionControl->SetProviderChoice(registered->GetName());
+						RequestProviderChoice(*registered);
 					}
 				}
 				ImGui::EndMenu();
@@ -490,6 +543,9 @@ namespace hod::inline editor
 		}
 		if (clicked)
 		{
+			menuButton._min = ImGui::GetItemRectMin();
+			menuButton._max = ImGui::GetItemRectMax();
+			menuButton._viewport = ImGui::GetWindowViewport();
 			ImGui::OpenPopup("VersionControlMenu");
 		}
 		if (ImGui::BeginPopup("VersionControlMenu"))
@@ -618,6 +674,34 @@ namespace hod::inline editor
 			if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGuiKey_Escape))
 			{
 				pendingPull = false;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+
+		if (pendingWorkspaceProvider.Empty() == false && ImGui::IsPopupOpen(WorkspaceModalName) == false)
+		{
+			ImGui::OpenPopup(WorkspaceModalName);
+		}
+		ImGui::SetNextWindowPos(center, ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+		if (ImGui::BeginPopupModal(WorkspaceModalName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			const char* name = pendingWorkspaceProvider.CStr();
+			ImGui::Text("The project isn't in a %s repository.", name);
+			ImGui::Text("Create one in its folder? The project file and the %s ignore and attributes files are added to it,", name);
+			ImGui::TextUnformatted("the rest of the project is left to you (Changes...).");
+			ImGui::Spacing();
+			const String createLabel = String::Format("Create %s repository", name);
+			if (ImGui::Button(createLabel.CStr()))
+			{
+				versionControl->CreateWorkspace(pendingWorkspaceProvider);
+				pendingWorkspaceProvider.Clear();
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGuiKey_Escape))
+			{
+				pendingWorkspaceProvider.Clear(); // The choice left as it was
 				ImGui::CloseCurrentPopup();
 			}
 			ImGui::EndPopup();

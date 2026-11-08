@@ -32,6 +32,13 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @return
+	bool VersionControlProvider::CanCreateWorkspace() const
+	{
+		return false;
+	}
+
+	/// @brief
 	void VersionControlProvider::Disconnect() {}
 
 	/// @brief

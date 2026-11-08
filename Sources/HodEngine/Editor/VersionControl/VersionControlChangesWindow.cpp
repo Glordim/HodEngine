@@ -83,6 +83,23 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @param itemMin
+	/// @param itemMax
+	/// @param viewport
+	void VersionControlChangesWindow::OpenOnItem(const ImVec2& itemMin, const ImVec2& itemMax, ImGuiViewport* viewport)
+	{
+		VersionControlChangesWindow* window = static_cast<VersionControlChangesWindow*>(ImGuiManager::GetInstance()->FindWindow(GetReflectionDescriptor()));
+		if (window == nullptr)
+		{
+			ImGuiManager::GetInstance()->OpenWindow<VersionControlChangesWindow>()->AnchorOnItem(itemMin, itemMax, viewport);
+		}
+		else
+		{
+			ImGui::SetWindowFocus(window->GetIdentifier());
+		}
+	}
+
+	/// @brief
 	/// @param only
 	void VersionControlChangesWindow::Open(const Vector<Path>& only)
 	{

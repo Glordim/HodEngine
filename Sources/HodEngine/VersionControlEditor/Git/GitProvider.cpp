@@ -185,6 +185,13 @@ namespace hod::inline editor
 		return Run({"init", "--quiet"}, output, options);
 	}
 
+	/// @brief
+	/// @return
+	bool GitProvider::CanCreateWorkspace() const
+	{
+		return true;
+	}
+
 	/// @brief .gitignore and .gitattributes, each only if none exists from the project folder up to the root
 	/// @param projectDir
 	/// @param setup

@@ -205,6 +205,21 @@ TEST_F(GitProviderTest, ConnectOutOfARepository)
 	EXPECT_FALSE(result._error.Empty());
 }
 
+TEST_F(GitProviderTest, CreateWorkspace)
+{
+	EXPECT_TRUE(_provider.CanCreateWorkspace());
+
+	const Path outside = _base / "NotVersioned";
+	ASSERT_TRUE(FileSystem::GetInstance()->CreateDirectories(outside));
+	ASSERT_FALSE(_provider.Detect(outside));
+
+	VersionControlProvider::Result created = _provider.CreateWorkspace(outside);
+	ASSERT_TRUE(created._success) << created._error.CStr();
+	EXPECT_TRUE(_provider.Detect(outside));
+	VersionControlProvider::Result connected = _provider.Connect(outside);
+	EXPECT_TRUE(connected._success) << connected._error.CStr();
+}
+
 TEST_F(GitProviderTest, ConnectCapabilities)
 {
 	Connect();

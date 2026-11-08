@@ -173,6 +173,20 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @param provider
+	void VersionControl::CreateWorkspace(std::string_view provider)
+	{
+		if (_projectOpened == false)
+		{
+			return;
+		}
+		_providerChoice = provider;
+		_createWorkspace = true; // Taken into account by Connect
+		SaveUserSettings();
+		Connect();
+	}
+
+	/// @brief
 	/// @return
 	std::string_view VersionControl::GetProviderChoice() const
 	{
@@ -852,6 +866,13 @@ namespace hod::inline editor
 			{
 				std::scoped_lock lock(_connectionErrorLock);
 				_connectionError = String::Format("%s isn't available (its editor module isn't loaded)", _providerChoice.CStr());
+				return;
+			}
+			if (_createWorkspace == false && chosen->CanCreateWorkspace() && chosen->Detect(_projectDir) == false)
+			{
+				// Its Detect is reliable (a .git up the folders): its own error wouldn't say it as clearly. VersionControlGui offers the creation
+				std::scoped_lock lock(_connectionErrorLock);
+				_connectionError = String::Format("The project isn't in a %s repository", _providerChoice.CStr());
 				return;
 			}
 		}

@@ -47,6 +47,9 @@ namespace hod::inline imgui
 		/// @brief On its next draw, next to the last item (the button opening it): above it when the item is in the lower half of its OS
 		/// window, below otherwise, aligned on its right edge when in the right half, on its left edge otherwise
 		void AnchorOnLastItem();
+		/// @brief As AnchorOnLastItem, on an item drawn before (its rect, as ImGui::GetItemRectMin/Max, and the OS window it's in): from a
+		/// menu of a button, the button rather than the menu item
+		void AnchorOnItem(const ImVec2& itemMin, const ImVec2& itemMax, ImGuiViewport* viewport);
 
 		/// @brief For a popup or a modal: ImGui::SetNextWindowPos centered on the window drawing now (see CenterOnCurrentWindow), when it
 		/// appears. Call it right before ImGui::BeginPopup / BeginPopupModal

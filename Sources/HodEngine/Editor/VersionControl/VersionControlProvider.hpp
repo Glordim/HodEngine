@@ -86,6 +86,8 @@ namespace hod::inline editor
 		/// @brief Before Connect, for a new project not under this system yet (see VersionControl::RequestWorkspaceCreation): makes its
 		/// folder a workspace (git init). NotSupported by default (Svn, Perforce: a workspace comes from a server)
 		virtual Result CreateWorkspace(const Path& projectDir);
+		/// @brief Main thread: whether CreateWorkspace is implemented (offered to the user then). False by default
+		virtual bool CanCreateWorkspace() const;
 
 		/// @brief The command line is there, the workspace root, the user (and the p4 client) found, logged in
 		virtual Result Connect(const Path& projectDir) = 0;

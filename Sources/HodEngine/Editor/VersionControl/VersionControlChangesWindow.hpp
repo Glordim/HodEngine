@@ -25,6 +25,8 @@ namespace hod::inline editor
 		static void Open();
 		/// @brief Same, placed next to the last item (the button opening it) instead of centered
 		static void OpenOnLastItem();
+		/// @brief As OpenOnLastItem, on an item drawn before (see Window::AnchorOnItem)
+		static void OpenOnItem(const ImVec2& itemMin, const ImVec2& itemMax, ImGuiViewport* viewport);
 		/// @brief Same, with only the changes under these paths checked
 		static void Open(const Vector<Path>& only);
 

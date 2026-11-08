@@ -54,11 +54,23 @@ namespace hod::inline imgui
 			return;
 		}
 
-		const ImRect   item = context->LastItemData.Rect;
-		ImGuiViewport* viewport = context->CurrentWindow->Viewport != nullptr ? context->CurrentWindow->Viewport : ImGui::GetMainViewport();
-		const ImVec2   workCenter = viewport->GetWorkCenter();
-		const ImVec2   itemCenter = item.GetCenter();
-		const float    spacing = ImGui::GetStyle().ItemSpacing.y;
+		AnchorOnItem(context->LastItemData.Rect.Min, context->LastItemData.Rect.Max, context->CurrentWindow->Viewport);
+	}
+
+	/// @brief
+	/// @param itemMin
+	/// @param itemMax
+	/// @param viewport
+	void Window::AnchorOnItem(const ImVec2& itemMin, const ImVec2& itemMax, ImGuiViewport* viewport)
+	{
+		const ImRect item(itemMin, itemMax);
+		if (viewport == nullptr)
+		{
+			viewport = ImGui::GetMainViewport();
+		}
+		const ImVec2 workCenter = viewport->GetWorkCenter();
+		const ImVec2 itemCenter = item.GetCenter();
+		const float  spacing = ImGui::GetStyle().ItemSpacing.y;
 
 		const bool above = itemCenter.y > workCenter.y;
 		const bool rightAligned = itemCenter.x > workCenter.x;
