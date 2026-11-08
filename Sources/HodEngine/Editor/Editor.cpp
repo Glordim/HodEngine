@@ -520,12 +520,25 @@ namespace hod::inline editor
 
 					if (ImGui::BeginMenu("File") == true)
 					{
-						if (ImGui::MenuItem("Save", "CTRL+S") == true)
+						// The selected tab, as CTRL+S (see EditorTab::HandleSaveShortcut)
+						EditorTab* selectedTab = GetSelectedEditorTab();
+						bool       canSave = selectedTab != nullptr && selectedTab->IsDirty() && selectedTab->GetAsset() != nullptr;
+						bool       canSaveAll = false;
+						for (EditorTab* editorTab : _editorTabs)
+						{
+							canSaveAll |= editorTab->IsDirty();
+						}
+						if (ImGui::MenuItem("Save", "CTRL+S", false, canSave) == true)
+						{
+							selectedTab->Save();
+						}
+						if (ImGui::MenuItem("Save All", nullptr, false, canSaveAll) == true)
 						{
 							Editor::GetInstance()->Save();
 						}
 
-						if (ImGui::MenuItem("Save scene As", "CTRL+S") == true)
+						// todo: SaveSceneAs() predates the tabs, it does nothing
+						if (ImGui::MenuItem("Save scene As", nullptr, false, false) == true)
 						{
 							Editor::GetInstance()->SaveSceneAs();
 						}

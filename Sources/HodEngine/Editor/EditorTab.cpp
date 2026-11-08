@@ -55,6 +55,13 @@ namespace hod::inline editor
 	/// @return
 	bool EditorTab::Draw()
 	{
+		// Close confirmed in the previous frame: nothing drawn this one, what was drawn then (render commands using its render
+		// targets) is rendered by now
+		if (_closeConfirmed)
+		{
+			return false;
+		}
+
 		// Before anything is drawn, as the undo shortcuts below: what the windows drew in the previous frame is rendered by now,
 		// while a restored step replaces what they hold. The edits of the previous frame are over if no drag nor text input went
 		// on since (see MarkAsDirty).
@@ -78,11 +85,18 @@ namespace hod::inline editor
 		}
 		bool draw = ImGui::BeginTabItem(_title.CStr(), &open, tabItemFlags);
 		ImGui::PopStyleVar();
+		if (open == false && IsDirty())
+		{
+			// Its close button (or a middle click): kept until confirmed (see DrawCloseConfirmation)
+			open = true;
+			_closeRequested = true;
+		}
 		_selected = draw && open;
 		if (draw && open) // check open to avoid crash when RT owner is deleted after push rendercommand using it
 		{
 			InitUndoHistory();
 			HandleUndoShortcuts();
+			HandleSaveShortcut();
 
 			float y = ImGui::GetCursorScreenPos().y - ImGui::GetStyle().ItemSpacing.y;
 			ImGui::GetWindowDrawList()->AddRectFilled(ImVec2(ImGui::GetMainViewport()->Pos.x, y), ImVec2(ImGui::GetMainViewport()->Pos.x + ImGui::GetMainViewport()->Size.x, y + 32), ImGui::GetColorU32(ImGuiCol_TabSelected));
@@ -160,7 +174,61 @@ namespace hod::inline editor
 		{
 			ImGui::EndTabItem();
 		}
+
+		// Out of the tab item: it may not be the tab shown
+		// Closed in the next frame: the tab content drawn in this one pushed render commands using its render targets
+		if (_closeRequested && DrawCloseConfirmation())
+		{
+			_closeConfirmed = true;
+		}
 		return open;
+	}
+
+	/// @brief The modal asking what to do with the unsaved changes of the tab being closed
+	/// @return True when the tab can close now (saved, or changes discarded)
+	bool EditorTab::DrawCloseConfirmation()
+	{
+		constexpr const char* ModalName = "Unsaved changes###EditorTabCloseConfirmation";
+
+		bool close = false;
+		ImGui::PushID(this);
+		if (ImGui::IsPopupOpen(ModalName) == false)
+		{
+			ImGui::OpenPopup(ModalName);
+		}
+		ImGui::SetNextWindowPos(ImGui::GetMainViewport()->GetCenter(), ImGuiCond_Appearing, ImVec2(0.5f, 0.5f));
+		if (ImGui::BeginPopupModal(ModalName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
+		{
+			const String name = _asset != nullptr ? _asset->GetName() : String("Untitled");
+			ImGui::Text("%s has unsaved changes.", name.CStr());
+			ImGui::TextUnformatted("Save them before closing?");
+			ImGui::Spacing();
+
+			ImGui::BeginDisabled(_asset == nullptr); // todo SaveAs
+			if (ImGui::Button(ICON_MDI_CONTENT_SAVE " Save") || (_asset != nullptr && ImGui::IsKeyPressed(ImGuiKey_Enter)))
+			{
+				close = Save(); // Failed: stays open, with its changes (the error is in the output log)
+				_closeRequested = false;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndDisabled();
+			ImGui::SameLine();
+			if (ImGui::Button("Don't Save"))
+			{
+				close = true;
+				_closeRequested = false;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::SameLine();
+			if (ImGui::Button("Cancel") || ImGui::IsKeyPressed(ImGuiKey_Escape))
+			{
+				_closeRequested = false;
+				ImGui::CloseCurrentPopup();
+			}
+			ImGui::EndPopup();
+		}
+		ImGui::PopID();
+		return close;
 	}
 
 	/// @brief
@@ -390,6 +458,15 @@ namespace hod::inline editor
 		_pendingUndoLabel.Clear();
 		_dirty = (_undoHistory.IsAtSavedStep() == false);
 		return true;
+	}
+
+	/// @brief Ctrl+S, from anywhere in the editor (its windows, the asset browser...): saves the tab shown, the only one drawing
+	void EditorTab::HandleSaveShortcut()
+	{
+		if (ImGui::Shortcut(ImGuiMod_Ctrl | ImGuiKey_S, ImGuiInputFlags_RouteGlobal) && _dirty && _asset != nullptr)
+		{
+			Save();
+		}
 	}
 
 	/// @brief Ctrl+Z, Ctrl+Y / Ctrl+Shift+Z, held to repeat. Left to the text field being edited, and not in the middle of an edit

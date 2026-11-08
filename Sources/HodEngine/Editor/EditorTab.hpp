@@ -83,12 +83,16 @@ namespace hod::inline editor
 		void CommitUndoStep();
 		bool RestoreUndoStep(const String* state);
 		void HandleUndoShortcuts();
+		void HandleSaveShortcut();
+		bool DrawCloseConfirmation();
 
 	private:
 		bool _initialLayoutCreated = false;
 		bool _dirty = false;
 		bool _editPrepared = false; // VersionControl::PrepareEdit called, ReleaseEdit when closed
 		bool _selected = false;
+		bool _closeRequested = false; // Closed with unsaved changes: Save / Don't Save / Cancel asked first
+		bool _closeConfirmed = false; // Saved or discarded in the modal: closes at the start of the next Draw
 
 		UndoHistory _undoHistory;
 		bool        _undoInitialized = false;
