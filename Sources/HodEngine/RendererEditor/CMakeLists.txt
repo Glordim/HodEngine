@@ -54,3 +54,4 @@ if(RHI_BACKEND STREQUAL "D3D12")
 endif()
 
 hod_install_lib(RendererEditor)
+hod_module_manifest(RendererEditor Renderer "${CMAKE_SOURCE_DIR}/Sources/HodEngine/Renderer/HodModule.json")

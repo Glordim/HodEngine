@@ -11,7 +11,8 @@ function(EmbedTextInSource InputFile TemplateFile OutputDir OutOutputFileHPP)
 	string(REGEX REPLACE "\\.| |-" "_" ESCAPED_FILE_NAME ${FILENAME})
 
 	file(READ "${InputFile}" FILE_CONTENTS)
-	string(REPLACE "\"" "\\\"" ESCAPED_FILE_CONTENTS "${FILE_CONTENTS}")
+	string(REPLACE "\\" "\\\\" ESCAPED_FILE_CONTENTS "${FILE_CONTENTS}") # First: the text is kept as it is (a \t stays \t)
+	string(REPLACE "\"" "\\\"" ESCAPED_FILE_CONTENTS "${ESCAPED_FILE_CONTENTS}")
 	string(REPLACE "\n" "\\n\"\n\"" ESCAPED_FILE_CONTENTS "${ESCAPED_FILE_CONTENTS}")
 
 	configure_file(

@@ -24,6 +24,7 @@ namespace hod::inline game
 {
 	class Actor;
 	class Entity;
+	class RuntimeModuleHost;
 }
 
 namespace hod::inline rhi
@@ -159,9 +160,23 @@ namespace hod::inline editor
 			return *_taskTracker;
 		}
 
+		/// @brief Closes the editor, then starts it again on the project once this one is gone (see PluginsWindow)
+		void Restart();
+
+		/// @brief A tab has changes not saved
+		bool HasDirtyTabs() const;
+
+		/// @brief Its runtime library couldn't be loaded or initialized (see LoadRuntimeModules): its editor library isn't loaded
+		bool HasModuleFailed(const String& name) const;
+
 	private:
 		bool AddProjectInRecentProject(const Path& path) const;
 
+		/// @brief The runtime libraries of the project's enabled modules (see Project::GetModuleGraph): loaded, registered, initialized
+		bool LoadRuntimeModules();
+		void UnloadRuntimeModules();
+
+		/// @brief The editor libraries of the project's enabled modules, in the modules' order
 		bool LoadEditorModules();
 		bool UnloadEditorModules();
 
@@ -175,6 +190,15 @@ namespace hod::inline editor
 			EditorModuleRegistration* _registration = nullptr;
 		};
 		Vector<EditorModule> _editorModules;
+
+		// The runtime libraries of the project's optional modules (see game::RuntimeModule), for the editor's life
+		Vector<DynamicLibrary*>  _runtimeModuleLibraries;
+		game::RuntimeModuleHost* _runtimeModuleHost = nullptr;
+		Vector<String>           _failedModules; // Whose runtime library couldn't be loaded or initialized: their editor library isn't loaded
+		bool                     _modulesLoaded = false;
+
+		bool _restartRequested = false;
+		Path _restartProjectPath;
 
 		Vector<EditorTab*>                                                            _editorTabs;
 

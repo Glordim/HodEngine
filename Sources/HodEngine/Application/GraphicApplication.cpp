@@ -33,7 +33,6 @@ namespace hod::inline application
 
 		if (!initGuard.Push([this]{ return InitCore(); },        [this]{ TerminateCore(); }))        return false;
 		if (!initGuard.Push([this]{ return InitGameSystems(); }, [this]{ TerminateGameSystems(); })) return false;
-		if (!initGuard.Push([this]{ return InitPhysics(); },     [this]{ TerminatePhysics(); }))     return false;
 		if (!initGuard.Push([this]{ return InitAudio(); },       [this]{ TerminateAudio(); }))       return false;
 		if (!initGuard.Push([this]{ return InitWindow(); },      [this]{ TerminateWindow(); }))      return false;
 		if (!initGuard.Push([this]{ return InitInput(); },       [this]{ TerminateInput(); }))       return false;
@@ -41,11 +40,8 @@ namespace hod::inline application
 		if (!initGuard.Push([this]{ return InitImGui(); },       [this]{ TerminateImGui(); }))       return false;
 		if (!initGuard.Push([this]{ return InitUI(); },          [this]{ TerminateUI(); }))          return false;
 		if (!initGuard.Push([this]{ return InitGame(); },        [this]{ TerminateGame(); }))        return false;
-
-		if (BootGame() == false)
-		{
-			return false;
-		}
+		if (!initGuard.Push([this]{ return InitModules(); },     [this]{ TerminateModules(); }))     return false;
+		if (!initGuard.Push([this]{ return BootGame(); },        [this]{ TerminateBoot(); }))        return false;
 
 		return RunGraphicLoop();
 	}

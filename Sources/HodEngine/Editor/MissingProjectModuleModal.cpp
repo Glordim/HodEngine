@@ -2,6 +2,7 @@
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/MissingProjectModuleModal.hpp"
 #include "HodEngine/Editor/TitleBar.hpp"
+#include "HodEngine/Editor/Modules/PluginsWindow.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
@@ -67,8 +68,15 @@ namespace hod::inline editor
 		bool failed = _prepareResult == StepStatus::Failed || _configureResult == StepStatus::Failed || _buildResult == StepStatus::Failed;
 		if (failed)
 		{
+			// The game code may use a module the project disables now: re-enable it from there (the editor restarts)
 			ImGui::SameLine();
-			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - ImGui::CalcTextSize("Retry").x - ImGui::GetStyle().FramePadding.x * 2.0f);
+			float buttonsWidth = ImGui::CalcTextSize("Plugins...").x + ImGui::CalcTextSize("Retry").x + ImGui::GetStyle().FramePadding.x * 4.0f + ImGui::GetStyle().ItemSpacing.x;
+			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - buttonsWidth);
+			if (ImGui::Button("Plugins..."))
+			{
+				PluginsWindow::Open();
+			}
+			ImGui::SameLine();
 			if (ImGui::Button("Retry"))
 			{
 				_generationJob.Wait(); // The job may still be returning after flagging the failure

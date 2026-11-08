@@ -3,9 +3,10 @@
 
 namespace hod::inline application
 {
-	bool DesktopApplication::Run(int /*argc*/, char** /*argv*/)
+	bool DesktopApplication::Run(int argc, char** argv)
 	{
-		// todo use argv for config
+		_argc = argc;
+		_argv = argv;
 		return RunInternal();
 	}
 }

@@ -16,12 +16,13 @@
 
 namespace hod::inline math { struct Color; class Vector2; }
 namespace hod::inline renderer { class RenderView; }
-namespace hod::inline physics { class World; }
 
 namespace hod::inline game
 {
 	class Scene;
 	class RendererComponent;
+	class WorldSystem;
+	struct WorldSystemType;
 
 	//-----------------------------------------------------------------------------
 	//! @brief		
@@ -75,7 +76,17 @@ namespace hod::inline game
 		void						DrawDebugLine(const Vector2& start, const Vector2& end, const Color& color, float duration = 0.0f);
 		//
 
-		physics::World*				GetPhysicsWorld() const;
+		/// @brief The instance of a WorldSystemType registered by a module, nullptr if the module isn't there
+		WorldSystem*				FindSystem(const WorldSystemType& type) const;
+
+		/// @brief Of the scenes' FixedUpdate and the systems' OnFixedUpdate
+		float						GetFixedTimestep() const;
+
+	private:
+		friend class WorldSystemRegistry;
+
+		void						AddSystem(const WorldSystemType& type);
+		void						RemoveSystem(const WorldSystemType& type);
 
 	private:
 // todo
@@ -96,8 +107,15 @@ namespace hod::inline game
 
 		bool						_jobInserted = false;
 
-		float						_physicsUpdateTimestep = 1.0f / 120.0f;
-		float						_accumulatedPhysicsTime = 0.0f;
-		physics::World*				_physicsWorld = nullptr;
+		float						_fixedTimestep = 1.0f / 120.0f;
+		float						_accumulatedFixedTime = 0.0f;
+
+		struct SystemInstance
+		{
+			const WorldSystemType*	_type = nullptr;
+			WorldSystem*			_system = nullptr;
+		};
+		Vector<SystemInstance>		_systems; // In the WorldSystemRegistry order
+		bool						_systemsCreated = false;
 	};
 }

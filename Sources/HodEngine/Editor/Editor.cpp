@@ -19,6 +19,8 @@
 
 #include "HodEngine/Editor/ProjectBrowser.hpp"
 #include "HodEngine/Editor/ProjectSettingsWindow.hpp"
+#include "HodEngine/Editor/Modules/PluginsWindow.hpp"
+#include "HodEngine/Core/Process/Process.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/TaskTracker/TaskTrackerWindow.hpp"
 #include "HodEngine/Editor/TitleBar.hpp"
@@ -42,6 +44,7 @@
 #include "HodEngine/Editor/Importer/ImportJob.hpp"
 #include "HodEngine/Editor/RecentProjects.hpp"
 #include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Game/RuntimeModule.hpp"
 
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
@@ -105,6 +108,21 @@ namespace hod::inline editor
 		AssetDatabase::DestroyInstance();
 		WindowFactory::DestroyInstance();
 
+		UnloadRuntimeModules(); // Last: their components and world systems may be used until then
+
+		// Once everything is released (the copy of the game module, the libraries): the new editor reloads and rebuilds them
+		if (_restartRequested)
+		{
+			Process::Desc desc;
+			desc._program = FileSystem::GetExecutablePath().GetString();
+			desc._arguments = {"-p", _restartProjectPath.GetString()};
+			desc._workingDirectory = _restartProjectPath.ParentPath();
+			if (Process::Launch(desc) == false)
+			{
+				OUTPUT_ERROR("The editor couldn't be started again on {}", _restartProjectPath);
+			}
+		}
+
 		DefaultAllocator::GetInstance().Delete(_hodTexture);
 		DefaultAllocator::GetInstance().Delete(_folderTexture);
 		DefaultAllocator::GetInstance().Delete(_sceneTexture);
@@ -133,13 +151,8 @@ namespace hod::inline editor
 		Project::GetInstance()->GetOnModulesReloadedEvent().Connect(_onProjectModulesReloadedSlot);
 
 		WindowFactory::CreateInstance();
-		AssetDatabase::CreateInstance(); // Before the editor modules: they register their asset types into it
+		AssetDatabase::CreateInstance(); // Before the editor modules (loaded with the project, see LoadEditor): they register their asset types into it
 		VersionControl::CreateInstance(); // Same for their version control providers
-
-		if (LoadEditorModules() == false)
-		{
-			return false;
-		}
 
 		int      x;
 		int      y;
@@ -228,32 +241,184 @@ namespace hod::inline editor
 		return false;
 	}
 
+	/// @brief Register phase of each module (in the modules' order: dependencies first), then the Init phase of all, once the project
+	/// settings are loaded (Project::Open). A module that fails (and the ones needing it) is left out, with an error: the editor still opens
+	/// @return
+	bool Editor::LoadRuntimeModules()
+	{
+		_runtimeModuleHost = DefaultAllocator::GetInstance().New<game::RuntimeModuleHost>();
+
+		auto dependsOnFailed = [this](const ModuleManifest& manifest)
+		{
+			for (const String& dependency : manifest._dependencies)
+			{
+				for (const String& failedModule : _failedModules)
+				{
+					if (failedModule == dependency)
+					{
+						return true;
+					}
+				}
+			}
+			return false;
+		};
+
+		for (const ModuleGraph::Module& module : Project::GetInstance()->GetModuleGraph().GetModules())
+		{
+			const ModuleManifest& manifest = module._manifest;
+			if (module._enabled == false || manifest._runtimeLibrary.Empty())
+			{
+				continue;
+			}
+			if (dependsOnFailed(manifest))
+			{
+				OUTPUT_ERROR("Module '{}' left out: it needs a module that failed", manifest._name);
+				_failedModules.PushBack(manifest._name);
+				continue;
+			}
+
+			DynamicLibrary* library = DefaultAllocator::GetInstance().New<DynamicLibrary>();
+			library->Init(FileSystem::GetExecutablePath().ParentPath() / manifest._runtimeLibrary, false);
+			String functionName = String("HodRuntimeModule_") + manifest._runtimeLibrary;
+			const game::RuntimeModule* (*moduleFunc)() = nullptr;
+			if (library->Load())
+			{
+				moduleFunc = library->LoadFunction<const game::RuntimeModule* (*)()>(functionName.CStr());
+			}
+			if (moduleFunc == nullptr || moduleFunc() == nullptr)
+			{
+				OUTPUT_ERROR("Module '{}' left out: no {} in the library {}", manifest._name, functionName, manifest._runtimeLibrary);
+				DefaultAllocator::GetInstance().Delete(library);
+				_failedModules.PushBack(manifest._name);
+				continue;
+			}
+
+			_runtimeModuleHost->Register(*moduleFunc());
+			_runtimeModuleLibraries.PushBack(library);
+		}
+
+		if (_runtimeModuleHost->InitAll() == false)
+		{
+			// Which ones need the one that failed isn't known past this point: all of them are left out
+			OUTPUT_ERROR("The modules' runtime libraries are left out: one failed to initialize");
+			_runtimeModuleHost->UnregisterAll();
+			for (const ModuleGraph::Module& module : Project::GetInstance()->GetModuleGraph().GetModules())
+			{
+				if (module._enabled && module._manifest._runtimeLibrary.Empty() == false)
+				{
+					_failedModules.PushBack(module._manifest._name);
+				}
+			}
+		}
+		return true;
+	}
+
+	/// @brief
+	void Editor::Restart()
+	{
+		_restartRequested = true;
+		_restartProjectPath = Project::GetInstance()->GetProjectPath();
+		static_cast<DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow())->Close();
+	}
+
+	/// @brief
+	/// @return
+	bool Editor::HasDirtyTabs() const
+	{
+		for (const EditorTab* editorTab : _editorTabs)
+		{
+			if (editorTab->IsDirty())
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/// @brief
+	/// @param name
+	/// @return
+	bool Editor::HasModuleFailed(const String& name) const
+	{
+		for (const String& failedModule : _failedModules)
+		{
+			if (failedModule == name)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/// @brief
+	void Editor::UnloadRuntimeModules()
+	{
+		if (_runtimeModuleHost != nullptr)
+		{
+			DefaultAllocator::GetInstance().Delete(_runtimeModuleHost); // Shutdown phase, then unregisters
+			_runtimeModuleHost = nullptr;
+		}
+		for (auto it = _runtimeModuleLibraries.RBegin(); it != _runtimeModuleLibraries.REnd(); ++it)
+		{
+			(*it)->Unload();
+			DefaultAllocator::GetInstance().Delete(*it);
+		}
+		_runtimeModuleLibraries.Clear();
+	}
+
 	/// @brief
 	/// @return
 	bool Editor::LoadEditorModules()
 	{
-		StaticArray<const char*, 7> editorModules = {"CoreEditor", "InputEditor", "GameEditor", "UI2Editor", "RendererEditor", "AudioEditor", "VersionControlEditor"};
-
-		for (const char* moduleName : editorModules)
+		for (const ModuleGraph::Module& module : Project::GetInstance()->GetModuleGraph().GetModules())
 		{
-			DynamicLibrary* module = DefaultAllocator::GetInstance().New<DynamicLibrary>();
-			module->Init(FileSystem::GetExecutablePath().ParentPath() / moduleName, false);
-			if (module->Load() == false)
+			const ModuleManifest& manifest = module._manifest;
+			if (module._enabled == false || manifest._editorLibrary.Empty())
 			{
-				DefaultAllocator::GetInstance().Delete(module);
-				return false;
+				continue;
+			}
+			bool failed = false;
+			for (const String& failedModule : _failedModules)
+			{
+				if (failedModule == manifest._name)
+				{
+					failed = true;
+					break;
+				}
+			}
+			if (failed)
+			{
+				continue;
 			}
 
-			auto startupFunc = module->LoadFunction<int (*)(EditorModuleRegistration&)>("StartupEditorModule");
+			DynamicLibrary* library = DefaultAllocator::GetInstance().New<DynamicLibrary>();
+			library->Init(FileSystem::GetExecutablePath().ParentPath() / manifest._editorLibrary, false);
+			if (library->Load() == false)
+			{
+				OUTPUT_ERROR("Module '{}': its editor library {} can't be loaded", manifest._name, manifest._editorLibrary);
+				DefaultAllocator::GetInstance().Delete(library);
+				if (manifest._required)
+				{
+					return false;
+				}
+				continue;
+			}
+
+			auto startupFunc = library->LoadFunction<int (*)(EditorModuleRegistration&)>("StartupEditorModule");
 			if (startupFunc == nullptr)
 			{
-				DefaultAllocator::GetInstance().Delete(module);
-				return false;
+				OUTPUT_ERROR("Module '{}': no StartupEditorModule in its editor library {}", manifest._name, manifest._editorLibrary);
+				DefaultAllocator::GetInstance().Delete(library);
+				if (manifest._required)
+				{
+					return false;
+				}
+				continue;
 			}
 			EditorModuleRegistration* registration = DefaultAllocator::GetInstance().New<EditorModuleRegistration>();
 			startupFunc(*registration);
 
-			_editorModules.PushBack({module, registration});
+			_editorModules.PushBack({library, registration});
 		}
 		return true;
 	}
@@ -288,6 +453,13 @@ namespace hod::inline editor
 		}
 		AddProjectInRecentProject(path);
 
+		// Before the game module is loaded, even to test it (CanLoadProjectModules): it links their libraries, which are next to the editor,
+		// not next to it (DynamicLibrary loads with LOAD_WITH_ALTERED_SEARCH_PATH: the libraries loaded already are found, not the others)
+		if (_runtimeModuleHost == nullptr && LoadRuntimeModules() == false)
+		{
+			return false;
+		}
+
 		// Missing or outdated (linked against engine libraries that changed since) game module, rebuild it
 		if (Project::GetInstance()->HasGameModule() == false || Project::GetInstance()->CanLoadProjectModules() == false)
 		{
@@ -303,6 +475,16 @@ namespace hod::inline editor
 
 	bool Editor::LoadEditor()
 	{
+		// The editor libraries of the engine modules the project uses (their runtime libraries are loaded, see OpenProject), before its own
+		if (_modulesLoaded == false)
+		{
+			_modulesLoaded = true;
+			if (LoadEditorModules() == false)
+			{
+				return false;
+			}
+		}
+
 		if (Project::GetInstance()->ReloadProjectModules() == false)
 		{
 			return false;
@@ -393,6 +575,10 @@ namespace hod::inline editor
 						if (ImGui::MenuItem("Project Settings") == true)
 						{
 							ProjectSettingsWindow::Open();
+						}
+						if (ImGui::MenuItem("Plugins") == true)
+						{
+							PluginsWindow::Open();
 						}
 						ImGui::EndMenu();
 					}

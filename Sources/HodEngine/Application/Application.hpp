@@ -8,6 +8,7 @@ struct AAssetManager;
 namespace hod::inline game
 {
 	class World;
+	class RuntimeModuleHost;
 }
 
 namespace hod::inline application
@@ -42,18 +43,23 @@ namespace hod::inline application
 		bool InitGameSystems();
 		bool TerminateGameSystems();
 		
-		// Physics
-		bool InitPhysics();
-		bool TerminatePhysics();
-		
-		// Game
+		// Game: the factories, the builtin types, then the Register phase of the game's runtime modules (see game::RuntimeModule)
 		bool InitGame();
 		bool TerminateGame();
+
+		// The game's runtime modules: the project settings are loaded, then their Init phase
+		bool InitModules();
+		bool TerminateModules();
+
+		// The game module, then its startup scene
 		bool BootGame();
+		bool TerminateBoot();
 
 	protected:
 		bool _shouldQuit = false;
 
 		World*	_world = nullptr;
+
+		RuntimeModuleHost* _runtimeModuleHost = nullptr;
 	};
 }

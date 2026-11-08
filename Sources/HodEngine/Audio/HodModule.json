@@ -1,0 +1,9 @@
+{
+	"_name": "Audio",
+	"_description": "Builtin audio: audio clips, audio sources",
+	"_editorLibrary": "AudioEditor",
+	"_dependencies": [
+		"Core"
+	],
+	"_required": true
+}

@@ -1,0 +1,9 @@
+{
+	"_name": "UI2",
+	"_description": "UI prefabs, layouts, interactions, animations",
+	"_editorLibrary": "UI2Editor",
+	"_dependencies": [
+		"Core"
+	],
+	"_required": true
+}

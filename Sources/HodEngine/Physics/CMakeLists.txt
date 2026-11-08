@@ -16,8 +16,9 @@ target_include_directories(Physics PUBLIC
 )
 target_precompile_headers(Physics PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
+# An optional module (see HodModule.json): Game doesn't know it, it registers its components and its world system in Game
 target_link_libraries(Physics
-	PUBLIC Core Math
+	PUBLIC Core Math Game
 	PRIVATE Box2d::Box2d
 )
 
@@ -29,3 +30,4 @@ else()
 endif()
 
 hod_install_lib(Physics)
+hod_module_manifest(Physics Physics "${CMAKE_CURRENT_SOURCE_DIR}/HodModule.json")

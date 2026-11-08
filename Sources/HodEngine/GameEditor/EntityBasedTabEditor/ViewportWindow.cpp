@@ -21,6 +21,7 @@
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/ReadbackRenderTarget.hpp>
 #include <HodEngine/RHI/RenderTarget.hpp>
 #include <HodEngine/RHI/Texture.hpp>
@@ -34,9 +35,7 @@
 #include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawer.hpp"
 #include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
 
-#include "HodEngine/GameEditor/EntityBasedTabEditor/PhysicsDebugDrawer.hpp"
-#include <HodEngine/Physics/DebugDrawer.hpp>
-#include <HodEngine/Physics/World.hpp>
+#include "HodEngine/GameEditor/EntityBasedTabEditor/ViewportDebugView.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 #include <HodEngine/ImGui/ImGuiManager.hpp>
@@ -71,6 +70,7 @@ namespace hod::inline editor
 	/// @brief
 	ViewportWindow::~ViewportWindow()
 	{
+		ViewportDebugViewRegistry::SetEnabled(this, nullptr);
 		DefaultAllocator::GetInstance().Delete(_renderTarget);
 		DefaultAllocator::GetInstance().Delete(_pickingRenderTarget);
 	}
@@ -120,7 +120,7 @@ namespace hod::inline editor
 		drawList->ChannelsMerge();
 	}
 
-	/// @brief Toolbar floating over the top of the viewport: picking buffer, physics debug (with its draw flags) and grid toggles, plus the play mode resolution.
+	/// @brief Toolbar floating over the top of the viewport: picking buffer, debug views (see ViewportDebugView) and grid toggles, plus the play mode resolution.
 	void ViewportWindow::DrawToolbar()
 	{
 		struct Resolution
@@ -144,12 +144,26 @@ namespace hod::inline editor
 		DrawHelper::DrawToggle(ICON_MDI_EYEDROPPER " Picker", "picking buffer", _debugPicker);
 		ImGui::SameLine();
 
-		bool physicsEnabled = _physicsDebugDrawer != nullptr;
-		if (DrawHelper::DrawToggleWithSettings(ICON_MDI_ATOM " Physics", "physics debug", "ViewportPhysics", physicsEnabled))
+		// The debug views registered by the modules, one enabled at a time
+		const ViewportDebugViewType* enabledDebugViewType = ViewportDebugViewRegistry::GetEnabledType(this);
+		for (const ViewportDebugViewType* debugViewType : ViewportDebugViewRegistry::GetTypes())
 		{
-			EnablePhysicsDebugDrawer(physicsEnabled);
+			ImGui::PushID(debugViewType);
+			bool enabled = debugViewType == enabledDebugViewType;
+			bool changed = debugViewType->_drawSettings != nullptr ? DrawHelper::DrawToggleWithSettings(debugViewType->_label, debugViewType->_itemName, "DebugViewSettings", enabled)
+			                                                       : DrawHelper::DrawToggle(debugViewType->_label, debugViewType->_itemName, enabled);
+			if (changed)
+			{
+				ViewportDebugViewRegistry::SetEnabled(this, enabled ? debugViewType : nullptr);
+			}
+			if (debugViewType->_drawSettings != nullptr && DrawHelper::BeginSettingsPopup("DebugViewSettings"))
+			{
+				debugViewType->_drawSettings(*GetOwner<EntityEditorTab>()->GetWorld());
+				ImGui::EndPopup();
+			}
+			ImGui::PopID();
+			ImGui::SameLine();
 		}
-		ImGui::SameLine();
 
 		DrawHelper::DrawToggle(ICON_MDI_GRID " Grid", "grid", _drawGrid);
 		ImGui::SameLine();
@@ -172,30 +186,6 @@ namespace hod::inline editor
 		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
 		{
 			ImGui::SetTooltip("Play mode resolution");
-		}
-
-		if (DrawHelper::BeginSettingsPopup("ViewportPhysics"))
-		{
-			physics::DebugDrawer* physicsDebugDrawer = GetOwner<EntityEditorTab>()->GetWorld()->GetPhysicsWorld()->GetDebugDrawer();
-			uint32_t              flags = physicsDebugDrawer->GetFlags();
-
-			for (const physics::DebugDrawer::Flag& flag : physicsDebugDrawer->GetAvailableFlags())
-			{
-				bool enabled = flags & flag._value;
-				if (ImGui::Checkbox(flag._label, &enabled))
-				{
-					if (enabled)
-					{
-						flags |= flag._value;
-					}
-					else
-					{
-						flags &= ~(flag._value);
-					}
-					physicsDebugDrawer->SetFlags(flags);
-				}
-			}
-			ImGui::EndPopup();
 		}
 
 		ImGui::SetNextWindowPos(resolutionPopupAnchor);
@@ -336,15 +326,7 @@ namespace hod::inline editor
 				renderView->SetupCamera(_projection, _view, viewport);
 
 				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
-				if (_physicsDebugDrawer != nullptr)
-				{
-					_physicsDebugDrawer->Update(world->GetPhysicsWorld());
-					_physicsDebugDrawer->PushRenderCommand(*renderView, world->GetPhysicsWorld());
-				}
-				else
-				{
-					world->Draw(*renderView);
-				}
+				DrawWorld(*renderView);
 
 				Entity* sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 				for (Scene* scene : world->GetScenes())
@@ -385,16 +367,7 @@ namespace hod::inline editor
 			}
 			else
 			{
-				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
-				if (_physicsDebugDrawer != nullptr)
-				{
-					_physicsDebugDrawer->Update(world->GetPhysicsWorld());
-					_physicsDebugDrawer->PushRenderCommand(*renderView, world->GetPhysicsWorld());
-				}
-				else
-				{
-					world->Draw(*renderView);
-				}
+				DrawWorld(*renderView);
 			}
 
 			if (_debugPicker)
@@ -471,32 +444,19 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @param enabled
-	void ViewportWindow::EnablePhysicsDebugDrawer(bool enabled)
+	/// @param renderView
+	void ViewportWindow::DrawWorld(RenderView& renderView)
 	{
-		if (enabled == true)
+		game::World*       world = GetOwner<EntityEditorTab>()->GetWorld();
+		ViewportDebugView* debugView = ViewportDebugViewRegistry::GetEnabled(this);
+		if (debugView != nullptr)
 		{
-			if (_physicsDebugDrawer == nullptr)
-			{
-				_physicsDebugDrawer = DefaultAllocator::GetInstance().New<PhysicsDebugDrawer>();
-			}
+			debugView->Draw(renderView, *world);
 		}
 		else
 		{
-			if (_physicsDebugDrawer != nullptr)
-			{
-				DefaultAllocator::GetInstance().Delete(_physicsDebugDrawer);
-				_physicsDebugDrawer = nullptr;
-			}
+			world->Draw(renderView);
 		}
-	}
-
-	/// @brief
-	/// @param enabled
-	/// @return
-	bool ViewportWindow::IsPhysicsDebugDrawerEnabled() const
-	{
-		return _physicsDebugDrawer != nullptr;
 	}
 
 	/// @brief

@@ -1,0 +1,86 @@
+#pragma once
+#include "HodEngine/Physics/Export.hpp"
+
+#include "HodEngine/Game/Component.hpp"
+#include "HodEngine/Math/Vector2.hpp"
+
+#include "HodEngine/Core/Vector.hpp"
+
+namespace hod::inline physics
+{
+	class Collider;
+}
+
+namespace hod::inline physics
+{
+	class Rigidbody2dComponent;
+
+		/*
+	struct HOD_PHYSICS_API EdgeShape : public Shape
+	{
+		REFLECTED_CLASS(EdgeShape, Shape, HOD_PHYSICS_API)
+	public:
+
+		~EdgeShape() override = default;
+
+		Vector2 _start;
+		Vector2 _end;
+	};
+
+	struct HOD_PHYSICS_API CircleShape : public Shape
+	{
+		REFLECTED_CLASS(CircleShape, Shape, HOD_PHYSICS_API)
+	public:
+
+		~CircleShape() override = default;
+
+		Vector2	_origin;
+		float	_radius;
+	};
+
+	struct HOD_PHYSICS_API BoxShape : public Shape
+	{
+		REFLECTED_CLASS(BoxShape, Shape, HOD_PHYSICS_API)
+	public:
+
+		~BoxShape() override = default;
+
+		Vector2	_origin;
+		Vector2	_size;
+		float	_angle;
+	};
+		*/
+
+	/// @brief 
+	class HOD_PHYSICS_API Collider2dComponent : public Component
+	{
+		REFLECTED_CLASS(Collider2dComponent, Component)
+
+	public:
+
+						Collider2dComponent();
+						Collider2dComponent(const Collider2dComponent&) = delete;
+						Collider2dComponent(Collider2dComponent&&) = delete;
+						~Collider2dComponent() override;
+
+		void			operator=(const Collider2dComponent&) = delete;
+		void			operator=(Collider2dComponent&&) = delete;
+
+	public:
+
+		void			OnStart() override;
+
+		Rigidbody2dComponent*		GetRigidbody();
+		Vector2						GetScale() const;
+
+	protected:
+
+		Collider*	_collider = nullptr;
+
+		bool			_isTrigger = false;
+		float			_friction = 0.5f;
+		float			_density = 1.0f;
+
+		WeakPtr<Rigidbody2dComponent>	_rigidbody;
+	};
+}

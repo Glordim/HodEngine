@@ -10,5 +10,9 @@ namespace hod::inline application
 	{
 	public:
 		bool Run(int argc, char** argv);
+
+	protected:
+		int    _argc = 0;
+		char** _argv = nullptr;
 	};
 }

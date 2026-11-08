@@ -24,3 +24,4 @@ target_compile_definitions(InputEditor
 )
 
 hod_install_lib(InputEditor)
+hod_module_manifest(InputEditor Input "${CMAKE_SOURCE_DIR}/Sources/HodEngine/Input/HodModule.json")

@@ -1,0 +1,9 @@
+{
+	"_name": "Renderer",
+	"_description": "Textures, fonts, materials",
+	"_editorLibrary": "RendererEditor",
+	"_dependencies": [
+		"Core"
+	],
+	"_required": true
+}

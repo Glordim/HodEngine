@@ -1,0 +1,7 @@
+{
+	"_name": "Core",
+	"_description": "Core types, assets and editors shared by every module",
+	"_editorLibrary": "CoreEditor",
+	"_dependencies": [],
+	"_required": true
+}

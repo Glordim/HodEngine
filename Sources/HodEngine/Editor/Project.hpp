@@ -13,6 +13,8 @@
 #include <HodEngine/Core/Singleton.hpp>
 #include <HodEngine/Core/UID.hpp>
 
+#include "HodEngine/Editor/Modules/ModuleGraph.hpp"
+
 #include <memory>
 
 namespace hod::inline editor
@@ -61,12 +63,27 @@ namespace hod::inline editor
 
 		bool ReloadProjectModules();
 
+		/// @brief The engine modules (see ModuleGraph), resolved against the project's disabled ones when it is opened
+		const ModuleGraph&    GetModuleGraph() const;
+		const Vector<String>& GetDisabledModules() const;
+
+		/// @brief Saved in the project file (checked out first if the version control needs it). Taken into account when the project
+		/// is opened again (see PluginsWindow): the module graph stays the one the project was opened with
+		/// @return false (with an error) if the project file can't be written
+		bool SetDisabledModules(const Vector<String>& disabledModules);
+
 		bool CreateMinimalSourceForModule(const Path& directory);
 
 		Event<>& GetOnModulesReloadedEvent() { return _onModulesReloadedEvent; }
 
 	private:
 		static bool WriteModuleSourceFile(const Path& path, std::string_view templateContent, const String& moduleName, const String& macroPrefix);
+
+		void ResolveModules();
+
+		/// @brief What the game module built for the editor links (see BuildGameModule): its runtime libraries, one per line
+		Path   GetGameModuleRuntimeLibrariesStampPath() const;
+		String GetRuntimeLibrariesStamp() const;
 
 	private:
 		Path _projectPath;
@@ -80,6 +97,9 @@ namespace hod::inline editor
 
 		String _name;
 		UID    _startupScene;
+
+		Vector<String> _disabledModules; // Names of the engine modules the project doesn't use (see ModuleGraph::Resolve)
+		ModuleGraph    _moduleGraph;
 
 		DynamicLibrary    _gameModule;
 		FileSystemWatcher _gameModuleFileSystemWatcher;

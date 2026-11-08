@@ -1,0 +1,9 @@
+{
+	"_name": "Input",
+	"_description": "Input devices and actions",
+	"_editorLibrary": "InputEditor",
+	"_dependencies": [
+		"Core"
+	],
+	"_required": true
+}

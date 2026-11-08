@@ -18,7 +18,6 @@ namespace hod
 
 		if (!initGuard.Push([this]{ return InitCore(); },        [this]{ TerminateCore(); }))        return false;
 		if (!initGuard.Push([this]{ return InitGameSystems(); }, [this]{ TerminateGameSystems(); })) return false;
-		if (!initGuard.Push([this]{ return InitPhysics(); },     [this]{ TerminatePhysics(); }))     return false;
 		if (!initGuard.Push([this]{ return InitAudio(); },       [this]{ TerminateAudio(); }))       return false;
 		if (!initGuard.Push([this]{ return InitWindow(); },      [this]{ TerminateWindow(); }))      return false;
 		if (!initGuard.Push([this]{ return InitInput(); },       [this]{ TerminateInput(); }))       return false;
@@ -33,7 +32,7 @@ namespace hod
 
 	bool EditorApplication::InitEditor()
 	{
-		ArgumentParser argumentParser(0, nullptr); // todo pass argc/argv
+		ArgumentParser argumentParser(_argc, _argv);
 
 		const hod::Argument* projectPathArgument = argumentParser.GetArgument('p', "ProjectPath");
 		if (projectPathArgument != nullptr && projectPathArgument->_values[0] != nullptr)

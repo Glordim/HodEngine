@@ -22,8 +22,6 @@ namespace hod::inline renderer
 
 namespace hod::inline editor
 {
-	class PhysicsDebugDrawer;
-
 	/// @brief
 	class HOD_GAME_EDITOR_API ViewportWindow : public EditorTabWindow, public GizmoViewport
 	{
@@ -53,8 +51,8 @@ namespace hod::inline editor
 		void DrawToolbar();
 		void DrawViewport();
 
-		void EnablePhysicsDebugDrawer(bool enabled);
-		bool IsPhysicsDebugDrawerEnabled() const;
+		/// @brief The world's render, or the enabled debug view's (see ViewportDebugView)
+		void DrawWorld(RenderView& renderView);
 
 		RenderView*   _renderView = nullptr;
 		RenderTarget* _renderTarget = nullptr;
@@ -68,8 +66,7 @@ namespace hod::inline editor
 		Vector2 _cameraPosition = Vector2::Zero;
 		float   _size = 5.0f;
 
-		PhysicsDebugDrawer* _physicsDebugDrawer = nullptr;
-		bool                _debugPicker = false;
+		bool _debugPicker = false;
 
 		bool _drawGrid = true;
 

@@ -11,10 +11,7 @@
 namespace hod::inline game
 {
 	/// @brief
-	DebugDrawer::DebugDrawer()
-	{
-		_lineMaterial = BuiltinMaterialManager::GetInstance()->GetBuiltinMaterialDefaultInstance(BuiltinMaterialManager::BuiltinMaterial::P2fC4f_Unlit_Line_Line);
-	}
+	DebugDrawer::DebugDrawer() {}
 
 	/// @brief
 	/// @param start
@@ -30,6 +27,12 @@ namespace hod::inline game
 	/// @param renderView
 	void DebugDrawer::Draw(RenderView& renderView)
 	{
+		// On the first draw: a World (and its DebugDrawer) can exist without the renderer (tests, tools)
+		if (_lineMaterial == nullptr)
+		{
+			_lineMaterial = BuiltinMaterialManager::GetInstance()->GetBuiltinMaterialDefaultInstance(BuiltinMaterialManager::BuiltinMaterial::P2fC4f_Unlit_Line_Line);
+		}
+
 		auto it = _lines.Begin();
 		auto itEnd = _lines.End();
 		while (it != itEnd)

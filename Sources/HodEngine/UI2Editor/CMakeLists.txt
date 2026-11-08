@@ -24,3 +24,4 @@ target_compile_definitions(UI2Editor
 )
 
 hod_install_lib(UI2Editor)
+hod_module_manifest(UI2Editor UI2 "${CMAKE_SOURCE_DIR}/Sources/HodEngine/UI2/HodModule.json")

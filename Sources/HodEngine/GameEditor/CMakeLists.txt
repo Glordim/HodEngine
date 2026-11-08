@@ -24,3 +24,4 @@ target_compile_definitions(GameEditor
 )
 
 hod_install_lib(GameEditor)
+hod_module_manifest(GameEditor Game "${CMAKE_SOURCE_DIR}/Sources/HodEngine/Game/HodModule.json")

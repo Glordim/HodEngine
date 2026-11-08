@@ -1,0 +1,18 @@
+// clang-format off
+// Generated at configure time by hod_add_engine_modules_entry_points (HodEngineConfig.cmake) from the list of the project's engine
+// modules, don't edit
+#include <HodEngine/Game/RuntimeModule.hpp>
+
+extern "C"
+{
+@HOD_MODULE_DECLARATIONS@}
+
+// Called by Application::InitGame: the runtime modules of the game, dependencies first
+extern "C" const hod::game::RuntimeModule* const* HodGetRuntimeModules(uint32_t* count)
+{
+	static const hod::game::RuntimeModule* const modules[] = {
+@HOD_MODULE_ENTRIES@		nullptr,
+	};
+	*count = @HOD_MODULE_COUNT@;
+	return modules;
+}

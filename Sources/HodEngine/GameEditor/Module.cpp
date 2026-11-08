@@ -18,13 +18,7 @@
 #include "HodEngine/Game/Components/NodeComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
 
-#include "HodEngine/Game/Components/Physics/2d/Rigidbody2dComponent.hpp"
-#include "HodEngine/Game/Components/Physics/2d/Collider2dComponent.hpp"
-#include "HodEngine/Game/Components/Physics/2d/MultiShapeCollider2dComponent.hpp"
-#include "HodEngine/Game/Components/Physics/2d/BoxCollider2dComponent.hpp"
-#include "HodEngine/Game/Components/Physics/2d/CircleCollider2dComponent.hpp"
-#include "HodEngine/Game/Components/Physics/2d/CapsuleCollider2dComponent.hpp"
-#include "HodEngine/Game/Components/Physics/2d/EdgeCollider2dComponent.hpp"
+#include "HodEngine/Game/Components/MissingComponent.hpp"
 
 #include "HodEngine/Game/Components/Primitive/BoxComponent.hpp"
 
@@ -33,11 +27,7 @@
 
 #include "HodEngine/GameEditor/CustomComponentDrawer/Node2dCustomComponentDrawer.hpp"
 #include "HodEngine/GameEditor/CustomComponentDrawer/CameraCustomComponentDrawer.hpp"
-#include "HodEngine/GameEditor/CustomComponentDrawer/BoxCollider2dCustomComponentDrawer.hpp"
-#include "HodEngine/GameEditor/CustomComponentDrawer/CircleCollider2dCustomComponentDrawer.hpp"
-#include "HodEngine/GameEditor/CustomComponentDrawer/CapsuleCollider2dCustomComponentDrawer.hpp"
-#include "HodEngine/GameEditor/CustomComponentDrawer/EdgeCollider2dCustomComponentDrawer.hpp"
-#include "HodEngine/GameEditor/CustomComponentDrawer/MultiShapeCollider2dCustomComponentDrawer.hpp"
+#include "HodEngine/GameEditor/CustomComponentDrawer/MissingComponentCustomComponentDrawer.hpp"
 #include "HodEngine/GameEditor/CustomComponentDrawer/TextureRendererCustomComponentDrawer.hpp"
 #include "HodEngine/GameEditor/CustomComponentDrawer/UIComponentCustomComponentDrawer.hpp"
 
@@ -65,11 +55,7 @@ HOD_STARTUP_EDITOR_MODULE(GameEditor, registration)
 	registration.RegisterCustomComponentDrawer<CameraComponent, CameraCustomComponentDrawer>();
 	registration.RegisterCustomComponentDrawer<TextureRendererComponent, TextureRendererCustomComponentDrawer>();
 	registration.RegisterCustomComponentDrawer<UIComponent, UIComponentCustomComponentDrawer>();
-	registration.RegisterCustomComponentDrawer<BoxCollider2dComponent, BoxCollider2dCustomComponentDrawer>();
-	registration.RegisterCustomComponentDrawer<CircleCollider2dComponent, CircleCollider2dCustomComponentDrawer>();
-	registration.RegisterCustomComponentDrawer<CapsuleCollider2dComponent, CapsuleCollider2dCustomComponentDrawer>();
-	registration.RegisterCustomComponentDrawer<EdgeCollider2dComponent, EdgeCollider2dCustomComponentDrawer>();
-	registration.RegisterCustomComponentDrawer<MultiShapeCollider2dComponent, MultiShapeCollider2dCustomComponentDrawer>();
+	registration.RegisterCustomComponentDrawer<MissingComponent, MissingComponentCustomComponentDrawer>();
 
 	registration.RegisterAssetType<SceneAssetType>();
 	registration.RegisterAssetType<PrefabAssetType>();

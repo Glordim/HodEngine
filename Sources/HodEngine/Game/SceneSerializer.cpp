@@ -9,6 +9,7 @@
 #include "HodEngine/Game/PrefabUtility.hpp"
 #include "HodEngine/Game/WeakComponent.hpp"
 #include "HodEngine/Game/WeakEntity.hpp"
+#include "HodEngine/Game/Components/MissingComponent.hpp"
 
 #include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitNoSerialization.hpp"
@@ -71,12 +72,22 @@ namespace hod::inline game
 		for (Component* component : entity->GetComponents())
 		{
 			DocumentNode& componentNode = componentsNode.AddChild("");
-			componentNode.AddChild("MetaType").SetUInt64(component->GetReflectionDescriptorV().GetType());
 			if (component->GetLocalId() == 0)
 			{
 				component->SetLocalId(nextLocalId);
 				++nextLocalId;
 			}
+
+			// Written back as it was loaded, its type and all (only its ids may have changed)
+			if (component->GetReflectionDescriptorV().GetType() == MissingComponent::GetReflectionDescriptor().GetType())
+			{
+				componentNode.Copy(static_cast<MissingComponent*>(component)->GetData());
+				componentNode.GetOrAddChild("_localId").SetUInt64(component->GetLocalId());
+				componentNode.GetOrAddChild("_enabled").SetBool(component->GetEnabled());
+				continue;
+			}
+
+			componentNode.AddChild("MetaType").SetUInt64(component->GetReflectionDescriptorV().GetType());
 			if (Serializer::Serialize(
 					component, componentNode,
 					std::bind(&SceneSerializer::CustomComponentSerializationCallback, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3)) == false)
@@ -312,8 +323,18 @@ namespace hod::inline game
 			}
 			else
 			{
-				OUTPUT_ERROR("SceneSerializer::DeserializeEntityRaw: Unknown component !"); // TODO dangerous !!! user lost data
-				return false;
+				// Its module is disabled or gone: kept as it is (see MissingComponent)
+				OUTPUT_WARNING("SceneSerializer: unknown component type {} on the entity '{}', kept as a MissingComponent (is its module disabled?)", RttiType,
+				               entity->GetName());
+				MissingComponent* component = static_cast<MissingComponent*>(entity->AddComponent(MissingComponent::GetReflectionDescriptor()));
+				Serializer::Deserialize(MissingComponent::GetReflectionDescriptor(), component, *componentNode); // Its ids
+				component->SetData(*componentNode);
+
+				if (_contextualComponentMap.try_emplace(component->GetLocalId(), component).second == false)
+				{
+					OUTPUT_ERROR("SceneSerializer::DeserializeEntityRaw: LocalId already exist !");
+					return false;
+				}
 			}
 
 			componentNode = componentNode->GetNextSibling();

@@ -6,6 +6,7 @@
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/GameSystems/ProjectSettings/ProjectSettingsManager.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
+#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/GameSystems/Resource/ResourceContainer.hpp"
@@ -27,6 +28,7 @@
 #include "FileTemplates/Module.hpp.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Editor/CMakeHelper.hpp"
+#include "HodEngine/Editor/VersionControl/VersionControl.hpp"
 #include "HodEngine/Editor/Cooker/Cooker.hpp"
 #include <memory>
 #include <utility>
@@ -44,6 +46,7 @@ namespace hod::inline editor
 	{
 		AddPropertyT(reflectionDescriptor, &Project::_name, "_name");
 		AddPropertyT(reflectionDescriptor, &Project::_startupScene, "_startupScene");
+		AddPropertyT(reflectionDescriptor, &Project::_disabledModules, "_disabledModules");
 	}
 
 	_SingletonConstructor(Project) {}
@@ -318,7 +321,88 @@ namespace hod::inline editor
 			return false;
 		}
 
-		return Load();
+		if (Load() == false)
+		{
+			return false;
+		}
+		ResolveModules();
+		return true;
+	}
+
+	/// @brief The engine modules described next to the editor (see ModuleManifest), without the ones the project disables
+	void Project::ResolveModules()
+	{
+		Vector<ModuleManifest> manifests;
+		ModuleGraph::LoadManifests(FileSystem::GetExecutablePath().ParentPath() / "Modules", manifests);
+		_moduleGraph.Build(manifests);
+		_moduleGraph.Resolve(_disabledModules);
+
+		for (const String& error : _moduleGraph.GetErrors())
+		{
+			OUTPUT_ERROR("Modules: {}", error);
+		}
+		for (const ModuleGraph::Module& module : _moduleGraph.GetModules())
+		{
+			if (module._enabled == false)
+			{
+				OUTPUT_MESSAGE("Module '{}' disabled: {}", module._manifest._name, module._disabledReason);
+			}
+		}
+	}
+
+	/// @brief
+	/// @return
+	const ModuleGraph& Project::GetModuleGraph() const
+	{
+		return _moduleGraph;
+	}
+
+	/// @brief
+	/// @return
+	const Vector<String>& Project::GetDisabledModules() const
+	{
+		return _disabledModules;
+	}
+
+	/// @brief
+	/// @param disabledModules
+	/// @return
+	bool Project::SetDisabledModules(const Vector<String>& disabledModules)
+	{
+		String error;
+		if (VersionControl::GetInstance() != nullptr && VersionControl::GetInstance()->PrepareWrite(ArrayView<Path>(&_projectPath, 1), &error) == false)
+		{
+			OUTPUT_ERROR("Can't save {}: {}", _projectPath, error);
+			return false;
+		}
+		Vector<String> previous = _disabledModules;
+		_disabledModules = disabledModules;
+		if (Save() == false)
+		{
+			_disabledModules = previous;
+			return false;
+		}
+		return true;
+	}
+
+	/// @brief
+	/// @return
+	Path Project::GetGameModuleRuntimeLibrariesStampPath() const
+	{
+		return GetCacheBuildDirPath() / "Editor" / "HodModules.txt";
+	}
+
+	/// @brief
+	/// @return
+	String Project::GetRuntimeLibrariesStamp() const
+	{
+		String stamp;
+		for (const String& runtimeLibrary : _moduleGraph.GetEnabledRuntimeLibraries())
+		{
+			stamp += runtimeLibrary;
+			stamp += "\n";
+		}
+		return stamp;
 	}
 
 	/// @brief
@@ -436,6 +520,15 @@ namespace hod::inline editor
 	/// @return
 	bool Project::CanLoadProjectModules()
 	{
+		// Built with other modules than the ones the project uses now: it links the libraries of the modules it was built with
+		String builtStamp;
+		if (FileSystem::GetInstance()->Exists(GetGameModuleRuntimeLibrariesStampPath()) == false ||
+		    FileSystem::GetInstance()->ReadAllText(GetGameModuleRuntimeLibrariesStampPath(), builtStamp) == false || builtStamp != GetRuntimeLibrariesStamp())
+		{
+			OUTPUT_MESSAGE("The game module was built with other engine modules, it must be rebuilt");
+			return false;
+		}
+
 		bool gameModuleLoaded = _gameModule.Load();
 		_gameModule.Unload();
 		if (gameModuleLoaded == false)
@@ -472,7 +565,24 @@ namespace hod::inline editor
 		String projectGameExport = _name + "_GAME_EXPORT";
 		std::transform(projectGameExport.begin(), projectGameExport.end(), projectGameExport.begin(), [](char c) { return std::toupper(c); });
 
-		bool result = true;
+		// The runtime libraries of the enabled modules, dependencies first: linked by the game, started by a static game in that order
+		// (the game's CMakeLists turns the list into links and the source calling them: hod_link_engine_modules... in HodEngineConfig.cmake), loaded by the editor from their libraries
+		String moduleList;
+		for (const String& runtimeLibrary : _moduleGraph.GetEnabledRuntimeLibraries())
+		{
+			moduleList += runtimeLibrary;
+			moduleList += "\n";
+		}
+
+		bool   result = true;
+		Path   moduleListPath = _projectPath.ParentPath() / "Cache" / "Generated" / "HodModules.txt";
+		String existingModuleList;
+		if (FileSystem::GetInstance()->Exists(moduleListPath) == false || FileSystem::GetInstance()->ReadAllText(moduleListPath, existingModuleList) == false ||
+		    existingModuleList != moduleList) // Not configured again for nothing
+		{
+			result &= FileSystem::GetInstance()->CreateDirectories(moduleListPath.ParentPath()) && FileSystem::GetInstance()->WriteAllText(moduleListPath, moduleList);
+		}
+
 		result &= CMakeHelper::GenerateCMakeLists(_projectPath.ParentPath() / "Code" / projectGameName / "CMakeLists.txt", CMakeListsGame_txt,
 		                                          {
 													  {"[[PROJECT_NAME]]", projectName},
@@ -536,7 +646,13 @@ namespace hod::inline editor
 	bool Project::BuildGameModule() const
 	{
 		Path gameModuleBuildDirectoryPath = GetCacheBuildDirPath() / "Editor";
-		return CMakeHelper::Build(gameModuleBuildDirectoryPath, "Release");
+		if (CMakeHelper::Build(gameModuleBuildDirectoryPath, "Release") == false)
+		{
+			return false;
+		}
+		// What it links now (see CanLoadProjectModules)
+		FileSystem::GetInstance()->WriteAllText(GetGameModuleRuntimeLibrariesStampPath(), GetRuntimeLibrariesStamp());
+		return true;
 	}
 
 	/// @brief

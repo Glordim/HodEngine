@@ -1,0 +1,44 @@
+#pragma once
+#include "HodEngine/Physics/Export.hpp"
+
+#include "HodEngine/Physics/Components/Collider2dComponent.hpp"
+
+#include "HodEngine/Core/Vector.hpp"
+
+namespace hod::inline physics
+{
+	/// @brief 
+	class HOD_PHYSICS_API BoxCollider2dComponent : public Collider2dComponent
+	{
+		REFLECTED_CLASS(BoxCollider2dComponent, Collider2dComponent)
+
+	public:
+
+						BoxCollider2dComponent() = default;
+						BoxCollider2dComponent(const BoxCollider2dComponent&) = delete;
+						BoxCollider2dComponent(BoxCollider2dComponent&&) = delete;
+						~BoxCollider2dComponent() override = default;
+
+		void			operator=(const BoxCollider2dComponent&) = delete;
+		void			operator=(BoxCollider2dComponent&&) = delete;
+
+	public:
+
+		void			OnStart() override;
+
+		void			SetOffset(const Vector2& offset);
+		const Vector2&	GetOffset() const;
+
+		void			SetSize(const Vector2& size);
+		const Vector2&	GetSize() const;
+
+		void			SetRotation(float rotation);
+		float			GetRotation() const;
+
+	private:
+
+		Vector2			_offset = Vector2::Zero;
+		Vector2			_size = Vector2::One;
+		float			_rotation = 0.0f;
+	};
+}

@@ -15,14 +15,6 @@
 #include "HodEngine/Game/Components/NodeComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
 
-#include "HodEngine/Game/Components/Physics/2d/Rigidbody2dComponent.hpp"
-#include "HodEngine/Game/Components/Physics/2d/Collider2dComponent.hpp"
-#include "HodEngine/Game/Components/Physics/2d/MultiShapeCollider2dComponent.hpp"
-#include "HodEngine/Game/Components/Physics/2d/BoxCollider2dComponent.hpp"
-#include "HodEngine/Game/Components/Physics/2d/CircleCollider2dComponent.hpp"
-#include "HodEngine/Game/Components/Physics/2d/CapsuleCollider2dComponent.hpp"
-#include "HodEngine/Game/Components/Physics/2d/EdgeCollider2dComponent.hpp"
-
 #include "HodEngine/Game/Components/Primitive/BoxComponent.hpp"
 
 #include "HodEngine/Game/Components/Audio/AudioSourceComponent.hpp"
@@ -39,13 +31,6 @@ namespace hod::inline game
 		componentFactory->Register<BoxComponent>();
 		componentFactory->Register<TextureRendererComponent>();
 		componentFactory->Register<TextRendererComponent>();
-		componentFactory->Register<Collider2dComponent>();
-		componentFactory->Register<MultiShapeCollider2dComponent>();
-		componentFactory->Register<BoxCollider2dComponent>();
-		componentFactory->Register<CircleCollider2dComponent>();
-		componentFactory->Register<CapsuleCollider2dComponent>();
-		componentFactory->Register<EdgeCollider2dComponent>();
-		componentFactory->Register<Rigidbody2dComponent>();
 		componentFactory->Register<CameraComponent>();
 		componentFactory->Register<AudioSourceComponent>();
 		componentFactory->Register<UIComponent>();

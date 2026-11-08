@@ -29,6 +29,10 @@ namespace hod::inline game
 		template<typename _Component_>
 		bool				Unregister();
 
+		/// @return false (with an error) if a component of the same type is registered already
+		bool				Register(ReflectionDescriptor& descriptor);
+		bool				Unregister(const ReflectionDescriptor& descriptor);
+
 		const std::map<uint64_t, ReflectionDescriptor*>& GetAllDescriptors() const { return _typeToDescriptors; }
 
 	protected:

@@ -45,8 +45,8 @@ add_subdirectory("Sources/HodEngine/Window")
 add_subdirectory("Sources/HodEngine/RHI")
 add_subdirectory("Sources/HodEngine/Renderer")
 add_subdirectory("Sources/HodEngine/ImGui")
-add_subdirectory("Sources/HodEngine/Physics")
 add_subdirectory("Sources/HodEngine/Game")
+add_subdirectory("Sources/HodEngine/Physics")
 add_subdirectory("Sources/HodEngine/UI")
 add_subdirectory("Sources/HodEngine/UI2")
 add_subdirectory("Sources/HodEngine/Input")
@@ -58,6 +58,7 @@ if (BUILD_EDITOR AND NOT ANDROID AND BUILD_SHARED_LIBS)
 	add_subdirectory("Sources/HodEngine/CoreEditor")
 	add_subdirectory("Sources/HodEngine/InputEditor")
 	add_subdirectory("Sources/HodEngine/GameEditor")
+	add_subdirectory("Sources/HodEngine/PhysicsEditor")
 	add_subdirectory("Sources/HodEngine/UI2Editor")
 	add_subdirectory("Sources/HodEngine/Editor")
 	add_subdirectory("Sources/HodEngine/RendererEditor")
@@ -76,12 +77,14 @@ if (BUILD_UNIT_TESTS AND NOT ANDROID)
 	include(CTest)
 	enable_testing()
 	add_subdirectory("Sources/Tests/Core")
+	add_subdirectory("Sources/Tests/Game")
 	add_subdirectory("Sources/Tests/GameSystems")
 	add_subdirectory("Sources/Tests/Renderer")
 	add_subdirectory("Sources/Tests/Text")
 	add_subdirectory("Sources/Tests/UI2")
 
 	set_target_properties(TestsCore PROPERTIES FOLDER "Test/")
+	set_target_properties(TestsGame PROPERTIES FOLDER "Test/")
 	set_target_properties(TestsGameSystems PROPERTIES FOLDER "Test/")
 	set_target_properties(TestsRenderer PROPERTIES FOLDER "Test/")
 	set_target_properties(TestsText PROPERTIES FOLDER "Test/")
@@ -90,6 +93,11 @@ if (BUILD_UNIT_TESTS AND NOT ANDROID)
 	if (TARGET VersionControlEditor)
 		add_subdirectory("Sources/Tests/VersionControl")
 		set_target_properties(TestsVersionControl PROPERTIES FOLDER "Test/")
+	endif()
+
+	if (TARGET Editor)
+		add_subdirectory("Sources/Tests/Editor")
+		set_target_properties(TestsEditor PROPERTIES FOLDER "Test/")
 	endif()
 endif()
 
@@ -121,7 +129,7 @@ if(CMAKE_TOOLCHAIN_FILE)
 	)
 endif()
 
-install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/CMake/Global.cmake" "${CMAKE_CURRENT_SOURCE_DIR}/CMake/PlatformDetection.cmake"
+install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/CMake/Global.cmake" "${CMAKE_CURRENT_SOURCE_DIR}/CMake/PlatformDetection.cmake" "${CMAKE_CURRENT_SOURCE_DIR}/CMake/HodModules.cpp.in"
 		DESTINATION "cmake")
 
 install(FILES "${CMAKE_CURRENT_SOURCE_DIR}/Sources/HodEngine/HodEngine.hpp"
@@ -135,5 +143,10 @@ configure_file(
 configure_file(
 		"${CMAKE_CURRENT_SOURCE_DIR}/CMake/PlatformDetection.cmake"
 		"${CMAKE_BINARY_DIR}/Output/cmake/PlatformDetection.cmake"
+		COPYONLY
+)
+configure_file(
+		"${CMAKE_CURRENT_SOURCE_DIR}/CMake/HodModules.cpp.in"
+		"${CMAKE_BINARY_DIR}/Output/cmake/HodModules.cpp.in"
 		COPYONLY
 )

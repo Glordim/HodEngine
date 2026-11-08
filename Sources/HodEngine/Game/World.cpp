@@ -14,8 +14,7 @@
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 #include <HodEngine/GameSystems/Frame/FrameSequencer.hpp>
 
-#include <HodEngine/Physics/Physics.hpp>
-#include <HodEngine/Physics/World.hpp>
+#include "HodEngine/Game/WorldSystem.hpp"
 
 #include <HodEngine/Renderer/FrameResources.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
@@ -94,14 +93,33 @@ namespace hod::inline game
 		Clear();
 
 		DefaultAllocator::GetInstance().Delete(_persistanteScene);
-		DefaultAllocator::GetInstance().Delete(_physicsWorld);
+
+		// After the scenes: their components may still use the systems (a rigidbody its physics world)
+		if (_systemsCreated)
+		{
+			WorldSystemRegistry::RemoveWorld(*this);
+		}
+		for (auto it = _systems.RBegin(); it != _systems.REnd(); ++it)
+		{
+			DefaultAllocator::GetInstance().Delete(it->_system);
+		}
+		_systems.Clear();
 	}
 
 	/// @brief
 	/// @return
 	bool World::Init()
 	{
-		_physicsWorld = Physics::GetInstance()->CreateWorld();
+		// Before the scenes: their components may use the systems from their construction
+		if (_systemsCreated == false)
+		{
+			for (const WorldSystemType* type : WorldSystemRegistry::GetTypes())
+			{
+				AddSystem(*type);
+			}
+			WorldSystemRegistry::AddWorld(*this);
+			_systemsCreated = true;
+		}
 
 		_lastUpdateTimestamp = SystemTime::Now();
 
@@ -262,20 +280,27 @@ namespace hod::inline game
 		}
 		//
 
-		_accumulatedPhysicsTime += deltaTime;
-		while (_accumulatedPhysicsTime >= _physicsUpdateTimestep)
+		_accumulatedFixedTime += deltaTime;
+		while (_accumulatedFixedTime >= _fixedTimestep)
 		{
-			_accumulatedPhysicsTime -= _physicsUpdateTimestep;
+			_accumulatedFixedTime -= _fixedTimestep;
 			for (Scene* scene : _scenes)
 			{
 				scene->FixedUpdate();
 			}
-			_physicsWorld->Update(_physicsUpdateTimestep);
+			for (const SystemInstance& systemInstance : _systems)
+			{
+				systemInstance._system->OnFixedUpdate(_fixedTimestep);
+			}
 		}
 
 		for (Scene* scene : _scenes)
 		{
 			scene->Update(deltaTime);
+		}
+		for (const SystemInstance& systemInstance : _systems)
+		{
+			systemInstance._system->OnUpdate(deltaTime);
 		}
 	}
 
@@ -359,9 +384,52 @@ namespace hod::inline game
 	}
 
 	/// @brief
+	/// @param type
 	/// @return
-	physics::World* World::GetPhysicsWorld() const
+	WorldSystem* World::FindSystem(const WorldSystemType& type) const
 	{
-		return _physicsWorld;
+		for (const SystemInstance& systemInstance : _systems)
+		{
+			if (systemInstance._type == &type)
+			{
+				return systemInstance._system;
+			}
+		}
+		return nullptr;
+	}
+
+	/// @brief
+	/// @return
+	float World::GetFixedTimestep() const
+	{
+		return _fixedTimestep;
+	}
+
+	/// @brief
+	/// @param type
+	void World::AddSystem(const WorldSystemType& type)
+	{
+		WorldSystem* system = type._create(*this);
+		if (system == nullptr)
+		{
+			OUTPUT_ERROR("World: failed to create the system '{}'", type._name);
+			return;
+		}
+		_systems.PushBack({&type, system});
+	}
+
+	/// @brief
+	/// @param type
+	void World::RemoveSystem(const WorldSystemType& type)
+	{
+		for (auto it = _systems.Begin(); it != _systems.End(); ++it)
+		{
+			if (it->_type == &type)
+			{
+				DefaultAllocator::GetInstance().Delete(it->_system);
+				_systems.Erase(it);
+				return;
+			}
+		}
 	}
 }

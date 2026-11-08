@@ -24,3 +24,4 @@ target_compile_definitions(AudioEditor
 )
 
 hod_install_lib(AudioEditor)
+hod_module_manifest(AudioEditor Audio "${CMAKE_SOURCE_DIR}/Sources/HodEngine/Audio/HodModule.json")

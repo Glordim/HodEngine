@@ -24,3 +24,4 @@ target_compile_definitions(CoreEditor
 )
 
 hod_install_lib(CoreEditor)
+hod_module_manifest(CoreEditor Core "${CMAKE_SOURCE_DIR}/Sources/HodEngine/Core/HodModule.json")

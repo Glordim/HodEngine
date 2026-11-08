@@ -47,6 +47,27 @@ macro(hod_install_lib TARGET_NAME)
 	)
 endmacro()
 
+# The manifest of an engine module (see ModuleManifest in Editor/Modules/ModuleGraph.hpp), copied to <bin>/Modules/<ModuleName>.json where
+# the editor reads them, when target is built. Shared builds only: the editor's (a static game links the modules the editor chose)
+function(hod_module_manifest target moduleName manifestPath)
+	if(NOT BUILD_SHARED_LIBS)
+		return()
+	endif()
+	set(_output "${HOD_BIN_DIR}/Modules/${moduleName}.json")
+	add_custom_command(OUTPUT "${_output}"
+		COMMAND ${CMAKE_COMMAND} -E copy_if_different "${manifestPath}" "${_output}"
+		DEPENDS "${manifestPath}"
+		COMMENT "Module manifest ${moduleName}"
+	)
+	add_custom_target(${target}ModuleManifest DEPENDS "${_output}")
+	set_target_properties(${target}ModuleManifest PROPERTIES FOLDER "HodEngine/Manifests")
+	add_dependencies(${target} ${target}ModuleManifest)
+	install(FILES "${manifestPath}"
+		DESTINATION "${HOD_PLATFORM_SUBDIR}/${HOD_LIB_TYPE_SUBDIR}/bin/Modules"
+		RENAME "${moduleName}.json"
+	)
+endfunction()
+
 function(CollectSourceFiles ProjectSourceDir SourcesVar IncludesVar)
 
 	cmake_parse_arguments(PARSED_ARGS "" "" "EXCLUDES" ${ARGN})

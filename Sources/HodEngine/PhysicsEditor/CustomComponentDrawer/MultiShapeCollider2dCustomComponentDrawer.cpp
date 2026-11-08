@@ -1,0 +1,88 @@
+#include "HodEngine/PhysicsEditor/Pch.hpp"
+#include "HodEngine/Editor/GeometryGenerator.hpp"
+#include "HodEngine/Editor/Gizmos/GizmoViewport.hpp"
+#include "HodEngine/PhysicsEditor/CustomComponentDrawer/MultiShapeCollider2dCustomComponentDrawer.hpp"
+
+#include <HodEngine/ImGui/DearImGui/imgui.h>
+
+#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
+#include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
+#include <HodEngine/RHI/RhiDevice.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Renderer/MaterialInstance.hpp>
+
+#include <HodEngine/Game/Components/Node2dComponent.hpp>
+#include <HodEngine/Physics/Components/MultiShapeCollider2dComponent.hpp>
+#include <HodEngine/Game/Entity.hpp>
+#include <HodEngine/Core/StaticArray.hpp>
+
+#undef max
+
+namespace hod::inline editor
+{
+	/// @brief
+	MultiShapeCollider2dCustomComponentDrawer::MultiShapeCollider2dCustomComponentDrawer()
+	{
+		_materialInstance = MaterialInstance::Create(
+			BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
+		_materialInstance->SetVec4("ubo.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
+	}
+
+	/// @brief
+	MultiShapeCollider2dCustomComponentDrawer::~MultiShapeCollider2dCustomComponentDrawer()
+	{
+		DefaultAllocator::GetInstance().Delete(_materialInstance);
+	}
+
+	/// @brief
+	/// @param component
+	/// @param projection
+	/// @param view
+	/// @param operation
+	/// @return
+	bool MultiShapeCollider2dCustomComponentDrawer::OnDrawGizmo(Component* component, GizmoViewport& viewport, bool selected)
+	{
+		if (selected == false)
+		{
+			return false;
+		}
+
+		MultiShapeCollider2dComponent* multiShapeCollider2d = static_cast<MultiShapeCollider2dComponent*>(component);
+		if (multiShapeCollider2d != nullptr)
+		{
+			Node2dComponent* node2D = multiShapeCollider2d->GetOwner()->GetComponent<Node2dComponent>();
+			if (node2D != nullptr)
+			{
+				Vector2 scale = node2D->GetScale();
+
+				for (const MultiShapeCollider2dComponent::BoxShape& boxShape : multiShapeCollider2d->GetBoxShapes())
+				{
+					StaticArray<Vector2, 5> vertices = {
+						Vector2(-boxShape._size.GetX() * 0.5f, boxShape._size.GetY() * 0.5f), Vector2(boxShape._size.GetX() * 0.5f, boxShape._size.GetY() * 0.5f),
+						Vector2(boxShape._size.GetX() * 0.5f, -boxShape._size.GetY() * 0.5f), Vector2(-boxShape._size.GetX() * 0.5f, -boxShape._size.GetY() * 0.5f),
+						Vector2(-boxShape._size.GetX() * 0.5f, boxShape._size.GetY() * 0.5f),
+					};
+
+					Matrix4 localMatrix = Matrix4::Translation(boxShape._origin) * Matrix4::Rotation(boxShape._angle);
+
+					RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
+						vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), nullptr, 0, node2D->GetWorldMatrix() * localMatrix, _materialInstance,
+						std::numeric_limits<uint32_t>::max() - 1);
+					viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
+				}
+
+				for (const MultiShapeCollider2dComponent::CircleShape& circleShape : multiShapeCollider2d->GetCircleShapes())
+				{
+					StaticArray<Vector2, 65> vertices;
+					GeometryGenerator::CircleShape<64>(vertices, circleShape._origin * scale, circleShape._radius * std::max(scale.GetX(), scale.GetY()));
+
+					RenderCommandMesh* renderMeshCommand =
+						DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), nullptr, 0,
+					                                                                     node2D->GetWorldMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
+					viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
+				}
+			}
+		}
+		return false;
+	}
+}

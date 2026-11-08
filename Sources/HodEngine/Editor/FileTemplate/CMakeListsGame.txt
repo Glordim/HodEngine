@@ -38,7 +38,6 @@ target_link_libraries([[PROJECT_GAME_NAME]]
 	HodEngine::Window
 	HodEngine::Renderer
 	HodEngine::Input
-	HodEngine::Physics
 	HodEngine::GameSystems
 	HodEngine::Game
 	HodEngine::ImGui
@@ -46,7 +45,12 @@ target_link_libraries([[PROJECT_GAME_NAME]]
 	HodEngine::UI
 	HodEngine::Application
 )
+
+hod_read_engine_modules("${CMAKE_SOURCE_DIR}/Cache/Generated/HodModules.txt" HOD_ENGINE_MODULES)
+hod_link_engine_modules([[PROJECT_GAME_NAME]] ${HOD_ENGINE_MODULES})
+
 if(HOD_GAME_BUILD_TYPE STREQUAL "Application")
+	hod_add_engine_modules_entry_points([[PROJECT_GAME_NAME]] ${HOD_ENGINE_MODULES})
 	if(ANDROID)
 		target_link_options([[PROJECT_GAME_NAME]] PRIVATE
 			"-Wl,--undefined=Java_com_google_androidgamesdk_GameActivity_initializeNativeCode"
