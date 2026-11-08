@@ -1,9 +1,9 @@
-#include "HodEngine/Game/Pch.hpp"
+#include "HodEngine/Audio/Pch.hpp"
 #include "HodEngine/Audio/AudioManager.hpp"
 #include "HodEngine/Core/Reflection/ReflectionHelper.hpp"
-#include "HodEngine/Game/Components/Audio/AudioSourceComponent.hpp"
+#include "HodEngine/Audio/Components/AudioSourceComponent.hpp"
 
-namespace hod::inline game
+namespace hod::inline audio
 {
 	DESCRIBE_REFLECTED_CLASS(AudioSourceComponent, reflectionDescriptor)
 	{

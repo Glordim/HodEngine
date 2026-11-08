@@ -17,8 +17,6 @@
 
 #include "HodEngine/Game/Components/Primitive/BoxComponent.hpp"
 
-#include "HodEngine/Game/Components/Audio/AudioSourceComponent.hpp"
-
 #include "HodEngine/Game/Components/UIComponent.hpp"
 
 namespace hod::inline game
@@ -32,7 +30,6 @@ namespace hod::inline game
 		componentFactory->Register<TextureRendererComponent>();
 		componentFactory->Register<TextRendererComponent>();
 		componentFactory->Register<CameraComponent>();
-		componentFactory->Register<AudioSourceComponent>();
 		componentFactory->Register<UIComponent>();
 		//componentFactory->Register<SpriteRendererComponent>();
 		/*

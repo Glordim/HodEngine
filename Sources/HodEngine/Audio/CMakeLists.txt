@@ -1,7 +1,7 @@
 if (APPLE)
-	project(Window LANGUAGES CXX OBJCXX)
+	project(Audio LANGUAGES CXX OBJCXX)
 else()
-	project(Window LANGUAGES CXX)
+	project(Audio LANGUAGES CXX)
 endif()
 
 if (APPLE)
@@ -28,8 +28,9 @@ target_include_directories(Audio PUBLIC
 )
 target_precompile_headers(Audio PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
+# An optional module (see HodModule.json): Game doesn't know it, it registers its components in Game
 target_link_libraries(Audio
-	PUBLIC Core GameSystems
+	PUBLIC Core GameSystems Game
 )
 
 if(ANDROID)
@@ -44,3 +45,4 @@ else()
 endif()
 
 hod_install_lib(Audio)
+hod_module_manifest(Audio Audio "${CMAKE_CURRENT_SOURCE_DIR}/HodModule.json")

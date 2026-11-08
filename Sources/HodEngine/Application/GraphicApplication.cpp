@@ -9,7 +9,6 @@
 #include <HodEngine/Window/PlatformDisplayManager.hpp>
 #include <HodEngine/Window/PlatformWindow.hpp>
 
-#include <HodEngine/Audio/PlatformAudioManager.hpp>
 
 #include <HodEngine/Input/InputManager.hpp>
 
@@ -33,7 +32,6 @@ namespace hod::inline application
 
 		if (!initGuard.Push([this]{ return InitCore(); },        [this]{ TerminateCore(); }))        return false;
 		if (!initGuard.Push([this]{ return InitGameSystems(); }, [this]{ TerminateGameSystems(); })) return false;
-		if (!initGuard.Push([this]{ return InitAudio(); },       [this]{ TerminateAudio(); }))       return false;
 		if (!initGuard.Push([this]{ return InitWindow(); },      [this]{ TerminateWindow(); }))      return false;
 		if (!initGuard.Push([this]{ return InitInput(); },       [this]{ TerminateInput(); }))       return false;
 		if (!initGuard.Push([this]{ return InitRenderer(); },    [this]{ TerminateRenderer(); }))    return false;
@@ -44,22 +42,6 @@ namespace hod::inline application
 		if (!initGuard.Push([this]{ return BootGame(); },        [this]{ TerminateBoot(); }))        return false;
 
 		return RunGraphicLoop();
-	}
-
-	bool GraphicApplication::InitAudio()
-	{
-		PlatformAudioManager::CreateInstance();
-		if (PlatformAudioManager::GetInstance()->Initialize() == false)
-		{
-			return false;
-		}
-		return true;
-	}
-
-	bool GraphicApplication::TerminateAudio()
-	{
-		PlatformAudioManager::DestroyInstance();
-		return true;
 	}
 
 	bool GraphicApplication::InitWindow()

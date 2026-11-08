@@ -23,9 +23,6 @@ namespace hod::inline application
 	protected:
 		bool RunInternal() override;
 
-		bool InitAudio();
-		bool TerminateAudio();
-
 		struct DisplayManagerConfig
 		{
 			#if defined(PLATFORM_ANDROID)

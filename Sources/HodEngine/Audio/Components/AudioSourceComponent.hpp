@@ -1,18 +1,18 @@
 #pragma once
 #include "HodEngine/Audio/AudioResource.hpp"
-#include "HodEngine/Game/Export.hpp"
+#include "HodEngine/Audio/Export.hpp"
 
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 
 #include <HodEngine/Audio/AudioManager.hpp>
 
-namespace hod::inline game
+namespace hod::inline audio
 {
 	//-----------------------------------------------------------------------------
 	//! @brief		
 	//-----------------------------------------------------------------------------
-	class HOD_GAME_API AudioSourceComponent : public Component
+	class HOD_AUDIO_API AudioSourceComponent : public Component
 	{
 		REFLECTED_CLASS(AudioSourceComponent, Component)
 

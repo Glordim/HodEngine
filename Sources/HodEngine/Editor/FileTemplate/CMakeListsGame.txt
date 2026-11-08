@@ -41,7 +41,6 @@ target_link_libraries([[PROJECT_GAME_NAME]]
 	HodEngine::GameSystems
 	HodEngine::Game
 	HodEngine::ImGui
-	HodEngine::Audio
 	HodEngine::UI
 	HodEngine::Application
 )

@@ -1,9 +1,13 @@
 {
 	"_name": "Audio",
 	"_description": "Builtin audio: audio clips, audio sources",
+	"_runtimeLibrary": "Audio",
 	"_editorLibrary": "AudioEditor",
 	"_dependencies": [
-		"Core"
+		"Game"
 	],
-	"_required": true
+	"_provides": [
+		"Audio"
+	],
+	"_required": false
 }
