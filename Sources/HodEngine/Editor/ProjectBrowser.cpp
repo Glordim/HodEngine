@@ -32,6 +32,11 @@
 
 namespace hod::inline editor
 {
+	namespace
+	{
+		const ImVec4 MissingColor(1.0f, 0.6f, 0.2f, 1.0f);
+	}
+
 	DESCRIBE_REFLECTED_CLASS(ProjectBrowser, reflectionDescriptor)
 	{
 		(void)reflectionDescriptor;
@@ -101,7 +106,7 @@ namespace hod::inline editor
 					// Path path = GetOpenFileDialog();
 					if (path.Empty() == false)
 					{
-						Editor::GetInstance()->OpenProject(path);
+						OpenProject(path);
 					}
 				}
 			}
@@ -114,6 +119,11 @@ namespace hod::inline editor
 				ShowNewProjectForm(true);
 			}
 
+			if (_openError.Empty() == false)
+			{
+				ImGui::TextColored(ImVec4(1.0f, 0.4f, 0.4f, 1.0f), ICON_MDI_ALERT " %s", _openError.CStr());
+			}
+
 			if (ImGui::BeginTable("ProjectListTable", 3, ImGuiTableFlags_Sortable | ImGuiTableFlags_RowBg | ImGuiTableFlags_PadOuterX) == true)
 			{
 				ImGui::TableSetupColumn("Name", ImGuiTableColumnFlags_WidthStretch);
@@ -121,17 +131,26 @@ namespace hod::inline editor
 				ImGui::TableSetupColumn("##OpenDelete", ImGuiTableColumnFlags_WidthFixed | ImGuiTableColumnFlags_NoSort, 100.0f);
 				ImGui::TableHeadersRow();
 
-				auto itEnd = _recentProjects._projectsPath.End();
-				auto it = _recentProjects._projectsPath.Begin();
-				while (it != itEnd)
+				// Removed after the table: erasing while iterating left the end iterator stale, a garbage row drawn for a frame
+				int32_t removedIndex = -1;
+				for (uint32_t index = 0; index < _recentProjects._projectsPath.Size(); ++index)
 				{
+					const String* it = &_recentProjects._projectsPath[index];
 					ImGui::PushID(it->CStr());
 					ImGui::TableNextRow();
 
 					ImGui::TableNextColumn();
-					Path path(it->CStr());
+					Path       path(it->CStr());
+					const bool missing = FileSystem::GetInstance()->IsRegularFile(path) == false; // Moved, deleted, on a drive not there
 					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted(path.Stem().GetString().CStr());
+					if (missing)
+					{
+						ImGui::TextColored(MissingColor, ICON_MDI_ALERT " %s", path.Stem().GetString().CStr());
+					}
+					else
+					{
+						ImGui::TextUnformatted(path.Stem().GetString().CStr());
+					}
 					ImGui::PushFont(nullptr, ImGui::GetStyle().FontSizeBase * 0.9f);
 					ImGui::BeginDisabled();
 					ImGui::TextUnformatted(it->CStr());
@@ -140,49 +159,80 @@ namespace hod::inline editor
 
 					ImGui::TableNextColumn();
 					ImGui::AlignTextToFramePadding();
-					ImGui::TextUnformatted("a month ago");
+					if (missing)
+					{
+						ImGui::TextColored(MissingColor, "Not found");
+					}
+					else
+					{
+						ImGui::TextUnformatted("a month ago");
+					}
 
 					ImGui::TableNextColumn();
+					ImGui::BeginDisabled(missing);
 					if (ImGui::Button("Open") == true)
 					{
-						if (Editor::GetInstance()->OpenProject(it->CStr()) == false)
-						{
-							OUTPUT_ERROR("Unable to open {}", *it);
-							exit(-1);
-						}
+						OpenProject(path);
+					}
+					ImGui::EndDisabled();
+					if (missing && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled | ImGuiHoveredFlags_ForTooltip))
+					{
+						ImGui::SetTooltip("%s doesn't exist anymore (moved, deleted, or on a drive not connected)", it->CStr());
 					}
 					ImGui::SameLine();
 					ImGui::PushStyleColor(ImGuiCol_Button, IM_COL32(150, 0, 0, 255));
 					bool deleteButtonClicked = ImGui::Button(ICON_MDI_CLOSE);
 					ImGui::PopStyleColor(1);
+					if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
+					{
+						ImGui::SetTooltip("Remove from the list (the project stays on the disk)");
+					}
 					if (deleteButtonClicked == true)
 					{
-						it = _recentProjects._projectsPath.Erase(it);
-
-						Path projectsPath = FileSystem::GetUserSettingsPath();
-						projectsPath /= ("HodEngine");
-						projectsPath /= ("Project.json");
-
-						Document writeDocument;
-						Serializer::Serialize(_recentProjects, writeDocument.GetRootNode());
-
-						FileSystem::GetInstance()->CreateDirectories(projectsPath.ParentPath());
-						DocumentWriterJson jsonWriter;
-						jsonWriter.Write(writeDocument, projectsPath);
-					}
-					else
-					{
-						++it;
+						removedIndex = static_cast<int32_t>(index);
 					}
 					ImGui::PopID();
 				}
 
 				ImGui::EndTable();
+
+				if (removedIndex >= 0)
+				{
+					_recentProjects._projectsPath.Erase(static_cast<uint32_t>(removedIndex));
+
+					Path projectsPath = FileSystem::GetUserSettingsPath();
+					projectsPath /= ("HodEngine");
+					projectsPath /= ("Project.json");
+
+					Document writeDocument;
+					Serializer::Serialize(_recentProjects, writeDocument.GetRootNode());
+
+					FileSystem::GetInstance()->CreateDirectories(projectsPath.ParentPath());
+					DocumentWriterJson jsonWriter;
+					jsonWriter.Write(writeDocument, projectsPath);
+				}
 			}
 		}
 		ImGui::End();
 		ImGui::PopStyleVar(1);
 		return true;
+	}
+
+	/// @brief A failure stays in the browser, told above the list (the details in the console)
+	/// @param path
+	void ProjectBrowser::OpenProject(const Path& path)
+	{
+		_openError.Clear();
+		if (FileSystem::GetInstance()->IsRegularFile(path) == false)
+		{
+			_openError = String::Format("%s doesn't exist", path.GetString().CStr());
+			return;
+		}
+		if (Editor::GetInstance()->OpenProject(path) == false)
+		{
+			OUTPUT_ERROR("Unable to open {}", path);
+			_openError = String::Format("Unable to open %s", path.GetString().CStr());
+		}
 	}
 
 	/// @brief The form needs more room than the list: the main window grows while it's shown

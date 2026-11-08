@@ -26,11 +26,13 @@ namespace hod::inline editor
 		void DrawContent() override {};
 
 	private:
+		void OpenProject(const Path& path);
 		void ShowNewProjectForm(bool show);
 		void ResizeMainWindow(); // To what's shown
 
 	private:
 		RecentProjects _recentProjects;
+		String         _openError; // The last project that couldn't be opened
 
 		bool           _newProjectFormShown = false; // In place of the project list
 		uint16_t       _mainWindowHeight = 320; // As Editor::Init sets it
