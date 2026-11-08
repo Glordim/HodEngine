@@ -114,12 +114,6 @@ namespace hod::inline editor
 			return Path();
 		}
 
-		Vector<Path> GetProjectFolders()
-		{
-			const Project* project = Project::GetInstance();
-			return {project->GetAssetDirPath(), project->GetSourceDirPath(), project->GetProjectSettingsDirPath()};
-		}
-
 		uint32_t CountDirtyTabs()
 		{
 			uint32_t count = 0;
@@ -274,7 +268,7 @@ namespace hod::inline editor
 			if ((versionControl->HasCapability(Capability::Checkout) || versionControl->HasCapability(Capability::Lock)) &&
 			    ImGui::MenuItem("Revert Unchanged", nullptr, false, true))
 			{
-				versionControl->RevertUnchanged(GetProjectFolders());
+				versionControl->RevertUnchanged(versionControl->GetProjectFolders());
 			}
 			if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
 			{

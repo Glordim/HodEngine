@@ -261,6 +261,8 @@ namespace hod::inline editor
 
 		_projectSettingsDirPath = _projectPath.ParentPath() / "ProjectSettings";
 
+		_codeDirPath = _projectPath.ParentPath() / "Code";
+
 		ResourceManager::GetInstance()->SetResourceDirectory(_resourceDirPath / CMakeHelper::GetCurrentPlatform() / ToString(Config::Debug)); // TODO uniformize Config and Platform setup
 		ResourceManager::GetInstance()->SetFileNotFoundCallback(+[](const UID& uid) {
 			std::shared_ptr<Asset> asset = AssetDatabase::GetInstance()->Find(uid);
@@ -504,6 +506,13 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
+	const Path& Project::GetCodeDirPath() const
+	{
+		return _codeDirPath;
+	}
+
+	/// @brief
+	/// @return
 	const Path& Project::GetBuildDirPath() const
 	{
 		return _buildDirPath;
@@ -583,7 +592,7 @@ namespace hod::inline editor
 			result &= FileSystem::GetInstance()->CreateDirectories(moduleListPath.ParentPath()) && FileSystem::GetInstance()->WriteAllText(moduleListPath, moduleList);
 		}
 
-		result &= CMakeHelper::GenerateCMakeLists(_projectPath.ParentPath() / "Code" / projectGameName / "CMakeLists.txt", CMakeListsGame_txt,
+		result &= CMakeHelper::GenerateCMakeLists(_codeDirPath / projectGameName / "CMakeLists.txt", CMakeListsGame_txt,
 		                                          {
 													  {"[[PROJECT_NAME]]", projectName},
 													  {"[[PROJECT_GAME_NAME]]", projectGameName},
@@ -594,7 +603,7 @@ namespace hod::inline editor
 		String projectEditorExport = _name + "_EDITOR_EXPORT";
 		std::transform(projectEditorExport.begin(), projectEditorExport.end(), projectEditorExport.begin(), [](char c) { return std::toupper(c); });
 
-		result &= CMakeHelper::GenerateCMakeLists(_projectPath.ParentPath() / "Code" / projectEditorName / "CMakeLists.txt", CMakeListsEditor_txt,
+		result &= CMakeHelper::GenerateCMakeLists(_codeDirPath / projectEditorName / "CMakeLists.txt", CMakeListsEditor_txt,
 		                                          {
 													  {"[[PROJECT_NAME]]", projectName},
 													  {"[[PROJECT_GAME_NAME]]", projectGameName},

@@ -52,6 +52,8 @@ namespace hod::inline editor
 		const Path& GetBuildDirPath() const;
 		const Path& GetTmpDirPath() const;
 		const Path& GetProjectSettingsDirPath() const;
+		/// @brief The C++ sources of the game and editor modules (Code/<Name>Game, Code/<Name>Editor)
+		const Path& GetCodeDirPath() const;
 
 		bool HasGameModule() const;
 		bool CanLoadProjectModules();
@@ -94,6 +96,7 @@ namespace hod::inline editor
 		Path _buildDirPath;
 		Path _tmpDirPath;
 		Path _projectSettingsDirPath; // Of the ProjectSettingsManager
+		Path _codeDirPath;
 
 		String _name;
 		UID    _startupScene;

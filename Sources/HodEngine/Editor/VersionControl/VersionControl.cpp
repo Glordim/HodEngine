@@ -63,7 +63,7 @@ namespace hod::inline editor
 		_projectOpened = true;
 		_projectDir = project.GetProjectPath().ParentPath();
 		_userSettingsPath = _projectDir / UserSettingsFileName;
-		_projectFolders = {project.GetAssetDirPath(), project.GetSourceDirPath(), project.GetProjectSettingsDirPath(), project.GetProjectPath()};
+		_projectFolders = {project.GetAssetDirPath(), project.GetSourceDirPath(), project.GetProjectSettingsDirPath(), project.GetCodeDirPath(), project.GetProjectPath()};
 		_rootFolders = _projectFolders;
 
 		LoadUserSettings();
@@ -329,6 +329,13 @@ namespace hod::inline editor
 	uint32_t VersionControl::GetStatusVersion() const
 	{
 		return _statusVersion;
+	}
+
+	/// @brief
+	/// @return
+	const Vector<Path>& VersionControl::GetProjectFolders() const
+	{
+		return _projectFolders;
 	}
 
 	/// @brief

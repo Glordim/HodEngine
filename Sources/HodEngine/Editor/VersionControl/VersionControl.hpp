@@ -119,6 +119,9 @@ namespace hod::inline editor
 
 		/// @brief The files of an asset, what an operation on it applies to: its .asset and its sources in the project
 		static Vector<Path> GetAssetFiles(const Asset& asset);
+		/// @brief What the version control handles of the project: the asset, source, project settings and code folders, the
+		/// project file (not the provider's workspace files). Empty while no project is open
+		const Vector<Path>& GetProjectFolders() const;
 
 		/// @brief The whole project (toolbar's refresh button, focus back to the editor...)
 		void RequestRefresh();
@@ -263,7 +266,7 @@ namespace hod::inline editor
 		bool                                   _projectOpened = false;
 		Path                                   _projectDir;
 		Path                                   _userSettingsPath;
-		Vector<Path>                           _projectFolders; // The asset, source and project settings folders, the project file
+		Vector<Path>                           _projectFolders; // The asset, source, project settings and code folders, the project file
 		Vector<Path>                           _rootFolders;    // _projectFolders and the provider's workspace files
 		VersionControlProvider::WorkspaceSetup _workspaceSetup;
 
