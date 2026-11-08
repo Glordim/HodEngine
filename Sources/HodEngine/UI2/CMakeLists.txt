@@ -14,8 +14,9 @@ target_include_directories(UI2 PUBLIC
 )
 target_precompile_headers(UI2 PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
+# An optional module (see HodModule.json): Game doesn't know it, it registers its UIComponent in Game
 target_link_libraries(UI2
-	PUBLIC Renderer
+	PUBLIC Renderer Game
 	PRIVATE Input
 )
 
@@ -27,3 +28,4 @@ else()
 endif()
 
 hod_install_lib(UI2)
+hod_module_manifest(UI2 UI2 "${CMAKE_CURRENT_SOURCE_DIR}/HodModule.json")

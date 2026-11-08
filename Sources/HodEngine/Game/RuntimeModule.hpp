@@ -35,12 +35,17 @@ namespace hod::inline game
 		/// @return false (with an error) if registered already
 		bool RegisterWorldSystem(const WorldSystemType& type);
 
+		/// @brief What undoes a registration made elsewhere (the module's own factories, its project settings...), called by
+		/// UnregisterAll in the reverse order of the registrations, before the components and world systems are unregistered
+		void AddUnregister(void (*unregister)());
+
 		/// @brief In the reverse order of the registrations
 		void UnregisterAll();
 
 	private:
 		Vector<const ReflectionDescriptor*> _components;
 		Vector<const WorldSystemType*>      _worldSystems;
+		Vector<void (*)()>                  _unregisters;
 	};
 
 	template<typename _Component_>

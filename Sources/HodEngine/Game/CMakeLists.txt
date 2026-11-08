@@ -24,7 +24,7 @@ else()
 endif()
 
 target_link_libraries(Game
-	PUBLIC Core Math Window Renderer GameSystems UI2
+	PUBLIC Core Math Window Renderer GameSystems
 )
 
 hod_install_lib(Game)

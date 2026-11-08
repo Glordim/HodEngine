@@ -15,7 +15,7 @@ target_include_directories(UI2Editor PUBLIC
 target_precompile_headers(UI2Editor PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 target_link_libraries(UI2Editor
-	PUBLIC UI2 Editor
+	PUBLIC UI2 GameEditor Editor
 )
 
 target_compile_definitions(UI2Editor
@@ -24,4 +24,3 @@ target_compile_definitions(UI2Editor
 )
 
 hod_install_lib(UI2Editor)
-hod_module_manifest(UI2Editor UI2 "${CMAKE_SOURCE_DIR}/Sources/HodEngine/UI2/HodModule.json")

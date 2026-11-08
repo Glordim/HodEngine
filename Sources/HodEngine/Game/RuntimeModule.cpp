@@ -36,8 +36,21 @@ namespace hod::inline game
 	}
 
 	/// @brief
+	/// @param unregister
+	void RuntimeModuleRegistration::AddUnregister(void (*unregister)())
+	{
+		_unregisters.PushBack(unregister);
+	}
+
+	/// @brief
 	void RuntimeModuleRegistration::UnregisterAll()
 	{
+		for (auto it = _unregisters.RBegin(); it != _unregisters.REnd(); ++it)
+		{
+			(*it)();
+		}
+		_unregisters.Clear();
+
 		for (auto it = _worldSystems.RBegin(); it != _worldSystems.REnd(); ++it)
 		{
 			WorldSystemRegistry::Unregister(**it);

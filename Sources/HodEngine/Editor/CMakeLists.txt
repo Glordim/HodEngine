@@ -69,7 +69,7 @@ target_include_directories(Editor PUBLIC
 target_precompile_headers(Editor PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 target_link_libraries(Editor
-	PUBLIC Core ImGui Window Renderer Game UI2
+	PUBLIC Core ImGui Window Renderer Game
 	PRIVATE Stb::Stb PortableFileDialogs::PortableFileDialogs
 )
 

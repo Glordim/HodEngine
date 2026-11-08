@@ -1,6 +1,6 @@
-#include "HodEngine/Game/Pch.hpp"
+#include "HodEngine/UI2/Pch.hpp"
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
-#include "HodEngine/Game/Components/UIComponent.hpp"
+#include "HodEngine/UI2/Components/UIComponent.hpp"
 #include "HodEngine/Game/Components/CameraComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
 #include "HodEngine/Game/Entity.hpp"
@@ -14,7 +14,7 @@
 
 #include <cstdint>
 
-namespace hod::inline game
+namespace hod::inline ui2
 {
 	DESCRIBE_REFLECTED_ENUM(UIComponent::RenderMode, reflectionDescriptor)
 	{

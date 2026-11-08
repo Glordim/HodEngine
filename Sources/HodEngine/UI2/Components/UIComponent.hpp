@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/Game/Export.hpp"
+#include "HodEngine/UI2/Export.hpp"
 
 #include "HodEngine/Game/Components/RendererComponent.hpp"
 
@@ -11,13 +11,13 @@
 
 #include <string_view>
 
-namespace hod::inline game
+namespace hod::inline ui2
 {
 	/// @brief Displays a UI prefab (as authored: an entity only chooses which one and where) and gives it the game's pointer
 	/// (see ui2::CanvasManager). Each component has a canvas of its own, built from the prefab. The game talks to it through
 	/// the prefab's view (see ui2::View, GetView): its interface, without knowing the prefab's tree. FindNode and
 	/// GetActionEvent are there for the prefabs without one.
-	class HOD_GAME_API UIComponent : public RendererComponent
+	class HOD_UI2_API UIComponent : public RendererComponent
 	{
 		REFLECTED_CLASS(UIComponent, RendererComponent)
 
@@ -28,7 +28,7 @@ namespace hod::inline game
 			Screen, // Over the game, laid out and scaled for the screen per the prefab's scaler (see ui2::CanvasScaler)
 			World,  // In the scene, placed by the entity's transform (PixelsPerUnit canvas units per world unit), sorted by its z-order
 		};
-		REFLECTED_ENUM(HOD_GAME_API, RenderMode);
+		REFLECTED_ENUM(HOD_UI2_API, RenderMode);
 
 		using ActionEvent = ui2::Canvas::ActionEvent;
 

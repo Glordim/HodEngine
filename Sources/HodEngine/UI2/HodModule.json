@@ -1,9 +1,13 @@
 {
 	"_name": "UI2",
-	"_description": "UI prefabs, layouts, interactions, animations",
+	"_description": "UI prefabs, layouts, interactions, animations, the UIComponent",
+	"_runtimeLibrary": "UI2",
 	"_editorLibrary": "UI2Editor",
 	"_dependencies": [
-		"Core"
+		"Game"
 	],
-	"_required": true
+	"_provides": [
+		"UI"
+	],
+	"_required": false
 }

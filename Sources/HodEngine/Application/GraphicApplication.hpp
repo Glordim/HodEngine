@@ -42,8 +42,6 @@ namespace hod::inline application
 		bool InitImGui();
 		bool TerminateImGui();
 
-		bool InitUI();
-		bool TerminateUI();
 
 		bool RunGraphicLoop();
 

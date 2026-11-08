@@ -14,7 +14,6 @@
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
-#include <HodEngine/UI2/CanvasManager.hpp>
 
 #include <HodEngine/GameSystems/Frame/FrameSequencer.hpp>
 #include <HodEngine/GameSystems/Job/JobScheduler.hpp>
@@ -36,7 +35,6 @@ namespace hod::inline application
 		if (!initGuard.Push([this]{ return InitInput(); },       [this]{ TerminateInput(); }))       return false;
 		if (!initGuard.Push([this]{ return InitRenderer(); },    [this]{ TerminateRenderer(); }))    return false;
 		if (!initGuard.Push([this]{ return InitImGui(); },       [this]{ TerminateImGui(); }))       return false;
-		if (!initGuard.Push([this]{ return InitUI(); },          [this]{ TerminateUI(); }))          return false;
 		if (!initGuard.Push([this]{ return InitGame(); },        [this]{ TerminateGame(); }))        return false;
 		if (!initGuard.Push([this]{ return InitModules(); },     [this]{ TerminateModules(); }))     return false;
 		if (!initGuard.Push([this]{ return BootGame(); },        [this]{ TerminateBoot(); }))        return false;
@@ -124,18 +122,6 @@ namespace hod::inline application
 		return true;
 	}
 
-	bool GraphicApplication::InitUI()
-	{
-		ui2::CanvasManager::CreateInstance();
-		return true;
-	}
-
-	bool GraphicApplication::TerminateUI()
-	{
-		ui2::CanvasManager::DestroyInstance();
-		return true;
-	}
-
 	bool GraphicApplication::RunGraphicLoop()
 	{
 		JobScheduler::GetInstance()->Init();
@@ -158,8 +144,6 @@ namespace hod::inline application
 
 			JobScheduler::GetInstance()->CleanupCompleted();
 			frameSequencer->EnqueueAndWaitJobs();
-
-			ui2::CanvasManager::GetInstance()->Update(); // TODO
 
 			Renderer::GetInstance()->Render();
 

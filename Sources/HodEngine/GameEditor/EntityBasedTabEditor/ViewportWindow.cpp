@@ -41,7 +41,7 @@
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
 #include <HodEngine/Renderer/PickingManager.hpp>
-#include <HodEngine/UI2/CanvasManager.hpp>
+#include "HodEngine/GameEditor/EntityBasedTabEditor/ViewportGamePointer.hpp"
 #include <HodEngine/Core/StaticArray.hpp>
 
 #include <algorithm>
@@ -383,7 +383,7 @@ namespace hod::inline editor
 				ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
 			}
 
-			// Playing, the game's canvases get the mouse over the image (see ui2::CanvasManager), as the game window's
+			// Playing, the game gets the mouse over the image (see ViewportGamePointer), as the game window's
 			if (GetOwner<EntityEditorTab>()->IsPlaying() && GetOwner<EntityEditorTab>()->IsPaused() == false)
 			{
 				ImVec2 mouseImagePos = ImGui::GetIO().MousePos - ImGui::GetItemRectMin();
@@ -391,24 +391,24 @@ namespace hod::inline editor
 				                      mouseImagePos.x < (float)resolutionWidth && mouseImagePos.y < (float)resolutionHeight;
 				if (mouseOverImage && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 				{
-					_canvasPointerDown = true;
+					_gamePointerDown = true;
 				}
 				else if (ImGui::IsMouseDown(ImGuiMouseButton_Left) == false)
 				{
-					_canvasPointerDown = false;
+					_gamePointerDown = false;
 				}
 
-				if (mouseOverImage || _canvasPointerDown)
+				if (mouseOverImage || _gamePointerDown)
 				{
 					// The wheel over the image only (ImGui's horizontal one is > 0 towards the left)
 					Vector2 scroll = mouseOverImage ? Vector2(-ImGui::GetIO().MouseWheelH, ImGui::GetIO().MouseWheel) : Vector2::Zero;
-					ui2::CanvasManager::GetInstance()->SetPointer(Vector2(mouseImagePos.x, mouseImagePos.y), Vector2((float)resolutionWidth, (float)resolutionHeight),
-					                                              _canvasPointerDown, scroll);
+					ViewportGamePointer::Dispatch(Vector2(mouseImagePos.x, mouseImagePos.y), Vector2((float)resolutionWidth, (float)resolutionHeight), _gamePointerDown,
+					                              scroll);
 				}
 			}
 			else
 			{
-				_canvasPointerDown = false;
+				_gamePointerDown = false;
 			}
 			// ImGui::GetWindowDrawList()->AddImage(_renderTarget->GetColorTexture(), origin + ImVec2(0.0f, (float)menuBarHeight), origin + ImVec2((float)windowWidth,
 			// (float)(windowHeight + menuBarHeight)));

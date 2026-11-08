@@ -1,11 +1,11 @@
-#include "HodEngine/GameEditor/Pch.hpp"
-#include "HodEngine/GameEditor/CustomComponentDrawer/UIComponentCustomComponentDrawer.hpp"
+#include "HodEngine/UI2Editor/Pch.hpp"
+#include "HodEngine/UI2Editor/CustomComponentDrawer/UIComponentCustomComponentDrawer.hpp"
 
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 
 #include <HodEngine/Core/Reflection/ReflectionProperty.hpp>
-#include <HodEngine/Game/Components/UIComponent.hpp>
+#include <HodEngine/UI2/Components/UIComponent.hpp>
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
 #include <cstring>

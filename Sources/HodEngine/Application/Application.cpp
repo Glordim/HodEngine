@@ -14,12 +14,6 @@
 
 #include "HodEngine/UI/Builtin.hpp"
 
-#include "HodEngine/UI2/Builtin.hpp"
-#include "HodEngine/UI2/LayoutParamsFactory.hpp"
-#include "HodEngine/UI2/NodeFactory.hpp"
-#include "HodEngine/UI2/LayoutFactory.hpp"
-#include "HodEngine/UI2/InteractionFactory.hpp"
-#include "HodEngine/UI2/ViewFactory.hpp"
 
 #include "HodEngine/Game/RuntimeModule.hpp"
 
@@ -118,14 +112,8 @@ namespace hod::inline application
 	{
 		ComponentFactory::CreateInstance();
 		DataStructFactory::CreateInstance();
-		ui2::LayoutParamsFactory::CreateInstance();
-		ui2::NodeFactory::CreateInstance();
-		ui2::LayoutFactory::CreateInstance();
-		ui2::InteractionFactory::CreateInstance();
-		ui2::ViewFactory::CreateInstance();
 		game::RegisterBuiltin();
 		ui::RegisterBuiltin();
-		ui2::RegisterBuiltin();
 
 		// Register phase of the runtime modules, in their order: their types, nothing else
 		_runtimeModuleHost = DefaultAllocator::GetInstance().New<RuntimeModuleHost>();
@@ -198,11 +186,6 @@ namespace hod::inline application
 
 		DataStructFactory::DestroyInstance();
 		ComponentFactory::DestroyInstance();
-		ui2::LayoutParamsFactory::DestroyInstance();
-		ui2::NodeFactory::DestroyInstance();
-		ui2::LayoutFactory::DestroyInstance();
-		ui2::InteractionFactory::DestroyInstance();
-		ui2::ViewFactory::DestroyInstance();
 		return true;
 	}
 

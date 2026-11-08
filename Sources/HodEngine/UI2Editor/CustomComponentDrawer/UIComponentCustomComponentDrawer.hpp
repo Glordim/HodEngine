@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/GameEditor/Export.hpp"
+#include "HodEngine/UI2Editor/Export.hpp"
 
 #include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawer.hpp"
 
@@ -7,7 +7,7 @@ namespace hod::inline editor
 {
 	/// @brief Only the properties of the UIComponent's render mode: the sorting order and the scaler for Screen, the pixels per
 	/// unit for World. The scaler is greyed out while the prefab's is used.
-	class HOD_GAME_EDITOR_API UIComponentCustomComponentDrawer : public CustomComponentDrawer
+	class HOD_UI2_EDITOR_API UIComponentCustomComponentDrawer : public CustomComponentDrawer
 	{
 	public:
 
