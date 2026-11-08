@@ -24,7 +24,6 @@ namespace hod::inline editor
 		void DrawContent() override;
 
 	private:
-		void SetEnabled(const String& name, bool enabled);
 		bool HasChanges() const;
 		void Apply(bool saveTabs);
 

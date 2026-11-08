@@ -39,6 +39,20 @@ namespace hod::inline core
 		return FileSystem::_userSettingsPath;
 	}
 
+	/// @brief
+	/// @return
+	Path FileSystem::GetUserHomePath()
+	{
+		PWSTR wpath = nullptr;
+		Path  path;
+		if (SUCCEEDED(SHGetKnownFolderPath(FOLDERID_Profile, 0, NULL, &wpath)) && wpath != nullptr)
+		{
+			path = Path::FromNative(wpath);
+		}
+		CoTaskMemFree(wpath);
+		return path;
+	}
+
 	Path FileSystem::GetExecutablePath()
 	{
 		if (FileSystem::_executablePath.Empty() == true)

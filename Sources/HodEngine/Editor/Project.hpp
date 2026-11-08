@@ -29,11 +29,26 @@ namespace hod::inline editor
 		_Singleton(Project)
 
 	public:
+		/// @brief What a new project is made of (see NewProjectForm)
+		struct CreateInfo
+		{
+			Path           _directory;       // The project folder: <destination>/<name>, its name is the project's
+			Vector<String> _disabledModules; // As the project's _disabledModules (see ModuleGraph::Resolve)
+		};
+
+	public:
 		~Project();
 
-		bool Create(const Path& directory);
+		/// @brief The folder, the minimal sources of the game and editor modules, the project file. Not opened
+		/// @return false (with an error) if the folder isn't a valid new project folder (see CheckNewProjectDirectory) or can't be written
+		bool Create(const CreateInfo& createInfo);
 
 		static bool IsValidName(const String& name);
+		/// @brief Why directory can't be a new project folder (its name isn't valid, it's a file, a folder with something in it), empty if it can
+		static String CheckNewProjectDirectory(const Path& directory);
+		/// @brief The engine modules of this editor (the manifests next to it, see hod_module_manifest), built, everything enabled
+		/// @return false if some were left out (see ModuleGraph::GetErrors)
+		static bool BuildEngineModuleGraph(ModuleGraph& moduleGraph);
 		bool Open(const Path& projectPath);
 
 		bool Load();

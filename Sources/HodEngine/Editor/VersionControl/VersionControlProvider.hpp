@@ -83,6 +83,10 @@ namespace hod::inline editor
 		/// its folders, a P4CONFIG file...), for the automatic choice
 		virtual bool Detect(const Path& projectDir) const = 0;
 
+		/// @brief Before Connect, for a new project not under this system yet (see VersionControl::RequestWorkspaceCreation): makes its
+		/// folder a workspace (git init). NotSupported by default (Svn, Perforce: a workspace comes from a server)
+		virtual Result CreateWorkspace(const Path& projectDir);
+
 		/// @brief The command line is there, the workspace root, the user (and the p4 client) found, logged in
 		virtual Result Connect(const Path& projectDir) = 0;
 		virtual void   Disconnect();

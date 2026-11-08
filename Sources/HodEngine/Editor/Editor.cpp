@@ -864,13 +864,17 @@ namespace hod::inline editor
 	/// @brief
 	/// @param path
 	/// @return
-	bool Editor::CreateProject(const Path& directory)
+	bool Editor::CreateProject(const Project::CreateInfo& createInfo, std::string_view versionControl)
 	{
-		if (Project::GetInstance()->Create(directory) == true)
+		if (Project::GetInstance()->Create(createInfo) == false)
 		{
-			return OpenProject(Project::GetInstance()->GetProjectPath());
+			return false;
 		}
-		return false;
+		if (versionControl.empty() == false)
+		{
+			VersionControl::RequestWorkspaceCreation(createInfo._directory, versionControl); // Its failure is reported: the project is there all the same
+		}
+		return OpenProject(Project::GetInstance()->GetProjectPath());
 	}
 
 	/// @brief

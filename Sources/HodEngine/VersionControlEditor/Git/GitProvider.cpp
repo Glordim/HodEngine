@@ -174,6 +174,17 @@ namespace hod::inline editor
 		_locksWarned = false;
 	}
 
+	/// @brief git init in the project folder (the .gitignore and .gitattributes come with SetupWorkspace, after Connect)
+	/// @param projectDir
+	/// @return
+	VersionControlProvider::Result GitProvider::CreateWorkspace(const Path& projectDir)
+	{
+		Process::Result output;
+		RunOptions      options;
+		options._workingDirectory = &projectDir;
+		return Run({"init", "--quiet"}, output, options);
+	}
+
 	/// @brief .gitignore and .gitattributes, each only if none exists from the project folder up to the root
 	/// @param projectDir
 	/// @param setup

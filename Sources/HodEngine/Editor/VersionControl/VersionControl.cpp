@@ -857,6 +857,14 @@ namespace hod::inline editor
 		}
 
 		_provider = chosen;
+		_createWorkspaceOnConnect = false;
+		if (_createWorkspace)
+		{
+			// Taken into account once, whatever its result: an error says why, the user can do it by hand then
+			_createWorkspace = false;
+			SaveUserSettings();
+			_createWorkspaceOnConnect = _provider->Detect(_projectDir) == false;
+		}
 		_workspaceSetup = MakeWorkspaceSetup();
 		_rootFolders = _projectFolders;
 		for (Path& workspaceFile : _provider->GetWorkspaceFiles(_projectDir))
@@ -1126,6 +1134,22 @@ namespace hod::inline editor
 	/// @brief
 	void VersionControl::WorkerConnect()
 	{
+		bool workspaceCreated = false;
+		if (_createWorkspaceOnConnect)
+		{
+			_createWorkspaceOnConnect = false;
+			Result created = _provider->CreateWorkspace(_projectDir);
+			if (created._success == false)
+			{
+				OUTPUT_ERROR("Version control: can't create the {} workspace of the project: {}", _provider->GetName(), created._error);
+			}
+			else
+			{
+				OUTPUT_MESSAGE("Version control: {} workspace created in {}", _provider->GetName(), _projectDir);
+				workspaceCreated = true;
+			}
+		}
+
 		Result result = _provider->Connect(_projectDir);
 		if (result._success == false)
 		{
@@ -1139,6 +1163,28 @@ namespace hod::inline editor
 		if (setup._success == false)
 		{
 			OUTPUT_WARNING("Version control: can't set the workspace up: {}", setup._error);
+		}
+
+		if (workspaceCreated)
+		{
+			// What describes the workspace and the project, added right away: the project file and the provider's files SetupWorkspace
+			// just created (.gitignore, .gitattributes). The files of the root folders, not the folders' content: the user's choice
+			Vector<Path> files;
+			for (const Path& rootFolder : _rootFolders)
+			{
+				if (FileSystem::GetInstance()->IsRegularFile(rootFolder))
+				{
+					files.PushBack(rootFolder);
+				}
+			}
+			if (files.Empty() == false)
+			{
+				Result added = _provider->Add(files);
+				if (added._success == false)
+				{
+					OUTPUT_WARNING("Version control: can't add the files of the new workspace: {}", added._error);
+				}
+			}
 		}
 
 		UpdateCapabilities();
@@ -1442,6 +1488,7 @@ namespace hod::inline editor
 		_providerChoice = "Auto";
 		_autoAdd = false;
 		_checkoutOnEdit = true;
+		_createWorkspace = false;
 
 		if (FileSystem::GetInstance()->IsRegularFile(_userSettingsPath) == false)
 		{
@@ -1473,6 +1520,10 @@ namespace hod::inline editor
 		{
 			_checkoutOnEdit = checkoutOnEdit->GetBool();
 		}
+		if (const DocumentNode* createWorkspace = settings->GetChild("createWorkspace"); createWorkspace != nullptr)
+		{
+			_createWorkspace = createWorkspace->GetBool();
+		}
 	}
 
 	/// @brief The other settings of the file kept
@@ -1498,11 +1549,47 @@ namespace hod::inline editor
 		settings.GetOrAddChild("provider").SetString(_providerChoice);
 		settings.GetOrAddChild("autoAdd").SetBool(_autoAdd);
 		settings.GetOrAddChild("checkoutOnEdit").SetBool(_checkoutOnEdit);
+		if (_createWorkspace || settings.GetChild("createWorkspace") != nullptr)
+		{
+			settings.GetOrAddChild("createWorkspace").SetBool(_createWorkspace);
+		}
 
 		DocumentWriterJson writer;
 		if (writer.Write(document, _userSettingsPath) == false)
 		{
 			OUTPUT_ERROR("Version control: can't write {}", _userSettingsPath);
 		}
+	}
+
+	/// @brief
+	/// @param projectDir
+	/// @param provider
+	/// @return
+	bool VersionControl::RequestWorkspaceCreation(const Path& projectDir, std::string_view provider)
+	{
+		const Path userSettingsPath = projectDir / UserSettingsFileName;
+
+		Document document;
+		if (FileSystem::GetInstance()->IsRegularFile(userSettingsPath))
+		{
+			DocumentReaderJson reader;
+			if (reader.Read(document, userSettingsPath) == false)
+			{
+				OUTPUT_ERROR("Version control: can't read {}, not overwritten", userSettingsPath);
+				return false;
+			}
+		}
+
+		DocumentNode& settings = document.GetRootNode().GetOrAddChild("VersionControl");
+		settings.GetOrAddChild("provider").SetString(provider);
+		settings.GetOrAddChild("createWorkspace").SetBool(true);
+
+		DocumentWriterJson writer;
+		if (writer.Write(document, userSettingsPath) == false)
+		{
+			OUTPUT_ERROR("Version control: can't write {}", userSettingsPath);
+			return false;
+		}
+		return true;
 	}
 }

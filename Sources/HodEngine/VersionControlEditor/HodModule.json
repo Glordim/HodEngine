@@ -5,5 +5,8 @@
 	"_dependencies": [
 		"Core"
 	],
-	"_required": true
+	"_required": true,
+	"_versionControlSystems": [
+		"Git"
+	]
 }

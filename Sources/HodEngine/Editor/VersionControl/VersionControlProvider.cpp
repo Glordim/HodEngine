@@ -23,6 +23,15 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @param projectDir
+	/// @return
+	VersionControlProvider::Result VersionControlProvider::CreateWorkspace(const Path& projectDir)
+	{
+		(void)projectDir;
+		return NotSupported("create a workspace");
+	}
+
+	/// @brief
 	void VersionControlProvider::Disconnect() {}
 
 	/// @brief

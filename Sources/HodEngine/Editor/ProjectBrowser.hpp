@@ -7,6 +7,7 @@
 #include "HodEngine/Core/Vector.hpp"
 #include <HodEngine/Core/FileSystem/Path.hpp>
 
+#include "HodEngine/Editor/NewProjectForm.hpp"
 #include "HodEngine/Editor/RecentProjects.hpp"
 
 namespace hod::inline editor
@@ -25,6 +26,14 @@ namespace hod::inline editor
 		void DrawContent() override {};
 
 	private:
+		void ShowNewProjectForm(bool show);
+		void ResizeMainWindow(); // To what's shown
+
+	private:
 		RecentProjects _recentProjects;
+
+		bool           _newProjectFormShown = false; // In place of the project list
+		uint16_t       _mainWindowHeight = 320; // As Editor::Init sets it
+		NewProjectForm _newProjectForm;
 	};
 }

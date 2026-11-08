@@ -29,8 +29,7 @@ Build: bc7enc_rdo / astcenc -thorough
 
 ---------
 
-Missing Source dir (Project)
-Anchor Ctrl/shift shortcut
+# Editor UI : Anchor Ctrl/shift shortcut
 
 ---------
 
@@ -47,3 +46,15 @@ Anchor Ctrl/shift shortcut
 - Non ASCII names: FileSystem uses the ANSI functions (GetFileAttributesA, CreateFileA; code page 1252 here)
 	- GitProvider::Add skips them silently, GetFilesToCheckout never checks them out, Submit classifies them as deleted (still committed right thanks to git commit --only)
 	- Locally: ask git (status) what exists rather than FileSystem. For real: FileSystem on the W functions (whole engine)
+
+---------
+
+# Modules: manifests declaring what a module brings (as _versionControlSystems for the new project form)
+
+So that what needs a module not loaded (disabled, or not loaded yet) can name it
+- Components: a MissingComponent suggests the disabled module that has its type ("RigidBody2d: module Physics disabled, enable it?")
+- Asset types: an asset of an unknown type suggests its module
+	- The asset header must hold the type's name, not only its hash, to find it in the manifests
+- Project templates, offered in NewProjectForm (a template can check the modules it needs)
+- Long lists (components) not written by hand: generate that part of Modules/<Name>.json at build time (what the module registers, or the reflection)
+- _versionControlSystems: nothing checks the names match the providers' GetName() (a TestsEditor test loading VersionControlEditor)

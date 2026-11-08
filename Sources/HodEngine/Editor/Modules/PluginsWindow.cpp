@@ -71,37 +71,6 @@ namespace hod::inline editor
 		SetInitialSize(ImVec2(720.0f, 420.0f));
 	}
 
-	/// @brief Enabling a module enables what it needs too, disabling it shows the ones needing it disabled (see ModuleGraph::Resolve)
-	/// @param name
-	/// @param enabled
-	void PluginsWindow::SetEnabled(const String& name, bool enabled)
-	{
-		if (enabled == false)
-		{
-			if (Contains(_disabledModules, name) == false)
-			{
-				_disabledModules.PushBack(name);
-			}
-			return;
-		}
-
-		for (uint32_t index = 0; index < _disabledModules.Size(); ++index)
-		{
-			if (_disabledModules[index] == name)
-			{
-				_disabledModules.Erase(index);
-				break;
-			}
-		}
-		if (const ModuleGraph::Module* module = Project::GetInstance()->GetModuleGraph().Find(name))
-		{
-			for (const String& dependency : module->_manifest._dependencies)
-			{
-				SetEnabled(dependency, true);
-			}
-		}
-	}
-
 	/// @brief
 	/// @return
 	bool PluginsWindow::HasChanges() const
@@ -173,7 +142,7 @@ namespace hod::inline editor
 				ImGui::BeginDisabled(manifest._required);
 				if (ImGui::Checkbox("##Enabled", &asked))
 				{
-					SetEnabled(manifest._name, asked);
+					current.SetEnabled(_disabledModules, manifest._name, asked);
 				}
 				ImGui::EndDisabled();
 				if (manifest._required && ImGui::IsItemHovered(ImGuiHoveredFlags_AllowWhenDisabled | ImGuiHoveredFlags_ForTooltip))

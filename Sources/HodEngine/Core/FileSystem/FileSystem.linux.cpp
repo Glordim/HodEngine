@@ -30,6 +30,14 @@ namespace hod::inline core
 		return FileSystem::_userSettingsPath;
 	}
 
+	/// @brief
+	/// @return
+	Path FileSystem::GetUserHomePath()
+	{
+		struct passwd* pw = getpwuid(getuid());
+		return pw != nullptr ? Path(pw->pw_dir) : Path();
+	}
+
 	Path FileSystem::GetExecutablePath()
 	{
 		if (FileSystem::_executablePath.Empty() == true)

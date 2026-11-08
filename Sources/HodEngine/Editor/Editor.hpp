@@ -14,6 +14,7 @@
 
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/FpsCounter.hpp"
+#include "HodEngine/Editor/Project.hpp"
 
 namespace hod::inline core
 {
@@ -63,7 +64,10 @@ namespace hod::inline editor
 	public:
 		bool Init(const ArgumentParser& argumentParser);
 
-		bool CreateProject(const Path& path);
+		/// @brief Creates the project, then opens it
+		/// @param versionControl A provider's name: its workspace is created on the first connection (see
+		/// VersionControl::RequestWorkspaceCreation). Empty: none chosen (the automatic choice applies)
+		bool CreateProject(const Project::CreateInfo& createInfo, std::string_view versionControl);
 		bool OpenProject(const Path& path);
 
 		bool LoadEditor();

@@ -61,6 +61,8 @@ namespace hod::inline core
 
 	public:
 		static Path GetUserSettingsPath();
+		/// @brief The user's own folder (C:\Users\<name>, /home/<name>), for the dialogs. Empty if there is none (Android)
+		static Path GetUserHomePath();
 		static Path GetExecutablePath();
 		static Path GetTemporaryPath();
 		static bool SetWorkingDirectory(const Path& path);

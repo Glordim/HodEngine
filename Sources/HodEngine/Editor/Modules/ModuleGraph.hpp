@@ -34,6 +34,10 @@ namespace hod::inline editor
 		/// @brief Can't be disabled
 		bool _required = false;
 
+		/// @brief The names of the version control providers its editor library registers ("Git"), known before it's loaded: offered
+		/// when a project is created (see NewProjectForm)
+		Vector<String> _versionControlSystems;
+
 	public:
 		/// @return false (with an error) if the file can't be read or has no name
 		static bool Load(const Path& path, ModuleManifest& manifest);
@@ -71,6 +75,10 @@ namespace hod::inline editor
 
 		/// @brief The _runtimeLibrary of the enabled modules that have one, in the modules' order
 		Vector<String> GetEnabledRuntimeLibraries() const;
+
+		/// @brief What a user asks for, in a list of disabled modules (Resolve's): enabling a module enables what it needs too, disabling
+		/// it lets Resolve disable the ones needing it
+		void SetEnabled(Vector<String>& disabledModules, const String& name, bool enabled) const;
 
 		/// @brief What went wrong in Build and Resolve
 		const Vector<String>& GetErrors() const;

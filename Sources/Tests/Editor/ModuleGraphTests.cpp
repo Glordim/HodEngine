@@ -184,4 +184,34 @@ namespace hod
 		EXPECT_TRUE(graph.Find("Wwise")->_enabled);
 		EXPECT_TRUE(graph.GetErrors().Empty());
 	}
+
+	TEST(ModuleGraph, SetEnabledEnablesTheDependencies)
+	{
+		Vector<ModuleManifest> manifests;
+		manifests.PushBack(Manifest("Core", {}, true));
+		manifests.PushBack(Manifest("Game", {"Core"}));
+		manifests.PushBack(Manifest("Physics", {"Game"}));
+
+		ModuleGraph graph;
+		ASSERT_TRUE(graph.Build(manifests));
+
+		Vector<String> disabledModules;
+		graph.SetEnabled(disabledModules, "Game", false);
+		graph.SetEnabled(disabledModules, "Game", false); // Once only
+		graph.SetEnabled(disabledModules, "Physics", false);
+		ASSERT_EQ(disabledModules.Size(), 2u);
+
+		// Physics needs Game: enabled with it
+		graph.SetEnabled(disabledModules, "Physics", true);
+		EXPECT_TRUE(disabledModules.Empty());
+		graph.Resolve(disabledModules);
+		std::vector<std::string> expected {"Core", "Game", "Physics"};
+		EXPECT_EQ(EnabledNames(graph), expected);
+
+		// Game disabled: Physics left asked for, disabled by Resolve
+		graph.SetEnabled(disabledModules, "Game", false);
+		ASSERT_EQ(disabledModules.Size(), 1u);
+		graph.Resolve(disabledModules);
+		EXPECT_FALSE(graph.Find("Physics")->_enabled);
+	}
 }

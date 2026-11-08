@@ -15,6 +15,7 @@
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Project.hpp"
 
+#include <HodEngine/Window/Desktop/DesktopWindow.hpp>
 #include <HodEngine/Window/Dialog/PlatformDialog.hpp>
 
 #include "HodEngine/Core/Document/Document.hpp"
@@ -67,6 +68,23 @@ namespace hod::inline editor
 		{
 			TitleBar::DrawAtTopOfWindow("HodEngine");
 
+			if (_newProjectFormShown)
+			{
+				// Created: the project is opened, the browser closed at the end of the frame (ImGuiManager::CloseAllWindow)
+				NewProjectForm::Result result = _newProjectForm.Draw();
+				if (result == NewProjectForm::Result::Cancelled)
+				{
+					ShowNewProjectForm(false);
+				}
+				else
+				{
+					ResizeMainWindow(); // To the form, its modules expanded or not
+				}
+				ImGui::End();
+				ImGui::PopStyleVar(1);
+				return true;
+			}
+
 			ImGui::Text("Project Browser");
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x - 140.0f, 0.0f);
 			if (ImGui::Button("Open") == true)
@@ -93,20 +111,7 @@ namespace hod::inline editor
 			ImGui::PopStyleColor(1);
 			if (newProjectButtonClicked == true)
 			{
-				Path path = GetFolderDialog();
-				if (path.Empty() == false)
-				{
-					if (Project::IsValidName(path.Filename().GetString()) == false)
-					{
-						pfd::message("New project",
-						             std::format("'{}' is not a valid project name.\nUse only letters, digits and '_', not starting with a digit.", path.Filename().GetString().CStr()),
-						             pfd::choice::ok, pfd::icon::error);
-					}
-					else
-					{
-						Editor::GetInstance()->CreateProject(path);
-					}
-				}
+				ShowNewProjectForm(true);
 			}
 
 			if (ImGui::BeginTable("ProjectListTable", 3, ImGuiTableFlags_Sortable | ImGuiTableFlags_RowBg | ImGuiTableFlags_PadOuterX) == true)
@@ -178,5 +183,35 @@ namespace hod::inline editor
 		ImGui::End();
 		ImGui::PopStyleVar(1);
 		return true;
+	}
+
+	/// @brief The form needs more room than the list: the main window grows while it's shown
+	/// @param show
+	void ProjectBrowser::ShowNewProjectForm(bool show)
+	{
+		_newProjectFormShown = show;
+		if (show)
+		{
+			_newProjectForm.Reset(FileSystem::GetUserHomePath());
+		}
+		ResizeMainWindow();
+	}
+
+	/// @brief Only when the height changes (the form's is known once drawn), centered again then
+	void ProjectBrowser::ResizeMainWindow()
+	{
+		uint16_t height = 320;
+		if (_newProjectFormShown && _newProjectForm.GetContentHeight() > 0.0f)
+		{
+			height = static_cast<uint16_t>(_newProjectForm.GetContentHeight() + 0.5f);
+		}
+		if (height == _mainWindowHeight)
+		{
+			return;
+		}
+		_mainWindowHeight = height;
+		DesktopWindow* mainWindow = static_cast<DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow());
+		mainWindow->SetSize(800, height);
+		mainWindow->CenterToScreen();
 	}
 }

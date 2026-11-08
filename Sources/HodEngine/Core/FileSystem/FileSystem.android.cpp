@@ -14,6 +14,11 @@ namespace hod::inline core
 		return FileSystem::_userSettingsPath;
 	}
 
+	Path FileSystem::GetUserHomePath()
+	{
+		return Path();
+	}
+
 	Path FileSystem::GetExecutablePath()
 	{
 		return FileSystem::_executablePath;

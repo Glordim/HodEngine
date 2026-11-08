@@ -33,6 +33,7 @@ namespace hod::inline editor
 		bool   Detect(const Path& projectDir) const override;
 		Result Connect(const Path& projectDir) override;
 		void   Disconnect() override;
+		Result CreateWorkspace(const Path& projectDir) override;
 		Result SetupWorkspace(const Path& projectDir, const WorkspaceSetup& setup) override;
 
 		uint32_t GetCapabilities() const override;

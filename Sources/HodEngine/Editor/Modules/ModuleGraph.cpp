@@ -22,6 +22,7 @@ namespace hod::inline editor
 		AddPropertyT(reflectionDescriptor, &ModuleManifest::_dependencies, "_dependencies");
 		AddPropertyT(reflectionDescriptor, &ModuleManifest::_provides, "_provides");
 		AddPropertyT(reflectionDescriptor, &ModuleManifest::_required, "_required");
+		AddPropertyT(reflectionDescriptor, &ModuleManifest::_versionControlSystems, "_versionControlSystems");
 	}
 
 	/// @brief
@@ -338,6 +339,38 @@ namespace hod::inline editor
 			}
 		}
 		return runtimeLibraries;
+	}
+
+	/// @brief
+	/// @param disabledModules
+	/// @param name
+	/// @param enabled
+	void ModuleGraph::SetEnabled(Vector<String>& disabledModules, const String& name, bool enabled) const
+	{
+		for (uint32_t index = 0; index < disabledModules.Size(); ++index)
+		{
+			if (disabledModules[index] == name)
+			{
+				if (enabled == false)
+				{
+					return; // Already there
+				}
+				disabledModules.Erase(index);
+				break;
+			}
+		}
+		if (enabled == false)
+		{
+			disabledModules.PushBack(name);
+			return;
+		}
+		if (const Module* module = Find(name))
+		{
+			for (const String& dependency : module->_manifest._dependencies)
+			{
+				SetEnabled(disabledModules, dependency, true);
+			}
+		}
 	}
 
 	/// @brief

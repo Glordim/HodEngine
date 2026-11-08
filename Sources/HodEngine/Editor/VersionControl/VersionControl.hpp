@@ -87,6 +87,12 @@ namespace hod::inline editor
 		void             SetProviderChoice(std::string_view choice);
 		std::string_view GetProviderChoice() const;
 
+		/// @brief For a project not opened yet (a new one, see Editor::CreateProject): its user settings choose this provider, and ask
+		/// it to create its workspace on the first connection (VersionControlProvider::CreateWorkspace: git init) if the project isn't
+		/// under it yet. Once only: the request is cleared from the settings when it's taken into account
+		/// @return false (with an error) if the user settings can't be written
+		static bool RequestWorkspaceCreation(const Path& projectDir, std::string_view provider);
+
 		/// @brief nullptr if none or not connected (yet)
 		const VersionControlProvider* GetConnectedProvider() const;
 		bool                          IsConnected() const;
@@ -261,11 +267,13 @@ namespace hod::inline editor
 		String _providerChoice = "Auto";
 		bool   _autoAdd = false;
 		bool   _checkoutOnEdit = true;
+		bool   _createWorkspace = false; // Asked by RequestWorkspaceCreation, cleared by Connect
 
 		// Of the opened project, set on the main thread before the worker starts
 		bool                                   _projectOpened = false;
 		Path                                   _projectDir;
 		Path                                   _userSettingsPath;
+		bool                                   _createWorkspaceOnConnect = false; // The provider's CreateWorkspace before its Connect
 		Vector<Path>                           _projectFolders; // The asset, source, project settings and code folders, the project file
 		Vector<Path>                           _rootFolders;    // _projectFolders and the provider's workspace files
 		VersionControlProvider::WorkspaceSetup _workspaceSetup;

@@ -15,6 +15,7 @@
 
 #include "HodEngine/GameSystems/Resource/ResourceVariant.hpp"
 #include <algorithm>
+#include <filesystem>
 #include <fmt/format.h>
 
 #include "FileTemplates/CMakeListsEditor.txt.hpp"
@@ -68,21 +69,24 @@ namespace hod::inline editor
 	/// @brief
 	/// @param directory
 	/// @return
-	bool Project::Create(const Path& directory)
+	bool Project::Create(const CreateInfo& createInfo)
 	{
-		if (IsValidName(directory.Filename().GetString()) == false)
+		const Path& directory = createInfo._directory;
+		if (String error = CheckNewProjectDirectory(directory); error.Empty() == false)
 		{
-			OUTPUT_ERROR("Project::Create fail: '{}' is not a valid project name (letters, digits and '_' only, not starting with a digit)", directory.Filename());
+			OUTPUT_ERROR("Project::Create fail: {}", error);
 			return false;
 		}
 
 		if (FileSystem::GetInstance()->Exists(directory) == false && FileSystem::GetInstance()->CreateDirectories(directory) == false)
 		{
+			OUTPUT_ERROR("Project::Create fail: can't create the folder {}", directory);
 			return false;
 		}
 
 		_projectPath = directory / (directory.Filename().GetString() + ".hod");
 		_name = _projectPath.Stem().GetString();
+		_disabledModules = createInfo._disabledModules;
 
 		if (CreateMinimalSourceForModule(directory) == false)
 		{
@@ -110,6 +114,60 @@ namespace hod::inline editor
 			}
 		}
 		return true;
+	}
+
+	/// @brief
+	/// @param directory
+	/// @return
+	String Project::CheckNewProjectDirectory(const Path& directory)
+	{
+		if (directory.Empty())
+		{
+			return "Choose where to create the project";
+		}
+		if (directory.IsAbsolute() == false)
+		{
+			return String::Format("%s isn't an absolute path", directory.GetString().CStr());
+		}
+		const String name = directory.Filename().GetString();
+		if (name.Empty())
+		{
+			return "Name the project";
+		}
+		if (IsValidName(name) == false)
+		{
+			return String::Format("'%s' isn't a valid project name: letters, digits and '_' only, not starting with a digit", name.CStr());
+		}
+		if (FileSystem::GetInstance()->Exists(directory) == false)
+		{
+			return String();
+		}
+		if (FileSystem::GetInstance()->IsDirectory(directory) == false)
+		{
+			return String::Format("%s is a file", directory.GetString().CStr());
+		}
+		std::error_code errorCode;
+		bool            empty = std::filesystem::is_empty(directory.GetString().CStr(), errorCode);
+		if (errorCode)
+		{
+			return String::Format("%s can't be read: %s", directory.GetString().CStr(), errorCode.message().c_str());
+		}
+		if (empty == false)
+		{
+			return String::Format("The folder %s already exists and isn't empty", directory.GetString().CStr());
+		}
+		return String();
+	}
+
+	/// @brief
+	/// @param moduleGraph
+	/// @return
+	bool Project::BuildEngineModuleGraph(ModuleGraph& moduleGraph)
+	{
+		Vector<ModuleManifest> manifests;
+		bool                   result = ModuleGraph::LoadManifests(FileSystem::GetExecutablePath().ParentPath() / "Modules", manifests);
+		result &= moduleGraph.Build(manifests);
+		return result;
 	}
 
 	/// @brief Write a module source file from a template, replacing [[MODULE_NAME]], [[MODULE_API]] and [[MODULE_EXPORT]]
@@ -338,9 +396,7 @@ namespace hod::inline editor
 	/// @brief The engine modules described next to the editor (see ModuleManifest), without the ones the project disables
 	void Project::ResolveModules()
 	{
-		Vector<ModuleManifest> manifests;
-		ModuleGraph::LoadManifests(FileSystem::GetExecutablePath().ParentPath() / "Modules", manifests);
-		_moduleGraph.Build(manifests);
+		BuildEngineModuleGraph(_moduleGraph);
 		_moduleGraph.Resolve(_disabledModules);
 
 		for (const String& error : _moduleGraph.GetErrors())
