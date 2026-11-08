@@ -636,12 +636,19 @@ namespace hod::inline editor
 					interactiveAreas.push_back(Rect {Vector2(menusStartX, titleBarPos.y), Vector2(menusEndX - menusStartX, titleBarSize.y)});
 					TitleBar::Draw(Rect {Vector2(titleBarPos.x, titleBarPos.y), Vector2(titleBarSize.x, titleBarSize.y)}, interactiveAreas);
 
+					// In the menu bar's draw list: under the other windows and the popups, dimmed by a modal. It goes past the bottom of
+					// the bar (own clip rect) over the empty left column of TabBarContainer, kept behind the bar (NoBringToFrontOnFocus).
+					ImVec2      logoMin = mainViewport->Pos + ImVec2((64.0f - 48.0f) * 0.5f, 0.0f);
+					ImVec2      logoMax = logoMin + ImVec2(48.0f, 48.0f);
+					ImDrawList* menuBarDrawList = ImGui::GetWindowDrawList();
+					menuBarDrawList->PushClipRect(logoMin, logoMax, false);
+					menuBarDrawList->AddImage(_hodTexture, logoMin, logoMax);
+					menuBarDrawList->PopClipRect();
+
 					ImGui::EndMainMenuBar();
 				}
 
 				ImGuiViewport* mainViewport = ImGui::GetMainViewport();
-				ImVec2 logoPos = mainViewport->Pos + ImVec2((64.0f - 48.0f) * 0.5f, 0.0f);
-				ImGui::GetForegroundDrawList(mainViewport)->AddImage(_hodTexture, logoPos, logoPos + ImVec2(48.0f, 48.0f));
 
 				float statusBarHeight = 32;
 
