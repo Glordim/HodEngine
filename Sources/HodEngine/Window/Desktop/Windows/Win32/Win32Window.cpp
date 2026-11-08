@@ -365,6 +365,9 @@ namespace hod::inline window
 			return false;
 		}
 		SetWindowLongPtrA(_hWnd, GWLP_USERDATA, reinterpret_cast<LONG_PTR>(this));
+		// The WM_SIZE sent by CreateWindowExA came before GWLP_USERDATA, lost: _width/_height kept the size asked for the whole window,
+		// not its client area (what the swap chain is created at), and the next SetSize to that same size changes nothing
+		SyncClientSize();
 		if (_hidden == false)
 		{
 			ShowWindow(_hWnd, SW_NORMAL);
@@ -397,8 +400,22 @@ namespace hod::inline window
 				style |= WS_POPUP;
 				SetWindowLongPtr(_hWnd, GWL_STYLE, style);
 				SetWindowPos(_hWnd, NULL, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_FRAMECHANGED);
+				SyncClientSize();
 			}
 		});
+	}
+
+	/// @brief After a frame change (SWP_FRAMECHANGED with SWP_NOSIZE): the client area changed without the window, and no WM_SIZE says it
+	/// (seen on the hidden main window going to the custom title bar: the size kept the old frame's client, the swap chain too, black bands)
+	void Win32Window::SyncClientSize()
+	{
+		RECT clientRect;
+		if (::GetClientRect(_hWnd, &clientRect))
+		{
+			_sizeLock.lock();
+			ResizeInternal(static_cast<uint16_t>(clientRect.right - clientRect.left), static_cast<uint16_t>(clientRect.bottom - clientRect.top));
+			_sizeLock.unlock();
+		}
 	}
 
 	void Win32Window::SetCustomTitleBar(bool customTitleBar)
@@ -412,6 +429,7 @@ namespace hod::inline window
 				MARGINS margins = {0, 0, customTitleBar ? 1 : 0, 0};
 				::DwmExtendFrameIntoClientArea(_hWnd, &margins);
 				::SetWindowPos(_hWnd, nullptr, 0, 0, 0, 0, SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+				SyncClientSize();
 			});
 	}
 
@@ -475,7 +493,9 @@ namespace hod::inline window
 			{
 				if (visible)
 				{
-					ShowWindow(_hWnd, SW_NORMAL);
+					// SW_SHOW and not SW_NORMAL: it keeps the window maximized (or minimized). The main window, created hidden, is shown on the
+					// first frame (GraphicApplication), after the editor may have maximized it (a project opened from the command line)
+					ShowWindow(_hWnd, SW_SHOW);
 				}
 				else
 				{

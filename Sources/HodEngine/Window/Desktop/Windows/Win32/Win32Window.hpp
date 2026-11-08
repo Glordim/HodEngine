@@ -63,6 +63,8 @@ namespace hod::inline window
 		void OnMouseButtonDown(MouseButton button);
 		void OnMouseButtonUp(MouseButton button);
 
+		void SyncClientSize();
+
 	private:
 		HINSTANCE _hInstance = nullptr;
 		HWND      _hWnd = nullptr;
