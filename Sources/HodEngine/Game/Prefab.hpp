@@ -57,7 +57,7 @@ namespace hod::inline game
 	private:
 		String                                _name;
 		std::unordered_map<uint64_t, Entity*> _entities;
-		Entity*                               _rootEntity;
+		Entity*                               _rootEntity = nullptr;
 		uint64_t                              _nextLocalId = 1;
 	};
 }

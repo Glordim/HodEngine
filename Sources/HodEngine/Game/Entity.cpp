@@ -306,10 +306,20 @@ namespace hod::inline game
 		Entity* parentLock = _parent.Lock();
 		if (parentLock != nullptr)
 		{
+			// Moved towards the start or the end: the siblings in between shift by one the other way
 			uint32_t initialIndex = GetSiblingIndex();
+			index = Min(index, (uint32_t)parentLock->_children.Size() - 1);
+			if (initialIndex == index)
+			{
+				return;
+			}
 			for (uint32_t i = initialIndex; i > index; --i)
 			{
 				parentLock->_children[i] = parentLock->_children[i - 1];
+			}
+			for (uint32_t i = initialIndex; i < index; ++i)
+			{
+				parentLock->_children[i] = parentLock->_children[i + 1];
 			}
 			parentLock->_children[index] = WeakEntity(this);
 
