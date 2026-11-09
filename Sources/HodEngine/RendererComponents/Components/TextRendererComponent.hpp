@@ -1,0 +1,49 @@
+#pragma once
+#include "HodEngine/RendererComponents/Export.hpp"
+
+#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
+#include "HodEngine/RendererComponents/Components/RendererComponent.hpp"
+#include "HodEngine/Renderer/Resource/FontResource.hpp"
+
+#include "HodEngine/Core/String.hpp"
+
+namespace hod::inline renderer { class MaterialInstance; }
+
+namespace hod::inline renderer
+{
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	class HOD_RENDERER_COMPONENTS_API TextRendererComponent : public RendererComponent
+	{
+		REFLECTED_CLASS(TextRendererComponent, RendererComponent)
+
+	public:
+		TextRendererComponent();
+		TextRendererComponent(const TextRendererComponent&) = delete;
+		TextRendererComponent(TextRendererComponent&&) = delete;
+		~TextRendererComponent() override;
+
+		TextRendererComponent& operator=(const TextRendererComponent&) = delete;
+		TextRendererComponent& operator=(TextRendererComponent&&) = delete;
+
+	public:
+		void OnConstruct() override;
+
+		MaterialInstance* GetMaterialInstance() const;
+		void                        SetMaterialInstance(MaterialInstance* materialInstance);
+
+		void SetFont(const WeakResource<FontResource>& font);
+		// void							SetText(const std::string_view& text);
+
+		void PushRenderCommand(RenderView& renderView) override;
+		Rect GetBoundingBox() const override;
+
+	private:
+		String _text = "EditMe";
+
+		WeakResource<FontResource> _fontResource;
+
+		MaterialInstance* _materialInstance = nullptr;
+	};
+}

@@ -6,9 +6,9 @@
 
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
-#include "HodEngine/Game/Components/CameraComponent.hpp"
 #include "HodEngine/Game/WeakComponent.hpp"
 
+#include "HodEngine/Core/Math.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 
 #include "HodEngine/Core/Serialization/Serializer.hpp"
@@ -16,23 +16,20 @@
 
 #include "HodEngine/Game/WorldSystem.hpp"
 
-#include <HodEngine/Renderer/FrameResources.hpp>
-#include <HodEngine/Renderer/Renderer.hpp>
-#include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/Window/DisplayManager.hpp>
-#include <HodEngine/Window/PlatformDisplayManager.hpp>
-#include <HodEngine/Window/Window.hpp>
-
-#undef min
-
 namespace hod::inline game
 {
-	// TODO
 	/// @brief
-	void World::DisableDrawJob()
+	/// @param drawnOnMainWindow
+	void World::SetDrawnOnMainWindow(bool drawnOnMainWindow)
 	{
-		FrameSequencer::GetInstance()->RemoveJob(&_drawJob, FrameSequencer::Step::Render);
-		_drawJobEnabled = false;
+		_drawnOnMainWindow = drawnOnMainWindow;
+	}
+
+	/// @brief
+	/// @return
+	bool World::IsDrawnOnMainWindow() const
+	{
+		return _drawnOnMainWindow;
 	}
 
 	void World::SetEditorPlaying(bool editorPlaying)
@@ -73,7 +70,6 @@ namespace hod::inline game
 	/// @param
 	World::World()
 	: _updateJob(this, &World::Update)
-	, _drawJob(this, &World::Draw)
 	, _persistanteScene(DefaultAllocator::GetInstance().New<Scene>())
 	{
 	}
@@ -84,10 +80,6 @@ namespace hod::inline game
 		if (_jobInserted)
 		{
 			FrameSequencer::GetInstance()->RemoveJob(&_updateJob, FrameSequencer::Step::Logic);
-			if (_drawJobEnabled == true)
-			{
-				FrameSequencer::GetInstance()->RemoveJob(&_drawJob, FrameSequencer::Step::Render);
-			}
 		}
 
 		Clear();
@@ -124,7 +116,6 @@ namespace hod::inline game
 		_lastUpdateTimestamp = SystemTime::Now();
 
 		FrameSequencer::GetInstance()->InsertJob(&_updateJob, FrameSequencer::Step::Logic);
-		FrameSequencer::GetInstance()->InsertJob(&_drawJob, FrameSequencer::Step::Render);
 		_jobInserted = true;
 
 		return true;
@@ -257,7 +248,14 @@ namespace hod::inline game
 	/// @param duration
 	void World::DrawDebugLine(const Vector2& start, const Vector2& end, const Color& color, float duration)
 	{
-		_debugDrawer.AddLine(start, end, color, duration);
+		_debugLines.AddLine(start, end, color, duration);
+	}
+
+	/// @brief
+	/// @return
+	DebugLines& World::GetDebugLines()
+	{
+		return _debugLines;
 	}
 
 	/// @brief
@@ -275,7 +273,7 @@ namespace hod::inline game
 
 		if (_editorNextFrame == true)
 		{
-			deltaTime = std::min(deltaTime, 0.016f);
+			deltaTime = Min(deltaTime, 0.016f);
 			_editorNextFrame = false;
 		}
 		//
@@ -305,43 +303,17 @@ namespace hod::inline game
 	}
 
 	/// @brief
-	void World::Draw()
-	{
-		RenderView* renderView = Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
-		renderView->Init();
-		renderView->Prepare(DisplayManager::GetInstance()->GetMainWindow());
-		Draw(*renderView);
-	}
-
-	/// @brief
-	/// @param renderQueue
-	void World::Draw(RenderView& renderView)
-	{
-		if (_editorPlaying == true && _editorPaused == false)
-		{
-			CameraComponent* camera = CameraComponent::_main;
-			if (camera == nullptr)
-			{
-				static CameraComponent builtinCamera;
-				camera = &builtinCamera;
-			}
-			camera->SetupRenderView(renderView);
-		}
-
-		for (Scene* scene : _scenes)
-		{
-			scene->Draw(renderView);
-		}
-		_persistanteScene->Draw(renderView);
-
-		_debugDrawer.Draw(renderView);
-	}
-
-	/// @brief
 	/// @return
 	const Vector<Scene*>& World::GetScenes() const
 	{
 		return _scenes;
+	}
+
+	/// @brief
+	/// @return
+	Scene* World::GetPersistentScene() const
+	{
+		return _persistanteScene;
 	}
 
 	/// @brief

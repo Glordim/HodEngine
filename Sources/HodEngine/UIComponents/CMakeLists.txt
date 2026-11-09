@@ -17,7 +17,7 @@ target_precompile_headers(UIComponents PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAK
 # The Components layer of the UI module (see HodModule.json in UI): the only one that knows Game (the UIComponent, the runtime module's
 # entry point), over the UI library that doesn't
 target_link_libraries(UIComponents
-	PUBLIC UI Renderer Game
+	PUBLIC UI Renderer Game RendererComponents
 )
 
 target_compile_definitions(UIComponents PUBLIC ${HOD_PLATFORM_DEFINE})

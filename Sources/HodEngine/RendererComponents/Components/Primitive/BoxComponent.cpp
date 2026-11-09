@@ -1,0 +1,108 @@
+#include "HodEngine/RendererComponents/Pch.hpp"
+#include "HodEngine/Game/Components/Node2dComponent.hpp"
+#include "HodEngine/RendererComponents/Components/Primitive/BoxComponent.hpp"
+#include "HodEngine/Game/Entity.hpp"
+
+#include <HodEngine/Renderer/P2fT2f.hpp>
+#include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
+#include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Renderer/Material.hpp>
+#include <HodEngine/Renderer/MaterialInstance.hpp>
+#include <HodEngine/Renderer/Sprite.hpp>
+#include <HodEngine/Renderer/SpriteAtlas.hpp>
+#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
+#include <HodEngine/Renderer/Renderer.hpp>
+
+#include "HodEngine/Core/StaticArray.hpp"
+
+namespace hod::inline renderer
+{
+	// 0_____3
+	// |     |
+	// |_____|
+	// 1     2
+
+	static StaticArray<Vector2, 4> _positions = {
+		Vector2(-0.5f, 0.5f),
+		Vector2(-0.5f, -0.5f),
+		Vector2(0.5f, -0.5f),
+		Vector2(0.5f, 0.5f),
+	};
+
+	static StaticArray<Vector2, 4> _uvs = {
+		Vector2(0, 0),
+		Vector2(0, 1),
+		Vector2(1, 1),
+		Vector2(1, 0),
+	};
+
+	static StaticArray<uint16_t, 6> _indices = {
+		0, 1, 3, 3, 1, 2,
+	};
+
+	DESCRIBE_REFLECTED_CLASS(BoxComponent, reflectionDescriptor)
+	{
+		AddPropertyT(reflectionDescriptor, &BoxComponent::_material, "_material", &BoxComponent::SetMaterialInstanceResource);
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	BoxComponent::~BoxComponent() {}
+
+	void BoxComponent::OnConstruct()
+	{
+		std::shared_ptr<MaterialInstanceResource> materialInstanceResource = _material.Lock();
+		if (materialInstanceResource != nullptr)
+		{
+			_materialInstance = materialInstanceResource->GetMaterialInstance();
+		}
+	}
+
+	/// @brief
+	/// @param materialInstance
+	void BoxComponent::SetMaterialInstanceResource(const WeakResource<MaterialInstanceResource>& weakMaterialInstanceResource)
+	{
+		_material = weakMaterialInstanceResource;
+		std::shared_ptr<MaterialInstanceResource> materialInstanceResource = _material.Lock();
+		if (materialInstanceResource != nullptr)
+		{
+			_materialInstance = materialInstanceResource->GetMaterialInstance();
+		}
+		else
+		{
+			_materialInstance = nullptr;
+		}
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	MaterialInstance* BoxComponent::GetMaterialInstance() const
+	{
+		return _materialInstance;
+	}
+
+	//-----------------------------------------------------------------------------
+	//! @brief
+	//-----------------------------------------------------------------------------
+	void BoxComponent::PushRenderCommand(RenderView& renderView)
+	{
+		Entity* entity = GetOwner();
+		if (entity != nullptr)
+		{
+			Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
+			if (node2dComponent != nullptr)
+			{
+				renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(
+					_positions.Data(), _uvs.Data(), nullptr, 4, _indices.Data(), (uint32_t)_indices.Size(), node2dComponent->GetWorldMatrix(), _materialInstance,
+					node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
+			}
+		}
+	}
+
+	Rect BoxComponent::GetBoundingBox() const
+	{
+		return Rect();
+	}
+}

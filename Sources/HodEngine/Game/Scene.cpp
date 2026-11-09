@@ -10,7 +10,6 @@
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Game/Components/NodeComponent.hpp"
-#include "HodEngine/Game/Components/RendererComponent.hpp"
 #include "HodEngine/Game/WeakComponent.hpp"
 
 #include "HodEngine/Math/Color.hpp"
@@ -259,24 +258,6 @@ namespace hod::inline game
 			for (Component* component : entityPair.second->GetComponents())
 			{
 				component->OnFixedUpdate();
-			}
-		}
-	}
-
-	/// @brief
-	/// @param renderQueue
-	void Scene::Draw(RenderView& renderView)
-	{
-		for (const auto& pair : _entities)
-		{
-			Entity* entity = pair.second;
-			if (entity->IsActiveInHierarchy() == true)
-			{
-				RendererComponent* rendererComponent = entity->GetComponent<RendererComponent>();
-				if (rendererComponent != nullptr)
-				{
-					rendererComponent->PushRenderCommand(renderView);
-				}
 			}
 		}
 	}

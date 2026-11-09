@@ -38,7 +38,7 @@ target_include_directories(RendererEditor PUBLIC
 target_precompile_headers(RendererEditor PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 target_link_libraries(RendererEditor
-	PUBLIC Renderer Text Editor CoreEditor
+	PUBLIC Renderer RendererComponents Text Editor CoreEditor GameEditor
 	PRIVATE Stb::Stb
 )
 

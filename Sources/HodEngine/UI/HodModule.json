@@ -4,7 +4,8 @@
 	"_runtimeLibrary": "UIComponents",
 	"_editorLibrary": "UIEditor",
 	"_dependencies": [
-		"Game"
+		"Game",
+		"Renderer"
 	],
 	"_provides": [
 		"UI"

@@ -2,7 +2,7 @@
 #include "HodEngine/Game/Export.hpp"
 
 #include "HodEngine/Game/Entity.hpp"
-#include "HodEngine/Game/DebugDrawer.hpp"
+#include "HodEngine/Game/DebugLines.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
 #include <memory>
@@ -15,12 +15,10 @@
 #include <HodEngine/Core/Time/SystemTime.hpp>
 
 namespace hod::inline math { struct Color; class Vector2; }
-namespace hod::inline renderer { class RenderView; }
 
 namespace hod::inline game
 {
 	class Scene;
-	class RendererComponent;
 	class WorldSystem;
 	struct WorldSystemType;
 
@@ -37,9 +35,12 @@ namespace hod::inline game
 		bool						Init();
 		void						Clear();
 
-// todo
-		void						DisableDrawJob();
+		/// @brief Drawn each frame on the main window by what renders the worlds (the Renderer's module, see RendererWorldSystem), the
+		/// default; false for the worlds drawn by their owner (the editor's tabs, in their viewports)
+		void						SetDrawnOnMainWindow(bool drawnOnMainWindow);
+		bool						IsDrawnOnMainWindow() const;
 
+// todo
 		void						SetEditorPlaying(bool editorPlaying);
 		bool						GetEditorPlaying() const;
 
@@ -53,7 +54,6 @@ namespace hod::inline game
 		void						ProcessActication();
 
 		void						Update();
-		void						Draw();
 
 		Scene*						CreateScene();
 		void						DestroyScene(Scene* pScene);
@@ -63,6 +63,9 @@ namespace hod::inline game
 
 		const Vector<Scene*>&		GetScenes() const;
 
+		/// @brief Of the entities created in the world itself (see CreateEntity), never null
+		Scene*						GetPersistentScene() const;
+
 		Entity*						CreateEntity(const std::string_view& name = "");
 		void						DestroyEntity(Entity* entity);
 		
@@ -70,10 +73,9 @@ namespace hod::inline game
 
 //			bool						Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, RaycastResult& result, bool drawDebug, const Color& debugColor, float debugDuration);
 
-		void						Draw(RenderView& renderView);
-
 		// todo #ifndef retail ?
 		void						DrawDebugLine(const Vector2& start, const Vector2& end, const Color& color, float duration = 0.0f);
+		DebugLines&					GetDebugLines();
 		//
 
 		/// @brief The instance of a WorldSystemType registered by a module, nullptr if the module isn't there
@@ -95,13 +97,12 @@ namespace hod::inline game
 		bool						_editorNextFrame = false;
 ///
 		MemberFunctionJob<World>	_updateJob;
-		MemberFunctionJob<World>	_drawJob;
-		bool						_drawJobEnabled = true;
+		bool						_drawnOnMainWindow = true;
 
 		Vector<Scene*>				_scenes;
 		Scene*						_persistanteScene = nullptr;
 
-		DebugDrawer					_debugDrawer;
+		DebugLines					_debugLines;
 
 		SystemTime::TimeStamp		_lastUpdateTimestamp = SystemTime::INVALID_TIMESTAMP;
 

@@ -10,14 +10,8 @@
 #include <memory>
 #include <unordered_map>
 
-namespace hod::inline renderer
-{
-	class RenderView;
-}
-
 namespace hod::inline game
 {
-	class RendererComponent;
 	class PrefabResource;
 	class Entity;
 	class Component;
@@ -59,7 +53,6 @@ namespace hod::inline game
 		void ProcessActivation();
 		void Update(float deltaTime);
 		void FixedUpdate();
-		void Draw(RenderView& renderView);
 
 		void SetNextLocalId(uint64_t nextLocalId)
 		{

@@ -32,7 +32,7 @@ namespace hod::inline editor
 
 		_editingWorld = DefaultAllocator::GetInstance().New<game::World>();
 		_editingWorld->Init();
-		_editingWorld->DisableDrawJob();
+		_editingWorld->SetDrawnOnMainWindow(false); // Drawn by its viewports
 		_editingWorld->AddScene(_scene);
 		_editingWorld->ProcessActication();
 		_world = _editingWorld;
@@ -130,7 +130,7 @@ namespace hod::inline editor
 		_playing = true;
 
 		_playingWorld = _editingWorld->Clone();
-		_playingWorld->DisableDrawJob();
+		_playingWorld->SetDrawnOnMainWindow(false); // Drawn by its viewports
 		_world = _playingWorld;
 
 		_playingWorld->SetEditorPlaying(_playing);

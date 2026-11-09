@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/UIComponents/Export.hpp"
 
-#include "HodEngine/Game/Components/RendererComponent.hpp"
+#include "HodEngine/RendererComponents/Components/RendererComponent.hpp"
 
 #include <HodEngine/GameSystems/Resource/WeakResource.hpp>
 #include <HodEngine/UI/Canvas.hpp>

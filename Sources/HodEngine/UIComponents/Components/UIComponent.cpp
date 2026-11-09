@@ -1,7 +1,7 @@
 #include "HodEngine/UIComponents/Pch.hpp"
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/UIComponents/Components/UIComponent.hpp"
-#include "HodEngine/Game/Components/CameraComponent.hpp"
+#include "HodEngine/RendererComponents/Components/CameraComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
 #include "HodEngine/Game/Entity.hpp"
 #include <HodEngine/Game/World.hpp>
@@ -213,7 +213,7 @@ namespace hod::inline ui
 			return true;
 		}
 
-		// Through the camera the world is drawn with (see World::Draw), then the canvas' placement
+		// Through the camera the world is drawn with (see RendererWorldSystem::Draw), then the canvas' placement
 		CameraComponent* camera = CameraComponent::_main;
 		if (camera == nullptr)
 		{

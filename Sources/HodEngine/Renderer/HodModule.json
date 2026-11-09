@@ -1,9 +1,10 @@
 {
 	"_name": "Renderer",
-	"_description": "Textures, fonts, materials",
+	"_description": "Textures, fonts, materials, cameras, the renderer components and the worlds' render",
+	"_runtimeLibrary": "RendererComponents",
 	"_editorLibrary": "RendererEditor",
 	"_dependencies": [
-		"Core"
+		"Game"
 	],
 	"_required": true
 }

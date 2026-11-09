@@ -11,7 +11,6 @@
 #include <HodEngine/ImGui/Widgets.hpp>
 
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
-#include "HodEngine/Game/Components/RendererComponent.hpp"
 #include <HodEngine/Math/Color.hpp>
 #include <HodEngine/Math/Vector4.hpp>
 #include <HodEngine/Math/Rect.hpp>
@@ -36,6 +35,7 @@
 #include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
 
 #include "HodEngine/GameEditor/EntityBasedTabEditor/ViewportDebugView.hpp"
+#include "HodEngine/GameEditor/EntityBasedTabEditor/ViewportWorldRenderer.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 #include <HodEngine/ImGui/ImGuiManager.hpp>
@@ -455,7 +455,7 @@ namespace hod::inline editor
 		}
 		else
 		{
-			world->Draw(renderView);
+			ViewportWorldRenderer::Draw(renderView, *world);
 		}
 	}
 
