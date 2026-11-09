@@ -9,6 +9,7 @@
 #include <box2d/box2d.h>
 
 #include <algorithm>
+#include <cmath>
 #include <cstdlib>
 
 #include "HodEngine/Math/Math.hpp"
@@ -165,10 +166,53 @@ namespace hod::inline physics
 	{
 		// todo scale
 		(void)scale;
+
+		// Given each fixed step (the node's transform, the body's own most of the time): only a real move teleports it, and wakes it with
+		// what touches it (a body put to sleep, or one asleep on it, wouldn't see it otherwise). The tolerances absorb the round trip through
+		// the node (degrees, Box2D's approximated angles)
+		b2Transform current = b2Body_GetTransform(_b2BodyId);
+		float       angleDelta = std::remainder(rotation - RadianToDegree(b2Rot_GetAngle(current.q)), 360.0f);
+		if (std::abs(position.GetX() - current.p.x) < 1e-4f && std::abs(position.GetY() - current.p.y) < 1e-4f && std::abs(angleDelta) < 0.05f)
+		{
+			return;
+		}
+
 		b2Body_SetTransform(_b2BodyId, {position.GetX(), position.GetY()}, b2MakeRot(DegreeToRadian(rotation)));
 		if (b2Body_IsValid(_positionLockBodyId))
 		{
 			b2Body_SetTransform(_positionLockBodyId, {position.GetX(), position.GetY()}, b2Rot_identity); // the lock follows
+		}
+
+		WakeUpWithContacts();
+	}
+
+	/// @brief
+	void Box2dBody::WakeUpWithContacts()
+	{
+		if (b2Body_GetType(_b2BodyId) != b2_staticBody)
+		{
+			b2Body_SetAwake(_b2BodyId, true);
+		}
+
+		int contactCapacity = b2Body_GetContactCapacity(_b2BodyId);
+		if (contactCapacity == 0)
+		{
+			return;
+		}
+
+		Vector<b2ContactData> contacts;
+		contacts.Resize(static_cast<uint32_t>(contactCapacity));
+		int contactCount = b2Body_GetContactData(_b2BodyId, contacts.Data(), contactCapacity);
+		for (int index = 0; index < contactCount; ++index)
+		{
+			for (b2ShapeId shapeId : {contacts[index].shapeIdA, contacts[index].shapeIdB})
+			{
+				b2BodyId bodyId = b2Shape_GetBody(shapeId);
+				if (B2_ID_EQUALS(bodyId, _b2BodyId) == false && b2Body_GetType(bodyId) != b2_staticBody)
+				{
+					b2Body_SetAwake(bodyId, true);
+				}
+			}
 		}
 	}
 

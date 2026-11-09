@@ -59,6 +59,9 @@ namespace hod::inline physics
 
 		void				DestroyPositionLock();
 
+		/// @brief It and the bodies touching it (moved, they must react)
+		void				WakeUpWithContacts();
+
 	private:
 
 		b2BodyId			_b2BodyId = b2_nullBodyId;
