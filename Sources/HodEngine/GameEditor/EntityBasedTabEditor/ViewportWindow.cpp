@@ -3,6 +3,7 @@
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Gizmos/ViewportGrid.hpp"
+#include <HodEngine/Core/Math.hpp>
 #include "HodEngine/GameEditor/EntityBasedTabEditor/EntityEditorTab.hpp"
 #include "HodEngine/GameEditor/PrefabEditor/PrefabAssetType.hpp"
 #include "HodEngine/GameEditor/EntityBasedTabEditor/ViewportWindow.hpp"
@@ -225,8 +226,39 @@ namespace hod::inline editor
 		world->AddScene(tab->_scene);
 		*/
 
+		// The camera (see FramingCamera): pixels per world unit at zoom 1, the view showing DefaultCameraSize units above and below its center
+		float unitScale = Max(ImGui::GetContentRegionAvail().y, 2.0f) / (2.0f * DefaultCameraSize);
+
+		// F (here or in the hierarchy) centers the view on the selected entity (its zoom kept), or with nothing selected goes back to the
+		// origin at zoom 1. Consumed even while playing: a request made then isn't for later.
+		bool frameSelection = GetOwner<EntityEditorTab>()->ConsumeFrameSelectionRequest();
+
 		if (GetOwner<EntityEditorTab>()->IsPlaying() == false || GetOwner<EntityEditorTab>()->IsPaused() == true)
 		{
+			if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_F, false) && ImGui::GetIO().WantTextInput == false)
+			{
+				frameSelection = true;
+			}
+			if (frameSelection)
+			{
+				Entity* selection = GetOwner<EntityEditorTab>()->GetEntitySelection();
+				Node2dComponent* node2d = selection != nullptr ? selection->GetComponent<Node2dComponent>() : nullptr;
+				if (node2d != nullptr)
+				{
+					_camera.AnimateTo(node2d->GetWorldMatrix().GetTranslation(), _camera.GetZoom());
+				}
+				else if (selection == nullptr)
+				{
+					_camera.AnimateTo(Vector2::Zero, 1.0f);
+				}
+			}
+
+			// The wheel zooms (eased), the middle button pans: by the mouse's move on screen, whatever the zoom
+			if (ImGui::IsWindowHovered() && _mouseOverToolbar == false && ImGui::GetIO().MouseWheel != 0.0f)
+			{
+				_camera.ZoomBy(ImGui::GetIO().MouseWheel);
+			}
+
 			if (ImGui::IsWindowFocused() || ImGui::IsWindowHovered())
 			{
 				if (ImGui::IsKeyPressed(ImGuiKey_T))
@@ -242,16 +274,11 @@ namespace hod::inline editor
 					//_gizmoOperation = ImGuizmo::OPERATION::SCALE;
 				}
 
-				if (ImGui::GetIO().MouseWheel != 0.0f && _mouseOverToolbar == false)
-				{
-					_size -= ImGui::GetIO().MouseWheel * 0.1f * std::abs(_size);
-				}
-
 				if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] == true && _mouseOverToolbar == false && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
 				{
-					Vector2 movement(ImGui::GetIO().MouseDelta.x * 0.01f, -ImGui::GetIO().MouseDelta.y * 0.01f);
-					_cameraPosition.SetX(_cameraPosition.GetX() - movement.GetX());
-					_cameraPosition.SetY(_cameraPosition.GetY() - movement.GetY());
+					// Screen space is Y-down, world space Y-up
+					float scale = unitScale * _camera.GetZoom();
+					_camera.Pan(Vector2(-ImGui::GetIO().MouseDelta.x / scale, ImGui::GetIO().MouseDelta.y / scale));
 				}
 
 				if (ImGui::GetIO().MouseClicked[ImGuiMouseButton_Left] == true && ImGui::IsWindowHovered() && _mouseOverToolbar == false)
@@ -330,8 +357,11 @@ namespace hod::inline editor
 
 				float aspect = (float)resolutionWidth / (float)resolutionHeight;
 
-				_projection = Matrix4::OrthogonalProjection(-_size * aspect, _size * aspect, -_size, _size, -1024, 1024);
-				_view = Matrix4::Translation(_cameraPosition);
+				_camera.Update(ImGui::GetIO().DeltaTime);
+				float size = GetCameraSize();
+
+				_projection = Matrix4::OrthogonalProjection(-size * aspect, size * aspect, -size, size, -1024, 1024);
+				_view = Matrix4::Translation(_camera.GetPosition());
 
 				renderView->SetupCamera(_projection, _view, viewport);
 
@@ -340,15 +370,15 @@ namespace hod::inline editor
 				// Pushed before the world: the content of the lowest order (ZOrder 0) is then drawn over it
 				if (_drawGrid)
 				{
-					float halfHeight = _size;
-					float halfWidth = _size * aspect;
+					float halfHeight = size;
+					float halfWidth = size * aspect;
 
 					ViewportGrid grid;
 					grid._cellSize = _gridCellSize;
-					grid._viewCenter = _cameraPosition;
+					grid._viewCenter = _camera.GetPosition();
 					grid._viewHalfSize = Vector2(halfWidth, halfHeight);
-					grid._pixelsPerUnit = (float)resolutionHeight / (2.0f * _size);
-					grid._zoom = DefaultCameraSize / _size;
+					grid._pixelsPerUnit = (float)resolutionHeight / (2.0f * size);
+					grid._zoom = _camera.GetZoom();
 					grid._backgroundColor = renderView->GetClearColor();
 					grid.Draw(*renderView);
 				}
@@ -508,7 +538,7 @@ namespace hod::inline editor
 
 	float ViewportWindow::GetCameraSize() const
 	{
-		return _size;
+		return DefaultCameraSize / _camera.GetZoom();
 	}
 
 	RenderView* ViewportWindow::GetRenderView()

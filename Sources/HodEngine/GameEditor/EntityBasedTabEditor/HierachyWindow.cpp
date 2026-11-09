@@ -38,6 +38,13 @@ namespace hod::inline editor
 	void HierachyWindow::DrawContent()
 	{
 		game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
+
+		// F centers the viewport on the selection, as in the viewport itself
+		if (ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGuiKey_F, false) && ImGui::GetIO().WantTextInput == false)
+		{
+			GetOwner<EntityEditorTab>()->RequestFrameSelection();
+		}
+
 		for (Scene* scene : world->GetScenes())
 		{
 			ImGui::PushID(scene);

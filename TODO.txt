@@ -58,3 +58,10 @@ So that what needs a module not loaded (disabled, or not loaded yet) can name it
 - Project templates, offered in NewProjectForm (a template can check the modules it needs)
 - Long lists (components) not written by hand: generate that part of Modules/<Name>.json at build time (what the module registers, or the reflection)
 - _versionControlSystems: nothing checks the names match the providers' GetName() (a TestsEditor test loading VersionControlEditor)
+
+---------
+
+# Editor Scene/Prefab: F frames the selection without its size
+
+- F only centers the view on the selected entities, keeping the zoom: an entity has no bounds
+	- Bounds per entity (its renderers, colliders... given by the component drawers?) to fit the zoom on it, as the UI editor does with its nodes

@@ -40,6 +40,11 @@ namespace hod::inline editor
 		void			SetEntitySelection(Entity* selection);
 		Entity*	GetEntitySelection() const;
 
+		// F, pressed in the hierarchy or the viewport: the viewport centers its view on the selection
+		void			RequestFrameSelection();
+		// @return true if a framing was requested since the last call
+		bool			ConsumeFrameSelectionRequest();
+
 	protected:
 	
 		void DrawMenuBar() override;
@@ -57,5 +62,6 @@ namespace hod::inline editor
 		bool						_paused = false;
 
 		WeakPtr<Entity>		_entitySelection;
+		bool				_frameSelectionRequested = false;
 	};
 }

@@ -219,4 +219,19 @@ namespace hod::inline editor
 	{
 		return _entitySelection.Get();
 	}
+
+	/// @brief
+	void EntityEditorTab::RequestFrameSelection()
+	{
+		_frameSelectionRequested = true;
+	}
+
+	/// @brief
+	/// @return
+	bool EntityEditorTab::ConsumeFrameSelectionRequest()
+	{
+		bool requested = _frameSelectionRequested;
+		_frameSelectionRequested = false;
+		return requested;
+	}
 }

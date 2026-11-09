@@ -2,6 +2,7 @@
 #include "HodEngine/GameEditor/Export.hpp"
 
 #include "HodEngine/Editor/EditorTabWindow.hpp"
+#include "HodEngine/Editor/Framing.hpp"
 #include "HodEngine/Editor/Gizmos/GizmoViewport.hpp"
 
 #include <HodEngine/Math/Matrix4.hpp>
@@ -63,11 +64,11 @@ namespace hod::inline editor
 
 		Vector2 _playRatio = Vector2(16.0f, 9.0f);
 
-		// The camera: _size is half the view's height in world units
+		// The camera, panned and zoomed as the UI prefab editor's (eased zoom, pan following the mouse at any zoom). At zoom 1 the view shows
+		// DefaultCameraSize world units above and below its center (GetCameraSize: at the current zoom)
 		static constexpr float DefaultCameraSize = 5.0f;
 
-		Vector2 _cameraPosition = Vector2::Zero;
-		float   _size = DefaultCameraSize;
+		FramingCamera _camera;
 
 		bool _debugPicker = false;
 
