@@ -1,6 +1,8 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
+#include <cstdint>
+
 namespace hod::inline math
 {
 	class Matrix4;
@@ -15,11 +17,14 @@ namespace hod::inline renderer
 
 namespace hod::inline editor
 {
-	/// @brief What Gizmos (and the OnDrawGizmo of the component drawers) needs of a viewport to draw its handles and move them with the mouse (picking):
+	/// @brief What the gizmos (the OnDrawGizmo of the component drawers, Handles) need of a viewport to draw and move their handles with the mouse (picking):
 	/// implemented by the viewports that show gizmos
 	class HOD_EDITOR_API GizmoViewport
 	{
 	public:
+		/// @brief Rendering order of the editor overlays (outlines, frames...): over the content, under the handles (Handle::_sortingOrder)
+		static constexpr uint32_t OverlayOrder = 0xFFFFFFFF - 1;
+
 		virtual ~GizmoViewport() = default;
 
 		virtual RenderView*           GetRenderView() = 0;

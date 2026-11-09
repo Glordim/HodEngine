@@ -4,7 +4,6 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/Editor/Gizmos/Gizmos.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/ShapeDrawer.hpp>
 
@@ -38,7 +37,7 @@ namespace hod::inline editor
 			{
 				Rect bb = textureRenderer->GetBoundingBox();
 
-				ShapeDrawer::Rect(*viewport.GetRenderView(), node2D->GetWorldMatrix(), Vector2::Zero, bb._size, Color(0.75f, 0.75f, 0.75f, 1.0f), Gizmos::OverlayOrder);
+				ShapeDrawer::Rect(*viewport.GetRenderView(), node2D->GetWorldMatrix(), Vector2::Zero, bb._size, Color(0.75f, 0.75f, 0.75f, 1.0f), GizmoViewport::OverlayOrder);
 			}
 		}
 		return false;

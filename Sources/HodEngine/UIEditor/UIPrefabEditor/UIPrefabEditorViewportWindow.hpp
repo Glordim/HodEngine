@@ -31,7 +31,7 @@ namespace hod::inline renderer
 namespace hod::inline editor
 {
 	/// @brief RT-rendered 2D preview of a UIPrefabEditorTab's ui::Node tree: draws the canvas' content as in game
-	/// (ui::Canvas::PushRenderCommand) into an offscreen render target, then, over it and via Gizmos, each node's
+	/// (ui::Canvas::PushRenderCommand) into an offscreen render target, then, over it and via ShapeDrawer, each node's
 	/// computed rect as an outline (the selected ones in orange), the active node's spacing and the manipulation gizmo (the selected
 	/// node's, or with several selected the box around them, moving them together, see GetGizmoNodes), and blits that texture into the panel. Click-to-select is done in canvas space
 	/// against the same node bounds, Ctrl+click (or Shift+click) adding to the selection or removing from it.

@@ -3,7 +3,7 @@
 #include "HodEngine/UIEditor/UIPrefabEditor/UIPrefabEditorTab.hpp"
 
 #include "HodEngine/Editor/DrawHelper.hpp"
-#include "HodEngine/Editor/Gizmos/Gizmos.hpp"
+#include "HodEngine/Editor/Gizmos/GizmoViewport.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
@@ -409,8 +409,6 @@ namespace hod::inline editor
 		}
 		DrawPreviewFrames(*renderView);
 
-		//Gizmos::Rect(Matrix4::Identity, canvasSize, Color(90.0f / 255.0f, 90.0f / 255.0f, 90.0f / 255.0f, 1.0f), *renderView);
-
 		// The actual content first: the outlines/gizmos below are pushed with a later (or the maximum)
 		// rendering order, so they stay on top of it.
 		canvas.PushRenderCommand(*renderView, RenderView::RenderQueueType::World);
@@ -740,7 +738,7 @@ namespace hod::inline editor
 	/// drawn afterwards over the blitted image, see DrawPreviewLabels.
 	void UIPrefabEditorViewportWindow::DrawPreviewFrames(RenderView& renderView)
 	{
-		ShapeDrawer::Rect(renderView, Matrix4::Identity, Vector2::Zero, GetDeviceFrameSize(), Color(0.85f, 0.85f, 0.85f, 1.0f), Gizmos::OverlayOrder);
+		ShapeDrawer::Rect(renderView, Matrix4::Identity, Vector2::Zero, GetDeviceFrameSize(), Color(0.85f, 0.85f, 0.85f, 1.0f), GizmoViewport::OverlayOrder);
 	}
 
 	/// @brief Labels the frame of DrawPreviewFrames with the device's name and resolution, above its top-left corner.
@@ -925,7 +923,7 @@ namespace hod::inline editor
 	{
 		if (hitNode != nullptr)
 		{
-			ShapeDrawer::Rect(renderView, hitNode->ComputeCanvasMatrix(), Vector2::Zero, hitNode->GetSize(), Color(1.0f, 1.0f, 1.0f, 0.6f), Gizmos::OverlayOrder);
+			ShapeDrawer::Rect(renderView, hitNode->ComputeCanvasMatrix(), Vector2::Zero, hitNode->GetSize(), Color(1.0f, 1.0f, 1.0f, 0.6f), GizmoViewport::OverlayOrder);
 		}
 
 		auto drawInteractive = [&](ui::Node* node)
@@ -941,7 +939,7 @@ namespace hod::inline editor
 					case ui::Selectable::State::Disabled: color = Color(0.5f, 0.5f, 0.5f, 1.0f); break;
 				}
 			}
-			ShapeDrawer::Rect(renderView, node->ComputeCanvasMatrix(), Vector2::Zero, node->GetSize(), color, Gizmos::OverlayOrder);
+			ShapeDrawer::Rect(renderView, node->ComputeCanvasMatrix(), Vector2::Zero, node->GetSize(), color, GizmoViewport::OverlayOrder);
 		};
 
 		if (canvas.GetHoveredNode() != nullptr)
@@ -964,7 +962,7 @@ namespace hod::inline editor
 		bool  isSelected = tab->IsSelected(node);
 		Color color = isSelected ? Color(1.0f, 165.0f / 255.0f, 0.0f, 1.0f) : Color(120.0f / 255.0f, 170.0f / 255.0f, 1.0f, 180.0f / 255.0f);
 
-		ShapeDrawer::Rect(renderView, Matrix4::Translation(canvasPosition), Vector2::Zero, size, color, Gizmos::OverlayOrder);
+		ShapeDrawer::Rect(renderView, Matrix4::Translation(canvasPosition), Vector2::Zero, size, color, GizmoViewport::OverlayOrder);
 
 		for (ui::Node* child : node->GetChildren())
 		{
@@ -979,7 +977,7 @@ namespace hod::inline editor
 	/// @param renderView
 	void UIPrefabEditorViewportWindow::DrawSpacing(ui::Node* node, RenderView& renderView)
 	{
-		constexpr uint32_t LayoutFrameOrder = Gizmos::OverlayOrder - 1; // under the outlines
+		constexpr uint32_t LayoutFrameOrder = GizmoViewport::OverlayOrder - 1; // under the outlines
 
 		Rect rect;
 		rect._size = node->GetSize();
@@ -1157,7 +1155,7 @@ namespace hod::inline editor
 			Vector2 boundsCenter;
 			Vector2 boundsSize;
 			ComputeCanvasBounds(nodes, boundsCenter, boundsSize);
-			ShapeDrawer::Rect(renderView, Matrix4::Translation(boundsCenter), Vector2::Zero, boundsSize, isActive(GizmoHandle::Move) ? handleHighlightColor : handleColor, Gizmos::OverlayOrder);
+			ShapeDrawer::Rect(renderView, Matrix4::Translation(boundsCenter), Vector2::Zero, boundsSize, isActive(GizmoHandle::Move) ? handleHighlightColor : handleColor, GizmoViewport::OverlayOrder);
 			return;
 		}
 
@@ -1180,24 +1178,24 @@ namespace hod::inline editor
 
 		if (isActive(GizmoHandle::Top))
 		{
-			ShapeDrawer::Line(renderView, Matrix4::Identity, topLeft, topRight, handleHighlightColor, Gizmos::OverlayOrder);
+			ShapeDrawer::Line(renderView, Matrix4::Identity, topLeft, topRight, handleHighlightColor, GizmoViewport::OverlayOrder);
 		}
 		if (isActive(GizmoHandle::Bottom))
 		{
-			ShapeDrawer::Line(renderView, Matrix4::Identity, bottomLeft, bottomRight, handleHighlightColor, Gizmos::OverlayOrder);
+			ShapeDrawer::Line(renderView, Matrix4::Identity, bottomLeft, bottomRight, handleHighlightColor, GizmoViewport::OverlayOrder);
 		}
 		if (isActive(GizmoHandle::Left))
 		{
-			ShapeDrawer::Line(renderView, Matrix4::Identity, topLeft, bottomLeft, handleHighlightColor, Gizmos::OverlayOrder);
+			ShapeDrawer::Line(renderView, Matrix4::Identity, topLeft, bottomLeft, handleHighlightColor, GizmoViewport::OverlayOrder);
 		}
 		if (isActive(GizmoHandle::Right))
 		{
-			ShapeDrawer::Line(renderView, Matrix4::Identity, topRight, bottomRight, handleHighlightColor, Gizmos::OverlayOrder);
+			ShapeDrawer::Line(renderView, Matrix4::Identity, topRight, bottomRight, handleHighlightColor, GizmoViewport::OverlayOrder);
 		}
 	}
 
 	/// @brief CPU hit-test of the gizmo handles against a canvas-space mouse position (this
-	/// viewport has no RHI picking texture, unlike ViewportWindow/Gizmos::FreeMoveRect). Corners
+	/// viewport has no RHI picking texture, unlike ViewportWindow/Handles::FreeMoveRect). Corners
 	/// are tested first so their (small) area takes priority over the edge bands that reach them.
 	/// With several nodes: Move over any of them (not the gaps of their box, where a click selects what is there).
 	/// @param nodes see GetGizmoNodes

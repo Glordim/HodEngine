@@ -13,7 +13,7 @@ namespace hod::inline renderer
 	class ShapeList;
 
 	/// @brief Simple 2d shapes of one color (outlines and fills) pushed into a RenderView: the debug draw of the engine, usable everywhere (game, editor).
-	/// Drawing only: the interactive handles of the editor are editor::Gizmos, built on it.
+	/// Drawing only: the interactive handles of the editor are editor::Handles, built on it.
 	/// The points are in the space of matrix (Matrix4::Identity: world space), the outlines are 1 pixel wide, the color is in the vertices (one shared material per
 	/// topology, no MaterialInstance per call), the visualization mode (wireframe...) is ignored.
 	/// order: rendering order in the RenderView, higher is drawn later (on top), the commands of the same order are drawn in the order they were pushed.

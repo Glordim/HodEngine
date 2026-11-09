@@ -13,6 +13,7 @@ namespace hod::inline editor
 {
 	class GizmoViewport;
 
+	/// @brief The state of a handle, kept from frame to frame by its owner (Handles::GenerateHandle once, then a Handles::FreeMove* each frame)
 	struct HOD_EDITOR_API Handle
 	{
 		uint32_t	_pickingId = 0;
@@ -23,18 +24,14 @@ namespace hod::inline editor
 		Vector2		_initialPosition;
 		Vector2		_moveOffset;
 		Vector2		_delta;
-		uint32_t	_sortingOrder = std::numeric_limits<uint32_t>::max();
+		uint32_t	_sortingOrder = std::numeric_limits<uint32_t>::max(); // Over the overlays (GizmoViewport::OverlayOrder)
 	};
 
 	/// @brief The interactive handles of the editor viewports (picking, hover, drag, cancel with Escape), drawn with renderer::ShapeDrawer.
-	/// What only shows something (outlines, frames, grids) uses ShapeDrawer directly, with OverlayOrder to stay over the content.
-	class HOD_EDITOR_API Gizmos
+	/// What only shows something (outlines, frames, grids) uses ShapeDrawer directly, with GizmoViewport::OverlayOrder to stay over the content.
+	/// With them, the OnDrawGizmo of the component drawers make the gizmos: what an object shows in the editor viewports (drawing + handles).
+	class HOD_EDITOR_API Handles
 	{
-	public:
-
-		/// @brief Rendering order of the editor overlays (outlines...): over the content, under the handles (Handle::_sortingOrder)
-		static constexpr uint32_t OverlayOrder = std::numeric_limits<uint32_t>::max() - 1;
-
 	public:
 
 		static Handle 	GenerateHandle();

@@ -1,5 +1,5 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/Gizmos/Gizmos.hpp"
+#include "HodEngine/Editor/Gizmos/Handles.hpp"
 #include "HodEngine/Editor/Gizmos/GizmoViewport.hpp"
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/Math/Vector4.hpp>
@@ -12,19 +12,19 @@
 
 namespace hod::inline editor
 {
-	Handle Gizmos::GenerateHandle()
+	Handle Handles::GenerateHandle()
 	{
 		Handle handle;
 		handle._pickingId = PickingManager::GetInstance()->GenerateId();
 		return handle;
 	}
 
-	float Gizmos::GetHandleSize(float Size, GizmoViewport& viewport)
+	float Handles::GetHandleSize(float Size, GizmoViewport& viewport)
 	{
 		return Size * viewport.GetCameraSize() * 100.0f;
 	}
 
-	bool Gizmos::FreeMoveBehavior(Handle& handle, GizmoViewport& viewport)
+	bool Handles::FreeMoveBehavior(Handle& handle, GizmoViewport& viewport)
 	{
 		bool changed = false;
 		handle._justPressed = false;
@@ -78,7 +78,7 @@ namespace hod::inline editor
 	/// @param highlightColor
 	/// @param viewport
 	/// @return
-	bool Gizmos::FreeMoveCircle(Handle& handle, const Matrix4& worldMatrix, const Vector2& position, float radius, const Color& color, const Color& highlightColor,
+	bool Handles::FreeMoveCircle(Handle& handle, const Matrix4& worldMatrix, const Vector2& position, float radius, const Color& color, const Color& highlightColor,
 	                            GizmoViewport& viewport)
 	{
 		bool changed = FreeMoveBehavior(handle, viewport);
@@ -87,7 +87,7 @@ namespace hod::inline editor
 		return changed;
 	}
 
-	bool Gizmos::FreeMoveRect(Handle& handle, const Matrix4& worldMatrix, const Vector2& position, const Vector2& size, const Color& color, const Color& highlightColor,
+	bool Handles::FreeMoveRect(Handle& handle, const Matrix4& worldMatrix, const Vector2& position, const Vector2& size, const Color& color, const Color& highlightColor,
 	                          GizmoViewport& viewport)
 	{
 		bool changed = FreeMoveBehavior(handle, viewport);
@@ -96,7 +96,7 @@ namespace hod::inline editor
 		return changed;
 	}
 
-	bool Gizmos::FreeMoveMesh(Handle& handle, const Matrix4& worldMatrix, const Vector2* vertices, uint32_t vertexCount, const Color& color, const Color& highlightColor,
+	bool Handles::FreeMoveMesh(Handle& handle, const Matrix4& worldMatrix, const Vector2* vertices, uint32_t vertexCount, const Color& color, const Color& highlightColor,
 	                          GizmoViewport& viewport)
 	{
 		bool changed = FreeMoveBehavior(handle, viewport);
@@ -109,7 +109,7 @@ namespace hod::inline editor
 	/// @param mousePosition
 	/// @param viewport
 	/// @return
-	Vector2 Gizmos::GetMouseWorldPos(const Vector2& mousePosition, const GizmoViewport& viewport)
+	Vector2 Handles::GetMouseWorldPos(const Vector2& mousePosition, const GizmoViewport& viewport)
 	{
 		float ndcX = (2.0f * mousePosition.GetX()) / viewport.GetPickingRenderTarget()->GetResolution().GetX() - 1.0f;
 		float ndcY = 1.0f - (2.0f * mousePosition.GetY()) / viewport.GetPickingRenderTarget()->GetResolution().GetY();

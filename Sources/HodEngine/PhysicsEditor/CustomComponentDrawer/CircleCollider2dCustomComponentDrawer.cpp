@@ -4,7 +4,6 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/Editor/Gizmos/Gizmos.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/ShapeDrawer.hpp>
 #include <HodEngine/Core/Math.hpp>
@@ -40,7 +39,7 @@ namespace hod::inline editor
 				Vector2 scale = node2D->GetScale();
 
 				ShapeDrawer::Circle(*viewport.GetRenderView(), node2D->GetWorldMatrix(), circleCollider2d->GetOffset() * scale,
-				                    circleCollider2d->GetRadius() * Max(scale.GetX(), scale.GetY()), Color(0.0f, 1.0f, 0.0f, 1.0f), Gizmos::OverlayOrder, 64);
+				                    circleCollider2d->GetRadius() * Max(scale.GetX(), scale.GetY()), Color(0.0f, 1.0f, 0.0f, 1.0f), GizmoViewport::OverlayOrder, 64);
 			}
 		}
 		return false;

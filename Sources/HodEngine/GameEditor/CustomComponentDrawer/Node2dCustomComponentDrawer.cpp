@@ -21,10 +21,10 @@ namespace hod::inline editor
 	/// @brief
 	Node2dCustomComponentDrawer::Node2dCustomComponentDrawer()
 	{
-		_freeMoveHandle = Gizmos::GenerateHandle();
+		_freeMoveHandle = Handles::GenerateHandle();
 
-		_XAxisHandle = Gizmos::GenerateHandle();
-		_YAxisHandle = Gizmos::GenerateHandle();
+		_XAxisHandle = Handles::GenerateHandle();
+		_YAxisHandle = Handles::GenerateHandle();
 	}
 
 	/// @brief
@@ -48,7 +48,7 @@ namespace hod::inline editor
 
 		bool changed = false;
 
-		float           handleSize = Gizmos::GetHandleSize(0.002f, viewport);
+		float           handleSize = Handles::GetHandleSize(0.002f, viewport);
 		constexpr float thickness = 0.05f;
 		constexpr float length = 1.0f;
 		constexpr float headHeight = 0.15f;
@@ -98,12 +98,12 @@ namespace hod::inline editor
 		worldMatrix *= Matrix4::Scale(Vector2(handleSize, handleSize));
 
 		bool interacted = false;
-		interacted |= Gizmos::FreeMoveRect(_freeMoveHandle, worldMatrix, Vector2::One * squareOffset, Vector2::One * squareSize, Color(0.0f, 0.0f, 1.0f, 1.0f),
+		interacted |= Handles::FreeMoveRect(_freeMoveHandle, worldMatrix, Vector2::One * squareOffset, Vector2::One * squareSize, Color(0.0f, 0.0f, 1.0f, 1.0f),
 		                                   Color(0.5f, 0.5f, 1.0f, 1.0f), viewport);
 		interacted |=
-			Gizmos::FreeMoveMesh(_XAxisHandle, worldMatrix, verticesX.Data(), (uint32_t)verticesX.Size(), Color(1.0f, 0.0f, 0.0f, 1.0f), Color(1.0f, 0.5f, 0.5f, 1.0f), viewport);
+			Handles::FreeMoveMesh(_XAxisHandle, worldMatrix, verticesX.Data(), (uint32_t)verticesX.Size(), Color(1.0f, 0.0f, 0.0f, 1.0f), Color(1.0f, 0.5f, 0.5f, 1.0f), viewport);
 		interacted |=
-			Gizmos::FreeMoveMesh(_YAxisHandle, worldMatrix, verticesY.Data(), (uint32_t)verticesY.Size(), Color(0.0f, 1.0f, 0.0f, 1.0f), Color(0.5f, 1.0f, 0.5f, 1.0f), viewport);
+			Handles::FreeMoveMesh(_YAxisHandle, worldMatrix, verticesY.Data(), (uint32_t)verticesY.Size(), Color(0.0f, 1.0f, 0.0f, 1.0f), Color(0.5f, 1.0f, 0.5f, 1.0f), viewport);
 		if (interacted)
 		{
 			if (_freeMoveHandle._justPressed || _XAxisHandle._justPressed || _YAxisHandle._justPressed)

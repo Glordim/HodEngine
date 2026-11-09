@@ -4,7 +4,6 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/Editor/Gizmos/Gizmos.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/ShapeDrawer.hpp>
 
@@ -44,7 +43,7 @@ namespace hod::inline editor
 				Matrix4 localMatrix = Matrix4::Translation(capsuleCollider2d->GetOffset() * scale) * Matrix4::Rotation(capsuleCollider2d->GetRotation());
 
 				ShapeDrawer::Capsule(*viewport.GetRenderView(), worldMatrix * localMatrix, Vector2::Zero, capsuleCollider2d->GetHeight() * scale.GetY(),
-				                     capsuleCollider2d->GetRadius() * scale.GetX(), Color(0.0f, 1.0f, 0.0f, 1.0f), Gizmos::OverlayOrder, 64);
+				                     capsuleCollider2d->GetRadius() * scale.GetX(), Color(0.0f, 1.0f, 0.0f, 1.0f), GizmoViewport::OverlayOrder, 64);
 			}
 		}
 		return false;

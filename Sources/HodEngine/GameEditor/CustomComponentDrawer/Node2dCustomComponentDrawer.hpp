@@ -4,7 +4,7 @@
 #include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawer.hpp"
 #include <HodEngine/Math/Vector2.hpp>
 
-#include "HodEngine/Editor/Gizmos/Gizmos.hpp"
+#include "HodEngine/Editor/Gizmos/Handles.hpp"
 
 namespace hod::inline renderer
 {

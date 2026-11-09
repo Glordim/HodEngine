@@ -4,7 +4,6 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/Editor/Gizmos/Gizmos.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/ShapeDrawer.hpp>
 #include <HodEngine/Core/Math.hpp>
@@ -43,13 +42,13 @@ namespace hod::inline editor
 				for (const MultiShapeCollider2dComponent::BoxShape& boxShape : multiShapeCollider2d->GetBoxShapes())
 				{
 					Matrix4 localMatrix = Matrix4::Translation(boxShape._origin) * Matrix4::Rotation(boxShape._angle);
-					ShapeDrawer::Rect(*viewport.GetRenderView(), node2D->GetWorldMatrix() * localMatrix, Vector2::Zero, boxShape._size, color, Gizmos::OverlayOrder);
+					ShapeDrawer::Rect(*viewport.GetRenderView(), node2D->GetWorldMatrix() * localMatrix, Vector2::Zero, boxShape._size, color, GizmoViewport::OverlayOrder);
 				}
 
 				for (const MultiShapeCollider2dComponent::CircleShape& circleShape : multiShapeCollider2d->GetCircleShapes())
 				{
 					ShapeDrawer::Circle(*viewport.GetRenderView(), node2D->GetWorldMatrix(), circleShape._origin * scale, circleShape._radius * Max(scale.GetX(), scale.GetY()),
-					                    color, Gizmos::OverlayOrder, 64);
+					                    color, GizmoViewport::OverlayOrder, 64);
 				}
 			}
 		}

@@ -4,7 +4,6 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/Editor/Gizmos/Gizmos.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/ShapeDrawer.hpp>
 
@@ -37,7 +36,7 @@ namespace hod::inline editor
 			if (node2D != nullptr)
 			{
 				ShapeDrawer::Line(*viewport.GetRenderView(), node2D->GetWorldMatrix(), edgeCollider2d->GetStart(), edgeCollider2d->GetEnd(), Color(0.0f, 1.0f, 0.0f, 1.0f),
-				                  Gizmos::OverlayOrder);
+				                  GizmoViewport::OverlayOrder);
 			}
 		}
 		return false;

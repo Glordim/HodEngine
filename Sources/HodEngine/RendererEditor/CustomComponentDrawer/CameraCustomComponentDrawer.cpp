@@ -4,7 +4,6 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/Editor/Gizmos/Gizmos.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/ShapeDrawer.hpp>
 
@@ -42,7 +41,7 @@ namespace hod::inline editor
 				float width = 2.0f / projectionMatrix[0][0];
 				float height = 2.0f / projectionMatrix[1][1];
 
-				ShapeDrawer::Rect(*viewport.GetRenderView(), node2D->GetWorldMatrix(), Vector2::Zero, Vector2(width, height), Color(0.8f, 0.8f, 0.8f, 1.0f), Gizmos::OverlayOrder);
+				ShapeDrawer::Rect(*viewport.GetRenderView(), node2D->GetWorldMatrix(), Vector2::Zero, Vector2(width, height), Color(0.8f, 0.8f, 0.8f, 1.0f), GizmoViewport::OverlayOrder);
 			}
 		}
 		return false;
