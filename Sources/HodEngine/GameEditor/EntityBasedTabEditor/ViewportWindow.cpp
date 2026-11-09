@@ -230,7 +230,7 @@ namespace hod::inline editor
 		// The camera (see FramingCamera): pixels per world unit at zoom 1, the view showing DefaultCameraSize units above and below its center
 		float unitScale = Max(ImGui::GetContentRegionAvail().y, 2.0f) / (2.0f * DefaultCameraSize);
 
-		// F (here or in the hierarchy) centers the view on the selected entity (its zoom kept), or with nothing selected goes back to the
+		// F (here or in the hierarchy) centers the view on the selected entities (the zoom kept), or with nothing selected goes back to the
 		// origin at zoom 1. Consumed even while playing: a request made then isn't for later.
 		bool frameSelection = GetOwner<EntityEditorTab>()->ConsumeFrameSelectionRequest();
 
@@ -242,15 +242,48 @@ namespace hod::inline editor
 			}
 			if (frameSelection)
 			{
-				Entity* selection = GetOwner<EntityEditorTab>()->GetEntitySelection();
-				Node2dComponent* node2d = selection != nullptr ? selection->GetComponent<Node2dComponent>() : nullptr;
-				if (node2d != nullptr)
+				// The center of the box around the selected entities' positions (their Node2dComponent's)
+				Vector<Entity*> selection = GetOwner<EntityEditorTab>()->GetSelectedEntities();
+				bool            found = false;
+				Vector2         min;
+				Vector2         max;
+				for (Entity* entity : selection)
 				{
-					_camera.AnimateTo(node2d->GetWorldMatrix().GetTranslation(), _camera.GetZoom());
+					Node2dComponent* node2d = entity->GetComponent<Node2dComponent>();
+					if (node2d == nullptr)
+					{
+						continue;
+					}
+					Vector2 position = node2d->GetWorldMatrix().GetTranslation();
+					min = found ? Vector2(Min(min.GetX(), position.GetX()), Min(min.GetY(), position.GetY())) : position;
+					max = found ? Vector2(Max(max.GetX(), position.GetX()), Max(max.GetY(), position.GetY())) : position;
+					found = true;
 				}
-				else if (selection == nullptr)
+				if (found)
+				{
+					_camera.AnimateTo((min + max) * 0.5f, _camera.GetZoom());
+				}
+				else if (selection.Empty())
 				{
 					_camera.AnimateTo(Vector2::Zero, 1.0f);
+				}
+			}
+
+			// Delete, Ctrl+D and the clipboard's, on the selection, as in the hierarchy. Before the entities are drawn below.
+			if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::GetIO().WantTextInput == false && ImGui::IsAnyItemActive() == false)
+			{
+				EntityEditorTab* tab = GetOwner<EntityEditorTab>();
+				if (ImGui::IsKeyPressed(ImGuiKey_Delete, false))
+				{
+					tab->DeleteEntities(tab->GetSelectedSubtrees());
+				}
+				else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_D))
+				{
+					tab->DuplicateEntities(tab->GetSelectedSubtrees());
+				}
+				else
+				{
+					tab->HandleClipboardShortcuts();
 				}
 			}
 
@@ -293,17 +326,31 @@ namespace hod::inline editor
 						Vector2  mousePosition(mousePos.x, mousePos.y);
 						Color    pickingColor = _pickingRenderTarget->ReadPixel(mousePosition);
 						uint32_t pickingId = PickingManager::ConvertColorToId(pickingColor);
+						// Ctrl or Shift adds the picked entity to the selection, or removes it from it (nothing picked: the selection kept)
+						bool     additive = ImGui::GetIO().KeyCtrl || ImGui::GetIO().KeyShift;
+						EntityEditorTab* tab = GetOwner<EntityEditorTab>();
 						if (pickingId == 0)
 						{
-							GetOwner<EntityEditorTab>()->SetEntitySelection(nullptr);
+							if (additive == false)
+							{
+								tab->SetEntitySelection(nullptr);
+							}
 						}
 						else
 						{
-							game::World*  world = GetOwner<EntityEditorTab>()->GetWorld();
-							Entity* pickedEntity = world->FindEntity((uint64_t)pickingId);
+							// Not an entity: a gizmo's handle, left to it
+							game::World* world = tab->GetWorld();
+							Entity*      pickedEntity = world->FindEntity((uint64_t)pickingId);
 							if (pickedEntity != nullptr)
 							{
-								GetOwner<EntityEditorTab>()->SetEntitySelection(pickedEntity);
+								if (additive)
+								{
+									tab->SetEntitySelected(pickedEntity, tab->IsSelected(pickedEntity) == false);
+								}
+								else
+								{
+									tab->SetEntitySelection(pickedEntity);
+								}
 							}
 						}
 					}
@@ -386,11 +433,18 @@ namespace hod::inline editor
 
 				DrawWorld(*renderView);
 
-				Entity* sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
+				// The gizmos: their handles for the active entity only (a drawer has one set of handles). Its move moves the other selected
+				// entities along (see MoveSelectionAlong).
+				Entity* activeEntity = GetOwner<EntityEditorTab>()->GetEntitySelection();
+				Vector2 activeMove = Vector2::Zero;
 				for (Scene* scene : world->GetScenes())
 				{
 					for (const auto& entityPair : scene->GetEntities())
 					{
+						bool             active = (entityPair.second == activeEntity);
+						Node2dComponent* activeNode2d = active ? entityPair.second->GetComponent<Node2dComponent>() : nullptr;
+						Vector2          activePosition = activeNode2d != nullptr ? activeNode2d->GetWorldMatrix().GetTranslation() : Vector2::Zero;
+
 						for (Component* component : entityPair.second->GetComponents())
 						{
 							if (component->IsEnabledInHierarchy())
@@ -398,14 +452,23 @@ namespace hod::inline editor
 								CustomComponentDrawer* drawer = CustomComponentDrawerRegistry::Find(component->GetReflectionDescriptorV());
 								if (drawer != nullptr)
 								{
-									if (drawer->OnDrawGizmo(component, *this, entityPair.second == sceneSelection))
+									if (drawer->OnDrawGizmo(component, *this, active))
 									{
 										GetOwner()->MarkAsDirty(fmt::format("Edit {}", component->GetReflectionDescriptorV().GetDisplayName()));
 									}
 								}
 							}
 						}
+
+						if (activeNode2d != nullptr)
+						{
+							activeMove = activeNode2d->GetWorldMatrix().GetTranslation() - activePosition;
+						}
 					}
+				}
+				if (activeMove != Vector2::Zero)
+				{
+					MoveSelectionAlong(activeEntity, activeMove);
 				}
 			}
 			else
@@ -494,6 +557,44 @@ namespace hod::inline editor
 			}
 
 			_renderView = nullptr;
+		}
+	}
+
+	/// @brief The active entity was moved by its gizmo: the other selected entities follow, by the same move in world space. Not those
+	/// inside it or holding it (they move with it already, or move it), nor those without a Node2dComponent.
+	/// @param activeEntity
+	/// @param worldMove
+	void ViewportWindow::MoveSelectionAlong(Entity* activeEntity, const Vector2& worldMove)
+	{
+		auto isInside = [](const Entity* entity, const Entity* ancestor)
+		{
+			for (; entity != nullptr; entity = entity->GetParent().Lock())
+			{
+				if (entity == ancestor)
+				{
+					return true;
+				}
+			}
+			return false;
+		};
+
+		for (Entity* entity : GetOwner<EntityEditorTab>()->GetSelectedSubtrees())
+		{
+			if (isInside(entity, activeEntity) || isInside(activeEntity, entity))
+			{
+				continue;
+			}
+			Node2dComponent* node2d = entity->GetComponent<Node2dComponent>();
+			if (node2d == nullptr)
+			{
+				continue;
+			}
+
+			// Its local position giving its new world one, through its parent's matrix (its world one without its own local one)
+			Matrix4 parentMatrix = node2d->GetWorldMatrix() * Matrix4::Inverse(node2d->GetLocalMatrix());
+			Vector2 worldPosition = node2d->GetWorldMatrix().GetTranslation() + worldMove;
+			Vector4 localPosition = Matrix4::Inverse(parentMatrix) * Vector4(worldPosition.GetX(), worldPosition.GetY(), 0.0f, 1.0f);
+			node2d->SetPosition(Vector2(localPosition.GetX(), localPosition.GetY()));
 		}
 	}
 

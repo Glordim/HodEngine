@@ -21,6 +21,11 @@ namespace hod::inline renderer
 	class RenderView;
 }
 
+namespace hod::inline game
+{
+	class Entity;
+}
+
 namespace hod::inline editor
 {
 	/// @brief
@@ -54,6 +59,8 @@ namespace hod::inline editor
 
 		/// @brief The world's render, or the enabled debug view's (see ViewportDebugView)
 		void DrawWorld(RenderView& renderView);
+
+		void MoveSelectionAlong(Entity* activeEntity, const Vector2& worldMove);
 
 		RenderView*   _renderView = nullptr;
 		RenderTarget* _renderTarget = nullptr;

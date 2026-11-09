@@ -5,6 +5,7 @@
 #include "HodEngine/GameEditor/EntityBasedTabEditor/EntityEditorTab.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
+#include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
@@ -21,6 +22,7 @@
 
 #include <HodEngine/Core/Math.hpp>
 
+#include <algorithm>
 #include <cstring>
 
 namespace hod::inline editor
@@ -29,11 +31,6 @@ namespace hod::inline editor
 	{
 		(void)reflectionDescriptor;
 	}
-
-	struct ChangeParentPayload
-	{
-		Vector<std::weak_ptr<Entity>> _entities;
-	};
 
 	/// @brief
 	HierachyWindow::HierachyWindow(EditorTab* editorTab)
@@ -45,17 +42,48 @@ namespace hod::inline editor
 	/// @brief
 	void HierachyWindow::DrawContent()
 	{
-		game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
+		EntityEditorTab* tab = GetOwner<EntityEditorTab>();
+		game::World*     world = tab->GetWorld();
 
 		// F centers the viewport on the selection, as in the viewport itself
 		if (ImGui::IsWindowFocused() && ImGui::IsKeyPressed(ImGuiKey_F, false) && ImGui::GetIO().WantTextInput == false)
 		{
-			GetOwner<EntityEditorTab>()->RequestFrameSelection();
+			tab->RequestFrameSelection();
 		}
+
+		// A newly active entity may sit under collapsed parents (picked in the viewport, pasted...): for that one frame its ancestors are
+		// forced open and it is scrolled into view. Only on a change, the user stays free to collapse them again. Not for the selections
+		// made here (see the end of the multi-selection scope), of entities already in view.
+		Entity* activeEntity = tab->GetEntitySelection();
+		_revealSelection = (activeEntity != nullptr && activeEntity != _lastActiveEntity.Get());
+		_lastActiveEntity = activeEntity;
+
+		// Escape is for a pending cut first
+		ImGuiMultiSelectFlags multiSelectFlags = ImGuiMultiSelectFlags_BoxSelect1d;
+		if (tab->HasCutEntities() == false)
+		{
+			multiSelectFlags |= ImGuiMultiSelectFlags_ClearOnEscape;
+		}
+		// ImGui sees a click in a context menu as a click on the void of the scope (the popup is in this window hierarchy): it would
+		// clear the selection the menu acts on (see AssetBrowserWindow)
+		if (ImGui::IsPopupOpen("", ImGuiPopupFlags_AnyPopupId) == false)
+		{
+			multiSelectFlags |= ImGuiMultiSelectFlags_ClearOnClickVoid;
+		}
+		// The multi-selection always draws ImGui's nav cursor (the keyboard focus outline), which any click moves to the clicked entity, its
+		// arrow included: it would look like the selection of an entity only opened. Only shown while navigating with the keyboard.
+		bool hideNavCursor = (ImGui::GetCurrentContext()->NavCursorVisible == false);
+		if (hideNavCursor)
+		{
+			ImGui::PushStyleColor(ImGuiCol_NavCursor, ImVec4(0.0f, 0.0f, 0.0f, 0.0f));
+		}
+		ImGuiMultiSelectIO* multiSelectIO = ImGui::BeginMultiSelect(multiSelectFlags, static_cast<int>(tab->GetSelectedEntities().Size()), -1);
+		ApplySelectionRequests(multiSelectIO, false);
+		_visibleEntities.Clear();
 
 		// A header per scene, but for a prefab: its root entity, named after it as the scene is, is the whole content (the playing world's
 		// copy of it while playing)
-		bool sceneHeaders = (GetOwner<EntityEditorTab>()->GetRootEntity() == nullptr);
+		bool sceneHeaders = (tab->GetRootEntity() == nullptr);
 		for (Scene* scene : world->GetScenes())
 		{
 			bool open = true;
@@ -74,7 +102,14 @@ namespace hod::inline editor
 				}
 			}
 		}
-		_previousSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
+
+		multiSelectIO = ImGui::EndMultiSelect();
+		if (hideNavCursor)
+		{
+			ImGui::PopStyleColor();
+		}
+		ApplySelectionRequests(multiSelectIO, true);
+		_lastActiveEntity = tab->GetEntitySelection(); // made here: no reveal
 
 		// The rename field was not drawn this frame (its entity got collapsed, deleted...): validated now, it can't lose the focus anymore.
 		// Unless the rename has just started and its field is yet to be drawn.
@@ -85,13 +120,13 @@ namespace hod::inline editor
 		}
 		_renameDrawn = false;
 
-		if (ImGui::IsWindowHovered() && ImGui::IsAnyItemHovered() == false && (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right)))
-		{
-			GetOwner<EntityEditorTab>()->SetEntitySelection(nullptr);
-		}
-
+		// The right click on the void: the menu to create an entity (under the root of a prefab)
 		if (_openContextualMenu == true || (ImGui::IsWindowHovered() == true && ImGui::IsAnyItemHovered() == false && ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true))
 		{
+			if (_openContextualMenu == false)
+			{
+				tab->SetEntitySelection(nullptr);
+			}
 			_openContextualMenu = false;
 			ImGui::OpenPopup("ContextualMenu");
 		}
@@ -99,42 +134,150 @@ namespace hod::inline editor
 
 		HandleShortcuts();
 
+		ApplyPendingEdits();
+
+		if (_selectAllRequested)
+		{
+			tab->SetSelectedEntities(_visibleEntities);
+			_lastActiveEntity = tab->GetEntitySelection(); // made here: no reveal
+			_selectAllRequested = false;
+		}
+	}
+
+	/// @brief The edits asked while the tree was drawn, done once it is (they change it)
+	void HierachyWindow::ApplyPendingEdits()
+	{
+		EntityEditorTab* tab = GetOwner<EntityEditorTab>();
+
+		if (_pendingReparent)
+		{
+			Vector<Entity*> entities;
+			for (const WeakPtr<Entity>& entity : _pendingReparentEntities)
+			{
+				if (entity.Get() != nullptr)
+				{
+					entities.PushBack(entity.Get());
+				}
+			}
+			Entity* parent = _pendingReparentParent.Get();
+			if (entities.Empty() == false && (_pendingReparentToRoot || parent != nullptr))
+			{
+				tab->ReparentEntities(entities, parent, _pendingReparentIndex);
+			}
+		}
+		_pendingReparent = false;
+		_pendingReparentToRoot = false;
+		_pendingReparentEntities.Clear();
+		_pendingReparentParent = nullptr;
+		_pendingReparentIndex = UINT32_MAX;
+
 		if (_pendingPaste)
 		{
 			if (_pendingPasteInSelection)
 			{
-				GetOwner<EntityEditorTab>()->PasteInSelection();
+				tab->PasteInSelection();
 			}
 			else
 			{
-				GetOwner<EntityEditorTab>()->PasteNextToSelection();
+				tab->PasteNextToSelection();
 			}
 		}
 		_pendingPaste = false;
 		_pendingPasteInSelection = false;
 
-		if (Entity* entity = _pendingDuplicate.Get())
+		if (_pendingDuplicate)
 		{
-			GetOwner<EntityEditorTab>()->DuplicateEntity(entity);
+			tab->DuplicateEntities(tab->GetSelectedSubtrees());
 		}
-		_pendingDuplicate = nullptr;
+		_pendingDuplicate = false;
 
-		if (Entity* entity = _pendingDelete.Get())
+		if (_pendingDelete)
 		{
-			for (Entity* renamed = _renamedEntity.Get(); renamed != nullptr; renamed = renamed->GetParent().Lock())
+			Vector<Entity*> deleted = tab->GetSelectedSubtrees();
+			for (Entity* entity : deleted)
 			{
-				if (renamed == entity)
+				for (Entity* renamed = _renamedEntity.Get(); renamed != nullptr; renamed = renamed->GetParent().Lock())
 				{
-					_renamedEntity = nullptr;
-					break;
+					if (renamed == entity)
+					{
+						_renamedEntity = nullptr;
+						break;
+					}
 				}
 			}
-			GetOwner<EntityEditorTab>()->DeleteEntity(entity);
+			tab->DeleteEntities(deleted);
 		}
-		_pendingDelete = nullptr;
+		_pendingDelete = false;
 	}
 
-	/// @brief F2 renames, Ctrl+D duplicates, Delete deletes the selected entity, and the clipboard's (see
+	/// @brief
+	/// @param multiSelectIO
+	/// @param scopeEnd
+	void HierachyWindow::ApplySelectionRequests(ImGuiMultiSelectIO* multiSelectIO, bool scopeEnd)
+	{
+		// The nav init of a newly focused window puts the nav on the first item, and the multi-selection auto-selects it as if it was reached
+		// with the arrows: only a real move selects (see AssetBrowserWindow)
+		const ImGuiContext& g = *ImGui::GetCurrentContext();
+		if (g.NavJustMovedToId != 0 && g.NavJustMovedToIsInit)
+		{
+			return;
+		}
+
+		EntityEditorTab* tab = GetOwner<EntityEditorTab>();
+		for (const ImGuiSelectionRequest& request : multiSelectIO->Requests)
+		{
+			if (request.Type == ImGuiSelectionRequestType_SetAll)
+			{
+				if (request.Selected == false)
+				{
+					tab->SetEntitySelection(nullptr);
+				}
+				else if (scopeEnd)
+				{
+					tab->SetSelectedEntities(_visibleEntities);
+				}
+				else
+				{
+					_selectAllRequested = true; // _visibleEntities is last frame's, its entities may be gone
+				}
+			}
+			else if (request.Type == ImGuiSelectionRequestType_SetRange && scopeEnd)
+			{
+				// From the range's first item to its last one, so that the last one (the clicked one) ends up the active one. An end no longer
+				// drawn (collapsed since) leaves the other one only.
+				Entity* firstEntity = reinterpret_cast<Entity*>(static_cast<intptr_t>(request.RangeFirstItem));
+				Entity* lastEntity = reinterpret_cast<Entity*>(static_cast<intptr_t>(request.RangeLastItem));
+				auto    firstIt = std::find(_visibleEntities.Begin(), _visibleEntities.End(), firstEntity);
+				auto    lastIt = std::find(_visibleEntities.Begin(), _visibleEntities.End(), lastEntity);
+				if (firstIt == _visibleEntities.End())
+				{
+					firstIt = lastIt;
+				}
+				else if (lastIt == _visibleEntities.End())
+				{
+					lastIt = firstIt;
+				}
+				if (firstIt == _visibleEntities.End())
+				{
+					continue;
+				}
+
+				int32_t first = static_cast<int32_t>(firstIt - _visibleEntities.Begin());
+				int32_t last = static_cast<int32_t>(lastIt - _visibleEntities.Begin());
+				int32_t step = (first <= last) ? 1 : -1;
+				for (int32_t index = first;; index += step)
+				{
+					tab->SetEntitySelected(_visibleEntities[static_cast<uint32_t>(index)], request.Selected);
+					if (index == last)
+					{
+						break;
+					}
+				}
+			}
+		}
+	}
+
+	/// @brief F2 renames the active entity, Ctrl+D duplicates, Delete deletes the selected ones, and the clipboard's (see
 	/// EntityEditorTab::HandleClipboardShortcuts). Not while a text is typed (the rename field...). After the tree is drawn.
 	void HierachyWindow::HandleShortcuts()
 	{
@@ -147,7 +290,7 @@ namespace hod::inline editor
 		tab->HandleClipboardShortcuts();
 
 		Entity* selection = tab->GetEntitySelection();
-		if (selection == nullptr || tab->IsRootEntity(selection))
+		if (selection == nullptr)
 		{
 			return;
 		}
@@ -158,15 +301,15 @@ namespace hod::inline editor
 		}
 		else if (ImGui::IsKeyPressed(ImGuiKey_Delete, false))
 		{
-			_pendingDelete = selection;
+			_pendingDelete = true;
 		}
-		else if (ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_D, false))
+		else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_D))
 		{
-			_pendingDuplicate = selection;
+			_pendingDuplicate = true;
 		}
 	}
 
-	/// @brief On an entity (made the selection by the right click): what can be done to it. On the void: creating one.
+	/// @brief On the selection (the right clicked entity made the active one): what can be done to it. On the void: creating an entity.
 	void HierachyWindow::DrawContextMenu()
 	{
 		if (ImGui::BeginPopup("ContextualMenu") == false)
@@ -177,9 +320,16 @@ namespace hod::inline editor
 		EntityEditorTab* tab = GetOwner<EntityEditorTab>();
 		game::World*     world = tab->GetWorld();
 		Entity*          selection = tab->GetEntitySelection();
+		Vector<Entity*>  targets = tab->GetSelectedSubtrees();
+		bool             single = (tab->GetSelectedEntities().Size() <= 1);
+		bool             hasRoot = false; // Not removed: what Cut, Duplicate and Delete tell when greyed out for it
+		for (Entity* target : targets)
+		{
+			hasRoot |= tab->IsRootEntity(target);
+		}
 
 		const char* createLabel = (selection != nullptr) ? ICON_MDI_PLUS_BOX " Create Child Entity" : ICON_MDI_PLUS_BOX " Create Entity";
-		if (ImGui::MenuItem(createLabel) && world->GetScenes().Size() > 0)
+		if (ImGui::MenuItem(createLabel, nullptr, false, single) && world->GetScenes().Size() > 0)
 		{
 			Entity* entity = world->GetScenes()[0]->CreateEntity("Entity");
 
@@ -201,9 +351,8 @@ namespace hod::inline editor
 
 		if (selection != nullptr)
 		{
-			bool                            isRoot = tab->IsRootEntity(selection);
 			std::shared_ptr<PrefabResource> prefabResource = selection->GetPrefabResource();
-			if (prefabResource != nullptr)
+			if (prefabResource != nullptr && single)
 			{
 				ImGui::Separator();
 				std::shared_ptr<Asset> prefabAsset = AssetDatabase::GetInstance()->Find(prefabResource->GetUid());
@@ -220,7 +369,8 @@ namespace hod::inline editor
 			}
 
 			ImGui::Separator();
-			if (ImGui::MenuItem(ICON_MDI_RENAME " Rename", "F2", false, isRoot == false))
+			bool isRoot = tab->IsRootEntity(selection);
+			if (ImGui::MenuItem(ICON_MDI_RENAME " Rename", "F2", false, isRoot == false && single))
 			{
 				StartRename(selection);
 			}
@@ -231,13 +381,13 @@ namespace hod::inline editor
 			ImGui::Separator();
 			if (ImGui::MenuItem(ICON_MDI_CONTENT_COPY " Copy", "Ctrl+C"))
 			{
-				tab->CopyEntities({selection});
+				tab->CopyEntities(targets);
 			}
-			if (ImGui::MenuItem(ICON_MDI_CONTENT_CUT " Cut", "Ctrl+X", false, isRoot == false))
+			if (ImGui::MenuItem(ICON_MDI_CONTENT_CUT " Cut", "Ctrl+X", false, hasRoot == false))
 			{
-				tab->CutEntities({selection}); // only marked, moved by the paste
+				tab->CutEntities(targets); // only marked, moved by the paste
 			}
-			if (isRoot)
+			if (hasRoot)
 			{
 				ImGui::SetItemTooltip("The prefab's root entity can't be cut");
 			}
@@ -245,25 +395,25 @@ namespace hod::inline editor
 			{
 				_pendingPaste = true;
 			}
-			if (ImGui::MenuItem(ICON_MDI_CONTENT_PASTE " Paste As Child", "Ctrl+Shift+V", false, tab->CanPaste()))
+			if (ImGui::MenuItem(ICON_MDI_CONTENT_PASTE " Paste As Child", "Ctrl+Shift+V", false, tab->CanPaste() && single))
 			{
 				_pendingPaste = true;
 				_pendingPasteInSelection = true;
 			}
-			if (ImGui::MenuItem(ICON_MDI_CONTENT_DUPLICATE " Duplicate", "Ctrl+D", false, isRoot == false))
+			if (ImGui::MenuItem(ICON_MDI_CONTENT_DUPLICATE " Duplicate", "Ctrl+D", false, hasRoot == false))
 			{
-				_pendingDuplicate = selection;
+				_pendingDuplicate = true;
 			}
-			if (isRoot)
+			if (hasRoot)
 			{
 				ImGui::SetItemTooltip("The prefab's root entity can't be duplicated");
 			}
 			ImGui::Separator();
-			if (ImGui::MenuItem(ICON_MDI_DELETE " Delete", "Del", false, isRoot == false))
+			if (ImGui::MenuItem(ICON_MDI_DELETE " Delete", "Del", false, hasRoot == false))
 			{
-				_pendingDelete = selection;
+				_pendingDelete = true;
 			}
-			if (isRoot)
+			if (hasRoot)
 			{
 				ImGui::SetItemTooltip("The prefab's root entity can't be deleted");
 			}
@@ -296,12 +446,27 @@ namespace hod::inline editor
 		}
 	}
 
+	/// @brief The entities a drag of entity moves: the selected ones when it is one of them, only it otherwise
+	/// @param entity
+	/// @return
+	Vector<Entity*> HierachyWindow::GetDraggedEntities(Entity* entity) const
+	{
+		EntityEditorTab* tab = const_cast<HierachyWindow*>(this)->GetOwner<EntityEditorTab>();
+		if (tab->IsSelected(entity))
+		{
+			return tab->GetSelectedSubtrees();
+		}
+		return Vector<Entity*>{entity};
+	}
+
 	/// @brief
 	/// @param entity
 	void HierachyWindow::DrawEntity(Entity* entity)
 	{
-		// Drop zone to put an entity before this one: the gap between the rows (ItemSpacing), not taking any room of its own,
-		// so that the rows are as high and as close as in the other trees (UI prefab editor...)
+		EntityEditorTab* tab = GetOwner<EntityEditorTab>();
+
+		// Drop zone to put entities before this one: the gap between the rows (ItemSpacing), not taking any room of its own, so that the
+		// rows are as high and as close as in the other trees (UI prefab editor...)
 		float rowSpacing = ImGui::GetStyle().ItemSpacing.y;
 		ImGui::PushID(entity - 1);
 		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - rowSpacing);
@@ -312,35 +477,60 @@ namespace hod::inline editor
 
 		if (ImGui::BeginDragDropTarget() == true)
 		{
-			const ImGuiPayload* payload = ImGui::GetDragDropPayload();
-			if (payload->IsDataType("EntityId") == true)
+			const ImGuiPayload* peekedPayload = ImGui::GetDragDropPayload();
+			if (peekedPayload->IsDataType("EntityId") == true)
 			{
-				payload = ImGui::AcceptDragDropPayload("EntityId", ImGuiDragDropFlags_AcceptNoDrawDefaultRect);
-				// GetColorU32(ImGuiCol_DragDropTarget)
-				ImVec2 min = ImGui::GetItemRectMin();
-				ImVec2 max = ImGui::GetItemRectMax();
-				float  lerp = (min.y + max.y) * 0.5f;
-				min.y = lerp;
-				max.y = lerp;
-				ImGui::GetWindowDrawList()->AddLine(min, max, ImGui::GetColorU32(ImGuiCol_DragDropTarget), 1.0f); // todo alpha ?
-				if ((payload) != nullptr)
+				// Next to entity: under its parent (not out of the prefab's root, nor into the dragged entities themselves)
+				Entity*         draggedEntity = reinterpret_cast<EntityDragAndDropPayload*>(peekedPayload->Data)->_entity;
+				Vector<Entity*> draggedEntities = GetDraggedEntities(draggedEntity);
+				Entity*         parent = entity->GetParent().Lock();
+				bool            canDrop = std::find(draggedEntities.Begin(), draggedEntities.End(), entity) == draggedEntities.End();
+				for (Entity* dragged : draggedEntities)
 				{
-					// todo factorize
-					EntityDragAndDropPayload* entityDragAndDropPayload = reinterpret_cast<EntityDragAndDropPayload*>(payload->Data);
-					Entity*             dropEntity = entityDragAndDropPayload->_entity;
-					// Next to entity: under its parent (not out of the prefab's root, nor into the dragged entity itself)
-					if (dropEntity != nullptr && dropEntity != entity && GetOwner<EntityEditorTab>()->CanReparent(dropEntity, entity->GetParent().Lock()))
+					canDrop &= tab->CanReparent(dragged, parent);
+				}
+
+				const ImGuiPayload* payload = canDrop ? ImGui::AcceptDragDropPayload("EntityId", ImGuiDragDropFlags_AcceptNoDrawDefaultRect) : nullptr;
+				if (canDrop)
+				{
+					ImVec2 min = ImGui::GetItemRectMin();
+					ImVec2 max = ImGui::GetItemRectMax();
+					float  middle = (min.y + max.y) * 0.5f;
+					ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, middle), ImVec2(max.x, middle), ImGui::GetColorU32(ImGuiCol_DragDropTarget), 1.0f);
+				}
+				if (payload != nullptr)
+				{
+					// Its place among the siblings that stay
+					uint32_t index = 0;
+					if (parent != nullptr)
 					{
-						dropEntity->SetParent(entity->GetParent());
-						dropEntity->SetSiblingIndex(entity->GetSiblingIndex());
-						GetOwner()->MarkAsDirty("Move");
+						for (const WeakEntity& sibling : parent->GetChildren())
+						{
+							Entity* siblingEntity = sibling.Lock();
+							if (siblingEntity == entity)
+							{
+								break;
+							}
+							if (std::find(draggedEntities.Begin(), draggedEntities.End(), siblingEntity) == draggedEntities.End())
+							{
+								++index;
+							}
+						}
 					}
+
+					_pendingReparent = true;
+					_pendingReparentEntities.Clear();
+					for (Entity* dragged : draggedEntities)
+					{
+						_pendingReparentEntities.PushBack(dragged);
+					}
+					_pendingReparentParent = parent;
+					_pendingReparentToRoot = (parent == nullptr);
+					_pendingReparentIndex = (parent != nullptr) ? index : UINT32_MAX;
 				}
 			}
 			ImGui::EndDragDropTarget();
 		}
-
-		Entity* selection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 
 		ImGuiTreeNodeFlags treeNodeFlags =
 			ImGuiTreeNodeFlags_FramePadding | ImGuiTreeNodeFlags_SpanFullWidth | ImGuiTreeNodeFlags_OpenOnArrow | ImGuiTreeNodeFlags_DrawLinesToNodes;
@@ -348,33 +538,34 @@ namespace hod::inline editor
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
 		}
-		if (entity == selection)
+		if (tab->IsSelected(entity))
 		{
 			treeNodeFlags |= ImGuiTreeNodeFlags_Selected;
 		}
 
-		if (_previousSelection != selection)
+		Entity* activeEntity = tab->GetEntitySelection();
+		if (_revealSelection)
 		{
-			Entity* selectionIt = selection;
-			while (selectionIt != nullptr)
+			for (Entity* ancestor = activeEntity->GetParent().Lock(); ancestor != nullptr; ancestor = ancestor->GetParent().Lock())
 			{
-				if (selectionIt == entity)
+				if (ancestor == entity)
 				{
 					ImGui::SetNextItemOpen(true, ImGuiCond_Always);
 					break;
 				}
-				selectionIt = selectionIt->GetParent().Lock();
 			}
 		}
 
+		// Ids identify the entity, names may collide between siblings: the ImGui id is the entity itself. Clicks are the multi-selection's
+		// (see ApplySelectionRequests).
 		ImGui::PushID(entity);
+		ImGui::SetNextItemSelectionUserData(static_cast<ImGuiSelectionUserData>(reinterpret_cast<intptr_t>(entity)));
+		_visibleEntities.PushBack(entity);
 		bool opened = ImGui::TreeNodeEx("", treeNodeFlags);
-		if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
-		{
-			GetOwner<EntityEditorTab>()->SetEntitySelection(entity);
-		}
+		// Kept to open the tree node when something is dropped into it
+		ImGuiID treeNodeId = ImGui::GetItemID();
 
-		if (entity == selection && _previousSelection != selection)
+		if (_revealSelection && entity == activeEntity)
 		{
 			ImGui::SetScrollHereY();
 		}
@@ -389,39 +580,53 @@ namespace hod::inline editor
 			ImGui::EndTooltip();
 		}
 
+		// The right click selects the entity if it isn't (the multi-selection's, on mouse down): the menu acts on the selection, the entity
+		// made the active one (the one the single entity actions are for)
 		if (ImGui::IsWindowHovered() == true && hovered == true && ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
 		{
-			GetOwner<EntityEditorTab>()->SetEntitySelection(entity);
+			tab->SetEntitySelected(entity, true);
+			_lastActiveEntity = entity; // already in view
 			_openContextualMenu = true;
 		}
 
+		// Into entity: only offered when the move makes sense (not into one of the dragged entities, nor out of the prefab's root)
 		if (ImGui::BeginDragDropTarget() == true)
 		{
-			const ImGuiPayload* payload = ImGui::GetDragDropPayload();
-			if (payload->IsDataType("EntityId") == true)
+			const ImGuiPayload* peekedPayload = ImGui::GetDragDropPayload();
+			if (peekedPayload->IsDataType("EntityId") == true)
 			{
-				// ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255));
-
-				payload = ImGui::AcceptDragDropPayload("EntityId");
-				if ((payload) != nullptr)
+				Entity*         draggedEntity = reinterpret_cast<EntityDragAndDropPayload*>(peekedPayload->Data)->_entity;
+				Vector<Entity*> draggedEntities = GetDraggedEntities(draggedEntity);
+				if (tab->CanReparentEntities(draggedEntities, entity) && ImGui::AcceptDragDropPayload("EntityId") != nullptr)
 				{
-					EntityDragAndDropPayload* entityDragAndDropPayload = reinterpret_cast<EntityDragAndDropPayload*>(payload->Data);
-					Entity*             dropEntity = entityDragAndDropPayload->_entity;
-					if (dropEntity != nullptr && GetOwner<EntityEditorTab>()->CanReparent(dropEntity, entity))
+					_pendingReparent = true;
+					_pendingReparentEntities.Clear();
+					for (Entity* dragged : draggedEntities)
 					{
-						dropEntity->SetParent(entity);
-						GetOwner()->MarkAsDirty("Move");
+						_pendingReparentEntities.PushBack(dragged);
 					}
+					_pendingReparentParent = entity;
+					_pendingReparentIndex = UINT32_MAX;
+
+					// Keep the moved entities visible: a previously leaf/collapsed target would otherwise hide them
+					ImGui::GetStateStorage()->SetInt(treeNodeId, 1);
 				}
 			}
 			ImGui::EndDragDropTarget();
 		}
 
-		// The root entity of a prefab stays where it is
-		if (GetOwner<EntityEditorTab>()->IsRootEntity(entity) == false && ImGui::BeginDragDropSource() == true)
+		// The root entity of a prefab stays where it is. The selection goes along when the entity is in it.
+		if (tab->IsRootEntity(entity) == false && ImGui::BeginDragDropSource() == true)
 		{
-			// Some processing...
-			ImGui::TextUnformatted(entity->GetName().CStr());
+			uint32_t draggedCount = GetDraggedEntities(entity).Size();
+			if (draggedCount > 1)
+			{
+				ImGui::Text("%s (+%u)", entity->GetName().CStr(), draggedCount - 1);
+			}
+			else
+			{
+				ImGui::TextUnformatted(entity->GetName().CStr());
+			}
 
 			_entityDragAndDropPayload._hierarchyWindow = this;
 			_entityDragAndDropPayload._entity = entity;
@@ -430,7 +635,7 @@ namespace hod::inline editor
 		}
 
 		// Greyed: inactive, or cut (until pasted, as in a file explorer)
-		ImGui::BeginDisabled(entity->IsActiveInHierarchy() == false || GetOwner<EntityEditorTab>()->IsCut(entity));
+		ImGui::BeginDisabled(entity->IsActiveInHierarchy() == false || tab->IsCut(entity));
 
 		ImGui::SameLine(0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {ImGui::GetStyle().ItemSpacing.x, 0.0f});

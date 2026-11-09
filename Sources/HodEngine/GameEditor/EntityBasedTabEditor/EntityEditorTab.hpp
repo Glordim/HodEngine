@@ -44,8 +44,22 @@ namespace hod::inline editor
 		game::World*	GetWorld() const;
 		Scene*	GetCurrentScene() const;
 
-		void			SetEntitySelection(Entity* selection);
-		Entity*	GetEntitySelection() const;
+		// Selection: any number of entities, the last one selected being the active one (the one the inspector shows, F2 renames, the
+		// gizmo moves...). Entities of the edited world, or of the playing one's copy while playing.
+		// The active entity, nullptr if none
+		Entity*			GetEntitySelection() const;
+		// In the order they were selected, the active one last (the ones deleted since left out)
+		Vector<Entity*>	GetSelectedEntities() const;
+		bool			IsSelected(const Entity* entity) const;
+		// entity only, nothing if nullptr
+		void			SetEntitySelection(Entity* entity);
+		// entities only, the last one active
+		void			SetSelectedEntities(const Vector<Entity*>& entities);
+		// Adds entity, as the active one, or removes it
+		void			SetEntitySelected(Entity* entity, bool selected);
+		// The selected entities but those inside another selected one, in the hierarchy's order: what acts on an entity along with its
+		// descendants (copy, delete, move...) takes them
+		Vector<Entity*>	GetSelectedSubtrees() const;
 
 		// The entity all the other ones are under (a prefab's root, see PrefabEditorTab), nullptr if there can be any number of roots (a scene)
 		virtual Entity*	GetRootEntity() const;
@@ -59,12 +73,19 @@ namespace hod::inline editor
 		// Whether an instance of the prefab can be added (not into itself)
 		virtual bool	CanInstantiatePrefab(const UID& prefab) const;
 
-		// Edits of the hierarchy, marked as edits. Not the root entity (see IsRootEntity).
-		// Destroys entity and its descendants, deselected
-		void			DeleteEntity(Entity* entity);
-		// A copy of entity and its descendants, right after it under the same parent, selected
-		// @return the copy, nullptr if entity can't be duplicated
-		Entity*			DuplicateEntity(Entity* entity);
+		// Edits of the hierarchy, marked as edits. Not the root entity (see IsRootEntity): skipped.
+		// Destroys entities (but those inside another one of them) and their descendants, deselected
+		void			DeleteEntities(const Vector<Entity*>& entities);
+		// A copy of each entity (but those inside another one of them) and its descendants, right after it under the same parent, the
+		// copies selected
+		// @return the copies
+		Vector<Entity*>	DuplicateEntities(const Vector<Entity*>& entities);
+		// Whether ReparentEntities would move something: they can all be given parent (see CanReparent) and one of them at least isn't
+		// already its child
+		bool			CanReparentEntities(const Vector<Entity*>& entities, const Entity* parent) const;
+		// Moves entities (but those inside another one of them), in the hierarchy's order, as children of parent from index (the last
+		// places if out of range), selected. Refused if CanReparentEntities is false.
+		bool			ReparentEntities(const Vector<Entity*>& entities, Entity* parent, uint32_t index = UINT32_MAX);
 
 		// Clipboard: entities and their descendants (one inside another of them comes with it) are copied as text (a JSON document
 		// of SceneSerializer's entities) to the system clipboard, so that they can be pasted in another scene or prefab too.
@@ -123,7 +144,7 @@ namespace hod::inline editor
 		bool						_playing = false;
 		bool						_paused = false;
 
-		WeakPtr<Entity>		_entitySelection;
+		Vector<WeakPtr<Entity>>	_selection; // the active one last
 		bool				_frameSelectionRequested = false;
 
 		// Cut (see CutEntities): the cut entities, and the clipboard's text the cut put there, which must still be there for the paste

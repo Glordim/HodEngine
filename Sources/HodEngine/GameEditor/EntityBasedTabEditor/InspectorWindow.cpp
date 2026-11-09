@@ -95,9 +95,15 @@ namespace hod::inline editor
 	/// @brief
 	void InspectorWindow::DrawContent()
 	{
+		// The active entity only (the last selected)
 		Entity* sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 		if (sceneSelection != nullptr)
 		{
+			uint32_t selectedCount = GetOwner<EntityEditorTab>()->GetSelectedEntities().Size();
+			if (selectedCount > 1)
+			{
+				ImGui::TextDisabled("%u entities selected: the last one shown", selectedCount);
+			}
 			DrawSceneSelection(sceneSelection);
 		}
 	}

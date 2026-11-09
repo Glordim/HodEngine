@@ -215,18 +215,176 @@ namespace hod::inline editor
 		return _paused;
 	}
 
-	/// @brief 
-	/// @param asset 
-	void EntityEditorTab::SetEntitySelection(Entity* selection)
+	namespace
 	{
-		_entitySelection = selection;
+		// The clipboard's text starts with it (see CopyEntities)
+		constexpr const char* ClipboardFormat = "HodEngine.Entities";
+
+		/// @brief entities but those inside another one of them (which come with it)
+		Vector<Entity*> GetSubtrees(const Vector<Entity*>& entities)
+		{
+			Vector<Entity*> subtrees;
+			for (Entity* entity : entities)
+			{
+				if (entity == nullptr)
+				{
+					continue;
+				}
+				bool inside = false;
+				for (Entity* ancestor = entity->GetParent().Lock(); ancestor != nullptr && inside == false; ancestor = ancestor->GetParent().Lock())
+				{
+					inside = std::find(entities.CBegin(), entities.CEnd(), ancestor) != entities.CEnd();
+				}
+				if (inside == false && std::find(subtrees.Begin(), subtrees.End(), entity) == subtrees.End())
+				{
+					subtrees.PushBack(entity);
+				}
+			}
+			return subtrees;
+		}
+
+		bool IsInside(const Entity* entity, const Entity* ancestor)
+		{
+			for (; entity != nullptr; entity = entity->GetParent().Lock())
+			{
+				if (entity == ancestor)
+				{
+					return true;
+				}
+			}
+			return false;
+		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Entity* EntityEditorTab::GetEntitySelection() const
 	{
-		return _entitySelection.Get();
+		for (uint32_t index = _selection.Size(); index > 0; --index)
+		{
+			if (Entity* entity = _selection[index - 1].Get())
+			{
+				return entity;
+			}
+		}
+		return nullptr;
+	}
+
+	/// @brief
+	/// @return
+	Vector<Entity*> EntityEditorTab::GetSelectedEntities() const
+	{
+		Vector<Entity*> entities;
+		for (const WeakPtr<Entity>& selected : _selection)
+		{
+			if (Entity* entity = selected.Get())
+			{
+				entities.PushBack(entity);
+			}
+		}
+		return entities;
+	}
+
+	/// @brief
+	/// @param entity
+	/// @return
+	bool EntityEditorTab::IsSelected(const Entity* entity) const
+	{
+		if (entity == nullptr)
+		{
+			return false;
+		}
+		for (const WeakPtr<Entity>& selected : _selection)
+		{
+			if (selected.Get() == entity)
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/// @brief
+	/// @param entity
+	void EntityEditorTab::SetEntitySelection(Entity* entity)
+	{
+		_selection.Clear();
+		if (entity != nullptr)
+		{
+			_selection.PushBack(entity);
+		}
+	}
+
+	/// @brief
+	/// @param entities
+	void EntityEditorTab::SetSelectedEntities(const Vector<Entity*>& entities)
+	{
+		_selection.Clear();
+		for (Entity* entity : entities)
+		{
+			SetEntitySelected(entity, true);
+		}
+	}
+
+	/// @brief
+	/// @param entity
+	/// @param selected
+	void EntityEditorTab::SetEntitySelected(Entity* entity, bool selected)
+	{
+		if (entity == nullptr)
+		{
+			return;
+		}
+		for (uint32_t index = 0; index < _selection.Size(); ++index)
+		{
+			if (_selection[index].Get() == entity)
+			{
+				_selection.Erase(index);
+				break;
+			}
+		}
+		if (selected)
+		{
+			_selection.PushBack(entity);
+		}
+	}
+
+	namespace
+	{
+		void CollectSelectedSubtrees(const EntityEditorTab& tab, Entity* entity, Vector<Entity*>& subtrees)
+		{
+			if (tab.IsSelected(entity))
+			{
+				subtrees.PushBack(entity);
+				return;
+			}
+			for (const WeakEntity& child : entity->GetChildren())
+			{
+				if (Entity* childEntity = child.Lock())
+				{
+					CollectSelectedSubtrees(tab, childEntity, subtrees);
+				}
+			}
+		}
+	}
+
+	/// @brief
+	/// @return
+	Vector<Entity*> EntityEditorTab::GetSelectedSubtrees() const
+	{
+		Vector<Entity*> subtrees;
+		if (_selection.Empty())
+		{
+			return subtrees;
+		}
+		for (Scene* scene : _world->GetScenes())
+		{
+			for (Entity* root : scene->GetRootEntities())
+			{
+				CollectSelectedSubtrees(*this, root, subtrees);
+			}
+		}
+		return subtrees;
 	}
 
 	/// @brief
@@ -285,25 +443,32 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @param entity
-	void EntityEditorTab::DeleteEntity(Entity* entity)
+	/// @param entities
+	void EntityEditorTab::DeleteEntities(const Vector<Entity*>& entities)
 	{
-		if (entity == nullptr || IsRootEntity(entity))
+		bool deleted = false;
+		for (Entity* entity : GetSubtrees(entities))
 		{
-			return;
-		}
-
-		for (Entity* selected = GetEntitySelection(); selected != nullptr; selected = selected->GetParent().Lock())
-		{
-			if (selected == entity)
+			if (IsRootEntity(entity))
 			{
-				SetEntitySelection(nullptr);
-				break;
+				continue;
 			}
-		}
 
-		_world->DestroyEntity(entity);
-		MarkAsDirty("Delete");
+			for (Entity* selected : GetSelectedEntities())
+			{
+				if (IsInside(selected, entity))
+				{
+					SetEntitySelected(selected, false);
+				}
+			}
+
+			_world->DestroyEntity(entity);
+			deleted = true;
+		}
+		if (deleted)
+		{
+			MarkAsDirty("Delete");
+		}
 	}
 
 	namespace
@@ -332,73 +497,104 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @param entity
+	/// @param entities
 	/// @return
-	Entity* EntityEditorTab::DuplicateEntity(Entity* entity)
+	Vector<Entity*> EntityEditorTab::DuplicateEntities(const Vector<Entity*>& entities)
 	{
-		if (entity == nullptr || IsRootEntity(entity) || entity->GetScene() == nullptr)
+		Vector<Entity*> copies;
+		for (Entity* entity : GetSubtrees(entities))
 		{
-			return nullptr;
+			if (IsRootEntity(entity) || entity->GetScene() == nullptr)
+			{
+				continue;
+			}
+
+			Entity* copy = entity->GetScene()->Instantiate(entity);
+			if (copy == nullptr)
+			{
+				continue;
+			}
+			ClearLocalIds(copy);
+
+			Entity* parent = entity->GetParent().Lock();
+			if (parent != nullptr)
+			{
+				copy->SetParent(parent);
+				copy->SetSiblingIndex(entity->GetSiblingIndex() + 1);
+			}
+			copies.PushBack(copy);
 		}
 
-		Entity* copy = entity->GetScene()->Instantiate(entity);
-		if (copy == nullptr)
+		if (copies.Empty() == false)
 		{
-			return nullptr;
+			SetSelectedEntities(copies);
+			MarkAsDirty("Duplicate");
 		}
-		ClearLocalIds(copy);
-
-		Entity* parent = entity->GetParent().Lock();
-		if (parent != nullptr)
-		{
-			copy->SetParent(parent);
-			copy->SetSiblingIndex(entity->GetSiblingIndex() + 1);
-		}
-
-		SetEntitySelection(copy);
-		MarkAsDirty("Duplicate");
-		return copy;
+		return copies;
 	}
 
-	namespace
+	/// @brief
+	/// @param entities
+	/// @param parent
+	/// @return
+	bool EntityEditorTab::CanReparentEntities(const Vector<Entity*>& entities, const Entity* parent) const
 	{
-		// The clipboard's text starts with it (see CopyEntities)
-		constexpr const char* ClipboardFormat = "HodEngine.Entities";
-
-		/// @brief entities but those inside another one of them (which come with it)
-		Vector<Entity*> GetSubtrees(const Vector<Entity*>& entities)
+		bool moves = false;
+		for (Entity* entity : entities)
 		{
-			Vector<Entity*> subtrees;
-			for (Entity* entity : entities)
+			if (CanReparent(entity, parent) == false)
 			{
-				if (entity == nullptr)
-				{
-					continue;
-				}
-				bool inside = false;
-				for (Entity* ancestor = entity->GetParent().Lock(); ancestor != nullptr && inside == false; ancestor = ancestor->GetParent().Lock())
-				{
-					inside = std::find(entities.CBegin(), entities.CEnd(), ancestor) != entities.CEnd();
-				}
-				if (inside == false && std::find(subtrees.Begin(), subtrees.End(), entity) == subtrees.End())
-				{
-					subtrees.PushBack(entity);
-				}
+				return false;
 			}
-			return subtrees;
+			moves |= (entity->GetParent().Lock() != parent);
+		}
+		return moves;
+	}
+
+	/// @brief
+	/// @param entities
+	/// @param parent
+	/// @param index
+	/// @return
+	bool EntityEditorTab::ReparentEntities(const Vector<Entity*>& entities, Entity* parent, uint32_t index)
+	{
+		// In the hierarchy's order (their order among the selection's subtrees, the ones not selected after)
+		Vector<Entity*> subtrees = GetSubtrees(entities);
+		Vector<Entity*> ordered;
+		for (Entity* entity : GetSelectedSubtrees())
+		{
+			if (std::find(subtrees.Begin(), subtrees.End(), entity) != subtrees.End())
+			{
+				ordered.PushBack(entity);
+			}
+		}
+		for (Entity* entity : subtrees)
+		{
+			if (std::find(ordered.Begin(), ordered.End(), entity) == ordered.End())
+			{
+				ordered.PushBack(entity);
+			}
 		}
 
-		bool IsInside(const Entity* entity, const Entity* ancestor)
+		for (Entity* entity : ordered)
 		{
-			for (; entity != nullptr; entity = entity->GetParent().Lock())
+			if (CanReparent(entity, parent) == false)
 			{
-				if (entity == ancestor)
-				{
-					return true;
-				}
+				return false;
 			}
-			return false;
 		}
+
+		for (Entity* entity : ordered)
+		{
+			entity->SetParent(parent);
+			if (parent != nullptr && index != UINT32_MAX)
+			{
+				entity->SetSiblingIndex(index++);
+			}
+		}
+		SetSelectedEntities(ordered);
+		MarkAsDirty("Move");
+		return true;
 	}
 
 	/// @brief
@@ -413,6 +609,23 @@ namespace hod::inline editor
 		{
 			return false;
 		}
+		// Selected ones in the hierarchy's order: pasted in that order
+		Vector<Entity*> ordered;
+		for (Entity* entity : GetSelectedSubtrees())
+		{
+			if (std::find(subtrees.Begin(), subtrees.End(), entity) != subtrees.End())
+			{
+				ordered.PushBack(entity);
+			}
+		}
+		for (Entity* entity : subtrees)
+		{
+			if (std::find(ordered.Begin(), ordered.End(), entity) == ordered.End())
+			{
+				ordered.PushBack(entity);
+			}
+		}
+		subtrees = ordered;
 
 		// The Format first: what CanPaste looks for
 		Document document;
@@ -553,7 +766,7 @@ namespace hod::inline editor
 					pasted.PushBack(entity);
 				}
 				CancelCut();
-				SetEntitySelection(pasted[pasted.Size() - 1]);
+				SetSelectedEntities(pasted);
 				MarkAsDirty("Paste");
 				return pasted;
 			}
@@ -611,7 +824,7 @@ namespace hod::inline editor
 
 		if (pasted.Empty() == false)
 		{
-			SetEntitySelection(pasted[pasted.Size() - 1]);
+			SetSelectedEntities(pasted);
 			MarkAsDirty("Paste");
 		}
 		return pasted;
@@ -641,14 +854,13 @@ namespace hod::inline editor
 	/// @brief
 	void EntityEditorTab::HandleClipboardShortcuts()
 	{
-		Entity* selection = GetEntitySelection();
-		if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_C) && selection != nullptr)
+		if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_C))
 		{
-			CopyEntities({selection});
+			CopyEntities(GetSelectedSubtrees());
 		}
-		else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_X) && selection != nullptr)
+		else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_X))
 		{
-			CutEntities({selection});
+			CutEntities(GetSelectedSubtrees());
 		}
 		else if (ImGui::IsKeyChordPressed(ImGuiMod_Ctrl | ImGuiKey_V))
 		{
@@ -726,14 +938,22 @@ namespace hod::inline editor
 	/// @return
 	bool EntityEditorTab::RestoreUndoState(const Document& document)
 	{
-		Vector<uint64_t> selectionPath = GetLocalIdPath(GetEntitySelection());
+		Vector<Vector<uint64_t>> selectionPaths;
+		for (Entity* entity : GetSelectedEntities())
+		{
+			selectionPaths.PushBack(GetLocalIdPath(entity));
+		}
 
 		CancelCut(); // Its entities are replaced
 		_scene->DestroyEntities();
 		bool restored = _scene->DeserializeFromDocument(document.GetRootNode());
 		_scene->ProcessActivation();
 
-		SetEntitySelection(FindByLocalIdPath(*_scene, selectionPath));
+		_selection.Clear();
+		for (const Vector<uint64_t>& selectionPath : selectionPaths)
+		{
+			SetEntitySelected(FindByLocalIdPath(*_scene, selectionPath), true);
+		}
 		return restored;
 	}
 
