@@ -16,7 +16,8 @@
 
 namespace hod::inline game
 {
-	std::atomic<uint64_t> Entity::_nextInstanceId = 0;
+	// From 1: 0 is "none" (WeakEntity, PickingManager::InvalidId: an entity of id 0 would not be pickable in the viewports)
+	std::atomic<uint64_t> Entity::_nextInstanceId = 1;
 
 	DESCRIBE_REFLECTED_ENUM(Entity::InternalState, reflectionDescriptor)
 	{

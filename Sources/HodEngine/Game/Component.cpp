@@ -9,7 +9,8 @@
 
 namespace hod::inline game
 {
-	std::atomic<uint64_t> Component::_nextInstanceId = 0;
+	// From 1: 0 is "none", as for the entities
+	std::atomic<uint64_t> Component::_nextInstanceId = 1;
 
 	DESCRIBE_REFLECTED_CLASS(Component, reflectionDescriptor)
 	{
