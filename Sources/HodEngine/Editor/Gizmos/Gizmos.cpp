@@ -1,19 +1,12 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/GeometryGenerator.hpp"
 #include "HodEngine/Editor/Gizmos/Gizmos.hpp"
 #include "HodEngine/Editor/Gizmos/GizmoViewport.hpp"
 #include <HodEngine/ImGui/DearImGui/imgui.h>
-#include <HodEngine/Math/Math.hpp>
 #include <HodEngine/Math/Vector4.hpp>
-#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
 #include <HodEngine/Renderer/PickingManager.hpp>
-#include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
-#include <HodEngine/RHI/RhiDevice.hpp>
-#include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/Renderer/MaterialInstance.hpp>
 #include <HodEngine/Renderer/ReadbackRenderTarget.hpp>
+#include <HodEngine/Renderer/ShapeDrawer.hpp>
 #include <HodEngine/RHI/RenderTarget.hpp>
-#include <HodEngine/Core/StaticArray.hpp>
 
 #undef max
 
@@ -77,9 +70,10 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @param pickingId
+	/// @param handle
+	/// @param worldMatrix
 	/// @param position
-	/// @param raduis
+	/// @param radius
 	/// @param color
 	/// @param highlightColor
 	/// @param viewport
@@ -88,46 +82,17 @@ namespace hod::inline editor
 	                            GizmoViewport& viewport)
 	{
 		bool changed = FreeMoveBehavior(handle, viewport);
-
-		constexpr uint32_t                    segmentCount = 32;
-		StaticArray<Vector2, segmentCount * 3> vertices;
-		GeometryGenerator::CircleShapeFillNoFan<segmentCount>(vertices, Vector2::Zero, radius);
-
-		MaterialInstance* materialInstance = MaterialInstance::Create(
-			BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		materialInstance->SetVec4("ubo.color",
-		                          handle._hovered ? Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a) : Vector4(color.r, color.g, color.b, color.a));
-
-		Matrix4                      finalMatrix = worldMatrix * Matrix4::Translation(position);
-		RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-			vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), nullptr, 0, finalMatrix, materialInstance, handle._sortingOrder, handle._pickingId);
-		viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
-		viewport.GetRenderView()->DeleteAfter(materialInstance);
-
+		ShapeDrawer::FilledCircle(*viewport.GetRenderView(), worldMatrix * Matrix4::Translation(position), Vector2::Zero, radius, handle._hovered ? highlightColor : color,
+		                          handle._sortingOrder, handle._pickingId);
 		return changed;
 	}
 
-	bool Gizmos::FreeMoveRect(Handle& handle, const Matrix4& worldMatrix, const Vector2& position, const Vector2& Size, const Color& color, const Color& highlightColor,
+	bool Gizmos::FreeMoveRect(Handle& handle, const Matrix4& worldMatrix, const Vector2& position, const Vector2& size, const Color& color, const Color& highlightColor,
 	                          GizmoViewport& viewport)
 	{
 		bool changed = FreeMoveBehavior(handle, viewport);
-
-		StaticArray<Vector2, 6> vertices = {
-			Vector2(Size.GetX() * 0.5f, Size.GetY() * 0.5f),  Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f),  Vector2(-Size.GetX() * 0.5f, -Size.GetY() * 0.5f),
-
-			Vector2(Size.GetX() * 0.5f, -Size.GetY() * 0.5f), Vector2(-Size.GetX() * 0.5f, -Size.GetY() * 0.5f), Vector2(Size.GetX() * 0.5f, Size.GetY() * 0.5f)};
-
-		MaterialInstance* materialInstance = MaterialInstance::Create(
-			BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		materialInstance->SetVec4("ubo.color",
-		                          handle._hovered ? Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a) : Vector4(color.r, color.g, color.b, color.a));
-
-		Matrix4                      finalMatrix = worldMatrix * Matrix4::Translation(position);
-		RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-			vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), nullptr, 0, finalMatrix, materialInstance, handle._sortingOrder, handle._pickingId);
-		viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
-		viewport.GetRenderView()->DeleteAfter(materialInstance);
-
+		ShapeDrawer::FilledRect(*viewport.GetRenderView(), worldMatrix * Matrix4::Translation(position), Vector2::Zero, size, handle._hovered ? highlightColor : color,
+		                        handle._sortingOrder, handle._pickingId);
 		return changed;
 	}
 
@@ -135,81 +100,9 @@ namespace hod::inline editor
 	                          GizmoViewport& viewport)
 	{
 		bool changed = FreeMoveBehavior(handle, viewport);
-
-		MaterialInstance* materialInstance = MaterialInstance::Create(
-			BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		materialInstance->SetVec4("ubo.color",
-		                          handle._hovered ? Vector4(highlightColor.r, highlightColor.g, highlightColor.b, highlightColor.a) : Vector4(color.r, color.g, color.b, color.a));
-
-		RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-			vertices, nullptr, nullptr, vertexCount, nullptr, 0, worldMatrix, materialInstance, handle._sortingOrder, handle._pickingId);
-		viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
-		viewport.GetRenderView()->DeleteAfter(materialInstance);
-
+		ShapeDrawer::FilledTriangles(*viewport.GetRenderView(), worldMatrix, vertices, vertexCount, nullptr, 0, handle._hovered ? highlightColor : color, handle._sortingOrder,
+		                             handle._pickingId);
 		return changed;
-	}
-
-	void Gizmos::Rect(const Matrix4& worldMatrix, const Vector2& Size, const Color& color, RenderView& renderView)
-	{
-		StaticArray<Vector2, 5> vertices = {
-			Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f),  Vector2(Size.GetX() * 0.5f, Size.GetY() * 0.5f),  Vector2(Size.GetX() * 0.5f, -Size.GetY() * 0.5f),
-			Vector2(-Size.GetX() * 0.5f, -Size.GetY() * 0.5f), Vector2(-Size.GetX() * 0.5f, Size.GetY() * 0.5f),
-		};
-
-		MaterialInstance* materialInstance = MaterialInstance::Create(
-			BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
-
-		RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-			vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), nullptr, 0, worldMatrix, materialInstance, std::numeric_limits<uint32_t>::max() - 1);
-		renderView.PushRenderCommand(renderMeshCommand);
-		renderView.DeleteAfter(materialInstance);
-	}
-
-	void Gizmos::FilledFrame(const Matrix4& worldMatrix, const Vector2& outerPosition, const Vector2& outerSize, const Vector2& innerPosition, const Vector2& innerSize,
-	                         const Color& color, RenderView& renderView, uint32_t order)
-	{
-		Vector2 outerMax = outerPosition + outerSize;
-		Vector2 innerMax = innerPosition + innerSize;
-
-		// Counter-clockwise from the bottom-left corner: outer ring then inner ring
-		StaticArray<Vector2, 8> vertices = {
-			outerPosition,
-			Vector2(outerMax.GetX(), outerPosition.GetY()),
-			outerMax,
-			Vector2(outerPosition.GetX(), outerMax.GetY()),
-			innerPosition,
-			Vector2(innerMax.GetX(), innerPosition.GetY()),
-			innerMax,
-			Vector2(innerPosition.GetX(), innerMax.GetY()),
-		};
-		// One quad per side (bottom, right, top, left), between corner i and i + 1 of each ring
-		static const StaticArray<uint16_t, 24> indices = {
-			0, 1, 5, 0, 5, 4, 1, 2, 6, 1, 6, 5, 2, 3, 7, 2, 7, 6, 3, 0, 4, 3, 4, 7,
-		};
-
-		MaterialInstance* materialInstance =
-			MaterialInstance::Create(BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-		materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
-
-		RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-			vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), indices.Data(), (uint32_t)indices.Size(), worldMatrix, materialInstance, order);
-		renderView.PushRenderCommand(renderMeshCommand);
-		renderView.DeleteAfter(materialInstance);
-	}
-
-	void Gizmos::Line(const Matrix4& worldMatrix, const Vector2& start, const Vector2& end, const Color& color, RenderView& renderView, uint32_t order)
-	{
-		StaticArray<Vector2, 2> vertices {start, end};
-
-		MaterialInstance* materialInstance = MaterialInstance::Create(
-			BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
-
-		RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-			vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), nullptr, 0, worldMatrix, materialInstance, order);
-		renderView.PushRenderCommand(renderMeshCommand);
-		renderView.DeleteAfter(materialInstance);
 	}
 
 	/// @brief

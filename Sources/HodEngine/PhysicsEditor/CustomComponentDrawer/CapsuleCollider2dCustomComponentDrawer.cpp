@@ -1,15 +1,12 @@
 #include "HodEngine/PhysicsEditor/Pch.hpp"
-#include "HodEngine/Editor/GeometryGenerator.hpp"
 #include "HodEngine/Editor/Gizmos/GizmoViewport.hpp"
 #include "HodEngine/PhysicsEditor/CustomComponentDrawer/CapsuleCollider2dCustomComponentDrawer.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
-#include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
-#include <HodEngine/RHI/RhiDevice.hpp>
+#include <HodEngine/Editor/Gizmos/Gizmos.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/Renderer/MaterialInstance.hpp>
+#include <HodEngine/Renderer/ShapeDrawer.hpp>
 
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 #include <HodEngine/PhysicsComponents/Components/CapsuleCollider2dComponent.hpp>
@@ -20,20 +17,6 @@
 
 namespace hod::inline editor
 {
-	/// @brief
-	CapsuleCollider2dCustomComponentDrawer::CapsuleCollider2dCustomComponentDrawer()
-	{
-		_materialInstance = MaterialInstance::Create(
-			BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		_materialInstance->SetVec4("ubo.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
-	}
-
-	/// @brief
-	CapsuleCollider2dCustomComponentDrawer::~CapsuleCollider2dCustomComponentDrawer()
-	{
-		DefaultAllocator::GetInstance().Delete(_materialInstance);
-	}
-
 	/// @brief
 	/// @param component
 	/// @param projection
@@ -55,18 +38,13 @@ namespace hod::inline editor
 			{
 				Vector2 scale = node2D->GetScale();
 
-				StaticArray<Vector2, 65> vertices;
-				GeometryGenerator::CapsuleShape<64>(vertices, Vector2::Zero, capsuleCollider2d->GetHeight() * scale.GetY(), capsuleCollider2d->GetRadius() * scale.GetX());
-
 				Matrix4 worldMatrix = node2D->GetWorldMatrix();
 				worldMatrix.RemoveScale();
 
 				Matrix4 localMatrix = Matrix4::Translation(capsuleCollider2d->GetOffset() * scale) * Matrix4::Rotation(capsuleCollider2d->GetRotation());
 
-				RenderCommandMesh* renderMeshCommand =
-					DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), nullptr, 0,
-				                                                                     worldMatrix * localMatrix, _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
-				viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
+				ShapeDrawer::Capsule(*viewport.GetRenderView(), worldMatrix * localMatrix, Vector2::Zero, capsuleCollider2d->GetHeight() * scale.GetY(),
+				                     capsuleCollider2d->GetRadius() * scale.GetX(), Color(0.0f, 1.0f, 0.0f, 1.0f), Gizmos::OverlayOrder, 64);
 			}
 		}
 		return false;

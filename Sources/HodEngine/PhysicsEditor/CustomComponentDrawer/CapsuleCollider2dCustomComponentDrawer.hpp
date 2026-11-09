@@ -3,11 +3,6 @@
 
 #include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawer.hpp"
 
-namespace hod::inline renderer
-{
-	class MaterialInstance;
-}
-
 namespace hod::inline editor
 {
 	/// @brief 
@@ -15,10 +10,10 @@ namespace hod::inline editor
 	{
 	public:
 
-												CapsuleCollider2dCustomComponentDrawer();
+												CapsuleCollider2dCustomComponentDrawer() = default;
 												CapsuleCollider2dCustomComponentDrawer(const CapsuleCollider2dCustomComponentDrawer&) = delete;
 												CapsuleCollider2dCustomComponentDrawer(CapsuleCollider2dCustomComponentDrawer&&) = delete;
-												~CapsuleCollider2dCustomComponentDrawer() override;
+												~CapsuleCollider2dCustomComponentDrawer() override = default;
 
 		CapsuleCollider2dCustomComponentDrawer	operator = (const CapsuleCollider2dCustomComponentDrawer&) = delete;
 		CapsuleCollider2dCustomComponentDrawer	operator = (CapsuleCollider2dCustomComponentDrawer&&) = delete;
@@ -26,9 +21,5 @@ namespace hod::inline editor
 	public:
 
 		bool									OnDrawGizmo(Component* component, GizmoViewport& viewport, bool selected) override;
-
-	private:
-
-		MaterialInstance*				_materialInstance = nullptr;
 	};
 }

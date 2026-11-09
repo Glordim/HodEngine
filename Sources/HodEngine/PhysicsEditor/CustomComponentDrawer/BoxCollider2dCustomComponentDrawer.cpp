@@ -4,11 +4,9 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
-#include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
-#include <HodEngine/RHI/RhiDevice.hpp>
+#include <HodEngine/Editor/Gizmos/Gizmos.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/Renderer/MaterialInstance.hpp>
+#include <HodEngine/Renderer/ShapeDrawer.hpp>
 
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 #include <HodEngine/PhysicsComponents/Components/BoxCollider2dComponent.hpp>
@@ -19,20 +17,6 @@
 
 namespace hod::inline editor
 {
-	/// @brief
-	BoxCollider2dCustomComponentDrawer::BoxCollider2dCustomComponentDrawer()
-	{
-		_materialInstance = MaterialInstance::Create(
-			BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		_materialInstance->SetVec4("ubo.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
-	}
-
-	/// @brief
-	BoxCollider2dCustomComponentDrawer::~BoxCollider2dCustomComponentDrawer()
-	{
-		DefaultAllocator::GetInstance().Delete(_materialInstance);
-	}
-
 	/// @brief
 	/// @param component
 	/// @param projection
@@ -52,20 +36,9 @@ namespace hod::inline editor
 			Node2dComponent* node2D = boxCollider2d->GetOwner()->GetComponent<Node2dComponent>();
 			if (node2D != nullptr)
 			{
-				StaticArray<Vector2, 5> vertices = {
-					Vector2(-boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetSize().GetY() * 0.5f),
-					Vector2(boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetSize().GetY() * 0.5f),
-					Vector2(boxCollider2d->GetSize().GetX() * 0.5f, -boxCollider2d->GetSize().GetY() * 0.5f),
-					Vector2(-boxCollider2d->GetSize().GetX() * 0.5f, -boxCollider2d->GetSize().GetY() * 0.5f),
-					Vector2(-boxCollider2d->GetSize().GetX() * 0.5f, boxCollider2d->GetSize().GetY() * 0.5f),
-				};
-
 				Matrix4 localMatrix = Matrix4::Translation(boxCollider2d->GetOffset()) * Matrix4::Rotation(boxCollider2d->GetRotation());
-
-				RenderCommandMesh* renderMeshCommand = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-					vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), nullptr, 0, node2D->GetWorldMatrix() * localMatrix, _materialInstance,
-					std::numeric_limits<uint32_t>::max() - 1);
-				viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
+				ShapeDrawer::Rect(*viewport.GetRenderView(), node2D->GetWorldMatrix() * localMatrix, Vector2::Zero, boxCollider2d->GetSize(), Color(0.0f, 1.0f, 0.0f, 1.0f),
+				                  Gizmos::OverlayOrder);
 			}
 		}
 		return false;

@@ -11,7 +11,6 @@ namespace hod::inline game
 
 namespace hod::inline renderer
 {
-	class MaterialInstance;
 	class RenderView;
 
 	/// @brief The render of a game::World: each frame on the main window (if the world is drawn there, see World::SetDrawnOnMainWindow), or
@@ -39,6 +38,5 @@ namespace hod::inline renderer
 
 	private:
 		MemberFunctionJob<RendererWorldSystem> _drawJob;
-		const MaterialInstance*                _lineMaterial = nullptr;
 	};
 }

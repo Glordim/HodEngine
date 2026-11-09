@@ -1,15 +1,13 @@
 #include "HodEngine/PhysicsEditor/Pch.hpp"
-#include "HodEngine/Editor/GeometryGenerator.hpp"
 #include "HodEngine/Editor/Gizmos/GizmoViewport.hpp"
 #include "HodEngine/PhysicsEditor/CustomComponentDrawer/CircleCollider2dCustomComponentDrawer.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
-#include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
-#include <HodEngine/RHI/RhiDevice.hpp>
+#include <HodEngine/Editor/Gizmos/Gizmos.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/Renderer/MaterialInstance.hpp>
+#include <HodEngine/Renderer/ShapeDrawer.hpp>
+#include <HodEngine/Core/Math.hpp>
 
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 #include <HodEngine/PhysicsComponents/Components/CircleCollider2dComponent.hpp>
@@ -20,20 +18,6 @@
 
 namespace hod::inline editor
 {
-	/// @brief
-	CircleCollider2dCustomComponentDrawer::CircleCollider2dCustomComponentDrawer()
-	{
-		_materialInstance = MaterialInstance::Create(
-			BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Line_LineStrip));
-		_materialInstance->SetVec4("ubo.color", Vector4(0.0f, 1.0f, 0.0f, 1.0f));
-	}
-
-	/// @brief
-	CircleCollider2dCustomComponentDrawer::~CircleCollider2dCustomComponentDrawer()
-	{
-		DefaultAllocator::GetInstance().Delete(_materialInstance);
-	}
-
 	/// @brief
 	/// @param component
 	/// @param projection
@@ -55,13 +39,8 @@ namespace hod::inline editor
 			{
 				Vector2 scale = node2D->GetScale();
 
-				StaticArray<Vector2, 65> vertices;
-				GeometryGenerator::CircleShape<64>(vertices, circleCollider2d->GetOffset() * scale, circleCollider2d->GetRadius() * std::max(scale.GetX(), scale.GetY()));
-
-				RenderCommandMesh* renderMeshCommand =
-					DefaultAllocator::GetInstance().New<RenderCommandMesh>(vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), nullptr, 0,
-				                                                                     node2D->GetWorldMatrix(), _materialInstance, std::numeric_limits<uint32_t>::max() - 1);
-				viewport.GetRenderView()->PushRenderCommand(renderMeshCommand);
+				ShapeDrawer::Circle(*viewport.GetRenderView(), node2D->GetWorldMatrix(), circleCollider2d->GetOffset() * scale,
+				                    circleCollider2d->GetRadius() * Max(scale.GetX(), scale.GetY()), Color(0.0f, 1.0f, 0.0f, 1.0f), Gizmos::OverlayOrder, 64);
 			}
 		}
 		return false;

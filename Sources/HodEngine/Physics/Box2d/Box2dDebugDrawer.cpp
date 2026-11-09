@@ -309,11 +309,9 @@ namespace hod::inline physics
 		renderCommand._color = (color << 8) | 0xff;
 		renderCommand._vertices.Resize(1);
 		std::memcpy((void*)renderCommand._vertices.Data(), &p, 2 * sizeof(float));
+		renderCommand._size = Size;
 
 		thiz->_renderCommands.push_back(renderCommand);
-
-		// TODO
-		(void)Size;
 	}
 
 	/// @brief

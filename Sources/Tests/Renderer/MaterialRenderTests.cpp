@@ -19,6 +19,7 @@
 #include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
+#include <HodEngine/Renderer/ShapeDrawer.hpp>
 
 #include <HodEngine/Renderer/MaterialInstance.hpp>
 #include <HodEngine/RHI/RenderTarget.hpp>
@@ -1134,4 +1135,131 @@ TEST_F(ShapeRender, DropShadowOffsetDoesNotShowBesideTheUpperCorners)
 		}
 	}
 	EXPECT_GT(ReadUnitPixel(0.5f, -16.5f).b, Background.b + ColorTolerance); // under the shape, it is there
+}
+
+// ============================================================================
+// ShapeDrawer: the simple shapes of one color (debug draw, editor overlays), the color in the vertices of a shared material.
+// The positions are on pixel centers ((pixel + 0.5) / 32 - 1 with the default camera) so the 1 pixel lines are on known pixels.
+// ============================================================================
+
+class ShapeDrawerRender : public MaterialRender
+{
+protected:
+	// Center of the pixel, in [-1, 1]: column for x, row from the bottom for y
+	static float PixelCenter(uint32_t pixel)
+	{
+		return ((float)pixel + 0.5f) / ((float)DefaultTargetSize * 0.5f) - 1.0f;
+	}
+};
+
+TEST_F(ShapeDrawerRender, FilledShapesOfDifferentColorsInTheSameFrame)
+{
+	RenderFrame(
+		[&]()
+		{
+			ShapeDrawer::FilledRect(*_renderView, Matrix4::Identity, Vector2(-0.5f, 0.5f), Vector2(0.5f, 0.5f), Red, 0);
+			ShapeDrawer::FilledCircle(*_renderView, Matrix4::Identity, Vector2(0.5f, 0.5f), 0.25f, Green, 0);
+			StaticArray<Vector2, 4> diamond = {Vector2(-0.5f, -0.75f), Vector2(-0.25f, -0.5f), Vector2(-0.5f, -0.25f), Vector2(-0.75f, -0.5f)};
+			ShapeDrawer::FilledPolygon(*_renderView, Matrix4::Identity, diamond.Data(), (uint32_t)diamond.Size(), Blue, 0);
+			StaticArray<Vector2, 3> triangle = {Vector2(0.25f, -0.75f), Vector2(0.75f, -0.75f), Vector2(0.5f, -0.25f)};
+			ShapeDrawer::FilledTriangles(*_renderView, Matrix4::Identity, triangle.Data(), (uint32_t)triangle.Size(), nullptr, 0, Yellow, 0);
+		});
+
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, 0.5f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.5f), Green));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.7f, 0.7f), Background)); // out of the circle, in its bounding box
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, -0.5f), Blue));
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.7f, -0.3f), Background)); // out of the diamond
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, -0.6f), Yellow));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Background));
+}
+
+TEST_F(ShapeDrawerRender, MatrixPlacesTheShape)
+{
+	RenderFrame([&]() { ShapeDrawer::FilledRect(*_renderView, Matrix4::Translation(Vector2(0.5f, 0.0f)), Vector2::Zero, Vector2(0.5f, 0.5f), Red, 0); });
+
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.0f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Background));
+}
+
+TEST_F(ShapeDrawerRender, OutlinesAreOnePixelOnTheirEdges)
+{
+	const float edge = PixelCenter(48); // the rect spans the pixels 15 to 48
+	const float y = PixelCenter(8);
+
+	RenderFrame(
+		[&]()
+		{
+			ShapeDrawer::Rect(*_renderView, Matrix4::Identity, Vector2::Zero, Vector2(edge * 2.0f, edge * 2.0f), Red, 0);
+			ShapeDrawer::Line(*_renderView, Matrix4::Identity, Vector2(PixelCenter(4), y), Vector2(PixelCenter(60), y), Green, 0);
+		});
+
+	EXPECT_TRUE(ColorNear(ReadPixel(edge, 0.0f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(-edge, 0.0f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, edge), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, -edge), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Background)); // an outline: nothing inside
+	EXPECT_TRUE(ColorNear(ReadPixel(PixelCenter(47), 0.0f), Background));
+	EXPECT_TRUE(ColorNear(ReadPixel(PixelCenter(49), 0.0f), Background));
+
+	EXPECT_TRUE(ColorNear(ReadPixel(PixelCenter(32), y), Green));
+	EXPECT_TRUE(ColorNear(ReadPixel(PixelCenter(32), PixelCenter(9)), Background));
+}
+
+TEST_F(ShapeDrawerRender, CircleAndCapsuleAreOutlines)
+{
+	RenderFrame(
+		[&]()
+		{
+			ShapeDrawer::Circle(*_renderView, Matrix4::Identity, Vector2(-0.5f, 0.0f), 0.4f, Red, 0, 64);
+			ShapeDrawer::Capsule(*_renderView, Matrix4::Identity, Vector2(0.5f, 0.0f), 1.6f, 0.3f, Green, 0, 64);
+		});
+
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, 0.0f), Background));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.0f), Background));
+
+	// Somewhere on the left of each (one pixel wide: looked for along a row)
+	auto rowHas = [&](float fromX, float toX, float y, const Color& color)
+	{
+		for (float x = fromX; x <= toX; x += 1.0f / 64.0f)
+		{
+			if (ColorNear(ReadPixel(x, y), color))
+			{
+				return true;
+			}
+		}
+		return false;
+	};
+	EXPECT_TRUE(rowHas(-0.95f, -0.85f, 0.0f, Red));
+	EXPECT_TRUE(rowHas(0.15f, 0.25f, 0.0f, Green));  // its straight side
+	EXPECT_TRUE(rowHas(0.15f, 0.25f, 0.45f, Green)); // still straight up to height / 2 - radius
+}
+
+TEST_F(ShapeDrawerRender, HigherOrderIsOnTop)
+{
+	RenderFrame(
+		[&]()
+		{
+			ShapeDrawer::FilledRect(*_renderView, Matrix4::Identity, Vector2::Zero, Vector2(1.0f, 1.0f), Red, 1);
+			ShapeDrawer::FilledRect(*_renderView, Matrix4::Identity, Vector2::Zero, Vector2(1.0f, 1.0f), Green, 0);
+		});
+
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Red));
+}
+
+TEST_F(ShapeDrawerRender, PointIsInPixels)
+{
+	_projection = Matrix4::OrthogonalProjection(-4.0f, 4.0f, -4.0f, 4.0f, -1024.0f, 1024.0f); // zoomed out: a pixel is 1 / 8 world unit
+	RenderFrame(
+		[&]()
+		{
+			EXPECT_FLOAT_EQ(ShapeDrawer::GetPixelWorldSize(*_renderView), 8.0f / (float)DefaultTargetSize);
+			ShapeDrawer::Point(*_renderView, Vector2::Zero, 4.0f, Red, 0);
+		});
+
+	// 4 pixels around the center of the target (pixels 30 to 33)
+	EXPECT_TRUE(ColorNear(ReadPixel(PixelCenter(30), PixelCenter(30)), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(PixelCenter(33), PixelCenter(33)), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(PixelCenter(28), PixelCenter(32)), Background));
+	EXPECT_TRUE(ColorNear(ReadPixel(PixelCenter(35), PixelCenter(32)), Background));
 }

@@ -29,12 +29,10 @@
 #include <HodEngine/Math/Vector4.hpp>
 
 #include <HodEngine/Renderer/FrameResources.hpp>
-#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
-#include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/RHI/RhiDevice.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/Renderer/MaterialInstance.hpp>
+#include <HodEngine/Renderer/ShapeDrawer.hpp>
 #include <HodEngine/RHI/RenderTarget.hpp>
 #include <HodEngine/RHI/Texture.hpp>
 
@@ -742,7 +740,7 @@ namespace hod::inline editor
 	/// drawn afterwards over the blitted image, see DrawPreviewLabels.
 	void UIPrefabEditorViewportWindow::DrawPreviewFrames(RenderView& renderView)
 	{
-		Gizmos::Rect(Matrix4::Identity, GetDeviceFrameSize(), Color(0.85f, 0.85f, 0.85f, 1.0f), renderView);
+		ShapeDrawer::Rect(renderView, Matrix4::Identity, Vector2::Zero, GetDeviceFrameSize(), Color(0.85f, 0.85f, 0.85f, 1.0f), Gizmos::OverlayOrder);
 	}
 
 	/// @brief Labels the frame of DrawPreviewFrames with the device's name and resolution, above its top-left corner.
@@ -850,7 +848,7 @@ namespace hod::inline editor
 			if (i % 2 != 0)
 			{
 				float x = origin.GetX() + (float)i * minorStep;
-				Gizmos::Line(Matrix4::Identity, Vector2(x, bottom), Vector2(x, top), minorColor, renderView, gridRenderingOrder);
+				ShapeDrawer::Line(renderView, Matrix4::Identity, Vector2(x, bottom), Vector2(x, top), minorColor, gridRenderingOrder);
 			}
 		}
 
@@ -861,7 +859,7 @@ namespace hod::inline editor
 			if (i % 2 != 0)
 			{
 				float y = origin.GetY() + (float)i * minorStep;
-				Gizmos::Line(Matrix4::Identity, Vector2(left, y), Vector2(right, y), minorColor, renderView, gridRenderingOrder);
+				ShapeDrawer::Line(renderView, Matrix4::Identity, Vector2(left, y), Vector2(right, y), minorColor, gridRenderingOrder);
 			}
 		}
 
@@ -870,7 +868,7 @@ namespace hod::inline editor
 		for (int64_t i = firstMajorX; i <= lastMajorX; ++i)
 		{
 			float x = origin.GetX() + (float)i * majorStep;
-			Gizmos::Line(Matrix4::Identity, Vector2(x, bottom), Vector2(x, top), gridColor, renderView, gridRenderingOrder);
+			ShapeDrawer::Line(renderView, Matrix4::Identity, Vector2(x, bottom), Vector2(x, top), gridColor, gridRenderingOrder);
 		}
 
 		int64_t firstMajorY = (int64_t)std::floor(relBottom / majorStep);
@@ -878,7 +876,7 @@ namespace hod::inline editor
 		for (int64_t i = firstMajorY; i <= lastMajorY; ++i)
 		{
 			float y = origin.GetY() + (float)i * majorStep;
-			Gizmos::Line(Matrix4::Identity, Vector2(left, y), Vector2(right, y), gridColor, renderView, gridRenderingOrder);
+			ShapeDrawer::Line(renderView, Matrix4::Identity, Vector2(left, y), Vector2(right, y), gridColor, gridRenderingOrder);
 		}
 	}
 
@@ -927,7 +925,7 @@ namespace hod::inline editor
 	{
 		if (hitNode != nullptr)
 		{
-			Gizmos::Rect(hitNode->ComputeCanvasMatrix(), hitNode->GetSize(), Color(1.0f, 1.0f, 1.0f, 0.6f), renderView);
+			ShapeDrawer::Rect(renderView, hitNode->ComputeCanvasMatrix(), Vector2::Zero, hitNode->GetSize(), Color(1.0f, 1.0f, 1.0f, 0.6f), Gizmos::OverlayOrder);
 		}
 
 		auto drawInteractive = [&](ui::Node* node)
@@ -943,7 +941,7 @@ namespace hod::inline editor
 					case ui::Selectable::State::Disabled: color = Color(0.5f, 0.5f, 0.5f, 1.0f); break;
 				}
 			}
-			Gizmos::Rect(node->ComputeCanvasMatrix(), node->GetSize(), color, renderView);
+			ShapeDrawer::Rect(renderView, node->ComputeCanvasMatrix(), Vector2::Zero, node->GetSize(), color, Gizmos::OverlayOrder);
 		};
 
 		if (canvas.GetHoveredNode() != nullptr)
@@ -966,7 +964,7 @@ namespace hod::inline editor
 		bool  isSelected = tab->IsSelected(node);
 		Color color = isSelected ? Color(1.0f, 165.0f / 255.0f, 0.0f, 1.0f) : Color(120.0f / 255.0f, 170.0f / 255.0f, 1.0f, 180.0f / 255.0f);
 
-		Gizmos::Rect(Matrix4::Translation(canvasPosition), size, color, renderView);
+		ShapeDrawer::Rect(renderView, Matrix4::Translation(canvasPosition), Vector2::Zero, size, color, Gizmos::OverlayOrder);
 
 		for (ui::Node* child : node->GetChildren())
 		{
@@ -981,6 +979,8 @@ namespace hod::inline editor
 	/// @param renderView
 	void UIPrefabEditorViewportWindow::DrawSpacing(ui::Node* node, RenderView& renderView)
 	{
+		constexpr uint32_t LayoutFrameOrder = Gizmos::OverlayOrder - 1; // under the outlines
+
 		Rect rect;
 		rect._size = node->GetSize();
 		rect._position = node->ComputeCanvasMatrix().GetTranslation() - rect._size * 0.5f;
@@ -988,8 +988,8 @@ namespace hod::inline editor
 		if (const ui::BoxLayout* boxLayout = node->GetLayout<ui::BoxLayout>())
 		{
 			Rect inner = rect.Inset(boxLayout->GetPadding());
-			Gizmos::FilledFrame(Matrix4::Identity, rect._position, rect._size, inner._position, inner._size, Color(147.0f / 255.0f, 196.0f / 255.0f, 125.0f / 255.0f, 0.55f),
-			                    renderView);
+			ShapeDrawer::FilledFrame(renderView, Matrix4::Identity, rect._position, rect._size, inner._position, inner._size,
+			                         Color(147.0f / 255.0f, 196.0f / 255.0f, 125.0f / 255.0f, 0.55f), LayoutFrameOrder);
 		}
 
 		if (const ui::BoxLayoutParams* boxLayoutParams = LayoutParams::Cast<ui::BoxLayoutParams>(node->GetLayoutParams()))
@@ -998,8 +998,8 @@ namespace hod::inline editor
 			Rect               outer;
 			outer._position = rect._position - Vector2(margin._left, margin._bottom);
 			outer._size = rect._size + Vector2(margin._left + margin._right, margin._bottom + margin._top);
-			Gizmos::FilledFrame(Matrix4::Identity, outer._position, outer._size, rect._position, rect._size, Color(246.0f / 255.0f, 178.0f / 255.0f, 107.0f / 255.0f, 0.55f),
-			                    renderView);
+			ShapeDrawer::FilledFrame(renderView, Matrix4::Identity, outer._position, outer._size, rect._position, rect._size,
+			                         Color(246.0f / 255.0f, 178.0f / 255.0f, 107.0f / 255.0f, 0.55f), LayoutFrameOrder);
 		}
 	}
 
@@ -1071,28 +1071,10 @@ namespace hod::inline editor
 		constexpr float gizmoCornerHandlePixelSize = 8.0f;
 		constexpr float gizmoEdgeHandlePixelThickness = 6.0f;
 
-		/// @brief Filled quad in canvas space, used to draw the corner handles (Gizmos::Rect only
-		/// draws an outline, which would be hard to see at handle size).
+		/// @brief Filled quad in canvas space, the corner handles (an outline would be hard to see at handle size), over the outlines
 		void DrawFilledQuad(const Vector2& center, const Vector2& size, const Color& color, RenderView& renderView)
 		{
-			Vector2                halfSize = size * 0.5f;
-			StaticArray<Vector2, 4> vertices = {
-				center + Vector2(-halfSize.GetX(), halfSize.GetY()),
-				center + Vector2(halfSize.GetX(), halfSize.GetY()),
-				center + Vector2(halfSize.GetX(), -halfSize.GetY()),
-				center + Vector2(-halfSize.GetX(), -halfSize.GetY()),
-			};
-			StaticArray<uint16_t, 6> indices = {0, 1, 2, 0, 2, 3};
-
-			MaterialInstance* materialInstance = MaterialInstance::Create(
-				BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2f_Unlit_Triangle));
-			materialInstance->SetVec4("ubo.color", Vector4(color.r, color.g, color.b, color.a));
-
-			RenderCommandMesh* command = DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-				vertices.Data(), nullptr, nullptr, (uint32_t)vertices.Size(), indices.Data(), (uint32_t)indices.Size(), Matrix4::Identity, materialInstance,
-				std::numeric_limits<uint32_t>::max());
-			renderView.PushRenderCommand(command);
-			renderView.DeleteAfter(materialInstance);
+			ShapeDrawer::FilledRect(renderView, Matrix4::Identity, center, size, color, std::numeric_limits<uint32_t>::max());
 		}
 	}
 
@@ -1175,7 +1157,7 @@ namespace hod::inline editor
 			Vector2 boundsCenter;
 			Vector2 boundsSize;
 			ComputeCanvasBounds(nodes, boundsCenter, boundsSize);
-			Gizmos::Rect(Matrix4::Translation(boundsCenter), boundsSize, isActive(GizmoHandle::Move) ? handleHighlightColor : handleColor, renderView);
+			ShapeDrawer::Rect(renderView, Matrix4::Translation(boundsCenter), Vector2::Zero, boundsSize, isActive(GizmoHandle::Move) ? handleHighlightColor : handleColor, Gizmos::OverlayOrder);
 			return;
 		}
 
@@ -1198,19 +1180,19 @@ namespace hod::inline editor
 
 		if (isActive(GizmoHandle::Top))
 		{
-			Gizmos::Line(Matrix4::Identity, topLeft, topRight, handleHighlightColor, renderView);
+			ShapeDrawer::Line(renderView, Matrix4::Identity, topLeft, topRight, handleHighlightColor, Gizmos::OverlayOrder);
 		}
 		if (isActive(GizmoHandle::Bottom))
 		{
-			Gizmos::Line(Matrix4::Identity, bottomLeft, bottomRight, handleHighlightColor, renderView);
+			ShapeDrawer::Line(renderView, Matrix4::Identity, bottomLeft, bottomRight, handleHighlightColor, Gizmos::OverlayOrder);
 		}
 		if (isActive(GizmoHandle::Left))
 		{
-			Gizmos::Line(Matrix4::Identity, topLeft, bottomLeft, handleHighlightColor, renderView);
+			ShapeDrawer::Line(renderView, Matrix4::Identity, topLeft, bottomLeft, handleHighlightColor, Gizmos::OverlayOrder);
 		}
 		if (isActive(GizmoHandle::Right))
 		{
-			Gizmos::Line(Matrix4::Identity, topRight, bottomRight, handleHighlightColor, renderView);
+			ShapeDrawer::Line(renderView, Matrix4::Identity, topRight, bottomRight, handleHighlightColor, Gizmos::OverlayOrder);
 		}
 	}
 

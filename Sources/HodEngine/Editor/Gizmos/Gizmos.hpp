@@ -5,17 +5,9 @@
 #include <HodEngine/Math/Matrix4.hpp>
 #include <HodEngine/Math/Color.hpp>
 
+#include <limits>
+
 #undef max
-
-namespace hod::inline renderer
-{
-	class MaterialInstance;
-}
-
-namespace hod::inline renderer
-{
-	class RenderView;
-}
 
 namespace hod::inline editor
 {
@@ -31,12 +23,18 @@ namespace hod::inline editor
 		Vector2		_initialPosition;
 		Vector2		_moveOffset;
 		Vector2		_delta;
-		int32_t		_sortingOrder = std::numeric_limits<uint32_t>::max();
+		uint32_t	_sortingOrder = std::numeric_limits<uint32_t>::max();
 	};
 
-	/// @brief 
+	/// @brief The interactive handles of the editor viewports (picking, hover, drag, cancel with Escape), drawn with renderer::ShapeDrawer.
+	/// What only shows something (outlines, frames, grids) uses ShapeDrawer directly, with OverlayOrder to stay over the content.
 	class HOD_EDITOR_API Gizmos
 	{
+	public:
+
+		/// @brief Rendering order of the editor overlays (outlines...): over the content, under the handles (Handle::_sortingOrder)
+		static constexpr uint32_t OverlayOrder = std::numeric_limits<uint32_t>::max() - 1;
+
 	public:
 
 		static Handle 	GenerateHandle();
@@ -44,14 +42,8 @@ namespace hod::inline editor
 
 		static bool FreeMoveCircle(Handle& handle, const Matrix4& worldMatrix, const Vector2& position, float radius, const Color& color, const Color& highlightColor, GizmoViewport& viewport);
 		static bool FreeMoveRect(Handle& handle, const Matrix4& worldMatrix, const Vector2& position, const Vector2& size, const Color& color, const Color& highlightColor, GizmoViewport& viewport);
+		/// @brief vertices: a triangle list
 		static bool FreeMoveMesh(Handle& handle, const Matrix4& worldMatrix, const Vector2* vertices, uint32_t vertexCount, const Color& color, const Color& highlightColor, GizmoViewport& viewport);
-
-		static void Rect(const Matrix4& worldMatrix, const Vector2& size, const Color& color, RenderView& renderView);
-		// Fills the band between two axis-aligned rects (outer contains inner), e.g. a padding or a margin. Rects as {bottom-left corner, size}.
-		static void FilledFrame(const Matrix4& worldMatrix, const Vector2& outerPosition, const Vector2& outerSize, const Vector2& innerPosition, const Vector2& innerSize,
-		                        const Color& color, RenderView& renderView, uint32_t order = std::numeric_limits<uint32_t>::max() - 2);
-		// order: rendering order, higher is drawn later (on top). The default keeps gizmos over regular content.
-		static void Line(const Matrix4& worldMatrix, const Vector2& start, const Vector2& end, const Color& color, RenderView& renderView, uint32_t order = std::numeric_limits<uint32_t>::max() - 1);
 
 	private:
 

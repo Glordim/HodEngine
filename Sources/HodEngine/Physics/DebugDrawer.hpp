@@ -23,6 +23,7 @@ namespace hod::inline physics
 		Type					_type;
 		Vector<Vector2>	_vertices;
 		Color				_color;
+		float				_size = 0.0f; // Point: in pixels
 	};
 
 	/// @brief 
