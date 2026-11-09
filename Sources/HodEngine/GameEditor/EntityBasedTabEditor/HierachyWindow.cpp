@@ -45,11 +45,18 @@ namespace hod::inline editor
 			GetOwner<EntityEditorTab>()->RequestFrameSelection();
 		}
 
+		// A header per scene, but for a prefab: its root entity, named after it as the scene is, is the whole content (the playing world's
+		// copy of it while playing)
+		bool sceneHeaders = (GetOwner<EntityEditorTab>()->GetRootEntity() == nullptr);
 		for (Scene* scene : world->GetScenes())
 		{
-			ImGui::PushID(scene);
-			bool open = ImGui::CollapsingHeader(scene->GetName().CStr(), ImGuiTreeNodeFlags_DefaultOpen);
-			ImGui::PopID();
+			bool open = true;
+			if (sceneHeaders)
+			{
+				ImGui::PushID(scene);
+				open = ImGui::CollapsingHeader(scene->GetName().CStr(), ImGuiTreeNodeFlags_DefaultOpen);
+				ImGui::PopID();
+			}
 			if (open)
 			{
 				for (auto& pair : scene->GetEntities())
@@ -89,9 +96,11 @@ namespace hod::inline editor
 			{
 				Entity* entity = world->GetScenes()[0]->CreateEntity("EditMe");
 
-				if (selection != nullptr)
+				// Under the selection, or the root entity (a prefab has one root)
+				Entity* parent = selection != nullptr ? selection : GetOwner<EntityEditorTab>()->GetDefaultParent();
+				if (parent != nullptr)
 				{
-					entity->SetParent(selection);
+					entity->SetParent(parent);
 				}
 
 				GetOwner<EntityEditorTab>()->SetEntitySelection(entity);
@@ -104,10 +113,16 @@ namespace hod::inline editor
 			if (selection != nullptr)
 			{
 				bool isPrefab = (selection->GetPrefabResource() != nullptr);
-				if (ImGui::MenuItem("Delete") == true)
+				bool isRoot = GetOwner<EntityEditorTab>()->IsRootEntity(selection);
+				if (ImGui::MenuItem("Delete", nullptr, false, isRoot == false) == true)
 				{
 					world->DestroyEntity(selection);
 					GetOwner()->MarkAsDirty();
+				}
+
+				if (isRoot)
+				{
+					ImGui::SetItemTooltip("The prefab's root entity: every other entity is under it");
 				}
 
 				if (isPrefab && ImGui::MenuItem("Unpack Prefab"))
@@ -153,7 +168,8 @@ namespace hod::inline editor
 					// todo factorize
 					EntityDragAndDropPayload* entityDragAndDropPayload = reinterpret_cast<EntityDragAndDropPayload*>(payload->Data);
 					Entity*             dropEntity = entityDragAndDropPayload->_entity;
-					if (dropEntity != nullptr)
+					// Next to entity: under its parent (not out of the prefab's root, nor into the dragged entity itself)
+					if (dropEntity != nullptr && dropEntity != entity && GetOwner<EntityEditorTab>()->CanReparent(dropEntity, entity->GetParent().Lock()))
 					{
 						dropEntity->SetParent(entity->GetParent());
 						dropEntity->SetSiblingIndex(entity->GetSiblingIndex());
@@ -234,7 +250,7 @@ namespace hod::inline editor
 				{
 					EntityDragAndDropPayload* entityDragAndDropPayload = reinterpret_cast<EntityDragAndDropPayload*>(payload->Data);
 					Entity*             dropEntity = entityDragAndDropPayload->_entity;
-					if (dropEntity != nullptr)
+					if (dropEntity != nullptr && GetOwner<EntityEditorTab>()->CanReparent(dropEntity, entity))
 					{
 						dropEntity->SetParent(entity);
 						GetOwner()->MarkAsDirty();
@@ -244,7 +260,8 @@ namespace hod::inline editor
 			ImGui::EndDragDropTarget();
 		}
 
-		if (ImGui::BeginDragDropSource() == true)
+		// The root entity of a prefab stays where it is
+		if (GetOwner<EntityEditorTab>()->IsRootEntity(entity) == false && ImGui::BeginDragDropSource() == true)
 		{
 			// Some processing...
 			ImGui::TextUnformatted(entity->GetName().CStr());

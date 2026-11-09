@@ -3,6 +3,7 @@
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Gizmos/ViewportGrid.hpp"
+#include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/Math.hpp>
 #include "HodEngine/GameEditor/EntityBasedTabEditor/EntityEditorTab.hpp"
 #include "HodEngine/GameEditor/PrefabEditor/PrefabAssetType.hpp"
@@ -467,13 +468,23 @@ namespace hod::inline editor
 						std::shared_ptr<Asset>            asset = node->_asset;
 						if (asset != nullptr)
 						{
-							if (asset->GetType() == PrefabAssetType::GetHash())
+							// Under the root entity if any (a prefab's), not into the prefab itself
+							EntityEditorTab* tab = GetOwner<EntityEditorTab>();
+							if (asset->GetType() == PrefabAssetType::GetHash() && tab->CanInstantiatePrefab(asset->GetUid()))
 							{
 								std::shared_ptr<PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<PrefabResource>(asset->GetUid());
 
-								GetOwner<EntityEditorTab>()->GetCurrentScene()->Instantiate(prefabResource);
+								Entity* instance = tab->GetCurrentScene()->Instantiate(prefabResource);
+								if (instance != nullptr && tab->GetDefaultParent() != nullptr)
+								{
+									instance->SetParent(tab->GetDefaultParent());
+								}
 
 								GetOwner()->MarkAsDirty();
+							}
+							else if (asset->GetType() == PrefabAssetType::GetHash())
+							{
+								OUTPUT_ERROR("A prefab can't contain itself: {} holds an instance of it", asset->GetName());
 							}
 						}
 					}

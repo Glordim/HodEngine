@@ -7,6 +7,11 @@
 
 #include <memory>
 
+namespace hod::inline core
+{
+	class UID;
+}
+
 namespace hod::inline game
 {
 	class World;
@@ -39,6 +44,18 @@ namespace hod::inline editor
 
 		void			SetEntitySelection(Entity* selection);
 		Entity*	GetEntitySelection() const;
+
+		// The entity all the other ones are under (a prefab's root, see PrefabEditorTab), nullptr if there can be any number of roots (a scene)
+		virtual Entity*	GetRootEntity() const;
+		// Whether entity is the root entity: it can't be moved, deleted nor renamed
+		bool			IsRootEntity(const Entity* entity) const;
+		// Where an entity is created when nothing else gives its parent: under the root entity if any
+		Entity*			GetDefaultParent() const;
+		// Whether entity can be given parent (nullptr: made a root): not if it is the root entity, nor into itself or its descendants,
+		// nor out of the root entity
+		bool			CanReparent(const Entity* entity, const Entity* parent) const;
+		// Whether an instance of the prefab can be added (not into itself)
+		virtual bool	CanInstantiatePrefab(const UID& prefab) const;
 
 		// F, pressed in the hierarchy or the viewport: the viewport centers its view on the selection
 		void			RequestFrameSelection();

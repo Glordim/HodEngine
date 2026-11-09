@@ -221,6 +221,61 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @return
+	Entity* EntityEditorTab::GetRootEntity() const
+	{
+		return nullptr;
+	}
+
+	/// @brief
+	/// @param entity
+	/// @return
+	bool EntityEditorTab::IsRootEntity(const Entity* entity) const
+	{
+		return entity != nullptr && entity == GetRootEntity();
+	}
+
+	/// @brief
+	/// @return
+	Entity* EntityEditorTab::GetDefaultParent() const
+	{
+		return GetRootEntity();
+	}
+
+	/// @brief
+	/// @param entity
+	/// @param parent
+	/// @return
+	bool EntityEditorTab::CanReparent(const Entity* entity, const Entity* parent) const
+	{
+		if (entity == nullptr || IsRootEntity(entity))
+		{
+			return false;
+		}
+		if (parent == nullptr)
+		{
+			return GetRootEntity() == nullptr;
+		}
+		for (const Entity* ancestor = parent; ancestor != nullptr; ancestor = ancestor->GetParent().Lock())
+		{
+			if (ancestor == entity)
+			{
+				return false;
+			}
+		}
+		return true;
+	}
+
+	/// @brief
+	/// @param prefab
+	/// @return
+	bool EntityEditorTab::CanInstantiatePrefab(const UID& prefab) const
+	{
+		(void)prefab;
+		return true;
+	}
+
+	/// @brief
 	void EntityEditorTab::RequestFrameSelection()
 	{
 		_frameSelectionRequested = true;

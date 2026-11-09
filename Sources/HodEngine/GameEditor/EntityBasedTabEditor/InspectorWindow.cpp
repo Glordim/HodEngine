@@ -171,13 +171,21 @@ namespace hod::inline editor
 		}
 		ImGui::SameLine();
 
+		// A prefab's root entity is named after the asset
+		bool isRoot = GetOwner<EntityEditorTab>()->IsRootEntity(selection);
 		char buffer[256] = {'\0'};
-		std::strcpy(buffer, selection->GetName().CStr());
+		std::strncpy(buffer, selection->GetName().CStr(), sizeof(buffer) - 1);
 		ImGui::SetNextItemWidth(-1);
+		ImGui::BeginDisabled(isRoot);
 		if (ImGui::InputText("##Name", buffer, sizeof(buffer) - 1) == true)
 		{
 			selection->SetName(buffer);
 			GetOwner()->MarkAsDirty();
+		}
+		ImGui::EndDisabled();
+		if (isRoot && ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled))
+		{
+			ImGui::SetTooltip("Named after the asset: rename the asset to rename it");
 		}
 
 		Component* componentToRemove = nullptr; // After the loop: removing deletes it, and changes the list being drawn

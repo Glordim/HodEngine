@@ -2,25 +2,34 @@
 #include "HodEngine/GameEditor/PrefabEditor/PrefabEditorTab.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/GameEditor/EntityBasedTabEditor/HierachyWindow.hpp"
 #include "HodEngine/GameEditor/EntityBasedTabEditor/InspectorWindow.hpp"
-#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/GameEditor/EntityBasedTabEditor/ViewportWindow.hpp"
+#include "HodEngine/GameEditor/PrefabEditor/PrefabAssetType.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
+#include <HodEngine/Game/Components/Node2dComponent.hpp>
+#include <HodEngine/Game/Entity.hpp>
 #include <HodEngine/Game/PrefabResource.hpp>
 #include <HodEngine/Game/Scene.hpp>
+#include <HodEngine/Game/SceneSerializer.hpp>
 #include <HodEngine/Game/World.hpp>
 
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 #include <HodEngine/Core/Document/DocumentWriterJson.hpp>
+#include <HodEngine/Core/FileSystem/Path.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
+#include <HodEngine/Core/UID.hpp>
 #include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
+
+#include <algorithm>
 
 namespace hod::inline editor
 {
@@ -32,31 +41,215 @@ namespace hod::inline editor
 		{
 			_scene->SetName(asset->GetName());
 
+			// The asset as saved (as the scene tab loads its scene), not its cooked resource: the root stays plain entities, not an instance
 			const AssetContainer::DataBlockInfo* entitiesDataBlock = _assetContainer.FindDataBlock("Entities");
-			if (entitiesDataBlock == nullptr)
+			if (entitiesDataBlock != nullptr)
 			{
-				return;
+				Document           document;
+				DocumentReaderJson documentReader;
+				if (documentReader.Read(document, *entitiesDataBlock->_stream) == false || Serializer::Deserialize(_scene, document.GetRootNode()) == false)
+				{
+					OUTPUT_ERROR("Can't read the prefab {}", asset->GetPath());
+				}
+				_scene->SetName(asset->GetName());
 			}
-
-			Document           document;
-			DocumentReaderJson documentReader;
-			if (documentReader.Read(document, *entitiesDataBlock->_stream) == false)
-			{
-				return; // todo message + bool
-			}
-
-			std::shared_ptr<PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<PrefabResource>(asset->GetUid());
-			_scene->SetNextLocalId(prefabResource->GetPrefab().GetNextLocalId());
-			Entity* prefabRootEntity = _scene->Instantiate(prefabResource);
-			prefabRootEntity->SetPrefabResource(nullptr); // Invalid reference to PrefabResource to avoid serialization as PrefabInstance
-			prefabRootEntity->SetLocalId(prefabResource->GetPrefab().GetRootEntity()->GetLocalId());
-
-			_scene->ProcessActivation();
 		}
+
+		SyncRootEntityName();
+		_scene->ProcessActivation();
 	}
 
 	/// @brief
 	PrefabEditorTab::~PrefabEditorTab() {}
+
+	/// @brief The entity without parent: a prefab has one (see CreateEmptyPrefab)
+	/// @return
+	Entity* PrefabEditorTab::GetRootEntity() const
+	{
+		for (const auto& entityPair : _scene->GetEntities())
+		{
+			if (entityPair.second->GetParent().Lock() == nullptr)
+			{
+				return entityPair.second;
+			}
+		}
+		return nullptr;
+	}
+
+	/// @brief Not itself, nor a prefab holding an instance of it: it would contain itself
+	/// @param prefab
+	/// @return
+	bool PrefabEditorTab::CanInstantiatePrefab(const UID& prefab) const
+	{
+		std::shared_ptr<Asset> asset = GetAsset();
+		if (asset == nullptr)
+		{
+			return true;
+		}
+		return prefab != asset->GetUid() && ContainsPrefab(prefab, asset->GetUid()) == false;
+	}
+
+	/// @brief A plain entity with a Node2dComponent: what places the instances in the scenes
+	/// @param name
+	/// @return
+	Entity* PrefabEditorTab::CreateRootEntity(std::string_view name)
+	{
+		Entity* rootEntity = DefaultAllocator::GetInstance().New<Entity>(name);
+		rootEntity->AddComponent<Node2dComponent>();
+		return rootEntity;
+	}
+
+	/// @brief
+	void PrefabEditorTab::SyncRootEntityName()
+	{
+		std::shared_ptr<Asset> asset = GetAsset();
+		Entity*                rootEntity = GetRootEntity();
+		if (asset == nullptr || rootEntity == nullptr)
+		{
+			return;
+		}
+		if (rootEntity->GetName() != asset->GetName())
+		{
+			rootEntity->SetName(asset->GetName());
+		}
+		if (_scene->GetName() != asset->GetName())
+		{
+			_scene->SetName(asset->GetName());
+		}
+	}
+
+	/// @brief
+	/// @param assetPath
+	/// @return
+	bool PrefabEditorTab::CreateEmptyPrefab(const Path& assetPath)
+	{
+		String  name = assetPath.Stem().GetString();
+		Entity* rootEntity = CreateRootEntity(name);
+
+		// As Scene::SerializeInDocument writes it
+		Document        document;
+		uint64_t        nextLocalId = 1;
+		SceneSerializer sceneSerializer;
+		document.GetRootNode().AddChild("Name").SetString(name);
+		bool serialized = sceneSerializer.SerializeEntity(rootEntity, true, document.GetRootNode().AddChild("Entities"), nextLocalId);
+		document.GetRootNode().AddChild("NextLocalId").SetUInt64(nextLocalId);
+		DefaultAllocator::GetInstance().Delete(rootEntity);
+		if (serialized == false)
+		{
+			return false;
+		}
+
+		AssetContainer     assetContainer;
+		DocumentWriterJson documentWriter;
+		assetContainer.SetAssetType(PrefabAssetType::GetHash());
+		assetContainer.SetUid(UID::GenerateUID());
+		return documentWriter.Write(document, assetContainer.AddDataBlock("Entities", false)) && assetContainer.Save(assetPath);
+	}
+
+	/// @brief The entities are written roots first (see SceneSerializer::SerializeEntity), the root is the only one without parent
+	/// @param prefabDocument
+	/// @return nullptr if there isn't exactly one
+	const DocumentNode* PrefabEditorTab::FindRootEntityNode(const Document& prefabDocument)
+	{
+		const DocumentNode* entitiesNode = prefabDocument.GetRootNode().GetChild("Entities");
+		if (entitiesNode == nullptr)
+		{
+			return nullptr;
+		}
+
+		const DocumentNode* rootNode = nullptr;
+		for (const DocumentNode* entityNode = entitiesNode->GetFirstChild(); entityNode != nullptr; entityNode = entityNode->GetNextSibling())
+		{
+			const DocumentNode* parentNode = entityNode->GetChild("Parent");
+			const DocumentNode* parentIdNode = parentNode != nullptr ? parentNode->GetChild("Id") : nullptr;
+			if (parentIdNode == nullptr || parentIdNode->GetUInt64() == 0)
+			{
+				if (rootNode != nullptr)
+				{
+					return nullptr;
+				}
+				rootNode = entityNode;
+			}
+		}
+		return rootNode;
+	}
+
+	/// @brief
+	/// @param prefabDocument
+	/// @param assetName
+	/// @return
+	bool PrefabEditorTab::NameRootEntityAfterAsset(Document& prefabDocument, std::string_view assetName)
+	{
+		DocumentNode* rootNode = const_cast<DocumentNode*>(FindRootEntityNode(prefabDocument));
+		if (rootNode == nullptr || rootNode->GetChild("PrefabInstance") != nullptr)
+		{
+			return false;
+		}
+
+		bool          changed = false;
+		DocumentNode& nameNode = rootNode->GetOrAddChild("_name");
+		if (nameNode.GetType() != DocumentNode::Type::String || std::string_view(nameNode.GetString().CStr(), nameNode.GetString().Length()) != assetName)
+		{
+			nameNode.SetString(assetName);
+			changed = true;
+		}
+		DocumentNode& sceneNameNode = prefabDocument.GetRootNode().GetOrAddChild("Name");
+		if (sceneNameNode.GetType() != DocumentNode::Type::String || std::string_view(sceneNameNode.GetString().CStr(), sceneNameNode.GetString().Length()) != assetName)
+		{
+			sceneNameNode.SetString(assetName);
+			changed = true;
+		}
+		return changed;
+	}
+
+	/// @brief Through the cooked resources' documents: the instances they hold, then theirs
+	/// @param prefab
+	/// @param other
+	/// @return
+	bool PrefabEditorTab::ContainsPrefab(const UID& prefab, const UID& other)
+	{
+		Vector<UID> visited;
+		Vector<UID> pending;
+		pending.PushBack(prefab);
+		while (pending.Empty() == false)
+		{
+			UID current = pending[pending.Size() - 1];
+			pending.PopBack();
+			if (std::find(visited.Begin(), visited.End(), current) != visited.End())
+			{
+				continue;
+			}
+			visited.PushBack(current);
+
+			std::shared_ptr<PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<PrefabResource>(current);
+			if (prefabResource == nullptr)
+			{
+				continue;
+			}
+			const DocumentNode* entitiesNode = prefabResource->GetDocument().GetRootNode().GetChild("Entities");
+			if (entitiesNode == nullptr)
+			{
+				continue;
+			}
+			for (const DocumentNode* entityNode = entitiesNode->GetFirstChild(); entityNode != nullptr; entityNode = entityNode->GetNextSibling())
+			{
+				const DocumentNode* prefabInstanceNode = entityNode->GetChild("PrefabInstance");
+				const DocumentNode* uidNode = prefabInstanceNode != nullptr ? prefabInstanceNode->GetChild("UID") : nullptr;
+				if (uidNode == nullptr)
+				{
+					continue;
+				}
+				UID instantiated;
+				Serializer::Deserialize(instantiated, *uidNode);
+				if (instantiated == other)
+				{
+					return true;
+				}
+				pending.PushBack(instantiated);
+			}
+		}
+		return false;
+	}
 
 	/// @brief
 	/// @return
@@ -89,7 +282,6 @@ namespace hod::inline editor
 	/// @brief
 	void PrefabEditorTab::CreateDefaultLayout()
 	{
-		// ImGuiManager::GetInstance()->OpenWindow<AssetBrowserWindow>();
 		HierachyWindow*  hierarchyWindow = OpenWindow<HierachyWindow>();
 		InspectorWindow* inspectorWindow = OpenWindow<InspectorWindow>();
 		ViewportWindow*  viewportWindow = OpenWindow<ViewportWindow>();
@@ -116,16 +308,7 @@ namespace hod::inline editor
 	/// @return
 	bool PrefabEditorTab::DrawContent()
 	{
-		// todo override GetIdentifier ?
-		/*
-		if (_asset != nullptr && _assetWasDirty == true && _asset->IsDirty() == false)
-		{
-		    _assetWasDirty = false;
-		    SetTitle(_asset->GetName());
-		}
-		*/
-		//
-
+		SyncRootEntityName(); // The asset may have been renamed since the last frame
 		return true;
 	}
 }
