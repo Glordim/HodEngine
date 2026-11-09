@@ -126,7 +126,7 @@ namespace hod::inline editor
 			{
 				tab->Play();
 			}
-			else if (ImGui::IsKeyPressed(ImGuiKey_Escape, false) && _draggedGizmoHandle == GizmoHandle::None)
+			else if (ImGui::IsKeyPressed(ImGuiKey_Escape, false) && _draggedGizmoHandle == GizmoHandle::None && _marqueeState == MarqueeState::None)
 			{
 				tab->Stop();
 			}
@@ -237,13 +237,14 @@ namespace hod::inline editor
 		}
 		// Delete (here or in the hierarchy) removes the selected nodes. Before the selection is read below, nothing of it is drawn yet.
 		if (playing == false && ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_Delete, false) &&
-		    ImGui::GetIO().WantTextInput == false && tab->GetSelectedNodes().Empty() == false && _draggedGizmoHandle == GizmoHandle::None)
+		    ImGui::GetIO().WantTextInput == false && tab->GetSelectedNodes().Empty() == false && _draggedGizmoHandle == GizmoHandle::None &&
+		    _marqueeState == MarqueeState::None)
 		{
 			tab->DeleteNodes(tab->GetSelectedNodes());
 		}
 		// Ctrl+C / Ctrl+X / Ctrl+V / Ctrl+Shift+V / Ctrl+D / Escape, as in the hierarchy. Same moment, for the same reason.
 		if (playing == false && ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::GetIO().WantTextInput == false &&
-		    _draggedGizmoHandle == GizmoHandle::None)
+		    _draggedGizmoHandle == GizmoHandle::None && _marqueeState == MarqueeState::None)
 		{
 			tab->HandleClipboardShortcuts();
 		}
@@ -358,7 +359,7 @@ namespace hod::inline editor
 		}
 		if (gizmoNodes.Empty() == false)
 		{
-			UpdateGizmoDrag(gizmoNodes, mouseCanvasPos, scale, hovered && mouseInsideImage);
+			UpdateGizmoDrag(gizmoNodes, mouseCanvasPos, scale, hovered && mouseInsideImage && _marqueeState == MarqueeState::None);
 		}
 		else
 		{
@@ -448,8 +449,18 @@ namespace hod::inline editor
 		}
 		DrawPreviewLabels(imagePos, ImVec2((float)resolutionWidth, (float)resolutionHeight), scale);
 
+		// The play mode's copy has no selection, and nodes rebuilt since the press (undo...) leave stale pointers: the rectangle is dropped
+		if (_marqueeState != MarqueeState::None && (playing || tab->GetRebuildCount() != _marqueeRebuildCount))
+		{
+			_marqueeState = MarqueeState::None;
+			_marqueeSelectionBefore.Clear();
+		}
+
 		if (playing == false && hovered && mouseInsideImage && ImGui::IsMouseClicked(ImGuiMouseButton_Left) && _draggedGizmoHandle == GizmoHandle::None)
 		{
+			// Before the click changes the selection: a drag turns it into a selection rectangle
+			StartMarquee(mouseCanvasPos);
+
 			// Ctrl or Shift adds the picked node to the selection, or removes it from it
 			ui::Node* pickedNode = PickNode(prefabRoot, mouseCanvasPos);
 			if (ImGui::GetIO().KeyCtrl || ImGui::GetIO().KeyShift)
@@ -460,6 +471,12 @@ namespace hod::inline editor
 			{
 				tab->SetSelectedNode(pickedNode);
 			}
+		}
+
+		if (_marqueeState != MarqueeState::None)
+		{
+			UpdateMarquee(prefabRoot, mouseCanvasPos);
+			DrawMarquee(imagePos, ImVec2((float)resolutionWidth, (float)resolutionHeight), scale);
 		}
 
 		if (playing == false && ImGui::BeginDragDropTarget())
@@ -1029,6 +1046,129 @@ namespace hod::inline editor
 		}
 
 		return picked;
+	}
+
+	/// @brief A left press on the image, not taken by the gizmo: still a click (see DrawViewport) until dragged past ImGui's drag threshold
+	/// @param canvasMousePosition
+	void UIPrefabEditorViewportWindow::StartMarquee(const Vector2& canvasMousePosition)
+	{
+		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
+
+		_marqueeState = MarqueeState::Pending;
+		_marqueeStart = canvasMousePosition;
+		_marqueeAdditive = ImGui::GetIO().KeyCtrl || ImGui::GetIO().KeyShift;
+		_marqueeSelectionBefore = tab->GetSelectedNodes();
+		_marqueeRebuildCount = tab->GetRebuildCount();
+	}
+
+	/// @brief Follows the press started by StartMarquee: once dragged, the selection is the outermost nodes entirely inside the rectangle
+	/// (a node inside one of them comes with it, see UIPrefabEditorTab::GetSelectedSubtrees), in the hierarchy's order, after the selection
+	/// from before the press when additive. Recomputed each frame from the press' selection, so shrinking the rectangle deselects again.
+	/// Ends on release, Escape gives back the selection from before the press.
+	/// @param prefabRoot
+	/// @param canvasMousePosition
+	void UIPrefabEditorViewportWindow::UpdateMarquee(ui::Node* prefabRoot, const Vector2& canvasMousePosition)
+	{
+		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
+
+		if (ImGui::IsMouseDown(ImGuiMouseButton_Left) == false)
+		{
+			_marqueeState = MarqueeState::None;
+			_marqueeSelectionBefore.Clear();
+			return;
+		}
+
+		if (_marqueeState == MarqueeState::Cancelled)
+		{
+			return;
+		}
+
+		if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
+		{
+			if (_marqueeState == MarqueeState::Active)
+			{
+				tab->SetSelectedNodes(_marqueeSelectionBefore);
+			}
+			_marqueeState = MarqueeState::Cancelled;
+			return;
+		}
+
+		if (_marqueeState == MarqueeState::Pending)
+		{
+			if (ImGui::IsMouseDragging(ImGuiMouseButton_Left) == false)
+			{
+				return;
+			}
+			_marqueeState = MarqueeState::Active;
+		}
+
+		Vector2 min(Min(_marqueeStart.GetX(), canvasMousePosition.GetX()), Min(_marqueeStart.GetY(), canvasMousePosition.GetY()));
+		Vector2 max(Max(_marqueeStart.GetX(), canvasMousePosition.GetX()), Max(_marqueeStart.GetY(), canvasMousePosition.GetY()));
+
+		Vector<ui::Node*> inside;
+		CollectNodesInRect(prefabRoot, min, max, inside);
+
+		Vector<ui::Node*> selection;
+		if (_marqueeAdditive)
+		{
+			selection = _marqueeSelectionBefore;
+		}
+		for (ui::Node* node : inside)
+		{
+			if (std::find(selection.Begin(), selection.End(), node) == selection.End())
+			{
+				selection.PushBack(node);
+			}
+		}
+		tab->SetSelectedNodes(selection);
+	}
+
+	/// @brief The rectangle, over the image (ImGui, in screen space: crisp at any zoom), from its canvas-space start to the mouse
+	/// @param imagePos screen position of the image's top-left corner
+	/// @param imageSize
+	/// @param scale pixels per canvas unit
+	void UIPrefabEditorViewportWindow::DrawMarquee(const ImVec2& imagePos, const ImVec2& imageSize, float scale)
+	{
+		if (_marqueeState != MarqueeState::Active)
+		{
+			return;
+		}
+
+		// Canvas space is Y-up, screen space Y-down (see DrawPreviewLabels)
+		ImVec2 start(imagePos.x + imageSize.x * 0.5f + (_marqueeStart.GetX() - _camera.GetPosition().GetX()) * scale,
+		             imagePos.y + imageSize.y * 0.5f - (_marqueeStart.GetY() - _camera.GetPosition().GetY()) * scale);
+		ImVec2 end = ImGui::GetIO().MousePos;
+		ImVec2 min(Min(start.x, end.x), Min(start.y, end.y));
+		ImVec2 max(Max(start.x, end.x), Max(start.y, end.y));
+
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		drawList->PushClipRect(imagePos, imagePos + imageSize, true);
+		drawList->AddRectFilled(min, max, IM_COL32(120, 170, 255, 40));
+		drawList->AddRect(min, max, IM_COL32(120, 170, 255, 220));
+		drawList->PopClipRect();
+	}
+
+	/// @brief The outermost nodes of node's subtree whose rect (axis-aligned, as the outlines, see DrawNode) is entirely inside [min, max],
+	/// depth first: the hierarchy's order
+	/// @param node
+	/// @param min
+	/// @param max
+	/// @param nodes
+	void UIPrefabEditorViewportWindow::CollectNodesInRect(ui::Node* node, const Vector2& min, const Vector2& max, Vector<ui::Node*>& nodes)
+	{
+		Vector2 center = node->ComputeCanvasMatrix().GetTranslation();
+		Vector2 halfSize = node->GetSize() * 0.5f;
+		if (center.GetX() - halfSize.GetX() >= min.GetX() && center.GetX() + halfSize.GetX() <= max.GetX() && center.GetY() - halfSize.GetY() >= min.GetY() &&
+		    center.GetY() + halfSize.GetY() <= max.GetY())
+		{
+			nodes.PushBack(node);
+			return;
+		}
+
+		for (ui::Node* child : node->GetChildren())
+		{
+			CollectNodesInRect(child, min, max, nodes);
+		}
 	}
 
 	/// @brief What the gizmo may do to the node, from what places it. AnchoredLayoutParams: everything. A BoxLayout's child: never moved

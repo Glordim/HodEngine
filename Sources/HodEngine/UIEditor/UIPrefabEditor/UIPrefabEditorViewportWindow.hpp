@@ -34,7 +34,8 @@ namespace hod::inline editor
 	/// (ui::Canvas::PushRenderCommand) into an offscreen render target, then, over it and via ShapeDrawer, each node's
 	/// computed rect as an outline (the selected ones in orange), the active node's spacing and the manipulation gizmo (the selected
 	/// node's, or with several selected the box around them, moving them together, see GetGizmoNodes), and blits that texture into the panel. Click-to-select is done in canvas space
-	/// against the same node bounds, Ctrl+click (or Shift+click) adding to the selection or removing from it.
+	/// against the same node bounds, Ctrl+click (or Shift+click) adding to the selection or removing from it. A press dragged
+	/// (not on the gizmo) draws a selection rectangle instead, selecting the outermost nodes entirely inside it (see UpdateMarquee).
 	///
 	/// The prefab can be previewed on a device picked from a user-editable list (name + resolution, optionally
 	/// rotated): the canvas is then laid out for that resolution, exactly as it would be in game (see
@@ -113,6 +114,22 @@ namespace hod::inline editor
 		Vector<ui::Node*> GetGizmoNodes() const;
 		static void        ComputeCanvasBounds(const Vector<ui::Node*>& nodes, Vector2& center, Vector2& size);
 
+		// Rectangle selection: a left press not taken by the gizmo, dragged past ImGui's drag threshold, selects the nodes inside the
+		// rectangle instead of the clicked one (Ctrl or Shift held at the press: added to the selection). Escape gives back the selection
+		// from before the press.
+		enum class MarqueeState : uint8_t
+		{
+			None,
+			Pending,   // pressed, not dragged far enough yet: still a click
+			Active,    // dragging, the selection follows the rectangle
+			Cancelled, // Escape: nothing more until the button is released
+		};
+
+		void		StartMarquee(const Vector2& canvasMousePosition);
+		void		UpdateMarquee(ui::Node* prefabRoot, const Vector2& canvasMousePosition);
+		void		DrawMarquee(const ImVec2& imagePos, const ImVec2& imageSize, float scale);
+		static void	CollectNodesInRect(ui::Node* node, const Vector2& min, const Vector2& max, Vector<ui::Node*>& nodes);
+
 		void		DrawSelectionGizmo(const Vector<ui::Node*>& nodes, float scale, RenderView& renderView);
 		GizmoHandle	HitTestGizmoHandle(const Vector<ui::Node*>& nodes, const Vector2& canvasMousePosition, float scale) const;
 		void		UpdateGizmoDrag(const Vector<ui::Node*>& nodes, const Vector2& canvasMousePosition, float scale, bool mouseAvailable);
@@ -162,5 +179,11 @@ namespace hod::inline editor
 			ui::LayoutParams::SizeMode _heightMode = ui::LayoutParams::SizeMode::Fixed;
 		};
 		Vector<GizmoDragStart> _gizmoDragStarts;
+
+		MarqueeState      _marqueeState = MarqueeState::None;
+		Vector2           _marqueeStart = Vector2::Zero; // in canvas space: the rectangle stays on the content while the view pans or zooms
+		bool              _marqueeAdditive = false;
+		Vector<ui::Node*> _marqueeSelectionBefore; // the selection at the press, restored by Escape, kept by an additive rectangle
+		uint32_t          _marqueeRebuildCount = 0; // the tab's at the press: nodes rebuilt since (undo...), the pointers above are stale
 	};
 }
