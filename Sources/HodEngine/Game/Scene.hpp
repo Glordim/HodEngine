@@ -47,6 +47,10 @@ namespace hod::inline game
 
 		Entity* Instantiate(std::shared_ptr<PrefabResource> prefabResource);
 		Entity* Instantiate(Entity* entity);
+		/// @brief The entities of a document written by SceneSerializer::SerializeEntity (its children), added to the scene and activated.
+		/// Their local ids are the document's: cleared by the caller if they may already exist in the scene
+		/// @return the roots among them (without parent), in the document's order
+		Vector<Entity*> Instantiate(const DocumentNode& entitiesNode);
 
 		const std::unordered_map<uint64_t, Entity*>& GetEntities() const;
 

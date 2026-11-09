@@ -21,6 +21,7 @@
 #include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
+#include <algorithm>
 #include <unordered_map>
 
 namespace hod::inline game
@@ -320,6 +321,63 @@ namespace hod::inline game
 		clonedEntity->ProcessActivation();
 
 		return clonedEntity;
+	}
+
+	/// @brief
+	/// @param entitiesNode
+	/// @return
+	Vector<Entity*> Scene::Instantiate(const DocumentNode& entitiesNode)
+	{
+		Vector<Entity*> roots;
+
+		SceneSerializer sceneSerializer;
+		if (sceneSerializer.Deserialize(entitiesNode) == false)
+		{
+			return roots;
+		}
+
+		Vector<Entity*> unorderedRoots;
+		for (Entity* entity : sceneSerializer.GetEntities())
+		{
+			_entities.emplace(entity->GetInstanceId(), entity);
+			entity->SetScene(this);
+			if (entity->GetParent().Lock() == nullptr)
+			{
+				unorderedRoots.push_back(entity);
+			}
+		}
+
+		// The deserialized entities come unordered: the roots are found back in the document by their local id
+		for (const DocumentNode* entityNode = entitiesNode.GetFirstChild(); entityNode != nullptr; entityNode = entityNode->GetNextSibling())
+		{
+			const DocumentNode* localIdNode = entityNode->GetChild("_localId");
+			if (localIdNode == nullptr)
+			{
+				continue;
+			}
+			uint64_t localId = localIdNode->GetUInt64();
+			for (Entity* root : unorderedRoots)
+			{
+				if (root->GetLocalId() == localId && std::find(roots.Begin(), roots.End(), root) == roots.End())
+				{
+					roots.push_back(root);
+					break;
+				}
+			}
+		}
+		for (Entity* root : unorderedRoots)
+		{
+			if (std::find(roots.Begin(), roots.End(), root) == roots.End())
+			{
+				roots.push_back(root);
+			}
+		}
+
+		for (Entity* root : roots)
+		{
+			root->ProcessActivation();
+		}
+		return roots;
 	}
 
 	/// @brief

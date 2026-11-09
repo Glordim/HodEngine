@@ -2,7 +2,9 @@
 
 #include <HodEngine/Game/Entity.hpp>
 #include <HodEngine/Game/Prefab.hpp>
+#include <HodEngine/Game/Scene.hpp>
 #include <HodEngine/Game/SceneSerializer.hpp>
+#include <HodEngine/Game/World.hpp>
 
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Memory/DefaultAllocator.hpp>
@@ -86,5 +88,42 @@ namespace hod
 			DefaultAllocator::GetInstance().Delete(child);
 		}
 		DefaultAllocator::GetInstance().Delete(parent);
+	}
+
+	// What the editor's paste does (EntityEditorTab::PasteEntities): the copied subtrees added to a scene, their roots in the copied order
+	TEST(SceneInstantiate, FromDocumentKeepsRootsOrderAndChildren)
+	{
+		Entity* first = DefaultAllocator::GetInstance().New<Entity>("First");
+		Entity* child = DefaultAllocator::GetInstance().New<Entity>("Child");
+		child->SetParent(first);
+		Entity* second = DefaultAllocator::GetInstance().New<Entity>("Second");
+
+		Document        document;
+		uint64_t        nextLocalId = 1;
+		SceneSerializer sceneSerializer;
+		ASSERT_TRUE(sceneSerializer.SerializeEntity(first, true, document.GetRootNode(), nextLocalId));
+		ASSERT_TRUE(sceneSerializer.SerializeEntity(second, true, document.GetRootNode(), nextLocalId));
+
+		// Not initialized: no frame job nor systems needed to activate entities
+		World* world = DefaultAllocator::GetInstance().New<World>();
+		Scene* scene = DefaultAllocator::GetInstance().New<Scene>();
+		world->AddScene(scene);
+
+		Vector<Entity*> roots = scene->Instantiate(document.GetRootNode());
+		ASSERT_EQ(roots.Size(), 2u);
+		EXPECT_EQ(roots[0]->GetName(), "First");
+		EXPECT_EQ(roots[1]->GetName(), "Second");
+		ASSERT_EQ(roots[0]->GetChildren().Size(), 1u);
+		EXPECT_EQ(roots[0]->GetChildren()[0].Lock()->GetName(), "Child");
+		EXPECT_EQ(scene->GetEntities().size(), 3u);
+		EXPECT_EQ(roots[0]->GetScene(), scene);
+
+		world->RemoveScene(scene);
+		DefaultAllocator::GetInstance().Delete(scene);
+		DefaultAllocator::GetInstance().Delete(world);
+
+		DefaultAllocator::GetInstance().Delete(child);
+		DefaultAllocator::GetInstance().Delete(first);
+		DefaultAllocator::GetInstance().Delete(second);
 	}
 }

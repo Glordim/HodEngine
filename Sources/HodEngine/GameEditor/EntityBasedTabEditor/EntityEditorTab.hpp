@@ -3,6 +3,8 @@
 
 #include "HodEngine/Editor/EditorTab.hpp"
 
+#include <HodEngine/Core/String.hpp>
+#include <HodEngine/Core/Vector.hpp>
 #include <HodEngine/Core/Weakable/WeakPtr.hpp>
 
 #include <memory>
@@ -57,6 +59,42 @@ namespace hod::inline editor
 		// Whether an instance of the prefab can be added (not into itself)
 		virtual bool	CanInstantiatePrefab(const UID& prefab) const;
 
+		// Edits of the hierarchy, marked as edits. Not the root entity (see IsRootEntity).
+		// Destroys entity and its descendants, deselected
+		void			DeleteEntity(Entity* entity);
+		// A copy of entity and its descendants, right after it under the same parent, selected
+		// @return the copy, nullptr if entity can't be duplicated
+		Entity*			DuplicateEntity(Entity* entity);
+
+		// Clipboard: entities and their descendants (one inside another of them comes with it) are copied as text (a JSON document
+		// of SceneSerializer's entities) to the system clipboard, so that they can be pasted in another scene or prefab too.
+		// Cancels a pending cut.
+		bool			CopyEntities(const Vector<Entity*>& entities);
+		// As in a file explorer: entities are copied (see CopyEntities) and marked as cut, but stay in place until pasted in this
+		// tab, which moves them. Cancelled by CancelCut (Escape), another copy, or the clipboard changing.
+		// @return false if one of them can't be moved (the root entity): nothing is cut then
+		bool			CutEntities(const Vector<Entity*>& entities);
+		void			CancelCut();
+		// Whether entity, or one of its ancestors, is marked as cut
+		bool			IsCut(const Entity* entity) const;
+		bool			HasCutEntities() const;
+		// Whether the clipboard holds copied entities
+		bool			CanPaste() const;
+		// Pastes the clipboard's entities, as children of parent (nullptr: roots of the scene, not in a prefab) from index among its
+		// children (the last place if out of range), with new local ids, the last one selected. The entities cut in this tab are moved
+		// there instead, unless parent is one of them or inside one. Not an instance of a prefab into itself (see CanInstantiatePrefab).
+		// To call after the drawing of the entities, not while iterating over them.
+		// @return the pasted (or moved) roots, empty if nothing was pasted
+		Vector<Entity*>	PasteEntities(Entity* parent, uint32_t index = UINT32_MAX);
+		// Right after the selected entity among its siblings (to chain pastes), or as the last children of the default parent (see
+		// GetDefaultParent) when the selection is the root entity or none
+		Vector<Entity*>	PasteNextToSelection();
+		// As the last children of the selected entity, or of the default parent when there is no selection
+		Vector<Entity*>	PasteInSelection();
+		// Ctrl+C / Ctrl+X / Ctrl+V (next to the selection) / Ctrl+Shift+V (in the selection) on the selection, Escape cancelling a cut,
+		// for the focused window calling it. Same contract as PasteEntities.
+		void			HandleClipboardShortcuts();
+
 		// F, pressed in the hierarchy or the viewport: the viewport centers its view on the selection
 		void			RequestFrameSelection();
 		// @return true if a framing was requested since the last call
@@ -80,5 +118,10 @@ namespace hod::inline editor
 
 		WeakPtr<Entity>		_entitySelection;
 		bool				_frameSelectionRequested = false;
+
+		// Cut (see CutEntities): the cut entities, and the clipboard's text the cut put there, which must still be there for the paste
+		// to move them
+		Vector<WeakPtr<Entity>>	_cutEntities;
+		String					_cutClipboardText;
 	};
 }

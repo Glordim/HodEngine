@@ -8,12 +8,20 @@
 
 #include <HodEngine/ImGui/ImGuiManager.hpp>
 
+#include "HodEngine/Editor/Asset.hpp"
+#include "HodEngine/Editor/AssetDatabase.hpp"
+
+#include "HodEngine/Game/PrefabResource.hpp"
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/World.hpp"
 
 #include "HodEngine/Game/Components/NodeComponent.hpp"
 
 #include "HodEngine/ImGui/Font/IconsMaterialDesignIcons.h"
+
+#include <HodEngine/Core/Math.hpp>
+
+#include <cstring>
 
 namespace hod::inline editor
 {
@@ -71,67 +79,223 @@ namespace hod::inline editor
 		}
 		_previousSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 
+		// The rename field was not drawn this frame (its entity got collapsed, deleted...): validated now, it can't lose the focus anymore.
+		// Unless the rename has just started and its field is yet to be drawn.
+		if (_renamedEntity.Get() != nullptr && _renameDrawn == false && _renameFocus == false)
+		{
+			ApplyRename();
+			_renamedEntity = nullptr;
+		}
+		_renameDrawn = false;
+
 		if (ImGui::IsWindowHovered() && ImGui::IsAnyItemHovered() == false && (ImGui::IsMouseClicked(ImGuiMouseButton_Left) || ImGui::IsMouseClicked(ImGuiMouseButton_Right)))
 		{
 			GetOwner<EntityEditorTab>()->SetEntitySelection(nullptr);
 		}
-		/*
-		for (EntityNode* entityNode : _rootEntityNode._children)
-		{
-		    DrawEntityNode(entityNode);
-		}
-		*/
 
 		if (_openContextualMenu == true || (ImGui::IsWindowHovered() == true && ImGui::IsAnyItemHovered() == false && ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true))
 		{
 			_openContextualMenu = false;
 			ImGui::OpenPopup("ContextualMenu");
 		}
+		DrawContextMenu();
 
-		if (ImGui::BeginPopup("ContextualMenu") == true)
+		HandleShortcuts();
+
+		if (_pendingPaste)
 		{
-			Entity* selection = GetOwner<EntityEditorTab>()->GetEntitySelection();
-
-			if (ImGui::MenuItem("Create Entity") == true && world->GetScenes().Size() > 0)
+			if (_pendingPasteInSelection)
 			{
-				Entity* entity = world->GetScenes()[0]->CreateEntity("EditMe");
+				GetOwner<EntityEditorTab>()->PasteInSelection();
+			}
+			else
+			{
+				GetOwner<EntityEditorTab>()->PasteNextToSelection();
+			}
+		}
+		_pendingPaste = false;
+		_pendingPasteInSelection = false;
 
-				// Under the selection, or the root entity (a prefab has one root)
-				Entity* parent = selection != nullptr ? selection : GetOwner<EntityEditorTab>()->GetDefaultParent();
-				if (parent != nullptr)
+		if (Entity* entity = _pendingDuplicate.Get())
+		{
+			GetOwner<EntityEditorTab>()->DuplicateEntity(entity);
+		}
+		_pendingDuplicate = nullptr;
+
+		if (Entity* entity = _pendingDelete.Get())
+		{
+			for (Entity* renamed = _renamedEntity.Get(); renamed != nullptr; renamed = renamed->GetParent().Lock())
+			{
+				if (renamed == entity)
 				{
-					entity->SetParent(parent);
+					_renamedEntity = nullptr;
+					break;
 				}
+			}
+			GetOwner<EntityEditorTab>()->DeleteEntity(entity);
+		}
+		_pendingDelete = nullptr;
+	}
 
-				GetOwner<EntityEditorTab>()->SetEntitySelection(entity);
+	/// @brief F2 renames, Ctrl+D duplicates, Delete deletes the selected entity, and the clipboard's (see
+	/// EntityEditorTab::HandleClipboardShortcuts). Not while a text is typed (the rename field...). After the tree is drawn.
+	void HierachyWindow::HandleShortcuts()
+	{
+		EntityEditorTab* tab = GetOwner<EntityEditorTab>();
+		if (ImGui::IsWindowFocused() == false || ImGui::GetIO().WantTextInput || _renamedEntity.Get() != nullptr)
+		{
+			return;
+		}
 
-				GetOwner()->MarkAsDirty();
+		tab->HandleClipboardShortcuts();
 
-				ImGui::CloseCurrentPopup();
+		Entity* selection = tab->GetEntitySelection();
+		if (selection == nullptr || tab->IsRootEntity(selection))
+		{
+			return;
+		}
+
+		if (ImGui::IsKeyPressed(ImGuiKey_F2, false))
+		{
+			StartRename(selection);
+		}
+		else if (ImGui::IsKeyPressed(ImGuiKey_Delete, false))
+		{
+			_pendingDelete = selection;
+		}
+		else if (ImGui::GetIO().KeyCtrl && ImGui::IsKeyPressed(ImGuiKey_D, false))
+		{
+			_pendingDuplicate = selection;
+		}
+	}
+
+	/// @brief On an entity (made the selection by the right click): what can be done to it. On the void: creating one.
+	void HierachyWindow::DrawContextMenu()
+	{
+		if (ImGui::BeginPopup("ContextualMenu") == false)
+		{
+			return;
+		}
+
+		EntityEditorTab* tab = GetOwner<EntityEditorTab>();
+		game::World*     world = tab->GetWorld();
+		Entity*          selection = tab->GetEntitySelection();
+
+		const char* createLabel = (selection != nullptr) ? ICON_MDI_PLUS_BOX " Create Child Entity" : ICON_MDI_PLUS_BOX " Create Entity";
+		if (ImGui::MenuItem(createLabel) && world->GetScenes().Size() > 0)
+		{
+			Entity* entity = world->GetScenes()[0]->CreateEntity("Entity");
+
+			// Under the selection, or the root entity (a prefab has one root)
+			Entity* parent = selection != nullptr ? selection : tab->GetDefaultParent();
+			if (parent != nullptr)
+			{
+				entity->SetParent(parent);
 			}
 
-			if (selection != nullptr)
+			tab->SetEntitySelection(entity);
+			tab->MarkAsDirty("Create Entity");
+			StartRename(entity);
+		}
+		if (selection == nullptr && ImGui::MenuItem(ICON_MDI_CONTENT_PASTE " Paste", "Ctrl+V", false, tab->CanPaste()))
+		{
+			_pendingPaste = true; // no selection: under the default parent
+		}
+
+		if (selection != nullptr)
+		{
+			bool                            isRoot = tab->IsRootEntity(selection);
+			std::shared_ptr<PrefabResource> prefabResource = selection->GetPrefabResource();
+			if (prefabResource != nullptr)
 			{
-				bool isPrefab = (selection->GetPrefabResource() != nullptr);
-				bool isRoot = GetOwner<EntityEditorTab>()->IsRootEntity(selection);
-				if (ImGui::MenuItem("Delete", nullptr, false, isRoot == false) == true)
+				ImGui::Separator();
+				std::shared_ptr<Asset> prefabAsset = AssetDatabase::GetInstance()->Find(prefabResource->GetUid());
+				if (ImGui::MenuItem(ICON_MDI_OPEN_IN_NEW " Open Prefab", nullptr, false, prefabAsset != nullptr))
 				{
-					world->DestroyEntity(selection);
-					GetOwner()->MarkAsDirty();
+					Editor::GetInstance()->OpenAsset(prefabAsset);
 				}
-
-				if (isRoot)
-				{
-					ImGui::SetItemTooltip("The prefab's root entity: every other entity is under it");
-				}
-
-				if (isPrefab && ImGui::MenuItem("Unpack Prefab"))
+				if (ImGui::MenuItem(ICON_MDI_PACKAGE_VARIANT " Unpack Prefab"))
 				{
 					selection->SetPrefabResource(nullptr);
-					GetOwner()->MarkAsDirty();
+					tab->MarkAsDirty("Unpack Prefab");
 				}
+				ImGui::SetItemTooltip("Turn the instance into plain entities, no longer following its prefab");
 			}
-			ImGui::EndPopup();
+
+			ImGui::Separator();
+			if (ImGui::MenuItem(ICON_MDI_RENAME " Rename", "F2", false, isRoot == false))
+			{
+				StartRename(selection);
+			}
+			if (isRoot)
+			{
+				ImGui::SetItemTooltip("Named after the asset: rename the asset to rename it");
+			}
+			ImGui::Separator();
+			if (ImGui::MenuItem(ICON_MDI_CONTENT_COPY " Copy", "Ctrl+C"))
+			{
+				tab->CopyEntities({selection});
+			}
+			if (ImGui::MenuItem(ICON_MDI_CONTENT_CUT " Cut", "Ctrl+X", false, isRoot == false))
+			{
+				tab->CutEntities({selection}); // only marked, moved by the paste
+			}
+			if (isRoot)
+			{
+				ImGui::SetItemTooltip("The prefab's root entity can't be cut");
+			}
+			if (ImGui::MenuItem(ICON_MDI_CONTENT_PASTE " Paste", "Ctrl+V", false, tab->CanPaste()))
+			{
+				_pendingPaste = true;
+			}
+			if (ImGui::MenuItem(ICON_MDI_CONTENT_PASTE " Paste As Child", "Ctrl+Shift+V", false, tab->CanPaste()))
+			{
+				_pendingPaste = true;
+				_pendingPasteInSelection = true;
+			}
+			if (ImGui::MenuItem(ICON_MDI_CONTENT_DUPLICATE " Duplicate", "Ctrl+D", false, isRoot == false))
+			{
+				_pendingDuplicate = selection;
+			}
+			if (isRoot)
+			{
+				ImGui::SetItemTooltip("The prefab's root entity can't be duplicated");
+			}
+			ImGui::Separator();
+			if (ImGui::MenuItem(ICON_MDI_DELETE " Delete", "Del", false, isRoot == false))
+			{
+				_pendingDelete = selection;
+			}
+			if (isRoot)
+			{
+				ImGui::SetItemTooltip("The prefab's root entity can't be deleted");
+			}
+		}
+		ImGui::EndPopup();
+	}
+
+	/// @brief
+	/// @param entity
+	void HierachyWindow::StartRename(Entity* entity)
+	{
+		if (entity == nullptr || GetOwner<EntityEditorTab>()->IsRootEntity(entity))
+		{
+			return;
+		}
+		_renamedEntity = entity;
+		std::strncpy(_renameBuffer, entity->GetName().CStr(), sizeof(_renameBuffer) - 1);
+		_renameBuffer[sizeof(_renameBuffer) - 1] = '\0';
+		_renameFocus = true;
+	}
+
+	/// @brief
+	void HierachyWindow::ApplyRename()
+	{
+		Entity* entity = _renamedEntity.Get();
+		if (entity != nullptr && entity->GetName() != _renameBuffer)
+		{
+			entity->SetName(_renameBuffer);
+			GetOwner()->MarkAsDirty("Rename");
 		}
 	}
 
@@ -139,17 +303,16 @@ namespace hod::inline editor
 	/// @param entity
 	void HierachyWindow::DrawEntity(Entity* entity)
 	{
+		// Drop zone to put an entity before this one: the gap between the rows (ItemSpacing), not taking any room of its own,
+		// so that the rows are as high and as close as in the other trees (UI prefab editor...)
+		float rowSpacing = ImGui::GetStyle().ItemSpacing.y;
 		ImGui::PushID(entity - 1);
-		// ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
-		// ImGui::Separator();
-		// ImGui::Button("", ImVec2(200, 25));
+		ImGui::SetCursorPosY(ImGui::GetCursorPosY() - rowSpacing);
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {ImGui::GetStyle().ItemSpacing.x, 0.0f});
-		ImGui::InvisibleButton("", ImVec2(200, 3));
+		ImGui::InvisibleButton("", ImVec2(Max(ImGui::GetContentRegionAvail().x, 1.0f), Max(rowSpacing, 1.0f)));
 		ImGui::PopStyleVar();
-		// ImGui::PopStyleVar();
 		ImGui::PopID();
 
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
 		if (ImGui::BeginDragDropTarget() == true)
 		{
 			const ImGuiPayload* payload = ImGui::GetDragDropPayload();
@@ -173,13 +336,12 @@ namespace hod::inline editor
 					{
 						dropEntity->SetParent(entity->GetParent());
 						dropEntity->SetSiblingIndex(entity->GetSiblingIndex());
-						GetOwner()->MarkAsDirty();
+						GetOwner()->MarkAsDirty("Move");
 					}
 				}
 			}
 			ImGui::EndDragDropTarget();
 		}
-		ImGui::PopStyleVar();
 
 		Entity* selection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 
@@ -209,7 +371,6 @@ namespace hod::inline editor
 		}
 
 		ImGui::PushID(entity);
-		ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
 		bool opened = ImGui::TreeNodeEx("", treeNodeFlags);
 		if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
 		{
@@ -222,7 +383,6 @@ namespace hod::inline editor
 		}
 
 		bool hovered = ImGui::IsItemHovered();
-		ImGui::PopStyleVar();
 		ImGui::PopID();
 
 		if (ImGui::BeginItemTooltip())
@@ -253,7 +413,7 @@ namespace hod::inline editor
 					if (dropEntity != nullptr && GetOwner<EntityEditorTab>()->CanReparent(dropEntity, entity))
 					{
 						dropEntity->SetParent(entity);
-						GetOwner()->MarkAsDirty();
+						GetOwner()->MarkAsDirty("Move");
 					}
 				}
 			}
@@ -272,7 +432,8 @@ namespace hod::inline editor
 			ImGui::EndDragDropSource();
 		}
 
-		ImGui::BeginDisabled(entity->IsActiveInHierarchy() == false);
+		// Greyed: inactive, or cut (until pasted, as in a file explorer)
+		ImGui::BeginDisabled(entity->IsActiveInHierarchy() == false || GetOwner<EntityEditorTab>()->IsCut(entity));
 
 		ImGui::SameLine(0.0f);
 		ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {ImGui::GetStyle().ItemSpacing.x, 0.0f});
@@ -289,11 +450,40 @@ namespace hod::inline editor
 			ImGui::TextUnformatted(ICON_MDI_CUBE_OUTLINE);
 		}
 		ImGui::SameLine();
-		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted(entity->GetName().CStr());
+		bool renaming = (entity == _renamedEntity.Get());
+		if (renaming == false)
+		{
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted(entity->GetName().CStr());
+		}
 		ImGui::PopStyleVar();
 
 		ImGui::EndDisabled();
+
+		if (renaming)
+		{
+			// Not disabled with an inactive entity's label: editable
+			ImGui::SetNextItemWidth(-FLT_MIN);
+			// Only once: focusing it every frame would take the focus back as soon as the user clicks elsewhere
+			if (_renameFocus)
+			{
+				ImGui::SetKeyboardFocusHere();
+				_renameFocus = false;
+			}
+			ImGui::PushID(entity);
+			ImGui::InputText("##Rename", _renameBuffer, sizeof(_renameBuffer), ImGuiInputTextFlags_AutoSelectAll);
+			ImGui::PopID();
+			_renameDrawn = true;
+			// Enter or focus lost validates, Escape cancels
+			if (ImGui::IsItemDeactivated())
+			{
+				if (ImGui::IsKeyPressed(ImGuiKey_Escape) == false)
+				{
+					ApplyRename();
+				}
+				_renamedEntity = nullptr;
+			}
+		}
 
 		if (opened == true)
 		{
@@ -308,98 +498,4 @@ namespace hod::inline editor
 			ImGui::TreePop();
 		}
 	}
-
-	/*
-	    /// @brief
-	    /// @param entityNode
-	    void HierachyWindow::DrawEntityNode(EntityNode* entityNode)
-	    {
-	        std::shared_ptr<Entity> selectionLock = _selection.lock();
-
-	        std::shared_ptr<Entity> entityLock = entityNode->_entity.lock();
-
-	        ImGuiTreeNodeFlags treeNodeFlags = ImGuiTreeNodeFlags_FramePadding;
-	        if (entityNode->_children.empty() == true)
-	        {
-	            treeNodeFlags |= ImGuiTreeNodeFlags_Leaf;
-	        }
-	        if (entityLock == selectionLock)
-	        {
-	            treeNodeFlags|= ImGuiTreeNodeFlags_Selected;
-	        }
-
-	        ImGui::PushID(entityLock.get());
-	        ImGui::PushStyleVar(ImGuiStyleVar_FramePadding, ImVec2(5, 5));
-	        bool opened = ImGui::TreeNodeEx(entityLock->GetName().c_str(), treeNodeFlags);
-	        if (ImGui::IsItemClicked() == true && ImGui::IsItemToggledOpen() == false)
-	        {
-	            _selection = entityLock;
-	            GetOwner<EntityEditorTab>()->SetEntitySelection(_selection);
-	        }
-	        ImGui::PopStyleVar();
-	        ImGui::PopID();
-
-	        if (ImGui::IsWindowHovered() == true && ImGui::IsItemHovered() == false && ImGui::IsMouseReleased(ImGuiMouseButton_Right) == true)
-	        {
-	            _selection = entityLock;
-	            GetOwner<EntityEditorTab>()->SetEntitySelection(_selection);
-
-	            ImGui::OpenPopup("ContextualMenu");
-	        }
-
-	        if (ImGui::BeginDragDropTarget() == true)
-	        {
-	            const ImGuiPayload* payload = ImGui::GetDragDropPayload();
-	            if (payload->IsDataType("EntityId") == true)
-	            {
-	                ImGui::GetWindowDrawList()->AddRect(ImGui::GetItemRectMin(), ImGui::GetItemRectMax(), IM_COL32(255, 0, 0, 255));
-
-	                payload = ImGui::AcceptDragDropPayload("EntityId");
-	                if ((payload) != nullptr)
-	                {
-	                    Entity::Id entityId = *reinterpret_cast<Entity::Id*>(payload->Data);
-	                    World* world = GetOwner<EntityEditorTab>()->GetWorld();
-	                    std::weak_ptr<Entity> dropEntity = world->FindEntity(entityId);
-	                    std::shared_ptr<Entity> dropEntityLock = dropEntity.lock();
-	                    if (dropEntityLock != nullptr)
-	                    {
-	                        // todo get or add component
-	                        std::shared_ptr<NodeComponent> parentNodeComponentLock = entityLock->GetComponent<NodeComponent>().lock();
-	                        if (parentNodeComponentLock == nullptr)
-	                        {
-	                            parentNodeComponentLock = entityLock->AddComponent<NodeComponent>().lock();
-	                        }
-
-	                        // todo get or add component
-	                        std::shared_ptr<NodeComponent> dropNodeComponentLock = dropEntityLock->GetComponent<NodeComponent>().lock();
-	                        if (dropNodeComponentLock == nullptr)
-	                        {
-	                            dropNodeComponentLock = dropEntityLock->AddComponent<NodeComponent>().lock();
-	                        }
-	                        dropNodeComponentLock->SetParent(parentNodeComponentLock);
-	                    }
-	                }
-	            }
-	            ImGui::EndDragDropTarget();
-	        }
-
-	        if (ImGui::BeginDragDropSource() == true)
-	        {
-	            // Some processing...
-	            ImGui::TextUnformatted(entityLock->GetName().c_str());
-	            Entity::Id entityId = entityLock->GetId();
-	            ImGui::SetDragDropPayload("EntityId", (void*)&entityId, sizeof(entityId), ImGuiCond_Once);
-	            ImGui::EndDragDropSource();
-	        }
-
-	        if (opened == true)
-	        {
-	            for (EntityNode* entityNode : entityNode->_children)
-	            {
-	                DrawEntityNode(entityNode);
-	            }
-	            ImGui::TreePop();
-	        }
-	    }
-	    */
 }
