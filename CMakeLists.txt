@@ -52,6 +52,7 @@ add_subdirectory("Sources/HodEngine/UI")
 add_subdirectory("Sources/HodEngine/UIComponents")
 add_subdirectory("Sources/HodEngine/Input")
 add_subdirectory("Sources/HodEngine/Audio")
+add_subdirectory("Sources/HodEngine/AudioComponents")
 add_subdirectory("Sources/HodEngine/Application")
 add_subdirectory("Sources/HodEngine/Main")
 

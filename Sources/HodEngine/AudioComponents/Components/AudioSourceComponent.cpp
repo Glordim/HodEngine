@@ -1,7 +1,7 @@
-#include "HodEngine/Audio/Pch.hpp"
+#include "HodEngine/AudioComponents/Pch.hpp"
 #include "HodEngine/Audio/AudioManager.hpp"
 #include "HodEngine/Core/Reflection/ReflectionHelper.hpp"
-#include "HodEngine/Audio/Components/AudioSourceComponent.hpp"
+#include "HodEngine/AudioComponents/Components/AudioSourceComponent.hpp"
 
 namespace hod::inline audio
 {

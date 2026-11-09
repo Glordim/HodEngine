@@ -28,9 +28,10 @@ target_include_directories(Audio PUBLIC
 )
 target_precompile_headers(Audio PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
-# An optional module (see HodModule.json): Game doesn't know it, it registers its components in Game
+# The base layer of the Audio module (see HodModule.json): audio resources, the platform audio device, usable without Game (the
+# AudioSourceComponent and the runtime module are in AudioComponents)
 target_link_libraries(Audio
-	PUBLIC Core GameSystems Game
+	PUBLIC Core GameSystems
 )
 
 if(ANDROID)
