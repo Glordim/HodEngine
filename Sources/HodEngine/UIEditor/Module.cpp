@@ -16,7 +16,7 @@
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <HodEngine/UI/AnimationClip.hpp>
 #include <HodEngine/UI/CanvasManager.hpp>
-#include <HodEngine/UI/Components/UIComponent.hpp>
+#include <HodEngine/UIComponents/Components/UIComponent.hpp>
 #include <HodEngine/UI/Margin.hpp>
 #include <HodEngine/UI/NodeRef.hpp>
 #include <HodEngine/UI/Padding.hpp>

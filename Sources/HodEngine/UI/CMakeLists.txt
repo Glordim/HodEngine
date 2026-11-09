@@ -14,9 +14,10 @@ target_include_directories(UI PUBLIC
 )
 target_precompile_headers(UI PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
-# An optional module (see HodModule.json): Game doesn't know it, it registers its UIComponent in Game
+# The base layer of the UI module (see HodModule.json): prefabs, nodes, layouts, canvases, usable without Game (the UIComponent and the
+# runtime module are in UIComponents)
 target_link_libraries(UI
-	PUBLIC Renderer Game
+	PUBLIC Core Math GameSystems Renderer
 	PRIVATE Input
 )
 

@@ -5,7 +5,7 @@
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 
 #include <HodEngine/Core/Reflection/ReflectionProperty.hpp>
-#include <HodEngine/UI/Components/UIComponent.hpp>
+#include <HodEngine/UIComponents/Components/UIComponent.hpp>
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
 #include <cstring>

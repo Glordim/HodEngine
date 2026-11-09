@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/UI/Export.hpp"
+#include "HodEngine/UIComponents/Export.hpp"
 
 #include "HodEngine/Game/Components/RendererComponent.hpp"
 
@@ -17,7 +17,7 @@ namespace hod::inline ui
 	/// (see CanvasManager). Each component has a canvas of its own, built from the prefab. The game talks to it through
 	/// the prefab's view (see View, GetView): its interface, without knowing the prefab's tree. FindNode and
 	/// GetActionEvent are there for the prefabs without one.
-	class HOD_UI_API UIComponent : public RendererComponent
+	class HOD_UI_COMPONENTS_API UIComponent : public RendererComponent
 	{
 		REFLECTED_CLASS(UIComponent, RendererComponent)
 
@@ -28,7 +28,7 @@ namespace hod::inline ui
 			Screen, // Over the game, laid out and scaled for the screen per the prefab's scaler (see CanvasScaler)
 			World,  // In the scene, placed by the entity's transform (PixelsPerUnit canvas units per world unit), sorted by its z-order
 		};
-		REFLECTED_ENUM(HOD_UI_API, RenderMode);
+		REFLECTED_ENUM(HOD_UI_COMPONENTS_API, RenderMode);
 
 		using ActionEvent = Canvas::ActionEvent;
 

@@ -1,6 +1,6 @@
-#include "HodEngine/UI/Pch.hpp"
+#include "HodEngine/UIComponents/Pch.hpp"
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
-#include "HodEngine/UI/Components/UIComponent.hpp"
+#include "HodEngine/UIComponents/Components/UIComponent.hpp"
 #include "HodEngine/Game/Components/CameraComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
 #include "HodEngine/Game/Entity.hpp"

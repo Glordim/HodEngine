@@ -15,7 +15,7 @@ target_include_directories(UIEditor PUBLIC
 target_precompile_headers(UIEditor PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 target_link_libraries(UIEditor
-	PUBLIC UI GameEditor Editor
+	PUBLIC UI UIComponents GameEditor Editor
 )
 
 target_compile_definitions(UIEditor
