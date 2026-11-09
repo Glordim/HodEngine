@@ -180,6 +180,7 @@ namespace hod::inline editor
 			GetOwner()->MarkAsDirty();
 		}
 
+		Component* componentToRemove = nullptr; // After the loop: removing deletes it, and changes the list being drawn
 		for (Component* component : selection->GetComponents())
 		{
 			if (component != nullptr)
@@ -213,8 +214,7 @@ namespace hod::inline editor
 				}
 				if (removeRequested)
 				{
-					selection->RemoveComponent(component);
-					GetOwner()->MarkAsDirty();
+					componentToRemove = component;
 					opened = false;
 				}
 
@@ -241,6 +241,11 @@ namespace hod::inline editor
 				}
 				DrawHelper::EndInspectorBlock();
 			}
+		}
+		if (componentToRemove != nullptr)
+		{
+			selection->RemoveComponent(componentToRemove);
+			GetOwner()->MarkAsDirty();
 		}
 
 		ImGui::Spacing();

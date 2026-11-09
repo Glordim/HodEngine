@@ -92,6 +92,7 @@ namespace hod::inline game
 		template<typename _Component_>
 		void RemoveComponent();
 		void RemoveComponent(const ReflectionDescriptor& descriptor);
+		/// @brief Deletes it
 		void RemoveComponent(Component* component);
 
 		// Serialization

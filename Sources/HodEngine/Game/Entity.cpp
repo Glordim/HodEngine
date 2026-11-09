@@ -214,39 +214,49 @@ namespace hod::inline game
 		return component;
 	}
 
-	/// @brief
+	/// @brief Ends its life as the entity's destruction would (disabled, destructed) and deletes it
 	/// @param component
 	void Entity::RemoveComponent(Component* component)
 	{
 		auto it = std::find(_components.Begin(), _components.End(), component);
-		if (it != _components.End())
+		if (it == _components.End())
 		{
-			_components.Erase(it);
+			return;
 		}
+		_components.Erase(it);
+
+		if (component->IsEnabledInHierarchy() == true)
+		{
+			component->Disable();
+		}
+		if (component->GetInternalState() != Component::InternalState::None && component->GetInternalState() != Component::InternalState::Destructed)
+		{
+			component->Destruct();
+		}
+		DefaultAllocator::GetInstance().Delete(component);
 	}
 
 	/// @brief
 	/// @param descriptor
 	void Entity::RemoveComponent(const ReflectionDescriptor& descriptor)
 	{
-		uint32_t indexToRemove = std::numeric_limits<uint32_t>::max();
-		for (uint32_t index = 0; index < _components.Size(); ++index)
+		Component* componentToRemove = nullptr;
+		for (Component* component : _components)
 		{
-			Component* component = _components[index];
 			if (&component->GetReflectionDescriptorV() == &descriptor)
 			{
-				_components.Erase(index);
-				return;
+				componentToRemove = component;
+				break;
 			}
 
 			if (component->GetReflectionDescriptorV().IsCompatible(descriptor) == true)
 			{
-				indexToRemove = index;
+				componentToRemove = component;
 			}
 		}
-		if (indexToRemove != std::numeric_limits<uint32_t>::max())
+		if (componentToRemove != nullptr)
 		{
-			_components.Erase(indexToRemove);
+			RemoveComponent(componentToRemove);
 		}
 	}
 
