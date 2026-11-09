@@ -3,12 +3,10 @@
 #include "HodEngine/Physics/Box2d/Box2dPhysics.hpp"
 #include "HodEngine/Physics/Box2d/Box2dWorld.hpp"
 
-#include "HodEngine/Math/Math.hpp"
-#include "HodEngine/Math/Matrix4.hpp"
+#include "HodEngine/Math/Color.hpp"
+#include "HodEngine/Math/Vector2.hpp"
 
 #include <box2d/box2d.h>
-
-#include <cstring>
 
 namespace hod::inline physics
 {
@@ -81,243 +79,115 @@ namespace hod::inline physics
 	}
 
 	/// @brief
-	void Box2dDebugDrawer::Update(World* world)
+	void Box2dDebugDrawer::Draw(World* world, DebugDrawTarget& target)
 	{
-		_renderCommands.Clear();
-
+		_target = &target;
 		b2World_Draw(static_cast<Box2dWorld*>(world)->GetWorldId(), &_debugDraw);
+		_target = nullptr;
 	}
 
 	/// @brief
-	/// @param vertices
-	/// @param vertexCount
-	/// @param color
-	/// @param context
+	Color Box2dDebugDrawer::ToColor(b2HexColor color)
+	{
+		return Color((int32_t)(((uint32_t)color << 8) | 0xff));
+	}
+
+	/// @brief Darker: the fill of a solid shape, its outline in color drawn over it
+	Color Box2dDebugDrawer::ToFillColor(b2HexColor color)
+	{
+		Color fillColor = ToColor(color);
+		fillColor[0] *= 0.5f;
+		fillColor[1] *= 0.5f;
+		fillColor[2] *= 0.5f;
+		return fillColor;
+	}
+
+	/// @brief
 	void Box2dDebugDrawer::DrawPolygon(const b2Vec2* vertices, int vertexCount, b2HexColor color, void* context)
 	{
 		Box2dDebugDrawer* thiz = static_cast<Box2dDebugDrawer*>(context);
 
-		RenderCommand renderCommand;
-		renderCommand._type = RenderCommand::Type::WireframePolygon;
-		renderCommand._color = (color << 8) | 0xff;
-
-		renderCommand._vertices.Resize(vertexCount * 2);
-		std::memcpy((void*)renderCommand._vertices.Data(), vertices, sizeof(float) * vertexCount * 2);
-
-		thiz->_renderCommands.push_back(renderCommand);
+		static_assert(sizeof(b2Vec2) == sizeof(Vector2));
+		thiz->_target->Polygon(reinterpret_cast<const Vector2*>(vertices), (uint32_t)vertexCount, ToColor(color), false);
 	}
 
 	/// @brief
-	/// @param transform
-	/// @param vertices
-	/// @param vertexCount
-	/// @param radius
-	/// @param color
-	/// @param context
 	void Box2dDebugDrawer::DrawSolidPolygon(b2Transform transform, const b2Vec2* vertices, int vertexCount, float radius, b2HexColor color, void* context)
 	{
-		(void)radius; // TODO
+		(void)radius; // TODO rounded polygon
 
 		Box2dDebugDrawer* thiz = static_cast<Box2dDebugDrawer*>(context);
 
-		RenderCommand renderCommand;
-		renderCommand._type = RenderCommand::Type::FillPolygon;
-		renderCommand._color = (color << 8) | 0xff;
-
-		renderCommand._vertices.Resize(vertexCount);
+		Vector<Vector2> points;
+		points.Reserve((uint32_t)vertexCount);
 		for (int index = 0; index < vertexCount; ++index)
 		{
-			renderCommand._vertices[index].SetX(transform.p.x + vertices[index].x); // todo use transform.r
-			renderCommand._vertices[index].SetY(transform.p.y + vertices[index].y); // todo use transform.r
+			b2Vec2 point = b2TransformPoint(transform, vertices[index]);
+			points.PushBack(Vector2(point.x, point.y));
 		}
 
-		// std::memcpy(renderCommand._vertices.Data(), vertices, sizeof(float) * vertexCount * 2);
-
-		thiz->_renderCommands.push_back(renderCommand);
+		thiz->_target->Polygon(points.Data(), (uint32_t)points.Size(), ToFillColor(color), true);
+		thiz->_target->Polygon(points.Data(), (uint32_t)points.Size(), ToColor(color), false);
 	}
 
 	/// @brief
-	/// @param center
-	/// @param radius
-	/// @param color
-	/// @param context
 	void Box2dDebugDrawer::DrawCircle(b2Vec2 center, float radius, b2HexColor color, void* context)
 	{
 		Box2dDebugDrawer* thiz = static_cast<Box2dDebugDrawer*>(context);
 
-		RenderCommand renderCommand;
-		renderCommand._type = RenderCommand::Type::WireframePolygon;
-		renderCommand._color = (color << 8) | 0xff;
-
-		uint32_t segmentCount = 32;
-		renderCommand._vertices.Resize(segmentCount * 3);
-		BuildCircleVertices(renderCommand._vertices.Data(), center, radius, segmentCount);
-
-		thiz->_renderCommands.push_back(renderCommand);
+		thiz->_target->Circle(Vector2(center.x, center.y), radius, ToColor(color), false);
 	}
 
 	/// @brief
-	/// @param transform
-	/// @param radius
-	/// @param color
-	/// @param context
 	void Box2dDebugDrawer::DrawSolidCircle(b2Transform transform, float radius, b2HexColor color, void* context)
 	{
 		Box2dDebugDrawer* thiz = static_cast<Box2dDebugDrawer*>(context);
 
-		RenderCommand renderCommand;
-		renderCommand._type = RenderCommand::Type::FillPolygon;
-		renderCommand._color = (color << 8) | 0xff;
-
-		uint32_t segmentCount = 32;
-		renderCommand._vertices.Resize(segmentCount * 3);
-		BuildCircleVertices(renderCommand._vertices.Data(), transform.p, radius, segmentCount); // todo use transform.rot ?
-
-		thiz->_renderCommands.push_back(renderCommand);
+		Vector2 center(transform.p.x, transform.p.y);
+		thiz->_target->Circle(center, radius, ToFillColor(color), true);
+		thiz->_target->Circle(center, radius, ToColor(color), false);
+		thiz->_target->Segment(center, center + Vector2(transform.q.c, transform.q.s) * radius, ToColor(color)); // its rotation
 	}
 
 	/// @brief
-	/// @param vertices
-	/// @param transform
-	/// @param radius
-	/// @param segmentCount
-	void Box2dDebugDrawer::BuildCircleVertices(Vector2* vertices, const b2Vec2& center, float radius, uint32_t segmentCount)
-	{
-		const float angleStep = 360.0f / segmentCount;
-
-		for (uint32_t currentSegment = 0; currentSegment < segmentCount; ++currentSegment)
-		{
-			uint32_t offset = currentSegment * 3;
-
-			vertices[offset].SetX(center.x + 0.0f);
-			vertices[offset].SetY(center.y + 0.0f);
-
-			float angle = angleStep * currentSegment;
-			angle = DegreeToRadian(angle);
-
-			vertices[offset + 1].SetX(center.x + (radius * cosf(angle)));
-			vertices[offset + 1].SetY(center.y + (radius * sinf(angle)));
-
-			angle = angleStep * (currentSegment + 1);
-			angle = DegreeToRadian(angle);
-
-			vertices[offset + 2].SetX(center.x + (radius * cosf(angle)));
-			vertices[offset + 2].SetY(center.y + (radius * sinf(angle)));
-		}
-	}
-
-	/// @brief
-	/// @param p1
-	/// @param p2
-	/// @param radius
-	/// @param color
-	/// @param context
-	void Box2dDebugDrawer::DrawCapsule(b2Vec2 p1, b2Vec2 p2, float radius, b2HexColor color, void* context)
-	{
-		Box2dDebugDrawer* thiz = static_cast<Box2dDebugDrawer*>(context);
-
-		RenderCommand renderCommand;
-		renderCommand._type = RenderCommand::Type::FillPolygon;
-		renderCommand._color = (color << 8) | 0xff;
-
-		uint32_t segmentCount = 32;
-		renderCommand._vertices.Resize(segmentCount * 3 * 2 + 4);
-		BuildCircleVertices(renderCommand._vertices.Data(), p1, radius, segmentCount);
-		BuildCircleVertices(renderCommand._vertices.Data() + segmentCount * 3, p2, radius, segmentCount);
-		renderCommand._vertices[segmentCount * 3 * 2 + 0].SetX(p1.x - radius);
-		renderCommand._vertices[segmentCount * 3 * 2 + 0].SetY(p1.y);
-		renderCommand._vertices[segmentCount * 3 * 2 + 1].SetX(p2.x - radius);
-		renderCommand._vertices[segmentCount * 3 * 2 + 1].SetY(p2.y);
-		renderCommand._vertices[segmentCount * 3 * 2 + 2].SetX(p1.x + radius);
-		renderCommand._vertices[segmentCount * 3 * 2 + 2].SetY(p1.y);
-		renderCommand._vertices[segmentCount * 3 * 2 + 3].SetX(p2.x + radius);
-		renderCommand._vertices[segmentCount * 3 * 2 + 3].SetY(p2.y);
-
-		thiz->_renderCommands.push_back(renderCommand);
-	}
-
-	/// @brief
-	/// @param p1
-	/// @param p2
-	/// @param radius
-	/// @param color
-	/// @param context
 	void Box2dDebugDrawer::DrawSolidCapsule(b2Vec2 p1, b2Vec2 p2, float radius, b2HexColor color, void* context)
 	{
 		Box2dDebugDrawer* thiz = static_cast<Box2dDebugDrawer*>(context);
 
-		RenderCommand renderCommand;
-		renderCommand._type = RenderCommand::Type::FillPolygon;
-		renderCommand._color = (color << 8) | 0xff;
-
-		uint32_t segmentCount = 32;
-		renderCommand._vertices.Resize(segmentCount * 3 * 2 + 4);
-		BuildCircleVertices(renderCommand._vertices.Data(), p1, radius, segmentCount);
-		BuildCircleVertices(renderCommand._vertices.Data() + segmentCount * 3, p2, radius, segmentCount);
-		renderCommand._vertices[segmentCount * 3 * 2 + 0].SetX(p1.x - radius);
-		renderCommand._vertices[segmentCount * 3 * 2 + 0].SetY(p1.y);
-		renderCommand._vertices[segmentCount * 3 * 2 + 1].SetX(p2.x - radius);
-		renderCommand._vertices[segmentCount * 3 * 2 + 1].SetY(p2.y);
-		renderCommand._vertices[segmentCount * 3 * 2 + 2].SetX(p1.x + radius);
-		renderCommand._vertices[segmentCount * 3 * 2 + 2].SetY(p1.y);
-		renderCommand._vertices[segmentCount * 3 * 2 + 3].SetX(p2.x + radius);
-		renderCommand._vertices[segmentCount * 3 * 2 + 3].SetY(p2.y);
-
-		thiz->_renderCommands.push_back(renderCommand);
+		Vector2 start(p1.x, p1.y);
+		Vector2 end(p2.x, p2.y);
+		thiz->_target->Capsule(start, end, radius, ToFillColor(color), true);
+		thiz->_target->Capsule(start, end, radius, ToColor(color), false);
 	}
 
 	/// @brief
-	/// @param p1
-	/// @param p2
-	/// @param color
-	/// @param context
 	void Box2dDebugDrawer::DrawSegment(b2Vec2 p1, b2Vec2 p2, b2HexColor color, void* context)
 	{
 		Box2dDebugDrawer* thiz = static_cast<Box2dDebugDrawer*>(context);
 
-		RenderCommand renderCommand;
-		renderCommand._type = RenderCommand::Type::Line;
-		renderCommand._color = (color << 8) | 0xff;
-		renderCommand._vertices.Resize(2);
-		std::memcpy((void*)renderCommand._vertices.Data(), &p1, 2 * sizeof(float));
-		std::memcpy((void*)(renderCommand._vertices.Data() + 2), &p2, 2 * sizeof(float));
-
-		thiz->_renderCommands.push_back(renderCommand);
+		thiz->_target->Segment(Vector2(p1.x, p1.y), Vector2(p2.x, p2.y), ToColor(color));
 	}
 
-	/// @brief
-	/// @param transform
-	/// @param context
+	/// @brief Its axes: x in red, y in green
 	void Box2dDebugDrawer::DrawTransform(b2Transform transform, void* context)
-	{
-		// TODO
-		(void)transform;
-		(void)context;
-	}
-
-	/// @brief
-	/// @param p
-	/// @param Size
-	/// @param color
-	/// @param context
-	void Box2dDebugDrawer::DrawPoint(b2Vec2 p, float Size, b2HexColor color, void* context)
 	{
 		Box2dDebugDrawer* thiz = static_cast<Box2dDebugDrawer*>(context);
 
-		RenderCommand renderCommand;
-		renderCommand._type = RenderCommand::Type::Point;
-		renderCommand._color = (color << 8) | 0xff;
-		renderCommand._vertices.Resize(1);
-		std::memcpy((void*)renderCommand._vertices.Data(), &p, 2 * sizeof(float));
-		renderCommand._size = Size;
-
-		thiz->_renderCommands.push_back(renderCommand);
+		constexpr float axisLength = 0.2f;
+		Vector2         origin(transform.p.x, transform.p.y);
+		thiz->_target->Segment(origin, origin + Vector2(transform.q.c, transform.q.s) * axisLength, Color(1.0f, 0.0f, 0.0f, 1.0f));
+		thiz->_target->Segment(origin, origin + Vector2(-transform.q.s, transform.q.c) * axisLength, Color(0.0f, 1.0f, 0.0f, 1.0f));
 	}
 
 	/// @brief
-	/// @param p
-	/// @param s
-	/// @param context
+	void Box2dDebugDrawer::DrawPoint(b2Vec2 p, float size, b2HexColor color, void* context)
+	{
+		Box2dDebugDrawer* thiz = static_cast<Box2dDebugDrawer*>(context);
+
+		thiz->_target->Point(Vector2(p.x, p.y), size, ToColor(color));
+	}
+
+	/// @brief
 	void Box2dDebugDrawer::DrawString(b2Vec2 p, const char* s, b2HexColor color, void* context)
 	{
 		// TODO

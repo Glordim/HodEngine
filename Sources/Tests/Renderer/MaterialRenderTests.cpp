@@ -20,6 +20,7 @@
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
 #include <HodEngine/Renderer/ShapeDrawer.hpp>
+#include <HodEngine/Renderer/ShapeList.hpp>
 
 #include <HodEngine/Renderer/MaterialInstance.hpp>
 #include <HodEngine/RHI/RenderTarget.hpp>
@@ -1262,4 +1263,63 @@ TEST_F(ShapeDrawerRender, PointIsInPixels)
 	EXPECT_TRUE(ColorNear(ReadPixel(PixelCenter(33), PixelCenter(33)), Red));
 	EXPECT_TRUE(ColorNear(ReadPixel(PixelCenter(28), PixelCenter(32)), Background));
 	EXPECT_TRUE(ColorNear(ReadPixel(PixelCenter(35), PixelCenter(32)), Background));
+}
+
+TEST_F(ShapeDrawerRender, ShapeListOutlineOverItsFill)
+{
+	ShapeList shapes;
+	shapes.Rect(Vector2::Zero, Vector2(PixelCenter(48) * 2.0f, PixelCenter(48) * 2.0f), Red); // added first, still over the fill
+	shapes.FilledRect(Vector2::Zero, Vector2(PixelCenter(48) * 2.0f, PixelCenter(48) * 2.0f), Green);
+	shapes.FilledCircle(Vector2(-0.75f, 0.75f), 0.2f, Blue);
+
+	RenderFrame([&]() { ShapeDrawer::Draw(*_renderView, shapes, 0); });
+
+	EXPECT_TRUE(ColorNear(ReadPixel(PixelCenter(48), 0.0f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, 0.0f), Green));
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.75f, 0.75f), Blue));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.9f, 0.9f), Background));
+}
+
+TEST_F(ShapeDrawerRender, ShapeListCapsuleFollowsItsAxis)
+{
+	ShapeList shapes;
+	shapes.FilledCapsule(Vector2(-0.5f, -0.5f), Vector2(0.5f, -0.5f), 0.2f, Yellow); // horizontal
+	shapes.Capsule(Vector2(0.5f, 0.0f), Vector2(0.5f, 0.6f), 0.2f, Green);         // vertical, outline
+
+	RenderFrame([&]() { ShapeDrawer::Draw(*_renderView, shapes, 0); });
+
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, -0.5f), Yellow));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.62f, -0.5f), Yellow)); // in the half circle around its end
+	EXPECT_TRUE(ColorNear(ReadPixel(0.0f, -0.8f), Background));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.8f, -0.5f), Background));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.3f), Background)); // an outline: nothing inside
+}
+
+TEST_F(ShapeDrawerRender, ShapeListOverMoreVerticesThanOneBatch)
+{
+	// 20000 rects (80000 vertices, more than 16 bits indices): the batch is split, the last shapes are drawn
+	ShapeList shapes;
+	for (uint32_t index = 0; index < 20000; ++index)
+	{
+		shapes.FilledRect(Vector2(-0.5f, 0.0f), Vector2(0.5f, 0.5f), Red);
+	}
+	shapes.FilledRect(Vector2(0.5f, 0.0f), Vector2(0.5f, 0.5f), Green);
+
+	RenderFrame([&]() { ShapeDrawer::Draw(*_renderView, shapes, 0); });
+
+	EXPECT_TRUE(ColorNear(ReadPixel(-0.5f, 0.0f), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(0.5f, 0.0f), Green));
+}
+
+TEST_F(ShapeDrawerRender, ShapeListPointIsInPixels)
+{
+	_projection = Matrix4::OrthogonalProjection(-4.0f, 4.0f, -4.0f, 4.0f, -1024.0f, 1024.0f); // a pixel is 1 / 8 world unit
+	ShapeList shapes;
+	shapes.Point(Vector2::Zero, 4.0f, Red);
+
+	RenderFrame([&]() { ShapeDrawer::Draw(*_renderView, shapes, 0); });
+
+	EXPECT_TRUE(ColorNear(ReadPixel(PixelCenter(30), PixelCenter(30)), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(PixelCenter(33), PixelCenter(33)), Red));
+	EXPECT_TRUE(ColorNear(ReadPixel(PixelCenter(28), PixelCenter(32)), Background));
 }

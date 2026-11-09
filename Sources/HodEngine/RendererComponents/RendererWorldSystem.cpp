@@ -5,7 +5,6 @@
 #include "HodEngine/RendererComponents/Components/RendererComponent.hpp"
 
 #include <HodEngine/Core/StaticArray.hpp>
-#include <HodEngine/Game/DebugLines.hpp>
 #include <HodEngine/Game/Entity.hpp>
 #include <HodEngine/Game/Scene.hpp>
 #include <HodEngine/Game/World.hpp>
@@ -52,6 +51,25 @@ namespace hod::inline renderer
 	}
 
 	/// @brief
+	DebugShapes* RendererWorldSystem::GetDebugShapes(const game::World& world)
+	{
+		RendererWorldSystem* rendererWorldSystem = Get(world);
+		return rendererWorldSystem != nullptr ? &rendererWorldSystem->_debugShapes : nullptr;
+	}
+
+	/// @brief
+	DebugShapes& RendererWorldSystem::GetDebugShapes()
+	{
+		return _debugShapes;
+	}
+
+	/// @brief
+	void RendererWorldSystem::OnUpdate(float deltaTime)
+	{
+		_debugShapes.Age(deltaTime); // those of the previous frame have been drawn, before the update of the scenes adds those of this one
+	}
+
+	/// @brief
 	void RendererWorldSystem::DrawOnMainWindow()
 	{
 		if (GetWorld().IsDrawnOnMainWindow() == false)
@@ -87,7 +105,7 @@ namespace hod::inline renderer
 		}
 		DrawScene(*world.GetPersistentScene(), renderView);
 
-		DrawDebugLines(renderView);
+		DrawDebugShapes(renderView);
 	}
 
 	/// @brief
@@ -111,16 +129,8 @@ namespace hod::inline renderer
 
 	/// @brief
 	/// @param renderView
-	void RendererWorldSystem::DrawDebugLines(RenderView& renderView)
+	void RendererWorldSystem::DrawDebugShapes(RenderView& renderView)
 	{
-		game::DebugLines& debugLines = GetWorld().GetDebugLines();
-		if (debugLines.GetLines().Empty() == false)
-		{
-			for (const game::DebugLines::Line& line : debugLines.GetLines())
-			{
-				ShapeDrawer::Line(renderView, Matrix4::Identity, line._start, line._end, line._color, 0);
-			}
-		}
-		debugLines.Age(0.016f); // todo: the frame's duration
+		ShapeDrawer::Draw(renderView, _debugShapes.GetShapes(), DebugShapesOrder);
 	}
 }

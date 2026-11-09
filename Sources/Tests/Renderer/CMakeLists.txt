@@ -46,6 +46,7 @@ target_include_directories(TestsRenderer
 target_link_libraries(TestsRenderer
 	PRIVATE
 		Renderer
+		RendererComponents # DebugShapes
 		GTest::gtest
 )
 

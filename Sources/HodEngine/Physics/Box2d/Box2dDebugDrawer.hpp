@@ -4,16 +4,13 @@
 
 #include "HodEngine/Core/Vector.hpp"
 
-#include <box2d/types.h>
+#include <HodEngine/Math/Color.hpp>
 
-namespace hod::inline math
-{
-	class Vector2;
-}
+#include <box2d/types.h>
 
 namespace hod::inline physics
 {
-	/// @brief 
+	/// @brief Box2d's debug draw (b2World_Draw) given to a DebugDrawTarget
 	class HOD_PHYSICS_API Box2dDebugDrawer : public DebugDrawer
 	{
 	public:
@@ -22,7 +19,7 @@ namespace hod::inline physics
 
 	public:
 
-		void						Update(World* world) override;
+		void						Draw(World* world, DebugDrawTarget& target) override;
 		const Vector<Flag>&	GetAvailableFlags() const override;
 		void						SetFlags(uint32_t flags) override;
 		uint32_t					GetFlags() const override;
@@ -33,18 +30,19 @@ namespace hod::inline physics
 		static void	DrawSolidPolygon(b2Transform transform, const b2Vec2* vertices, int vertexCount, float radius, b2HexColor color, void* context);
 		static void	DrawCircle(b2Vec2 center, float radius, b2HexColor color, void* context);
 		static void	DrawSolidCircle(b2Transform transform, float radius, b2HexColor color, void* context);
-		static void	DrawCapsule(b2Vec2 p1, b2Vec2 p2, float radius, b2HexColor color, void* context);
 		static void	DrawSolidCapsule(b2Vec2 p1, b2Vec2 p2, float radius, b2HexColor color, void* context);
 		static void	DrawSegment(b2Vec2 p1, b2Vec2 p2, b2HexColor color, void* context);
 		static void	DrawTransform(b2Transform transform, void* context);
 		static void	DrawPoint(b2Vec2 p, float size, b2HexColor color, void* context);
 		static void	DrawString(b2Vec2 p, const char* s, b2HexColor color, void* context);
 
-		static void BuildCircleVertices(Vector2* vertices, const b2Vec2& center, float radius, uint32_t segmentCount);
+		static Color ToColor(b2HexColor color);
+		static Color ToFillColor(b2HexColor color);
 
 	private:
 
 		b2DebugDraw _debugDraw;
+		DebugDrawTarget* _target = nullptr; // During Draw
 
 		uint32_t _flags = 0;
 	};

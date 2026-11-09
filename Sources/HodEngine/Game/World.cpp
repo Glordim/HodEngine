@@ -242,23 +242,6 @@ namespace hod::inline game
 	}
 
 	/// @brief
-	/// @param start
-	/// @param end
-	/// @param color
-	/// @param duration
-	void World::DrawDebugLine(const Vector2& start, const Vector2& end, const Color& color, float duration)
-	{
-		_debugLines.AddLine(start, end, color, duration);
-	}
-
-	/// @brief
-	/// @return
-	DebugLines& World::GetDebugLines()
-	{
-		return _debugLines;
-	}
-
-	/// @brief
 	void World::Update()
 	{
 		// todo

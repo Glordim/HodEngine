@@ -10,6 +10,7 @@
 namespace hod::inline renderer
 {
 	class RenderView;
+	class ShapeList;
 
 	/// @brief Simple 2d shapes of one color (outlines and fills) pushed into a RenderView: the debug draw of the engine, usable everywhere (game, editor).
 	/// Drawing only: the interactive handles of the editor are editor::Gizmos, built on it.
@@ -43,6 +44,9 @@ namespace hod::inline renderer
 		                       uint32_t pickingId = 0);
 		static void FilledCircle(RenderView& renderView, const Matrix4& matrix, const Vector2& center, float radius, const Color& color, uint32_t order, uint32_t pickingId = 0,
 		                         uint32_t segmentCount = DefaultCircleSegmentCount);
+		/// @brief Vertical, height is the whole capsule (its two half circles included)
+		static void FilledCapsule(RenderView& renderView, const Matrix4& matrix, const Vector2& center, float height, float radius, const Color& color, uint32_t order,
+		                          uint32_t pickingId = 0, uint32_t segmentCount = DefaultCircleSegmentCount);
 		/// @brief Convex polygon (filled as a fan from its first point)
 		static void FilledPolygon(RenderView& renderView, const Matrix4& matrix, const Vector2* points, uint32_t pointCount, const Color& color, uint32_t order,
 		                          uint32_t pickingId = 0);
@@ -55,6 +59,10 @@ namespace hod::inline renderer
 
 		/// @brief A square of pixelSize pixels whatever the zoom, at position in world space (camera of the RenderView set up first)
 		static void Point(RenderView& renderView, const Vector2& position, float pixelSize, const Color& color, uint32_t order);
+
+		/// @brief All the shapes of the list (world space), batched: one command for the fills then one for the outlines (over them), while they fit in 16 bits indices.
+		/// The camera of the RenderView set up first (for the points)
+		static void Draw(RenderView& renderView, const ShapeList& shapes, uint32_t order);
 
 		/// @brief The size of a pixel in world units with the camera of the RenderView (orthographic), 0 without camera
 		static float GetPixelWorldSize(const RenderView& renderView);

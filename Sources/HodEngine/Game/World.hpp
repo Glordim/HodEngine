@@ -2,7 +2,6 @@
 #include "HodEngine/Game/Export.hpp"
 
 #include "HodEngine/Game/Entity.hpp"
-#include "HodEngine/Game/DebugLines.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
 #include <memory>
@@ -73,11 +72,6 @@ namespace hod::inline game
 
 //			bool						Raycast(const glm::vec3& origin, const glm::vec3& dir, float distance, RaycastResult& result, bool drawDebug, const Color& debugColor, float debugDuration);
 
-		// todo #ifndef retail ?
-		void						DrawDebugLine(const Vector2& start, const Vector2& end, const Color& color, float duration = 0.0f);
-		DebugLines&					GetDebugLines();
-		//
-
 		/// @brief The instance of a WorldSystemType registered by a module, nullptr if the module isn't there
 		WorldSystem*				FindSystem(const WorldSystemType& type) const;
 
@@ -101,8 +95,6 @@ namespace hod::inline game
 
 		Vector<Scene*>				_scenes;
 		Scene*						_persistanteScene = nullptr;
-
-		DebugLines					_debugLines;
 
 		SystemTime::TimeStamp		_lastUpdateTimestamp = SystemTime::INVALID_TIMESTAMP;
 

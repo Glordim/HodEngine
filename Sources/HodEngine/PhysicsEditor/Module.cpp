@@ -1,6 +1,5 @@
 #include "HodEngine/PhysicsEditor/Pch.hpp"
 #include "HodEngine/PhysicsEditor/Module.hpp"
-#include "HodEngine/PhysicsEditor/PhysicsDebugDrawer.hpp"
 
 #include "HodEngine/PhysicsEditor/CustomComponentDrawer/BoxCollider2dCustomComponentDrawer.hpp"
 #include "HodEngine/PhysicsEditor/CustomComponentDrawer/CapsuleCollider2dCustomComponentDrawer.hpp"
@@ -20,6 +19,9 @@
 #include <HodEngine/PhysicsComponents/PhysicsWorldSystem.hpp>
 #include <HodEngine/Physics/World.hpp>
 
+#include <HodEngine/Renderer/ShapeDrawer.hpp>
+#include <HodEngine/Renderer/ShapeList.hpp>
+
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
@@ -29,8 +31,8 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
 namespace
 {
-	/// @brief The physics shapes of the world, in place of its render
-	class PhysicsViewportDebugView : public hod::editor::ViewportDebugView
+	/// @brief The physics shapes of the world, in place of its render: the physics' debug view gathered in a ShapeList, drawn at once
+	class PhysicsViewportDebugView : public hod::editor::ViewportDebugView, public hod::physics::DebugDrawTarget
 	{
 	public:
 		void Draw(hod::renderer::RenderView& renderView, hod::game::World& world) override
@@ -38,13 +40,60 @@ namespace
 			hod::physics::World* physicsWorld = hod::physics::PhysicsWorldSystem::GetPhysicsWorld(world);
 			if (physicsWorld != nullptr)
 			{
-				_drawer.Update(physicsWorld);
-				_drawer.PushRenderCommand(renderView, physicsWorld);
+				_shapes.Clear();
+				physicsWorld->GetDebugDrawer()->Draw(physicsWorld, *this);
+				hod::renderer::ShapeDrawer::Draw(renderView, _shapes, 0); // in place of the render of the world
 			}
 		}
 
+		void Polygon(const hod::Vector2* points, uint32_t pointCount, const hod::Color& color, bool filled) override
+		{
+			if (filled)
+			{
+				_shapes.FilledPolygon(points, pointCount, color);
+			}
+			else
+			{
+				_shapes.Polyline(points, pointCount, true, color);
+			}
+		}
+
+		void Circle(const hod::Vector2& center, float radius, const hod::Color& color, bool filled) override
+		{
+			if (filled)
+			{
+				_shapes.FilledCircle(center, radius, color);
+			}
+			else
+			{
+				_shapes.Circle(center, radius, color);
+			}
+		}
+
+		void Capsule(const hod::Vector2& start, const hod::Vector2& end, float radius, const hod::Color& color, bool filled) override
+		{
+			if (filled)
+			{
+				_shapes.FilledCapsule(start, end, radius, color);
+			}
+			else
+			{
+				_shapes.Capsule(start, end, radius, color);
+			}
+		}
+
+		void Segment(const hod::Vector2& start, const hod::Vector2& end, const hod::Color& color) override
+		{
+			_shapes.Line(start, end, color);
+		}
+
+		void Point(const hod::Vector2& position, float pixelSize, const hod::Color& color) override
+		{
+			_shapes.Point(position, pixelSize, color);
+		}
+
 	private:
-		hod::editor::PhysicsDebugDrawer _drawer;
+		hod::renderer::ShapeList _shapes; // kept: its capacity reused from frame to frame
 	};
 
 	/// @brief Its draw flags
