@@ -4,6 +4,7 @@
 #include "HodEngine/Editor/EditorTabWindow.hpp"
 #include "HodEngine/Editor/Framing.hpp"
 #include "HodEngine/Editor/Gizmos/GizmoViewport.hpp"
+#include "HodEngine/GameEditor/EntityBasedTabEditor/ViewportDebugView.hpp"
 
 #include <HodEngine/Core/Vector.hpp>
 #include <HodEngine/Core/Weakable/WeakPtr.hpp>
@@ -99,6 +100,8 @@ namespace hod::inline editor
 		FramingCamera _camera;
 
 		bool _debugPicker = false;
+
+		ViewportDebugViewMode _debugViewMode = ViewportDebugViewMode::Replace; // Kept when switching debug views
 
 		bool  _drawGrid = true;
 		float _gridCellSize = 1.0f; // world units, at the default camera size (see ViewportGrid)

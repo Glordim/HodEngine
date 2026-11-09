@@ -15,8 +15,15 @@ namespace hod::inline game
 
 namespace hod::inline editor
 {
-	/// @brief Draws a world its own way in a viewport, in place of its render (the physics shapes...). One instance per viewport where it is
-	/// enabled (see ViewportDebugViewRegistry), one debug view enabled at a time
+	/// @brief How the enabled debug view is drawn with the world's render, chosen per viewport (the settings popup of the debug views' toggles)
+	enum class ViewportDebugViewMode : uint8_t
+	{
+		Replace, // The debug view alone, in place of the render
+		Overlay, // The render, then the debug view over it (under the gizmos)
+	};
+
+	/// @brief Draws a world its own way in a viewport, in place of its render or over it (the physics shapes...). One instance per viewport
+	/// where it is enabled (see ViewportDebugViewRegistry), one debug view enabled at a time
 	class HOD_GAME_EDITOR_API ViewportDebugView
 	{
 	public:
@@ -29,7 +36,8 @@ namespace hod::inline editor
 		ViewportDebugView& operator=(ViewportDebugView&&) = delete;
 
 	public:
-		virtual void Draw(RenderView& renderView, game::World& world) = 0;
+		/// @param sortingOrder To draw at: the bottom (Replace mode) or over the world's render, under the gizmos (Overlay mode)
+		virtual void Draw(RenderView& renderView, game::World& world, uint32_t sortingOrder) = 0;
 	};
 
 	/// @brief A kind of ViewportDebugView, registered by an editor module (a toggle in the viewports' toolbar). Identified by its address:

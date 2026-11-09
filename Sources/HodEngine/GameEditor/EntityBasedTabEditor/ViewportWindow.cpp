@@ -153,15 +153,28 @@ namespace hod::inline editor
 		{
 			ImGui::PushID(debugViewType);
 			bool enabled = debugViewType == enabledDebugViewType;
-			bool changed = debugViewType->_drawSettings != nullptr ? DrawHelper::DrawToggleWithSettings(debugViewType->_label, debugViewType->_itemName, "DebugViewSettings", enabled)
-			                                                       : DrawHelper::DrawToggle(debugViewType->_label, debugViewType->_itemName, enabled);
-			if (changed)
+			if (DrawHelper::DrawToggleWithSettings(debugViewType->_label, debugViewType->_itemName, "DebugViewSettings", enabled))
 			{
 				ViewportDebugViewRegistry::SetEnabled(this, enabled ? debugViewType : nullptr);
 			}
-			if (debugViewType->_drawSettings != nullptr && DrawHelper::BeginSettingsPopup("DebugViewSettings"))
+			if (DrawHelper::BeginSettingsPopup("DebugViewSettings"))
 			{
-				debugViewType->_drawSettings(*GetOwner<EntityEditorTab>()->GetWorld());
+				// Common to all the debug views: in place of the render or over it
+				ImGui::TextDisabled("Display");
+				if (ImGui::RadioButton("Replace the render", _debugViewMode == ViewportDebugViewMode::Replace))
+				{
+					_debugViewMode = ViewportDebugViewMode::Replace;
+				}
+				if (ImGui::RadioButton("Over the render", _debugViewMode == ViewportDebugViewMode::Overlay))
+				{
+					_debugViewMode = ViewportDebugViewMode::Overlay;
+				}
+
+				if (debugViewType->_drawSettings != nullptr)
+				{
+					ImGui::Separator();
+					debugViewType->_drawSettings(*GetOwner<EntityEditorTab>()->GetWorld());
+				}
 				ImGui::EndPopup();
 			}
 			ImGui::PopID();
@@ -811,13 +824,18 @@ namespace hod::inline editor
 	{
 		game::World*       world = GetOwner<EntityEditorTab>()->GetWorld();
 		ViewportDebugView* debugView = ViewportDebugViewRegistry::GetEnabled(this);
-		if (debugView != nullptr)
+		if (debugView == nullptr)
 		{
-			debugView->Draw(renderView, *world);
+			ViewportWorldRenderer::Draw(renderView, *world);
+		}
+		else if (_debugViewMode == ViewportDebugViewMode::Overlay)
+		{
+			ViewportWorldRenderer::Draw(renderView, *world);
+			debugView->Draw(renderView, *world, GizmoViewport::OverlayOrder - 1); // under the gizmos' outlines and handles
 		}
 		else
 		{
-			ViewportWorldRenderer::Draw(renderView, *world);
+			debugView->Draw(renderView, *world, 0);
 		}
 	}
 

@@ -31,18 +31,18 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
 namespace
 {
-	/// @brief The physics shapes of the world, in place of its render: the physics' debug view gathered in a ShapeList, drawn at once
+	/// @brief The physics shapes of the world, in place of its render or over it: the physics' debug view gathered in a ShapeList, drawn at once
 	class PhysicsViewportDebugView : public hod::editor::ViewportDebugView, public hod::physics::DebugDrawTarget
 	{
 	public:
-		void Draw(hod::renderer::RenderView& renderView, hod::game::World& world) override
+		void Draw(hod::renderer::RenderView& renderView, hod::game::World& world, uint32_t sortingOrder) override
 		{
 			hod::physics::World* physicsWorld = hod::physics::PhysicsWorldSystem::GetPhysicsWorld(world);
 			if (physicsWorld != nullptr)
 			{
 				_shapes.Clear();
 				physicsWorld->GetDebugDrawer()->Draw(physicsWorld, *this);
-				hod::renderer::ShapeDrawer::Draw(renderView, _shapes, 0); // in place of the render of the world
+				hod::renderer::ShapeDrawer::Draw(renderView, _shapes, sortingOrder);
 			}
 		}
 
