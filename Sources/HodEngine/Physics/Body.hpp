@@ -57,6 +57,11 @@ namespace hod::inline physics
 		/// @param angle In degrees
 		virtual void		SetTransform(const Vector2& position, float angle, const Vector2& scale) = 0;
 
+		/// @brief For a kinematic body: goes there over the next step of timeStep, through its velocity (what it meets is pushed, not crossed as
+		/// with SetTransform). Stops once there
+		/// @param angle In degrees
+		virtual void		MoveTo(const Vector2& position, float angle, float timeStep) = 0;
+
 		virtual Vector2		GetPosition() const = 0;
 		/// @return In degrees
 		virtual float		GetRotation() const = 0;
@@ -82,6 +87,10 @@ namespace hod::inline physics
 		/// @brief Its position locked on these axes (world space): it only moves along the other one, the rotation stays free (see
 		/// SetFixedRotation). Its transform can still be set, the lock follows it
 		virtual void		SetFreezePosition(bool x, bool y) = 0;
+
+		/// @brief For a fast dynamic body: its motion is swept against the dynamic and kinematic bodies too, not only the static ones, so it
+		/// doesn't go through them (more expensive)
+		virtual void		SetContinuousCollision(bool continuousCollision) = 0;
 
 	protected:
 

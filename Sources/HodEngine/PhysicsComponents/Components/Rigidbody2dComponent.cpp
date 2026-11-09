@@ -27,6 +27,7 @@ namespace hod::inline physics
 		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_mode, "Mode", &Rigidbody2dComponent::SetMode);
 		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_gravityScale, "GravityScale", &Rigidbody2dComponent::SetGravityScale);
 		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_fixedRotation, "FixedRotation", &Rigidbody2dComponent::SetFixedRotation);
+		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_continuousCollision, "ContinuousCollision", &Rigidbody2dComponent::SetContinuousCollision);
 		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_freezePositionX, "FreezePositionX", &Rigidbody2dComponent::SetFreezePositionX);
 		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_freezePositionY, "FreezePositionY", &Rigidbody2dComponent::SetFreezePositionY);
 	}
@@ -111,6 +112,7 @@ namespace hod::inline physics
 		SetMode(GetMode());
 		SetGravityScale(GetGravityScale());
 		SetFixedRotation(GetFixedRotation());
+		SetContinuousCollision(GetContinuousCollision());
 		_body->SetFreezePosition(_freezePositionX, _freezePositionY);
 	}
 
@@ -134,13 +136,8 @@ namespace hod::inline physics
 	}
 
 	/// @brief
-	void Rigidbody2dComponent::SyncBodyWithNode()
+	bool Rigidbody2dComponent::GetNodeTransform(Vector2& position, float& rotation) const
 	{
-		if (_body == nullptr)
-		{
-			return;
-		}
-
 		Entity* entity = GetOwner();
 		if (entity != nullptr)
 		{
@@ -148,18 +145,39 @@ namespace hod::inline physics
 			if (node2dComponent != nullptr)
 			{
 				Matrix4 worldMatrix = node2dComponent->GetWorldMatrix();
-				Vector2 position = worldMatrix.GetTranslation();
-				float   rotation = RadianToDegree(worldMatrix.GetRotation().GetAngleZ()); // the body's in degrees, as the node's
-				Vector2 scale = Vector2::One;                                          // = worldMatrix.GetScale();
-				_body->SetTransform(position, rotation, scale);
+				position = worldMatrix.GetTranslation();
+				rotation = RadianToDegree(worldMatrix.GetRotation().GetAngleZ()); // the body's in degrees, as the node's
+				return true;
 			}
+		}
+		return false;
+	}
+
+	/// @brief
+	void Rigidbody2dComponent::SyncBodyWithNode()
+	{
+		Vector2 position;
+		float   rotation = 0.0f;
+		if (_body != nullptr && GetNodeTransform(position, rotation))
+		{
+			_body->SetTransform(position, rotation, Vector2::One);
 		}
 	}
 
 	/// @brief
 	void Rigidbody2dComponent::OnFixedUpdate()
 	{
-		SyncBodyWithNode();
+		// A kinematic body goes where its node is over the step (a velocity, not a teleport): what it pushes is pushed, not crossed
+		Vector2 position;
+		float   rotation = 0.0f;
+		if (_mode == Mode::Kinematic && _body != nullptr && GetNodeTransform(position, rotation))
+		{
+			_body->MoveTo(position, rotation, GetWorld()->GetFixedTimestep());
+		}
+		else
+		{
+			SyncBodyWithNode();
+		}
 
 		/*
 		// todo check if have slot connected ?
@@ -260,6 +278,24 @@ namespace hod::inline physics
 	bool Rigidbody2dComponent::GetFixedRotation() const
 	{
 		return _fixedRotation;
+	}
+
+	/// @brief
+	/// @param continuousCollision
+	void Rigidbody2dComponent::SetContinuousCollision(bool continuousCollision)
+	{
+		_continuousCollision = continuousCollision;
+		if (_body != nullptr)
+		{
+			_body->SetContinuousCollision(_continuousCollision);
+		}
+	}
+
+	/// @brief
+	/// @return
+	bool Rigidbody2dComponent::GetContinuousCollision() const
+	{
+		return _continuousCollision;
 	}
 
 	/// @brief

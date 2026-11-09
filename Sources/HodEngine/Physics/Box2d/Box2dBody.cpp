@@ -187,6 +187,46 @@ namespace hod::inline physics
 	}
 
 	/// @brief
+	/// @param position
+	/// @param angle
+	/// @param timeStep
+	void Box2dBody::MoveTo(const Vector2& position, float angle, float timeStep)
+	{
+		if (timeStep <= 0.0f)
+		{
+			return;
+		}
+
+		b2Transform current = b2Body_GetTransform(_b2BodyId);
+		Vector2     move(position.GetX() - current.p.x, position.GetY() - current.p.y);
+		float       angleDelta = std::remainder(angle - RadianToDegree(b2Rot_GetAngle(current.q)), 360.0f);
+
+		// Same tolerances as SetTransform: the round trip through the node isn't a move
+		if (std::abs(move.GetX()) < 1e-4f && std::abs(move.GetY()) < 1e-4f)
+		{
+			move = Vector2::Zero;
+		}
+		if (std::abs(angleDelta) < 0.05f)
+		{
+			angleDelta = 0.0f;
+		}
+
+		b2Body_SetLinearVelocity(_b2BodyId, {move.GetX() / timeStep, move.GetY() / timeStep});
+		b2Body_SetAngularVelocity(_b2BodyId, DegreeToRadian(angleDelta) / timeStep);
+		if (move != Vector2::Zero || angleDelta != 0.0f)
+		{
+			WakeUpWithContacts();
+		}
+	}
+
+	/// @brief
+	/// @param continuousCollision
+	void Box2dBody::SetContinuousCollision(bool continuousCollision)
+	{
+		b2Body_SetBullet(_b2BodyId, continuousCollision);
+	}
+
+	/// @brief
 	void Box2dBody::WakeUpWithContacts()
 	{
 		if (b2Body_GetType(_b2BodyId) != b2_staticBody)

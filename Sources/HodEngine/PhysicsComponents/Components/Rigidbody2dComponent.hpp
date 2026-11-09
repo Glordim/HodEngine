@@ -82,6 +82,10 @@ namespace hod::inline physics
 		void SetFixedRotation(bool fixedRotation);
 		bool GetFixedRotation() const;
 
+		/// @brief For a fast dynamic body: it doesn't go through the other dynamic and kinematic bodies (see Body::SetContinuousCollision)
+		void SetContinuousCollision(bool continuousCollision);
+		bool GetContinuousCollision() const;
+
 		/// @brief Its position locked on these world axes: it only moves along the other one (see Body::SetFreezePosition)
 		void SetFreezePositionX(bool freeze);
 		bool GetFreezePositionX() const;
@@ -101,11 +105,16 @@ namespace hod::inline physics
 		Event<const TriggerEvent&>& GetOnTriggerExitEvent();
 
 	private:
+		/// @return false without a node
+		bool GetNodeTransform(Vector2& position, float& rotation) const;
+
+	private:
 		Body* _body = nullptr;
 
 		Mode  _mode = Mode::Static;
 		float _gravityScale = 1.0f;
 		bool  _fixedRotation = false;
+		bool  _continuousCollision = false;
 		bool  _freezePositionX = false;
 		bool  _freezePositionY = false;
 

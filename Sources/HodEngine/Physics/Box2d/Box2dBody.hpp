@@ -45,6 +45,8 @@ namespace hod::inline physics
 		void				SetFixedRotation(bool fixedRotation) override;
 
 		void				SetFreezePosition(bool x, bool y) override;
+		void				SetContinuousCollision(bool continuousCollision) override;
+		void				MoveTo(const Vector2& position, float angle, float timeStep) override;
 
 		void				SetVelocity(const Vector2& velocity) override;
 		Vector2				GetVelocity() const override;
