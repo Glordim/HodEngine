@@ -245,12 +245,13 @@ namespace hod::inline game
 	void World::Update()
 	{
 		// todo
+		SystemTime::TimeStamp now = SystemTime::Now();
 		if (_editorPlaying == false || (_editorPaused == true && _editorNextFrame == false))
 		{
+			_lastUpdateTimestamp = now; // The time spent stopped or paused isn't to catch up when it runs again
 			return;
 		}
 
-		SystemTime::TimeStamp now = SystemTime::Now();
 		float                 deltaTime = (float)SystemTime::ElapsedTimeInSeconds(_lastUpdateTimestamp, now);
 		_lastUpdateTimestamp = now;
 
