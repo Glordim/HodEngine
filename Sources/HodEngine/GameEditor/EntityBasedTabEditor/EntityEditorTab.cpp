@@ -664,6 +664,86 @@ namespace hod::inline editor
 		}
 	}
 
+	namespace
+	{
+		/// @brief entity's local id, its parent's... up to its root: where it is, whatever the entities are rebuilt (see FindByLocalIdPath).
+		/// The ids are only unique among the ones of a same prefab instance, the path tells them apart
+		Vector<uint64_t> GetLocalIdPath(const Entity* entity)
+		{
+			Vector<uint64_t> path;
+			for (; entity != nullptr; entity = entity->GetParent().Lock())
+			{
+				path.PushBack(entity->GetLocalId());
+			}
+			std::reverse(path.Begin(), path.End());
+			return path;
+		}
+
+		Entity* FindByLocalIdPath(const Scene& scene, const Vector<uint64_t>& path)
+		{
+			if (path.Empty())
+			{
+				return nullptr;
+			}
+
+			Entity* found = nullptr;
+			for (Entity* root : scene.GetRootEntities())
+			{
+				if (root->GetLocalId() == path[0])
+				{
+					found = root;
+					break;
+				}
+			}
+			for (uint32_t index = 1; index < path.Size() && found != nullptr; ++index)
+			{
+				Entity* parent = found;
+				found = nullptr;
+				for (const WeakEntity& child : parent->GetChildren())
+				{
+					Entity* childEntity = child.Lock();
+					if (childEntity != nullptr && childEntity->GetLocalId() == path[index])
+					{
+						found = childEntity;
+						break;
+					}
+				}
+			}
+			return found;
+		}
+	}
+
+	/// @brief
+	/// @param document
+	/// @return
+	bool EntityEditorTab::CaptureUndoState(Document& document)
+	{
+		return _scene->SerializeInDocument(document.GetRootNode());
+	}
+
+	/// @brief
+	/// @param document
+	/// @return
+	bool EntityEditorTab::RestoreUndoState(const Document& document)
+	{
+		Vector<uint64_t> selectionPath = GetLocalIdPath(GetEntitySelection());
+
+		CancelCut(); // Its entities are replaced
+		_scene->DestroyEntities();
+		bool restored = _scene->DeserializeFromDocument(document.GetRootNode());
+		_scene->ProcessActivation();
+
+		SetEntitySelection(FindByLocalIdPath(*_scene, selectionPath));
+		return restored;
+	}
+
+	/// @brief
+	/// @return
+	bool EntityEditorTab::IsUndoAvailable() const
+	{
+		return _playing == false;
+	}
+
 	/// @brief
 	void EntityEditorTab::RequestFrameSelection()
 	{

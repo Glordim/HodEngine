@@ -400,7 +400,7 @@ namespace hod::inline editor
 								{
 									if (drawer->OnDrawGizmo(component, *this, entityPair.second == sceneSelection))
 									{
-										GetOwner()->MarkAsDirty();
+										GetOwner()->MarkAsDirty(fmt::format("Edit {}", component->GetReflectionDescriptorV().GetDisplayName()));
 									}
 								}
 							}
@@ -480,7 +480,8 @@ namespace hod::inline editor
 									instance->SetParent(tab->GetDefaultParent());
 								}
 
-								GetOwner()->MarkAsDirty();
+								tab->SetEntitySelection(instance);
+								GetOwner()->MarkAsDirty(fmt::format("Add {}", asset->GetName()));
 							}
 							else if (asset->GetType() == PrefabAssetType::GetHash())
 							{

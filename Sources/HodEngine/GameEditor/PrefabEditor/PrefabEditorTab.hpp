@@ -41,6 +41,7 @@ namespace hod::inline editor
 		void CreateDefaultLayout() override;
 		bool DrawContent() override;
 		bool OnSave() override;
+		bool RestoreUndoState(const Document& document) override;
 
 	private:
 		/// @brief The root follows the asset's name (renamed since the last frame), not an edit: the asset's file was renamed already

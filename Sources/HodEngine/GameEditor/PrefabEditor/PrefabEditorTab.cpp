@@ -280,6 +280,16 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @param document
+	/// @return
+	bool PrefabEditorTab::RestoreUndoState(const Document& document)
+	{
+		bool restored = EntityEditorTab::RestoreUndoState(document);
+		SyncRootEntityName(); // A step from before a rename of the asset
+		return restored;
+	}
+
+	/// @brief
 	void PrefabEditorTab::CreateDefaultLayout()
 	{
 		HierachyWindow*  hierarchyWindow = OpenWindow<HierachyWindow>();

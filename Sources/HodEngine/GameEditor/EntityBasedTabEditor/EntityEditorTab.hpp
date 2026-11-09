@@ -103,6 +103,13 @@ namespace hod::inline editor
 	protected:
 	
 		void DrawMenuBar() override;
+
+		// Undo: the edited scene as saved (see Scene::SerializeInDocument). Restoring it rebuilds all its entities: the windows keeping
+		// entities across frames hold WeakPtrs. The selection follows, found back by its local ids from its root.
+		// Not while playing: the edits then go to the playing world's copy.
+		bool CaptureUndoState(Document& document) override;
+		bool RestoreUndoState(const Document& document) override;
+		bool IsUndoAvailable() const override;
 		
 	protected:
 

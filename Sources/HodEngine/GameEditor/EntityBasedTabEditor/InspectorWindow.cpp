@@ -168,6 +168,7 @@ namespace hod::inline editor
 		if (ImGui::Checkbox("##Active", &active))
 		{
 			selection->SetActive(active);
+			GetOwner()->MarkAsDirty(active ? "Activate" : "Deactivate");
 		}
 		ImGui::SameLine();
 
@@ -180,7 +181,7 @@ namespace hod::inline editor
 		if (ImGui::InputText("##Name", buffer, sizeof(buffer) - 1) == true)
 		{
 			selection->SetName(buffer);
-			GetOwner()->MarkAsDirty();
+			GetOwner()->MarkAsDirty("Rename");
 		}
 		ImGui::EndDisabled();
 		if (isRoot && ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled))
@@ -219,6 +220,7 @@ namespace hod::inline editor
 				if (enabled != component->GetEnabled())
 				{
 					component->SetEnabled(enabled);
+					GetOwner()->MarkAsDirty(fmt::format("{} {}", enabled ? "Enable" : "Disable", component->GetReflectionDescriptorV().GetDisplayName()));
 				}
 				if (removeRequested)
 				{
@@ -244,7 +246,7 @@ namespace hod::inline editor
 					}
 					if (changed == true)
 					{
-						GetOwner()->MarkAsDirty();
+						GetOwner()->MarkAsDirty(fmt::format("Edit {}", reflectionDescriptor.GetDisplayName()));
 					}
 				}
 				DrawHelper::EndInspectorBlock();
@@ -252,8 +254,9 @@ namespace hod::inline editor
 		}
 		if (componentToRemove != nullptr)
 		{
+			std::string label = fmt::format("Remove {}", componentToRemove->GetReflectionDescriptorV().GetDisplayName());
 			selection->RemoveComponent(componentToRemove);
-			GetOwner()->MarkAsDirty();
+			GetOwner()->MarkAsDirty(label);
 		}
 
 		ImGui::Spacing();
@@ -297,7 +300,7 @@ namespace hod::inline editor
 						if (ImGui::MenuItem(displayName.CStr()) == true)
 						{
 							selection->AddComponent(componentDescriptor);
-							GetOwner()->MarkAsDirty();
+							GetOwner()->MarkAsDirty(fmt::format("Add {}", displayName));
 							ImGui::CloseCurrentPopup();
 						}
 					}

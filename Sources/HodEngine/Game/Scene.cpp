@@ -41,6 +41,12 @@ namespace hod::inline game
 
 	Scene::~Scene()
 	{
+		DestroyEntities();
+	}
+
+	/// @brief
+	void Scene::DestroyEntities()
+	{
 		for (const auto& entityPair : _entities)
 		{
 			if (entityPair.second->GetParent().Lock() == nullptr)
@@ -53,6 +59,35 @@ namespace hod::inline game
 		{
 			DefaultAllocator::GetInstance().Delete(entityPair.second);
 		}
+		_entities.clear();
+	}
+
+	/// @brief
+	/// @return
+	Vector<Entity*> Scene::GetRootEntities() const
+	{
+		Vector<Entity*> roots;
+		for (const auto& entityPair : _entities)
+		{
+			if (entityPair.second->GetParent().Lock() == nullptr)
+			{
+				roots.PushBack(entityPair.second);
+			}
+		}
+		std::sort(roots.Begin(), roots.End(),
+		          [](const Entity* left, const Entity* right)
+		          {
+			          if ((left->GetLocalId() == 0) != (right->GetLocalId() == 0))
+			          {
+				          return right->GetLocalId() == 0;
+			          }
+			          if (left->GetLocalId() != right->GetLocalId())
+			          {
+				          return left->GetLocalId() < right->GetLocalId();
+			          }
+			          return left->GetInstanceId() < right->GetInstanceId();
+		          });
+		return roots;
 	}
 
 	/// @brief
@@ -76,15 +111,22 @@ namespace hod::inline game
 		documentNode.AddChild("Name").SetString(_name);
 		DocumentNode& entitiesNode = documentNode.AddChild("Entities");
 
-		for (const auto& entityPair : _entities)
+		// The same state written the same way (the editor's undo compares them): the roots in a stable order, given their ids first
+		Vector<Entity*> roots = GetRootEntities();
+		for (Entity* root : roots)
 		{
-			if (entityPair.second->GetParent().Lock() == nullptr)
+			if (root->GetLocalId() == 0)
 			{
-				SceneSerializer sceneSerializer;
-				if (sceneSerializer.SerializeEntity(entityPair.second, true, entitiesNode, _nextLocalId) == false)
-				{
-					return false;
-				}
+				root->SetLocalId(_nextLocalId++);
+			}
+		}
+
+		for (Entity* root : roots)
+		{
+			SceneSerializer sceneSerializer;
+			if (sceneSerializer.SerializeEntity(root, true, entitiesNode, _nextLocalId) == false)
+			{
+				return false;
 			}
 		}
 

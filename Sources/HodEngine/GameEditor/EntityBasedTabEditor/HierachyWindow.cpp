@@ -67,13 +67,10 @@ namespace hod::inline editor
 			}
 			if (open)
 			{
-				for (auto& pair : scene->GetEntities())
+				// In a stable order (an unordered map's would change with the entities rebuilt by an undo)
+				for (Entity* entity : scene->GetRootEntities())
 				{
-					Entity* entity = pair.second;
-					if (entity->GetParent().Lock() == nullptr)
-					{
-						DrawEntity(entity);
-					}
+					DrawEntity(entity);
 				}
 			}
 		}

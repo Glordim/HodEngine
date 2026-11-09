@@ -44,6 +44,8 @@ namespace hod::inline game
 
 		Scene* Clone(World* newWorld);
 		void   Clear();
+		/// @brief Destructs and deletes all its entities (as its destruction does), the scene left empty
+		void   DestroyEntities();
 
 		Entity* Instantiate(std::shared_ptr<PrefabResource> prefabResource);
 		Entity* Instantiate(Entity* entity);
@@ -53,6 +55,9 @@ namespace hod::inline game
 		Vector<Entity*> Instantiate(const DocumentNode& entitiesNode);
 
 		const std::unordered_map<uint64_t, Entity*>& GetEntities() const;
+		/// @brief The entities without parent, in a stable order: by local id, those without one yet (0) last, by creation. What it
+		/// serializes, in that order (see SerializeInDocument)
+		Vector<Entity*> GetRootEntities() const;
 
 		void ProcessActivation();
 		void Update(float deltaTime);
