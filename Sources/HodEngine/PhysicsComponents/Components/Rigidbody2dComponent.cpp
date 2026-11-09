@@ -114,23 +114,7 @@ namespace hod::inline physics
 	/// @brief
 	void Rigidbody2dComponent::OnStart()
 	{
-		Vector2 position = Vector2::Zero;
-		float   rotation = 0.0f;
-		Vector2 scale = Vector2::One;
-
-		Entity* entity = GetOwner();
-		if (entity != nullptr)
-		{
-			Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
-			if (node2dComponent != nullptr)
-			{
-				Matrix4 worldMatrix = node2dComponent->GetWorldMatrix();
-				position = worldMatrix.GetTranslation();
-				rotation = worldMatrix.GetRotation().GetAngleZ();
-				// scale = worldMatrix.GetScale();
-			}
-		}
-		_body->SetTransform(position, rotation, scale);
+		SyncBodyWithNode();
 
 		_body->SetType(_body->GetType());
 	}
@@ -138,12 +122,19 @@ namespace hod::inline physics
 	/// @brief
 	void Rigidbody2dComponent::OnEnable()
 	{
+		// Placed already: the shapes added before the start (in edit mode, the components building theirs in OnEnable) are where the node is
+		SyncBodyWithNode();
 		_body->SetEnabled(true);
 	}
 
 	/// @brief
-	void Rigidbody2dComponent::OnFixedUpdate()
+	void Rigidbody2dComponent::SyncBodyWithNode()
 	{
+		if (_body == nullptr)
+		{
+			return;
+		}
+
 		Entity* entity = GetOwner();
 		if (entity != nullptr)
 		{
@@ -153,10 +144,16 @@ namespace hod::inline physics
 				Matrix4 worldMatrix = node2dComponent->GetWorldMatrix();
 				Vector2 position = worldMatrix.GetTranslation();
 				float   rotation = worldMatrix.GetRotation().GetAngleZ();
-				Vector2 scale; // = worldMatrix.GetScale();
+				Vector2 scale = Vector2::One; // = worldMatrix.GetScale();
 				_body->SetTransform(position, rotation, scale);
 			}
 		}
+	}
+
+	/// @brief
+	void Rigidbody2dComponent::OnFixedUpdate()
+	{
+		SyncBodyWithNode();
 
 		/*
 		// todo check if have slot connected ?

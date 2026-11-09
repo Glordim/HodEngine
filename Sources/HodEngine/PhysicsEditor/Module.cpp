@@ -15,6 +15,11 @@
 #include <HodEngine/PhysicsComponents/Components/CircleCollider2dComponent.hpp>
 #include <HodEngine/PhysicsComponents/Components/EdgeCollider2dComponent.hpp>
 #include <HodEngine/PhysicsComponents/Components/MultiShapeCollider2dComponent.hpp>
+#include <HodEngine/PhysicsComponents/Components/Rigidbody2dComponent.hpp>
+
+#include <HodEngine/Game/Entity.hpp>
+#include <HodEngine/Game/Scene.hpp>
+#include <HodEngine/Game/World.hpp>
 #include <HodEngine/Physics/DebugDrawer.hpp>
 #include <HodEngine/PhysicsComponents/PhysicsWorldSystem.hpp>
 #include <HodEngine/Physics/World.hpp>
@@ -34,12 +39,43 @@ namespace
 	/// @brief The physics shapes of the world, in place of its render or over it: the physics' debug view gathered in a ShapeList, drawn at once
 	class PhysicsViewportDebugView : public hod::editor::ViewportDebugView, public hod::physics::DebugDrawTarget
 	{
+	private:
+		static void SyncBodiesWithNodes(hod::game::Scene& scene)
+		{
+			for (const auto& entityPair : scene.GetEntities())
+			{
+				hod::game::Entity* entity = entityPair.second;
+				if (entity->IsActiveInHierarchy())
+				{
+					if (hod::physics::Rigidbody2dComponent* rigidbody = entity->GetComponent<hod::physics::Rigidbody2dComponent>())
+					{
+						rigidbody->SyncBodyWithNode();
+					}
+				}
+			}
+		}
+
+		static void SyncBodiesWithNodes(hod::game::World& world)
+		{
+			for (hod::game::Scene* scene : world.GetScenes())
+			{
+				SyncBodiesWithNodes(*scene);
+			}
+			SyncBodiesWithNodes(*world.GetPersistentScene());
+		}
+
 	public:
 		void Draw(hod::renderer::RenderView& renderView, hod::game::World& world, uint32_t sortingOrder) override
 		{
 			hod::physics::World* physicsWorld = hod::physics::PhysicsWorldSystem::GetPhysicsWorld(world);
 			if (physicsWorld != nullptr)
 			{
+				// The simulation not running (editing, paused), nothing moves the bodies: they follow the nodes, edited meanwhile
+				if (world.GetEditorPlaying() == false || world.GetEditorPaused())
+				{
+					SyncBodiesWithNodes(world);
+				}
+
 				_shapes.Clear();
 				physicsWorld->GetDebugDrawer()->Draw(physicsWorld, *this);
 				hod::renderer::ShapeDrawer::Draw(renderView, _shapes, sortingOrder);

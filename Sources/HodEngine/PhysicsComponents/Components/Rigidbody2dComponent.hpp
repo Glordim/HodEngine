@@ -65,6 +65,10 @@ namespace hod::inline physics
 		void OnDisable() override;
 		void OnDestruct() override;
 
+		/// @brief Places its body where its node is. Done each fixed step, and by the editor while the simulation doesn't run (editing, paused)
+		/// for the physics shown to follow the edited nodes
+		void SyncBodyWithNode();
+
 		Body* GetInternalBody() const;
 		Vector2        GetParentOffset(Collider2dComponent* collider) const;
 
