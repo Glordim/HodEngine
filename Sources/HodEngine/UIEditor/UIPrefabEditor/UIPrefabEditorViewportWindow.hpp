@@ -72,7 +72,6 @@ namespace hod::inline editor
 		void		DrawPreviewFrames(RenderView& renderView);
 		void		DrawPreviewLabels(const ImVec2& imagePos, const ImVec2& imageSize, float scale);
 		Vector2		GetDeviceFrameSize() const;
-		void		DrawGrid(const Vector2& origin, const Vector2& viewCenter, float worldHalfWidth, float worldHalfHeight, float scale, RenderView& renderView);
 		void		DrawNode(ui::Node* node, RenderView& renderView);
 		void		DrawSpacing(ui::Node* node, RenderView& renderView);
 		ui::Node*	PickNode(ui::Node* node, const Vector2& canvasPosition);

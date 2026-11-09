@@ -2,6 +2,7 @@
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/Editor.hpp"
+#include "HodEngine/Editor/Gizmos/ViewportGrid.hpp"
 #include "HodEngine/GameEditor/EntityBasedTabEditor/EntityEditorTab.hpp"
 #include "HodEngine/GameEditor/PrefabEditor/PrefabAssetType.hpp"
 #include "HodEngine/GameEditor/EntityBasedTabEditor/ViewportWindow.hpp"
@@ -165,7 +166,16 @@ namespace hod::inline editor
 			ImGui::SameLine();
 		}
 
-		DrawHelper::DrawToggle(ICON_MDI_GRID " Grid", "grid", _drawGrid);
+		DrawHelper::DrawToggleWithSettings(ICON_MDI_GRID " Grid", "grid", "ViewportGrid", _drawGrid);
+		if (DrawHelper::BeginSettingsPopup("ViewportGrid"))
+		{
+			ImGui::AlignTextToFramePadding();
+			ImGui::TextUnformatted("Cell size");
+			ImGui::SameLine();
+			ImGui::SetNextItemWidth(120.0f);
+			ImGui::DragFloat("##CellSize", &_gridCellSize, 0.05f, 0.01f, 10000.0f, "%.2f", ImGuiSliderFlags_AlwaysClamp);
+			ImGui::EndPopup();
+		}
 		ImGui::SameLine();
 
 		const char* resolutionLabel = "Custom";
@@ -326,6 +336,23 @@ namespace hod::inline editor
 				renderView->SetupCamera(_projection, _view, viewport);
 
 				game::World* world = GetOwner<EntityEditorTab>()->GetWorld();
+
+				// Pushed before the world: the content of the lowest order (ZOrder 0) is then drawn over it
+				if (_drawGrid)
+				{
+					float halfHeight = _size;
+					float halfWidth = _size * aspect;
+
+					ViewportGrid grid;
+					grid._cellSize = _gridCellSize;
+					grid._viewCenter = _cameraPosition;
+					grid._viewHalfSize = Vector2(halfWidth, halfHeight);
+					grid._pixelsPerUnit = (float)resolutionHeight / (2.0f * _size);
+					grid._zoom = DefaultCameraSize / _size;
+					grid._backgroundColor = renderView->GetClearColor();
+					grid.Draw(*renderView);
+				}
+
 				DrawWorld(*renderView);
 
 				Entity* sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
@@ -348,21 +375,6 @@ namespace hod::inline editor
 							}
 						}
 					}
-				}
-
-				if (_drawGrid)
-				{
-					StaticArray<Vector2, 4> positions = {
-						Vector2(-0.5f, 0.5f),
-						Vector2(0.5f, 0.5f),
-						Vector2(-0.5f, -0.5f),
-						Vector2(0.5f, -0.5f),
-					};
-
-					StaticArray<uint16_t, 6> indices = {0, 1, 2, 2, 1, 3};
-
-					renderView->PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-						positions.Data(), nullptr, nullptr, (uint32_t)positions.Size(), indices.Data(), (uint32_t)indices.Size(), Matrix4::Identity, nullptr, 0, 0, true));
 				}
 			}
 			else

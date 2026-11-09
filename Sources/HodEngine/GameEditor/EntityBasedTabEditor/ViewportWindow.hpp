@@ -63,12 +63,16 @@ namespace hod::inline editor
 
 		Vector2 _playRatio = Vector2(16.0f, 9.0f);
 
+		// The camera: _size is half the view's height in world units
+		static constexpr float DefaultCameraSize = 5.0f;
+
 		Vector2 _cameraPosition = Vector2::Zero;
-		float   _size = 5.0f;
+		float   _size = DefaultCameraSize;
 
 		bool _debugPicker = false;
 
-		bool _drawGrid = true;
+		bool  _drawGrid = true;
+		float _gridCellSize = 1.0f; // world units, at the default camera size (see ViewportGrid)
 
 		bool _mouseOverToolbar = false;
 		bool _gamePointerDown = false; // Playing: a press started over the image, the game keeps the mouse until released

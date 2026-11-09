@@ -4,6 +4,7 @@
 
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/Gizmos/GizmoViewport.hpp"
+#include "HodEngine/Editor/Gizmos/ViewportGrid.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
@@ -407,7 +408,14 @@ namespace hod::inline editor
 		Vector2 gridOrigin(-canvasSize.GetX() * 0.5f, canvasSize.GetY() * 0.5f);
 		if (_settings._gridVisible && preview == false)
 		{
-			DrawGrid(gridOrigin, _camera.GetPosition(), worldHalfWidth, worldHalfHeight, scale, *renderView);
+			ViewportGrid grid;
+			grid._origin = gridOrigin;
+			grid._cellSize = _settings._gridCellSize;
+			grid._viewCenter = _camera.GetPosition();
+			grid._viewHalfSize = Vector2(worldHalfWidth, worldHalfHeight);
+			grid._pixelsPerUnit = scale;
+			grid._zoom = _camera.GetZoom();
+			grid.Draw(*renderView);
 		}
 		DrawPreviewFrames(*renderView);
 
@@ -725,7 +733,7 @@ namespace hod::inline editor
 	}
 
 	/// @brief Grid settings: size of a cell at zoom 1.0 (the grid still coarsens/refines by
-	/// powers of two as the zoom changes, see DrawGrid).
+	/// powers of two as the zoom changes, see ViewportGrid).
 	void UIPrefabEditorViewportWindow::DrawGridSettingsPopup()
 	{
 		if (DrawHelper::BeginSettingsPopup("UIPrefabGrid"))
@@ -798,102 +806,6 @@ namespace hod::inline editor
 		drawList->AddText(ImVec2(frameTopLeft.x, frameTopLeft.y - frameLabelSize.y - 2.0f), IM_COL32(217, 217, 217, 255), frameLabel);
 
 		drawList->PopClipRect();
-	}
-
-	/// @brief Draws an infinite-looking grid covering the whole visible area (not just the canvas),
-	/// with a world-space step that adapts to zoom so the on-screen spacing stays readable.
-	///
-	/// At zoom 1.0 the major step is exactly _settings._gridCellSize; zooming out doubles it each time the zoom
-	/// halves (and zooming in halves it), so the on-screen spacing stays within [1, 2) times its
-	/// zoom-1.0 value. It is additionally kept above a minimum on-screen spacing so a tiny cell
-	/// size can't flood the view with lines.
-	///
-	/// The finer subdivision (half the major step) is pre-drawn and progressively faded in as the
-	/// zoom approaches the point where it would become the new major step, instead of the grid
-	/// popping to a denser level all at once.
-	/// @param origin canvas-space position the grid lines are aligned on (a line always passes through it)
-	/// @param viewCenter
-	/// @param worldHalfWidth
-	/// @param worldHalfHeight
-	/// @param scale pixels per world/canvas unit
-	/// @param renderView
-	void UIPrefabEditorViewportWindow::DrawGrid(const Vector2& origin, const Vector2& viewCenter, float worldHalfWidth, float worldHalfHeight, float scale, RenderView& renderView)
-	{
-		constexpr float minScreenSpacing = 16.0f;
-
-		// Lowest rendering order: the grid is always behind everything else (the canvas content starts at order 1).
-		constexpr uint32_t gridRenderingOrder = 0;
-
-		float cellSize = std::max(_settings._gridCellSize, 1e-3f);
-
-		// Level = number of doublings of the cell size: 0 at zoom 1.0, +1 each time the zoom halves.
-		float zoomLevel = -std::log2(std::max(_camera.GetZoom(), 1e-6f));
-		float minLevel = std::log2(minScreenSpacing / (cellSize * scale));
-		float level = std::max(zoomLevel, minLevel);
-		float majorLevel = std::ceil(level);
-		float majorStep = cellSize * std::pow(2.0f, majorLevel);
-		float minorStep = majorStep * 0.5f;
-
-		// 0 right after a level switch, ramping up to 1 as the minor grid is about to become the new major grid.
-		float minorFade = majorLevel - level;
-
-		// These commands aren't GPU-blended (they overwrite, not blend), so "fading in" the minor grid
-		// is done by lerping its color towards the background instead of lowering its alpha.
-		Color backgroundColor(30.0f / 255.0f, 30.0f / 255.0f, 30.0f / 255.0f, 1.0f);
-		Color gridColor(50.0f / 255.0f, 50.0f / 255.0f, 50.0f / 255.0f, 1.0f);
-		Color minorColor(backgroundColor.r + (gridColor.r - backgroundColor.r) * minorFade, backgroundColor.g + (gridColor.g - backgroundColor.g) * minorFade,
-		                  backgroundColor.b + (gridColor.b - backgroundColor.b) * minorFade, 1.0f);
-
-		float left = viewCenter.GetX() - worldHalfWidth;
-		float right = viewCenter.GetX() + worldHalfWidth;
-		float bottom = viewCenter.GetY() - worldHalfHeight;
-		float top = viewCenter.GetY() + worldHalfHeight;
-
-		// Line positions are indexed relative to `origin` (line i sits at origin + i * step), so the
-		// grid is anchored on it rather than on the canvas origin.
-		float relLeft = left - origin.GetX();
-		float relRight = right - origin.GetX();
-		float relBottom = bottom - origin.GetY();
-		float relTop = top - origin.GetY();
-
-		// Minor grid first (every half-step, skipping the ones that coincide with a major line), then major on top.
-		int64_t firstMinorX = (int64_t)std::floor(relLeft / minorStep);
-		int64_t lastMinorX = (int64_t)std::ceil(relRight / minorStep);
-		for (int64_t i = firstMinorX; i <= lastMinorX; ++i)
-		{
-			if (i % 2 != 0)
-			{
-				float x = origin.GetX() + (float)i * minorStep;
-				ShapeDrawer::Line(renderView, Matrix4::Identity, Vector2(x, bottom), Vector2(x, top), minorColor, gridRenderingOrder);
-			}
-		}
-
-		int64_t firstMinorY = (int64_t)std::floor(relBottom / minorStep);
-		int64_t lastMinorY = (int64_t)std::ceil(relTop / minorStep);
-		for (int64_t i = firstMinorY; i <= lastMinorY; ++i)
-		{
-			if (i % 2 != 0)
-			{
-				float y = origin.GetY() + (float)i * minorStep;
-				ShapeDrawer::Line(renderView, Matrix4::Identity, Vector2(left, y), Vector2(right, y), minorColor, gridRenderingOrder);
-			}
-		}
-
-		int64_t firstMajorX = (int64_t)std::floor(relLeft / majorStep);
-		int64_t lastMajorX = (int64_t)std::ceil(relRight / majorStep);
-		for (int64_t i = firstMajorX; i <= lastMajorX; ++i)
-		{
-			float x = origin.GetX() + (float)i * majorStep;
-			ShapeDrawer::Line(renderView, Matrix4::Identity, Vector2(x, bottom), Vector2(x, top), gridColor, gridRenderingOrder);
-		}
-
-		int64_t firstMajorY = (int64_t)std::floor(relBottom / majorStep);
-		int64_t lastMajorY = (int64_t)std::ceil(relTop / majorStep);
-		for (int64_t i = firstMajorY; i <= lastMajorY; ++i)
-		{
-			float y = origin.GetY() + (float)i * majorStep;
-			ShapeDrawer::Line(renderView, Matrix4::Identity, Vector2(left, y), Vector2(right, y), gridColor, gridRenderingOrder);
-		}
 	}
 
 	/// @brief
