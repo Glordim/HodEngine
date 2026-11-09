@@ -78,6 +78,16 @@ namespace hod::inline physics
 		void  SetGravityScale(float gravityScale);
 		float GetGravityScale() const;
 
+		/// @brief Its rotation locked: the collisions, the torques don't turn it (see Body::SetFixedRotation)
+		void SetFixedRotation(bool fixedRotation);
+		bool GetFixedRotation() const;
+
+		/// @brief Its position locked on these world axes: it only moves along the other one (see Body::SetFreezePosition)
+		void SetFreezePositionX(bool freeze);
+		bool GetFreezePositionX() const;
+		void SetFreezePositionY(bool freeze);
+		bool GetFreezePositionY() const;
+
 		void    SetVelocity(const Vector2& velocity);
 		Vector2 GetVelocity() const;
 
@@ -95,6 +105,9 @@ namespace hod::inline physics
 
 		Mode  _mode = Mode::Static;
 		float _gravityScale = 1.0f;
+		bool  _fixedRotation = false;
+		bool  _freezePositionX = false;
+		bool  _freezePositionY = false;
 
 		Event<const CollisionEvent&> _onCollisionEnterEvent;
 		Event<const CollisionEvent&> _onCollisionExitEvent;

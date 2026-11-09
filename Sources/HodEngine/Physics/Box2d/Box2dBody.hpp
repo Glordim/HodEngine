@@ -16,7 +16,7 @@ namespace hod::inline physics
 	{
 	public:
 							Box2dBody(b2BodyId b2BodyId);
-							~Box2dBody() override = default;
+							~Box2dBody() override;
 
 	public:
 
@@ -41,6 +41,11 @@ namespace hod::inline physics
 		float				GetGravityScale() const override;
 		void				SetGravityScale(float gravityScale) override;
 
+		bool				IsFixedRotation() const override;
+		void				SetFixedRotation(bool fixedRotation) override;
+
+		void				SetFreezePosition(bool x, bool y) override;
+
 		void				SetVelocity(const Vector2& velocity) override;
 		Vector2				GetVelocity() const override;
 
@@ -52,6 +57,14 @@ namespace hod::inline physics
 
 	private:
 
+		void				DestroyPositionLock();
+
+	private:
+
 		b2BodyId			_b2BodyId = b2_nullBodyId;
+
+		// The frozen position (SetFreezePosition): a joint to a static body without shapes, moved along with the body (SetTransform). A wheel
+		// joint without spring for one axis (a line, rotation free), a revolute joint for both (a point, rotation free)
+		b2BodyId			_positionLockBodyId = b2_nullBodyId;
 	};
 }

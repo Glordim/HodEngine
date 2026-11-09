@@ -54,9 +54,11 @@ namespace hod::inline physics
 		virtual Collider*	AddConvexShape(bool isTrigger, const Vector<Vector2>& vertices) = 0;
 
 		virtual void		SetEnabled(bool enabled) = 0;
+		/// @param angle In degrees
 		virtual void		SetTransform(const Vector2& position, float angle, const Vector2& scale) = 0;
 
 		virtual Vector2		GetPosition() const = 0;
+		/// @return In degrees
 		virtual float		GetRotation() const = 0;
 
 		virtual void		SetVelocity(const Vector2& velocity) = 0;
@@ -72,6 +74,14 @@ namespace hod::inline physics
 
 		virtual float		GetGravityScale() const = 0;
 		virtual void		SetGravityScale(float gravityScale) = 0;
+
+		/// @brief A fixed rotation body doesn't rotate (the collisions, the torques don't turn it), its transform can still be set
+		virtual bool		IsFixedRotation() const = 0;
+		virtual void		SetFixedRotation(bool fixedRotation) = 0;
+
+		/// @brief Its position locked on these axes (world space): it only moves along the other one, the rotation stays free (see
+		/// SetFixedRotation). Its transform can still be set, the lock follows it
+		virtual void		SetFreezePosition(bool x, bool y) = 0;
 
 	protected:
 

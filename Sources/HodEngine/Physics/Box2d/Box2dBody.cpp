@@ -24,6 +24,57 @@ namespace hod::inline physics
 	}
 
 	/// @brief
+	Box2dBody::~Box2dBody()
+	{
+		DestroyPositionLock();
+	}
+
+	/// @brief
+	void Box2dBody::DestroyPositionLock()
+	{
+		if (b2Body_IsValid(_positionLockBodyId))
+		{
+			b2DestroyBody(_positionLockBodyId); // its joint with it
+		}
+		_positionLockBodyId = b2_nullBodyId;
+	}
+
+	/// @brief
+	/// @param x
+	/// @param y
+	void Box2dBody::SetFreezePosition(bool x, bool y)
+	{
+		DestroyPositionLock();
+		if (x == false && y == false)
+		{
+			return;
+		}
+
+		b2BodyDef lockBodyDef = b2DefaultBodyDef();
+		lockBodyDef.type = b2_staticBody;
+		lockBodyDef.position = b2Body_GetPosition(_b2BodyId);
+		_positionLockBodyId = b2CreateBody(b2Body_GetWorld(_b2BodyId), &lockBodyDef);
+
+		if (x && y)
+		{
+			b2RevoluteJointDef jointDef = b2DefaultRevoluteJointDef();
+			jointDef.bodyIdA = _positionLockBodyId;
+			jointDef.bodyIdB = _b2BodyId;
+			b2CreateRevoluteJoint(b2Body_GetWorld(_b2BodyId), &jointDef);
+		}
+		else
+		{
+			b2WheelJointDef jointDef = b2DefaultWheelJointDef();
+			jointDef.bodyIdA = _positionLockBodyId;
+			jointDef.bodyIdB = _b2BodyId;
+			jointDef.localAxisA = x ? b2Vec2 {0.0f, 1.0f} : b2Vec2 {1.0f, 0.0f}; // the free axis
+			jointDef.enableSpring = false;
+			b2CreateWheelJoint(b2Body_GetWorld(_b2BodyId), &jointDef);
+		}
+		b2Body_SetAwake(_b2BodyId, true);
+	}
+
+	/// @brief
 	void Box2dBody::ClearAllShapes()
 	{
 		for (Collider* collider : _colliders)
@@ -115,6 +166,10 @@ namespace hod::inline physics
 		// todo scale
 		(void)scale;
 		b2Body_SetTransform(_b2BodyId, {position.GetX(), position.GetY()}, b2MakeRot(DegreeToRadian(rotation)));
+		if (b2Body_IsValid(_positionLockBodyId))
+		{
+			b2Body_SetTransform(_positionLockBodyId, {position.GetX(), position.GetY()}, b2Rot_identity); // the lock follows
+		}
 	}
 
 	/// @brief
@@ -130,7 +185,7 @@ namespace hod::inline physics
 	float Box2dBody::GetRotation() const
 	{
 		b2Rot rotation = b2Body_GetRotation(_b2BodyId);
-		return b2Rot_GetAngle(rotation);
+		return RadianToDegree(b2Rot_GetAngle(rotation));
 	}
 
 	/// @brief
@@ -160,6 +215,20 @@ namespace hod::inline physics
 	void Box2dBody::SetGravityScale(float gravityScale)
 	{
 		b2Body_SetGravityScale(_b2BodyId, gravityScale);
+	}
+
+	/// @brief
+	/// @return
+	bool Box2dBody::IsFixedRotation() const
+	{
+		return b2Body_IsFixedRotation(_b2BodyId);
+	}
+
+	/// @brief
+	/// @param fixedRotation
+	void Box2dBody::SetFixedRotation(bool fixedRotation)
+	{
+		b2Body_SetFixedRotation(_b2BodyId, fixedRotation);
 	}
 
 	/// @brief

@@ -42,7 +42,7 @@ namespace hod::inline physics
 		bodyDef.rotation = b2MakeRot(rotation);
 		bodyDef.enableSleep = true;
 		bodyDef.isAwake = true;
-		bodyDef.fixedRotation = true;
+		bodyDef.fixedRotation = false; // Body::SetFixedRotation
 		bodyDef.isEnabled = false;
 		b2BodyId bodyId = b2CreateBody(_worldId, &bodyDef);
 
@@ -57,28 +57,6 @@ namespace hod::inline physics
 		b2Body_ApplyMassFromShapes(bodyId);
 
 		_bodies.push_back(body);
-
-		// UGLY TMP HACK FOR CIRCLE GAME (TODO REMOVE)
-		if (type == Body::Type::Dynamic)
-		{
-			b2BodyDef groundBodyDef = b2DefaultBodyDef();
-			groundBodyDef.type = b2_staticBody;
-			groundBodyDef.position = {0, 0};
-			groundBodyDef.rotation = b2MakeRot(0);
-			groundBodyDef.enableSleep = true;
-			groundBodyDef.isAwake = true;
-			groundBodyDef.fixedRotation = true;
-			groundBodyDef.isEnabled = true;
-			b2BodyId groundBodyId = b2CreateBody(_worldId, &groundBodyDef);
-
-			b2PrismaticJointDef jointDef = b2DefaultPrismaticJointDef();
-			jointDef.bodyIdA = body->GetB2Actor();
-			jointDef.bodyIdB = groundBodyId;
-			jointDef.localAxisA = b2Vec2(0.0f, 1.0f);
-
-			b2CreatePrismaticJoint(_worldId, &jointDef);
-		}
-		//
 
 		return body;
 	}

@@ -5,6 +5,7 @@
 #include "HodEngine/Game/World.hpp"
 
 #include <HodEngine/Core/Reflection/EnumTrait.hpp>
+#include <HodEngine/Math/Math.hpp>
 #include <HodEngine/Physics/Body.hpp>
 #include <HodEngine/Physics/Collider.hpp>
 #include <HodEngine/Physics/World.hpp>
@@ -25,6 +26,9 @@ namespace hod::inline physics
 	{
 		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_mode, "Mode", &Rigidbody2dComponent::SetMode);
 		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_gravityScale, "GravityScale", &Rigidbody2dComponent::SetGravityScale);
+		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_fixedRotation, "FixedRotation", &Rigidbody2dComponent::SetFixedRotation);
+		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_freezePositionX, "FreezePositionX", &Rigidbody2dComponent::SetFreezePositionX);
+		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_freezePositionY, "FreezePositionY", &Rigidbody2dComponent::SetFreezePositionY);
 	}
 
 	/// @brief
@@ -106,6 +110,8 @@ namespace hod::inline physics
 
 		SetMode(GetMode());
 		SetGravityScale(GetGravityScale());
+		SetFixedRotation(GetFixedRotation());
+		_body->SetFreezePosition(_freezePositionX, _freezePositionY);
 	}
 
 	/// @brief
@@ -143,8 +149,8 @@ namespace hod::inline physics
 			{
 				Matrix4 worldMatrix = node2dComponent->GetWorldMatrix();
 				Vector2 position = worldMatrix.GetTranslation();
-				float   rotation = worldMatrix.GetRotation().GetAngleZ();
-				Vector2 scale = Vector2::One; // = worldMatrix.GetScale();
+				float   rotation = RadianToDegree(worldMatrix.GetRotation().GetAngleZ()); // the body's in degrees, as the node's
+				Vector2 scale = Vector2::One;                                          // = worldMatrix.GetScale();
 				_body->SetTransform(position, rotation, scale);
 			}
 		}
@@ -236,6 +242,60 @@ namespace hod::inline physics
 	float Rigidbody2dComponent::GetGravityScale() const
 	{
 		return _gravityScale;
+	}
+
+	/// @brief
+	/// @param fixedRotation
+	void Rigidbody2dComponent::SetFixedRotation(bool fixedRotation)
+	{
+		_fixedRotation = fixedRotation;
+		if (_body != nullptr)
+		{
+			_body->SetFixedRotation(_fixedRotation);
+		}
+	}
+
+	/// @brief
+	/// @return
+	bool Rigidbody2dComponent::GetFixedRotation() const
+	{
+		return _fixedRotation;
+	}
+
+	/// @brief
+	/// @param freeze
+	void Rigidbody2dComponent::SetFreezePositionX(bool freeze)
+	{
+		_freezePositionX = freeze;
+		if (_body != nullptr)
+		{
+			_body->SetFreezePosition(_freezePositionX, _freezePositionY);
+		}
+	}
+
+	/// @brief
+	/// @return
+	bool Rigidbody2dComponent::GetFreezePositionX() const
+	{
+		return _freezePositionX;
+	}
+
+	/// @brief
+	/// @param freeze
+	void Rigidbody2dComponent::SetFreezePositionY(bool freeze)
+	{
+		_freezePositionY = freeze;
+		if (_body != nullptr)
+		{
+			_body->SetFreezePosition(_freezePositionX, _freezePositionY);
+		}
+	}
+
+	/// @brief
+	/// @return
+	bool Rigidbody2dComponent::GetFreezePositionY() const
+	{
+		return _freezePositionY;
 	}
 
 	/// @brief
