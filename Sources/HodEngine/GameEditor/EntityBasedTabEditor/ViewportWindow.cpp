@@ -329,6 +329,15 @@ namespace hod::inline editor
 						// Ctrl or Shift adds the picked entity to the selection, or removes it from it (nothing picked: the selection kept)
 						bool     additive = ImGui::GetIO().KeyCtrl || ImGui::GetIO().KeyShift;
 						EntityEditorTab* tab = GetOwner<EntityEditorTab>();
+
+						// Not on a gizmo's handle (picked, but not an entity): a drag turns the click into a selection rectangle. Before the
+						// click changes the selection, given back by Escape
+						if (pickingId == 0 || tab->GetWorld()->FindEntity((uint64_t)pickingId) != nullptr)
+						{
+							ImVec2 imageSize = ImGui::GetContentRegionAvail();
+							StartMarquee(ScreenToWorld(ImGui::GetIO().MousePos, ImGui::GetCursorScreenPos(), imageSize), additive);
+						}
+
 						if (pickingId == 0)
 						{
 							if (additive == false)
@@ -489,6 +498,21 @@ namespace hod::inline editor
 				ImGui::Image(_renderTarget->GetColorTexture(), ImVec2((float)resolutionWidth, (float)resolutionHeight));
 			}
 
+			// The selection rectangle, over the image. Not while playing: the mouse is the game's
+			if (_marqueeState != MarqueeState::None)
+			{
+				if (GetOwner<EntityEditorTab>()->IsPlaying() && GetOwner<EntityEditorTab>()->IsPaused() == false)
+				{
+					_marqueeState = MarqueeState::None;
+					_marqueeSelectionBefore.Clear();
+				}
+				else
+				{
+					UpdateMarquee(ImGui::GetItemRectMin(), ImGui::GetItemRectSize());
+					DrawMarquee(ImGui::GetItemRectMin(), ImGui::GetItemRectSize());
+				}
+			}
+
 			// Playing, the game gets the mouse over the image (see ViewportGamePointer), as the game window's
 			if (GetOwner<EntityEditorTab>()->IsPlaying() && GetOwner<EntityEditorTab>()->IsPaused() == false)
 			{
@@ -558,6 +582,189 @@ namespace hod::inline editor
 
 			_renderView = nullptr;
 		}
+	}
+
+	/// @brief The view's camera: the world position under screenPosition
+	/// @param screenPosition
+	/// @param imagePosition screen position of the image's top-left corner
+	/// @param imageSize
+	/// @return
+	Vector2 ViewportWindow::ScreenToWorld(const ImVec2& screenPosition, const ImVec2& imagePosition, const ImVec2& imageSize) const
+	{
+		// Screen space is Y-down, world space Y-up
+		float scale = Max(imageSize.y, 1.0f) / (2.0f * GetCameraSize());
+		return _camera.GetPosition() + Vector2((screenPosition.x - imagePosition.x - imageSize.x * 0.5f) / scale,
+		                                       -(screenPosition.y - imagePosition.y - imageSize.y * 0.5f) / scale);
+	}
+
+	/// @brief The inverse of ScreenToWorld
+	/// @param worldPosition
+	/// @param imagePosition
+	/// @param imageSize
+	/// @return
+	ImVec2 ViewportWindow::WorldToScreen(const Vector2& worldPosition, const ImVec2& imagePosition, const ImVec2& imageSize) const
+	{
+		float   scale = Max(imageSize.y, 1.0f) / (2.0f * GetCameraSize());
+		Vector2 relative = worldPosition - _camera.GetPosition();
+		return ImVec2(imagePosition.x + imageSize.x * 0.5f + relative.GetX() * scale, imagePosition.y + imageSize.y * 0.5f - relative.GetY() * scale);
+	}
+
+	/// @brief A left press on the image, not on a gizmo's handle: still a click until dragged past ImGui's drag threshold
+	/// @param worldPosition where it starts, in world space: the rectangle stays on the content while the view pans or zooms
+	/// @param additive Ctrl or Shift held: the entities inside are added to the selection from before the press
+	void ViewportWindow::StartMarquee(const Vector2& worldPosition, bool additive)
+	{
+		_marqueeState = MarqueeState::Pending;
+		_marqueeStart = worldPosition;
+		_marqueeAdditive = additive;
+		_marqueeSelectionBefore.Clear();
+		for (Entity* entity : GetOwner<EntityEditorTab>()->GetSelectedEntities())
+		{
+			_marqueeSelectionBefore.PushBack(entity);
+		}
+		_marqueeLastRect = ImVec4(0.0f, 0.0f, -1.0f, -1.0f);
+	}
+
+	/// @brief Follows the press started by StartMarquee: once dragged, the selection is the entities drawn inside the rectangle (see
+	/// CollectEntitiesInRect), after the selection from before the press when additive. Recomputed from the press' selection whenever the
+	/// rectangle changes, so shrinking it deselects again. Ends on release, Escape gives back the selection from before the press.
+	/// @param imagePosition screen position of the image's top-left corner
+	/// @param imageSize
+	void ViewportWindow::UpdateMarquee(const ImVec2& imagePosition, const ImVec2& imageSize)
+	{
+		EntityEditorTab* tab = GetOwner<EntityEditorTab>();
+
+		if (ImGui::IsMouseDown(ImGuiMouseButton_Left) == false)
+		{
+			_marqueeState = MarqueeState::None;
+			_marqueeSelectionBefore.Clear();
+			return;
+		}
+
+		if (_marqueeState == MarqueeState::Cancelled)
+		{
+			return;
+		}
+
+		Vector<Entity*> selectionBefore;
+		for (const WeakPtr<Entity>& entity : _marqueeSelectionBefore)
+		{
+			if (entity.Get() != nullptr)
+			{
+				selectionBefore.PushBack(entity.Get());
+			}
+		}
+
+		if (ImGui::IsKeyPressed(ImGuiKey_Escape, false))
+		{
+			if (_marqueeState == MarqueeState::Active)
+			{
+				tab->SetSelectedEntities(selectionBefore);
+			}
+			_marqueeState = MarqueeState::Cancelled;
+			return;
+		}
+
+		if (_marqueeState == MarqueeState::Pending)
+		{
+			if (ImGui::IsMouseDragging(ImGuiMouseButton_Left) == false)
+			{
+				return;
+			}
+			_marqueeState = MarqueeState::Active;
+		}
+
+		// In the image's pixels, clamped to it
+		ImVec2 start = WorldToScreen(_marqueeStart, imagePosition, imageSize) - imagePosition;
+		ImVec2 end = ImGui::GetIO().MousePos - imagePosition;
+		ImVec4 rect(Clamp(Min(start.x, end.x), 0.0f, imageSize.x), Clamp(Min(start.y, end.y), 0.0f, imageSize.y), Clamp(Max(start.x, end.x), 0.0f, imageSize.x),
+		            Clamp(Max(start.y, end.y), 0.0f, imageSize.y));
+		if (rect.x == _marqueeLastRect.x && rect.y == _marqueeLastRect.y && rect.z == _marqueeLastRect.z && rect.w == _marqueeLastRect.w)
+		{
+			return; // Nothing new to read in the picking buffer
+		}
+		_marqueeLastRect = rect;
+
+		Vector<Entity*> selection;
+		if (_marqueeAdditive)
+		{
+			selection = selectionBefore;
+		}
+		for (Entity* entity : CollectEntitiesInRect(Vector2(rect.x, rect.y), Vector2(rect.z, rect.w)))
+		{
+			if (std::find(selection.Begin(), selection.End(), entity) == selection.End())
+			{
+				selection.PushBack(entity);
+			}
+		}
+		tab->SetSelectedEntities(selection);
+	}
+
+	/// @brief The rectangle, over the image (ImGui, in screen space: crisp at any zoom), from its world space start to the mouse
+	/// @param imagePosition
+	/// @param imageSize
+	void ViewportWindow::DrawMarquee(const ImVec2& imagePosition, const ImVec2& imageSize)
+	{
+		if (_marqueeState != MarqueeState::Active)
+		{
+			return;
+		}
+
+		ImVec2 start = WorldToScreen(_marqueeStart, imagePosition, imageSize);
+		ImVec2 end = ImGui::GetIO().MousePos;
+		ImVec2 min(Min(start.x, end.x), Min(start.y, end.y));
+		ImVec2 max(Max(start.x, end.x), Max(start.y, end.y));
+
+		ImDrawList* drawList = ImGui::GetWindowDrawList();
+		drawList->PushClipRect(imagePosition, imagePosition + imageSize, true);
+		drawList->AddRectFilled(min, max, IM_COL32(120, 170, 255, 40));
+		drawList->AddRect(min, max, IM_COL32(120, 170, 255, 220));
+		drawList->PopClipRect();
+	}
+
+	/// @brief The entities with pixels inside [min, max] (image pixels) in the picking buffer (as the GPU last finished it, a few frames
+	/// ago), in the order they are met: whatever draws them (sprites, texts, gizmos of their components...), an entity drawing nothing
+	/// can't be met. One pixel out of two on each axis is read.
+	/// @param min
+	/// @param max
+	/// @return
+	Vector<Entity*> ViewportWindow::CollectEntitiesInRect(const Vector2& min, const Vector2& max) const
+	{
+		Vector<Entity*> entities;
+		Vector2         resolution = _pickingRenderTarget->GetResolution();
+		game::World*    world = const_cast<ViewportWindow*>(this)->GetOwner<EntityEditorTab>()->GetWorld();
+
+		constexpr uint32_t step = 2;
+		uint32_t           lastPickingId = 0;
+		Vector<uint32_t>   seenPickingIds;
+		uint32_t xBegin = (uint32_t)Max(min.GetX(), 0.0f);
+		uint32_t yBegin = (uint32_t)Max(min.GetY(), 0.0f);
+		uint32_t xEnd = (uint32_t)Min(max.GetX(), resolution.GetX());
+		uint32_t yEnd = (uint32_t)Min(max.GetY(), resolution.GetY());
+		for (uint32_t y = yBegin; y < yEnd; y += step)
+		{
+			for (uint32_t x = xBegin; x < xEnd; x += step)
+			{
+				uint32_t pickingId = PickingManager::ConvertColorToId(_pickingRenderTarget->ReadPixel(Vector2((float)x, (float)y)));
+				if (pickingId == 0 || pickingId == lastPickingId)
+				{
+					continue;
+				}
+				lastPickingId = pickingId;
+				if (std::find(seenPickingIds.Begin(), seenPickingIds.End(), pickingId) != seenPickingIds.End())
+				{
+					continue;
+				}
+				seenPickingIds.PushBack(pickingId);
+
+				// Not an entity: a gizmo's handle
+				if (Entity* entity = world->FindEntity((uint64_t)pickingId))
+				{
+					entities.PushBack(entity);
+				}
+			}
+		}
+		return entities;
 	}
 
 	/// @brief The active entity was moved by its gizmo: the other selected entities follow, by the same move in world space. Not those
