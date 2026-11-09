@@ -49,7 +49,7 @@ namespace
 				{
 					if (hod::physics::Rigidbody2dComponent* rigidbody = entity->GetComponent<hod::physics::Rigidbody2dComponent>())
 					{
-						rigidbody->SyncBodyWithNode();
+						rigidbody->TeleportToNode();
 					}
 				}
 			}

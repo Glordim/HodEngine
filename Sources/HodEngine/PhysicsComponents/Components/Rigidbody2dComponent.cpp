@@ -122,7 +122,7 @@ namespace hod::inline physics
 	/// @brief
 	void Rigidbody2dComponent::OnStart()
 	{
-		SyncBodyWithNode();
+		TeleportToNode();
 
 		_body->SetType(_body->GetType());
 	}
@@ -131,7 +131,7 @@ namespace hod::inline physics
 	void Rigidbody2dComponent::OnEnable()
 	{
 		// Placed already: the shapes added before the start (in edit mode, the components building theirs in OnEnable) are where the node is
-		SyncBodyWithNode();
+		TeleportToNode();
 		_body->SetEnabled(true);
 	}
 
@@ -154,13 +154,18 @@ namespace hod::inline physics
 	}
 
 	/// @brief
-	void Rigidbody2dComponent::SyncBodyWithNode()
+	void Rigidbody2dComponent::TeleportToNode()
 	{
 		Vector2 position;
 		float   rotation = 0.0f;
 		if (_body != nullptr && GetNodeTransform(position, rotation))
 		{
 			_body->SetTransform(position, rotation, Vector2::One);
+			if (_mode == Mode::Kinematic)
+			{
+				// Its velocity was only to reach its node (see OnFixedUpdate): there already, it stops
+				_body->MoveTo(position, rotation, GetWorld()->GetFixedTimestep());
+			}
 		}
 	}
 
@@ -176,7 +181,7 @@ namespace hod::inline physics
 		}
 		else
 		{
-			SyncBodyWithNode();
+			TeleportToNode();
 		}
 
 		/*

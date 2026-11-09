@@ -65,9 +65,11 @@ namespace hod::inline physics
 		void OnDisable() override;
 		void OnDestruct() override;
 
-		/// @brief Places its body where its node is. Done each fixed step, and by the editor while the simulation doesn't run (editing, paused)
-		/// for the physics shown to follow the edited nodes
-		void SyncBodyWithNode();
+		/// @brief Teleports its body where its node is: to call after moving the node of a kinematic body somewhere else (a respawn, a portal),
+		/// else it would go there through its velocity at the next step, pushing what is on the way (see Body::MoveTo). A dynamic body is
+		/// always teleported on its node (its velocity kept). Also done by the editor while the simulation doesn't run (editing, paused), for
+		/// the physics shown to follow the edited nodes
+		void TeleportToNode();
 
 		Body* GetInternalBody() const;
 		Vector2        GetParentOffset(Collider2dComponent* collider) const;
