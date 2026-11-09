@@ -163,6 +163,8 @@ namespace hod::inline editor
 		GizmoHandle _hoveredGizmoHandle = GizmoHandle::None;
 		GizmoHandle _draggedGizmoHandle = GizmoHandle::None;
 		Vector2     _gizmoDragStartMousePosition = Vector2::Zero;
+		// Move pressed on a body, not dragged yet: released there, it is a click selecting the node under the mouse (see UpdateGizmoDrag)
+		bool        _gizmoMovePending = false;
 
 		// A node dragged, as it was when the drag started
 		struct GizmoDragStart

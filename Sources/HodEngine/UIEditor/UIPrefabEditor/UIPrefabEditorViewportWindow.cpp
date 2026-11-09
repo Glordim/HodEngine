@@ -365,6 +365,7 @@ namespace hod::inline editor
 		{
 			_hoveredGizmoHandle = GizmoHandle::None;
 			_draggedGizmoHandle = GizmoHandle::None;
+			_gizmoMovePending = false;
 			_gizmoDragStarts.Clear();
 		}
 
@@ -1448,9 +1449,25 @@ namespace hod::inline editor
 		{
 			if (ImGui::IsMouseDown(ImGuiMouseButton_Left) == false)
 			{
+				if (_gizmoMovePending)
+				{
+					// Released without moving: a click, selecting what is under the mouse as anywhere else (a child of the selected node...)
+					UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
+					tab->SetSelectedNode(PickNode(tab->GetDisplayedPrefabRoot(), _gizmoDragStartMousePosition));
+				}
 				_draggedGizmoHandle = GizmoHandle::None;
+				_gizmoMovePending = false;
 				_gizmoDragStarts.Clear();
 				return;
+			}
+
+			if (_gizmoMovePending)
+			{
+				if (ImGui::IsMouseDragging(ImGuiMouseButton_Left) == false)
+				{
+					return;
+				}
+				_gizmoMovePending = false;
 			}
 
 			if (ImGui::IsKeyPressed(ImGuiKey_Escape))
@@ -1467,6 +1484,7 @@ namespace hod::inline editor
 					layoutParams->SetHeightMode(dragStart._heightMode);
 				}
 				_draggedGizmoHandle = GizmoHandle::None;
+				_gizmoMovePending = false;
 				_gizmoDragStarts.Clear();
 				GetOwner()->MarkAsDirty(); // back as it was: no undo step
 				return;
@@ -1547,6 +1565,8 @@ namespace hod::inline editor
 		if (_hoveredGizmoHandle != GizmoHandle::None && ImGui::IsMouseClicked(ImGuiMouseButton_Left))
 		{
 			_draggedGizmoHandle = _hoveredGizmoHandle;
+			// The body covers the children: a press on it is still a click (see above) until dragged past ImGui's drag threshold
+			_gizmoMovePending = _hoveredGizmoHandle == GizmoHandle::Move;
 			_gizmoDragStartMousePosition = canvasMousePosition;
 			_gizmoDragStarts.Clear();
 			for (ui::Node* node : nodes)
