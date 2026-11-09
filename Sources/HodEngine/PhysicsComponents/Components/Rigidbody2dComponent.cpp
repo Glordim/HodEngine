@@ -1,14 +1,14 @@
-#include "HodEngine/Physics/Pch.hpp"
+#include "HodEngine/PhysicsComponents/Pch.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
-#include "HodEngine/Physics/Components/Collider2dComponent.hpp"
-#include "HodEngine/Physics/Components/Rigidbody2dComponent.hpp"
+#include "HodEngine/PhysicsComponents/Components/Collider2dComponent.hpp"
+#include "HodEngine/PhysicsComponents/Components/Rigidbody2dComponent.hpp"
 #include "HodEngine/Game/World.hpp"
 
 #include <HodEngine/Core/Reflection/EnumTrait.hpp>
 #include <HodEngine/Physics/Body.hpp>
 #include <HodEngine/Physics/Collider.hpp>
 #include <HodEngine/Physics/World.hpp>
-#include <HodEngine/Physics/PhysicsWorldSystem.hpp>
+#include <HodEngine/PhysicsComponents/PhysicsWorldSystem.hpp>
 
 #include "HodEngine/Game/Scene.hpp"
 

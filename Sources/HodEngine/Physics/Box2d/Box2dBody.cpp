@@ -8,8 +8,6 @@
 
 #include <box2d/box2d.h>
 
-#include <HodEngine/Renderer/BoundingBox.hpp>
-
 #include <algorithm>
 #include <cstdlib>
 

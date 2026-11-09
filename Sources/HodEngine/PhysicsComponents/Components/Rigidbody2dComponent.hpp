@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/Physics/Export.hpp"
+#include "HodEngine/PhysicsComponents/Export.hpp"
 
 #include "HodEngine/Core/Event.hpp"
 #include "HodEngine/Math/Vector2.hpp"
@@ -32,7 +32,7 @@ namespace hod::inline physics
 	};
 
 	/// @brief
-	class HOD_PHYSICS_API Rigidbody2dComponent : public Component
+	class HOD_PHYSICS_COMPONENTS_API Rigidbody2dComponent : public Component
 	{
 		REFLECTED_CLASS(Rigidbody2dComponent, Component)
 
@@ -45,7 +45,7 @@ namespace hod::inline physics
 
 			Count
 		};
-		REFLECTED_ENUM(HOD_PHYSICS_API, Mode);
+		REFLECTED_ENUM(HOD_PHYSICS_COMPONENTS_API, Mode);
 
 	public:
 		Rigidbody2dComponent() = default;

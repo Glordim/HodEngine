@@ -1,6 +1,6 @@
-#include "HodEngine/Physics/Pch.hpp"
-#include "HodEngine/Physics/Components/Collider2dComponent.hpp"
-#include "HodEngine/Physics/Components/Rigidbody2dComponent.hpp"
+#include "HodEngine/PhysicsComponents/Pch.hpp"
+#include "HodEngine/PhysicsComponents/Components/Collider2dComponent.hpp"
+#include "HodEngine/PhysicsComponents/Components/Rigidbody2dComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
 #include "HodEngine/Game/Entity.hpp"
 

@@ -55,7 +55,7 @@ namespace hod::inline game
 		RegisterComponent(_Component_::GetReflectionDescriptor());
 	}
 
-	/// @brief The entry points of a runtime module (an optional engine feature, Physics...), see HOD_DEFINE_RUNTIME_MODULE.
+	/// @brief The entry points of a runtime module (an optional engine feature, Physics...: in its Components layer, PhysicsComponents), see HOD_DEFINE_RUNTIME_MODULE.
 	/// Phases, each run for every module in the modules' order (dependencies first) before the next phase starts:
 	/// - Register: types only (components, world systems), no side effect, can't fail, doesn't read the project settings
 	/// - (the project settings are loaded)
@@ -120,7 +120,7 @@ namespace hod::inline game
 		API const hod::game::RuntimeModule* HOD_RUNTIME_MODULE_FUNCTION(Name)(); \
 	}
 
-/// @brief HOD_DEFINE_RUNTIME_MODULE(Physics, &Register, &Init, &Shutdown): the functions as in RuntimeModule (Init and Shutdown optional)
+/// @brief HOD_DEFINE_RUNTIME_MODULE(PhysicsComponents, &Register, &Init, &Shutdown): the functions as in RuntimeModule (Init and Shutdown optional)
 #define HOD_DEFINE_RUNTIME_MODULE(Name, ...)                                         \
 	const hod::game::RuntimeModule* HOD_RUNTIME_MODULE_FUNCTION(Name)()             \
 	{                                                                                \

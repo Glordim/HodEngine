@@ -11,7 +11,7 @@
 #include <HodEngine/Renderer/MaterialInstance.hpp>
 
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
-#include <HodEngine/Physics/Components/BoxCollider2dComponent.hpp>
+#include <HodEngine/PhysicsComponents/Components/BoxCollider2dComponent.hpp>
 #include <HodEngine/Game/Entity.hpp>
 #include <HodEngine/Core/StaticArray.hpp>
 

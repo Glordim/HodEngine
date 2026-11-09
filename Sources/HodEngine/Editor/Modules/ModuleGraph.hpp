@@ -19,7 +19,8 @@ namespace hod::inline editor
 		String _description;
 
 		/// @brief The library (CMake target HodEngine::<_runtimeLibrary>) of an optional module, with a HOD_DEFINE_RUNTIME_MODULE: linked
-		/// in the game only if the module is enabled, loaded by the editor. Empty for the modules always linked (Core, Game...)
+		/// in the game only if the module is enabled, loaded by the editor. Empty for the modules always linked (Core, Game...). It's the
+		/// module's Components layer (PhysicsComponents), its base library (Physics) comes with it as a link dependency
 		String _runtimeLibrary;
 
 		/// @brief Its editor module (see HOD_DECLARE_EDITOR_MODULE), loaded after the ones of its dependencies. Optional

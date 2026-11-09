@@ -15,7 +15,7 @@ target_include_directories(PhysicsEditor PUBLIC
 target_precompile_headers(PhysicsEditor PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
 target_link_libraries(PhysicsEditor
-	PUBLIC Physics GameEditor Editor
+	PUBLIC Physics PhysicsComponents GameEditor Editor
 )
 
 target_compile_definitions(PhysicsEditor

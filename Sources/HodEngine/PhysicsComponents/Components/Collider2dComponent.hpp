@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/Physics/Export.hpp"
+#include "HodEngine/PhysicsComponents/Export.hpp"
 
 #include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Math/Vector2.hpp"
@@ -16,9 +16,9 @@ namespace hod::inline physics
 	class Rigidbody2dComponent;
 
 		/*
-	struct HOD_PHYSICS_API EdgeShape : public Shape
+	struct HOD_PHYSICS_COMPONENTS_API EdgeShape : public Shape
 	{
-		REFLECTED_CLASS(EdgeShape, Shape, HOD_PHYSICS_API)
+		REFLECTED_CLASS(EdgeShape, Shape, HOD_PHYSICS_COMPONENTS_API)
 	public:
 
 		~EdgeShape() override = default;
@@ -27,9 +27,9 @@ namespace hod::inline physics
 		Vector2 _end;
 	};
 
-	struct HOD_PHYSICS_API CircleShape : public Shape
+	struct HOD_PHYSICS_COMPONENTS_API CircleShape : public Shape
 	{
-		REFLECTED_CLASS(CircleShape, Shape, HOD_PHYSICS_API)
+		REFLECTED_CLASS(CircleShape, Shape, HOD_PHYSICS_COMPONENTS_API)
 	public:
 
 		~CircleShape() override = default;
@@ -38,9 +38,9 @@ namespace hod::inline physics
 		float	_radius;
 	};
 
-	struct HOD_PHYSICS_API BoxShape : public Shape
+	struct HOD_PHYSICS_COMPONENTS_API BoxShape : public Shape
 	{
-		REFLECTED_CLASS(BoxShape, Shape, HOD_PHYSICS_API)
+		REFLECTED_CLASS(BoxShape, Shape, HOD_PHYSICS_COMPONENTS_API)
 	public:
 
 		~BoxShape() override = default;
@@ -52,7 +52,7 @@ namespace hod::inline physics
 		*/
 
 	/// @brief 
-	class HOD_PHYSICS_API Collider2dComponent : public Component
+	class HOD_PHYSICS_COMPONENTS_API Collider2dComponent : public Component
 	{
 		REFLECTED_CLASS(Collider2dComponent, Component)
 

@@ -1,5 +1,5 @@
 #pragma once
-#include "HodEngine/Physics/Export.hpp"
+#include "HodEngine/PhysicsComponents/Export.hpp"
 
 #include <HodEngine/Game/WorldSystem.hpp>
 
@@ -8,7 +8,7 @@ namespace hod::inline physics
 	class World;
 
 	/// @brief The physics simulation of a game::World: steps its physics World each fixed step, after the scenes' FixedUpdate
-	class HOD_PHYSICS_API PhysicsWorldSystem : public game::WorldSystem
+	class HOD_PHYSICS_COMPONENTS_API PhysicsWorldSystem : public game::WorldSystem
 	{
 	public:
 		explicit PhysicsWorldSystem(game::World& world);

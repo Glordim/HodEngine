@@ -1,14 +1,14 @@
 #pragma once
-#include "HodEngine/Physics/Export.hpp"
+#include "HodEngine/PhysicsComponents/Export.hpp"
 
-#include "HodEngine/Physics/Components/Collider2dComponent.hpp"
+#include "HodEngine/PhysicsComponents/Components/Collider2dComponent.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
 
 namespace hod::inline physics
 {
 	/// @brief 
-	class HOD_PHYSICS_API CapsuleCollider2dComponent : public Collider2dComponent
+	class HOD_PHYSICS_COMPONENTS_API CapsuleCollider2dComponent : public Collider2dComponent
 	{
 		REFLECTED_CLASS(CapsuleCollider2dComponent, Collider2dComponent)
 

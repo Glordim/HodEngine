@@ -1,5 +1,5 @@
-#include "HodEngine/Physics/Pch.hpp"
-#include "HodEngine/Physics/PhysicsWorldSystem.hpp"
+#include "HodEngine/PhysicsComponents/Pch.hpp"
+#include "HodEngine/PhysicsComponents/PhysicsWorldSystem.hpp"
 #include "HodEngine/Physics/Physics.hpp"
 #include "HodEngine/Physics/World.hpp"
 

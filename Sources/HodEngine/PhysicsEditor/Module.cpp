@@ -11,13 +11,13 @@
 #include <HodEngine/Editor/EditorModuleRegistration.hpp>
 #include <HodEngine/GameEditor/EntityBasedTabEditor/ViewportDebugView.hpp>
 
-#include <HodEngine/Physics/Components/BoxCollider2dComponent.hpp>
-#include <HodEngine/Physics/Components/CapsuleCollider2dComponent.hpp>
-#include <HodEngine/Physics/Components/CircleCollider2dComponent.hpp>
-#include <HodEngine/Physics/Components/EdgeCollider2dComponent.hpp>
-#include <HodEngine/Physics/Components/MultiShapeCollider2dComponent.hpp>
+#include <HodEngine/PhysicsComponents/Components/BoxCollider2dComponent.hpp>
+#include <HodEngine/PhysicsComponents/Components/CapsuleCollider2dComponent.hpp>
+#include <HodEngine/PhysicsComponents/Components/CircleCollider2dComponent.hpp>
+#include <HodEngine/PhysicsComponents/Components/EdgeCollider2dComponent.hpp>
+#include <HodEngine/PhysicsComponents/Components/MultiShapeCollider2dComponent.hpp>
 #include <HodEngine/Physics/DebugDrawer.hpp>
-#include <HodEngine/Physics/PhysicsWorldSystem.hpp>
+#include <HodEngine/PhysicsComponents/PhysicsWorldSystem.hpp>
 #include <HodEngine/Physics/World.hpp>
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
