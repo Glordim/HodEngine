@@ -5,14 +5,17 @@ namespace hod::inline editor
 {
 	namespace
 	{
-		ViewportWorldRenderer::DrawFunction g_drawFunction = nullptr;
+		ViewportWorldRenderer::DrawFunction            g_drawFunction = nullptr;
+		ViewportWorldRenderer::SetupPlayCameraFunction g_setupPlayCameraFunction = nullptr;
 	}
 
 	/// @brief
 	/// @param draw
-	void ViewportWorldRenderer::Set(DrawFunction draw)
+	/// @param setupPlayCamera
+	void ViewportWorldRenderer::Set(DrawFunction draw, SetupPlayCameraFunction setupPlayCamera)
 	{
 		g_drawFunction = draw;
+		g_setupPlayCameraFunction = setupPlayCamera;
 	}
 
 	/// @brief
@@ -23,6 +26,17 @@ namespace hod::inline editor
 		if (g_drawFunction != nullptr)
 		{
 			g_drawFunction(renderView, world);
+		}
+	}
+
+	/// @brief
+	/// @param renderView
+	/// @param world
+	void ViewportWorldRenderer::SetupPlayCamera(RenderView& renderView, game::World& world)
+	{
+		if (g_setupPlayCameraFunction != nullptr)
+		{
+			g_setupPlayCameraFunction(renderView, world);
 		}
 	}
 }

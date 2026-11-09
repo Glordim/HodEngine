@@ -38,6 +38,15 @@ namespace
 			rendererWorldSystem->Draw(renderView);
 		}
 	}
+
+	/// @brief The game's camera of the worlds in the viewports, when playing (see ViewportWorldRenderer)
+	void SetupPlayCameraInViewport(RenderView& renderView, game::World& world)
+	{
+		if (RendererWorldSystem* rendererWorldSystem = RendererWorldSystem::Get(world))
+		{
+			rendererWorldSystem->SetupPlayCamera(renderView);
+		}
+	}
 }
 
 HOD_STARTUP_EDITOR_MODULE(RendererEditor, registration)
@@ -45,7 +54,7 @@ HOD_STARTUP_EDITOR_MODULE(RendererEditor, registration)
 	registration.RegisterCustomComponentDrawer<CameraComponent, CameraCustomComponentDrawer>();
 	registration.RegisterCustomComponentDrawer<TextureRendererComponent, TextureRendererCustomComponentDrawer>();
 
-	ViewportWorldRenderer::Set(&DrawWorldInViewport);
+	ViewportWorldRenderer::Set(&DrawWorldInViewport, &SetupPlayCameraInViewport);
 
 	// The importers after the types they import into, only if registered: an importer producing several types would need them all
 	if (registration.RegisterAssetType<TextureAssetType>())
@@ -70,6 +79,6 @@ HOD_STARTUP_EDITOR_MODULE(RendererEditor, registration)
 
 HOD_SHUTDOWN_EDITOR_MODULE(RendererEditor)
 {
-	ViewportWorldRenderer::Set(nullptr);
+	ViewportWorldRenderer::Set(nullptr, nullptr);
 	return 0;
 }

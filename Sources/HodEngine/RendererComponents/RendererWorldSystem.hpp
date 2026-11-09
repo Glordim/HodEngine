@@ -40,6 +40,9 @@ namespace hod::inline renderer
 		/// already set up in renderView otherwise (the editor's)
 		void Draw(RenderView& renderView);
 
+		/// @brief Sets up renderView with its main camera (a builtin one without), as Draw does when playing
+		void SetupPlayCamera(RenderView& renderView);
+
 	protected:
 		/// @brief Ages the debug shapes
 		void OnUpdate(float deltaTime) override;

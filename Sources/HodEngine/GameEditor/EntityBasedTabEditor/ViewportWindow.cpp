@@ -495,6 +495,14 @@ namespace hod::inline editor
 			}
 			else
 			{
+				// The game's camera, whatever draws the world (a debug view replacing its render too). A default one first: the whole target, for
+				// a world without the renderer's
+				Rect viewport;
+				viewport._position = Vector2::Zero;
+				viewport._size = Vector2((float)resolutionWidth, (float)resolutionHeight);
+				renderView->SetupCamera(Matrix4::Identity, Matrix4::Identity, viewport);
+				ViewportWorldRenderer::SetupPlayCamera(*renderView, *GetOwner<EntityEditorTab>()->GetWorld());
+
 				DrawWorld(*renderView);
 			}
 

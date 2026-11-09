@@ -85,18 +85,25 @@ namespace hod::inline renderer
 
 	/// @brief
 	/// @param renderView
+	void RendererWorldSystem::SetupPlayCamera(RenderView& renderView)
+	{
+		CameraComponent* camera = CameraComponent::_main;
+		if (camera == nullptr)
+		{
+			static CameraComponent builtinCamera;
+			camera = &builtinCamera;
+		}
+		camera->SetupRenderView(renderView);
+	}
+
+	/// @brief
+	/// @param renderView
 	void RendererWorldSystem::Draw(RenderView& renderView)
 	{
 		game::World& world = GetWorld();
 		if (world.GetEditorPlaying() == true && world.GetEditorPaused() == false)
 		{
-			CameraComponent* camera = CameraComponent::_main;
-			if (camera == nullptr)
-			{
-				static CameraComponent builtinCamera;
-				camera = &builtinCamera;
-			}
-			camera->SetupRenderView(renderView);
+			SetupPlayCamera(renderView);
 		}
 
 		for (game::Scene* scene : world.GetScenes())
