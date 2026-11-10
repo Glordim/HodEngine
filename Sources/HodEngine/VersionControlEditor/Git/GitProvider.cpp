@@ -7,6 +7,7 @@
 #include <HodEngine/Core/UID.hpp>
 
 #include <cstdlib>
+#include <filesystem>
 
 #include <fmt/format.h>
 
@@ -167,11 +168,13 @@ namespace hod::inline editor
 		_usesLfs = false;
 		_hasLockable = false;
 		_hasUpstream = false;
+		_hasRemote = false;
 		_locks.clear();
 		_upstreamChanges.clear();
 		_remoteRefreshed = false;
 		_fetchWarned = false;
 		_locksWarned = false;
+		_noRemoteWarned = false;
 	}
 
 	/// @brief git init in the project folder (the .gitignore and .gitattributes come with SetupWorkspace, after Connect)
@@ -322,8 +325,11 @@ namespace hod::inline editor
 		}
 		if (_hasLfs && _usesLfs)
 		{
-			capabilities |= Capability::Lock;
-			if (_hasLockable)
+			if (_hasRemote)
+			{
+				capabilities |= Capability::Lock;
+			}
+			if (_hasLockable) // Even without a remote: the lockable files are read-only, Checkout makes them writable
 			{
 				capabilities |= Capability::Checkout;
 			}
@@ -453,6 +459,16 @@ namespace hod::inline editor
 		if (result._success == false)
 		{
 			return result;
+		}
+
+		if (_hasRemote == false)
+		{
+			if (lockable.Empty() == false && _noRemoteWarned == false)
+			{
+				OUTPUT_WARNING("Git: no remote, the lockable files can't be locked (the LFS locks are on the server): they are made writable without a lock");
+				_noRemoteWarned = true;
+			}
+			return MakeWritable(lockable);
 		}
 
 		Vector<String> toLock;
@@ -638,7 +654,12 @@ namespace hod::inline editor
 		switch (capability)
 		{
 			case Capability::Lock:
-				return _hasLfs ? "Git: locks need the binary files in Git LFS (filter=lfs in .gitattributes)" : "Git: locks need Git LFS (git-lfs isn't installed)";
+				if (_hasLfs == false)
+				{
+					return "Git: locks need Git LFS (git-lfs isn't installed)";
+				}
+				return _usesLfs ? "Git: the LFS locks are on the server, this repository has no remote (git remote add origin <url>)"
+				                : "Git: locks need the binary files in Git LFS (filter=lfs in .gitattributes)";
 			case Capability::Checkout: return "Git: a checkout locks the files marked \"lockable\" in .gitattributes (Git LFS), there are none";
 			case Capability::GetLatestFiles: return "Git can't update some files only: Pull updates the whole project";
 			case Capability::TrackMoves: return "Git detects the moves on its own";
@@ -1115,6 +1136,7 @@ namespace hod::inline editor
 	{
 		Process::Result output;
 		_hasUpstream = Run({"rev-parse", "--abbrev-ref", "--symbolic-full-name", "@{u}"}, output)._success;
+		_hasRemote = _hasUpstream || (Run({"remote"}, output)._success && Trim(output._output).empty() == false) || Run({"config", "--get", "lfs.url"}, output)._success;
 	}
 
 	/// @brief
@@ -1156,7 +1178,7 @@ namespace hod::inline editor
 	/// @return
 	VersionControlProvider::Result GitProvider::RefreshLocks()
 	{
-		if (_hasLfs == false || _usesLfs == false)
+		if (_hasLfs == false || _usesLfs == false || _hasRemote == false)
 		{
 			_locks.clear();
 			return Result();
@@ -1364,6 +1386,26 @@ namespace hod::inline editor
 			else
 			{
 				errors.PushBack(result._error);
+			}
+		}
+		return errors.Empty() ? Result() : Result::Failure(JoinErrors(errors));
+	}
+
+	/// @brief
+	/// @param files
+	/// @return
+	VersionControlProvider::Result GitProvider::MakeWritable(const Vector<String>& files)
+	{
+		Vector<String> errors;
+		for (const String& file : files)
+		{
+			const Path      path = FromGitPath(file);
+			std::error_code error;
+			std::filesystem::permissions(std::filesystem::path(reinterpret_cast<const char8_t*>(path.GetString().CStr())), std::filesystem::perms::owner_write,
+			                             std::filesystem::perm_options::add, error);
+			if (error)
+			{
+				errors.PushBack(fmt::format("Can't make {} writable: {}", path, error.message()).c_str());
 			}
 		}
 		return errors.Empty() ? Result() : Result::Failure(JoinErrors(errors));

@@ -367,7 +367,12 @@ namespace hod::inline editor
 
 		ClearDataBlocks(); // close FileStream before moving
 
-		return FileSystem::GetInstance()->Rename(tmpFile, path);
+		if (FileSystem::GetInstance()->Rename(tmpFile, path) == false)
+		{
+			OUTPUT_ERROR("AssetContainer::Save: can't replace {} (read-only, or opened by another program?)", path);
+			return false;
+		}
+		return true;
 	}
 
 	const UID& AssetContainer::GetUid() const

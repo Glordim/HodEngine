@@ -20,7 +20,8 @@ namespace hod::inline editor
 	/// of date files: changed on the upstream branch since the merge base) and the LFS lock list (git lfs locks --verify).
 	/// Lock and Checkout fetch first, a lock on a file changed upstream being refused.
 	///
-	/// Checkout: the files "lockable" in .gitattributes are read-only until locked (git lfs), Checkout locks them.
+	/// Checkout: the files "lockable" in .gitattributes are read-only until locked (git lfs), Checkout locks them. Without a
+	/// remote (no LFS server to hold the locks: a repository not published yet), Checkout makes them writable only.
 	class HOD_VERSION_CONTROL_EDITOR_API GitProvider : public VersionControlProvider
 	{
 	public:
@@ -121,6 +122,8 @@ namespace hod::inline editor
 		Result LockFiles(const Vector<String>& files);
 		Result UnlockFiles(const Vector<String>& files);
 		Result ReleaseUnchangedLocks(const Vector<String>& gitPaths);
+		/// @brief The read-only flag git-lfs puts on the lockable files removed, without a lock (no remote to lock them on)
+		Result MakeWritable(const Vector<String>& files);
 
 		/// @brief The .gitattributes / .gitignore of the project folder and of its parents in the working tree (and .git/info)
 		bool FindUp(std::string_view fileName) const;
@@ -136,6 +139,7 @@ namespace hod::inline editor
 		bool _usesLfs = false;     // filter=lfs in the attributes
 		bool _hasLockable = false; // lockable in the attributes
 		bool _hasUpstream = false;
+		bool _hasRemote = false; // A remote (or lfs.url): where the LFS locks are. None: no lock, no network
 
 		uint32_t _pendingPushCount = 0; // Commits of HEAD not on its upstream
 
@@ -147,5 +151,6 @@ namespace hod::inline editor
 		bool                                  _remoteRefreshed = false;
 		bool                                  _fetchWarned = false;
 		bool                                  _locksWarned = false;
+		bool                                  _noRemoteWarned = false;
 	};
 }
