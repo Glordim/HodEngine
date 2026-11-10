@@ -59,13 +59,13 @@ namespace hod::inline editor
 		_lastActiveEntity = activeEntity;
 
 		// Escape is for a pending cut first
-		ImGuiMultiSelectFlags multiSelectFlags = ImGuiMultiSelectFlags_BoxSelect1d;
+		ImGuiMultiSelectFlags multiSelectFlags = ImGuiMultiSelectFlags_None;
 		if (tab->HasCutEntities() == false)
 		{
 			multiSelectFlags |= ImGuiMultiSelectFlags_ClearOnEscape;
 		}
 		// ImGui sees a click in a context menu as a click on the void of the scope (the popup is in this window hierarchy): it would
-		// clear the selection the menu acts on (see AssetBrowserWindow)
+		// clear the selection the menu acts on (see AssetBrowserWindow). No box-selection: Ctrl/Shift+click are enough in a tree.
 		if (ImGui::IsPopupOpen("", ImGuiPopupFlags_AnyPopupId) == false)
 		{
 			multiSelectFlags |= ImGuiMultiSelectFlags_ClearOnClickVoid;

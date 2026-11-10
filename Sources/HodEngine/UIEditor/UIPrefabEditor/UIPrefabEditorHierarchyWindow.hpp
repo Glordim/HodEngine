@@ -37,6 +37,7 @@ namespace hod::inline editor
 	private:
 
 		void		DrawNode(ui::Node* node);
+		void		DrawVoidContextMenu();
 		void		StartRename(ui::Node* node);
 		void		ApplyRename();
 		// The multi-selection's requests (see ImGui::BeginMultiSelect), whose user data is the node. Ranges are resolved against

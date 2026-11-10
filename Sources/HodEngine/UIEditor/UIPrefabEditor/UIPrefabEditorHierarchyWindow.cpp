@@ -102,13 +102,13 @@ namespace hod::inline editor
 		if (canvasOpened)
 		{
 			// The nodes only: the canvas, exclusive with them, is selected by its own click above. Escape is for a pending cut first.
-			ImGuiMultiSelectFlags multiSelectFlags = ImGuiMultiSelectFlags_BoxSelect1d;
+			ImGuiMultiSelectFlags multiSelectFlags = ImGuiMultiSelectFlags_None;
 			if (tab->HasCutNodes() == false)
 			{
 				multiSelectFlags |= ImGuiMultiSelectFlags_ClearOnEscape;
 			}
 			// ImGui sees a click in a context menu as a click on the void of the scope (the popup is in this window hierarchy): it
-			// would clear the selection the menu acts on (see AssetBrowserWindow)
+			// would clear the selection the menu acts on (see AssetBrowserWindow). No box-selection: Ctrl/Shift+click are enough in a tree.
 			if (ImGui::IsPopupOpen("", ImGuiPopupFlags_AnyPopupId) == false)
 			{
 				multiSelectFlags |= ImGuiMultiSelectFlags_ClearOnClickVoid;
@@ -144,6 +144,8 @@ namespace hod::inline editor
 			ApplyRename();
 			_renamedNode = nullptr;
 		}
+
+		DrawVoidContextMenu();
 
 		if (_pendingReparentNodes.Empty() == false)
 		{
@@ -276,6 +278,48 @@ namespace hod::inline editor
 				}
 			}
 		}
+	}
+
+	/// @brief The right click on the void: adding a node or pasting under the prefab root, as the entity hierarchy does under the root of a
+	/// prefab. The selection is cleared, as by a left click on the void.
+	void UIPrefabEditorHierarchyWindow::DrawVoidContextMenu()
+	{
+		UIPrefabEditorTab* tab = GetOwner<UIPrefabEditorTab>();
+		if (ImGui::IsWindowHovered() && ImGui::IsAnyItemHovered() == false && ImGui::IsMouseReleased(ImGuiMouseButton_Right))
+		{
+			tab->SetSelectedNode(nullptr);
+			ImGui::OpenPopup("UIPrefabVoidContextMenu");
+		}
+
+		if (ImGui::BeginPopup("UIPrefabVoidContextMenu") == false)
+		{
+			return;
+		}
+
+		// The new node is selected: the reveal of the next frame opens the root if it is collapsed
+		ui::Node* prefabRoot = tab->GetPrefabRoot();
+		bool      canEditStructure = (prefabRoot != nullptr && UIPrefabEditorTab::GetNodeRole(prefabRoot) == UIPrefabEditorTab::NodeRole::Authored);
+		if (ImGui::BeginMenu(ICON_MDI_PLUS_BOX " Add Node", canEditStructure))
+		{
+			for (const auto& descriptorPair : ui::NodeFactory::GetInstance()->GetAllDescriptors())
+			{
+				String typeLabel = String(DrawHelper::GetTypeIcon(*descriptorPair.second)) + " " + descriptorPair.second->GetDisplayName();
+				if (ImGui::MenuItem(typeLabel.CStr()))
+				{
+					ui::Node* newNode = ui::NodeFactory::GetInstance()->CreateNode(*descriptorPair.second);
+					prefabRoot->AddChild(newNode);
+					tab->SetSelectedNode(newNode);
+					tab->MarkAsDirty(fmt::format("Add {}", descriptorPair.second->GetDisplayName()));
+				}
+			}
+			ImGui::EndMenu();
+		}
+		if (ImGui::MenuItem(ICON_MDI_CONTENT_PASTE " Paste", "Ctrl+V", false, canEditStructure && tab->CanPasteNode()))
+		{
+			_pendingPaste = true;
+			_pendingPasteParent = prefabRoot;
+		}
+		ImGui::EndPopup();
 	}
 
 	/// @brief Replaces node's label by a text field, focused on its next draw.
