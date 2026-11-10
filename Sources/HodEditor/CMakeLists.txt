@@ -38,9 +38,16 @@ add_dependencies(HodEditor
 	CoreEditor
 	InputEditor
 	GameEditor
+	UI
+	UIComponents
 	UIEditor
 	RendererEditor
+	Audio
+	AudioComponents
 	AudioEditor
+	Physics
+	PhysicsComponents
+	PhysicsEditor
 	VersionControlEditor
 )
 
