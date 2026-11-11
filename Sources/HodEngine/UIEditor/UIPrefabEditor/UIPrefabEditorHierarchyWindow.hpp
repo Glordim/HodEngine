@@ -63,6 +63,7 @@ namespace hod::inline editor
 		// in place would modify a children list DrawNode() is iterating over.
 		Vector<ui::Node*>	_pendingReparentNodes;
 		ui::Node*			_pendingReparentParent = nullptr;
+		ui::Node*			_pendingReparentBefore = nullptr; // null: as the last children
 
 		// "Convert To" requested from the context menu, applied after the tree has been drawn for the same reason.
 		ui::Node*						_pendingConvertNode = nullptr;

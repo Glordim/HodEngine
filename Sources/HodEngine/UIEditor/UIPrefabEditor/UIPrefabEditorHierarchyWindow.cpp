@@ -149,9 +149,10 @@ namespace hod::inline editor
 
 		if (_pendingReparentNodes.Empty() == false)
 		{
-			tab->ReparentNodes(_pendingReparentNodes, _pendingReparentParent);
+			tab->ReparentNodes(_pendingReparentNodes, _pendingReparentParent, _pendingReparentBefore);
 			_pendingReparentNodes.Clear();
 			_pendingReparentParent = nullptr;
+			_pendingReparentBefore = nullptr;
 		}
 
 		if (_pendingConvertNode != nullptr)
@@ -364,6 +365,44 @@ namespace hod::inline editor
 
 		// Ids identify the node, names may collide between siblings: the ImGui id is the node itself.
 		ImGui::PushID(node);
+
+		// Drop zone to put the dragged nodes before this one, among its siblings: the gap between the rows (ItemSpacing), not taking any
+		// room of its own (as in the entity hierarchy). Only offered when it changes the order (see UIPrefabEditorTab::CanReparentNodes).
+		ui::Node* parent = node->GetParent();
+		if (parent != nullptr && tab->CanRemove(node))
+		{
+			float rowSpacing = ImGui::GetStyle().ItemSpacing.y;
+			ImGui::SetCursorPosY(ImGui::GetCursorPosY() - rowSpacing);
+			ImGui::PushStyleVar(ImGuiStyleVar_ItemSpacing, {ImGui::GetStyle().ItemSpacing.x, 0.0f});
+			ImGui::InvisibleButton("##InsertBefore", ImVec2(Max(ImGui::GetContentRegionAvail().x, 1.0f), Max(rowSpacing, 1.0f)));
+			ImGui::PopStyleVar();
+
+			if (ImGui::BeginDragDropTarget())
+			{
+				const ImGuiPayload* peekedPayload = ImGui::GetDragDropPayload();
+				if (peekedPayload != nullptr && peekedPayload->IsDataType("UINode"))
+				{
+					ui::Node*         draggedNode = *static_cast<ui::Node**>(peekedPayload->Data);
+					Vector<ui::Node*> draggedNodes = tab->IsSelected(draggedNode) ? tab->GetSelectedNodes() : Vector<ui::Node*>{draggedNode};
+					if (tab->CanReparentNodes(draggedNodes, parent, node))
+					{
+						ImVec2 min = ImGui::GetItemRectMin();
+						ImVec2 max = ImGui::GetItemRectMax();
+						float  middle = (min.y + max.y) * 0.5f;
+						ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, middle), ImVec2(max.x, middle), ImGui::GetColorU32(ImGuiCol_DragDropTarget), 1.0f);
+
+						if (ImGui::AcceptDragDropPayload("UINode", ImGuiDragDropFlags_AcceptNoDrawDefaultRect) != nullptr)
+						{
+							_pendingReparentNodes = draggedNodes;
+							_pendingReparentParent = parent;
+							_pendingReparentBefore = node;
+						}
+					}
+				}
+				ImGui::EndDragDropTarget();
+			}
+		}
+
 		if (_revealSelection)
 		{
 			for (ui::Node* ancestor = selection->GetParent(); ancestor != nullptr; ancestor = ancestor->GetParent())
@@ -506,6 +545,7 @@ namespace hod::inline editor
 					{
 						_pendingReparentNodes = draggedNodes;
 						_pendingReparentParent = node;
+						_pendingReparentBefore = nullptr;
 
 						// Keep the moved node visible: a previously leaf/collapsed target would otherwise hide it.
 						ImGui::GetStateStorage()->SetInt(ImGui::GetItemID(), 1);

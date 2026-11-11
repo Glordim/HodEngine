@@ -1931,34 +1931,78 @@ namespace hod::inline editor
 	/// @brief
 	/// @param nodes
 	/// @param parent
+	/// @param before
 	/// @return
-	bool UIPrefabEditorTab::CanReparentNodes(const Vector<ui::Node*>& nodes, const ui::Node* parent) const
+	bool UIPrefabEditorTab::CanReparentNodes(const Vector<ui::Node*>& nodes, const ui::Node* parent, const ui::Node* before) const
 	{
-		if (parent == nullptr || CanEditStructure(parent) == false)
+		if (parent == nullptr || CanEditStructure(parent) == false || (parent != GetPrefabRoot() && parent->IsDescendantOf(GetPrefabRoot()) == false))
+		{
+			return false;
+		}
+		if (before != nullptr && before->GetParent() != parent)
 		{
 			return false;
 		}
 
 		Vector<ui::Node*> subtrees = GetSubtrees(nodes);
-		bool               moves = false;
+		if (subtrees.Empty())
+		{
+			return false;
+		}
 		for (ui::Node* node : subtrees)
 		{
-			if (CanRemove(node) == false || node == parent || parent->IsDescendantOf(node))
+			if (CanRemove(node) == false || node == parent || node == before || parent->IsDescendantOf(node))
 			{
 				return false;
 			}
-			moves |= (node->GetParent() != parent);
 		}
-		return moves;
+
+		// The children of parent once moved, compared with the current ones: dropping a node where it already is isn't a step
+		const Vector<ui::Node*>& children = parent->GetChildren();
+		Vector<const ui::Node*> result;
+		for (ui::Node* child : children)
+		{
+			if (child == before)
+			{
+				for (ui::Node* node : subtrees)
+				{
+					result.PushBack(node);
+				}
+			}
+			if (std::find(subtrees.CBegin(), subtrees.CEnd(), child) == subtrees.CEnd())
+			{
+				result.PushBack(child);
+			}
+		}
+		if (before == nullptr)
+		{
+			for (ui::Node* node : subtrees)
+			{
+				result.PushBack(node);
+			}
+		}
+		if (result.Size() != children.Size())
+		{
+			return true;
+		}
+		for (uint32_t index = 0; index < result.Size(); ++index)
+		{
+			if (result[index] != children[index])
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/// @brief
 	/// @param nodes
 	/// @param parent
+	/// @param before
 	/// @return
-	bool UIPrefabEditorTab::ReparentNodes(const Vector<ui::Node*>& nodes, ui::Node* parent)
+	bool UIPrefabEditorTab::ReparentNodes(const Vector<ui::Node*>& nodes, ui::Node* parent, ui::Node* before)
 	{
-		if (CanReparentNodes(nodes, parent) == false)
+		if (CanReparentNodes(nodes, parent, before) == false)
 		{
 			return false;
 		}
@@ -1966,10 +2010,11 @@ namespace hod::inline editor
 		Vector<ui::Node*> subtrees = GetSubtrees(nodes);
 		for (ui::Node* node : subtrees)
 		{
-			MoveNode(node, parent, UINT32_MAX);
+			// Each one right before the anchor: they end up in the hierarchy's order
+			MoveNode(node, parent, before != nullptr ? GetSiblingIndex(before) : UINT32_MAX);
 		}
 		SetSelectedNodes(subtrees);
-		MarkAsDirty("Reparent");
+		MarkAsDirty(before != nullptr ? "Move" : "Reparent");
 		return true;
 	}
 

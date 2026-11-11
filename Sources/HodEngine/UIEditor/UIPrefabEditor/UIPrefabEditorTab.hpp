@@ -161,11 +161,13 @@ namespace hod::inline editor
 		// @return the copies
 		Vector<ui::Node*>	DuplicateNodes(const Vector<ui::Node*>& nodes);
 		// Whether ReparentNodes would move something: they can all be moved (see CanRemove), parent can have children (see
-		// CanEditStructure), it is none of them nor inside one, and one of them at least isn't already its child.
-		bool			CanReparentNodes(const Vector<ui::Node*>& nodes, const ui::Node* parent) const;
-		// Moves nodes (but those inside another one of them), in the hierarchy's order, as the last children of parent, selected.
+		// CanEditStructure), it is none of them nor inside one, before (if any) is a child of parent and none of them, and the
+		// children of parent would end up in another order.
+		bool			CanReparentNodes(const Vector<ui::Node*>& nodes, const ui::Node* parent, const ui::Node* before = nullptr) const;
+		// Moves nodes (but those inside another one of them), in the hierarchy's order, under parent, selected: right before
+		// before (one of its children), or as its last children when before is null.
 		// Refused if CanReparentNodes is false. Same contract as ConvertNode.
-		bool			ReparentNodes(const Vector<ui::Node*>& nodes, ui::Node* parent);
+		bool			ReparentNodes(const Vector<ui::Node*>& nodes, ui::Node* parent, ui::Node* before = nullptr);
 		// Ctrl+C / Ctrl+X / Ctrl+V (next to the selection) / Ctrl+Shift+V (in the selection) / Ctrl+D on the selection, Escape
 		// cancelling a cut, for the focused window calling it. Same contract as ConvertNode.
 		void			HandleClipboardShortcuts();
