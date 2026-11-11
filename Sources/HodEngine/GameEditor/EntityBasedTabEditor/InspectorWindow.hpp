@@ -44,5 +44,14 @@ namespace hod::inline editor
 		void		DrawSceneSelection(Entity* selection);
 
 		bool		DrawDefaultInspector(EditorReflectedObject& reflectedObject);
+		void		DrawAddComponentPopup(Entity* selection);
+
+	private:
+
+		// Add Component popup: the search, the highlighted result (the one Enter adds, moved with the arrows) among the shown ones
+		char		_addComponentSearch[256] = {'\0'};
+		int32_t		_addComponentHighlight = 0;
+		int32_t		_addComponentMove = 0; // arrows pressed in the search field this frame
+		bool		_addComponentScrollToHighlight = false;
 	};
 }

@@ -21,6 +21,7 @@
 
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
+#include <HodEngine/Core/Math.hpp>
 #include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawer.hpp"
 #include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
@@ -275,66 +276,173 @@ namespace hod::inline editor
 		{
 			ImGui::OpenPopup("AddComponent");
 		}
-		if (ImGui::BeginPopup("AddComponent") == true)
+		DrawAddComponentPopup(selection);
+	}
+
+	namespace
+	{
+		/// @brief The arrows pressed in the search field (the history keys of an InputText): counted in UserData, an int32_t
+		int AddComponentSearchCallback(ImGuiInputTextCallbackData* data)
 		{
-			ImGui::AlignTextToFramePadding();
-			ImGui::TextUnformatted(ICON_MDI_MAGNIFY);
-			ImGui::SameLine();
-
-			static char   nameBuffer[256] = {'\0'};
-			static String strName;
-			if (ImGui::IsWindowAppearing())
+			if (data->EventFlag == ImGuiInputTextFlags_CallbackHistory)
 			{
-				nameBuffer[0] = '\0';
-				strName.Clear();
-				ImGui::SetKeyboardFocusHere();
+				*static_cast<int32_t*>(data->UserData) += (data->EventKey == ImGuiKey_UpArrow) ? -1 : 1;
 			}
-			if (ImGui::InputText("##Name", nameBuffer, sizeof(nameBuffer)))
-			{
-				strName = nameBuffer;
-			}
-			ImGui::PushStyleVar(ImGuiStyleVar_SeparatorTextAlign, ImVec2(0.5f, 0.5f));
-			ImGui::SeparatorText("Components");
-			ImGui::PopStyleVar();
-
-			if (ImGui::BeginChild("ComponentList", ImVec2(0.0f, 350.0f), ImGuiChildFlags_FrameStyle))
-			{
-				// The components that can be added (not the abstract ones, nor the placeholder of an unknown one), by name
-				struct Entry
-				{
-					const ReflectionDescriptor* _descriptor;
-					String                      _name;
-				};
-				Vector<Entry> entries;
-				for (const auto& componentDescriptorPair : ComponentFactory::GetInstance()->GetAllDescriptors())
-				{
-					const ReflectionDescriptor& componentDescriptor = *componentDescriptorPair.second;
-					if (componentDescriptor.CanCreateInstance() == false || componentDescriptor.GetType() == MissingComponent::GetReflectionDescriptor().GetType())
-					{
-						continue;
-					}
-					entries.PushBack({&componentDescriptor, GetComponentDisplayName(componentDescriptor)});
-				}
-				std::sort(entries.Begin(), entries.End(), [](const Entry& left, const Entry& right) { return left._name < right._name; });
-
-				for (const Entry& entry : entries)
-				{
-					if (MatchSearch(entry._name, strName))
-					{
-						ImGui::PushID(entry._descriptor);
-						if (ImGui::MenuItem(entry._name.CStr()) == true)
-						{
-							selection->AddComponent(*entry._descriptor);
-							GetOwner()->MarkAsDirty(fmt::format("Add {}", entry._name));
-							ImGui::CloseCurrentPopup();
-						}
-						ImGui::PopID();
-					}
-				}
-			}
-			ImGui::EndChild();
-			ImGui::EndPopup();
+			return 0;
 		}
+	}
+
+	/// @brief The list of the components that can be added, filtered by a search. Driven with the keyboard too: the arrows move the
+	/// highlighted result, Enter adds it, Escape closes. The components the entity already has are greyed out (one of each type, see
+	/// Entity::AddComponent).
+	/// @param selection
+	void InspectorWindow::DrawAddComponentPopup(Entity* selection)
+	{
+		ImGui::SetNextWindowSizeConstraints(ImVec2(300.0f, 0.0f), ImVec2(FLT_MAX, FLT_MAX));
+		if (ImGui::BeginPopup("AddComponent") == false)
+		{
+			return;
+		}
+
+		bool appearing = ImGui::IsWindowAppearing();
+		if (appearing)
+		{
+			_addComponentSearch[0] = '\0';
+			_addComponentHighlight = 0;
+			_addComponentScrollToHighlight = true;
+		}
+
+		ImGui::AlignTextToFramePadding();
+		ImGui::TextUnformatted(ICON_MDI_MAGNIFY);
+		ImGui::SameLine();
+		if (appearing)
+		{
+			ImGui::SetKeyboardFocusHere();
+		}
+		_addComponentMove = 0;
+		ImGui::SetNextItemWidth(-FLT_MIN);
+		bool enterPressed = ImGui::InputTextWithHint("##Search", "Search", _addComponentSearch, sizeof(_addComponentSearch),
+		                                             ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory, &AddComponentSearchCallback,
+		                                             &_addComponentMove);
+		bool searchEdited = ImGui::IsItemEdited();
+
+		// The components that can be added (not the abstract ones, nor the placeholder of an unknown one), by name, those matching the search
+		struct Entry
+		{
+			const ReflectionDescriptor* _descriptor;
+			String                      _name;
+			bool                        _enabled; // not on the entity yet
+		};
+		Vector<Entry> entries;
+		String        search(_addComponentSearch);
+		for (const auto& componentDescriptorPair : ComponentFactory::GetInstance()->GetAllDescriptors())
+		{
+			const ReflectionDescriptor& componentDescriptor = *componentDescriptorPair.second;
+			if (componentDescriptor.CanCreateInstance() == false || componentDescriptor.GetType() == MissingComponent::GetReflectionDescriptor().GetType())
+			{
+				continue;
+			}
+			String name = GetComponentDisplayName(componentDescriptor);
+			if (MatchSearch(name, search))
+			{
+				entries.PushBack({&componentDescriptor, name, selection->GetComponent(componentDescriptor) == nullptr});
+			}
+		}
+		std::sort(entries.Begin(), entries.End(), [](const Entry& left, const Entry& right) { return left._name < right._name; });
+
+		// The highlight: on the first result the search gives, moved by the arrows from one enabled result to the next (staying at the ends)
+		int32_t count = static_cast<int32_t>(entries.Size());
+		auto    findEnabled = [&](int32_t from, int32_t step) -> int32_t
+		{
+			for (int32_t index = from; index >= 0 && index < count; index += step)
+			{
+				if (entries[static_cast<uint32_t>(index)]._enabled)
+				{
+					return index;
+				}
+			}
+			return -1;
+		};
+		if (searchEdited)
+		{
+			_addComponentHighlight = 0;
+			_addComponentScrollToHighlight = true;
+		}
+		if (_addComponentMove != 0)
+		{
+			int32_t step = (_addComponentMove < 0) ? -1 : 1;
+			for (int32_t moves = (_addComponentMove < 0) ? -_addComponentMove : _addComponentMove; moves > 0; --moves)
+			{
+				int32_t next = findEnabled(_addComponentHighlight + step, step);
+				if (next == -1)
+				{
+					break;
+				}
+				_addComponentHighlight = next;
+			}
+			_addComponentScrollToHighlight = true;
+		}
+		if (_addComponentHighlight < 0 || _addComponentHighlight >= count || entries[static_cast<uint32_t>(_addComponentHighlight)]._enabled == false)
+		{
+			int32_t from = Clamp(_addComponentHighlight, 0, Max(count - 1, 0));
+			_addComponentHighlight = findEnabled(from, 1);
+			if (_addComponentHighlight == -1)
+			{
+				_addComponentHighlight = findEnabled(from, -1);
+			}
+		}
+
+		const Entry* added = nullptr;
+		if (enterPressed && _addComponentHighlight != -1)
+		{
+			added = &entries[static_cast<uint32_t>(_addComponentHighlight)];
+		}
+
+		ImGui::PushStyleVar(ImGuiStyleVar_SeparatorTextAlign, ImVec2(0.5f, 0.5f));
+		ImGui::SeparatorText("Components");
+		ImGui::PopStyleVar();
+
+		if (ImGui::BeginChild("ComponentList", ImVec2(0.0f, 350.0f), ImGuiChildFlags_FrameStyle))
+		{
+			if (entries.Empty())
+			{
+				ImGui::TextDisabled("No component matches \"%s\"", _addComponentSearch);
+			}
+			bool mouseMoved = (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f);
+			for (int32_t index = 0; index < count; ++index)
+			{
+				const Entry& entry = entries[static_cast<uint32_t>(index)];
+				ImGui::PushID(entry._descriptor);
+				if (ImGui::Selectable(entry._name.CStr(), index == _addComponentHighlight, entry._enabled ? ImGuiSelectableFlags_None : ImGuiSelectableFlags_Disabled))
+				{
+					added = &entry;
+				}
+				// The mouse moves the highlight too, so that the keyboard goes on from where it is
+				if (entry._enabled && mouseMoved && ImGui::IsItemHovered())
+				{
+					_addComponentHighlight = index;
+				}
+				if (entry._enabled == false && ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled))
+				{
+					ImGui::SetTooltip("Already on this entity");
+				}
+				if (_addComponentScrollToHighlight && index == _addComponentHighlight)
+				{
+					ImGui::SetScrollHereY();
+				}
+				ImGui::PopID();
+			}
+			_addComponentScrollToHighlight = false;
+		}
+		ImGui::EndChild();
+
+		if (added != nullptr)
+		{
+			selection->AddComponent(*added->_descriptor);
+			GetOwner()->MarkAsDirty(fmt::format("Add {}", added->_name));
+			ImGui::CloseCurrentPopup();
+		}
+		ImGui::EndPopup();
 	}
 
 	/// @brief
