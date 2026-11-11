@@ -6,12 +6,14 @@
 #include "HodEngine/Physics/Collider.hpp"
 
 #include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitCategory.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
 
 namespace hod::inline physics
 {
 	DESCRIBE_REFLECTED_CLASS(CapsuleCollider2dComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Physics/Colliders");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Capsule-shaped 2D collision shape");
 		AddPropertyT(reflectionDescriptor, &CapsuleCollider2dComponent::_offset, "Offset", &CapsuleCollider2dComponent::SetOffset);
 		AddPropertyT(reflectionDescriptor, &CapsuleCollider2dComponent::_height, "Height", &CapsuleCollider2dComponent::SetHeight);

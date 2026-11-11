@@ -12,6 +12,7 @@
 #include <HodEngine/PhysicsComponents/PhysicsWorldSystem.hpp>
 
 #include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitCategory.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
 
 namespace hod::inline physics
@@ -25,6 +26,7 @@ namespace hod::inline physics
 
 	DESCRIBE_REFLECTED_CLASS(Rigidbody2dComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Physics");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Moves the entity and its colliders with the 2D physics: static, kinematic or dynamic");
 		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_mode, "Mode", &Rigidbody2dComponent::SetMode);
 		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_gravityScale, "GravityScale", &Rigidbody2dComponent::SetGravityScale);

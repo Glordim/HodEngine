@@ -6,6 +6,8 @@
 
 #include "HodEngine/Editor/AssetDatabase.hpp"
 
+#include <HodEngine/Core/String.hpp>
+
 #include <memory>
 
 namespace hod::inline core
@@ -48,10 +50,15 @@ namespace hod::inline editor
 
 	private:
 
-		// Add Component popup: the search, the highlighted result (the one Enter adds, moved with the arrows) among the shown ones
+		// Add Component popup: the search, the folder browsed while there is none (a category path, empty at the root), the
+		// highlighted row (the one Enter activates, moved with the arrows) among the shown ones
 		char		_addComponentSearch[256] = {'\0'};
+		String		_addComponentFolder;
+		String		_addComponentHighlightFolder; // the folder row to highlight on the next draw (the one left by going up)
 		int32_t		_addComponentHighlight = 0;
 		int32_t		_addComponentMove = 0; // arrows pressed in the search field this frame
+		bool		_addComponentResetHighlight = false; // on the first row (not the way back) on the next draw
 		bool		_addComponentScrollToHighlight = false;
+		bool		_addComponentFocusSearch = false; // given back to the search field on the next draw (after a click in the list...)
 	};
 }

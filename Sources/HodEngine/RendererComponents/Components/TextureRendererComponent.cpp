@@ -15,12 +15,14 @@
 #include <HodEngine/Renderer/Sprite.hpp>
 #include <HodEngine/Renderer/SpriteAtlas.hpp>
 #include <HodEngine/Core/StaticArray.hpp>
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitCategory.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
 
 namespace hod::inline renderer
 {
 	DESCRIBE_REFLECTED_CLASS(TextureRendererComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Rendering");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Draws a texture, tinted by a color");
 		AddPropertyT(reflectionDescriptor, &TextureRendererComponent::_texture, "_texture", &TextureRendererComponent::SetTexture);
 		AddPropertyT(reflectionDescriptor, &TextureRendererComponent::_material, "_material", &TextureRendererComponent::SetMaterialInstanceResource);

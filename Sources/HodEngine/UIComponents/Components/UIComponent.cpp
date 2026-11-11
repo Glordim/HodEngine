@@ -13,6 +13,7 @@
 #include <HodEngine/UI/CanvasManager.hpp>
 
 #include <cstdint>
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitCategory.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
 
 namespace hod::inline ui
@@ -25,6 +26,7 @@ namespace hod::inline ui
 
 	DESCRIBE_REFLECTED_CLASS(UIComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("UI");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Shows a UI prefab, over the game or in the world");
 		AddPropertyT(reflectionDescriptor, &UIComponent::_prefab, "Prefab", &UIComponent::SetPrefab);
 		AddPropertyT(reflectionDescriptor, &UIComponent::_renderMode, "RenderMode", &UIComponent::SetRenderMode);

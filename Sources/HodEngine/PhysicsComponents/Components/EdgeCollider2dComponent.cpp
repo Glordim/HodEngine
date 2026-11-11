@@ -6,12 +6,14 @@
 #include "HodEngine/Physics/Collider.hpp"
 
 #include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitCategory.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
 
 namespace hod::inline physics
 {
 	DESCRIBE_REFLECTED_CLASS(EdgeCollider2dComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Physics/Colliders");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("2D collision segment between two points");
 		AddPropertyT(reflectionDescriptor, &EdgeCollider2dComponent::_start, "Start", &EdgeCollider2dComponent::SetStart);
 		AddPropertyT(reflectionDescriptor, &EdgeCollider2dComponent::_end, "End", &EdgeCollider2dComponent::SetEnd);

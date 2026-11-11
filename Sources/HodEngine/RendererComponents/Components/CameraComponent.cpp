@@ -6,6 +6,7 @@
 
 #include <HodEngine/Renderer/Renderer.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitCategory.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
 
 namespace hod::inline renderer
@@ -20,6 +21,7 @@ namespace hod::inline renderer
 
 	DESCRIBE_REFLECTED_CLASS(CameraComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Rendering");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Point of view the world is rendered from");
 		AddPropertyT(reflectionDescriptor, &CameraComponent::_projection, "Projection");
 		AddPropertyT(reflectionDescriptor, &CameraComponent::_near, "Near");

@@ -6,6 +6,7 @@
 #include "HodEngine/GameEditor/EntityBasedTabEditor/EntityEditorTab.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
+#include <HodEngine/ImGui/DearImGui/imgui_internal.h>
 
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 #include <HodEngine/ImGui/Helper.hpp>
@@ -20,6 +21,7 @@
 #include "HodEngine/Game/Entity.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitCategory.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
@@ -298,50 +300,74 @@ namespace hod::inline editor
 		}
 	}
 
-	/// @brief The list of the components that can be added, filtered by a search. Driven with the keyboard too: the arrows move the
-	/// highlighted result, Enter adds it, Escape closes. The components the entity already has are greyed out (one of each type, see
-	/// Entity::AddComponent), the description of each one is its tooltip.
+	/// @brief The list of the components that can be added. Without a search, browsed by folders (their categories, see
+	/// ReflectionTraitCategory), those without one at the root after the folders; with a search, every component matching it by its name
+	/// (first) or its category, whatever the folder, its folder shown. Driven with the keyboard too, the focus staying in the search field:
+	/// the arrows move the highlighted row, Enter activates it (adds the component, enters the folder), and while the search is empty
+	/// Right enters a folder, Left or Backspace go up one. Escape closes. The components the entity already has are greyed out (one of
+	/// each type, see Entity::AddComponent), the description of each one is its tooltip.
 	/// @param selection
 	void InspectorWindow::DrawAddComponentPopup(Entity* selection)
 	{
+		// Called right after the Add Component button: the last item, the popup is placed by it
+		ImRect button(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
+
 		ImGui::SetNextWindowSizeConstraints(ImVec2(300.0f, 0.0f), ImVec2(FLT_MAX, FLT_MAX));
 		if (ImGui::BeginPopup("AddComponent") == false)
 		{
 			return;
 		}
 
-		bool appearing = ImGui::IsWindowAppearing();
-		if (appearing)
+		// Always from the root
+		if (ImGui::IsWindowAppearing())
 		{
 			_addComponentSearch[0] = '\0';
-			_addComponentHighlight = 0;
-			_addComponentScrollToHighlight = true;
+			_addComponentFolder.Clear();
+			_addComponentHighlightFolder.Clear();
+			_addComponentResetHighlight = true;
+			_addComponentFocusSearch = true;
 		}
 
+		bool searchWasEmpty = (_addComponentSearch[0] == '\0');
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted(ICON_MDI_MAGNIFY);
 		ImGui::SameLine();
-		if (appearing)
+		if (_addComponentFocusSearch)
 		{
 			ImGui::SetKeyboardFocusHere();
+			_addComponentFocusSearch = false;
 		}
 		_addComponentMove = 0;
 		ImGui::SetNextItemWidth(-FLT_MIN);
 		bool enterPressed = ImGui::InputTextWithHint("##Search", "Search", _addComponentSearch, sizeof(_addComponentSearch),
 		                                             ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory, &AddComponentSearchCallback,
 		                                             &_addComponentMove);
-		bool searchEdited = ImGui::IsItemEdited();
+		bool searchActive = ImGui::IsItemActive();
+		if (ImGui::IsItemEdited())
+		{
+			_addComponentResetHighlight = true; // back on the folder browsed before when emptied
+		}
+		bool searching = (_addComponentSearch[0] != '\0');
+
+		// The folder keys, in a search field that was and stays empty (not the Backspace erasing the last letter), not repeated
+		bool goUp = false;
+		bool goIn = false;
+		if (searchActive && searchWasEmpty && searching == false)
+		{
+			goUp = ImGui::IsKeyPressed(ImGuiKey_LeftArrow, false) || ImGui::IsKeyPressed(ImGuiKey_Backspace, false);
+			goIn = ImGui::IsKeyPressed(ImGuiKey_RightArrow, false);
+		}
 
 		// The components that can be added (not the abstract ones, nor the hidden ones: bases not meant to be used alone, nor the
-		// placeholder of an unknown one), by name, those matching the search
-		struct Entry
+		// placeholder of an unknown one)
+		struct Candidate
 		{
 			const ReflectionDescriptor* _descriptor;
 			String                      _name;
+			String                      _category;
 			bool                        _enabled; // not on the entity yet
 		};
-		Vector<Entry> entries;
-		String        search(_addComponentSearch);
+		Vector<Candidate> candidates;
 		for (const auto& componentDescriptorPair : ComponentFactory::GetInstance()->GetAllDescriptors())
 		{
 			const ReflectionDescriptor& componentDescriptor = *componentDescriptorPair.second;
@@ -350,30 +376,135 @@ namespace hod::inline editor
 			{
 				continue;
 			}
-			String name = GetComponentDisplayName(componentDescriptor);
-			if (MatchSearch(name, search))
+			ReflectionTraitCategory* category = componentDescriptor.FindTrait<ReflectionTraitCategory>(); // inherited
+			candidates.PushBack({&componentDescriptor, GetComponentDisplayName(componentDescriptor), category != nullptr ? category->GetValue() : String(),
+			                     selection->GetComponent(componentDescriptor) == nullptr});
+		}
+
+		// The rows shown
+		enum class RowType
+		{
+			Back,
+			Folder,
+			Component,
+		};
+		struct Row
+		{
+			RowType                     _type;
+			String                      _name;
+			String                      _detail; // greyed on its right
+			String                      _folder; // the one a Back or Folder row leads to
+			const ReflectionDescriptor* _descriptor = nullptr;
+			bool                        _enabled = true;
+			int32_t                     _rank = 0;
+		};
+		Vector<Row> rows;
+		if (searching)
+		{
+			// Matching by the name first, then by the category only
+			String search(_addComponentSearch);
+			for (const Candidate& candidate : candidates)
 			{
-				entries.PushBack({&componentDescriptor, name, selection->GetComponent(componentDescriptor) == nullptr});
+				int32_t rank = MatchSearch(candidate._name, search) ? 0 : ((candidate._category.Empty() == false && MatchSearch(candidate._category, search)) ? 1 : -1);
+				if (rank != -1)
+				{
+					rows.PushBack({RowType::Component, candidate._name, candidate._category, String(), candidate._descriptor, candidate._enabled, rank});
+				}
+			}
+			std::sort(rows.Begin(), rows.End(),
+			          [](const Row& left, const Row& right)
+			          {
+				          if (left._rank != right._rank)
+				          {
+					          return left._rank < right._rank;
+				          }
+				          return left._name < right._name;
+			          });
+		}
+		else
+		{
+			std::string_view folder(_addComponentFolder.CStr(), _addComponentFolder.Size());
+			if (folder.empty() == false)
+			{
+				size_t separator = folder.rfind('/');
+				String parent = (separator != std::string_view::npos) ? String(folder.substr(0, separator)) : String();
+				rows.PushBack({RowType::Back, _addComponentFolder, String(), parent});
+			}
+
+			// The folders right inside this one, then its components
+			Vector<String> subfolders;
+			for (const Candidate& candidate : candidates)
+			{
+				std::string_view category(candidate._category.CStr(), candidate._category.Size());
+				std::string_view rest;
+				if (folder.empty())
+				{
+					rest = category;
+				}
+				else if (category.size() > folder.size() + 1 && category.substr(0, folder.size()) == folder && category[folder.size()] == '/')
+				{
+					rest = category.substr(folder.size() + 1);
+				}
+				if (rest.empty() == false)
+				{
+					String subfolder(rest.substr(0, rest.find('/')));
+					if (std::find(subfolders.Begin(), subfolders.End(), subfolder) == subfolders.End())
+					{
+						subfolders.PushBack(subfolder);
+					}
+				}
+			}
+			std::sort(subfolders.Begin(), subfolders.End());
+			for (const String& subfolder : subfolders)
+			{
+				rows.PushBack({RowType::Folder, subfolder, String(), folder.empty() ? subfolder : _addComponentFolder + "/" + subfolder});
+			}
+
+			Vector<Row> components;
+			for (const Candidate& candidate : candidates)
+			{
+				if (candidate._category == _addComponentFolder)
+				{
+					components.PushBack({RowType::Component, candidate._name, String(), String(), candidate._descriptor, candidate._enabled});
+				}
+			}
+			std::sort(components.Begin(), components.End(), [](const Row& left, const Row& right) { return left._name < right._name; });
+			for (const Row& component : components)
+			{
+				rows.PushBack(component);
 			}
 		}
-		std::sort(entries.Begin(), entries.End(), [](const Entry& left, const Entry& right) { return left._name < right._name; });
 
-		// The highlight: on the first result the search gives, moved by the arrows from one enabled result to the next (staying at the ends)
-		int32_t count = static_cast<int32_t>(entries.Size());
+		// The highlight: on the first row (not the way back) when the rows change, on the folder just left when going up, moved by
+		// the arrows from one enabled row to the next (staying at the ends)
+		int32_t count = static_cast<int32_t>(rows.Size());
 		auto    findEnabled = [&](int32_t from, int32_t step) -> int32_t
 		{
 			for (int32_t index = from; index >= 0 && index < count; index += step)
 			{
-				if (entries[static_cast<uint32_t>(index)]._enabled)
+				if (rows[static_cast<uint32_t>(index)]._enabled)
 				{
 					return index;
 				}
 			}
 			return -1;
 		};
-		if (searchEdited)
+		if (_addComponentResetHighlight)
 		{
-			_addComponentHighlight = 0;
+			_addComponentHighlight = (count > 0 && rows[0]._type == RowType::Back) ? 1 : 0;
+			_addComponentResetHighlight = false;
+			_addComponentScrollToHighlight = true;
+		}
+		if (_addComponentHighlightFolder.Empty() == false)
+		{
+			for (int32_t index = 0; index < count; ++index)
+			{
+				if (rows[static_cast<uint32_t>(index)]._type == RowType::Folder && rows[static_cast<uint32_t>(index)]._folder == _addComponentHighlightFolder)
+				{
+					_addComponentHighlight = index;
+				}
+			}
+			_addComponentHighlightFolder.Clear();
 			_addComponentScrollToHighlight = true;
 		}
 		if (_addComponentMove != 0)
@@ -390,7 +521,7 @@ namespace hod::inline editor
 			}
 			_addComponentScrollToHighlight = true;
 		}
-		if (_addComponentHighlight < 0 || _addComponentHighlight >= count || entries[static_cast<uint32_t>(_addComponentHighlight)]._enabled == false)
+		if (_addComponentHighlight < 0 || _addComponentHighlight >= count || rows[static_cast<uint32_t>(_addComponentHighlight)]._enabled == false)
 		{
 			int32_t from = Clamp(_addComponentHighlight, 0, Max(count - 1, 0));
 			_addComponentHighlight = findEnabled(from, 1);
@@ -400,40 +531,116 @@ namespace hod::inline editor
 			}
 		}
 
-		const Entry* added = nullptr;
-		if (enterPressed && _addComponentHighlight != -1)
+		const Row* activated = nullptr;
+		if (_addComponentHighlight != -1)
 		{
-			added = &entries[static_cast<uint32_t>(_addComponentHighlight)];
+			const Row& highlighted = rows[static_cast<uint32_t>(_addComponentHighlight)];
+			if (enterPressed || (goIn && highlighted._type == RowType::Folder))
+			{
+				activated = &highlighted;
+			}
+		}
+		if (enterPressed)
+		{
+			_addComponentFocusSearch = true; // Enter leaves the field
 		}
 
 		ImGui::PushStyleVar(ImGuiStyleVar_SeparatorTextAlign, ImVec2(0.5f, 0.5f));
 		ImGui::SeparatorText("Components");
 		ImGui::PopStyleVar();
 
-		if (ImGui::BeginChild("ComponentList", ImVec2(0.0f, 350.0f), ImGuiChildFlags_FrameStyle))
+		// While searching, each component's folder is on its right ("-" for none): the list as wide as the longest name and the longest
+		// folder with a gap between them (the popup grows to fit it)
+		constexpr const char* noFolder = "-";
+		float                 listWidth = 0.0f;
+		if (searching)
 		{
-			if (entries.Empty())
+			float nameWidth = 0.0f;
+			float folderWidth = 0.0f;
+			for (const Row& row : rows)
 			{
-				ImGui::TextDisabled("No component matches \"%s\"", _addComponentSearch);
+				String label = String(DrawHelper::GetTypeIcon(*row._descriptor, ICON_MDI_PUZZLE)) + " " + row._name;
+				nameWidth = Max(nameWidth, ImGui::CalcTextSize(label.CStr()).x);
+				folderWidth = Max(folderWidth, ImGui::CalcTextSize(row._detail.Empty() ? noFolder : row._detail.CStr()).x);
+			}
+			const ImGuiStyle& style = ImGui::GetStyle();
+			float             gap = style.ItemSpacing.x * 4.0f;
+			listWidth = nameWidth + gap + folderWidth + style.FramePadding.x * 2.0f + style.ScrollbarSize;
+			listWidth = Max(listWidth, ImGui::GetContentRegionAvail().x);
+		}
+
+		if (ImGui::BeginChild("ComponentList", ImVec2(listWidth, 350.0f), ImGuiChildFlags_FrameStyle))
+		{
+			if (rows.Empty())
+			{
+				if (searching)
+				{
+					ImGui::TextDisabled("No component matches \"%s\"", _addComponentSearch);
+				}
+				else
+				{
+					ImGui::TextDisabled("No component");
+				}
 			}
 			bool mouseMoved = (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f);
 			for (int32_t index = 0; index < count; ++index)
 			{
-				const Entry& entry = entries[static_cast<uint32_t>(index)];
-				ImGui::PushID(entry._descriptor);
-				if (ImGui::Selectable(entry._name.CStr(), index == _addComponentHighlight, entry._enabled ? ImGuiSelectableFlags_None : ImGuiSelectableFlags_Disabled))
+				const Row& row = rows[static_cast<uint32_t>(index)];
+				String     label;
+				const char* right = nullptr;
+				ImGuiSelectableFlags flags = ImGuiSelectableFlags_None;
+				if (row._type == RowType::Back)
 				{
-					added = &entry;
+					ImGui::PushID("Back");
+					label = ICON_MDI_ARROW_LEFT " ";
+					for (char c : std::string_view(row._name.CStr(), row._name.Size()))
+					{
+						if (c == '/')
+						{
+							label += " / ";
+						}
+						else
+						{
+							label += c;
+						}
+					}
+					flags |= ImGuiSelectableFlags_NoAutoClosePopups;
+				}
+				else if (row._type == RowType::Folder)
+				{
+					ImGui::PushID(row._folder.CStr());
+					label = String(ICON_MDI_FOLDER " ") + row._name;
+					right = ICON_MDI_CHEVRON_RIGHT;
+					flags |= ImGuiSelectableFlags_NoAutoClosePopups;
+				}
+				else
+				{
+					ImGui::PushID(row._descriptor);
+					label = String(DrawHelper::GetTypeIcon(*row._descriptor, ICON_MDI_PUZZLE)) + " " + row._name;
+					if (searching)
+					{
+						right = row._detail.Empty() ? noFolder : row._detail.CStr();
+					}
+					if (row._enabled == false)
+					{
+						flags |= ImGuiSelectableFlags_Disabled;
+					}
+				}
+
+				float rightEdge = ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x;
+				if (ImGui::Selectable(label.CStr(), index == _addComponentHighlight, flags))
+				{
+					activated = &row;
 				}
 				// The mouse moves the highlight too, so that the keyboard goes on from where it is
-				if (entry._enabled && mouseMoved && ImGui::IsItemHovered())
+				if (row._enabled && mouseMoved && ImGui::IsItemHovered())
 				{
 					_addComponentHighlight = index;
 				}
-				if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled))
+				if (row._type == RowType::Component && ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled))
 				{
-					ReflectionTraitDescription* description = entry._descriptor->FindTrait<ReflectionTraitDescription>(false);
-					if (entry._enabled == false)
+					ReflectionTraitDescription* description = row._descriptor->FindTrait<ReflectionTraitDescription>(false);
+					if (row._enabled == false)
 					{
 						ImGui::SetTooltip("%s%sAlready on this entity", description != nullptr ? description->GetValue().CStr() : "", description != nullptr ? "\n\n" : "");
 					}
@@ -446,17 +653,62 @@ namespace hod::inline editor
 				{
 					ImGui::SetScrollHereY();
 				}
+				if (right != nullptr)
+				{
+					ImGui::SameLine(rightEdge - ImGui::CalcTextSize(right).x);
+					ImGui::TextDisabled("%s", right);
+				}
 				ImGui::PopID();
 			}
 			_addComponentScrollToHighlight = false;
 		}
 		ImGui::EndChild();
 
-		if (added != nullptr)
+		// A row activated (Enter, Right, click) or Left/Backspace
+		const Row* upRow = (goUp && count > 0 && rows[0]._type == RowType::Back) ? &rows[0] : nullptr;
+		if (activated == nullptr)
 		{
-			selection->AddComponent(*added->_descriptor);
-			GetOwner()->MarkAsDirty(fmt::format("Add {}", added->_name));
-			ImGui::CloseCurrentPopup();
+			activated = upRow;
+		}
+		if (activated != nullptr)
+		{
+			if (activated->_type == RowType::Component)
+			{
+				selection->AddComponent(*activated->_descriptor);
+				GetOwner()->MarkAsDirty(fmt::format("Add {}", activated->_name));
+				ImGui::CloseCurrentPopup();
+			}
+			else
+			{
+				if (activated->_type == RowType::Back)
+				{
+					_addComponentHighlightFolder = _addComponentFolder; // the folder left, highlighted among its siblings
+				}
+				else
+				{
+					_addComponentResetHighlight = true;
+				}
+				_addComponentFolder = activated->_folder;
+				_addComponentFocusSearch = true; // a click took it
+			}
+		}
+
+		// Centered on the button, right under it, or right above it when there's no room below; kept inside the area a popup may use (its
+		// monitor's work area). Every frame, with its current size: it grows with a search's longer rows (ImGui only places a popup when
+		// it opens), its size known from the second frame on (hidden on the first one, measured)
+		ImGuiWindow* popupWindow = ImGui::GetCurrentWindow();
+		ImRect       allowed = ImGui::GetPopupAllowedExtentRect(popupWindow);
+		float        gap = ImGui::GetStyle().ItemInnerSpacing.y;
+		ImVec2       position(button.GetCenter().x - popupWindow->Size.x * 0.5f, button.Max.y + gap);
+		if (position.y + popupWindow->Size.y > allowed.Max.y && button.Min.y - gap - popupWindow->Size.y >= allowed.Min.y)
+		{
+			position.y = button.Min.y - gap - popupWindow->Size.y;
+		}
+		position.x = Max(Min(position.x, allowed.Max.x - popupWindow->Size.x), allowed.Min.x);
+		position.y = Max(Min(position.y, allowed.Max.y - popupWindow->Size.y), allowed.Min.y);
+		if (position.x != popupWindow->Pos.x || position.y != popupWindow->Pos.y)
+		{
+			ImGui::SetWindowPos(position);
 		}
 		ImGui::EndPopup();
 	}
