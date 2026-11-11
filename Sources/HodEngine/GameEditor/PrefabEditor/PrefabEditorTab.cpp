@@ -57,6 +57,8 @@ namespace hod::inline editor
 
 		SyncRootEntityName();
 		_scene->ProcessActivation();
+
+		SetEntitySelection(GetRootEntity()); // Single root: what the inspector shows on opening
 	}
 
 	/// @brief

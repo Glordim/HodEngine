@@ -67,6 +67,7 @@ namespace hod::inline editor
 		}
 		EnsurePrefabRoot();
 		SyncPrefabRootName();
+		SetSelectedNode(GetPrefabRoot()); // Single root: what the inspector shows on opening
 
 		GetPrefabSavedEvent().Connect(_onPrefabSaved);
 	}
