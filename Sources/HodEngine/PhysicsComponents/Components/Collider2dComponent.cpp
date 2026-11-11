@@ -11,11 +11,14 @@
 #include <HodEngine/Physics/Collider.hpp>
 
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitAllowedClasses.hpp>
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
 
 namespace hod::inline physics
 {
 	DESCRIBE_REFLECTED_CLASS(Collider2dComponent, reflectionDescriptor)
 	{
+		// The base of the colliders, without a shape: not offered in the editor
+		reflectionDescriptor.AddTrait<ReflectionTraitHide>();
 		AddPropertyT(reflectionDescriptor, &Collider2dComponent::_isTrigger, "IsTrigger");
 		AddPropertyT(reflectionDescriptor, &Collider2dComponent::_friction, "Friction");
 		AddPropertyT(reflectionDescriptor, &Collider2dComponent::_density, "Density");

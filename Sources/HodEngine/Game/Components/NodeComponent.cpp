@@ -2,12 +2,14 @@
 #include "HodEngine/Game/Components/NodeComponent.hpp"
 
 #include "HodEngine/Game/Entity.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
 
 namespace hod::inline game
 {
 	DESCRIBE_REFLECTED_CLASS(NodeComponent, reflectionDescriptor)
 	{
-		(void)reflectionDescriptor;
+		// A base (of Node2dComponent...): not offered in the editor
+		reflectionDescriptor.AddTrait<ReflectionTraitHide>();
 	}
 
 	//-----------------------------------------------------------------------------

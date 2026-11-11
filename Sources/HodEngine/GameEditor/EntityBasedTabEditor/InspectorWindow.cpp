@@ -21,6 +21,7 @@
 
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
 #include <HodEngine/Core/Math.hpp>
 #include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawer.hpp"
 #include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
@@ -326,7 +327,8 @@ namespace hod::inline editor
 		                                             &_addComponentMove);
 		bool searchEdited = ImGui::IsItemEdited();
 
-		// The components that can be added (not the abstract ones, nor the placeholder of an unknown one), by name, those matching the search
+		// The components that can be added (not the abstract ones, nor the hidden ones: bases not meant to be used alone, nor the
+		// placeholder of an unknown one), by name, those matching the search
 		struct Entry
 		{
 			const ReflectionDescriptor* _descriptor;
@@ -338,7 +340,8 @@ namespace hod::inline editor
 		for (const auto& componentDescriptorPair : ComponentFactory::GetInstance()->GetAllDescriptors())
 		{
 			const ReflectionDescriptor& componentDescriptor = *componentDescriptorPair.second;
-			if (componentDescriptor.CanCreateInstance() == false || componentDescriptor.GetType() == MissingComponent::GetReflectionDescriptor().GetType())
+			if (componentDescriptor.CanCreateInstance() == false || componentDescriptor.GetType() == MissingComponent::GetReflectionDescriptor().GetType() ||
+			    componentDescriptor.FindTrait<ReflectionTraitHide>(false) != nullptr)
 			{
 				continue;
 			}
