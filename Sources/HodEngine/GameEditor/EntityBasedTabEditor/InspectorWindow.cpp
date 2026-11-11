@@ -326,6 +326,7 @@ namespace hod::inline editor
 			_addComponentHighlightFolder.Clear();
 			_addComponentResetHighlight = true;
 			_addComponentFocusSearch = true;
+			_addComponentSlideDirection = 0;
 		}
 
 		bool searchWasEmpty = (_addComponentSearch[0] == '\0');
@@ -384,7 +385,6 @@ namespace hod::inline editor
 		// The rows shown
 		enum class RowType
 		{
-			Back,
 			Folder,
 			Component,
 		};
@@ -393,43 +393,16 @@ namespace hod::inline editor
 			RowType                     _type;
 			String                      _name;
 			String                      _detail; // greyed on its right
-			String                      _folder; // the one a Back or Folder row leads to
+			String                      _folder; // the one a Folder row leads to
 			const ReflectionDescriptor* _descriptor = nullptr;
 			bool                        _enabled = true;
 			int32_t                     _rank = 0;
 		};
-		Vector<Row> rows;
-		if (searching)
+		// The rows of a folder, without a search: the folders right inside it, then its components (the way back out of it is the header)
+		auto buildFolderRows = [&](const String& folderPath) -> Vector<Row>
 		{
-			// Matching by the name first, then by the category only
-			String search(_addComponentSearch);
-			for (const Candidate& candidate : candidates)
-			{
-				int32_t rank = MatchSearch(candidate._name, search) ? 0 : ((candidate._category.Empty() == false && MatchSearch(candidate._category, search)) ? 1 : -1);
-				if (rank != -1)
-				{
-					rows.PushBack({RowType::Component, candidate._name, candidate._category, String(), candidate._descriptor, candidate._enabled, rank});
-				}
-			}
-			std::sort(rows.Begin(), rows.End(),
-			          [](const Row& left, const Row& right)
-			          {
-				          if (left._rank != right._rank)
-				          {
-					          return left._rank < right._rank;
-				          }
-				          return left._name < right._name;
-			          });
-		}
-		else
-		{
-			std::string_view folder(_addComponentFolder.CStr(), _addComponentFolder.Size());
-			if (folder.empty() == false)
-			{
-				size_t separator = folder.rfind('/');
-				String parent = (separator != std::string_view::npos) ? String(folder.substr(0, separator)) : String();
-				rows.PushBack({RowType::Back, _addComponentFolder, String(), parent});
-			}
+			Vector<Row> folderRows;
+			std::string_view folder(folderPath.CStr(), folderPath.Size());
 
 			// The folders right inside this one, then its components
 			Vector<String> subfolders;
@@ -457,13 +430,13 @@ namespace hod::inline editor
 			std::sort(subfolders.Begin(), subfolders.End());
 			for (const String& subfolder : subfolders)
 			{
-				rows.PushBack({RowType::Folder, subfolder, String(), folder.empty() ? subfolder : _addComponentFolder + "/" + subfolder});
+				folderRows.PushBack({RowType::Folder, subfolder, String(), folder.empty() ? subfolder : folderPath + "/" + subfolder});
 			}
 
 			Vector<Row> components;
 			for (const Candidate& candidate : candidates)
 			{
-				if (candidate._category == _addComponentFolder)
+				if (candidate._category == folderPath)
 				{
 					components.PushBack({RowType::Component, candidate._name, String(), String(), candidate._descriptor, candidate._enabled});
 				}
@@ -471,8 +444,37 @@ namespace hod::inline editor
 			std::sort(components.Begin(), components.End(), [](const Row& left, const Row& right) { return left._name < right._name; });
 			for (const Row& component : components)
 			{
-				rows.PushBack(component);
+				folderRows.PushBack(component);
 			}
+			return folderRows;
+		};
+
+		Vector<Row> rows;
+		if (searching)
+		{
+			// Matching by the name first, then by the category only
+			String search(_addComponentSearch);
+			for (const Candidate& candidate : candidates)
+			{
+				int32_t rank = MatchSearch(candidate._name, search) ? 0 : ((candidate._category.Empty() == false && MatchSearch(candidate._category, search)) ? 1 : -1);
+				if (rank != -1)
+				{
+					rows.PushBack({RowType::Component, candidate._name, candidate._category, String(), candidate._descriptor, candidate._enabled, rank});
+				}
+			}
+			std::sort(rows.Begin(), rows.End(),
+			          [](const Row& left, const Row& right)
+			          {
+				          if (left._rank != right._rank)
+				          {
+					          return left._rank < right._rank;
+				          }
+				          return left._name < right._name;
+			          });
+		}
+		else
+		{
+			rows = buildFolderRows(_addComponentFolder);
 		}
 
 		// The highlight: on the first row (not the way back) when the rows change, on the folder just left when going up, moved by
@@ -491,7 +493,7 @@ namespace hod::inline editor
 		};
 		if (_addComponentResetHighlight)
 		{
-			_addComponentHighlight = (count > 0 && rows[0]._type == RowType::Back) ? 1 : 0;
+			_addComponentHighlight = 0;
 			_addComponentResetHighlight = false;
 			_addComponentScrollToHighlight = true;
 		}
@@ -545,9 +547,77 @@ namespace hod::inline editor
 			_addComponentFocusSearch = true; // Enter leaves the field
 		}
 
-		ImGui::PushStyleVar(ImGuiStyleVar_SeparatorTextAlign, ImVec2(0.5f, 0.5f));
-		ImGui::SeparatorText("Components");
-		ImGui::PopStyleVar();
+		// The folder browsed: its path from the root, each level above clickable to go back up to it ("Components" alone while searching:
+		// the results come from every folder)
+		bool   goToFolder = false;
+		String goToFolderPath;
+		{
+			// "Components" then each level of the folder: the last one is where we are, the others links to go back up
+			Vector<std::string_view> levels;
+			levels.PushBack("Components");
+			std::string_view folder(_addComponentFolder.CStr(), _addComponentFolder.Size());
+			while (searching == false && folder.empty() == false)
+			{
+				size_t separator = folder.find('/');
+				levels.PushBack(folder.substr(0, separator));
+				folder = (separator == std::string_view::npos) ? std::string_view() : folder.substr(separator + 1);
+			}
+			for (uint32_t level = 0; level < levels.Size(); ++level)
+			{
+				String name(levels[level]);
+				if (level > 0)
+				{
+					ImGui::SameLine();
+					ImGui::AlignTextToFramePadding();
+					ImGui::TextDisabled(ICON_MDI_CHEVRON_RIGHT);
+					ImGui::SameLine();
+				}
+				ImGui::AlignTextToFramePadding();
+				if (level + 1 == levels.Size())
+				{
+					ImGui::TextUnformatted(name.CStr());
+					continue;
+				}
+				ImGui::PushID(static_cast<int>(level));
+				// A link: dimmer than the current level, but readable (TextDisabled isn't on the lighter background of the frames), lit up
+				// when hovered (its rect known before drawing it: the text at the cursor, on the line's text baseline)
+				ImVec2 linkMin = ImGui::GetCursorScreenPos();
+				linkMin.y += ImGui::GetCurrentWindow()->DC.CurrLineTextBaseOffset;
+				ImVec2 linkMax(linkMin.x + ImGui::CalcTextSize(name.CStr()).x, linkMin.y + ImGui::GetTextLineHeight());
+				bool   linkHovered = ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(linkMin, linkMax);
+				ImVec4 linkColor = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+				if (linkHovered == false)
+				{
+					linkColor.w *= 0.6f;
+				}
+				ImGui::PushStyleColor(ImGuiCol_Text, linkColor);
+				ImGui::TextUnformatted(name.CStr());
+				ImGui::PopStyleColor();
+				if (linkHovered)
+				{
+					// Underlined, the hand cursor
+					ImVec2 min = ImGui::GetItemRectMin();
+					ImVec2 max = ImGui::GetItemRectMax();
+					ImGui::GetWindowDrawList()->AddLine(ImVec2(min.x, max.y), max, ImGui::GetColorU32(linkColor));
+					ImGui::SetMouseCursor(ImGuiMouseCursor_Hand);
+					if (ImGui::IsMouseClicked(ImGuiMouseButton_Left))
+					{
+						// The path of that level: its first levels joined
+						goToFolder = true;
+						goToFolderPath.Clear();
+						for (uint32_t pathLevel = 1; pathLevel <= level; ++pathLevel)
+						{
+							if (pathLevel > 1)
+							{
+								goToFolderPath += "/";
+							}
+							goToFolderPath += levels[pathLevel];
+						}
+					}
+				}
+				ImGui::PopID();
+			}
+		}
 
 		// While searching, each component's folder is on its right ("-" for none): the list as wide as the longest name and the longest
 		// folder with a gap between them (the popup grows to fit it)
@@ -569,9 +639,10 @@ namespace hod::inline editor
 			listWidth = Max(listWidth, ImGui::GetContentRegionAvail().x);
 		}
 
-		if (ImGui::BeginChild("ComponentList", ImVec2(listWidth, 350.0f), ImGuiChildFlags_FrameStyle))
+		// Draws rows in the current child. Not interactive: the rows of the folder left, sliding out (drawn the same, only for the eye)
+		auto drawRows = [&](const Vector<Row>& shownRows, int32_t highlight, bool interactive)
 		{
-			if (rows.Empty())
+			if (shownRows.Empty() && interactive)
 			{
 				if (searching)
 				{
@@ -583,30 +654,13 @@ namespace hod::inline editor
 				}
 			}
 			bool mouseMoved = (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f);
-			for (int32_t index = 0; index < count; ++index)
+			for (int32_t index = 0; index < static_cast<int32_t>(shownRows.Size()); ++index)
 			{
-				const Row& row = rows[static_cast<uint32_t>(index)];
+				const Row& row = shownRows[static_cast<uint32_t>(index)];
 				String     label;
 				const char* right = nullptr;
 				ImGuiSelectableFlags flags = ImGuiSelectableFlags_None;
-				if (row._type == RowType::Back)
-				{
-					ImGui::PushID("Back");
-					label = ICON_MDI_ARROW_LEFT " ";
-					for (char c : std::string_view(row._name.CStr(), row._name.Size()))
-					{
-						if (c == '/')
-						{
-							label += " / ";
-						}
-						else
-						{
-							label += c;
-						}
-					}
-					flags |= ImGuiSelectableFlags_NoAutoClosePopups;
-				}
-				else if (row._type == RowType::Folder)
+				if (row._type == RowType::Folder)
 				{
 					ImGui::PushID(row._folder.CStr());
 					label = String(ICON_MDI_FOLDER " ") + row._name;
@@ -628,16 +682,16 @@ namespace hod::inline editor
 				}
 
 				float rightEdge = ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x;
-				if (ImGui::Selectable(label.CStr(), index == _addComponentHighlight, flags))
+				if (ImGui::Selectable(label.CStr(), index == highlight, flags) && interactive)
 				{
 					activated = &row;
 				}
 				// The mouse moves the highlight too, so that the keyboard goes on from where it is
-				if (row._enabled && mouseMoved && ImGui::IsItemHovered())
+				if (interactive && row._enabled && mouseMoved && ImGui::IsItemHovered())
 				{
 					_addComponentHighlight = index;
 				}
-				if (row._type == RowType::Component && ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled))
+				if (interactive && row._type == RowType::Component && ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled))
 				{
 					ReflectionTraitDescription* description = row._descriptor->FindTrait<ReflectionTraitDescription>(false);
 					if (row._enabled == false)
@@ -649,7 +703,7 @@ namespace hod::inline editor
 						ImGui::SetTooltip("%s", description->GetValue().CStr());
 					}
 				}
-				if (_addComponentScrollToHighlight && index == _addComponentHighlight)
+				if (interactive && _addComponentScrollToHighlight && index == highlight)
 				{
 					ImGui::SetScrollHereY();
 				}
@@ -660,16 +714,55 @@ namespace hod::inline editor
 				}
 				ImGui::PopID();
 			}
-			_addComponentScrollToHighlight = false;
+		};
+
+		// A folder change slides the rows: the folder left goes out on one side while the new one comes in from the other (from the right
+		// into a folder, from the left back out of it), both in children of their own moving inside the frame, which stays
+		if (searching)
+		{
+			_addComponentSlideDirection = 0;
+		}
+		if (ImGui::BeginChild("ComponentList", ImVec2(listWidth, 350.0f), ImGuiChildFlags_FrameStyle, ImGuiWindowFlags_NoScrollbar | ImGuiWindowFlags_NoScrollWithMouse))
+		{
+			ImVec2 area = ImGui::GetContentRegionAvail();
+			ImVec2 origin = ImGui::GetCursorPos();
+			float  slideOffset = 0.0f;
+			if (_addComponentSlideDirection != 0)
+			{
+				constexpr float duration = 0.25f;
+				float           progress = static_cast<float>(ImGui::GetTime() - _addComponentSlideStart) / duration;
+				if (progress >= 1.0f)
+				{
+					_addComponentSlideDirection = 0;
+				}
+				else
+				{
+					float remaining = 1.0f - progress;
+					float eased = remaining * remaining * remaining; // ease out (cubic): fast, then settling
+					slideOffset = static_cast<float>(_addComponentSlideDirection) * area.x * eased;
+				}
+			}
+			if (_addComponentSlideDirection != 0)
+			{
+				ImGui::SetCursorPos(ImVec2(origin.x + slideOffset - static_cast<float>(_addComponentSlideDirection) * area.x, origin.y));
+				if (ImGui::BeginChild("PreviousRows", area, ImGuiChildFlags_None, ImGuiWindowFlags_NoInputs | ImGuiWindowFlags_NoNav | ImGuiWindowFlags_NoScrollbar))
+				{
+					drawRows(buildFolderRows(_addComponentPreviousFolder), _addComponentPreviousHighlight, false);
+				}
+				ImGui::EndChild();
+			}
+			ImGui::SetCursorPos(ImVec2(origin.x + slideOffset, origin.y));
+			if (ImGui::BeginChild("Rows", area))
+			{
+				drawRows(rows, _addComponentHighlight, true);
+				_addComponentScrollToHighlight = false;
+			}
+			ImGui::EndChild();
 		}
 		ImGui::EndChild();
 
-		// A row activated (Enter, Right, click) or Left/Backspace
-		const Row* upRow = (goUp && count > 0 && rows[0]._type == RowType::Back) ? &rows[0] : nullptr;
-		if (activated == nullptr)
-		{
-			activated = upRow;
-		}
+		// A row activated (Enter, Right, click), or going back up (the header's arrow or one of its levels, Left, Backspace)
+		int32_t previousHighlight = -1;
 		if (activated != nullptr)
 		{
 			if (activated->_type == RowType::Component)
@@ -680,17 +773,40 @@ namespace hod::inline editor
 			}
 			else
 			{
-				if (activated->_type == RowType::Back)
-				{
-					_addComponentHighlightFolder = _addComponentFolder; // the folder left, highlighted among its siblings
-				}
-				else
-				{
-					_addComponentResetHighlight = true;
-				}
-				_addComponentFolder = activated->_folder;
-				_addComponentFocusSearch = true; // a click took it
+				goToFolder = true;
+				goToFolderPath = activated->_folder;
+				previousHighlight = static_cast<int32_t>(activated - &rows[0]);
 			}
+		}
+		else if (goUp && searching == false && _addComponentFolder.Empty() == false)
+		{
+			std::string_view folder(_addComponentFolder.CStr(), _addComponentFolder.Size());
+			size_t           separator = folder.rfind('/');
+			goToFolder = true;
+			goToFolderPath = (separator != std::string_view::npos) ? String(folder.substr(0, separator)) : String();
+		}
+		if (goToFolder && goToFolderPath != _addComponentFolder)
+		{
+			// Deeper: on its first row. Back up: on the folder the way came through, among its siblings
+			std::string_view from(_addComponentFolder.CStr(), _addComponentFolder.Size());
+			std::string_view to(goToFolderPath.CStr(), goToFolderPath.Size());
+			bool             deeper = (from.empty() || (to.size() > from.size() && to.substr(0, from.size()) == from && to[from.size()] == '/'));
+			if (deeper)
+			{
+				_addComponentResetHighlight = true;
+			}
+			else
+			{
+				std::string_view rest = to.empty() ? from : from.substr(to.size() + 1);
+				std::string_view child = rest.substr(0, rest.find('/'));
+				_addComponentHighlightFolder = to.empty() ? String(child) : goToFolderPath + "/" + child;
+			}
+			_addComponentPreviousFolder = _addComponentFolder;
+			_addComponentPreviousHighlight = previousHighlight;
+			_addComponentFolder = goToFolderPath;
+			_addComponentFocusSearch = true; // a click took it
+			_addComponentSlideDirection = deeper ? 1 : -1;
+			_addComponentSlideStart = ImGui::GetTime();
 		}
 
 		// Centered on the button, right under it, or right above it when there's no room below; kept inside the area a popup may use (its

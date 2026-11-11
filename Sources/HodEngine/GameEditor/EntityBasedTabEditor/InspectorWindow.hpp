@@ -60,5 +60,9 @@ namespace hod::inline editor
 		bool		_addComponentResetHighlight = false; // on the first row (not the way back) on the next draw
 		bool		_addComponentScrollToHighlight = false;
 		bool		_addComponentFocusSearch = false; // given back to the search field on the next draw (after a click in the list...)
+		int32_t		_addComponentSlideDirection = 0; // the rows sliding in after a folder change: from the right (1), the left (-1), or not (0)
+		double		_addComponentSlideStart = 0.0; // ImGui time
+		String		_addComponentPreviousFolder; // the folder left, sliding out
+		int32_t		_addComponentPreviousHighlight = -1; // its row that was activated, still highlighted while it slides out
 	};
 }
