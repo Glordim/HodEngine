@@ -12,11 +12,14 @@
 
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitAllowedClasses.hpp>
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp"
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 namespace hod::inline physics
 {
 	DESCRIBE_REFLECTED_CLASS(Collider2dComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_SHAPE_OUTLINE);
 		// The base of the colliders, without a shape: not offered in the editor
 		reflectionDescriptor.AddTrait<ReflectionTraitHide>();
 		AddPropertyT(reflectionDescriptor, &Collider2dComponent::_isTrigger, "IsTrigger");

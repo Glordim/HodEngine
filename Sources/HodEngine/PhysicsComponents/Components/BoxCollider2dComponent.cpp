@@ -8,11 +8,14 @@
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCategory.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp"
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 namespace hod::inline physics
 {
 	DESCRIBE_REFLECTED_CLASS(BoxCollider2dComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_SQUARE_OUTLINE);
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Physics/Colliders");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Rectangular 2D collision shape");
 		AddPropertyT(reflectionDescriptor, &BoxCollider2dComponent::_offset, "Offset", &BoxCollider2dComponent::SetOffset);

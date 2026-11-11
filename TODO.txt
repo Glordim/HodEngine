@@ -65,3 +65,23 @@ So that what needs a module not loaded (disabled, or not loaded yet) can name it
 
 - F only centers the view on the selected entities, keeping the zoom: an entity has no bounds
 	- Bounds per entity (its renderers, colliders... given by the component drawers?) to fit the zoom on it, as the UI editor does with its nodes
+
+---------
+
+# Editor: Add Component popup, tolerant search (step 2 of its overhaul)
+
+- The search is a plain substring match: a piece of a word, a wrong case or a typo finds nothing useful
+	- A scored matcher in Editor (SearchMatcher), case and space insensitive: prefix > word start > substring > subsequence > initials ("bc2" -> Box Collider 2D)
+	- Results sorted by score, the matched letters highlighted, with tests
+- Then the same search and categories in the UI editor's Add Node menus
+
+---------
+
+# Reflection: editor-only data out of the non-editor builds
+
+Display name, description, category and icon only serve the editor, but stay declared next to the class (game modules have no editor library)
+- HOD_EDITOR_DATA define (PUBLIC on Core, on when the editor is built) + HOD_EDITOR_TRAIT(target, Trait, ...) macro, compiled out otherwise
+- GetDisplayName editor only: its runtime users take the type name (UI NodeFactory naming new nodes, ComponentFactory and NodeRef logs, ImGui Window title)
+- Icons: for now components and UI nodes include HodEngine/ImGui/Font/IconsMaterialDesignIcons.h directly (no separate MDI lib in the retail CMake)
+	- Wrap that include in #if HOD_EDITOR_DATA
+- ReflectionTraitHide on properties is not editor only (UI PropertyOverride IsOverridable uses it at runtime): only the type-level Hide (not offered in Add Component) is

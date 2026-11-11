@@ -14,6 +14,8 @@
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCategory.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp"
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 namespace hod::inline physics
 {
@@ -26,6 +28,7 @@ namespace hod::inline physics
 
 	DESCRIBE_REFLECTED_CLASS(Rigidbody2dComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_WEIGHT);
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Physics");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Moves the entity and its colliders with the 2D physics: static, kinematic or dynamic");
 		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_mode, "Mode", &Rigidbody2dComponent::SetMode);

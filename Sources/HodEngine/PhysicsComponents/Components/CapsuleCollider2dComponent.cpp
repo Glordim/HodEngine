@@ -8,11 +8,14 @@
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCategory.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp"
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 namespace hod::inline physics
 {
 	DESCRIBE_REFLECTED_CLASS(CapsuleCollider2dComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_PILL);
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Physics/Colliders");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Capsule-shaped 2D collision shape");
 		AddPropertyT(reflectionDescriptor, &CapsuleCollider2dComponent::_offset, "Offset", &CapsuleCollider2dComponent::SetOffset);

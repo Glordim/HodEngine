@@ -17,11 +17,14 @@
 #include <HodEngine/Core/StaticArray.hpp>
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCategory.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp"
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 namespace hod::inline renderer
 {
 	DESCRIBE_REFLECTED_CLASS(TextureRendererComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_IMAGE);
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Rendering");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Draws a texture, tinted by a color");
 		AddPropertyT(reflectionDescriptor, &TextureRendererComponent::_texture, "_texture", &TextureRendererComponent::SetTexture);

@@ -10,6 +10,8 @@
 
 #include "HodEngine/Math/Math.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp"
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 namespace hod::inline game
 {
@@ -74,6 +76,7 @@ namespace hod::inline game
 
 	DESCRIBE_REFLECTED_CLASS(Node2dComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_AXIS_ARROW);
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("2D position, rotation, scale and z-order of the entity");
 		AddPropertyT(reflectionDescriptor, &Node2dComponent::_position, "_position", &Node2dComponent::SetPosition);
 		AddPropertyT(reflectionDescriptor, &Node2dComponent::_rotation, "_rotation", &Node2dComponent::SetRotation);

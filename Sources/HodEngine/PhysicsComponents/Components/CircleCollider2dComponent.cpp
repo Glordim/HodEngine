@@ -8,11 +8,14 @@
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCategory.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp"
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 namespace hod::inline physics
 {
 	DESCRIBE_REFLECTED_CLASS(CircleCollider2dComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_CIRCLE_OUTLINE);
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Physics/Colliders");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Circular 2D collision shape");
 		AddPropertyT(reflectionDescriptor, &CircleCollider2dComponent::_offset, "Offset", &CircleCollider2dComponent::SetOffset);

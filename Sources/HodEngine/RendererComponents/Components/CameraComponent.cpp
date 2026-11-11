@@ -8,6 +8,8 @@
 #include <HodEngine/Renderer/RenderView.hpp>
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCategory.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp"
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 namespace hod::inline renderer
 {
@@ -21,6 +23,7 @@ namespace hod::inline renderer
 
 	DESCRIBE_REFLECTED_CLASS(CameraComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_CAMERA);
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Rendering");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Point of view the world is rendered from");
 		AddPropertyT(reflectionDescriptor, &CameraComponent::_projection, "Projection");

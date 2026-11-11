@@ -3,11 +3,14 @@
 
 #include "HodEngine/Game/Entity.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp"
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 namespace hod::inline game
 {
 	DESCRIBE_REFLECTED_CLASS(NodeComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_FILE_TREE);
 		// A base (of Node2dComponent...): not offered in the editor
 		reflectionDescriptor.AddTrait<ReflectionTraitHide>();
 	}

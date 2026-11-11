@@ -232,7 +232,8 @@ namespace hod::inline editor
 				bool removeRequested = false;
 				// What it is for, when its title stays hovered (its own description, not a parent's)
 				ReflectionTraitDescription* description = component->GetReflectionDescriptorV().FindTrait<ReflectionTraitDescription>(false);
-				bool opened = DrawHelper::BeginInspectorBlock((const void*)(uintptr_t)component->GetReflectionDescriptorV().GetType(), ICON_MDI_PUZZLE,
+				bool opened = DrawHelper::BeginInspectorBlock((const void*)(uintptr_t)component->GetReflectionDescriptorV().GetType(),
+				                                              DrawHelper::GetTypeIcon(component->GetReflectionDescriptorV(), ICON_MDI_PUZZLE),
 				                                              GetComponentDisplayName(component->GetReflectionDescriptorV()).CStr(), &enabled, &removeRequested, nullptr, nullptr,
 				                                              nullptr, description != nullptr ? description->GetValue().CStr() : nullptr);
 				if (enabled != component->GetEnabled())

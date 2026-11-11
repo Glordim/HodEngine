@@ -16,11 +16,14 @@
 #include <HodEngine/Renderer/SpriteAtlas.hpp>
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCategory.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp"
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
 namespace hod::inline renderer
 {
 	DESCRIBE_REFLECTED_CLASS(TextRendererComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_FORMAT_TEXT);
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Rendering");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Draws a text with a font");
 		AddPropertyT(reflectionDescriptor, &TextRendererComponent::_fontResource, "_fontResource", &TextRendererComponent::SetFont);
