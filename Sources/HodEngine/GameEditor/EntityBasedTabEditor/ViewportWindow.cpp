@@ -1,4 +1,5 @@
 #include "HodEngine/GameEditor/Pch.hpp"
+#include "HodEngine/GameEditor/ComponentDisplayName.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/Editor.hpp"
@@ -476,7 +477,7 @@ namespace hod::inline editor
 								{
 									if (drawer->OnDrawGizmo(component, *this, active))
 									{
-										GetOwner()->MarkAsDirty(fmt::format("Edit {}", component->GetReflectionDescriptorV().GetDisplayName()));
+										GetOwner()->MarkAsDirty(fmt::format("Edit {}", GetComponentDisplayName(component->GetReflectionDescriptorV())));
 									}
 								}
 							}

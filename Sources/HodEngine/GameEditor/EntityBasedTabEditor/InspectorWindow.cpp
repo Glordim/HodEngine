@@ -2,6 +2,7 @@
 #include "HodEngine/GameEditor/EntityBasedTabEditor/InspectorWindow.hpp"
 
 #include "HodEngine/Editor/EditorTab.hpp"
+#include "HodEngine/GameEditor/ComponentDisplayName.hpp"
 #include "HodEngine/GameEditor/EntityBasedTabEditor/EntityEditorTab.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -25,6 +26,7 @@
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
+#include "HodEngine/Game/Components/MissingComponent.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
@@ -222,11 +224,11 @@ namespace hod::inline editor
 
 				bool enabled = component->GetEnabled();
 				bool removeRequested = false;
-				bool opened = DrawHelper::BeginInspectorBlock((const void*)(uintptr_t)component->GetReflectionDescriptorV().GetType(), ICON_MDI_PUZZLE, component->GetReflectionDescriptorV().GetDisplayName().CStr(), &enabled, &removeRequested);
+				bool opened = DrawHelper::BeginInspectorBlock((const void*)(uintptr_t)component->GetReflectionDescriptorV().GetType(), ICON_MDI_PUZZLE, GetComponentDisplayName(component->GetReflectionDescriptorV()).CStr(), &enabled, &removeRequested);
 				if (enabled != component->GetEnabled())
 				{
 					component->SetEnabled(enabled);
-					GetOwner()->MarkAsDirty(fmt::format("{} {}", enabled ? "Enable" : "Disable", component->GetReflectionDescriptorV().GetDisplayName()));
+					GetOwner()->MarkAsDirty(fmt::format("{} {}", enabled ? "Enable" : "Disable", GetComponentDisplayName(component->GetReflectionDescriptorV())));
 				}
 				if (removeRequested)
 				{
@@ -252,7 +254,7 @@ namespace hod::inline editor
 					}
 					if (changed == true)
 					{
-						GetOwner()->MarkAsDirty(fmt::format("Edit {}", reflectionDescriptor.GetDisplayName()));
+						GetOwner()->MarkAsDirty(fmt::format("Edit {}", GetComponentDisplayName(reflectionDescriptor)));
 					}
 				}
 				DrawHelper::EndInspectorBlock();
@@ -260,7 +262,7 @@ namespace hod::inline editor
 		}
 		if (componentToRemove != nullptr)
 		{
-			std::string label = fmt::format("Remove {}", componentToRemove->GetReflectionDescriptorV().GetDisplayName());
+			std::string label = fmt::format("Remove {}", GetComponentDisplayName(componentToRemove->GetReflectionDescriptorV()));
 			selection->RemoveComponent(componentToRemove);
 			GetOwner()->MarkAsDirty(label);
 		}
@@ -297,18 +299,36 @@ namespace hod::inline editor
 
 			if (ImGui::BeginChild("ComponentList", ImVec2(0.0f, 350.0f), ImGuiChildFlags_FrameStyle))
 			{
+				// The components that can be added (not the abstract ones, nor the placeholder of an unknown one), by name
+				struct Entry
+				{
+					const ReflectionDescriptor* _descriptor;
+					String                      _name;
+				};
+				Vector<Entry> entries;
 				for (const auto& componentDescriptorPair : ComponentFactory::GetInstance()->GetAllDescriptors())
 				{
 					const ReflectionDescriptor& componentDescriptor = *componentDescriptorPair.second;
-					const String&               displayName = componentDescriptor.GetDisplayName();
-					if (MatchSearch(displayName, strName))
+					if (componentDescriptor.CanCreateInstance() == false || componentDescriptor.GetType() == MissingComponent::GetReflectionDescriptor().GetType())
 					{
-						if (ImGui::MenuItem(displayName.CStr()) == true)
+						continue;
+					}
+					entries.PushBack({&componentDescriptor, GetComponentDisplayName(componentDescriptor)});
+				}
+				std::sort(entries.Begin(), entries.End(), [](const Entry& left, const Entry& right) { return left._name < right._name; });
+
+				for (const Entry& entry : entries)
+				{
+					if (MatchSearch(entry._name, strName))
+					{
+						ImGui::PushID(entry._descriptor);
+						if (ImGui::MenuItem(entry._name.CStr()) == true)
 						{
-							selection->AddComponent(componentDescriptor);
-							GetOwner()->MarkAsDirty(fmt::format("Add {}", displayName));
+							selection->AddComponent(*entry._descriptor);
+							GetOwner()->MarkAsDirty(fmt::format("Add {}", entry._name));
 							ImGui::CloseCurrentPopup();
 						}
+						ImGui::PopID();
 					}
 				}
 			}
