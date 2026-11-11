@@ -44,9 +44,46 @@ namespace hod::inline game
 		DestroyEntities();
 	}
 
+	namespace
+	{
+		/// @brief The roots among the entities of entitiesNode (written by SceneSerializer::SerializeEntity), in the document's order:
+		/// the deserialized entities come unordered, the roots are found back in the document by their local id
+		Vector<Entity*> OrderRootsLikeDocument(const DocumentNode& entitiesNode, const Vector<Entity*>& unorderedRoots)
+		{
+			Vector<Entity*> roots;
+			for (const DocumentNode* entityNode = entitiesNode.GetFirstChild(); entityNode != nullptr; entityNode = entityNode->GetNextSibling())
+			{
+				const DocumentNode* localIdNode = entityNode->GetChild("_localId");
+				if (localIdNode == nullptr)
+				{
+					continue;
+				}
+				uint64_t localId = localIdNode->GetUInt64();
+				for (Entity* root : unorderedRoots)
+				{
+					if (root->GetLocalId() == localId && std::find(roots.Begin(), roots.End(), root) == roots.End())
+					{
+						roots.push_back(root);
+						break;
+					}
+				}
+			}
+			for (Entity* root : unorderedRoots)
+			{
+				if (std::find(roots.Begin(), roots.End(), root) == roots.End())
+				{
+					roots.push_back(root);
+				}
+			}
+			return roots;
+		}
+	}
+
 	/// @brief
 	void Scene::DestroyEntities()
 	{
+		_rootEntities.Clear(); // Not kept up to date while deleted (their parents may be deleted first)
+
 		for (const auto& entityPair : _entities)
 		{
 			if (entityPair.second->GetParent().Lock() == nullptr)
@@ -66,28 +103,72 @@ namespace hod::inline game
 	/// @return
 	Vector<Entity*> Scene::GetRootEntities() const
 	{
-		Vector<Entity*> roots;
-		for (const auto& entityPair : _entities)
+		return _rootEntities;
+	}
+
+	/// @brief
+	/// @param entity
+	void Scene::AddRoot(Entity* entity)
+	{
+		if (std::find(_rootEntities.Begin(), _rootEntities.End(), entity) == _rootEntities.End())
 		{
-			if (entityPair.second->GetParent().Lock() == nullptr)
+			_rootEntities.PushBack(entity);
+		}
+	}
+
+	/// @brief
+	/// @param entity
+	void Scene::RemoveRoot(Entity* entity)
+	{
+		auto it = std::find(_rootEntities.Begin(), _rootEntities.End(), entity);
+		if (it != _rootEntities.End())
+		{
+			_rootEntities.Erase(it);
+		}
+	}
+
+	/// @brief
+	/// @param entity
+	/// @return
+	uint32_t Scene::GetRootIndex(const Entity* entity) const
+	{
+		for (uint32_t index = 0; index < _rootEntities.Size(); ++index)
+		{
+			if (_rootEntities[index] == entity)
 			{
-				roots.PushBack(entityPair.second);
+				return index;
 			}
 		}
-		std::sort(roots.Begin(), roots.End(),
-		          [](const Entity* left, const Entity* right)
-		          {
-			          if ((left->GetLocalId() == 0) != (right->GetLocalId() == 0))
-			          {
-				          return right->GetLocalId() == 0;
-			          }
-			          if (left->GetLocalId() != right->GetLocalId())
-			          {
-				          return left->GetLocalId() < right->GetLocalId();
-			          }
-			          return left->GetInstanceId() < right->GetInstanceId();
-		          });
-		return roots;
+		return 0;
+	}
+
+	/// @brief Same as Entity::SetSiblingIndex, among the roots
+	/// @param entity
+	/// @param index
+	void Scene::SetRootIndex(Entity* entity, uint32_t index)
+	{
+		auto it = std::find(_rootEntities.Begin(), _rootEntities.End(), entity);
+		if (it == _rootEntities.End())
+		{
+			return;
+		}
+		_rootEntities.Erase(it);
+		index = Min(index, static_cast<uint32_t>(_rootEntities.Size()));
+		_rootEntities.Insert(_rootEntities.Begin() + index, entity);
+	}
+
+	/// @brief
+	/// @param roots
+	void Scene::MoveRootsToEnd(const Vector<Entity*>& roots)
+	{
+		for (Entity* root : roots)
+		{
+			RemoveRoot(root);
+		}
+		for (Entity* root : roots)
+		{
+			_rootEntities.PushBack(root);
+		}
 	}
 
 	/// @brief
@@ -111,7 +192,7 @@ namespace hod::inline game
 		documentNode.AddChild("Name").SetString(_name);
 		DocumentNode& entitiesNode = documentNode.AddChild("Entities");
 
-		// The same state written the same way (the editor's undo compares them): the roots in a stable order, given their ids first
+		// The same state written the same way (the editor's undo compares them): the roots in their order, given their ids first
 		Vector<Entity*> roots = GetRootEntities();
 		for (Entity* root : roots)
 		{
@@ -158,11 +239,17 @@ namespace hod::inline game
 			return false;
 		}
 
+		Vector<Entity*> unorderedRoots;
 		for (Entity* entity : sceneSerializer.GetEntities())
 		{
 			_entities.emplace(entity->GetInstanceId(), entity);
 			entity->SetScene(this);
+			if (entity->GetParent().Lock() == nullptr)
+			{
+				unorderedRoots.PushBack(entity);
+			}
 		}
+		MoveRootsToEnd(OrderRootsLikeDocument(*entitiesNode, unorderedRoots));
 
 		return true;
 	}
@@ -231,6 +318,7 @@ namespace hod::inline game
 			it.second->SetScene(nullptr);
 		}
 		_entities.clear();
+		_rootEntities.Clear();
 	}
 
 	/// @brief
@@ -389,31 +477,8 @@ namespace hod::inline game
 			}
 		}
 
-		// The deserialized entities come unordered: the roots are found back in the document by their local id
-		for (const DocumentNode* entityNode = entitiesNode.GetFirstChild(); entityNode != nullptr; entityNode = entityNode->GetNextSibling())
-		{
-			const DocumentNode* localIdNode = entityNode->GetChild("_localId");
-			if (localIdNode == nullptr)
-			{
-				continue;
-			}
-			uint64_t localId = localIdNode->GetUInt64();
-			for (Entity* root : unorderedRoots)
-			{
-				if (root->GetLocalId() == localId && std::find(roots.Begin(), roots.End(), root) == roots.End())
-				{
-					roots.push_back(root);
-					break;
-				}
-			}
-		}
-		for (Entity* root : unorderedRoots)
-		{
-			if (std::find(roots.Begin(), roots.End(), root) == roots.End())
-			{
-				roots.push_back(root);
-			}
-		}
+		roots = OrderRootsLikeDocument(entitiesNode, unorderedRoots);
+		MoveRootsToEnd(roots);
 
 		for (Entity* root : roots)
 		{

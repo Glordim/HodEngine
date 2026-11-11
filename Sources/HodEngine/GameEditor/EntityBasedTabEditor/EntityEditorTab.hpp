@@ -83,8 +83,8 @@ namespace hod::inline editor
 		// Whether ReparentEntities would move something: they can all be given parent (see CanReparent) and one of them at least isn't
 		// already its child
 		bool			CanReparentEntities(const Vector<Entity*>& entities, const Entity* parent) const;
-		// Moves entities (but those inside another one of them), in the hierarchy's order, as children of parent from index (the last
-		// places if out of range), selected. Refused if CanReparentEntities is false.
+		// Moves entities (but those inside another one of them), in the hierarchy's order, as children of parent (null: roots of their
+		// scene) from index among the siblings that stay (the last places if out of range), selected. Refused if CanReparentEntities is false.
 		bool			ReparentEntities(const Vector<Entity*>& entities, Entity* parent, uint32_t index = UINT32_MAX);
 
 		// Clipboard: entities and their descendants (one inside another of them comes with it) are copied as text (a JSON document

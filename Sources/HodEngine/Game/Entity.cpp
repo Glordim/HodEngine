@@ -56,6 +56,11 @@ namespace hod::inline game
 	/// @brief
 	Entity::~Entity()
 	{
+		if (_scene != nullptr && _parent.Lock() == nullptr)
+		{
+			_scene->RemoveRoot(this);
+		}
+
 		for (Component* component : _components)
 		{
 			DefaultAllocator::GetInstance().Delete(component);
@@ -297,15 +302,26 @@ namespace hod::inline game
 				}
 			}
 		}
+		else if (_scene != nullptr)
+		{
+			return _scene->GetRootIndex(this);
+		}
 		return 0;
 	}
 
-	/// @brief
+	/// @brief Among the children of its parent, or the roots of its scene
 	/// @param index
 	void Entity::SetSiblingIndex(uint32_t index)
 	{
 		Entity* parentLock = _parent.Lock();
-		if (parentLock != nullptr)
+		if (parentLock == nullptr)
+		{
+			if (_scene != nullptr)
+			{
+				_scene->SetRootIndex(this, index);
+			}
+		}
+		else
 		{
 			// Moved towards the start or the end: the siblings in between shift by one the other way
 			uint32_t initialIndex = GetSiblingIndex();
@@ -373,6 +389,19 @@ namespace hod::inline game
 		}
 		_parent = parent;
 
+		// Among its scene's roots (see Scene::GetRootEntities) when it has no parent, the last one when it gets there
+		if (_scene != nullptr)
+		{
+			if (previousParentLock == nullptr && newParentLock != nullptr)
+			{
+				_scene->RemoveRoot(this);
+			}
+			else if (previousParentLock != nullptr && newParentLock == nullptr)
+			{
+				_scene->AddRoot(this);
+			}
+		}
+
 		if (_internalState != InternalState::None)
 		{
 			ProcessActivation();
@@ -404,6 +433,23 @@ namespace hod::inline game
 	/// @param scene
 	void Entity::SetScene(Scene* scene)
 	{
+		if (_scene == scene)
+		{
+			return;
+		}
+
+		// A root is one of its scene's roots (see Scene::GetRootEntities)
+		if (_parent.Lock() == nullptr)
+		{
+			if (_scene != nullptr)
+			{
+				_scene->RemoveRoot(this);
+			}
+			if (scene != nullptr)
+			{
+				scene->AddRoot(this);
+			}
+		}
 		_scene = scene;
 	}
 

@@ -520,8 +520,8 @@ namespace hod::inline editor
 			if (parent != nullptr)
 			{
 				copy->SetParent(parent);
-				copy->SetSiblingIndex(entity->GetSiblingIndex() + 1);
 			}
+			copy->SetSiblingIndex(entity->GetSiblingIndex() + 1); // among the roots of its scene, the source's, when it has no parent
 			copies.PushBack(copy);
 		}
 
@@ -587,7 +587,15 @@ namespace hod::inline editor
 		for (Entity* entity : ordered)
 		{
 			entity->SetParent(parent);
-			if (parent != nullptr && index != UINT32_MAX)
+		}
+		if (index != UINT32_MAX)
+		{
+			// index counts the siblings that stay: the moved ones put last first (in their order), then each one at its place
+			for (Entity* entity : ordered)
+			{
+				entity->SetSiblingIndex(UINT32_MAX);
+			}
+			for (Entity* entity : ordered)
 			{
 				entity->SetSiblingIndex(index++);
 			}

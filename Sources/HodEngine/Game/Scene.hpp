@@ -55,8 +55,8 @@ namespace hod::inline game
 		Vector<Entity*> Instantiate(const DocumentNode& entitiesNode);
 
 		const std::unordered_map<uint64_t, Entity*>& GetEntities() const;
-		/// @brief The entities without parent, in a stable order: by local id, those without one yet (0) last, by creation. What it
-		/// serializes, in that order (see SerializeInDocument)
+		/// @brief The entities without parent, in their order: the document's for the loaded ones, then by arrival (created, parent
+		/// removed...), changed by Entity::SetSiblingIndex. What it serializes, in that order (see SerializeInDocument)
 		Vector<Entity*> GetRootEntities() const;
 
 		void ProcessActivation();
@@ -77,8 +77,19 @@ namespace hod::inline game
 		World* GetWorld() const;
 
 	private:
+		friend class Entity; // Keeps _rootEntities up to date (SetParent, SetScene, SetSiblingIndex)
+
+		void     AddRoot(Entity* entity);
+		void     RemoveRoot(Entity* entity);
+		uint32_t GetRootIndex(const Entity* entity) const;
+		void     SetRootIndex(Entity* entity, uint32_t index);
+		/// @brief Puts roots, in that order, at the end of the roots
+		void     MoveRootsToEnd(const Vector<Entity*>& roots);
+
+	private:
 		String                                _name;
 		std::unordered_map<uint64_t, Entity*> _entities;
+		Vector<Entity*>                       _rootEntities;
 		uint64_t                              _nextLocalId = 1;
 		World*                                _world = nullptr;
 	};

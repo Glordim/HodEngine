@@ -72,4 +72,61 @@ namespace hod
 		EXPECT_EQ(roots[0]->GetName(), "A");
 		EXPECT_EQ(roots[4]->GetName(), "E");
 	}
+
+	// The roots have an order of their own (the hierarchy's), changed by SetSiblingIndex, kept by a snapshot
+	TEST_F(SceneSnapshotTest, RootsReordered)
+	{
+		Entity* a = _scene->CreateEntity("A");
+		Entity* b = _scene->CreateEntity("B");
+		Entity* c = _scene->CreateEntity("C");
+
+		c->SetSiblingIndex(0);
+		EXPECT_EQ(c->GetSiblingIndex(), 0u);
+		Vector<Entity*> roots = _scene->GetRootEntities();
+		ASSERT_EQ(roots.Size(), 3u);
+		EXPECT_EQ(roots[0], c);
+		EXPECT_EQ(roots[1], a);
+		EXPECT_EQ(roots[2], b);
+
+		// Out of range: the last place
+		c->SetSiblingIndex(UINT32_MAX);
+		EXPECT_EQ(c->GetSiblingIndex(), 2u);
+		c->SetSiblingIndex(0);
+
+		Document document;
+		ASSERT_TRUE(_scene->SerializeInDocument(document.GetRootNode()));
+		_scene->DestroyEntities();
+		ASSERT_TRUE(_scene->DeserializeFromDocument(document.GetRootNode()));
+		roots = _scene->GetRootEntities();
+		ASSERT_EQ(roots.Size(), 3u);
+		EXPECT_EQ(roots[0]->GetName(), "C");
+		EXPECT_EQ(roots[1]->GetName(), "A");
+		EXPECT_EQ(roots[2]->GetName(), "B");
+	}
+
+	// An entity given a parent leaves the roots, one losing its parent comes back last, a destroyed one leaves them
+	TEST_F(SceneSnapshotTest, RootsFollowParents)
+	{
+		Entity* a = _scene->CreateEntity("A");
+		Entity* b = _scene->CreateEntity("B");
+		Entity* c = _scene->CreateEntity("C");
+
+		a->SetParent(b);
+		Vector<Entity*> roots = _scene->GetRootEntities();
+		ASSERT_EQ(roots.Size(), 2u);
+		EXPECT_EQ(roots[0], b);
+		EXPECT_EQ(roots[1], c);
+
+		a->SetParent(WeakEntity(nullptr));
+		roots = _scene->GetRootEntities();
+		ASSERT_EQ(roots.Size(), 3u);
+		EXPECT_EQ(roots[2], a);
+
+		_scene->DestroyEntity(c);
+		roots = _scene->GetRootEntities();
+		ASSERT_EQ(roots.Size(), 2u);
+		EXPECT_EQ(roots[0], b);
+		EXPECT_EQ(roots[1], a);
+		DefaultAllocator::GetInstance().Delete(c);
+	}
 }

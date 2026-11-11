@@ -487,7 +487,8 @@ namespace hod::inline editor
 				bool            canDrop = std::find(draggedEntities.Begin(), draggedEntities.End(), entity) == draggedEntities.End();
 				for (Entity* dragged : draggedEntities)
 				{
-					canDrop &= tab->CanReparent(dragged, parent);
+					// Among the roots of entity's scene: only the entities of that scene (a root stays in its scene)
+					canDrop &= tab->CanReparent(dragged, parent) && (parent != nullptr || dragged->GetScene() == entity->GetScene());
 				}
 
 				const ImGuiPayload* payload = canDrop ? ImGui::AcceptDragDropPayload("EntityId", ImGuiDragDropFlags_AcceptNoDrawDefaultRect) : nullptr;
@@ -500,21 +501,29 @@ namespace hod::inline editor
 				}
 				if (payload != nullptr)
 				{
-					// Its place among the siblings that stay
-					uint32_t index = 0;
+					// Its place among the siblings that stay (the roots of its scene when it has no parent)
+					Vector<Entity*> siblings;
 					if (parent != nullptr)
 					{
 						for (const WeakEntity& sibling : parent->GetChildren())
 						{
-							Entity* siblingEntity = sibling.Lock();
-							if (siblingEntity == entity)
-							{
-								break;
-							}
-							if (std::find(draggedEntities.Begin(), draggedEntities.End(), siblingEntity) == draggedEntities.End())
-							{
-								++index;
-							}
+							siblings.PushBack(sibling.Lock());
+						}
+					}
+					else if (entity->GetScene() != nullptr)
+					{
+						siblings = entity->GetScene()->GetRootEntities();
+					}
+					uint32_t index = 0;
+					for (Entity* sibling : siblings)
+					{
+						if (sibling == entity)
+						{
+							break;
+						}
+						if (std::find(draggedEntities.Begin(), draggedEntities.End(), sibling) == draggedEntities.End())
+						{
+							++index;
 						}
 					}
 
@@ -526,7 +535,7 @@ namespace hod::inline editor
 					}
 					_pendingReparentParent = parent;
 					_pendingReparentToRoot = (parent == nullptr);
-					_pendingReparentIndex = (parent != nullptr) ? index : UINT32_MAX;
+					_pendingReparentIndex = index;
 				}
 			}
 			ImGui::EndDragDropTarget();
