@@ -30,6 +30,7 @@
 #include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
+#include "HodEngine/Game/Component.hpp"
 #include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Game/Components/MissingComponent.hpp"
 
@@ -306,6 +307,8 @@ namespace hod::inline editor
 	/// the arrows move the highlighted row, Enter activates it (adds the component, enters the folder), and while the search is empty
 	/// Right enters a folder, Left or Backspace go up one. Escape closes. The components the entity already has are greyed out (one of
 	/// each type, see Entity::AddComponent), the description of each one is its tooltip.
+	/// The toggle next to the search shows them as a tree by inheritance instead (kept between openings): each class under the one it
+	/// derives from, the bases that can't be added there too, dimmed, for their derived classes; Right/Left expand and collapse there.
 	/// @param selection
 	void InspectorWindow::DrawAddComponentPopup(Entity* selection)
 	{
@@ -339,7 +342,10 @@ namespace hod::inline editor
 			_addComponentFocusSearch = false;
 		}
 		_addComponentMove = 0;
-		ImGui::SetNextItemWidth(-FLT_MIN);
+		// The display mode's toggle on the right of the search: the folders (categories) or the tree by inheritance
+		const char* modeIcon = _addComponentByInheritance ? ICON_MDI_FOLDER_OUTLINE : ICON_MDI_FILE_TREE;
+		float       modeButtonWidth = ImGui::CalcTextSize(modeIcon).x + ImGui::GetStyle().FramePadding.x * 2.0f;
+		ImGui::SetNextItemWidth(-(modeButtonWidth + ImGui::GetStyle().ItemSpacing.x));
 		bool enterPressed = ImGui::InputTextWithHint("##Search", "Search", _addComponentSearch, sizeof(_addComponentSearch),
 		                                             ImGuiInputTextFlags_EnterReturnsTrue | ImGuiInputTextFlags_CallbackHistory, &AddComponentSearchCallback,
 		                                             &_addComponentMove);
@@ -348,7 +354,17 @@ namespace hod::inline editor
 		{
 			_addComponentResetHighlight = true; // back on the folder browsed before when emptied
 		}
+		ImGui::SameLine();
+		if (ImGui::Button(modeIcon))
+		{
+			_addComponentByInheritance = !_addComponentByInheritance;
+			_addComponentResetHighlight = true;
+			_addComponentFocusSearch = true;
+			_addComponentSlideDirection = 0;
+		}
+		ImGui::SetItemTooltip(_addComponentByInheritance ? "Show by categories" : "Show by inheritance");
 		bool searching = (_addComponentSearch[0] != '\0');
+		bool tree = _addComponentByInheritance;
 
 		// The folder keys, in a search field that was and stays empty (not the Backspace erasing the last letter), not repeated
 		bool goUp = false;
@@ -387,6 +403,7 @@ namespace hod::inline editor
 		{
 			Folder,
 			Component,
+			Base, // in the tree by inheritance: a class that can't be added (abstract, hidden), only there for its derived classes
 		};
 		struct Row
 		{
@@ -397,6 +414,148 @@ namespace hod::inline editor
 			const ReflectionDescriptor* _descriptor = nullptr;
 			bool                        _enabled = true;
 			int32_t                     _rank = 0;
+			// In the tree by inheritance
+			int32_t                     _depth = 0;
+			bool                        _hasChildren = false;
+			bool                        _expanded = false;
+		};
+
+		// The tree by inheritance: every registered component class and the classes it derives from (up to Component, not shown), each
+		// one under its parent, by name. With a search, the classes matching it (by name, or category) and their parents, all expanded;
+		// without, the collapsed ones' children left out. Classes compared by type, not address (a descriptor per module, see
+		// ReflectionDescriptor)
+		auto buildTreeRows = [&]() -> Vector<Row>
+		{
+			struct Node
+			{
+				const ReflectionDescriptor* _descriptor;
+				uint64_t                    _parentType;
+				String                      _name;
+				bool                        _addable;
+				Vector<uint32_t>            _children;
+				bool                        _visible = false;
+			};
+			uint64_t     componentType = Component::GetReflectionDescriptor().GetType();
+			uint64_t     missingType = MissingComponent::GetReflectionDescriptor().GetType();
+			Vector<Node> nodes;
+			auto         findNode = [&](uint64_t type) -> int32_t
+			{
+				for (uint32_t index = 0; index < nodes.Size(); ++index)
+				{
+					if (nodes[index]._descriptor->GetType() == type)
+					{
+						return static_cast<int32_t>(index);
+					}
+				}
+				return -1;
+			};
+			for (const auto& componentDescriptorPair : ComponentFactory::GetInstance()->GetAllDescriptors())
+			{
+				for (const ReflectionDescriptor* descriptor = componentDescriptorPair.second; descriptor != nullptr && descriptor->GetType() != componentType;
+				     descriptor = descriptor->GetParent())
+				{
+					if (descriptor->GetType() == missingType || findNode(descriptor->GetType()) != -1)
+					{
+						continue;
+					}
+					uint64_t parentType = (descriptor->GetParent() != nullptr) ? descriptor->GetParent()->GetType() : 0;
+					bool     addable = ComponentFactory::GetInstance()->GetAllDescriptors().contains(descriptor->GetType()) && descriptor->CanCreateInstance() &&
+					               descriptor->FindTrait<ReflectionTraitHide>(false) == nullptr;
+					nodes.PushBack({descriptor, parentType, GetComponentDisplayName(*descriptor), addable, {}});
+				}
+			}
+
+			Vector<uint32_t> roots;
+			for (uint32_t index = 0; index < nodes.Size(); ++index)
+			{
+				int32_t parent = findNode(nodes[index]._parentType);
+				if (parent != -1)
+				{
+					nodes[static_cast<uint32_t>(parent)]._children.PushBack(index);
+				}
+				else
+				{
+					roots.PushBack(index);
+				}
+			}
+			auto byName = [&](uint32_t left, uint32_t right) { return nodes[left]._name < nodes[right]._name; };
+			std::sort(roots.Begin(), roots.End(), byName);
+			for (Node& node : nodes)
+			{
+				std::sort(node._children.Begin(), node._children.End(), byName);
+			}
+
+			// Visible: matching the search (any without one), or a parent of one that is
+			String search(_addComponentSearch);
+			auto   markVisible = [&](auto& self, uint32_t index) -> bool
+			{
+				Node& node = nodes[index];
+				bool  visible = (searching == false);
+				if (visible == false)
+				{
+					ReflectionTraitCategory* category = node._descriptor->FindTrait<ReflectionTraitCategory>();
+					visible = MatchSearch(node._name, search) || (node._addable && category != nullptr && MatchSearch(category->GetValue(), search));
+				}
+				for (uint32_t child : node._children)
+				{
+					visible |= self(self, child);
+				}
+				node._visible = visible;
+				return visible;
+			};
+			for (uint32_t root : roots)
+			{
+				markVisible(markVisible, root);
+			}
+
+			Vector<Row> treeRows;
+			auto        flatten = [&](auto& self, uint32_t index, int32_t depth) -> void
+			{
+				const Node& node = nodes[index];
+				if (node._visible == false)
+				{
+					return;
+				}
+				bool hasChildren = false;
+				for (uint32_t child : node._children)
+				{
+					hasChildren |= nodes[child]._visible;
+				}
+				uint64_t type = node._descriptor->GetType();
+				bool     expanded = searching || std::find(_addComponentCollapsed.Begin(), _addComponentCollapsed.End(), type) == _addComponentCollapsed.End();
+				Row      row = {node._addable ? RowType::Component : RowType::Base, node._name, String(), String(), node._descriptor, true};
+				row._enabled = (node._addable == false) || selection->GetComponent(*node._descriptor) == nullptr;
+				row._depth = depth;
+				row._hasChildren = hasChildren;
+				row._expanded = expanded;
+				treeRows.PushBack(row);
+				if (hasChildren && expanded)
+				{
+					for (uint32_t child : node._children)
+					{
+						self(self, child, depth + 1);
+					}
+				}
+			};
+			for (uint32_t root : roots)
+			{
+				flatten(flatten, root, 0);
+			}
+			return treeRows;
+		};
+		// Expands or collapses a class of the tree
+		auto setExpanded = [&](const Row& row, bool expanded)
+		{
+			uint64_t type = row._descriptor->GetType();
+			auto     it = std::find(_addComponentCollapsed.Begin(), _addComponentCollapsed.End(), type);
+			if (expanded && it != _addComponentCollapsed.End())
+			{
+				_addComponentCollapsed.Erase(it);
+			}
+			else if (expanded == false && it == _addComponentCollapsed.End())
+			{
+				_addComponentCollapsed.PushBack(type);
+			}
 		};
 		// The rows of a folder, without a search: the folders right inside it, then its components (the way back out of it is the header)
 		auto buildFolderRows = [&](const String& folderPath) -> Vector<Row>
@@ -450,7 +609,11 @@ namespace hod::inline editor
 		};
 
 		Vector<Row> rows;
-		if (searching)
+		if (tree)
+		{
+			rows = buildTreeRows();
+		}
+		else if (searching)
 		{
 			// Matching by the name first, then by the category only
 			String search(_addComponentSearch);
@@ -537,7 +700,47 @@ namespace hod::inline editor
 		if (_addComponentHighlight != -1)
 		{
 			const Row& highlighted = rows[static_cast<uint32_t>(_addComponentHighlight)];
-			if (enterPressed || (goIn && highlighted._type == RowType::Folder))
+			if (tree)
+			{
+				// In the tree: Enter adds a class (expands or collapses a base), Right expands then goes to the first child, Left
+				// collapses then goes to the parent
+				if (enterPressed)
+				{
+					activated = &highlighted;
+				}
+				else if (goIn && highlighted._hasChildren)
+				{
+					if (highlighted._expanded == false)
+					{
+						setExpanded(highlighted, true);
+					}
+					else if (findEnabled(_addComponentHighlight + 1, 1) != -1)
+					{
+						_addComponentHighlight = findEnabled(_addComponentHighlight + 1, 1);
+						_addComponentScrollToHighlight = true;
+					}
+				}
+				else if (goUp)
+				{
+					if (highlighted._hasChildren && highlighted._expanded)
+					{
+						setExpanded(highlighted, false);
+					}
+					else
+					{
+						for (int32_t index = _addComponentHighlight - 1; index >= 0; --index)
+						{
+							if (rows[static_cast<uint32_t>(index)]._depth == highlighted._depth - 1)
+							{
+								_addComponentHighlight = index;
+								_addComponentScrollToHighlight = true;
+								break;
+							}
+						}
+					}
+				}
+			}
+			else if (enterPressed || (goIn && highlighted._type == RowType::Folder))
 			{
 				activated = &highlighted;
 			}
@@ -556,7 +759,7 @@ namespace hod::inline editor
 			Vector<std::string_view> levels;
 			levels.PushBack("Components");
 			std::string_view folder(_addComponentFolder.CStr(), _addComponentFolder.Size());
-			while (searching == false && folder.empty() == false)
+			while (searching == false && tree == false && folder.empty() == false)
 			{
 				size_t separator = folder.find('/');
 				levels.PushBack(folder.substr(0, separator));
@@ -623,7 +826,20 @@ namespace hod::inline editor
 		// folder with a gap between them (the popup grows to fit it)
 		constexpr const char* noFolder = "-";
 		float                 listWidth = 0.0f;
-		if (searching)
+		float                 treeIndent = ImGui::GetStyle().IndentSpacing;
+		float                 treeArrowWidth = Max(ImGui::CalcTextSize(ICON_MDI_CHEVRON_RIGHT).x, ImGui::CalcTextSize(ICON_MDI_CHEVRON_DOWN).x);
+		if (tree)
+		{
+			// The tree as wide as its deepest, longest row
+			for (const Row& row : rows)
+			{
+				String label = String(DrawHelper::GetTypeIcon(*row._descriptor, ICON_MDI_PUZZLE)) + " " + row._name;
+				listWidth = Max(listWidth, static_cast<float>(row._depth) * treeIndent + treeArrowWidth + ImGui::GetStyle().ItemSpacing.x + ImGui::CalcTextSize(label.CStr()).x);
+			}
+			listWidth += ImGui::GetStyle().FramePadding.x * 2.0f + ImGui::GetStyle().ScrollbarSize;
+			listWidth = Max(listWidth, ImGui::GetContentRegionAvail().x);
+		}
+		else if (searching)
 		{
 			float nameWidth = 0.0f;
 			float folderWidth = 0.0f;
@@ -657,6 +873,86 @@ namespace hod::inline editor
 			for (int32_t index = 0; index < static_cast<int32_t>(shownRows.Size()); ++index)
 			{
 				const Row& row = shownRows[static_cast<uint32_t>(index)];
+				if (tree)
+				{
+					// A row of the tree: the whole row selectable, the arrow (its own button, over it) expanding or collapsing the class
+					ImGui::PushID(row._descriptor);
+					float                rowX = ImGui::GetCursorPosX();
+					ImGuiSelectableFlags treeFlags = ImGuiSelectableFlags_AllowOverlap;
+					if (row._type == RowType::Base)
+					{
+						treeFlags |= ImGuiSelectableFlags_NoAutoClosePopups;
+					}
+					if (row._enabled == false)
+					{
+						treeFlags |= ImGuiSelectableFlags_Disabled;
+					}
+					if (ImGui::Selectable("##Row", index == highlight, treeFlags) && interactive)
+					{
+						activated = &row;
+					}
+					if (interactive && row._enabled && mouseMoved && ImGui::IsItemHovered())
+					{
+						_addComponentHighlight = index;
+					}
+					if (interactive && ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled))
+					{
+						ReflectionTraitDescription* description = row._descriptor->FindTrait<ReflectionTraitDescription>(false);
+						if (row._type == RowType::Base)
+						{
+							ImGui::SetTooltip("%s%sA base: add one of the classes deriving from it", description != nullptr ? description->GetValue().CStr() : "",
+							                  description != nullptr ? "\n\n" : "");
+						}
+						else if (row._enabled == false)
+						{
+							ImGui::SetTooltip("%s%sAlready on this entity", description != nullptr ? description->GetValue().CStr() : "", description != nullptr ? "\n\n" : "");
+						}
+						else if (description != nullptr)
+						{
+							ImGui::SetTooltip("%s", description->GetValue().CStr());
+						}
+					}
+					if (interactive && _addComponentScrollToHighlight && index == highlight)
+					{
+						ImGui::SetScrollHereY();
+					}
+
+					ImGui::SameLine(rowX + static_cast<float>(row._depth) * treeIndent, 0.0f);
+					if (row._hasChildren)
+					{
+						if (ImGui::InvisibleButton("Arrow", ImVec2(treeArrowWidth, ImGui::GetTextLineHeight())) && interactive)
+						{
+							setExpanded(row, row._expanded == false);
+							_addComponentFocusSearch = true; // a click took it
+						}
+						ImU32 arrowColor = ImGui::GetColorU32(ImGui::IsItemHovered() ? ImGuiCol_Text : ImGuiCol_TextDisabled);
+						ImGui::GetWindowDrawList()->AddText(ImGui::GetItemRectMin(), arrowColor, row._expanded ? ICON_MDI_CHEVRON_DOWN : ICON_MDI_CHEVRON_RIGHT);
+					}
+					else
+					{
+						ImGui::Dummy(ImVec2(treeArrowWidth, ImGui::GetTextLineHeight()));
+					}
+					ImGui::SameLine();
+					String treeLabel = String(DrawHelper::GetTypeIcon(*row._descriptor, ICON_MDI_PUZZLE)) + " " + row._name;
+					if (row._enabled == false)
+					{
+						ImGui::TextDisabled("%s", treeLabel.CStr());
+					}
+					else
+					{
+						// A base dimmer than the classes that can be added
+						ImVec4 color = ImGui::GetStyleColorVec4(ImGuiCol_Text);
+						if (row._type == RowType::Base)
+						{
+							color.w *= 0.6f;
+						}
+						ImGui::PushStyleColor(ImGuiCol_Text, color);
+						ImGui::TextUnformatted(treeLabel.CStr());
+						ImGui::PopStyleColor();
+					}
+					ImGui::PopID();
+					continue;
+				}
 				String     label;
 				const char* right = nullptr;
 				ImGuiSelectableFlags flags = ImGuiSelectableFlags_None;
@@ -718,7 +1014,7 @@ namespace hod::inline editor
 
 		// A folder change slides the rows: the folder left goes out on one side while the new one comes in from the other (from the right
 		// into a folder, from the left back out of it), both in children of their own moving inside the frame, which stays
-		if (searching)
+		if (searching || tree)
 		{
 			_addComponentSlideDirection = 0;
 		}
@@ -771,6 +1067,15 @@ namespace hod::inline editor
 				GetOwner()->MarkAsDirty(fmt::format("Add {}", activated->_name));
 				ImGui::CloseCurrentPopup();
 			}
+			else if (activated->_type == RowType::Base)
+			{
+				// Only there for its derived classes: expanded or collapsed
+				if (activated->_hasChildren)
+				{
+					setExpanded(*activated, activated->_expanded == false);
+				}
+				_addComponentFocusSearch = true; // a click took it
+			}
 			else
 			{
 				goToFolder = true;
@@ -778,7 +1083,7 @@ namespace hod::inline editor
 				previousHighlight = static_cast<int32_t>(activated - &rows[0]);
 			}
 		}
-		else if (goUp && searching == false && _addComponentFolder.Empty() == false)
+		else if (goUp && searching == false && tree == false && _addComponentFolder.Empty() == false)
 		{
 			std::string_view folder(_addComponentFolder.CStr(), _addComponentFolder.Size());
 			size_t           separator = folder.rfind('/');

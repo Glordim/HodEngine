@@ -7,6 +7,7 @@
 #include "HodEngine/Editor/AssetDatabase.hpp"
 
 #include <HodEngine/Core/String.hpp>
+#include <HodEngine/Core/Vector.hpp>
 
 #include <memory>
 
@@ -62,6 +63,8 @@ namespace hod::inline editor
 		bool		_addComponentFocusSearch = false; // given back to the search field on the next draw (after a click in the list...)
 		int32_t		_addComponentSlideDirection = 0; // the rows sliding in after a folder change: from the right (1), the left (-1), or not (0)
 		double		_addComponentSlideStart = 0.0; // ImGui time
+		bool		_addComponentByInheritance = false; // the classes as a tree by inheritance instead of the folders (kept between openings)
+		Vector<uint64_t> _addComponentCollapsed; // the classes collapsed in that tree (by type, all expanded at first)
 		String		_addComponentPreviousFolder; // the folder left, sliding out
 		int32_t		_addComponentPreviousHighlight = -1; // its row that was activated, still highlighted while it slides out
 	};
