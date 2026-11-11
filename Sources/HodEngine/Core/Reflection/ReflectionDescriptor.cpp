@@ -5,6 +5,7 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
 
 #include <cassert>
 #include <cstdint>
@@ -50,7 +51,9 @@ namespace hod::inline core
 	{
 		if (_displayName.Empty())
 		{
-			_displayName = GenerateDisplayName(_typeName);
+			// Its own, not its parent's
+			ReflectionTraitDisplayName* displayNameTrait = FindTrait<ReflectionTraitDisplayName>(false);
+			_displayName = (displayNameTrait != nullptr) ? displayNameTrait->GetValue() : GenerateDisplayName(_typeName);
 		}
 		return _displayName;
 	}

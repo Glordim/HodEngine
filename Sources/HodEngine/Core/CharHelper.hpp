@@ -1,5 +1,6 @@
 #pragma once
 
+#include "HodEngine/Core/Export.hpp"
 #include "HodEngine/Core/String.hpp"
 #include <string_view>
 
@@ -45,5 +46,5 @@ namespace hod::inline core
 		return c + ('a' - 'A');
 	}
 
-	String GenerateDisplayName(const std::string_view& name);
+	HOD_CORE_API String GenerateDisplayName(const std::string_view& name);
 }
