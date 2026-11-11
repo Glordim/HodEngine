@@ -20,6 +20,7 @@
 #include "HodEngine/Game/Entity.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
 #include <HodEngine/Core/Math.hpp>
@@ -226,7 +227,11 @@ namespace hod::inline editor
 
 				bool enabled = component->GetEnabled();
 				bool removeRequested = false;
-				bool opened = DrawHelper::BeginInspectorBlock((const void*)(uintptr_t)component->GetReflectionDescriptorV().GetType(), ICON_MDI_PUZZLE, GetComponentDisplayName(component->GetReflectionDescriptorV()).CStr(), &enabled, &removeRequested);
+				// What it is for, when its title stays hovered (its own description, not a parent's)
+				ReflectionTraitDescription* description = component->GetReflectionDescriptorV().FindTrait<ReflectionTraitDescription>(false);
+				bool opened = DrawHelper::BeginInspectorBlock((const void*)(uintptr_t)component->GetReflectionDescriptorV().GetType(), ICON_MDI_PUZZLE,
+				                                              GetComponentDisplayName(component->GetReflectionDescriptorV()).CStr(), &enabled, &removeRequested, nullptr, nullptr,
+				                                              nullptr, description != nullptr ? description->GetValue().CStr() : nullptr);
 				if (enabled != component->GetEnabled())
 				{
 					component->SetEnabled(enabled);
@@ -295,7 +300,7 @@ namespace hod::inline editor
 
 	/// @brief The list of the components that can be added, filtered by a search. Driven with the keyboard too: the arrows move the
 	/// highlighted result, Enter adds it, Escape closes. The components the entity already has are greyed out (one of each type, see
-	/// Entity::AddComponent).
+	/// Entity::AddComponent), the description of each one is its tooltip.
 	/// @param selection
 	void InspectorWindow::DrawAddComponentPopup(Entity* selection)
 	{
@@ -425,9 +430,17 @@ namespace hod::inline editor
 				{
 					_addComponentHighlight = index;
 				}
-				if (entry._enabled == false && ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled))
+				if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled))
 				{
-					ImGui::SetTooltip("Already on this entity");
+					ReflectionTraitDescription* description = entry._descriptor->FindTrait<ReflectionTraitDescription>(false);
+					if (entry._enabled == false)
+					{
+						ImGui::SetTooltip("%s%sAlready on this entity", description != nullptr ? description->GetValue().CStr() : "", description != nullptr ? "\n\n" : "");
+					}
+					else if (description != nullptr)
+					{
+						ImGui::SetTooltip("%s", description->GetValue().CStr());
+					}
 				}
 				if (_addComponentScrollToHighlight && index == _addComponentHighlight)
 				{

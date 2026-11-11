@@ -289,7 +289,8 @@ namespace hod::inline editor
 		}
 	}
 
-	bool DrawHelper::BeginInspectorBlock(const void* id, const char* icon, const char* title, bool* enabled, bool* removeRequested, const char* actionIcon, const char* actionTooltip, bool* actionRequested)
+	bool DrawHelper::BeginInspectorBlock(const void* id, const char* icon, const char* title, bool* enabled, bool* removeRequested, const char* actionIcon, const char* actionTooltip, bool* actionRequested,
+	                                     const char* titleTooltip)
 	{
 		ImGui::PushID(id);
 		if (ImGui::BeginChild("InspectorBlock", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_Borders) == false)
@@ -344,11 +345,19 @@ namespace hod::inline editor
 
 		ImGui::BeginDisabled(disabled);
 		ImGui::SameLine();
+		ImGui::BeginGroup();
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted(icon);
 		ImGui::SameLine();
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted(title);
+		ImGui::EndGroup();
+		// A longer delay than the other tooltips (DelayNormal): the headers are crossed all the time on the way to the properties
+		if (titleTooltip != nullptr && titleTooltip[0] != '\0' &&
+		    ImGui::IsItemHovered(ImGuiHoveredFlags_Stationary | ImGuiHoveredFlags_DelayNormal | ImGuiHoveredFlags_NoSharedDelay | ImGuiHoveredFlags_AllowWhenDisabled))
+		{
+			ImGui::SetTooltip("%s", titleTooltip);
+		}
 		ImGui::EndDisabled();
 
 		// Right-aligned header buttons: the close button last, the action button just before it.

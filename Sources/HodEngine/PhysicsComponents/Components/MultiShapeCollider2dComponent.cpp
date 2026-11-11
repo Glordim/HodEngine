@@ -6,6 +6,7 @@
 #include "HodEngine/Physics/Collider.hpp"
 
 #include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
 
 namespace hod::inline physics
 {
@@ -24,6 +25,7 @@ namespace hod::inline physics
 
 	DESCRIBE_REFLECTED_CLASS(MultiShapeCollider2dComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("2D collision shape made of several circles and boxes");
 		AddPropertyT(reflectionDescriptor, &MultiShapeCollider2dComponent::_circles, "Circles");
 		AddPropertyT(reflectionDescriptor, &MultiShapeCollider2dComponent::_boxes, "Boxes");
 	}

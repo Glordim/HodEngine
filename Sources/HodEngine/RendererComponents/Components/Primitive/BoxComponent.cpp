@@ -14,6 +14,7 @@
 #include <HodEngine/Renderer/Renderer.hpp>
 
 #include "HodEngine/Core/StaticArray.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
 
 namespace hod::inline renderer
 {
@@ -42,6 +43,7 @@ namespace hod::inline renderer
 
 	DESCRIBE_REFLECTED_CLASS(BoxComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Draws a box with a material");
 		AddPropertyT(reflectionDescriptor, &BoxComponent::_material, "_material", &BoxComponent::SetMaterialInstanceResource);
 	}
 

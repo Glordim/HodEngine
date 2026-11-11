@@ -14,11 +14,13 @@
 #include <HodEngine/Renderer/MaterialInstance.hpp>
 #include <HodEngine/Renderer/Sprite.hpp>
 #include <HodEngine/Renderer/SpriteAtlas.hpp>
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
 
 namespace hod::inline renderer
 {
 	DESCRIBE_REFLECTED_CLASS(TextRendererComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Draws a text with a font");
 		AddPropertyT(reflectionDescriptor, &TextRendererComponent::_fontResource, "_fontResource", &TextRendererComponent::SetFont);
 		AddPropertyT(reflectionDescriptor, &TextRendererComponent::_text, "_text" /*, &TextRendererComponent::SetText*/);
 		// ADD_PROPERTY(TextureRendererComponent, _textureResource);

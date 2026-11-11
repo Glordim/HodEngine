@@ -6,11 +6,13 @@
 #include "HodEngine/Physics/Collider.hpp"
 
 #include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
 
 namespace hod::inline physics
 {
 	DESCRIBE_REFLECTED_CLASS(CircleCollider2dComponent, reflectionDescriptor)
 	{
+		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Circular 2D collision shape");
 		AddPropertyT(reflectionDescriptor, &CircleCollider2dComponent::_offset, "Offset", &CircleCollider2dComponent::SetOffset);
 		AddPropertyT(reflectionDescriptor, &CircleCollider2dComponent::_radius, "Radius", &CircleCollider2dComponent::SetRadius);
 
