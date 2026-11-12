@@ -4,6 +4,7 @@
 #include "HodEngine/RendererComponents/Components/CameraComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
 #include "HodEngine/Game/Entity.hpp"
+#include "HodEngine/Game/Traits/ReflectionTraitRequireComponent.hpp"
 #include <HodEngine/Game/World.hpp>
 
 #include <HodEngine/Core/Document/Document.hpp>
@@ -31,6 +32,7 @@ namespace hod::inline ui
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_VIEW_DASHBOARD);
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("UI");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Shows a UI prefab, over the game or in the world");
+		reflectionDescriptor.AddTrait<ReflectionTraitRequireComponent>(&Node2dComponent::GetReflectionDescriptor);
 		AddPropertyT(reflectionDescriptor, &UIComponent::_prefab, "Prefab", &UIComponent::SetPrefab);
 		AddPropertyT(reflectionDescriptor, &UIComponent::_renderMode, "RenderMode", &UIComponent::SetRenderMode);
 		AddPropertyT(reflectionDescriptor, &UIComponent::_sortingOrder, "SortingOrder", &UIComponent::SetSortingOrder);

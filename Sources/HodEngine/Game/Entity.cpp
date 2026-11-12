@@ -3,7 +3,9 @@
 #include "HodEngine/Game/Entity.hpp"
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/World.hpp"
+#include "HodEngine/Game/Traits/ReflectionTraitRequireComponent.hpp"
 
+#include <HodEngine/Core/Output/OutputService.hpp>
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
@@ -187,7 +189,129 @@ namespace hod::inline game
 			return existingComponent;
 		}
 
+		// Its requirements first: there before it in the list, constructed and awaked before it
+		for (const ReflectionDescriptor* requiredComponent : GetMissingRequiredComponents(descriptor))
+		{
+			AddComponent(static_cast<Component*>(requiredComponent->CreateInstance()));
+		}
+
 		return AddComponent(static_cast<Component*>(descriptor.CreateInstance()));
+	}
+
+	/// @brief
+	/// @param descriptor
+	/// @return
+	Component* Entity::AddComponentWithoutRequirements(const ReflectionDescriptor& descriptor)
+	{
+		Component* existingComponent = GetComponent(descriptor);
+		if (existingComponent != nullptr)
+		{
+			return existingComponent;
+		}
+
+		return AddComponent(static_cast<Component*>(descriptor.CreateInstance()));
+	}
+
+	/// @brief
+	/// @param descriptor
+	/// @return
+	const Component* Entity::FindComponent(const ReflectionDescriptor& descriptor) const
+	{
+		for (const Component* component : _components)
+		{
+			if (component->GetReflectionDescriptorV().IsCompatible(descriptor) == true)
+			{
+				return component;
+			}
+		}
+		return nullptr;
+	}
+
+	/// @brief
+	/// @param descriptor
+	/// @return
+	Vector<const ReflectionDescriptor*> Entity::GetMissingRequiredComponents(const ReflectionDescriptor& descriptor) const
+	{
+		Vector<const ReflectionDescriptor*> missing;
+		Vector<const ReflectionDescriptor*> visiting;
+		CollectMissingRequiredComponents(descriptor, missing, visiting);
+		return missing;
+	}
+
+	/// @brief Depth first: a required component's own requirements are listed before it
+	/// @param descriptor
+	/// @param missing
+	/// @param visiting the types whose requirements are being collected: one of them required again (a cycle) is already going to be added
+	void Entity::CollectMissingRequiredComponents(const ReflectionDescriptor& descriptor, Vector<const ReflectionDescriptor*>& missing,
+	                                              Vector<const ReflectionDescriptor*>& visiting) const
+	{
+		visiting.PushBack(&descriptor);
+		for (const ReflectionDescriptor* requiredComponent : ReflectionTraitRequireComponent::GetRequiredComponents(descriptor))
+		{
+			if (FindComponent(*requiredComponent) != nullptr)
+			{
+				continue;
+			}
+
+			bool alreadyPlanned = false;
+			for (const ReflectionDescriptor* planned : missing)
+			{
+				alreadyPlanned |= planned->IsCompatible(*requiredComponent);
+			}
+			for (const ReflectionDescriptor* planned : visiting)
+			{
+				alreadyPlanned |= planned->IsCompatible(*requiredComponent);
+			}
+			if (alreadyPlanned)
+			{
+				continue;
+			}
+
+			if (requiredComponent->CanCreateInstance() == false)
+			{
+				OUTPUT_ERROR("Entity: {} requires {}, which can't be instantiated (require a concrete type)", descriptor.GetDisplayName(), requiredComponent->GetDisplayName());
+				continue;
+			}
+
+			CollectMissingRequiredComponents(*requiredComponent, missing, visiting);
+			missing.PushBack(requiredComponent);
+		}
+		visiting.PopBack();
+	}
+
+	/// @brief
+	/// @param component
+	/// @return
+	Component* Entity::GetComponentRequiring(const Component* component) const
+	{
+		const ReflectionDescriptor& componentDescriptor = component->GetReflectionDescriptorV();
+		for (Component* requiringComponent : _components)
+		{
+			if (requiringComponent == component)
+			{
+				continue;
+			}
+
+			for (const ReflectionDescriptor* requiredComponent : ReflectionTraitRequireComponent::GetRequiredComponents(requiringComponent->GetReflectionDescriptorV()))
+			{
+				if (componentDescriptor.IsCompatible(*requiredComponent) == false)
+				{
+					continue;
+				}
+
+				// Another one standing in for it (e.g. two node types deriving from the required one)
+				bool replaced = false;
+				for (const Component* other : _components)
+				{
+					replaced |= other != component && other->GetReflectionDescriptorV().IsCompatible(*requiredComponent);
+				}
+				if (replaced == false)
+				{
+					return requiringComponent;
+				}
+			}
+		}
+		return nullptr;
 	}
 
 	/// @brief
@@ -222,12 +346,20 @@ namespace hod::inline game
 
 	/// @brief Ends its life as the entity's destruction would (disabled, destructed) and deletes it
 	/// @param component
-	void Entity::RemoveComponent(Component* component)
+	bool Entity::RemoveComponent(Component* component)
 	{
 		auto it = std::find(_components.Begin(), _components.End(), component);
 		if (it == _components.End())
 		{
-			return;
+			return false;
+		}
+
+		Component* requiringComponent = GetComponentRequiring(component);
+		if (requiringComponent != nullptr)
+		{
+			OUTPUT_ERROR("Entity '{}': can't remove {}, {} requires it", _name, component->GetReflectionDescriptorV().GetDisplayName(),
+			             requiringComponent->GetReflectionDescriptorV().GetDisplayName());
+			return false;
 		}
 		_components.Erase(it);
 
@@ -240,16 +372,18 @@ namespace hod::inline game
 			component->Destruct();
 		}
 		DefaultAllocator::GetInstance().Delete(component);
+		return true;
 	}
 
-	/// @brief
+	/// @brief The one of this exact type, otherwise the last one deriving from it
 	/// @param descriptor
-	void Entity::RemoveComponent(const ReflectionDescriptor& descriptor)
+	bool Entity::RemoveComponent(const ReflectionDescriptor& descriptor)
 	{
 		Component* componentToRemove = nullptr;
 		for (Component* component : _components)
 		{
-			if (&component->GetReflectionDescriptorV() == &descriptor)
+			// Compared by type: each DLL has its own descriptor instance in shared builds
+			if (component->GetReflectionDescriptorV().GetType() == descriptor.GetType())
 			{
 				componentToRemove = component;
 				break;
@@ -260,10 +394,11 @@ namespace hod::inline game
 				componentToRemove = component;
 			}
 		}
-		if (componentToRemove != nullptr)
+		if (componentToRemove == nullptr)
 		{
-			RemoveComponent(componentToRemove);
+			return false;
 		}
+		return RemoveComponent(componentToRemove);
 	}
 
 	/// @brief

@@ -29,9 +29,9 @@ namespace hod::inline game
 	}
 
 	template<typename _Component_>
-	void Entity::RemoveComponent()
+	bool Entity::RemoveComponent()
 	{
 		static_assert(std::is_base_of<Component, _Component_>::value, "_Component_ must derive from Component to use RemoveComponent()");
-		RemoveComponent(_Component_::GetReflectionDescriptor());
+		return RemoveComponent(_Component_::GetReflectionDescriptor());
 	}
 }

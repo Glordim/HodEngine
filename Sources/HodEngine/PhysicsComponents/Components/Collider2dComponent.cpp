@@ -3,6 +3,7 @@
 #include "HodEngine/PhysicsComponents/Components/Rigidbody2dComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
 #include "HodEngine/Game/Entity.hpp"
+#include "HodEngine/Game/Traits/ReflectionTraitRequireComponent.hpp"
 
 #include "HodEngine/Game/Scene.hpp"
 
@@ -23,6 +24,8 @@ namespace hod::inline physics
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_SHAPE_OUTLINE);
 		// The base of the colliders, without a shape: not offered in the editor
 		reflectionDescriptor.AddTrait<ReflectionTraitHide>();
+		// Not a Rigidbody2d: a collider without one is static (see TODO.txt)
+		reflectionDescriptor.AddTrait<ReflectionTraitRequireComponent>(&Node2dComponent::GetReflectionDescriptor);
 		AddPropertyT(reflectionDescriptor, &Collider2dComponent::_isTrigger, "IsTrigger");
 		AddPropertyT(reflectionDescriptor, &Collider2dComponent::_friction, "Friction");
 		AddPropertyT(reflectionDescriptor, &Collider2dComponent::_density, "Density");

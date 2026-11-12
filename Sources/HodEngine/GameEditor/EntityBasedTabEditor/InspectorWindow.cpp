@@ -203,7 +203,8 @@ namespace hod::inline editor
 			ImGui::SetTooltip("Named after the asset: rename the asset to rename it");
 		}
 
-		Component* componentToRemove = nullptr; // After the loop: removing deletes it, and changes the list being drawn
+		Component*                          componentToRemove = nullptr; // After the loop: removing deletes it, and changes the list being drawn
+		Vector<const ReflectionDescriptor*> addedRequiredComponents;     // Same, adding changes the list
 		for (Component* component : selection->GetComponents())
 		{
 			if (component != nullptr)
@@ -232,10 +233,18 @@ namespace hod::inline editor
 				bool removeRequested = false;
 				// What it is for, when its title stays hovered (its own description, not a parent's)
 				ReflectionTraitDescription* description = component->GetReflectionDescriptorV().FindTrait<ReflectionTraitDescription>(false);
+				// Not removable while another component requires it (Entity::RemoveComponent would refuse)
+				String     removeDisabledReason;
+				Component* requiringComponent = selection->GetComponentRequiring(component);
+				if (requiringComponent != nullptr)
+				{
+					removeDisabledReason = fmt::format("Required by {}", GetComponentDisplayName(requiringComponent->GetReflectionDescriptorV()));
+				}
 				bool opened = DrawHelper::BeginInspectorBlock((const void*)(uintptr_t)component->GetReflectionDescriptorV().GetType(),
 				                                              DrawHelper::GetTypeIcon(component->GetReflectionDescriptorV(), ICON_MDI_PUZZLE),
 				                                              GetComponentDisplayName(component->GetReflectionDescriptorV()).CStr(), &enabled, &removeRequested, nullptr, nullptr,
-				                                              nullptr, description != nullptr ? description->GetValue().CStr() : nullptr);
+				                                              nullptr, description != nullptr ? description->GetValue().CStr() : nullptr,
+				                                              requiringComponent != nullptr ? removeDisabledReason.CStr() : nullptr);
 				if (enabled != component->GetEnabled())
 				{
 					component->SetEnabled(enabled);
@@ -249,6 +258,26 @@ namespace hod::inline editor
 
 				if (opened == true)
 				{
+					// Data written without what it requires (added since, or by hand): AddComponent would have added it
+					Vector<const ReflectionDescriptor*> missingRequiredComponents = selection->GetMissingRequiredComponents(component->GetReflectionDescriptorV());
+					if (missingRequiredComponents.Empty() == false)
+					{
+						String missingNames;
+						for (const ReflectionDescriptor* missingRequiredComponent : missingRequiredComponents)
+						{
+							missingNames += missingNames.Empty() ? "" : ", ";
+							missingNames += GetComponentDisplayName(*missingRequiredComponent);
+						}
+						ImGui::PushStyleColor(ImGuiCol_Text, ImVec4(1.0f, 0.75f, 0.2f, 1.0f));
+						ImGui::TextWrapped(ICON_MDI_ALERT " Requires %s", missingNames.CStr());
+						ImGui::PopStyleColor();
+						ImGui::SameLine();
+						if (ImGui::SmallButton("Add"))
+						{
+							addedRequiredComponents = missingRequiredComponents;
+						}
+					}
+
 					Component*            sourceComponent = PrefabUtility::GetCorrespondingComponent(component);
 					EditorReflectedObject reflectedObject(component, &component->GetReflectionDescriptorV(), sourceComponent, this);
 
@@ -274,8 +303,19 @@ namespace hod::inline editor
 		if (componentToRemove != nullptr)
 		{
 			std::string label = fmt::format("Remove {}", GetComponentDisplayName(componentToRemove->GetReflectionDescriptorV()));
-			selection->RemoveComponent(componentToRemove);
-			GetOwner()->MarkAsDirty(label);
+			if (selection->RemoveComponent(componentToRemove))
+			{
+				GetOwner()->MarkAsDirty(label);
+			}
+		}
+		if (addedRequiredComponents.Empty() == false)
+		{
+			// Dependencies first (GetMissingRequiredComponents' order)
+			for (const ReflectionDescriptor* requiredComponent : addedRequiredComponents)
+			{
+				selection->AddComponent(*requiredComponent);
+			}
+			GetOwner()->MarkAsDirty("Add required components");
 		}
 
 		ImGui::Spacing();
@@ -299,6 +339,29 @@ namespace hod::inline editor
 				*static_cast<int32_t*>(data->UserData) += (data->EventKey == ImGuiKey_UpArrow) ? -1 : 1;
 			}
 			return 0;
+		}
+
+		/// @brief Tooltip of a component that can be added: its description, and what adding it adds with it (its missing requirements)
+		String AddComponentTooltip(const ReflectionDescriptor& descriptor, const Entity* selection)
+		{
+			String                      tooltip;
+			ReflectionTraitDescription* description = descriptor.FindTrait<ReflectionTraitDescription>(false);
+			if (description != nullptr)
+			{
+				tooltip = description->GetValue();
+			}
+
+			Vector<const ReflectionDescriptor*> missingRequiredComponents = selection->GetMissingRequiredComponents(descriptor);
+			if (missingRequiredComponents.Empty() == false)
+			{
+				tooltip += tooltip.Empty() ? "Also adds " : "\n\nAlso adds ";
+				for (uint32_t index = 0; index < missingRequiredComponents.Size(); ++index)
+				{
+					tooltip += (index > 0) ? ", " : "";
+					tooltip += GetComponentDisplayName(*missingRequiredComponents[index]);
+				}
+			}
+			return tooltip;
 		}
 	}
 
@@ -908,9 +971,9 @@ namespace hod::inline editor
 						{
 							ImGui::SetTooltip("%s%sAlready on this entity", description != nullptr ? description->GetValue().CStr() : "", description != nullptr ? "\n\n" : "");
 						}
-						else if (description != nullptr)
+						else if (String tooltip = AddComponentTooltip(*row._descriptor, selection); tooltip.Empty() == false)
 						{
-							ImGui::SetTooltip("%s", description->GetValue().CStr());
+							ImGui::SetTooltip("%s", tooltip.CStr());
 						}
 					}
 					if (interactive && _addComponentScrollToHighlight && index == highlight)
@@ -995,9 +1058,9 @@ namespace hod::inline editor
 					{
 						ImGui::SetTooltip("%s%sAlready on this entity", description != nullptr ? description->GetValue().CStr() : "", description != nullptr ? "\n\n" : "");
 					}
-					else if (description != nullptr)
+					else if (String tooltip = AddComponentTooltip(*row._descriptor, selection); tooltip.Empty() == false)
 					{
-						ImGui::SetTooltip("%s", description->GetValue().CStr());
+						ImGui::SetTooltip("%s", tooltip.CStr());
 					}
 				}
 				if (interactive && _addComponentScrollToHighlight && index == highlight)

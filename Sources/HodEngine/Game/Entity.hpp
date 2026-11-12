@@ -85,15 +85,24 @@ namespace hod::inline game
 		_Component_* GetComponentInParent();
 		Component*   GetComponentInParent(const ReflectionDescriptor& descriptor);
 
+		/// @brief Returns the one already there if any. Otherwise adds first the components it requires that are missing
+		/// (ReflectionTraitRequireComponent, recursively, see GetMissingRequiredComponents), then it.
 		template<typename _Component_>
 		_Component_* AddComponent();
 		Component*   AddComponent(const ReflectionDescriptor& descriptor);
 
+		/// @brief Refused (an error is logged, returns false) while another component of the entity requires it, see GetComponentRequiring
 		template<typename _Component_>
-		void RemoveComponent();
-		void RemoveComponent(const ReflectionDescriptor& descriptor);
-		/// @brief Deletes it
-		void RemoveComponent(Component* component);
+		bool RemoveComponent();
+		bool RemoveComponent(const ReflectionDescriptor& descriptor);
+		/// @brief Deletes it. Refused (an error is logged, returns false) while another component of the entity requires it, see GetComponentRequiring
+		bool RemoveComponent(Component* component);
+
+		/// @brief What AddComponent(descriptor) would add before it: the components it requires (and that they require) missing from the entity,
+		/// dependencies first. For a component already on the entity: what it requires and is missing (data written without it).
+		Vector<const ReflectionDescriptor*> GetMissingRequiredComponents(const ReflectionDescriptor& descriptor) const;
+		/// @brief Another component of the entity requiring this one, that no other component of the entity can stand in for (nullptr when none)
+		Component* GetComponentRequiring(const Component* component) const;
 
 		// Serialization
 		void                            SetPrefabResource(std::shared_ptr<PrefabResource> prefabResource); // TODO move in private ?
@@ -110,6 +119,11 @@ namespace hod::inline game
 
 	private:
 		Component* AddComponent(Component* instance);
+		/// @brief For loading (SceneSerializer): the data stays as written, its requirements are not added
+		Component* AddComponentWithoutRequirements(const ReflectionDescriptor& descriptor);
+		void       CollectMissingRequiredComponents(const ReflectionDescriptor& descriptor, Vector<const ReflectionDescriptor*>& missing,
+		                                            Vector<const ReflectionDescriptor*>& visiting) const;
+		const Component* FindComponent(const ReflectionDescriptor& descriptor) const;
 
 		void NotifyActivationChanged();
 

@@ -1,6 +1,8 @@
 #include "HodEngine/RendererComponents/Pch.hpp"
 #include "HodEngine/RendererComponents/Components/CameraComponent.hpp"
+#include "HodEngine/Game/Components/Node2dComponent.hpp"
 #include "HodEngine/Game/Components/NodeComponent.hpp"
+#include "HodEngine/Game/Traits/ReflectionTraitRequireComponent.hpp"
 
 #include <HodEngine/Math/Rect.hpp>
 
@@ -26,6 +28,7 @@ namespace hod::inline renderer
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_CAMERA);
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Rendering");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Point of view the world is rendered from");
+		reflectionDescriptor.AddTrait<ReflectionTraitRequireComponent>(&Node2dComponent::GetReflectionDescriptor);
 		AddPropertyT(reflectionDescriptor, &CameraComponent::_projection, "Projection");
 		AddPropertyT(reflectionDescriptor, &CameraComponent::_near, "Near");
 		AddPropertyT(reflectionDescriptor, &CameraComponent::_far, "Far");

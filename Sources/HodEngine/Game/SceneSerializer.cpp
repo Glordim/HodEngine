@@ -307,7 +307,7 @@ namespace hod::inline game
 			if (it != componentFactory->GetAllDescriptors().end())
 			{
 				const ReflectionDescriptor& componentDescriptor = *it->second;
-				Component*                  component = entity->AddComponent(componentDescriptor);
+				Component*                  component = entity->AddComponentWithoutRequirements(componentDescriptor); // as written
 				if (Serializer::Deserialize(componentDescriptor, component, *componentNode,
 				                            std::bind(&SceneSerializer::CustomComponentDeserializationCallback, this, std::placeholders::_1, std::placeholders::_2,
 				                                      std::placeholders::_3)) == false) // todo lvalue...
@@ -326,7 +326,7 @@ namespace hod::inline game
 				// Its module is disabled or gone: kept as it is (see MissingComponent)
 				OUTPUT_WARNING("SceneSerializer: unknown component type {} on the entity '{}', kept as a MissingComponent (is its module disabled?)", RttiType,
 				               entity->GetName());
-				MissingComponent* component = static_cast<MissingComponent*>(entity->AddComponent(MissingComponent::GetReflectionDescriptor()));
+				MissingComponent* component = static_cast<MissingComponent*>(entity->AddComponentWithoutRequirements(MissingComponent::GetReflectionDescriptor()));
 				Serializer::Deserialize(MissingComponent::GetReflectionDescriptor(), component, *componentNode); // Its ids
 				component->SetData(*componentNode);
 

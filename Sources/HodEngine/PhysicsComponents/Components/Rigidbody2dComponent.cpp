@@ -12,6 +12,7 @@
 #include <HodEngine/PhysicsComponents/PhysicsWorldSystem.hpp>
 
 #include "HodEngine/Game/Scene.hpp"
+#include "HodEngine/Game/Traits/ReflectionTraitRequireComponent.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCategory.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp"
@@ -31,6 +32,7 @@ namespace hod::inline physics
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_WEIGHT);
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Physics");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Moves the entity and its colliders with the 2D physics: static, kinematic or dynamic");
+		reflectionDescriptor.AddTrait<ReflectionTraitRequireComponent>(&Node2dComponent::GetReflectionDescriptor);
 		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_mode, "Mode", &Rigidbody2dComponent::SetMode);
 		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_gravityScale, "GravityScale", &Rigidbody2dComponent::SetGravityScale);
 		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_fixedRotation, "FixedRotation", &Rigidbody2dComponent::SetFixedRotation);

@@ -71,9 +71,10 @@ namespace hod::inline editor
         /// which sets actionRequested to true when clicked, e.g. for the caller to open a popup. actionTooltip (optional) is shown when hovering it.
         /// @param titleTooltip (optional) shown when the icon or the title stays hovered a while (longer than the usual tooltips: the
         /// header is crossed all the time), e.g. what the block's type is for
+        /// @param removeDisabledReason (optional) the remove button is shown disabled, with it as its tooltip
         static bool				BeginInspectorBlock(const void* id, const char* icon, const char* title, bool* enabled = nullptr, bool* removeRequested = nullptr,
                                                     const char* actionIcon = nullptr, const char* actionTooltip = nullptr, bool* actionRequested = nullptr,
-                                                    const char* titleTooltip = nullptr);
+                                                    const char* titleTooltip = nullptr, const char* removeDisabledReason = nullptr);
         static void				EndInspectorBlock();
 
         /// @brief Icon of a reflected type: its ReflectionTraitIcon (possibly inherited from a parent type), or fallback when it has none.

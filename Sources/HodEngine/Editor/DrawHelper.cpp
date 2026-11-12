@@ -290,7 +290,7 @@ namespace hod::inline editor
 	}
 
 	bool DrawHelper::BeginInspectorBlock(const void* id, const char* icon, const char* title, bool* enabled, bool* removeRequested, const char* actionIcon, const char* actionTooltip, bool* actionRequested,
-	                                     const char* titleTooltip)
+	                                     const char* titleTooltip, const char* removeDisabledReason)
 	{
 		ImGui::PushID(id);
 		if (ImGui::BeginChild("InspectorBlock", ImVec2(0.0f, 0.0f), ImGuiChildFlags_AutoResizeY | ImGuiChildFlags_AlwaysUseWindowPadding | ImGuiChildFlags_Borders) == false)
@@ -379,9 +379,15 @@ namespace hod::inline editor
 		if (removeRequested != nullptr)
 		{
 			ImGui::SameLine(rightEdge - closeWidth, 0.0f);
+			ImGui::BeginDisabled(removeDisabledReason != nullptr);
 			if (FadingHeaderButton(ICON_MDI_CLOSE))
 			{
 				*removeRequested = true;
+			}
+			ImGui::EndDisabled();
+			if (removeDisabledReason != nullptr)
+			{
+				ImGui::SetItemTooltip("%s", removeDisabledReason); // shown on disabled items too
 			}
 		}
 
