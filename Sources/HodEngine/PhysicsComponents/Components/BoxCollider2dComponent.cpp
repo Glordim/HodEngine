@@ -29,10 +29,14 @@ namespace hod::inline physics
 		Collider2dComponent::OnStart();
 
 		Rigidbody2dComponent* rigidbody = GetRigidbody();
+		if (rigidbody == nullptr)
+		{
+			return;
+		}
 		Vector2               parentOffset = rigidbody->GetParentOffset(this);
 
 		Vector2 scale = GetScale();
-		_collider = GetRigidbody()->GetInternalBody()->AddBoxShape(_isTrigger, parentOffset + _offset * scale, _size * scale, _rotation);
+		_collider = rigidbody->GetInternalBody()->AddBoxShape(_isTrigger, parentOffset + _offset * scale, _size * scale, _rotation);
 		_collider->SetUserData(this);
 	}
 

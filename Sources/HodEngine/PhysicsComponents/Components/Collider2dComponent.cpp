@@ -10,6 +10,7 @@
 #include <HodEngine/Physics/Body.hpp>
 #include <HodEngine/Physics/Collider.hpp>
 
+#include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitAllowedClasses.hpp>
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp"
@@ -41,10 +42,14 @@ namespace hod::inline physics
 	void Collider2dComponent::OnStart()
 	{
 		_rigidbody = GetOwner()->GetComponentInParent<Rigidbody2dComponent>();
+		if (_rigidbody == nullptr)
+		{
+			OUTPUT_ERROR("{} on '{}': no Rigidbody2d on the entity or its parents, the collider is ignored", GetReflectionDescriptorV().GetDisplayName(), GetOwner()->GetName());
+		}
 	}
 
-	/// @brief 
-	/// @return 
+	/// @brief
+	/// @return
 	Rigidbody2dComponent* Collider2dComponent::GetRigidbody()
 	{
 		if (_rigidbody == nullptr)

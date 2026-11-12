@@ -30,6 +30,10 @@ namespace hod::inline physics
 		Collider2dComponent::OnStart();
 
 		Rigidbody2dComponent* rigidbody = GetRigidbody();
+		if (rigidbody == nullptr)
+		{
+			return;
+		}
 		Vector2 parentOffset = rigidbody->GetParentOffset(this);
 
 		Vector2 scale = GetScale();
