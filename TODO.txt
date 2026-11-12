@@ -85,3 +85,19 @@ Display name, description, category and icon only serve the editor, but stay dec
 - Icons: for now components and UI nodes include HodEngine/ImGui/Font/IconsMaterialDesignIcons.h directly (no separate MDI lib in the retail CMake)
 	- Wrap that include in #if HOD_EDITOR_DATA
 - ReflectionTraitHide on properties is not editor only (UI PropertyOverride IsOverridable uses it at runtime): only the type-level Hide (not offered in Add Component) is
+
+---------
+
+# Physics: colliders without a Rigidbody2d (Unity's way)
+
+For now a collider without a Rigidbody2d on its entity or its parents logs an error and creates no shape
+- Lookup unchanged: GetComponentInParent<Rigidbody2dComponent> first (a child's collider stays a fixture of its parent's body, GetParentOffset already handles it)
+- Only when none is found: an implicit static body, one per entity holding such colliders (not a single global body: it can follow its node with SetTransform)
+	- Follows its node only when the node changes, not every step
+- Rigidbody2d added / removed at runtime: its colliders (and its children's) move between it and the implicit body
+	- Also fixes the shape left on a removed rigidbody's body
+- Collision / trigger events on the collider (its entity), not only on the Rigidbody2d: a static trigger zone (checkpoint, death zone) then needs no rigidbody
+	- In the callbacks, the other side is the rigidbody or, without one, the collider
+- Then a static Rigidbody2d only serves to group colliders (one body for a whole level's tiles, one place for the group's events)
+	- Its other options (GravityScale, FixedRotation, ContinuousCollision, FreezePosition) do nothing in Static: hide them in the inspector in that mode?
+- Rigidbody2dComponent::OnFixedUpdate teleports a static body to its node every step (TeleportToNode), even if it never moves
