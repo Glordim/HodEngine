@@ -6,7 +6,6 @@
 #include <HodEngine/Core/FileSystem/Path.hpp>
 
 #include <HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp>
-#include <HodEngine/Core/ModuleHost.hpp>
 #include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
@@ -78,14 +77,13 @@ namespace hod::inline editor
 		bool ConfigureGameModule() const;
 		bool BuildGameModule() const;
 
-		/// @brief The game module (a runtime module) and its editor module (see HOD_STARTUP_MODULE),
-		/// loaded after the engine's
-		bool LoadProjectModules();
-		void UnloadProjectModules();
-		bool ReloadProjectModules();
-
-		/// @brief The plugins (see PluginGraph), resolved against the project's disabled ones when it is opened
+		/// @brief The plugins (see PluginGraph), resolved against the project's disabled ones when it is opened, the project's own last
 		const PluginGraph&    GetPluginGraph() const;
+
+		/// @brief The project's own plugin, last of the graph (see PluginGraph::AppendLast): its game module (a runtime module) and its
+		/// editor module (see HOD_STARTUP_MODULE), built from its sources in its build directory, loaded by the editor (see
+		/// Editor::LoadProjectPlugin). Null if it couldn't be added (a plugin has the project's name)
+		const PluginManifest* GetProjectPlugin() const;
 		const Vector<String>& GetDisabledPlugins() const;
 
 		/// @brief Saved in the project file (checked out first if the version control needs it). Taken into account when the project
@@ -95,6 +93,10 @@ namespace hod::inline editor
 
 		bool CreateMinimalSourceForModule(const Path& directory);
 
+		/// @brief Its game module or its editor module was rebuilt (their libraries changed): the editor reloads them
+		Event<>& GetOnModulesRebuiltEvent() { return _onModulesRebuiltEvent; }
+
+		/// @brief Its plugin's modules were (re)loaded by the editor (see Editor::ReloadProjectPlugin), what they register is there
 		Event<>& GetOnModulesReloadedEvent() { return _onModulesReloadedEvent; }
 
 	private:
@@ -123,14 +125,15 @@ namespace hod::inline editor
 		Vector<String> _disabledPlugins; // Names of the plugins the project doesn't use (see PluginGraph::Resolve)
 		PluginGraph    _pluginGraph;
 
+		Path _modulesDirectoryPath; // Where its game module and its editor module are built
+
 		// Their library, as DynamicLibrary::Init takes it (no prefix, no extension, see DynamicLibrary::GetFilePath)
 		Path              _gameModuleLibraryPath;
 		FileSystemWatcher _gameModuleFileSystemWatcher;
 		Path              _editorModuleLibraryPath;
 		FileSystemWatcher _editorModuleFileSystemWatcher;
 
-		ModuleHost _projectModuleHost; // The game module, then its editor module while they're loaded (it loads and unloads them)
-
+		Event<> _onModulesRebuiltEvent;
 		Event<> _onModulesReloadedEvent;
 	};
 }

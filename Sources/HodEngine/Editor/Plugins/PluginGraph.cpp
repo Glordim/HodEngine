@@ -250,9 +250,9 @@ namespace hod::inline editor
 		for (uint32_t index = 0; index < _plugins.Size(); ++index)
 		{
 			Plugin& plugin = _plugins[index];
-			if (plugin._enabled == false)
+			if (plugin._enabled == false || plugin._needsAll)
 			{
-				continue;
+				continue; // The last one (see AppendLast) is built against whatever is enabled
 			}
 
 			for (const String& dependency : plugin._manifest._dependencies)
@@ -305,6 +305,24 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @param manifest
+	/// @return
+	bool PluginGraph::AppendLast(const PluginManifest& manifest)
+	{
+		if (Find(manifest._name) != nullptr)
+		{
+			OUTPUT_ERROR("Plugin '{}': a plugin of the same name is there already, it isn't added", manifest._name);
+			return false;
+		}
+		Plugin plugin;
+		plugin._manifest = manifest;
+		plugin._manifest._required = true;
+		plugin._needsAll = true;
+		_plugins.PushBack(std::move(plugin));
+		return true;
+	}
+
+	/// @brief
 	/// @return
 	const Vector<PluginGraph::Plugin>& PluginGraph::GetPlugins() const
 	{
@@ -333,7 +351,7 @@ namespace hod::inline editor
 		Vector<String> runtimeModules;
 		for (const Plugin& plugin : _plugins)
 		{
-			if (plugin._enabled)
+			if (plugin._enabled && plugin._manifest._builtFromSources == false)
 			{
 				for (const String& runtimeModule : plugin._manifest._runtimeModules)
 				{

@@ -173,16 +173,34 @@ namespace hod::inline editor
 	private:
 		bool AddProjectInRecentProject(const Path& path) const;
 
-		/// @brief The runtime modules of the project's enabled plugins (see Project::GetPluginGraph): loaded, started
+		/// @brief The runtime modules of the project's enabled plugins (see Project::GetPluginGraph): loaded, started. Not the project's
+		/// own (built later, see LoadProjectPlugin)
 		bool LoadRuntimeModules();
 		void UnloadRuntimeModules();
 
-		/// @brief The editor modules of the project's enabled plugins, in the plugins' order
+		/// @brief The plugin's runtime modules, in its order, after the ones loaded already: all, or none (the ones started undone)
+		/// @return false (with an error) if one couldn't be loaded or started
+		bool LoadPluginRuntimeModules(const PluginManifest& manifest);
+
+		/// @brief The editor modules of the project's enabled plugins, in the plugins' order. Not the project's own (see LoadProjectPlugin)
 		bool LoadEditorModules();
 		bool UnloadEditorModules();
 
+		/// @brief The project's own plugin (see Project::GetProjectPlugin), once built: its game module after the runtime modules, its
+		/// editor module (optional: its failure is logged) after the editor modules. Last of each host: stopped alone (rebuilt, Hot Reload)
+		/// @return false (with an error) if its game module couldn't be loaded or started: the project can't be opened
+		bool LoadProjectPlugin();
+		/// @brief Its editor module, then its game module, while the engine's stay
+		void UnloadProjectPlugin();
+		/// @brief Unloaded, loaded again, then Project's OnModulesReloaded
+		bool ReloadProjectPlugin();
+
+		/// @brief Where the plugin's module is (see PluginManifest::_modulesDirectory), as ModuleHost::Load takes it
+		static Path GetModulePath(const PluginManifest& manifest, const String& module);
+
 	private:
 		Event<>::Slot _onProjectModulesReloadedSlot;
+		Event<>::Slot _onProjectModulesRebuiltSlot;
 
 		// The editor modules of the project's plugins (see HOD_STARTUP_MODULE), in their order, undone before they unload
 		ModuleHost _editorModuleHost;
@@ -191,6 +209,10 @@ namespace hod::inline editor
 		ModuleHost*              _runtimeModuleHost = nullptr;
 		Vector<String>           _failedPlugins; // One of whose runtime modules couldn't be loaded or started: their editor module isn't loaded
 		bool                     _modulesLoaded = false;
+
+		// The project's plugin's modules, last of their host while loaded (see LoadProjectPlugin)
+		uint32_t _projectRuntimeModuleCount = 0;
+		uint32_t _projectEditorModuleCount = 0;
 
 		bool _restartRequested = false;
 		Path _restartProjectPath;

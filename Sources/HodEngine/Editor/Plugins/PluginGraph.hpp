@@ -8,8 +8,9 @@
 
 namespace hod::inline editor
 {
-	/// @brief Describes an engine plugin (a feature: its runtime modules and/or its editor module, each a library with an entry point), from
-	/// its HodPlugin.json, copied by the build next to the editor in Plugins/<Name>.json (see hod_plugin_manifest in Global.cmake)
+	/// @brief Describes a plugin (a feature: its runtime modules and/or its editor module, each a library with an entry point): an engine
+	/// plugin from its HodPlugin.json, copied by the build next to the editor in Plugins/<Name>.json (see hod_plugin_manifest in Global.cmake),
+	/// or the project's own (its game module and its editor module, described by Project, see PluginGraph::AppendLast)
 	struct HOD_EDITOR_API PluginManifest
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(PluginManifest)
@@ -40,6 +41,15 @@ namespace hod::inline editor
 		/// when a project is created (see NewProjectForm)
 		Vector<String> _versionControlSystems;
 
+		// Not in the files (an engine plugin is prebuilt, next to the editor), set by who describes the others (Project)
+
+		/// @brief Where its modules' libraries are. Empty: next to the editor
+		Path _modulesDirectory;
+
+		/// @brief Built from sources by the project (its own plugin): not linked from the engine (see PluginGraph::GetEnabledRuntimeModules),
+		/// its modules loaded through a copy (rebuilt while loaded, then reloaded alone)
+		bool _builtFromSources = false;
+
 	public:
 		/// @return false (with an error) if the file can't be read or has no name
 		static bool Load(const Path& path, PluginManifest& manifest);
@@ -55,6 +65,7 @@ namespace hod::inline editor
 			PluginManifest _manifest;
 			bool           _enabled = true;
 			String         _disabledReason; // Why it isn't enabled, for the users
+			bool           _needsAll = false; // Appended last (see AppendLast): needs every enabled plugin, whatever they are
 		};
 
 	public:
@@ -71,11 +82,17 @@ namespace hod::inline editor
 		/// plugins that provide the same thing (with an error), then the plugins that need a disabled one
 		void Resolve(const Vector<String>& disabledPlugins);
 
+		/// @brief After Build: a plugin needing every enabled plugin whatever they are (the project's own: its code is built against them),
+		/// placed last, required (see _needsAll), kept by Resolve. Its _dependencies aren't checked
+		/// @return false (with an error) if a plugin of the same name is there already: not added
+		bool AppendLast(const PluginManifest& manifest);
+
 		/// @brief Sorted: dependencies first, then by name
 		const Vector<Plugin>& GetPlugins() const;
 		const Plugin*         Find(const std::string_view& name) const;
 
-		/// @brief The _runtimeModules of the enabled plugins, in the plugins' order
+		/// @brief The _runtimeModules of the enabled engine plugins (not _builtFromSources: what a game links from the engine), in the
+		/// plugins' order
 		Vector<String> GetEnabledRuntimeModules() const;
 
 		/// @brief What a user asks for, in a list of disabled plugins (Resolve's): enabling a plugin enables what it needs too, disabling

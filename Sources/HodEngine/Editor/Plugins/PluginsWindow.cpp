@@ -114,7 +114,7 @@ namespace hod::inline editor
 		PluginGraph        preview = current; // The pending changes resolved: what applying them gives
 		preview.Resolve(_disabledPlugins);
 
-		ImGui::TextDisabled("Engine plugins. A disabled plugin isn't loaded by the editor nor linked in the game.");
+		ImGui::TextDisabled("The engine's plugins, then the project's own. A disabled plugin isn't loaded by the editor nor linked in the game.");
 
 		const ImGuiTableFlags tableFlags = ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_ScrollY | ImGuiTableFlags_Resizable;
 		float                 footerHeight = ImGui::GetFrameHeightWithSpacing() * 2.0f + ImGui::GetStyle().ItemSpacing.y;
@@ -162,7 +162,7 @@ namespace hod::inline editor
 				if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
 				{
 					ImGui::BeginTooltip();
-					ImGui::Text("Needs: %s", manifest._dependencies.Empty() ? "-" : Join(manifest._dependencies).CStr());
+					ImGui::Text("Needs: %s", plugin._needsAll ? "every enabled plugin (built against them)" : manifest._dependencies.Empty() ? "-" : Join(manifest._dependencies).CStr());
 					if (manifest._provides.Empty() == false)
 					{
 						ImGui::Text("Provides: %s", Join(manifest._provides).CStr());

@@ -34,6 +34,7 @@
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
+#include "HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
 #include "HodEngine/Editor/WindowFactory.hpp"
 
@@ -81,6 +82,7 @@ namespace hod::inline editor
 {
 	_SingletonConstructor(Editor)
 	: _onProjectModulesReloadedSlot([]() { AssetBrowserWindow::PopulateContextualMenuActions(); })
+	, _onProjectModulesRebuiltSlot([this]() { ReloadProjectPlugin(); })
 	{
 	}
 
@@ -95,7 +97,7 @@ namespace hod::inline editor
 
 		// After the tabs (they release their checkouts) and before the editor modules (the providers go with them): runs what's queued
 		VersionControl::GetInstance()->OnProjectClosed();
-		Project::GetInstance()->UnloadProjectModules(); // Before the engine's editor modules: loaded after them
+		UnloadProjectPlugin(); // Before the engine's editor modules: loaded after them
 		UnloadEditorModules();
 		VersionControl::DestroyInstance();
 
@@ -148,6 +150,7 @@ namespace hod::inline editor
 
 		Project::CreateInstance();
 		Project::GetInstance()->GetOnModulesReloadedEvent().Connect(_onProjectModulesReloadedSlot);
+		Project::GetInstance()->GetOnModulesRebuiltEvent().Connect(_onProjectModulesRebuiltSlot);
 
 		WindowFactory::CreateInstance();
 		AssetDatabase::CreateInstance(); // Before the editor modules (loaded with the project, see LoadEditor): they register their asset types into it
@@ -248,7 +251,6 @@ namespace hod::inline editor
 	bool Editor::LoadRuntimeModules()
 	{
 		_runtimeModuleHost = DefaultAllocator::GetInstance().New<ModuleHost>();
-		Path modulesDirectory = FileSystem::GetExecutablePath().ParentPath();
 
 		auto dependsOnFailed = [this](const PluginManifest& manifest)
 		{
@@ -268,9 +270,9 @@ namespace hod::inline editor
 		for (const PluginGraph::Plugin& plugin : Project::GetInstance()->GetPluginGraph().GetPlugins())
 		{
 			const PluginManifest& manifest = plugin._manifest;
-			if (plugin._enabled == false || manifest._runtimeModules.Empty())
+			if (plugin._enabled == false || manifest._runtimeModules.Empty() || plugin._needsAll)
 			{
-				continue;
+				continue; // The project's own: built against these, loaded once they're there (see LoadProjectPlugin)
 			}
 			if (dependsOnFailed(manifest))
 			{
@@ -279,18 +281,9 @@ namespace hod::inline editor
 				continue;
 			}
 
-			// A plugin is in, or out: the modules it started already are undone (its base when its Components layer failed), the plugins
-			// needing it left out
-			uint32_t started = 0;
-			while (started < manifest._runtimeModules.Size() &&
-			       _runtimeModuleHost->Load(manifest._runtimeModules[started], modulesDirectory / manifest._runtimeModules[started]))
+			// A plugin is in, or out (its base undone when its Components layer failed), the plugins needing it left out
+			if (LoadPluginRuntimeModules(manifest) == false)
 			{
-				++started;
-			}
-			if (started != manifest._runtimeModules.Size())
-			{
-				OUTPUT_ERROR("Plugin '{}' left out: its module {} couldn't be loaded or started", manifest._name, manifest._runtimeModules[started]);
-				_runtimeModuleHost->StopLast(started);
 				_failedPlugins.PushBack(manifest._name);
 				if (manifest._required)
 				{
@@ -301,6 +294,93 @@ namespace hod::inline editor
 				}
 			}
 		}
+		return true;
+	}
+
+	/// @brief
+	/// @param manifest
+	/// @return
+	bool Editor::LoadPluginRuntimeModules(const PluginManifest& manifest)
+	{
+		uint32_t started = 0;
+		while (started < manifest._runtimeModules.Size() &&
+		       _runtimeModuleHost->Load(manifest._runtimeModules[started], GetModulePath(manifest, manifest._runtimeModules[started]), manifest._builtFromSources))
+		{
+			++started;
+		}
+		if (started != manifest._runtimeModules.Size())
+		{
+			OUTPUT_ERROR("Plugin '{}' left out: its module {} couldn't be loaded or started", manifest._name, manifest._runtimeModules[started]);
+			_runtimeModuleHost->StopLast(started);
+			return false;
+		}
+		return true;
+	}
+
+	/// @brief
+	/// @param manifest
+	/// @param module
+	/// @return
+	Path Editor::GetModulePath(const PluginManifest& manifest, const String& module)
+	{
+		return (manifest._modulesDirectory.Empty() ? FileSystem::GetExecutablePath().ParentPath() : manifest._modulesDirectory) / module;
+	}
+
+	/// @brief
+	/// @return
+	bool Editor::LoadProjectPlugin()
+	{
+		const PluginManifest* manifest = Project::GetInstance()->GetProjectPlugin();
+		if (manifest == nullptr)
+		{
+			OUTPUT_ERROR("The project has no plugin of its own (another plugin has its name): its code can't be loaded");
+			return false;
+		}
+
+		if (LoadPluginRuntimeModules(*manifest) == false)
+		{
+			return false;
+		}
+		_projectRuntimeModuleCount = manifest->_runtimeModules.Size();
+
+		// Optional: a project may have no editor code
+		Path editorModulePath = GetModulePath(*manifest, manifest->_editorModule);
+		if (manifest->_editorModule.Empty() == false && FileSystem::GetInstance()->Exists(DynamicLibrary::GetFilePath(editorModulePath)))
+		{
+			if (_editorModuleHost.Load(manifest->_editorModule, editorModulePath, manifest->_builtFromSources))
+			{
+				_projectEditorModuleCount = 1;
+			}
+			else
+			{
+				OUTPUT_ERROR("Plugin '{}': its editor module couldn't be loaded or started, the project opens without it", manifest->_name);
+			}
+		}
+		return true;
+	}
+
+	/// @brief
+	void Editor::UnloadProjectPlugin()
+	{
+		_editorModuleHost.StopLast(_projectEditorModuleCount);
+		_projectEditorModuleCount = 0;
+		if (_runtimeModuleHost != nullptr)
+		{
+			_runtimeModuleHost->StopLast(_projectRuntimeModuleCount);
+		}
+		_projectRuntimeModuleCount = 0;
+	}
+
+	/// @brief
+	/// @return
+	bool Editor::ReloadProjectPlugin()
+	{
+		UnloadProjectPlugin();
+		if (LoadProjectPlugin() == false)
+		{
+			return false;
+		}
+		Project::GetInstance()->GetOnModulesReloadedEvent().Emit();
 		return true;
 	}
 
@@ -352,20 +432,19 @@ namespace hod::inline editor
 	/// @return
 	bool Editor::LoadEditorModules()
 	{
-		Path modulesDirectory = FileSystem::GetExecutablePath().ParentPath();
 		for (const PluginGraph::Plugin& plugin : Project::GetInstance()->GetPluginGraph().GetPlugins())
 		{
 			const PluginManifest& manifest = plugin._manifest;
-			if (plugin._enabled == false || manifest._editorModule.Empty())
+			if (plugin._enabled == false || manifest._editorModule.Empty() || plugin._needsAll)
 			{
-				continue;
+				continue; // The project's own: after these (see LoadProjectPlugin)
 			}
 			if (HasPluginFailed(manifest._name))
 			{
 				continue;
 			}
 
-			if (_editorModuleHost.Load(manifest._editorModule, modulesDirectory / manifest._editorModule) == false)
+			if (_editorModuleHost.Load(manifest._editorModule, GetModulePath(manifest, manifest._editorModule), manifest._builtFromSources) == false)
 			{
 				OUTPUT_ERROR("Plugin '{}': its editor module couldn't be loaded or started", manifest._name);
 				if (manifest._required)
@@ -444,7 +523,8 @@ namespace hod::inline editor
 			}
 		}
 
-		if (Project::GetInstance()->ReloadProjectModules() == false)
+		// Its own plugin last (loaded again if it was already: rebuilt from the missing game module modal)
+		if (ReloadProjectPlugin() == false)
 		{
 			return false;
 		}
@@ -575,10 +655,10 @@ namespace hod::inline editor
 					}
 					if (ImGui::MenuItem("Hot Reload") == true)
 					{
-						Project::GetInstance()->UnloadProjectModules(); // Before the engine's editor modules: loaded after them
+						UnloadProjectPlugin(); // Before the engine's editor modules: loaded after them
 						UnloadEditorModules();
 						LoadEditorModules();
-						Project::GetInstance()->ReloadProjectModules();
+						ReloadProjectPlugin();
 					}
 					float menusEndX = ImGui::GetItemRectMax().x;
 

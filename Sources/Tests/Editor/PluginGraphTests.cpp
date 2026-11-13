@@ -220,6 +220,38 @@ namespace hod
 		EXPECT_FALSE(graph.Find("Physics")->_enabled);
 	}
 
+	// The project's own plugin: last whatever the others, kept by Resolve, not linked from the engine
+	TEST(PluginGraph, AppendedLastNeedsWhateverIsEnabled)
+	{
+		Vector<PluginManifest> manifests;
+		manifests.PushBack(Manifest("Core", {}, true));
+		manifests.PushBack(Manifest("Game", {"Core"}, true, {}, {"Game"}));
+		manifests.PushBack(Manifest("Physics", {"Game"}, false, {}, {"Physics", "PhysicsComponents"}));
+		PluginGraph graph;
+		ASSERT_TRUE(graph.Build(manifests));
+
+		PluginManifest project = Manifest("MyGame", {}, false, {}, {"MyGameGame"});
+		project._builtFromSources = true;
+		EXPECT_TRUE(graph.AppendLast(project));
+		EXPECT_FALSE(graph.AppendLast(Manifest("Physics"))); // A name taken: refused
+
+		Vector<String> disabledPlugins;
+		disabledPlugins.PushBack("Physics");
+		disabledPlugins.PushBack("MyGame"); // Required (AppendLast): refused
+		graph.Resolve(disabledPlugins);
+
+		std::vector<std::string> expected {"Core", "Game", "MyGame"};
+		EXPECT_EQ(EnabledNames(graph), expected);
+		ASSERT_EQ(graph.GetPlugins().Size(), 4u);
+		EXPECT_TRUE(graph.GetPlugins().Back()._needsAll);
+		EXPECT_TRUE(graph.GetPlugins().Back()._manifest._required);
+
+		// What the game links from the engine: not the project's own modules
+		Vector<String> runtimeModules = graph.GetEnabledRuntimeModules();
+		ASSERT_EQ(runtimeModules.Size(), 1u);
+		EXPECT_EQ(runtimeModules[0], String("Game"));
+	}
+
 	// The manifests the build copies next to the executables (hod_module_manifest): a plugin's base before its Components layer
 	TEST(PluginGraph, EngineManifestsListTheirRuntimeModules)
 	{
