@@ -15,6 +15,11 @@ namespace hod::inline core
 		DynamicLibrary() = default;
 		~DynamicLibrary();
 
+		/// @brief The file of the library at path (no prefix, no extension: "Bin/Physics" -> "Bin/Physics.dll", "Bin/libPhysics.so"...)
+		static Path GetFilePath(const Path& path);
+
+		/// @param path No prefix, no extension (see GetFilePath)
+		/// @param copyForSupportReload Loads a copy (<Name>-Copy), the file itself can be rebuilt meanwhile
 		void Init(const Path& path, bool copyForSupportReload);
 
 		bool Load();
@@ -35,8 +40,8 @@ namespace hod::inline core
 
 		void* GetFunctionInternal(const char* name) const;
 
-		const char* GetModuleExtension();
-		const char* GetModulePrefix();
+		static const char* GetModuleExtension();
+		static const char* GetModulePrefix();
 
 	private:
 		Path _path;

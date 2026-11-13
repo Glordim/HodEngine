@@ -2,6 +2,7 @@
 #include "HodEngine/Editor/Project.hpp"
 
 #include "HodEngine/Core/Document/Document.hpp"
+#include "HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
 #include "HodEngine/Core/Document/DocumentWriterJson.hpp"
 #include "HodEngine/GameSystems/ProjectSettings/ProjectSettingsManager.hpp"
@@ -355,23 +356,19 @@ namespace hod::inline editor
 			return result;
 		});
 
-		String gameModuleName = _name + "Game";
-		Path   moduleBuildDirectoryPath = GetCacheBuildDirPath() / "Editor";
-		_gameModule.Init(moduleBuildDirectoryPath / "Output" / "platforms" / Path(CMakeHelper::GetCurrentPlatform()) / Path(CMakeHelper::GetCurrentAbi()) / "shared" / "bin" /
-		                     gameModuleName,
-		                 true);
-		FileSystem::GetInstance()->CreateDirectories(_gameModule.GetPath().ParentPath());
-		if (_gameModuleFileSystemWatcher.Init(_gameModule.GetPath(), nullptr, nullptr, [this](const Path&) { ReloadProjectModules(); }, nullptr) == false)
+		Path modulesDirectoryPath = GetCacheBuildDirPath() / "Editor" / "Output" / "platforms" / Path(CMakeHelper::GetCurrentPlatform()) /
+		                            Path(CMakeHelper::GetCurrentAbi()) / "shared" / "bin";
+		FileSystem::GetInstance()->CreateDirectories(modulesDirectoryPath);
+
+		_gameModuleLibraryPath = modulesDirectoryPath / (_name + "Game");
+		if (_gameModuleFileSystemWatcher.Init(GetGameModulePath(), nullptr, nullptr, [this](const Path&) { ReloadProjectModules(); }, nullptr) == false)
 		{
 			return false;
 		}
 
-		String editorModuleName = _name + "Editor";
-		_editorModule.Init(moduleBuildDirectoryPath / "Output" / "platforms" / Path(CMakeHelper::GetCurrentPlatform()) / Path(CMakeHelper::GetCurrentAbi()) / "shared" / "bin" /
-		                       editorModuleName,
-		                   false);
-		FileSystem::GetInstance()->CreateDirectories(_editorModule.GetPath().ParentPath());
-		if (_editorModuleFileSystemWatcher.Init(_editorModule.GetPath(), nullptr, nullptr, [this](const Path&) { ReloadProjectModules(); }, nullptr) == false)
+		_editorModuleLibraryPath = modulesDirectoryPath / (_name + "Editor");
+		if (_editorModuleFileSystemWatcher.Init(DynamicLibrary::GetFilePath(_editorModuleLibraryPath), nullptr, nullptr, [this](const Path&) { ReloadProjectModules(); },
+		                                        nullptr) == false)
 		{
 			return false;
 		}
@@ -573,7 +570,7 @@ namespace hod::inline editor
 	/// @return
 	bool Project::HasGameModule() const
 	{
-		return FileSystem::GetInstance()->Exists(_gameModule.GetPath());
+		return FileSystem::GetInstance()->Exists(GetGameModulePath());
 	}
 
 	/// @brief Try to load then unload the project modules, a module linked against outdated engine libraries fails to load
@@ -589,30 +586,30 @@ namespace hod::inline editor
 			return false;
 		}
 
-		bool gameModuleLoaded = _gameModule.Load();
-		_gameModule.Unload();
-		if (gameModuleLoaded == false)
+		DynamicLibrary gameModule;
+		gameModule.Init(_gameModuleLibraryPath, true); // A copy, like LoadProjectModules
+		if (gameModule.Load() == false)
 		{
 			return false;
 		}
 
-		if (FileSystem::GetInstance()->Exists(_editorModule.GetPath()))
+		if (FileSystem::GetInstance()->Exists(DynamicLibrary::GetFilePath(_editorModuleLibraryPath)))
 		{
-			bool editorModuleLoaded = _editorModule.Load();
-			_editorModule.Unload();
-			if (editorModuleLoaded == false)
+			DynamicLibrary editorModule;
+			editorModule.Init(_editorModuleLibraryPath, false);
+			if (editorModule.Load() == false)
 			{
 				return false;
 			}
 		}
-		return true;
+		return true; // Unloaded (their destructor)
 	}
 
 	/// @brief
 	/// @return
 	Path Project::GetGameModulePath() const
 	{
-		return _gameModule.GetPath();
+		return DynamicLibrary::GetFilePath(_gameModuleLibraryPath);
 	}
 
 	/// @brief
@@ -720,41 +717,16 @@ namespace hod::inline editor
 	/// @return false (with an error) if the game module can't be loaded or started
 	bool Project::LoadProjectModules()
 	{
-		if (_gameModule.Load() == false)
+		// A copy: the game module can be rebuilt while it's loaded (then reloaded, see its watcher)
+		if (_projectModuleHost.Load(_name + "Game", _gameModuleLibraryPath, HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME, true) == false)
 		{
 			return false;
 		}
 
-		ModuleStartup startup = _gameModule.LoadFunction<ModuleStartup>(HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME);
-		if (startup == nullptr)
+		// Optional (its failure is logged, the game module stays)
+		if (FileSystem::GetInstance()->Exists(DynamicLibrary::GetFilePath(_editorModuleLibraryPath)))
 		{
-			OUTPUT_ERROR("No " HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME " in the game module {} (see HOD_STARTUP_RUNTIME_MODULE)", _gameModule.GetPath());
-			_gameModule.Unload();
-			return false;
-		}
-
-		if (_projectModuleHost.Start(_name + "Game", startup) == false)
-		{
-			_gameModule.Unload();
-			return false;
-		}
-
-		// Optional
-		if (FileSystem::GetInstance()->Exists(_editorModule.GetPath()) && _editorModule.Load())
-		{
-			ModuleStartup editorStartup = _editorModule.LoadFunction<ModuleStartup>(HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME);
-			if (editorStartup != nullptr)
-			{
-				if (_projectModuleHost.Start(_name + "Editor", editorStartup) == false)
-				{
-					_editorModule.Unload();
-				}
-			}
-			else
-			{
-				OUTPUT_ERROR("No " HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME " in the editor module {} (see HOD_STARTUP_EDITOR_MODULE)", _editorModule.GetPath());
-				_editorModule.Unload();
-			}
+			_projectModuleHost.Load(_name + "Editor", _editorModuleLibraryPath, HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME);
 		}
 		return true;
 	}
@@ -763,9 +735,7 @@ namespace hod::inline editor
 	/// registered), while their code is still loaded
 	void Project::UnloadProjectModules()
 	{
-		_projectModuleHost.StopAll(); // Its editor module, then the game module
-		_editorModule.Unload();
-		_gameModule.Unload();
+		_projectModuleHost.StopAll(); // Its editor module, then the game module, each unloaded once stopped
 	}
 
 	/// @brief

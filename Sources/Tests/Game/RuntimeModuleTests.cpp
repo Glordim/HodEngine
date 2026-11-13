@@ -7,7 +7,9 @@
 #include <HodEngine/Game/WorldSystem.hpp>
 
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
+#include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Core/ModuleHost.hpp>
+#include <HodEngine/Core/RuntimeModule.hpp>
 #include <HodEngine/GameSystems/Frame/FrameSequencer.hpp>
 
 #include <string>
@@ -144,6 +146,24 @@ namespace hod
 		expected.push_back("StopA, its types still there");
 		EXPECT_EQ(g_calls, expected);
 		EXPECT_FALSE(IsComponentRegistered());
+		EXPECT_EQ(host.GetModuleCount(), 0u);
+	}
+
+	TEST_F(RuntimeModuleTest, LoadedFromItsLibraryUnloadedOnceStopped)
+	{
+		Path modulesDirectory = FileSystem::GetExecutablePath().ParentPath();
+		ModuleHost host;
+
+		// A real one: Physics, a plugin base (it starts the physics engine, doesn't need Game)
+		EXPECT_TRUE(host.Load("Physics", modulesDirectory / "Physics", HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME));
+		EXPECT_EQ(host.GetModuleCount(), 1u);
+
+		// Not kept: a library without the entry point (Core isn't a module), one that doesn't exist
+		EXPECT_FALSE(host.Load("Core", modulesDirectory / "Core", HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME));
+		EXPECT_FALSE(host.Load("Missing", modulesDirectory / "NoSuchModule", HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME));
+		EXPECT_EQ(host.GetModuleCount(), 1u);
+
+		host.StopAll();
 		EXPECT_EQ(host.GetModuleCount(), 0u);
 	}
 

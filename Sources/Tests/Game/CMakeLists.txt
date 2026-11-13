@@ -32,5 +32,8 @@ target_link_libraries(TestsGame
 
 target_compile_definitions(TestsGame PUBLIC ${HOD_PLATFORM_DEFINE})
 
+# Loaded, not linked, by the ModuleHost tests (RuntimeModuleTests.cpp)
+add_dependencies(TestsGame Physics)
+
 include(GoogleTest)
 gtest_discover_tests(TestsGame)

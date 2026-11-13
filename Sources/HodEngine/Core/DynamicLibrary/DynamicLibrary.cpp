@@ -10,22 +10,29 @@ namespace hod::inline core
 {
 	/// @brief
 	/// @param path
-	/// @param copyForSupportReload
-	void DynamicLibrary::Init(const Path& path, bool copyForSupportReload)
+	/// @return
+	Path DynamicLibrary::GetFilePath(const Path& path)
 	{
-		_path = path;
-		_copyForSupportReload = copyForSupportReload;
-
-		if (_path.HasExtension() == false)
+		Path filePath = path;
+		if (filePath.HasExtension() == false)
 		{
-			_path += GetModuleExtension();
+			filePath += GetModuleExtension();
 		}
 		else
 		{
-			_path.ReplaceExtension(GetModuleExtension());
+			filePath.ReplaceExtension(GetModuleExtension());
 		}
+		filePath.ReplaceFilename(GetModulePrefix() + filePath.Filename().GetString());
+		return filePath;
+	}
 
-		_path.ReplaceFilename(GetModulePrefix() + _path.Filename().GetString());
+	/// @brief
+	/// @param path
+	/// @param copyForSupportReload
+	void DynamicLibrary::Init(const Path& path, bool copyForSupportReload)
+	{
+		_path = GetFilePath(path);
+		_copyForSupportReload = copyForSupportReload;
 
 		_copyPath = _path;
 		if (_copyForSupportReload == true)

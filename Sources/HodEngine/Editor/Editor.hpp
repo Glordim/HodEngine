@@ -6,7 +6,6 @@
 #include <string_view>
 
 #include <HodEngine/Core/Document/Document.hpp>
-#include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
 #include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Core/ModuleHost.hpp>
 #include <HodEngine/Core/Singleton.hpp>
@@ -186,11 +185,9 @@ namespace hod::inline editor
 		Event<>::Slot _onProjectModulesReloadedSlot;
 
 		// The editor modules of the project's plugins (see HOD_STARTUP_EDITOR_MODULE), in their order, undone before they unload
-		ModuleHost              _editorModuleHost;
-		Vector<DynamicLibrary*> _editorModuleLibraries;
+		ModuleHost _editorModuleHost;
 
-		// The runtime modules of the project's optional plugins (see HOD_STARTUP_RUNTIME_MODULE), for the editor's life
-		Vector<DynamicLibrary*>  _runtimeModuleLibraries;
+		// The runtime modules of the project's plugins (see HOD_STARTUP_RUNTIME_MODULE), for the editor's life
 		ModuleHost*              _runtimeModuleHost = nullptr;
 		Vector<String>           _failedPlugins; // One of whose runtime modules couldn't be loaded or started: their editor module isn't loaded
 		bool                     _modulesLoaded = false;

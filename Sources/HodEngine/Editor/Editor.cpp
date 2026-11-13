@@ -29,7 +29,6 @@
 #include "HodEngine/Editor/VersionControl/VersionControlChangesWindow.hpp"
 
 #include "HodEngine/Core/ArgumentParser.hpp"
-#include "HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp"
 
 #include "HodEngine/Window/Desktop/DesktopWindow.hpp"
 
@@ -251,6 +250,7 @@ namespace hod::inline editor
 	bool Editor::LoadRuntimeModules()
 	{
 		_runtimeModuleHost = DefaultAllocator::GetInstance().New<ModuleHost>();
+		Path modulesDirectory = FileSystem::GetExecutablePath().ParentPath();
 
 		auto dependsOnFailed = [this](const PluginManifest& manifest)
 		{
@@ -281,52 +281,19 @@ namespace hod::inline editor
 				continue;
 			}
 
-			// All of its modules found before any is started: a plugin is in, or out
-			Vector<DynamicLibrary*>       libraries;
-			Vector<ModuleStartup>   startups;
-			for (const String& runtimeModule : manifest._runtimeModules)
-			{
-				DynamicLibrary* library = DefaultAllocator::GetInstance().New<DynamicLibrary>();
-				library->Init(FileSystem::GetExecutablePath().ParentPath() / runtimeModule, false);
-				ModuleStartup startup = library->Load() ? library->LoadFunction<ModuleStartup>(HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME) : nullptr;
-				libraries.PushBack(library);
-				if (startup == nullptr)
-				{
-					OUTPUT_ERROR("Plugin '{}' left out: no " HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME " in its module {} (see HOD_STARTUP_RUNTIME_MODULE)", manifest._name, runtimeModule);
-					break;
-				}
-				startups.PushBack(startup);
-			}
-			if (startups.Size() != manifest._runtimeModules.Size())
-			{
-				for (auto it = libraries.RBegin(); it != libraries.REnd(); ++it)
-				{
-					DefaultAllocator::GetInstance().Delete(*it);
-				}
-				_failedPlugins.PushBack(manifest._name);
-				continue;
-			}
-
+			// A plugin is in, or out: the modules it started already are undone (its base when its Components layer failed), the plugins
+			// needing it left out
 			uint32_t started = 0;
-			while (started < startups.Size() && _runtimeModuleHost->Start(manifest._runtimeModules[started], startups[started]))
+			while (started < manifest._runtimeModules.Size() &&
+			       _runtimeModuleHost->Load(manifest._runtimeModules[started], modulesDirectory / manifest._runtimeModules[started], HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME))
 			{
 				++started;
 			}
-			if (started != startups.Size())
+			if (started != manifest._runtimeModules.Size())
 			{
-				// The libraries it started already undone (its base when its Components layer failed), the ones needing it left out
-				OUTPUT_ERROR("Plugin '{}' left out: its module {} failed to start", manifest._name, manifest._runtimeModules[started]);
+				OUTPUT_ERROR("Plugin '{}' left out: its module {} couldn't be loaded or started", manifest._name, manifest._runtimeModules[started]);
 				_runtimeModuleHost->StopLast(started);
-				for (auto it = libraries.RBegin(); it != libraries.REnd(); ++it)
-				{
-					DefaultAllocator::GetInstance().Delete(*it);
-				}
 				_failedPlugins.PushBack(manifest._name);
-				continue;
-			}
-			for (DynamicLibrary* library : libraries)
-			{
-				_runtimeModuleLibraries.PushBack(library);
 			}
 		}
 		return true;
@@ -372,23 +339,15 @@ namespace hod::inline editor
 	/// @brief
 	void Editor::UnloadRuntimeModules()
 	{
-		if (_runtimeModuleHost != nullptr)
-		{
-			DefaultAllocator::GetInstance().Delete(_runtimeModuleHost); // Stops them, in the reverse order
-			_runtimeModuleHost = nullptr;
-		}
-		for (auto it = _runtimeModuleLibraries.RBegin(); it != _runtimeModuleLibraries.REnd(); ++it)
-		{
-			(*it)->Unload();
-			DefaultAllocator::GetInstance().Delete(*it);
-		}
-		_runtimeModuleLibraries.Clear();
+		DefaultAllocator::GetInstance().Delete(_runtimeModuleHost); // Stops them and unloads them, in the reverse order
+		_runtimeModuleHost = nullptr;
 	}
 
 	/// @brief
 	/// @return
 	bool Editor::LoadEditorModules()
 	{
+		Path modulesDirectory = FileSystem::GetExecutablePath().ParentPath();
 		for (const PluginGraph::Plugin& plugin : Project::GetInstance()->GetPluginGraph().GetPlugins())
 		{
 			const PluginManifest& manifest = plugin._manifest;
@@ -396,54 +355,19 @@ namespace hod::inline editor
 			{
 				continue;
 			}
-			bool failed = false;
-			for (const String& failedPlugin : _failedPlugins)
-			{
-				if (failedPlugin == manifest._name)
-				{
-					failed = true;
-					break;
-				}
-			}
-			if (failed)
+			if (HasPluginFailed(manifest._name))
 			{
 				continue;
 			}
 
-			DynamicLibrary* library = DefaultAllocator::GetInstance().New<DynamicLibrary>();
-			library->Init(FileSystem::GetExecutablePath().ParentPath() / manifest._editorModule, false);
-			if (library->Load() == false)
+			if (_editorModuleHost.Load(manifest._editorModule, modulesDirectory / manifest._editorModule, HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME) == false)
 			{
-				OUTPUT_ERROR("Plugin '{}': its editor module {} can't be loaded", manifest._name, manifest._editorModule);
-				DefaultAllocator::GetInstance().Delete(library);
+				OUTPUT_ERROR("Plugin '{}': its editor module couldn't be loaded or started", manifest._name);
 				if (manifest._required)
 				{
 					return false;
 				}
-				continue;
 			}
-
-			ModuleStartup startup = library->LoadFunction<ModuleStartup>(HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME);
-			if (startup == nullptr)
-			{
-				OUTPUT_ERROR("Plugin '{}': no " HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME " in its editor module {} (see HOD_STARTUP_EDITOR_MODULE)", manifest._name, manifest._editorModule);
-				DefaultAllocator::GetInstance().Delete(library);
-				if (manifest._required)
-				{
-					return false;
-				}
-				continue;
-			}
-			if (_editorModuleHost.Start(manifest._editorModule, startup) == false)
-			{
-				DefaultAllocator::GetInstance().Delete(library); // What it registered before failing undone already, while its code was loaded
-				if (manifest._required)
-				{
-					return false;
-				}
-				continue;
-			}
-			_editorModuleLibraries.PushBack(library);
 		}
 		return true;
 	}
@@ -469,11 +393,6 @@ namespace hod::inline editor
 
 		// In the reverse order of their loading (a plugin's goes before the ones of the plugins it uses), while their code is still loaded
 		_editorModuleHost.StopAll();
-		for (auto it = _editorModuleLibraries.RBegin(); it != _editorModuleLibraries.REnd(); ++it)
-		{
-			DefaultAllocator::GetInstance().Delete(*it);
-		}
-		_editorModuleLibraries.Clear();
 		return true;
 	}
 

@@ -7,7 +7,6 @@
 
 #include <HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp>
 #include <HodEngine/Core/ModuleHost.hpp>
-#include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
 #include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
@@ -124,13 +123,13 @@ namespace hod::inline editor
 		Vector<String> _disabledPlugins; // Names of the plugins the project doesn't use (see PluginGraph::Resolve)
 		PluginGraph    _pluginGraph;
 
-		DynamicLibrary          _gameModule;
-		FileSystemWatcher       _gameModuleFileSystemWatcher;
+		// Their library, as DynamicLibrary::Init takes it (no prefix, no extension, see DynamicLibrary::GetFilePath)
+		Path              _gameModuleLibraryPath;
+		FileSystemWatcher _gameModuleFileSystemWatcher;
+		Path              _editorModuleLibraryPath;
+		FileSystemWatcher _editorModuleFileSystemWatcher;
 
-		DynamicLibrary            _editorModule;
-		FileSystemWatcher         _editorModuleFileSystemWatcher;
-
-		ModuleHost _projectModuleHost; // The game module, then its editor module while they're loaded
+		ModuleHost _projectModuleHost; // The game module, then its editor module while they're loaded (it loads and unloads them)
 
 		Event<> _onModulesReloadedEvent;
 	};
