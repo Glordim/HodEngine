@@ -5,6 +5,7 @@
 #include "HodEngine/Editor/Cooker/CookJob.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include <HodEngine/Core/ModuleRegistration.hpp>
+#include "HodEngine/Editor/EditorModule.hpp"
 #include "HodEngine/Editor/EditorTab.hpp"
 
 #include "HodEngine/Editor/Project.hpp"
@@ -44,7 +45,7 @@
 #include "HodEngine/Editor/Importer/ImportJob.hpp"
 #include "HodEngine/Editor/RecentProjects.hpp"
 #include "HodEngine/Game/Scene.hpp"
-#include "HodEngine/Game/RuntimeModule.hpp"
+#include <HodEngine/Core/RuntimeModule.hpp>
 
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
@@ -243,12 +244,13 @@ namespace hod::inline editor
 		return false;
 	}
 
-	/// @brief Register phase of each module (in the modules' order: dependencies first), then the Init phase of all, once the project
-	/// settings are loaded (Project::Open). A module that fails (and the ones needing it) is left out, with an error: the editor still opens
+	/// @brief The startup of each module's runtime libraries (in the modules' order: dependencies first; a module's base then its Components
+	/// layer), then the Init phase of all, once the project settings are loaded (Project::Open). A module that fails (and the ones needing it)
+	/// is left out, with an error: the editor still opens
 	/// @return
 	bool Editor::LoadRuntimeModules()
 	{
-		_runtimeModuleHost = DefaultAllocator::GetInstance().New<game::RuntimeModuleHost>();
+		_runtimeModuleHost = DefaultAllocator::GetInstance().New<RuntimeModuleHost>();
 
 		auto dependsOnFailed = [this](const ModuleManifest& manifest)
 		{
@@ -268,7 +270,7 @@ namespace hod::inline editor
 		for (const ModuleGraph::Module& module : Project::GetInstance()->GetModuleGraph().GetModules())
 		{
 			const ModuleManifest& manifest = module._manifest;
-			if (module._enabled == false || manifest._runtimeLibrary.Empty())
+			if (module._enabled == false || manifest._runtimeLibraries.Empty())
 			{
 				continue;
 			}
@@ -279,24 +281,37 @@ namespace hod::inline editor
 				continue;
 			}
 
-			DynamicLibrary* library = DefaultAllocator::GetInstance().New<DynamicLibrary>();
-			library->Init(FileSystem::GetExecutablePath().ParentPath() / manifest._runtimeLibrary, false);
-			String functionName = String("HodRuntimeModule_") + manifest._runtimeLibrary;
-			const game::RuntimeModule* (*moduleFunc)() = nullptr;
-			if (library->Load())
+			// All of its libraries found before any is started: a module is in, or out
+			Vector<DynamicLibrary*>       libraries;
+			Vector<RuntimeModuleStartup> startups;
+			for (const String& runtimeLibrary : manifest._runtimeLibraries)
 			{
-				moduleFunc = library->LoadFunction<const game::RuntimeModule* (*)()>(functionName.CStr());
+				DynamicLibrary* library = DefaultAllocator::GetInstance().New<DynamicLibrary>();
+				library->Init(FileSystem::GetExecutablePath().ParentPath() / runtimeLibrary, false);
+				RuntimeModuleStartup startup = library->Load() ? library->LoadFunction<RuntimeModuleStartup>(HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME) : nullptr;
+				libraries.PushBack(library);
+				if (startup == nullptr)
+				{
+					OUTPUT_ERROR("Module '{}' left out: no " HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME " in the library {} (see HOD_STARTUP_RUNTIME_MODULE)", manifest._name, runtimeLibrary);
+					break;
+				}
+				startups.PushBack(startup);
 			}
-			if (moduleFunc == nullptr || moduleFunc() == nullptr)
+			if (startups.Size() != manifest._runtimeLibraries.Size())
 			{
-				OUTPUT_ERROR("Module '{}' left out: no {} in the library {}", manifest._name, functionName, manifest._runtimeLibrary);
-				DefaultAllocator::GetInstance().Delete(library);
+				for (auto it = libraries.RBegin(); it != libraries.REnd(); ++it)
+				{
+					DefaultAllocator::GetInstance().Delete(*it);
+				}
 				_failedModules.PushBack(manifest._name);
 				continue;
 			}
 
-			_runtimeModuleHost->Register(*moduleFunc());
-			_runtimeModuleLibraries.PushBack(library);
+			for (uint32_t index = 0; index < startups.Size(); ++index)
+			{
+				_runtimeModuleHost->Register(manifest._runtimeLibraries[index], startups[index]);
+				_runtimeModuleLibraries.PushBack(libraries[index]);
+			}
 		}
 
 		if (_runtimeModuleHost->InitAll() == false)
@@ -306,7 +321,7 @@ namespace hod::inline editor
 			_runtimeModuleHost->UnregisterAll();
 			for (const ModuleGraph::Module& module : Project::GetInstance()->GetModuleGraph().GetModules())
 			{
-				if (module._enabled && module._manifest._runtimeLibrary.Empty() == false)
+				if (module._enabled && module._manifest._runtimeLibraries.Empty() == false)
 				{
 					_failedModules.PushBack(module._manifest._name);
 				}
@@ -406,10 +421,10 @@ namespace hod::inline editor
 				continue;
 			}
 
-			auto startupFunc = library->LoadFunction<int (*)(ModuleRegistration&)>("StartupEditorModule");
+			auto startupFunc = library->LoadFunction<void (*)(ModuleRegistration&)>(HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME);
 			if (startupFunc == nullptr)
 			{
-				OUTPUT_ERROR("Module '{}': no StartupEditorModule in its editor library {}", manifest._name, manifest._editorLibrary);
+				OUTPUT_ERROR("Module '{}': no " HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME " in its editor library {} (see HOD_STARTUP_EDITOR_MODULE)", manifest._name, manifest._editorLibrary);
 				DefaultAllocator::GetInstance().Delete(library);
 				if (manifest._required)
 				{
@@ -447,12 +462,7 @@ namespace hod::inline editor
 		// In the reverse order of their loading: a module goes before the ones it uses
 		for (auto it = _editorModules.RBegin(); it != _editorModules.REnd(); ++it)
 		{
-			auto shutdownFunc = it->_library->LoadFunction<int (*)()>("ShutdownEditorModule");
-			if (shutdownFunc != nullptr)
-			{
-				shutdownFunc();
-			}
-			DefaultAllocator::GetInstance().Delete(it->_registration); // Unregisters all of it
+			DefaultAllocator::GetInstance().Delete(it->_registration); // Unregisters all of it, while its code is still loaded
 			it->_library->Unload();
 			DefaultAllocator::GetInstance().Delete(it->_library);
 		}

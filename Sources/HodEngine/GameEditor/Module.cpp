@@ -1,5 +1,5 @@
 #include "HodEngine/GameEditor/Pch.hpp"
-#include "HodEngine/GameEditor/Module.hpp"
+#include <HodEngine/Editor/EditorModule.hpp>
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
 #include "HodEngine/Editor/EditorRegistrar.hpp"
@@ -38,6 +38,5 @@ namespace hod::inline game
 		editorRegistrar.RegisterAssetType<PrefabAssetType>();
 		editorRegistrar.RegisterAssetType<DataItemAssetType>();
 		editorRegistrar.RegisterAssetType<DataTableAssetType>();
-		return 0;
 	}
 }

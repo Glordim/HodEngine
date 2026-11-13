@@ -167,7 +167,7 @@ namespace hod::inline editor
 					{
 						ImGui::Text("Provides: %s", Join(manifest._provides).CStr());
 					}
-					ImGui::Text("Runtime library: %s", manifest._runtimeLibrary.Empty() ? "- (part of the engine)" : manifest._runtimeLibrary.CStr());
+					ImGui::Text("Runtime libraries: %s", manifest._runtimeLibraries.Empty() ? "- (part of the engine)" : Join(manifest._runtimeLibraries).CStr());
 					ImGui::Text("Editor library: %s", manifest._editorLibrary.Empty() ? "-" : manifest._editorLibrary.CStr());
 					ImGui::EndTooltip();
 				}

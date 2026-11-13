@@ -1,20 +1,16 @@
 #pragma once
+#include <HodEngine/HodEngine.hpp>
 
 namespace hod::inline core
 {
 	class ModuleRegistration;
 }
 
-// The entry points of an editor module (an engine module's, see Editor::LoadEditorModules, or a game's, see Project::LoadProjectModules): the
-// editor owns the module's ModuleRegistration, given to its startup (registering through the registrars, EditorRegistrar...), and unregisters
-// all of it once its shutdown (optional) has run, before unloading it. HOD_STARTUP/SHUTDOWN_EDITOR_MODULE are usable in the module's namespace
-// (namespace hod::inline audio { ... }): extern "C", the same functions as the declared ones.
-#define HOD_DECLARE_EDITOR_MODULE(Name, API)                                              \
-	extern "C"                                                                            \
-	{                                                                                     \
-		API int StartupEditorModule(hod::core::ModuleRegistration& registration);        \
-		API int ShutdownEditorModule();                                                   \
-	}
+/// @brief The entry point of an editor library, the same in each one (always a DLL)
+#define HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME "StartupEditorModule"
 
-#define HOD_STARTUP_EDITOR_MODULE(Name, Registration) extern "C" int StartupEditorModule(::hod::core::ModuleRegistration& Registration)
-#define HOD_SHUTDOWN_EDITOR_MODULE(Name) extern "C" int ShutdownEditorModule()
+/// @brief The entry point of the editor library Name (an engine module's, see Editor::LoadEditorModules, or a game's, see
+/// Project::LoadProjectModules): registers what it adds through the registrars (EditorRegistrar, GameEditorRegistrar...). The editor owns
+/// the registration and undoes it before unloading the library (Hot Reload included): what has to be undone is pushed on it
+/// (ModuleRegistration::AddUnregister), there is no shutdown. Usable in the library's namespace (extern "C")
+#define HOD_STARTUP_EDITOR_MODULE(Name, Registration) extern "C" HOD_EXPORT void StartupEditorModule(::hod::core::ModuleRegistration& Registration)

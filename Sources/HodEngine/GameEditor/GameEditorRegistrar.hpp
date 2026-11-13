@@ -12,7 +12,7 @@ namespace hod::inline editor
 
 	/// @brief The registrar of GameEditor (see ModuleRegistration): what the modules add to the viewports of the entity based tabs (debug
 	/// views, the game pointer when playing, the world's render), unregistered with the rest of what the module registered. In an editor
-	/// module's startup (see HOD_DECLARE_EDITOR_MODULE)
+	/// module's startup (see HOD_STARTUP_EDITOR_MODULE)
 	class HOD_GAME_EDITOR_API GameEditorRegistrar
 	{
 	public:

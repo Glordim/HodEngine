@@ -1,5 +1,16 @@
 #include "HodEngine/Physics/Pch.hpp"
+#include <HodEngine/Core/RuntimeModule.hpp>
+#include "HodEngine/Physics/Physics.hpp"
 
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
+
+namespace hod::inline physics
+{
+	/// @brief The physics engine (its components are PhysicsComponents')
+	HOD_STARTUP_RUNTIME_MODULE(Physics, registration)
+	{
+		registration.AddInit([]() { return Physics::CreatePhysicsInstance()->Init(); }, []() { Physics::DestroyInstance(); });
+	}
+}

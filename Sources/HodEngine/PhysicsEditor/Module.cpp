@@ -1,5 +1,5 @@
 #include "HodEngine/PhysicsEditor/Pch.hpp"
-#include "HodEngine/PhysicsEditor/Module.hpp"
+#include <HodEngine/Editor/EditorModule.hpp>
 
 #include "HodEngine/PhysicsEditor/CustomComponentDrawer/BoxCollider2dCustomComponentDrawer.hpp"
 #include "HodEngine/PhysicsEditor/CustomComponentDrawer/CapsuleCollider2dCustomComponentDrawer.hpp"
@@ -188,6 +188,5 @@ namespace hod::inline physics
 
 		GameEditorRegistrar gameEditorRegistrar(registration);
 		gameEditorRegistrar.RegisterViewportDebugView(GetPhysicsViewportDebugViewType());
-		return 0;
 	}
 }

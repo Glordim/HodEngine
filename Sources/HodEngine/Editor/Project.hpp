@@ -20,10 +20,6 @@
 namespace hod::inline core
 {
 	class ModuleRegistration;
-}
-
-namespace hod::inline game
-{
 	class RuntimeModuleHost;
 }
 
@@ -88,7 +84,7 @@ namespace hod::inline editor
 		bool ConfigureGameModule() const;
 		bool BuildGameModule() const;
 
-		/// @brief The game module (a runtime module, see RuntimeModule) and its editor library (an editor module, see HOD_DECLARE_EDITOR_MODULE),
+		/// @brief The game module (a runtime library, see RuntimeModuleHost) and its editor library (an editor module, see HOD_STARTUP_EDITOR_MODULE),
 		/// loaded after the engine's
 		bool LoadProjectModules();
 		void UnloadProjectModules();
@@ -135,7 +131,7 @@ namespace hod::inline editor
 
 		DynamicLibrary          _gameModule;
 		FileSystemWatcher       _gameModuleFileSystemWatcher;
-		game::RuntimeModuleHost* _gameModuleHost = nullptr; // While the game module is loaded
+		RuntimeModuleHost*       _gameModuleHost = nullptr; // While the game module is loaded
 
 		DynamicLibrary            _editorModule;
 		FileSystemWatcher         _editorModuleFileSystemWatcher;

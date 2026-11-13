@@ -1,5 +1,5 @@
 #include "HodEngine/RendererEditor/Pch.hpp"
-#include "HodEngine/RendererEditor/Module.hpp"
+#include <HodEngine/Editor/EditorModule.hpp>
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
 #include "HodEngine/Editor/EditorRegistrar.hpp"
@@ -75,6 +75,5 @@ namespace hod::inline renderer
 
 		editorRegistrar.RegisterAssetType<FontAssetType>();
 		editorRegistrar.RegisterAssetType<MaterialInstanceAssetType>();
-		return 0;
 	}
 }

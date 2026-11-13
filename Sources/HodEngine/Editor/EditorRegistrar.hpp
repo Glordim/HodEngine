@@ -24,7 +24,7 @@ namespace hod::inline editor
 
 	/// @brief The registrar of the editor (see ModuleRegistration): importers, asset types, asset browser actions, drawers, windows, version
 	/// control providers, unregistered with the rest of what the module registered, before it unloads ("Hot Reload" included). In an
-	/// editor module's startup (see HOD_DECLARE_EDITOR_MODULE). Only what was actually registered is unregistered: what another module has
+	/// editor module's startup (see HOD_STARTUP_EDITOR_MODULE). Only what was actually registered is unregistered: what another module has
 	/// registered already is refused, not taken over.
 	class HOD_EDITOR_API EditorRegistrar
 	{

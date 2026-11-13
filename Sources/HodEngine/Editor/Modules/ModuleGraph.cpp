@@ -17,7 +17,7 @@ namespace hod::inline editor
 	{
 		AddPropertyT(reflectionDescriptor, &ModuleManifest::_name, "_name");
 		AddPropertyT(reflectionDescriptor, &ModuleManifest::_description, "_description");
-		AddPropertyT(reflectionDescriptor, &ModuleManifest::_runtimeLibrary, "_runtimeLibrary");
+		AddPropertyT(reflectionDescriptor, &ModuleManifest::_runtimeLibraries, "_runtimeLibraries");
 		AddPropertyT(reflectionDescriptor, &ModuleManifest::_editorLibrary, "_editorLibrary");
 		AddPropertyT(reflectionDescriptor, &ModuleManifest::_dependencies, "_dependencies");
 		AddPropertyT(reflectionDescriptor, &ModuleManifest::_provides, "_provides");
@@ -333,9 +333,12 @@ namespace hod::inline editor
 		Vector<String> runtimeLibraries;
 		for (const Module& module : _modules)
 		{
-			if (module._enabled && module._manifest._runtimeLibrary.Empty() == false)
+			if (module._enabled)
 			{
-				runtimeLibraries.PushBack(module._manifest._runtimeLibrary);
+				for (const String& runtimeLibrary : module._manifest._runtimeLibraries)
+				{
+					runtimeLibraries.PushBack(runtimeLibrary);
+				}
 			}
 		}
 		return runtimeLibraries;

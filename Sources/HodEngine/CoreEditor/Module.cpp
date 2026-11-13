@@ -1,5 +1,5 @@
 #include "HodEngine/CoreEditor/Pch.hpp"
-#include "HodEngine/CoreEditor/Module.hpp"
+#include <HodEngine/Editor/EditorModule.hpp>
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
 #include "HodEngine/Math/Color.hpp"
@@ -24,6 +24,5 @@ namespace hod::inline core
 		editorRegistrar.RegisterCustomPropertyDrawer<Vector2, Vector2CustomPropertyDrawer>();
 		editorRegistrar.RegisterCustomPropertyDrawer<Vector4, Vector4CustomPropertyDrawer>();
 		editorRegistrar.RegisterCustomPropertyDrawer<WeakResourceBase, WeakResourceCustomPropertyDrawer>();
-		return 0;
 	}
 }

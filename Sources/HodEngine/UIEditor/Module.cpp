@@ -1,5 +1,5 @@
 #include "HodEngine/UIEditor/Pch.hpp"
-#include "HodEngine/UIEditor/Module.hpp"
+#include <HodEngine/Editor/EditorModule.hpp>
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
 #include "HodEngine/Editor/EditorRegistrar.hpp"
@@ -78,7 +78,5 @@ namespace hod::inline ui
 		}
 		GameEditorRegistrar gameEditorRegistrar(registration);
 		gameEditorRegistrar.RegisterViewportGamePointer(&GiveGamePointerToCanvases);
-
-		return 0;
 	}
 }

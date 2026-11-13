@@ -1,5 +1,6 @@
 #include <gtest/gtest.h>
 
+#include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Editor/Modules/ModuleGraph.hpp>
 
 #include <string>
@@ -10,12 +11,15 @@ namespace hod
 	namespace
 	{
 		ModuleManifest Manifest(const char* name, std::initializer_list<const char*> dependencies = {}, bool required = false, std::initializer_list<const char*> provides = {},
-		                        const char* runtimeLibrary = "")
+		                        std::initializer_list<const char*> runtimeLibraries = {})
 		{
 			ModuleManifest manifest;
 			manifest._name = name;
 			manifest._required = required;
-			manifest._runtimeLibrary = runtimeLibrary;
+			for (const char* runtimeLibrary : runtimeLibraries)
+			{
+				manifest._runtimeLibraries.PushBack(runtimeLibrary);
+			}
 			for (const char* dependency : dependencies)
 			{
 				manifest._dependencies.PushBack(dependency);
@@ -129,8 +133,8 @@ namespace hod
 		Vector<ModuleManifest> manifests;
 		manifests.PushBack(Manifest("Core", {}, true));
 		manifests.PushBack(Manifest("Game", {"Core"}, true));
-		manifests.PushBack(Manifest("Physics", {"Game"}, false, {}, "Physics"));
-		manifests.PushBack(Manifest("Ragdoll", {"Physics"}, false, {}, "Ragdoll"));
+		manifests.PushBack(Manifest("Physics", {"Game"}, false, {}, {"Physics", "PhysicsComponents"}));
+		manifests.PushBack(Manifest("Ragdoll", {"Physics"}, false, {}, {"RagdollComponents"}));
 
 		ModuleGraph graph;
 		ASSERT_TRUE(graph.Build(manifests));
@@ -143,9 +147,10 @@ namespace hod
 
 		graph.Resolve({});
 		Vector<String> runtimeLibraries = graph.GetEnabledRuntimeLibraries();
-		ASSERT_EQ(runtimeLibraries.Size(), 2u);
+		ASSERT_EQ(runtimeLibraries.Size(), 3u); // In the modules' order, each module's in its order
 		EXPECT_EQ(runtimeLibraries[0], String("Physics"));
-		EXPECT_EQ(runtimeLibraries[1], String("Ragdoll"));
+		EXPECT_EQ(runtimeLibraries[1], String("PhysicsComponents"));
+		EXPECT_EQ(runtimeLibraries[2], String("RagdollComponents"));
 	}
 
 	TEST(ModuleGraph, RequiredModuleCantBeDisabled)
@@ -213,5 +218,35 @@ namespace hod
 		ASSERT_EQ(disabledModules.Size(), 1u);
 		graph.Resolve(disabledModules);
 		EXPECT_FALSE(graph.Find("Physics")->_enabled);
+	}
+
+	// The manifests the build copies next to the executables (hod_module_manifest): a module's base before its Components layer
+	TEST(ModuleGraph, EngineManifestsListTheirRuntimeLibraries)
+	{
+		bool ownsFileSystem = FileSystem::GetInstance() == nullptr;
+		if (ownsFileSystem)
+		{
+			ASSERT_TRUE(FileSystem::CreateInstance()->Init());
+		}
+
+		Vector<ModuleManifest> manifests;
+		EXPECT_TRUE(ModuleGraph::LoadManifests(FileSystem::GetExecutablePath().ParentPath() / "Modules", manifests));
+		const ModuleManifest* physics = nullptr;
+		for (const ModuleManifest& manifest : manifests)
+		{
+			if (manifest._name == "Physics")
+			{
+				physics = &manifest;
+			}
+		}
+		ASSERT_NE(physics, nullptr);
+		ASSERT_EQ(physics->_runtimeLibraries.Size(), 2u);
+		EXPECT_EQ(physics->_runtimeLibraries[0], String("Physics"));
+		EXPECT_EQ(physics->_runtimeLibraries[1], String("PhysicsComponents"));
+
+		if (ownsFileSystem)
+		{
+			FileSystem::DestroyInstance();
+		}
 	}
 }

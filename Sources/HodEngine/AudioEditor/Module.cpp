@@ -1,5 +1,5 @@
 #include "HodEngine/AudioEditor/Pch.hpp"
-#include "HodEngine/AudioEditor/Module.hpp"
+#include <HodEngine/Editor/EditorModule.hpp>
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
 #include "HodEngine/AudioEditor/AudioAssetType.hpp"
@@ -18,6 +18,5 @@ namespace hod::inline audio
 		{
 			editorRegistrar.RegisterImporter<AudioImporter>("wav");
 		}
-		return 0;
 	}
 }

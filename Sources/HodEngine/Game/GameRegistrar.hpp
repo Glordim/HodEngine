@@ -18,7 +18,7 @@ namespace hod::inline game
 	struct WorldSystemType;
 
 	/// @brief The registrar of Game (see ModuleRegistration): components, data structs, world systems, unregistered with the rest of what
-	/// the module registered. In a runtime module's Register phase (see RuntimeModule).
+	/// the module registered. In a runtime library's startup (see HOD_STARTUP_RUNTIME_MODULE).
 	class HOD_GAME_API GameRegistrar
 	{
 	public:

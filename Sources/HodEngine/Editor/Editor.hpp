@@ -25,7 +25,6 @@ namespace hod::inline game
 {
 	class Actor;
 	class Entity;
-	class RuntimeModuleHost;
 }
 
 namespace hod::inline rhi
@@ -185,7 +184,7 @@ namespace hod::inline editor
 	private:
 		Event<>::Slot _onProjectModulesReloadedSlot;
 
-		// What an editor module registered goes with it (see HOD_DECLARE_EDITOR_MODULE)
+		// What an editor module registered goes with it (see HOD_STARTUP_EDITOR_MODULE)
 		struct EditorModule
 		{
 			DynamicLibrary*           _library = nullptr;
@@ -193,9 +192,9 @@ namespace hod::inline editor
 		};
 		Vector<EditorModule> _editorModules;
 
-		// The runtime libraries of the project's optional modules (see game::RuntimeModule), for the editor's life
+		// The runtime libraries of the project's optional modules (see RuntimeModuleHost), for the editor's life
 		Vector<DynamicLibrary*>  _runtimeModuleLibraries;
-		game::RuntimeModuleHost* _runtimeModuleHost = nullptr;
+		RuntimeModuleHost*       _runtimeModuleHost = nullptr;
 		Vector<String>           _failedModules; // Whose runtime library couldn't be loaded or initialized: their editor library isn't loaded
 		bool                     _modulesLoaded = false;
 

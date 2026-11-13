@@ -1,5 +1,5 @@
 #include "HodEngine/VersionControlEditor/Pch.hpp"
-#include "HodEngine/VersionControlEditor/Module.hpp"
+#include <HodEngine/Editor/EditorModule.hpp>
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
 #include "HodEngine/VersionControlEditor/Git/GitProvider.hpp"
@@ -15,6 +15,5 @@ namespace hod::inline editor
 	{
 		EditorRegistrar editorRegistrar(registration);
 		editorRegistrar.RegisterVersionControlProvider<GitProvider>();
-		return 0;
 	}
 }

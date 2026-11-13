@@ -11,7 +11,8 @@ namespace hod::inline core
 	/// @return
 	bool DynamicLibrary::InternalLoad(const Path& path)
 	{
-		_sharedLib = dlopen(path.CStr(), RTLD_LAZY);
+		// RTLD_FIRST: dlsym searches this image only, not the ones it depends on (the modules' entry points have the same name in each library)
+		_sharedLib = dlopen(path.CStr(), RTLD_LAZY | RTLD_FIRST);
 		if (_sharedLib == nullptr)
 		{
 			OUTPUT_ERROR("Unable to load module {}", path);

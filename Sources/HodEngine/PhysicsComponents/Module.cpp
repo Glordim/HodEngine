@@ -1,7 +1,5 @@
 #include "HodEngine/PhysicsComponents/Pch.hpp"
-#include "HodEngine/PhysicsComponents/Module.hpp"
-
-#include <HodEngine/Game/GameRegistrar.hpp>
+#include <HodEngine/Core/RuntimeModule.hpp>
 #include "HodEngine/PhysicsComponents/PhysicsWorldSystem.hpp"
 
 #include "HodEngine/PhysicsComponents/Components/BoxCollider2dComponent.hpp"
@@ -12,40 +10,25 @@
 #include "HodEngine/PhysicsComponents/Components/MultiShapeCollider2dComponent.hpp"
 #include "HodEngine/PhysicsComponents/Components/Rigidbody2dComponent.hpp"
 
-#include <HodEngine/Physics/Physics.hpp>
-
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
+#include <HodEngine/Game/GameRegistrar.hpp>
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
 namespace hod::inline physics
 {
-	namespace
+	/// @brief The components and the world system (the physics engine is Physics')
+	HOD_STARTUP_RUNTIME_MODULE(PhysicsComponents, registration)
 	{
-		void RegisterPhysicsModule(ModuleRegistration& registration)
-		{
-			GameRegistrar gameRegistrar(registration);
-			gameRegistrar.RegisterComponent<Collider2dComponent>();
-			gameRegistrar.RegisterComponent<MultiShapeCollider2dComponent>();
-			gameRegistrar.RegisterComponent<BoxCollider2dComponent>();
-			gameRegistrar.RegisterComponent<CircleCollider2dComponent>();
-			gameRegistrar.RegisterComponent<CapsuleCollider2dComponent>();
-			gameRegistrar.RegisterComponent<EdgeCollider2dComponent>();
-			gameRegistrar.RegisterComponent<Rigidbody2dComponent>();
+		GameRegistrar gameRegistrar(registration);
+		gameRegistrar.RegisterComponent<Collider2dComponent>();
+		gameRegistrar.RegisterComponent<MultiShapeCollider2dComponent>();
+		gameRegistrar.RegisterComponent<BoxCollider2dComponent>();
+		gameRegistrar.RegisterComponent<CircleCollider2dComponent>();
+		gameRegistrar.RegisterComponent<CapsuleCollider2dComponent>();
+		gameRegistrar.RegisterComponent<EdgeCollider2dComponent>();
+		gameRegistrar.RegisterComponent<Rigidbody2dComponent>();
 
-			gameRegistrar.RegisterWorldSystem(PhysicsWorldSystem::GetType());
-		}
-
-		bool InitPhysicsModule()
-		{
-			return Physics::CreatePhysicsInstance()->Init();
-		}
-
-		void ShutdownPhysicsModule()
-		{
-			Physics::DestroyInstance();
-		}
+		gameRegistrar.RegisterWorldSystem(PhysicsWorldSystem::GetType());
 	}
-
-	HOD_DEFINE_RUNTIME_MODULE(PhysicsComponents, &RegisterPhysicsModule, &InitPhysicsModule, &ShutdownPhysicsModule)
 }

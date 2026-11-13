@@ -18,12 +18,13 @@ namespace hod::inline editor
 		String _name;
 		String _description;
 
-		/// @brief The library (CMake target HodEngine::<_runtimeLibrary>) of an optional module, with a HOD_DEFINE_RUNTIME_MODULE: linked
-		/// in the game only if the module is enabled, loaded by the editor. Empty for the modules always linked (Core, Game...). It's the
-		/// module's Components layer (PhysicsComponents), its base library (Physics) comes with it as a link dependency
-		String _runtimeLibrary;
+		/// @brief The libraries (CMake targets HodEngine::<library>) of an optional module with an entry point (HOD_STARTUP_RUNTIME_MODULE),
+		/// in their order: its base, then its Components layer (Physics: the physics engine, PhysicsComponents: its components). Linked in
+		/// the game only if the module is enabled, loaded by the editor. Empty for the modules always linked (Core, Game...). A library
+		/// without anything to start (Renderer: the application's) isn't listed
+		Vector<String> _runtimeLibraries;
 
-		/// @brief Its editor module (see HOD_DECLARE_EDITOR_MODULE), loaded after the ones of its dependencies. Optional
+		/// @brief Its editor module (see HOD_STARTUP_EDITOR_MODULE), loaded after the ones of its dependencies. Optional
 		String _editorLibrary;
 
 		/// @brief Names of the modules it needs: enabled, loaded, initialized before it
@@ -74,7 +75,7 @@ namespace hod::inline editor
 		const Vector<Module>& GetModules() const;
 		const Module*         Find(const std::string_view& name) const;
 
-		/// @brief The _runtimeLibrary of the enabled modules that have one, in the modules' order
+		/// @brief The _runtimeLibraries of the enabled modules, in the modules' order
 		Vector<String> GetEnabledRuntimeLibraries() const;
 
 		/// @brief What a user asks for, in a list of disabled modules (Resolve's): enabling a module enables what it needs too, disabling

@@ -12,7 +12,7 @@
 #include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Game/DataStruct/DataStructFactory.hpp"
 
-#include "HodEngine/Game/RuntimeModule.hpp"
+#include <HodEngine/Core/RuntimeModule.hpp>
 
 #include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
 #include "HodEngine/Core/Time/SystemTime.hpp"
@@ -32,8 +32,9 @@
 #if defined(HOD_APPLICATION_STATIC)
 extern "C"
 {
-	// Generated in the game (HodModules.generated.cpp): the runtime modules the project enables, dependencies first, then the game module
-	const hod::game::RuntimeModule* const* HodGetRuntimeModules(uint32_t* count);
+	// Generated in the game (HodModules.generated.cpp): the runtime libraries of the modules the project enables, dependencies first, then
+	// the game module
+	const hod::core::RuntimeModuleEntry* HodGetRuntimeModules(uint32_t* count);
 }
 #endif
 
@@ -80,7 +81,7 @@ namespace hod::inline application
 		return true;
 	}
 
-	/// @brief The Init phase of the runtime modules, once the project settings are loaded (a module may read its settings)
+	/// @brief The Init phase of the runtime libraries, once the project settings are loaded (a library may read its settings)
 	/// @return
 	bool Application::InitModules()
 	{
@@ -91,13 +92,13 @@ namespace hod::inline application
 		return _runtimeModuleHost->InitAll();
 	}
 
-	/// @brief
+	/// @brief Each runtime library undone, in the reverse order: its services shut down, then its types unregistered
 	/// @return
 	bool Application::TerminateModules()
 	{
 		if (_runtimeModuleHost != nullptr)
 		{
-			_runtimeModuleHost->ShutdownAll();
+			_runtimeModuleHost->UnregisterAll();
 		}
 		return true;
 	}
@@ -108,14 +109,14 @@ namespace hod::inline application
 		DataStructFactory::CreateInstance();
 		game::RegisterBuiltin();
 
-		// Register phase of the runtime modules, in their order: their types, nothing else
+		// The startup of the runtime libraries, in their order: their types, nothing started
 		_runtimeModuleHost = DefaultAllocator::GetInstance().New<RuntimeModuleHost>();
 #if defined(HOD_APPLICATION_STATIC)
-		uint32_t                                runtimeModuleCount = 0;
-		const hod::game::RuntimeModule* const* runtimeModules = HodGetRuntimeModules(&runtimeModuleCount);
+		uint32_t                       runtimeModuleCount = 0;
+		const hod::RuntimeModuleEntry* runtimeModules = HodGetRuntimeModules(&runtimeModuleCount);
 		for (uint32_t index = 0; index < runtimeModuleCount; ++index)
 		{
-			_runtimeModuleHost->Register(*runtimeModules[index]);
+			_runtimeModuleHost->Register(runtimeModules[index]._name, runtimeModules[index]._startup);
 		}
 #endif
 		return true;
@@ -168,7 +169,7 @@ namespace hod::inline application
 
 	bool Application::TerminateGame()
 	{
-		DefaultAllocator::GetInstance().Delete(_runtimeModuleHost); // Unregisters what the modules registered
+		DefaultAllocator::GetInstance().Delete(_runtimeModuleHost); // Unregisters what is left (InitModules failed: TerminateModules not run)
 		_runtimeModuleHost = nullptr;
 
 		DataStructFactory::DestroyInstance();

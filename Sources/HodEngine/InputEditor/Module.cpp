@@ -1,5 +1,5 @@
 #include "HodEngine/InputEditor/Pch.hpp"
-#include "HodEngine/InputEditor/Module.hpp"
+#include <HodEngine/Editor/EditorModule.hpp>
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
 #include "HodEngine/InputEditor/Window/InputManagerWindow.hpp"
@@ -14,6 +14,5 @@ namespace hod::inline input
 	{
 		EditorRegistrar editorRegistrar(registration);
 		editorRegistrar.RegisterWindow<InputManagerWindow>("");
-		return 0;
 	}
 }
