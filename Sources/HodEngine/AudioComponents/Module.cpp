@@ -15,5 +15,6 @@ namespace hod::inline audio
 	{
 		GameRegistrar gameRegistrar(registration);
 		gameRegistrar.RegisterComponent<AudioSourceComponent>();
+		return true;
 	}
 }

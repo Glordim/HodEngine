@@ -70,18 +70,15 @@ namespace hod::inline ui
 
 		RegisterBuiltin(registration); // Its nodes, layouts, interactions, and its project settings: unregistered before the factories go
 
-		registration.AddInit(
-			[]()
-			{
-				CanvasManager::CreateInstance();
-				g_canvasManagerUpdater = DefaultAllocator::GetInstance().New<CanvasManagerUpdater>();
-				return true;
-			},
+		CanvasManager::CreateInstance();
+		g_canvasManagerUpdater = DefaultAllocator::GetInstance().New<CanvasManagerUpdater>();
+		registration.AddUnregister(
 			[]()
 			{
 				DefaultAllocator::GetInstance().Delete(g_canvasManagerUpdater);
 				g_canvasManagerUpdater = nullptr;
 				CanvasManager::DestroyInstance();
 			});
+		return true;
 	}
 }

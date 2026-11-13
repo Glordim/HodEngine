@@ -7,12 +7,9 @@ extern "C"
 {
 @HOD_MODULE_DECLARATIONS@}
 
-// Called by Application::InitGame: the runtime libraries of the game, dependencies first, the game module last
-extern "C" const hod::core::RuntimeModuleEntry* HodGetRuntimeModules(uint32_t* count)
+// Called by Application::InitModules: starts the runtime libraries of the game, dependencies first, the game module last
+// @return false at the first that fails (the ones started already stay in host)
+extern "C" bool HodStartRuntimeModules(hod::core::ModuleHost& host)
 {
-	static const hod::core::RuntimeModuleEntry modules[] = {
-@HOD_MODULE_ENTRIES@		{nullptr, nullptr},
-	};
-	*count = @HOD_MODULE_COUNT@;
-	return modules;
+@HOD_MODULE_STARTS@	return true;
 }

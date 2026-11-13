@@ -6,6 +6,7 @@
 #include <HodEngine/Core/FileSystem/Path.hpp>
 
 #include <HodEngine/Core/FileSystemWatcher/FileSystemWatcher.hpp>
+#include <HodEngine/Core/ModuleHost.hpp>
 #include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
 #include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
@@ -16,12 +17,6 @@
 #include "HodEngine/Editor/Modules/ModuleGraph.hpp"
 
 #include <memory>
-
-namespace hod::inline core
-{
-	class ModuleRegistration;
-	class RuntimeModuleHost;
-}
 
 namespace hod::inline editor
 {
@@ -84,7 +79,7 @@ namespace hod::inline editor
 		bool ConfigureGameModule() const;
 		bool BuildGameModule() const;
 
-		/// @brief The game module (a runtime library, see RuntimeModuleHost) and its editor library (an editor module, see HOD_STARTUP_EDITOR_MODULE),
+		/// @brief The game module (a runtime library, see HOD_STARTUP_RUNTIME_MODULE) and its editor library (an editor module, see HOD_STARTUP_EDITOR_MODULE),
 		/// loaded after the engine's
 		bool LoadProjectModules();
 		void UnloadProjectModules();
@@ -131,11 +126,11 @@ namespace hod::inline editor
 
 		DynamicLibrary          _gameModule;
 		FileSystemWatcher       _gameModuleFileSystemWatcher;
-		RuntimeModuleHost*       _gameModuleHost = nullptr; // While the game module is loaded
 
 		DynamicLibrary            _editorModule;
 		FileSystemWatcher         _editorModuleFileSystemWatcher;
-		ModuleRegistration*       _editorModuleRegistration = nullptr; // While the editor module is loaded
+
+		ModuleHost _projectModuleHost; // The game module, then its editor library while they're loaded
 
 		Event<> _onModulesReloadedEvent;
 	};

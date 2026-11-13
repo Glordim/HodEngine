@@ -24,5 +24,6 @@ namespace hod::inline core
 		editorRegistrar.RegisterCustomPropertyDrawer<Vector2, Vector2CustomPropertyDrawer>();
 		editorRegistrar.RegisterCustomPropertyDrawer<Vector4, Vector4CustomPropertyDrawer>();
 		editorRegistrar.RegisterCustomPropertyDrawer<WeakResourceBase, WeakResourceCustomPropertyDrawer>();
+		return true;
 	}
 }

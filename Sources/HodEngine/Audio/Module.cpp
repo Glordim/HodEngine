@@ -11,12 +11,8 @@ namespace hod::inline audio
 	/// @brief The platform's audio device (its components are AudioComponents')
 	HOD_STARTUP_RUNTIME_MODULE(Audio, registration)
 	{
-		registration.AddInit(
-			[]()
-			{
-				PlatformAudioManager::CreateInstance();
-				return PlatformAudioManager::GetInstance()->Initialize();
-			},
-			[]() { PlatformAudioManager::DestroyInstance(); });
+		PlatformAudioManager::CreateInstance();
+		registration.AddUnregister([]() { PlatformAudioManager::DestroyInstance(); });
+		return PlatformAudioManager::GetInstance()->Initialize();
 	}
 }

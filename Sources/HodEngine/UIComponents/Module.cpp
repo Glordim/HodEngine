@@ -14,5 +14,6 @@ namespace hod::inline ui
 	{
 		GameRegistrar gameRegistrar(registration);
 		gameRegistrar.RegisterComponent<UIComponent>();
+		return true;
 	}
 }

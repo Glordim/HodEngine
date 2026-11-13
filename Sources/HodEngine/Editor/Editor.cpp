@@ -4,7 +4,7 @@
 #include "HodEngine/Editor/Cooker/Cooker.hpp"
 #include "HodEngine/Editor/Cooker/CookJob.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include <HodEngine/Core/ModuleRegistration.hpp>
+#include <HodEngine/Core/ModuleHost.hpp>
 #include "HodEngine/Editor/EditorModule.hpp"
 #include "HodEngine/Editor/EditorTab.hpp"
 
@@ -245,12 +245,12 @@ namespace hod::inline editor
 	}
 
 	/// @brief The startup of each module's runtime libraries (in the modules' order: dependencies first; a module's base then its Components
-	/// layer), then the Init phase of all, once the project settings are loaded (Project::Open). A module that fails (and the ones needing it)
-	/// is left out, with an error: the editor still opens
+	/// layer), the project settings loaded already (Project::Open). A module that fails (and the ones needing it) is left out, with an
+	/// error: the editor still opens
 	/// @return
 	bool Editor::LoadRuntimeModules()
 	{
-		_runtimeModuleHost = DefaultAllocator::GetInstance().New<RuntimeModuleHost>();
+		_runtimeModuleHost = DefaultAllocator::GetInstance().New<ModuleHost>();
 
 		auto dependsOnFailed = [this](const ModuleManifest& manifest)
 		{
@@ -283,12 +283,12 @@ namespace hod::inline editor
 
 			// All of its libraries found before any is started: a module is in, or out
 			Vector<DynamicLibrary*>       libraries;
-			Vector<RuntimeModuleStartup> startups;
+			Vector<ModuleStartup>   startups;
 			for (const String& runtimeLibrary : manifest._runtimeLibraries)
 			{
 				DynamicLibrary* library = DefaultAllocator::GetInstance().New<DynamicLibrary>();
 				library->Init(FileSystem::GetExecutablePath().ParentPath() / runtimeLibrary, false);
-				RuntimeModuleStartup startup = library->Load() ? library->LoadFunction<RuntimeModuleStartup>(HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME) : nullptr;
+				ModuleStartup startup = library->Load() ? library->LoadFunction<ModuleStartup>(HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME) : nullptr;
 				libraries.PushBack(library);
 				if (startup == nullptr)
 				{
@@ -307,24 +307,26 @@ namespace hod::inline editor
 				continue;
 			}
 
-			for (uint32_t index = 0; index < startups.Size(); ++index)
+			uint32_t started = 0;
+			while (started < startups.Size() && _runtimeModuleHost->Start(manifest._runtimeLibraries[started], startups[started]))
 			{
-				_runtimeModuleHost->Register(manifest._runtimeLibraries[index], startups[index]);
-				_runtimeModuleLibraries.PushBack(libraries[index]);
+				++started;
 			}
-		}
-
-		if (_runtimeModuleHost->InitAll() == false)
-		{
-			// Which ones need the one that failed isn't known past this point: all of them are left out
-			OUTPUT_ERROR("The modules' runtime libraries are left out: one failed to initialize");
-			_runtimeModuleHost->UnregisterAll();
-			for (const ModuleGraph::Module& module : Project::GetInstance()->GetModuleGraph().GetModules())
+			if (started != startups.Size())
 			{
-				if (module._enabled && module._manifest._runtimeLibraries.Empty() == false)
+				// The libraries it started already undone (its base when its Components layer failed), the ones needing it left out
+				OUTPUT_ERROR("Module '{}' left out: its library {} failed to start", manifest._name, manifest._runtimeLibraries[started]);
+				_runtimeModuleHost->StopLast(started);
+				for (auto it = libraries.RBegin(); it != libraries.REnd(); ++it)
 				{
-					_failedModules.PushBack(module._manifest._name);
+					DefaultAllocator::GetInstance().Delete(*it);
 				}
+				_failedModules.PushBack(manifest._name);
+				continue;
+			}
+			for (DynamicLibrary* library : libraries)
+			{
+				_runtimeModuleLibraries.PushBack(library);
 			}
 		}
 		return true;
@@ -372,7 +374,7 @@ namespace hod::inline editor
 	{
 		if (_runtimeModuleHost != nullptr)
 		{
-			DefaultAllocator::GetInstance().Delete(_runtimeModuleHost); // Shutdown phase, then unregisters
+			DefaultAllocator::GetInstance().Delete(_runtimeModuleHost); // Stops them, in the reverse order
 			_runtimeModuleHost = nullptr;
 		}
 		for (auto it = _runtimeModuleLibraries.RBegin(); it != _runtimeModuleLibraries.REnd(); ++it)
@@ -421,8 +423,8 @@ namespace hod::inline editor
 				continue;
 			}
 
-			auto startupFunc = library->LoadFunction<void (*)(ModuleRegistration&)>(HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME);
-			if (startupFunc == nullptr)
+			ModuleStartup startup = library->LoadFunction<ModuleStartup>(HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME);
+			if (startup == nullptr)
 			{
 				OUTPUT_ERROR("Module '{}': no " HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME " in its editor library {} (see HOD_STARTUP_EDITOR_MODULE)", manifest._name, manifest._editorLibrary);
 				DefaultAllocator::GetInstance().Delete(library);
@@ -432,15 +434,21 @@ namespace hod::inline editor
 				}
 				continue;
 			}
-			ModuleRegistration* registration = DefaultAllocator::GetInstance().New<ModuleRegistration>();
-			startupFunc(*registration);
-
-			_editorModules.PushBack({library, registration});
+			if (_editorModuleHost.Start(manifest._editorLibrary, startup) == false)
+			{
+				DefaultAllocator::GetInstance().Delete(library); // What it registered before failing undone already, while its code was loaded
+				if (manifest._required)
+				{
+					return false;
+				}
+				continue;
+			}
+			_editorModuleLibraries.PushBack(library);
 		}
 		return true;
 	}
 
-	/// @brief The module's shutdown first, then what it registered, while its code is still loaded
+	/// @brief What the modules registered, while their code is still loaded
 	/// @return
 	bool Editor::UnloadEditorModules()
 	{
@@ -459,14 +467,13 @@ namespace hod::inline editor
 			}
 		}
 
-		// In the reverse order of their loading: a module goes before the ones it uses
-		for (auto it = _editorModules.RBegin(); it != _editorModules.REnd(); ++it)
+		// In the reverse order of their loading (a module goes before the ones it uses), while their code is still loaded
+		_editorModuleHost.StopAll();
+		for (auto it = _editorModuleLibraries.RBegin(); it != _editorModuleLibraries.REnd(); ++it)
 		{
-			DefaultAllocator::GetInstance().Delete(it->_registration); // Unregisters all of it, while its code is still loaded
-			it->_library->Unload();
-			DefaultAllocator::GetInstance().Delete(it->_library);
+			DefaultAllocator::GetInstance().Delete(*it);
 		}
-		_editorModules.Clear();
+		_editorModuleLibraries.Clear();
 		return true;
 	}
 

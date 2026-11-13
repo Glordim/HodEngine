@@ -188,5 +188,6 @@ namespace hod::inline physics
 
 		GameEditorRegistrar gameEditorRegistrar(registration);
 		gameEditorRegistrar.RegisterViewportDebugView(GetPhysicsViewportDebugViewType());
+		return true;
 	}
 }

@@ -7,7 +7,7 @@ struct AAssetManager;
 
 namespace hod::inline core
 {
-	class RuntimeModuleHost;
+	class ModuleHost;
 }
 
 namespace hod::inline game
@@ -47,11 +47,11 @@ namespace hod::inline application
 		bool InitGameSystems();
 		bool TerminateGameSystems();
 		
-		// Game: the factories, the builtin types, then the startup of the game's runtime libraries (see RuntimeModuleHost)
+		// Game: the factories, the builtin types
 		bool InitGame();
 		bool TerminateGame();
 
-		// The game's runtime libraries: the project settings are loaded, then their Init phase; undone (services, then types) in reverse
+		// The game's runtime libraries (see HOD_STARTUP_RUNTIME_MODULE): the project settings are loaded, then they start in their order; stopped in reverse
 		bool InitModules();
 		bool TerminateModules();
 
@@ -64,6 +64,6 @@ namespace hod::inline application
 
 		World*	_world = nullptr;
 
-		RuntimeModuleHost* _runtimeModuleHost = nullptr;
+		ModuleHost*        _runtimeModuleHost = nullptr;
 	};
 }

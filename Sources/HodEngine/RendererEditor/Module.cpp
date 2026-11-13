@@ -75,5 +75,6 @@ namespace hod::inline renderer
 
 		editorRegistrar.RegisterAssetType<FontAssetType>();
 		editorRegistrar.RegisterAssetType<MaterialInstanceAssetType>();
+		return true;
 	}
 }

@@ -11,6 +11,8 @@ namespace hod::inline physics
 	/// @brief The physics engine (its components are PhysicsComponents')
 	HOD_STARTUP_RUNTIME_MODULE(Physics, registration)
 	{
-		registration.AddInit([]() { return Physics::CreatePhysicsInstance()->Init(); }, []() { Physics::DestroyInstance(); });
+		Physics* physics = Physics::CreatePhysicsInstance();
+		registration.AddUnregister([]() { Physics::DestroyInstance(); });
+		return physics->Init();
 	}
 }

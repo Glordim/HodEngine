@@ -7,7 +7,7 @@
 #include <HodEngine/Game/WorldSystem.hpp>
 
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
-#include <HodEngine/Core/RuntimeModule.hpp>
+#include <HodEngine/Core/ModuleHost.hpp>
 #include <HodEngine/GameSystems/Frame/FrameSequencer.hpp>
 
 #include <string>
@@ -28,7 +28,7 @@ namespace hod
 	namespace
 	{
 		std::vector<std::string> g_calls;
-		bool                     g_failInit = false;
+		bool                     g_failStart = false;
 
 		class CountingWorldSystem : public WorldSystem
 		{
@@ -58,37 +58,29 @@ namespace hod
 			return ComponentFactory::GetInstance()->GetAllDescriptors().contains(ModuleTestComponent::GetReflectionDescriptor().GetType());
 		}
 
-		void StartupA(RuntimeModuleRegistration& registration)
+		bool StartupA(ModuleRegistration& registration)
 		{
-			g_calls.push_back("StartupA");
+			g_calls.push_back("StartA");
 			GameRegistrar gameRegistrar(registration);
 			gameRegistrar.RegisterComponent<ModuleTestComponent>();
 			gameRegistrar.RegisterWorldSystem(CountingWorldSystem::GetType());
-			registration.AddInit(
-				[]()
-				{
-					g_calls.push_back("InitA");
-					return true;
-				},
-				[]() { g_calls.push_back(IsComponentRegistered() ? "ShutdownA, its types still there" : "ShutdownA, its types gone"); });
+			// Its service, stopped before its types go
+			registration.AddUnregister([]() { g_calls.push_back(IsComponentRegistered() ? "StopA, its types still there" : "StopA, its types gone"); });
+			return true;
 		}
 
-		void StartupB(RuntimeModuleRegistration& registration)
+		bool StartupB(ModuleRegistration& registration)
 		{
-			g_calls.push_back("StartupB");
-			registration.AddInit(
-				[]()
-				{
-					g_calls.push_back("InitB");
-					return g_failInit == false;
-				},
-				[]() { g_calls.push_back("ShutdownB"); });
+			g_calls.push_back("StartB");
+			registration.AddUnregister([]() { g_calls.push_back("StopB"); });
+			return g_failStart == false;
 		}
 
-		void StartupDataStructs(RuntimeModuleRegistration& registration)
+		bool StartupDataStructs(ModuleRegistration& registration)
 		{
 			GameRegistrar gameRegistrar(registration);
 			gameRegistrar.RegisterDataStruct<ModuleTestDataStruct>();
+			return true;
 		}
 	}
 
@@ -108,7 +100,7 @@ namespace hod
 		void SetUp() override
 		{
 			g_calls.clear();
-			g_failInit = false;
+			g_failStart = false;
 			ComponentFactory::CreateInstance();
 			FrameSequencer::CreateInstance();
 		}
@@ -120,37 +112,39 @@ namespace hod
 		}
 	};
 
-	TEST_F(RuntimeModuleTest, StartupsThenInitsThenEachLibraryUndoneInReverse)
+	TEST_F(RuntimeModuleTest, StartedInOrderStoppedInReverse)
 	{
 		{
-			RuntimeModuleHost host;
-			host.Register("A", &StartupA);
-			host.Register("B", &StartupB);
+			ModuleHost host;
+			EXPECT_TRUE(host.Start("A", &StartupA));
+			EXPECT_TRUE(host.Start("B", &StartupB));
 			EXPECT_TRUE(IsComponentRegistered());
-			ASSERT_TRUE(host.InitAll());
+			EXPECT_EQ(host.GetModuleCount(), 2u);
 		}
 		EXPECT_FALSE(IsComponentRegistered());
 
-		std::vector<std::string> expected {"StartupA", "StartupB", "InitA", "InitB", "ShutdownB", "ShutdownA, its types still there"};
+		std::vector<std::string> expected {"StartA", "StartB", "StopB", "StopA, its types still there"};
 		EXPECT_EQ(g_calls, expected);
 	}
 
-	TEST_F(RuntimeModuleTest, FailedInitStopsAndOnlyTheInitializedOnesShutDown)
+	TEST_F(RuntimeModuleTest, FailedStartIsUndoneAtOnce)
 	{
-		g_failInit = true;
-		RuntimeModuleHost host;
-		host.Register("A", &StartupA);
-		host.Register("B", &StartupB);
-		EXPECT_FALSE(host.InitAll());
+		g_failStart = true;
+		ModuleHost host;
+		EXPECT_TRUE(host.Start("A", &StartupA));
+		EXPECT_FALSE(host.Start("B", &StartupB));
 
-		std::vector<std::string> expected {"StartupA", "StartupB", "InitA", "InitB"};
+		// What B registered before failing undone right away, B not kept
+		std::vector<std::string> expected {"StartA", "StartB", "StopB"};
 		EXPECT_EQ(g_calls, expected);
+		EXPECT_EQ(host.GetModuleCount(), 1u);
 
-		// B failed: not shut down, A was initialized: shut down
-		host.UnregisterAll();
-		expected.push_back("ShutdownA, its types still there");
+		// The rest of its module (A) stopped by the caller
+		host.StopLast(1);
+		expected.push_back("StopA, its types still there");
 		EXPECT_EQ(g_calls, expected);
 		EXPECT_FALSE(IsComponentRegistered());
+		EXPECT_EQ(host.GetModuleCount(), 0u);
 	}
 
 	TEST_F(RuntimeModuleTest, WorldSystemsFollowTheirRegistration)
@@ -160,8 +154,8 @@ namespace hod
 		EXPECT_EQ(existingWorld->FindSystem(CountingWorldSystem::GetType()), nullptr);
 
 		{
-			RuntimeModuleHost host;
-			host.Register("A", &StartupA);
+			ModuleHost host;
+			host.Start("A", &StartupA);
 
 			// Added to the worlds that existed already, and to the new ones
 			EXPECT_NE(existingWorld->FindSystem(CountingWorldSystem::GetType()), nullptr);
@@ -185,8 +179,8 @@ namespace hod
 		DataStructFactory::CreateInstance();
 		const RttiType type = ModuleTestDataStruct::GetReflectionDescriptor().GetType();
 		{
-			RuntimeModuleHost host;
-			host.Register("DataStructs", &StartupDataStructs);
+			ModuleHost host;
+			host.Start("DataStructs", &StartupDataStructs);
 			EXPECT_NE(DataStructFactory::GetInstance()->FindReflectionDescriptor(type), nullptr);
 		}
 		EXPECT_EQ(DataStructFactory::GetInstance()->FindReflectionDescriptor(type), nullptr);

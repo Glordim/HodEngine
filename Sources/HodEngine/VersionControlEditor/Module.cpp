@@ -15,5 +15,6 @@ namespace hod::inline editor
 	{
 		EditorRegistrar editorRegistrar(registration);
 		editorRegistrar.RegisterVersionControlProvider<GitProvider>();
+		return true;
 	}
 }

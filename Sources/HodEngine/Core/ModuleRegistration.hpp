@@ -7,7 +7,7 @@
 
 namespace hod::inline core
 {
-	/// @brief What a module (a runtime library, see RuntimeModuleHost, or an editor module, see HOD_STARTUP_EDITOR_MODULE; a game's
+	/// @brief What a module (a runtime library, see HOD_STARTUP_RUNTIME_MODULE, or an editor module, see HOD_STARTUP_EDITOR_MODULE; a game's
 	/// included) registered elsewhere, undone before its code goes away (Hot Reload included): one stack of unregisters, run in the reverse
 	/// order of the registrations.
 	/// It knows nothing of what is registered: each module offering registrations has a registrar, a facade over a ModuleRegistration

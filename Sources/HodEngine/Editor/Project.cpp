@@ -9,8 +9,8 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
-#include <HodEngine/Core/ModuleRegistration.hpp>
 #include "HodEngine/Editor/EditorModule.hpp"
+#include <HodEngine/Core/ModuleHost.hpp>
 #include <HodEngine/Core/RuntimeModule.hpp>
 #include "HodEngine/GameSystems/Resource/ResourceContainer.hpp"
 #include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
@@ -715,9 +715,9 @@ namespace hod::inline editor
 		return true;
 	}
 
-	/// @brief The game module is a runtime module (HOD_STARTUP_RUNTIME_MODULE, after the engine ones: startup then Init), its editor library
-	/// an editor module (HOD_STARTUP_EDITOR_MODULE, after the engine ones)
-	/// @return false (with an error) if the game module can't be loaded or initialized
+	/// @brief The game module is a runtime module (HOD_STARTUP_RUNTIME_MODULE, started after the engine ones), its editor library an editor
+	/// module (HOD_STARTUP_EDITOR_MODULE, started after the engine ones)
+	/// @return false (with an error) if the game module can't be loaded or started
 	bool Project::LoadProjectModules()
 	{
 		if (_gameModule.Load() == false)
@@ -725,7 +725,7 @@ namespace hod::inline editor
 			return false;
 		}
 
-		RuntimeModuleStartup startup = _gameModule.LoadFunction<RuntimeModuleStartup>(HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME);
+		ModuleStartup startup = _gameModule.LoadFunction<ModuleStartup>(HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME);
 		if (startup == nullptr)
 		{
 			OUTPUT_ERROR("No " HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME " in the game module {} (see HOD_STARTUP_RUNTIME_MODULE)", _gameModule.GetPath());
@@ -733,12 +733,8 @@ namespace hod::inline editor
 			return false;
 		}
 
-		_gameModuleHost = DefaultAllocator::GetInstance().New<RuntimeModuleHost>();
-		_gameModuleHost->Register(_name + "Game", startup);
-		if (_gameModuleHost->InitAll() == false)
+		if (_projectModuleHost.Start(_name + "Game", startup) == false)
 		{
-			DefaultAllocator::GetInstance().Delete(_gameModuleHost); // Unregisters what it registered
-			_gameModuleHost = nullptr;
 			_gameModule.Unload();
 			return false;
 		}
@@ -746,11 +742,13 @@ namespace hod::inline editor
 		// Optional
 		if (FileSystem::GetInstance()->Exists(_editorModule.GetPath()) && _editorModule.Load())
 		{
-			auto startupFunc = _editorModule.LoadFunction<void (*)(ModuleRegistration&)>(HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME);
-			if (startupFunc != nullptr)
+			ModuleStartup editorStartup = _editorModule.LoadFunction<ModuleStartup>(HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME);
+			if (editorStartup != nullptr)
 			{
-				_editorModuleRegistration = DefaultAllocator::GetInstance().New<ModuleRegistration>();
-				startupFunc(*_editorModuleRegistration);
+				if (_projectModuleHost.Start(_name + "Editor", editorStartup) == false)
+				{
+					_editorModule.Unload();
+				}
 			}
 			else
 			{
@@ -761,22 +759,12 @@ namespace hod::inline editor
 		return true;
 	}
 
-	/// @brief In the reverse order of LoadProjectModules: the editor module (what it registered), then the game module (its shutdowns, then
-	/// what it registered), while their code is still loaded
+	/// @brief In the reverse order of LoadProjectModules: the editor module (what it registered), then the game module (what it started and
+	/// registered), while their code is still loaded
 	void Project::UnloadProjectModules()
 	{
-		if (_editorModuleRegistration != nullptr)
-		{
-			DefaultAllocator::GetInstance().Delete(_editorModuleRegistration); // Unregisters all of it
-			_editorModuleRegistration = nullptr;
-		}
+		_projectModuleHost.StopAll(); // The editor library, then the game module
 		_editorModule.Unload();
-
-		if (_gameModuleHost != nullptr)
-		{
-			DefaultAllocator::GetInstance().Delete(_gameModuleHost); // Shutdown phase, then unregisters
-			_gameModuleHost = nullptr;
-		}
 		_gameModule.Unload();
 	}
 

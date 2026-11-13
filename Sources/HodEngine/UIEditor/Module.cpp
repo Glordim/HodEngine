@@ -78,5 +78,6 @@ namespace hod::inline ui
 		}
 		GameEditorRegistrar gameEditorRegistrar(registration);
 		gameEditorRegistrar.RegisterViewportGamePointer(&GiveGamePointerToCanvases);
+		return true;
 	}
 }

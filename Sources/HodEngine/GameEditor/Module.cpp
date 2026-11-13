@@ -38,5 +38,6 @@ namespace hod::inline game
 		editorRegistrar.RegisterAssetType<PrefabAssetType>();
 		editorRegistrar.RegisterAssetType<DataItemAssetType>();
 		editorRegistrar.RegisterAssetType<DataTableAssetType>();
+		return true;
 	}
 }

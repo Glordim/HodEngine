@@ -14,5 +14,6 @@ namespace hod::inline input
 	{
 		EditorRegistrar editorRegistrar(registration);
 		editorRegistrar.RegisterWindow<InputManagerWindow>("");
+		return true;
 	}
 }

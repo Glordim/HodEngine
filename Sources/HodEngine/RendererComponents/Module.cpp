@@ -26,5 +26,6 @@ namespace hod::inline renderer
 		// Not usable yet: SpriteRendererComponent, PointLightComponent, DirLightComponent, SpotLightComponent
 
 		gameRegistrar.RegisterWorldSystem(RendererWorldSystem::GetType());
+		return true;
 	}
 }

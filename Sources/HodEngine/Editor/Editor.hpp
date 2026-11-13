@@ -8,6 +8,7 @@
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
 #include <HodEngine/Core/Event.hpp>
+#include <HodEngine/Core/ModuleHost.hpp>
 #include <HodEngine/Core/Singleton.hpp>
 
 #include <HodEngine/Core/FileSystem/Path.hpp>
@@ -184,17 +185,13 @@ namespace hod::inline editor
 	private:
 		Event<>::Slot _onProjectModulesReloadedSlot;
 
-		// What an editor module registered goes with it (see HOD_STARTUP_EDITOR_MODULE)
-		struct EditorModule
-		{
-			DynamicLibrary*           _library = nullptr;
-			ModuleRegistration*       _registration = nullptr;
-		};
-		Vector<EditorModule> _editorModules;
+		// The editor libraries of the project's modules (see HOD_STARTUP_EDITOR_MODULE), in their order, undone before they unload
+		ModuleHost              _editorModuleHost;
+		Vector<DynamicLibrary*> _editorModuleLibraries;
 
-		// The runtime libraries of the project's optional modules (see RuntimeModuleHost), for the editor's life
+		// The runtime libraries of the project's optional modules (see HOD_STARTUP_RUNTIME_MODULE), for the editor's life
 		Vector<DynamicLibrary*>  _runtimeModuleLibraries;
-		RuntimeModuleHost*       _runtimeModuleHost = nullptr;
+		ModuleHost*              _runtimeModuleHost = nullptr;
 		Vector<String>           _failedModules; // Whose runtime library couldn't be loaded or initialized: their editor library isn't loaded
 		bool                     _modulesLoaded = false;
 

@@ -30,5 +30,6 @@ namespace hod::inline physics
 		gameRegistrar.RegisterComponent<Rigidbody2dComponent>();
 
 		gameRegistrar.RegisterWorldSystem(PhysicsWorldSystem::GetType());
+		return true;
 	}
 }

@@ -18,5 +18,6 @@ namespace hod::inline audio
 		{
 			editorRegistrar.RegisterImporter<AudioImporter>("wav");
 		}
+		return true;
 	}
 }
