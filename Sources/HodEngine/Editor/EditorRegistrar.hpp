@@ -25,7 +25,7 @@ namespace hod::inline editor
 	/// @brief The registrar of the editor (see ModuleRegistration): importers, asset types, asset browser actions, drawers, windows, version
 	/// control providers, unregistered with the rest of what the module registered, before it unloads ("Hot Reload" included). In an
 	/// editor module's startup (see HOD_STARTUP_MODULE). Only what was actually registered is unregistered: what another module has
-	/// registered already is refused, not taken over.
+	/// registered already is refused with an error (false), not taken over.
 	class HOD_EDITOR_API EditorRegistrar
 	{
 	public:
@@ -45,24 +45,27 @@ namespace hod::inline editor
 		void RegisterContextualMenuAction(AssetBrowserWindow::ContextualMenuAction contextualMenuAction);
 		void RegisterDropAction(AssetBrowserWindow::DropAction dropAction);
 
+		/// @return false (with an error) if the type has a drawer already
 		template<typename _Type_, typename _Drawer_>
-		void RegisterCustomPropertyDrawer();
-		/// @param drawer Owned by the registry
-		void RegisterCustomPropertyDrawer(const ReflectionDescriptor& descriptor, CustomPropertyDrawer* drawer);
+		bool RegisterCustomPropertyDrawer();
+		/// @param drawer Owned by the registry, deleted right away if refused
+		bool RegisterCustomPropertyDrawer(const ReflectionDescriptor& descriptor, CustomPropertyDrawer* drawer);
 
+		/// @return false (with an error) if the type has a drawer already
 		template<typename _Type_, typename _Drawer_>
-		void RegisterCustomComponentDrawer();
-		/// @param drawer Owned by the registry
-		void RegisterCustomComponentDrawer(const ReflectionDescriptor& descriptor, CustomComponentDrawer* drawer);
+		bool RegisterCustomComponentDrawer();
+		/// @param drawer Owned by the registry, deleted right away if refused
+		bool RegisterCustomComponentDrawer(const ReflectionDescriptor& descriptor, CustomComponentDrawer* drawer);
 
 		/// @brief See PropertyDrawer::EnumValuePreview
 		/// @return false (with an error) if the enum has a preview already (from another module)
 		bool RegisterEnumValuePreview(const EnumDescriptor& enumDescriptor, PropertyDrawer::EnumValuePreview preview);
 
 		/// @brief In the "Window" menu, under route
+		/// @return false (with an error) if the window type is registered already
 		template<typename _Window_>
-		void RegisterWindow(const String& route);
-		void RegisterWindow(const String& route, ReflectionDescriptor& descriptor);
+		bool RegisterWindow(const String& route);
+		bool RegisterWindow(const String& route, ReflectionDescriptor& descriptor);
 
 		/// @brief An instance of _Provider_ (see VersionControlProvider), owned by the registration, offered to the user's choice
 		/// (see VersionControl::SetProviderChoice). Disconnected before its module unloads if it was the connected one
@@ -104,20 +107,20 @@ namespace hod::inline editor
 	}
 
 	template<typename _Type_, typename _Drawer_>
-	void EditorRegistrar::RegisterCustomPropertyDrawer()
+	bool EditorRegistrar::RegisterCustomPropertyDrawer()
 	{
-		RegisterCustomPropertyDrawer(_Type_::GetReflectionDescriptor(), DefaultAllocator::GetInstance().New<_Drawer_>());
+		return RegisterCustomPropertyDrawer(_Type_::GetReflectionDescriptor(), DefaultAllocator::GetInstance().New<_Drawer_>());
 	}
 
 	template<typename _Type_, typename _Drawer_>
-	void EditorRegistrar::RegisterCustomComponentDrawer()
+	bool EditorRegistrar::RegisterCustomComponentDrawer()
 	{
-		RegisterCustomComponentDrawer(_Type_::GetReflectionDescriptor(), DefaultAllocator::GetInstance().New<_Drawer_>());
+		return RegisterCustomComponentDrawer(_Type_::GetReflectionDescriptor(), DefaultAllocator::GetInstance().New<_Drawer_>());
 	}
 
 	template<typename _Window_>
-	void EditorRegistrar::RegisterWindow(const String& route)
+	bool EditorRegistrar::RegisterWindow(const String& route)
 	{
-		RegisterWindow(route, _Window_::GetReflectionDescriptor());
+		return RegisterWindow(route, _Window_::GetReflectionDescriptor());
 	}
 }

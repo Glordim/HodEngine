@@ -193,6 +193,37 @@ namespace hod
 		DefaultAllocator::GetInstance().Delete(existingWorld);
 	}
 
+	// Two modules registering the same types: the second is refused, its undo leaves the first one's alone
+	TEST_F(RuntimeModuleTest, RegisteredAlreadyIsRefusedTheFirstStays)
+	{
+		DataStructFactory::CreateInstance();
+		const RttiType dataStructType = ModuleTestDataStruct::GetReflectionDescriptor().GetType();
+		{
+			ModuleHost host;
+			EXPECT_TRUE(host.Start("First",
+			                       [](ModuleRegistration& registration)
+			                       {
+				                       GameRegistrar gameRegistrar(registration);
+				                       return gameRegistrar.RegisterComponent<ModuleTestComponent>() && gameRegistrar.RegisterDataStruct<ModuleTestDataStruct>();
+			                       }));
+			EXPECT_TRUE(host.Start("Second",
+			                       [](ModuleRegistration& registration)
+			                       {
+				                       GameRegistrar gameRegistrar(registration);
+				                       // Refused (logged), the module still starts: it works without them
+				                       return gameRegistrar.RegisterComponent<ModuleTestComponent>() == false &&
+				                              gameRegistrar.RegisterDataStruct<ModuleTestDataStruct>() == false;
+			                       }));
+
+			host.StopLast(1);
+			EXPECT_TRUE(IsComponentRegistered());
+			EXPECT_NE(DataStructFactory::GetInstance()->FindReflectionDescriptor(dataStructType), nullptr);
+		}
+		EXPECT_FALSE(IsComponentRegistered());
+		EXPECT_EQ(DataStructFactory::GetInstance()->FindReflectionDescriptor(dataStructType), nullptr);
+		DataStructFactory::DestroyInstance();
+	}
+
 	TEST_F(RuntimeModuleTest, DataStructsFollowTheirRegistration)
 	{
 		DataStructFactory::CreateInstance();

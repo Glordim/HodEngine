@@ -18,7 +18,8 @@ namespace hod::inline game
 	struct WorldSystemType;
 
 	/// @brief The registrar of Game (see ModuleRegistration): components, data structs, world systems, unregistered with the rest of what
-	/// the module registered. In a runtime module's startup (see HOD_STARTUP_MODULE).
+	/// the module registered. In a runtime module's startup (see HOD_STARTUP_MODULE). What is registered already (by another module) is
+	/// refused with an error (false): the first one stays, nothing is undone for this one.
 	class HOD_GAME_API GameRegistrar
 	{
 	public:
@@ -31,8 +32,9 @@ namespace hod::inline game
 		bool RegisterComponent(ReflectionDescriptor& descriptor);
 
 		/// @brief A DataStruct type (what the data items and data tables contain)
+		/// @return false (with an error) if registered already
 		template<typename _DataStruct_>
-		void RegisterDataStruct();
+		bool RegisterDataStruct();
 
 		/// @return false (with an error) if registered already
 		bool RegisterWorldSystem(const WorldSystemType& type);
@@ -49,9 +51,12 @@ namespace hod::inline game
 	}
 
 	template<typename _DataStruct_>
-	void GameRegistrar::RegisterDataStruct()
+	bool GameRegistrar::RegisterDataStruct()
 	{
-		DataStructFactory::GetInstance()->Register<_DataStruct_>();
+		if (DataStructFactory::GetInstance()->Register<_DataStruct_>() == false)
+		{
+			return false;
+		}
 		_registration.AddUnregister(
 			[]()
 			{
@@ -60,5 +65,6 @@ namespace hod::inline game
 					dataStructFactory->Unregister<_DataStruct_>();
 				}
 			});
+		return true;
 	}
 }

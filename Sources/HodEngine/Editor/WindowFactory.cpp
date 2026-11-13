@@ -39,6 +39,26 @@ namespace hod::inline editor
 
 			return route._windowReflectionDescriptors.Empty() && route._children.Empty();
 		}
+
+		/// @return If the window type is in the route or its children
+		bool IsInRoute(const WindowFactory::Route& route, const ReflectionDescriptor* reflectionDescriptor)
+		{
+			for (const ReflectionDescriptor* windowReflectionDescriptor : route._windowReflectionDescriptors)
+			{
+				if (windowReflectionDescriptor == reflectionDescriptor)
+				{
+					return true;
+				}
+			}
+			for (const WindowFactory::Route* child : route._children)
+			{
+				if (IsInRoute(*child, reflectionDescriptor))
+				{
+					return true;
+				}
+			}
+			return false;
+		}
 	}
 
 	_SingletonConstructor(WindowFactory) {}
@@ -48,8 +68,15 @@ namespace hod::inline editor
 		return _rootRoute;
 	}
 
-	void WindowFactory::Register(const String& routePath, ReflectionDescriptor& reflectionDescriptor)
+	bool WindowFactory::Register(const String& routePath, ReflectionDescriptor& reflectionDescriptor)
 	{
+		// Unregister removes it from every route: one route per window type
+		if (IsInRoute(_rootRoute, &reflectionDescriptor))
+		{
+			OUTPUT_ERROR("WindowFactory: the window '{}' is registered already", reflectionDescriptor.GetDisplayName());
+			return false;
+		}
+
 		Route* route = &_rootRoute;
 
 		std::string_view routePathView = routePath;
@@ -92,6 +119,7 @@ namespace hod::inline editor
 		}
 
 		route->_windowReflectionDescriptors.push_back(&reflectionDescriptor);
+		return true;
 	}
 
 	void WindowFactory::Unregister(ReflectionDescriptor& reflectionDescriptor)

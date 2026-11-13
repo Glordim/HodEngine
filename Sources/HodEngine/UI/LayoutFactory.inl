@@ -1,12 +1,20 @@
+#include <HodEngine/Core/Output/OutputService.hpp>
+#include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 
 namespace hod::inline ui
 {
+	/// @return false (with an error) if registered already: the first one stays
 	template<typename _Layout_>
 	bool LayoutFactory::Register()
 	{
 		static_assert(std::is_base_of<Layout, _Layout_>::value, "_Layout_ must derive from Layout to use LayoutFactory::Register()");
 
-		_typeToDescriptors[_Layout_::GetReflectionDescriptor().GetType()] = &_Layout_::GetReflectionDescriptor();
+		ReflectionDescriptor& descriptor = _Layout_::GetReflectionDescriptor();
+		if (_typeToDescriptors.try_emplace(descriptor.GetType(), &descriptor).second == false)
+		{
+			OUTPUT_ERROR("LayoutFactory: the layout '{}' is registered already", descriptor.GetDisplayName());
+			return false;
+		}
 		return true;
 	}
 

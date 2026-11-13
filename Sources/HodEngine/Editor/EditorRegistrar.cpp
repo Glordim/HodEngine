@@ -78,19 +78,27 @@ namespace hod::inline editor
 	/// @brief
 	/// @param descriptor
 	/// @param drawer
-	void EditorRegistrar::RegisterCustomPropertyDrawer(const ReflectionDescriptor& descriptor, CustomPropertyDrawer* drawer)
+	bool EditorRegistrar::RegisterCustomPropertyDrawer(const ReflectionDescriptor& descriptor, CustomPropertyDrawer* drawer)
 	{
-		CustomPropertyDrawerRegistry::Register(descriptor, drawer);
+		if (CustomPropertyDrawerRegistry::Register(descriptor, drawer) == false)
+		{
+			return false;
+		}
 		_registration.AddUnregister([&descriptor]() { CustomPropertyDrawerRegistry::Unregister(descriptor); });
+		return true;
 	}
 
 	/// @brief
 	/// @param descriptor
 	/// @param drawer
-	void EditorRegistrar::RegisterCustomComponentDrawer(const ReflectionDescriptor& descriptor, CustomComponentDrawer* drawer)
+	bool EditorRegistrar::RegisterCustomComponentDrawer(const ReflectionDescriptor& descriptor, CustomComponentDrawer* drawer)
 	{
-		CustomComponentDrawerRegistry::Register(descriptor, drawer);
+		if (CustomComponentDrawerRegistry::Register(descriptor, drawer) == false)
+		{
+			return false;
+		}
 		_registration.AddUnregister([&descriptor]() { CustomComponentDrawerRegistry::Unregister(descriptor); });
+		return true;
 	}
 
 	/// @brief
@@ -110,9 +118,13 @@ namespace hod::inline editor
 	/// @brief
 	/// @param route
 	/// @param descriptor
-	void EditorRegistrar::RegisterWindow(const String& route, ReflectionDescriptor& descriptor)
+	bool EditorRegistrar::RegisterWindow(const String& route, ReflectionDescriptor& descriptor)
 	{
-		WindowFactory::GetInstance()->Register(route, descriptor);
+		if (WindowFactory::GetInstance()->Register(route, descriptor) == false)
+		{
+			return false;
+		}
 		_registration.AddUnregister([&descriptor]() { WindowFactory::GetInstance()->Unregister(descriptor); });
+		return true;
 	}
 }

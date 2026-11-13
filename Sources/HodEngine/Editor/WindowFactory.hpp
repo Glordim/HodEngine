@@ -27,9 +27,11 @@ namespace hod::inline editor
 
 	public:
 
+		/// @brief In the "Window" menu, under route
+		/// @return false (with an error) if the window type is registered already (under any route): the first one stays
 		template<typename _Window_>
-		void	Register(const String& route);
-		void	Register(const String& route, ReflectionDescriptor& reflectionDescriptor);
+		bool	Register(const String& route);
+		bool	Register(const String& route, ReflectionDescriptor& reflectionDescriptor);
 		/// @brief By the editor modules when they unload: from all the routes, destroying the open windows of this type
 		void	Unregister(ReflectionDescriptor& reflectionDescriptor);
 
@@ -44,8 +46,8 @@ namespace hod::inline editor
 	};
 
 	template<typename _Window_>
-	void WindowFactory::Register(const String& route)
+	bool WindowFactory::Register(const String& route)
 	{
-		Register(route, _Window_::GetReflectionDescriptor());
+		return Register(route, _Window_::GetReflectionDescriptor());
 	}
 }

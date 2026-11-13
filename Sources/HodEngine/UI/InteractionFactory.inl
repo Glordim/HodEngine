@@ -1,12 +1,20 @@
+#include <HodEngine/Core/Output/OutputService.hpp>
+#include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 
 namespace hod::inline ui
 {
+	/// @return false (with an error) if registered already: the first one stays
 	template<typename _Interaction_>
 	bool InteractionFactory::Register()
 	{
 		static_assert(std::is_base_of<Interaction, _Interaction_>::value, "_Interaction_ must derive from Interaction to use InteractionFactory::Register()");
 
-		_typeToDescriptors[_Interaction_::GetReflectionDescriptor().GetType()] = &_Interaction_::GetReflectionDescriptor();
+		ReflectionDescriptor& descriptor = _Interaction_::GetReflectionDescriptor();
+		if (_typeToDescriptors.try_emplace(descriptor.GetType(), &descriptor).second == false)
+		{
+			OUTPUT_ERROR("InteractionFactory: the interaction '{}' is registered already", descriptor.GetDisplayName());
+			return false;
+		}
 		return true;
 	}
 

@@ -12,7 +12,8 @@
 namespace hod::inline ui
 {
 	/// @brief The registrar of UI (see ModuleRegistration): nodes, layouts, layout params, interactions, views (UI's builtin ones, a game's),
-	/// unregistered with the rest of what the module registered. In a runtime module's startup (see HOD_STARTUP_MODULE)
+	/// unregistered with the rest of what the module registered. In a runtime module's startup (see HOD_STARTUP_MODULE). Each returns false
+	/// (with an error) if the type is registered already (by another module): the first one stays, nothing is undone for this one
 	class UIRegistrar
 	{
 	public:
@@ -24,37 +25,40 @@ namespace hod::inline ui
 	public:
 		/// @brief A Node type, offered by the UI prefab editor
 		template<typename _Node_>
-		void RegisterNode();
+		bool RegisterNode();
 
 		/// @brief A Layout type (how a node places its children)
 		template<typename _Layout_>
-		void RegisterLayout();
+		bool RegisterLayout();
 
 		/// @brief A LayoutParams type (how a node is placed by its parent's layout)
 		template<typename _LayoutParams_>
-		void RegisterLayoutParams();
+		bool RegisterLayoutParams();
 
 		/// @brief An Interaction type (Button, Slider...: a node's behavior under the pointer)
 		template<typename _Interaction_>
-		void RegisterInteraction();
+		bool RegisterInteraction();
 
 		/// @brief A View type (see View), set on the root node of UI prefabs
 		template<typename _View_>
-		void RegisterView();
+		bool RegisterView();
 
 	private:
 		/// @brief In _Factory_ (a singleton, may be destroyed before the unregister: nothing to do then)
 		template<typename _Factory_, typename _Type_>
-		void Register();
+		bool Register();
 
 	private:
 		ModuleRegistration& _registration;
 	};
 
 	template<typename _Factory_, typename _Type_>
-	void UIRegistrar::Register()
+	bool UIRegistrar::Register()
 	{
-		_Factory_::GetInstance()->template Register<_Type_>();
+		if (_Factory_::GetInstance()->template Register<_Type_>() == false)
+		{
+			return false;
+		}
 		_registration.AddUnregister(
 			[]()
 			{
@@ -63,35 +67,36 @@ namespace hod::inline ui
 					factory->template Unregister<_Type_>();
 				}
 			});
+		return true;
 	}
 
 	template<typename _Node_>
-	void UIRegistrar::RegisterNode()
+	bool UIRegistrar::RegisterNode()
 	{
-		Register<NodeFactory, _Node_>();
+		return Register<NodeFactory, _Node_>();
 	}
 
 	template<typename _Layout_>
-	void UIRegistrar::RegisterLayout()
+	bool UIRegistrar::RegisterLayout()
 	{
-		Register<LayoutFactory, _Layout_>();
+		return Register<LayoutFactory, _Layout_>();
 	}
 
 	template<typename _LayoutParams_>
-	void UIRegistrar::RegisterLayoutParams()
+	bool UIRegistrar::RegisterLayoutParams()
 	{
-		Register<LayoutParamsFactory, _LayoutParams_>();
+		return Register<LayoutParamsFactory, _LayoutParams_>();
 	}
 
 	template<typename _Interaction_>
-	void UIRegistrar::RegisterInteraction()
+	bool UIRegistrar::RegisterInteraction()
 	{
-		Register<InteractionFactory, _Interaction_>();
+		return Register<InteractionFactory, _Interaction_>();
 	}
 
 	template<typename _View_>
-	void UIRegistrar::RegisterView()
+	bool UIRegistrar::RegisterView()
 	{
-		Register<ViewFactory, _View_>();
+		return Register<ViewFactory, _View_>();
 	}
 }

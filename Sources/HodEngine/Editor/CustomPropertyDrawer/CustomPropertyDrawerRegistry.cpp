@@ -8,17 +8,15 @@ namespace hod::inline editor
 {
 	std::unordered_map<uint64_t, CustomPropertyDrawer*> CustomPropertyDrawerRegistry::_drawers;
 
-	void CustomPropertyDrawerRegistry::Register(const ReflectionDescriptor& descriptor, CustomPropertyDrawer* drawer)
+	bool CustomPropertyDrawerRegistry::Register(const ReflectionDescriptor& descriptor, CustomPropertyDrawer* drawer)
 	{
-		uint64_t type = descriptor.GetType();
-		if (_drawers.find(type) == _drawers.end())
+		if (_drawers.try_emplace(descriptor.GetType(), drawer).second == false)
 		{
-			_drawers[type] = drawer;
-		}
-		else
-		{
+			OUTPUT_ERROR("CustomPropertyDrawerRegistry: '{}' has a drawer already", descriptor.GetDisplayName());
 			DefaultAllocator::GetInstance().Delete(drawer);
+			return false;
 		}
+		return true;
 	}
 
 	void CustomPropertyDrawerRegistry::Unregister(const ReflectionDescriptor& descriptor)

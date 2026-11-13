@@ -18,9 +18,11 @@ namespace hod::inline editor
 	class HOD_EDITOR_API CustomComponentDrawerRegistry
 	{
 	public:
+		/// @param drawer Owned by the registry, deleted right away if refused
+		/// @return false (with an error) if the type has a drawer already: the first one stays
 		template<typename _Type_, typename _Drawer_>
-		static void Register();
-		static void Register(const ReflectionDescriptor& descriptor, CustomComponentDrawer* drawer);
+		static bool Register();
+		static bool Register(const ReflectionDescriptor& descriptor, CustomComponentDrawer* drawer);
 
 		template<typename _Type_>
 		static void Unregister();
@@ -36,9 +38,9 @@ namespace hod::inline editor
 	};
 
 	template<typename _Type_, typename _Drawer_>
-	void CustomComponentDrawerRegistry::Register()
+	bool CustomComponentDrawerRegistry::Register()
 	{
-		Register(_Type_::GetReflectionDescriptor(), DefaultAllocator::GetInstance().New<_Drawer_>());
+		return Register(_Type_::GetReflectionDescriptor(), DefaultAllocator::GetInstance().New<_Drawer_>());
 	}
 
 	template<typename _Type_>
