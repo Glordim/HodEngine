@@ -47,10 +47,6 @@ namespace hod::inline application
 		bool InitGameSystems();
 		bool TerminateGameSystems();
 		
-		// Game: the factories, the builtin types
-		bool InitGame();
-		bool TerminateGame();
-
 		// The game's runtime modules (see HOD_STARTUP_RUNTIME_MODULE): the project settings are loaded, then they start in their order; stopped in reverse
 		bool InitModules();
 		bool TerminateModules();

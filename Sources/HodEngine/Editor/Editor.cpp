@@ -243,10 +243,10 @@ namespace hod::inline editor
 		return false;
 	}
 
-	/// @brief The startup of each plugin's runtime modules (in the plugins' order: dependencies first; a plugin's base then its Components
-	/// layer), the project settings loaded already (Project::Open). A plugin that fails (and the ones needing it) is left out, with an
-	/// error: the editor still opens
-	/// @return
+	/// @brief The startup of each plugin's runtime modules (in the plugins' order: dependencies first, Game before the plugins knowing it; a
+	/// plugin's base then its Components layer), the project settings loaded already (Project::Open). An optional plugin that fails (and the
+	/// ones needing it) is left out, with an error: the editor still opens
+	/// @return false if a required plugin failed (Game, Renderer...): nothing is kept, the project can't be opened
 	bool Editor::LoadRuntimeModules()
 	{
 		_runtimeModuleHost = DefaultAllocator::GetInstance().New<ModuleHost>();
@@ -294,6 +294,13 @@ namespace hod::inline editor
 				OUTPUT_ERROR("Plugin '{}' left out: its module {} couldn't be loaded or started", manifest._name, manifest._runtimeModules[started]);
 				_runtimeModuleHost->StopLast(started);
 				_failedPlugins.PushBack(manifest._name);
+				if (manifest._required)
+				{
+					OUTPUT_ERROR("Plugin '{}' is required: the project can't be opened", manifest._name);
+					UnloadRuntimeModules();
+					_failedPlugins.Clear();
+					return false;
+				}
 			}
 		}
 		return true;

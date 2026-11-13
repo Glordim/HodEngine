@@ -8,10 +8,6 @@
 #include <HodEngine/GameSystems/Job/JobScheduler.hpp>
 #include <HodEngine/GameSystems/ProjectSettings/ProjectSettingsManager.hpp>
 
-#include "HodEngine/Game/Builtin.hpp"
-#include "HodEngine/Game/ComponentFactory.hpp"
-#include "HodEngine/Game/DataStruct/DataStructFactory.hpp"
-
 #include <HodEngine/Core/RuntimeModule.hpp>
 
 #include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
@@ -108,14 +104,6 @@ namespace hod::inline application
 		return true;
 	}
 
-	bool Application::InitGame()
-	{
-		ComponentFactory::CreateInstance();
-		DataStructFactory::CreateInstance();
-		game::RegisterBuiltin();
-		return true;
-	}
-
 	bool Application::BootGame()
 	{
 #if defined(HOD_APPLICATION_STATIC)
@@ -161,13 +149,6 @@ namespace hod::inline application
 		return true;
 	}
 
-	bool Application::TerminateGame()
-	{
-		DataStructFactory::DestroyInstance();
-		ComponentFactory::DestroyInstance();
-		return true;
-	}
-
 	/// @brief
 	/// @return
 	bool Application::RunInternal()
@@ -176,7 +157,6 @@ namespace hod::inline application
 
 		if (!initGuard.Push([this]{ return InitCore(); },        [this]{ TerminateCore(); }))        return false;
 		if (!initGuard.Push([this]{ return InitGameSystems(); }, [this]{ TerminateGameSystems(); })) return false;
-		if (!initGuard.Push([this]{ return InitGame(); },        [this]{ TerminateGame(); }))        return false;
 		if (!initGuard.Push([this]{ return InitModules(); },     [this]{ TerminateModules(); }))     return false;
 		if (!initGuard.Push([this]{ return BootGame(); },        [this]{ TerminateBoot(); }))        return false;
 
