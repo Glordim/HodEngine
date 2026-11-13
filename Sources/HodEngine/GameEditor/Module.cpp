@@ -23,22 +23,21 @@
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
-using namespace hod;
-using namespace hod::game;
-using namespace hod::editor;
-
-HOD_STARTUP_EDITOR_MODULE(GameEditor, registration)
+namespace hod::inline game
 {
-	hod::editor::EditorRegistrar editorRegistrar(registration);
-	editorRegistrar.RegisterCustomPropertyDrawer<ZOrder, ZOrderCustomPropertyDrawer>();
-	editorRegistrar.RegisterCustomPropertyDrawer<WeakComponentBase, WeakComponentCustomPropertyDrawer>();
+	HOD_STARTUP_EDITOR_MODULE(GameEditor, registration)
+	{
+		EditorRegistrar editorRegistrar(registration);
+		editorRegistrar.RegisterCustomPropertyDrawer<ZOrder, ZOrderCustomPropertyDrawer>();
+		editorRegistrar.RegisterCustomPropertyDrawer<WeakComponentBase, WeakComponentCustomPropertyDrawer>();
 
-	editorRegistrar.RegisterCustomComponentDrawer<Node2dComponent, Node2dCustomComponentDrawer>();
-	editorRegistrar.RegisterCustomComponentDrawer<MissingComponent, MissingComponentCustomComponentDrawer>();
+		editorRegistrar.RegisterCustomComponentDrawer<Node2dComponent, Node2dCustomComponentDrawer>();
+		editorRegistrar.RegisterCustomComponentDrawer<MissingComponent, MissingComponentCustomComponentDrawer>();
 
-	editorRegistrar.RegisterAssetType<SceneAssetType>();
-	editorRegistrar.RegisterAssetType<PrefabAssetType>();
-	editorRegistrar.RegisterAssetType<DataItemAssetType>();
-	editorRegistrar.RegisterAssetType<DataTableAssetType>();
-	return 0;
+		editorRegistrar.RegisterAssetType<SceneAssetType>();
+		editorRegistrar.RegisterAssetType<PrefabAssetType>();
+		editorRegistrar.RegisterAssetType<DataItemAssetType>();
+		editorRegistrar.RegisterAssetType<DataTableAssetType>();
+		return 0;
+	}
 }

@@ -10,25 +10,28 @@
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
-namespace
+namespace hod::inline audio
 {
-	void RegisterAudioModule(hod::ModuleRegistration& registration)
+	namespace
 	{
-		hod::game::GameRegistrar gameRegistrar(registration);
-		gameRegistrar.RegisterComponent<hod::audio::AudioSourceComponent>();
+		void RegisterAudioModule(ModuleRegistration& registration)
+		{
+			GameRegistrar gameRegistrar(registration);
+			gameRegistrar.RegisterComponent<AudioSourceComponent>();
+		}
+
+		/// @brief The platform's audio device
+		bool InitAudioModule()
+		{
+			PlatformAudioManager::CreateInstance();
+			return PlatformAudioManager::GetInstance()->Initialize();
+		}
+
+		void ShutdownAudioModule()
+		{
+			PlatformAudioManager::DestroyInstance();
+		}
 	}
 
-	/// @brief The platform's audio device
-	bool InitAudioModule()
-	{
-		PlatformAudioManager::CreateInstance();
-		return PlatformAudioManager::GetInstance()->Initialize();
-	}
-
-	void ShutdownAudioModule()
-	{
-		PlatformAudioManager::DestroyInstance();
-	}
+	HOD_DEFINE_RUNTIME_MODULE(AudioComponents, &RegisterAudioModule, &InitAudioModule, &ShutdownAudioModule)
 }
-
-HOD_DEFINE_RUNTIME_MODULE(AudioComponents, &RegisterAudioModule, &InitAudioModule, &ShutdownAudioModule)

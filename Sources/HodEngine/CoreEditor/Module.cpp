@@ -15,15 +15,15 @@
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
-using namespace hod;
-using namespace hod::editor;
-
-HOD_STARTUP_EDITOR_MODULE(CoreEditor, registration)
+namespace hod::inline core
 {
-	hod::editor::EditorRegistrar editorRegistrar(registration);
-	editorRegistrar.RegisterCustomPropertyDrawer<Color, ColorCustomPropertyDrawer>();
-	editorRegistrar.RegisterCustomPropertyDrawer<Vector2, Vector2CustomPropertyDrawer>();
-	editorRegistrar.RegisterCustomPropertyDrawer<Vector4, Vector4CustomPropertyDrawer>();
-	editorRegistrar.RegisterCustomPropertyDrawer<WeakResourceBase, WeakResourceCustomPropertyDrawer>();
-	return 0;
+	HOD_STARTUP_EDITOR_MODULE(CoreEditor, registration)
+	{
+		EditorRegistrar editorRegistrar(registration);
+		editorRegistrar.RegisterCustomPropertyDrawer<Color, ColorCustomPropertyDrawer>();
+		editorRegistrar.RegisterCustomPropertyDrawer<Vector2, Vector2CustomPropertyDrawer>();
+		editorRegistrar.RegisterCustomPropertyDrawer<Vector4, Vector4CustomPropertyDrawer>();
+		editorRegistrar.RegisterCustomPropertyDrawer<WeakResourceBase, WeakResourceCustomPropertyDrawer>();
+		return 0;
+	}
 }

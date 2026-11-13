@@ -18,31 +18,34 @@
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
-namespace
+namespace hod::inline physics
 {
-	void RegisterPhysicsModule(hod::ModuleRegistration& registration)
+	namespace
 	{
-		hod::game::GameRegistrar gameRegistrar(registration);
-		gameRegistrar.RegisterComponent<hod::physics::Collider2dComponent>();
-		gameRegistrar.RegisterComponent<hod::physics::MultiShapeCollider2dComponent>();
-		gameRegistrar.RegisterComponent<hod::physics::BoxCollider2dComponent>();
-		gameRegistrar.RegisterComponent<hod::physics::CircleCollider2dComponent>();
-		gameRegistrar.RegisterComponent<hod::physics::CapsuleCollider2dComponent>();
-		gameRegistrar.RegisterComponent<hod::physics::EdgeCollider2dComponent>();
-		gameRegistrar.RegisterComponent<hod::physics::Rigidbody2dComponent>();
+		void RegisterPhysicsModule(ModuleRegistration& registration)
+		{
+			GameRegistrar gameRegistrar(registration);
+			gameRegistrar.RegisterComponent<Collider2dComponent>();
+			gameRegistrar.RegisterComponent<MultiShapeCollider2dComponent>();
+			gameRegistrar.RegisterComponent<BoxCollider2dComponent>();
+			gameRegistrar.RegisterComponent<CircleCollider2dComponent>();
+			gameRegistrar.RegisterComponent<CapsuleCollider2dComponent>();
+			gameRegistrar.RegisterComponent<EdgeCollider2dComponent>();
+			gameRegistrar.RegisterComponent<Rigidbody2dComponent>();
 
-		gameRegistrar.RegisterWorldSystem(hod::physics::PhysicsWorldSystem::GetType());
+			gameRegistrar.RegisterWorldSystem(PhysicsWorldSystem::GetType());
+		}
+
+		bool InitPhysicsModule()
+		{
+			return Physics::CreatePhysicsInstance()->Init();
+		}
+
+		void ShutdownPhysicsModule()
+		{
+			Physics::DestroyInstance();
+		}
 	}
 
-	bool InitPhysicsModule()
-	{
-		return hod::physics::Physics::CreatePhysicsInstance()->Init();
-	}
-
-	void ShutdownPhysicsModule()
-	{
-		hod::physics::Physics::DestroyInstance();
-	}
+	HOD_DEFINE_RUNTIME_MODULE(PhysicsComponents, &RegisterPhysicsModule, &InitPhysicsModule, &ShutdownPhysicsModule)
 }
-
-HOD_DEFINE_RUNTIME_MODULE(PhysicsComponents, &RegisterPhysicsModule, &InitPhysicsModule, &ShutdownPhysicsModule)

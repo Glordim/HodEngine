@@ -73,10 +73,11 @@ namespace hod::inline game
 		API const hod::game::RuntimeModule* HOD_RUNTIME_MODULE_FUNCTION(Name)(); \
 	}
 
-/// @brief HOD_DEFINE_RUNTIME_MODULE(PhysicsComponents, &Register, &Init, &Shutdown): the functions as in RuntimeModule (Init and Shutdown optional)
-#define HOD_DEFINE_RUNTIME_MODULE(Name, ...)                                         \
-	const hod::game::RuntimeModule* HOD_RUNTIME_MODULE_FUNCTION(Name)()             \
-	{                                                                                \
-		static const hod::game::RuntimeModule runtimeModule {#Name, __VA_ARGS__};    \
-		return &runtimeModule;                                                       \
+/// @brief HOD_DEFINE_RUNTIME_MODULE(PhysicsComponents, &Register, &Init, &Shutdown): the functions as in RuntimeModule (Init and Shutdown optional).
+/// Usable in the module's namespace (namespace hod::inline physics { ... }): extern "C", the same function as the declared one
+#define HOD_DEFINE_RUNTIME_MODULE(Name, ...)                                           \
+	extern "C" const ::hod::game::RuntimeModule* HOD_RUNTIME_MODULE_FUNCTION(Name)() \
+	{                                                                                  \
+		static const ::hod::game::RuntimeModule runtimeModule {#Name, __VA_ARGS__};    \
+		return &runtimeModule;                                                         \
 	}

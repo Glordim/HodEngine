@@ -13,20 +13,23 @@
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
-namespace
+namespace hod::inline renderer
 {
-	/// @brief The Renderer itself (the GPU device, the frames) is the application's, created before the modules: nothing to init here
-	void RegisterRendererModule(hod::ModuleRegistration& registration)
+	namespace
 	{
-		hod::game::GameRegistrar gameRegistrar(registration);
-		gameRegistrar.RegisterComponent<hod::renderer::BoxComponent>();
-		gameRegistrar.RegisterComponent<hod::renderer::TextureRendererComponent>();
-		gameRegistrar.RegisterComponent<hod::renderer::TextRendererComponent>();
-		gameRegistrar.RegisterComponent<hod::renderer::CameraComponent>();
-		// Not usable yet: SpriteRendererComponent, PointLightComponent, DirLightComponent, SpotLightComponent
+		/// @brief The Renderer itself (the GPU device, the frames) is the application's, created before the modules: nothing to init here
+		void RegisterRendererModule(ModuleRegistration& registration)
+		{
+			GameRegistrar gameRegistrar(registration);
+			gameRegistrar.RegisterComponent<BoxComponent>();
+			gameRegistrar.RegisterComponent<TextureRendererComponent>();
+			gameRegistrar.RegisterComponent<TextRendererComponent>();
+			gameRegistrar.RegisterComponent<CameraComponent>();
+			// Not usable yet: SpriteRendererComponent, PointLightComponent, DirLightComponent, SpotLightComponent
 
-		gameRegistrar.RegisterWorldSystem(hod::renderer::RendererWorldSystem::GetType());
+			gameRegistrar.RegisterWorldSystem(RendererWorldSystem::GetType());
+		}
 	}
-}
 
-HOD_DEFINE_RUNTIME_MODULE(RendererComponents, &RegisterRendererModule)
+	HOD_DEFINE_RUNTIME_MODULE(RendererComponents, &RegisterRendererModule)
+}

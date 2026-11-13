@@ -35,159 +35,159 @@
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
-namespace
+namespace hod::inline physics
 {
-	/// @brief The physics shapes of the world, in place of its render or over it: the physics' debug view gathered in a ShapeList, drawn at once
-	class PhysicsViewportDebugView : public hod::editor::ViewportDebugView, public hod::physics::DebugDrawTarget
+	namespace
 	{
-	private:
-		static void SyncBodiesWithNodes(hod::game::Scene& scene)
+		/// @brief The physics shapes of the world, in place of its render or over it: the physics' debug view gathered in a ShapeList, drawn at once
+		class PhysicsViewportDebugView : public ViewportDebugView, public DebugDrawTarget
 		{
-			for (const auto& entityPair : scene.GetEntities())
+		private:
+			static void SyncBodiesWithNodes(game::Scene& scene)
 			{
-				hod::game::Entity* entity = entityPair.second;
-				if (entity->IsActiveInHierarchy())
+				for (const auto& entityPair : scene.GetEntities())
 				{
-					if (hod::physics::Rigidbody2dComponent* rigidbody = entity->GetComponent<hod::physics::Rigidbody2dComponent>())
+					game::Entity* entity = entityPair.second;
+					if (entity->IsActiveInHierarchy())
 					{
-						rigidbody->TeleportToNode();
+						if (Rigidbody2dComponent* rigidbody = entity->GetComponent<Rigidbody2dComponent>())
+						{
+							rigidbody->TeleportToNode();
+						}
 					}
 				}
 			}
-		}
 
-		static void SyncBodiesWithNodes(hod::game::World& world)
-		{
-			for (hod::game::Scene* scene : world.GetScenes())
+			static void SyncBodiesWithNodes(game::World& world)
 			{
-				SyncBodiesWithNodes(*scene);
-			}
-			SyncBodiesWithNodes(*world.GetPersistentScene());
-		}
-
-	public:
-		void Draw(hod::renderer::RenderView& renderView, hod::game::World& world, uint32_t sortingOrder) override
-		{
-			hod::physics::World* physicsWorld = hod::physics::PhysicsWorldSystem::GetPhysicsWorld(world);
-			if (physicsWorld != nullptr)
-			{
-				// The simulation not running (editing, paused), nothing moves the bodies: they follow the nodes, edited meanwhile
-				if (world.GetEditorPlaying() == false || world.GetEditorPaused())
+				for (game::Scene* scene : world.GetScenes())
 				{
-					SyncBodiesWithNodes(world);
+					SyncBodiesWithNodes(*scene);
 				}
-
-				_shapes.Clear();
-				physicsWorld->GetDebugDrawer()->Draw(physicsWorld, *this);
-				hod::renderer::ShapeDrawer::Draw(renderView, _shapes, sortingOrder);
+				SyncBodiesWithNodes(*world.GetPersistentScene());
 			}
-		}
 
-		void Polygon(const hod::Vector2* points, uint32_t pointCount, const hod::Color& color, bool filled) override
-		{
-			if (filled)
+		public:
+			void Draw(renderer::RenderView& renderView, game::World& world, uint32_t sortingOrder) override
 			{
-				_shapes.FilledPolygon(points, pointCount, color);
-			}
-			else
-			{
-				_shapes.Polyline(points, pointCount, true, color);
-			}
-		}
-
-		void Circle(const hod::Vector2& center, float radius, const hod::Color& color, bool filled) override
-		{
-			if (filled)
-			{
-				_shapes.FilledCircle(center, radius, color);
-			}
-			else
-			{
-				_shapes.Circle(center, radius, color);
-			}
-		}
-
-		void Capsule(const hod::Vector2& start, const hod::Vector2& end, float radius, const hod::Color& color, bool filled) override
-		{
-			if (filled)
-			{
-				_shapes.FilledCapsule(start, end, radius, color);
-			}
-			else
-			{
-				_shapes.Capsule(start, end, radius, color);
-			}
-		}
-
-		void Segment(const hod::Vector2& start, const hod::Vector2& end, const hod::Color& color) override
-		{
-			_shapes.Line(start, end, color);
-		}
-
-		void Point(const hod::Vector2& position, float pixelSize, const hod::Color& color) override
-		{
-			_shapes.Point(position, pixelSize, color);
-		}
-
-	private:
-		hod::renderer::ShapeList _shapes; // kept: its capacity reused from frame to frame
-	};
-
-	/// @brief Its draw flags
-	void DrawPhysicsDebugViewSettings(hod::game::World& world)
-	{
-		hod::physics::World* physicsWorld = hod::physics::PhysicsWorldSystem::GetPhysicsWorld(world);
-		if (physicsWorld == nullptr)
-		{
-			ImGui::TextDisabled("No physics in this world");
-			return;
-		}
-
-		hod::physics::DebugDrawer* physicsDebugDrawer = physicsWorld->GetDebugDrawer();
-		uint32_t                   flags = physicsDebugDrawer->GetFlags();
-		for (const hod::physics::DebugDrawer::Flag& flag : physicsDebugDrawer->GetAvailableFlags())
-		{
-			bool enabled = flags & flag._value;
-			if (ImGui::Checkbox(flag._label, &enabled))
-			{
-				if (enabled)
+				World* physicsWorld = PhysicsWorldSystem::GetPhysicsWorld(world);
+				if (physicsWorld != nullptr)
 				{
-					flags |= flag._value;
+					// The simulation not running (editing, paused), nothing moves the bodies: they follow the nodes, edited meanwhile
+					if (world.GetEditorPlaying() == false || world.GetEditorPaused())
+					{
+						SyncBodiesWithNodes(world);
+					}
+
+					_shapes.Clear();
+					physicsWorld->GetDebugDrawer()->Draw(physicsWorld, *this);
+					renderer::ShapeDrawer::Draw(renderView, _shapes, sortingOrder);
+				}
+			}
+
+			void Polygon(const Vector2* points, uint32_t pointCount, const Color& color, bool filled) override
+			{
+				if (filled)
+				{
+					_shapes.FilledPolygon(points, pointCount, color);
 				}
 				else
 				{
-					flags &= ~(flag._value);
+					_shapes.Polyline(points, pointCount, true, color);
 				}
-				physicsDebugDrawer->SetFlags(flags);
 			}
+
+			void Circle(const Vector2& center, float radius, const Color& color, bool filled) override
+			{
+				if (filled)
+				{
+					_shapes.FilledCircle(center, radius, color);
+				}
+				else
+				{
+					_shapes.Circle(center, radius, color);
+				}
+			}
+
+			void Capsule(const Vector2& start, const Vector2& end, float radius, const Color& color, bool filled) override
+			{
+				if (filled)
+				{
+					_shapes.FilledCapsule(start, end, radius, color);
+				}
+				else
+				{
+					_shapes.Capsule(start, end, radius, color);
+				}
+			}
+
+			void Segment(const Vector2& start, const Vector2& end, const Color& color) override
+			{
+				_shapes.Line(start, end, color);
+			}
+
+			void Point(const Vector2& position, float pixelSize, const Color& color) override
+			{
+				_shapes.Point(position, pixelSize, color);
+			}
+
+		private:
+			renderer::ShapeList _shapes; // kept: its capacity reused from frame to frame
+		};
+
+		/// @brief Its draw flags
+		void DrawPhysicsDebugViewSettings(game::World& world)
+		{
+			World* physicsWorld = PhysicsWorldSystem::GetPhysicsWorld(world);
+			if (physicsWorld == nullptr)
+			{
+				ImGui::TextDisabled("No physics in this world");
+				return;
+			}
+
+			DebugDrawer* physicsDebugDrawer = physicsWorld->GetDebugDrawer();
+			uint32_t                   flags = physicsDebugDrawer->GetFlags();
+			for (const DebugDrawer::Flag& flag : physicsDebugDrawer->GetAvailableFlags())
+			{
+				bool enabled = flags & flag._value;
+				if (ImGui::Checkbox(flag._label, &enabled))
+				{
+					if (enabled)
+					{
+						flags |= flag._value;
+					}
+					else
+					{
+						flags &= ~(flag._value);
+					}
+					physicsDebugDrawer->SetFlags(flags);
+				}
+			}
+		}
+
+		const ViewportDebugViewType& GetPhysicsViewportDebugViewType()
+		{
+			static const ViewportDebugViewType type {
+				ICON_MDI_ATOM " Physics",
+				"physics debug",
+				+[]() -> ViewportDebugView* { return DefaultAllocator::GetInstance().New<PhysicsViewportDebugView>(); },
+				&DrawPhysicsDebugViewSettings,
+			};
+			return type;
 		}
 	}
 
-	const hod::editor::ViewportDebugViewType& GetPhysicsViewportDebugViewType()
+	HOD_STARTUP_EDITOR_MODULE(PhysicsEditor, registration)
 	{
-		static const hod::editor::ViewportDebugViewType type {
-			ICON_MDI_ATOM " Physics",
-			"physics debug",
-			+[]() -> hod::editor::ViewportDebugView* { return hod::DefaultAllocator::GetInstance().New<PhysicsViewportDebugView>(); },
-			&DrawPhysicsDebugViewSettings,
-		};
-		return type;
+		EditorRegistrar editorRegistrar(registration);
+		editorRegistrar.RegisterCustomComponentDrawer<BoxCollider2dComponent, BoxCollider2dCustomComponentDrawer>();
+		editorRegistrar.RegisterCustomComponentDrawer<CircleCollider2dComponent, CircleCollider2dCustomComponentDrawer>();
+		editorRegistrar.RegisterCustomComponentDrawer<CapsuleCollider2dComponent, CapsuleCollider2dCustomComponentDrawer>();
+		editorRegistrar.RegisterCustomComponentDrawer<EdgeCollider2dComponent, EdgeCollider2dCustomComponentDrawer>();
+		editorRegistrar.RegisterCustomComponentDrawer<MultiShapeCollider2dComponent, MultiShapeCollider2dCustomComponentDrawer>();
+
+		GameEditorRegistrar gameEditorRegistrar(registration);
+		gameEditorRegistrar.RegisterViewportDebugView(GetPhysicsViewportDebugViewType());
+		return 0;
 	}
-}
-
-HOD_STARTUP_EDITOR_MODULE(PhysicsEditor, registration)
-{
-	using namespace hod;
-	using namespace hod::editor;
-
-	EditorRegistrar editorRegistrar(registration);
-	editorRegistrar.RegisterCustomComponentDrawer<BoxCollider2dComponent, BoxCollider2dCustomComponentDrawer>();
-	editorRegistrar.RegisterCustomComponentDrawer<CircleCollider2dComponent, CircleCollider2dCustomComponentDrawer>();
-	editorRegistrar.RegisterCustomComponentDrawer<CapsuleCollider2dComponent, CapsuleCollider2dCustomComponentDrawer>();
-	editorRegistrar.RegisterCustomComponentDrawer<EdgeCollider2dComponent, EdgeCollider2dCustomComponentDrawer>();
-	editorRegistrar.RegisterCustomComponentDrawer<MultiShapeCollider2dComponent, MultiShapeCollider2dCustomComponentDrawer>();
-
-	GameEditorRegistrar gameEditorRegistrar(registration);
-	gameEditorRegistrar.RegisterViewportDebugView(GetPhysicsViewportDebugViewType());
-	return 0;
 }

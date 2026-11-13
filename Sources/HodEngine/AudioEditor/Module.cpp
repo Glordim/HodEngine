@@ -9,15 +9,15 @@
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
-using namespace hod;
-using namespace hod::editor;
-
-HOD_STARTUP_EDITOR_MODULE(AudioEditor, registration)
+namespace hod::inline audio
 {
-	hod::editor::EditorRegistrar editorRegistrar(registration);
-	if (editorRegistrar.RegisterAssetType<AudioAssetType>())
+	HOD_STARTUP_EDITOR_MODULE(AudioEditor, registration)
 	{
-		editorRegistrar.RegisterImporter<AudioImporter>("wav");
+		EditorRegistrar editorRegistrar(registration);
+		if (editorRegistrar.RegisterAssetType<AudioAssetType>())
+		{
+			editorRegistrar.RegisterImporter<AudioImporter>("wav");
+		}
+		return 0;
 	}
-	return 0;
 }

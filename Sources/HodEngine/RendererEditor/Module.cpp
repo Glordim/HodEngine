@@ -25,56 +25,56 @@
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
-using namespace hod;
-using namespace hod::editor;
-
-namespace
+namespace hod::inline renderer
 {
-	/// @brief The render of the worlds in the viewports (see ViewportWorldRenderer)
-	void DrawWorldInViewport(RenderView& renderView, game::World& world)
+	namespace
 	{
-		if (RendererWorldSystem* rendererWorldSystem = RendererWorldSystem::Get(world))
+		/// @brief The render of the worlds in the viewports (see ViewportWorldRenderer)
+		void DrawWorldInViewport(RenderView& renderView, game::World& world)
 		{
-			rendererWorldSystem->Draw(renderView);
+			if (RendererWorldSystem* rendererWorldSystem = RendererWorldSystem::Get(world))
+			{
+				rendererWorldSystem->Draw(renderView);
+			}
+		}
+
+		/// @brief The game's camera of the worlds in the viewports, when playing (see ViewportWorldRenderer)
+		void SetupPlayCameraInViewport(RenderView& renderView, game::World& world)
+		{
+			if (RendererWorldSystem* rendererWorldSystem = RendererWorldSystem::Get(world))
+			{
+				rendererWorldSystem->SetupPlayCamera(renderView);
+			}
 		}
 	}
 
-	/// @brief The game's camera of the worlds in the viewports, when playing (see ViewportWorldRenderer)
-	void SetupPlayCameraInViewport(RenderView& renderView, game::World& world)
+	HOD_STARTUP_EDITOR_MODULE(RendererEditor, registration)
 	{
-		if (RendererWorldSystem* rendererWorldSystem = RendererWorldSystem::Get(world))
+		EditorRegistrar editorRegistrar(registration);
+		editorRegistrar.RegisterCustomComponentDrawer<CameraComponent, CameraCustomComponentDrawer>();
+		editorRegistrar.RegisterCustomComponentDrawer<TextureRendererComponent, TextureRendererCustomComponentDrawer>();
+
+		GameEditorRegistrar gameEditorRegistrar(registration);
+		gameEditorRegistrar.SetViewportWorldRenderer(&DrawWorldInViewport, &SetupPlayCameraInViewport);
+
+		// The importers after the types they import into, only if registered: an importer producing several types would need them all
+		if (editorRegistrar.RegisterAssetType<TextureAssetType>())
 		{
-			rendererWorldSystem->SetupPlayCamera(renderView);
+			editorRegistrar.RegisterImporter<TextureImporter>("png", "tga", "jpg", "bmp", "psd", "gif", "hdr", "pic");
 		}
+
+		if (editorRegistrar.RegisterAssetType<FontFaceAssetType>())
+		{
+			editorRegistrar.RegisterImporter<FontFaceImporter>("ttf", "otf");
+		}
+
+		if (editorRegistrar.RegisterAssetType<MaterialAssetType>())
+		{
+			editorRegistrar.RegisterImporter<MaterialImporter>("slang");
+		}
+
+		editorRegistrar.RegisterAssetType<FontAssetType>();
+		editorRegistrar.RegisterAssetType<MaterialInstanceAssetType>();
+		return 0;
 	}
-}
-
-HOD_STARTUP_EDITOR_MODULE(RendererEditor, registration)
-{
-	hod::editor::EditorRegistrar editorRegistrar(registration);
-	editorRegistrar.RegisterCustomComponentDrawer<CameraComponent, CameraCustomComponentDrawer>();
-	editorRegistrar.RegisterCustomComponentDrawer<TextureRendererComponent, TextureRendererCustomComponentDrawer>();
-
-	hod::editor::GameEditorRegistrar gameEditorRegistrar(registration);
-	gameEditorRegistrar.SetViewportWorldRenderer(&DrawWorldInViewport, &SetupPlayCameraInViewport);
-
-	// The importers after the types they import into, only if registered: an importer producing several types would need them all
-	if (editorRegistrar.RegisterAssetType<TextureAssetType>())
-	{
-		editorRegistrar.RegisterImporter<TextureImporter>("png", "tga", "jpg", "bmp", "psd", "gif", "hdr", "pic");
-	}
-
-	if (editorRegistrar.RegisterAssetType<FontFaceAssetType>())
-	{
-		editorRegistrar.RegisterImporter<FontFaceImporter>("ttf", "otf");
-	}
-
-	if (editorRegistrar.RegisterAssetType<MaterialAssetType>())
-	{
-		editorRegistrar.RegisterImporter<MaterialImporter>("slang");
-	}
-
-	editorRegistrar.RegisterAssetType<FontAssetType>();
-	editorRegistrar.RegisterAssetType<MaterialInstanceAssetType>();
-	return 0;
 }

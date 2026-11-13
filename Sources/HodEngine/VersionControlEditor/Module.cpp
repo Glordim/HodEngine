@@ -8,13 +8,13 @@
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
-using namespace hod;
-using namespace hod::editor;
-
-// The version control systems offered to the user (see VersionControl::SetProviderChoice), "Auto" trying them in this order
-HOD_STARTUP_EDITOR_MODULE(VersionControlEditor, registration)
+namespace hod::inline editor
 {
-	hod::editor::EditorRegistrar editorRegistrar(registration);
-	editorRegistrar.RegisterVersionControlProvider<GitProvider>();
-	return 0;
+	// The version control systems offered to the user (see VersionControl::SetProviderChoice), "Auto" trying them in this order
+	HOD_STARTUP_EDITOR_MODULE(VersionControlEditor, registration)
+	{
+		EditorRegistrar editorRegistrar(registration);
+		editorRegistrar.RegisterVersionControlProvider<GitProvider>();
+		return 0;
+	}
 }
