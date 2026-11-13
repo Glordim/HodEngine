@@ -7,7 +7,7 @@ extern "C"
 {
 @HOD_MODULE_DECLARATIONS@}
 
-// Called by Application::InitGame: the runtime modules of the game, dependencies first
+// Called by Application::InitGame: the runtime modules of the game, dependencies first, the game module last
 extern "C" const hod::game::RuntimeModule* const* HodGetRuntimeModules(uint32_t* count)
 {
 	static const hod::game::RuntimeModule* const modules[] = {

@@ -7,7 +7,7 @@
 #include "HodEngine/Math/Vector4.hpp"
 #include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 
-#include "HodEngine/Editor/EditorModuleRegistration.hpp"
+#include "HodEngine/Editor/EditorRegistrar.hpp"
 #include "HodEngine/CoreEditor/CustomPropertyDrawer/ColorCustomPropertyDrawer.hpp"
 #include "HodEngine/CoreEditor/CustomPropertyDrawer/Vector2CustomPropertyDrawer.hpp"
 #include "HodEngine/CoreEditor/CustomPropertyDrawer/Vector4CustomPropertyDrawer.hpp"
@@ -20,9 +20,10 @@ using namespace hod::editor;
 
 HOD_STARTUP_EDITOR_MODULE(CoreEditor, registration)
 {
-	registration.RegisterCustomPropertyDrawer<Color, ColorCustomPropertyDrawer>();
-	registration.RegisterCustomPropertyDrawer<Vector2, Vector2CustomPropertyDrawer>();
-	registration.RegisterCustomPropertyDrawer<Vector4, Vector4CustomPropertyDrawer>();
-	registration.RegisterCustomPropertyDrawer<WeakResourceBase, WeakResourceCustomPropertyDrawer>();
+	hod::editor::EditorRegistrar editorRegistrar(registration);
+	editorRegistrar.RegisterCustomPropertyDrawer<Color, ColorCustomPropertyDrawer>();
+	editorRegistrar.RegisterCustomPropertyDrawer<Vector2, Vector2CustomPropertyDrawer>();
+	editorRegistrar.RegisterCustomPropertyDrawer<Vector4, Vector4CustomPropertyDrawer>();
+	editorRegistrar.RegisterCustomPropertyDrawer<WeakResourceBase, WeakResourceCustomPropertyDrawer>();
 	return 0;
 }

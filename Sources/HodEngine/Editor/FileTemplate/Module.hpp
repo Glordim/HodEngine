@@ -1,5 +1,5 @@
 #pragma once
 #include "Export.hpp"
-#include <HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp>
+#include <HodEngine/Game/RuntimeModule.hpp>
 
-HOD_DECLARE_MODULE([[MODULE_NAME]], [[MODULE_API]])
+HOD_DECLARE_RUNTIME_MODULE([[MODULE_NAME]], [[MODULE_API]])

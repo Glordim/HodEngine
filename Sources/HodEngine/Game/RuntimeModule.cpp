@@ -1,73 +1,8 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/RuntimeModule.hpp"
-#include "HodEngine/Game/WorldSystem.hpp"
-
-#include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 
 namespace hod::inline game
 {
-	/// @brief
-	RuntimeModuleRegistration::~RuntimeModuleRegistration()
-	{
-		UnregisterAll();
-	}
-
-	/// @brief
-	/// @param descriptor
-	void RuntimeModuleRegistration::RegisterComponent(ReflectionDescriptor& descriptor)
-	{
-		if (ComponentFactory::GetInstance()->Register(descriptor))
-		{
-			_components.PushBack(&descriptor);
-		}
-	}
-
-	/// @brief
-	/// @param type
-	/// @return
-	bool RuntimeModuleRegistration::RegisterWorldSystem(const WorldSystemType& type)
-	{
-		if (WorldSystemRegistry::Register(type) == false)
-		{
-			return false;
-		}
-		_worldSystems.PushBack(&type);
-		return true;
-	}
-
-	/// @brief
-	/// @param unregister
-	void RuntimeModuleRegistration::AddUnregister(void (*unregister)())
-	{
-		_unregisters.PushBack(unregister);
-	}
-
-	/// @brief
-	void RuntimeModuleRegistration::UnregisterAll()
-	{
-		for (auto it = _unregisters.RBegin(); it != _unregisters.REnd(); ++it)
-		{
-			(*it)();
-		}
-		_unregisters.Clear();
-
-		for (auto it = _worldSystems.RBegin(); it != _worldSystems.REnd(); ++it)
-		{
-			WorldSystemRegistry::Unregister(**it);
-		}
-		_worldSystems.Clear();
-
-		ComponentFactory* componentFactory = ComponentFactory::GetInstance();
-		for (auto it = _components.RBegin(); it != _components.REnd(); ++it)
-		{
-			if (componentFactory != nullptr)
-			{
-				componentFactory->Unregister(**it);
-			}
-		}
-		_components.Clear();
-	}
-
 	/// @brief
 	RuntimeModuleHost::~RuntimeModuleHost()
 	{
@@ -80,7 +15,7 @@ namespace hod::inline game
 	{
 		Entry entry;
 		entry._module = &module;
-		entry._registration = DefaultAllocator::GetInstance().New<RuntimeModuleRegistration>();
+		entry._registration = DefaultAllocator::GetInstance().New<ModuleRegistration>();
 		if (module._register != nullptr)
 		{
 			module._register(*entry._registration);
@@ -131,7 +66,7 @@ namespace hod::inline game
 		ShutdownAll();
 		for (auto it = _entries.RBegin(); it != _entries.REnd(); ++it)
 		{
-			DefaultAllocator::GetInstance().Delete(it->_registration);
+			DefaultAllocator::GetInstance().Delete(it->_registration); // Unregisters what the module registered
 		}
 		_entries.Clear();
 	}

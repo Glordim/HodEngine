@@ -9,6 +9,8 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
+#include <HodEngine/Core/ModuleRegistration.hpp>
+#include <HodEngine/Game/RuntimeModule.hpp>
 #include "HodEngine/GameSystems/Resource/ResourceContainer.hpp"
 #include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
 
@@ -24,6 +26,7 @@
 #include "FileTemplates/Component.cpp.hpp"
 #include "FileTemplates/Component.hpp.hpp"
 #include "FileTemplates/EditorModule.cpp.hpp"
+#include "FileTemplates/EditorModule.hpp.hpp"
 #include "FileTemplates/Export.hpp.hpp"
 #include "FileTemplates/Module.cpp.hpp"
 #include "FileTemplates/Module.hpp.hpp"
@@ -54,16 +57,7 @@ namespace hod::inline editor
 
 	Project::~Project()
 	{
-		auto shutdownFunc = _gameModule.LoadFunction<int (*)()>("ShutdownModule");
-		if (shutdownFunc != nullptr)
-		{
-			shutdownFunc();
-		}
-		shutdownFunc = _editorModule.LoadFunction<int (*)()>("ShutdownModule");
-		if (shutdownFunc != nullptr)
-		{
-			shutdownFunc();
-		}
+		UnloadProjectModules();
 	}
 
 	/// @brief
@@ -248,7 +242,7 @@ namespace hod::inline editor
 			{gameComponentsDirPath / "MyFirstComponent.hpp", Component_hpp, gameModuleName, gameMacroPrefix},
 			{gameComponentsDirPath / "MyFirstComponent.cpp", Component_cpp, gameModuleName, gameMacroPrefix},
 			{editorDirPath / "Export.hpp", Export_hpp, editorModuleName, editorMacroPrefix},
-			{editorDirPath / (editorModuleName + "Module.hpp").CStr(), Module_hpp, editorModuleName, editorMacroPrefix},
+			{editorDirPath / (editorModuleName + "Module.hpp").CStr(), EditorModule_hpp, editorModuleName, editorMacroPrefix},
 			{editorDirPath / (editorModuleName + "Module.cpp").CStr(), EditorModule_cpp, editorModuleName, editorMacroPrefix},
 		};
 		for (const FileToWrite& file : files)
@@ -724,38 +718,86 @@ namespace hod::inline editor
 		return true;
 	}
 
+	/// @brief The game module is a runtime module (HOD_DEFINE_RUNTIME_MODULE, after the engine ones: Register then Init), its editor library
+	/// an editor module (HOD_DECLARE_EDITOR_MODULE, after the engine ones)
+	/// @return false (with an error) if the game module can't be loaded or initialized
+	bool Project::LoadProjectModules()
+	{
+		if (_gameModule.Load() == false)
+		{
+			return false;
+		}
+
+		String                     functionName = String("HodRuntimeModule_") + _name + "Game";
+		auto                       moduleFunc = _gameModule.LoadFunction<const game::RuntimeModule* (*)()>(functionName.CStr());
+		const game::RuntimeModule* runtimeModule = (moduleFunc != nullptr) ? moduleFunc() : nullptr;
+		if (runtimeModule == nullptr)
+		{
+			OUTPUT_ERROR("No {} in the game module {} (see HOD_DEFINE_RUNTIME_MODULE)", functionName, _gameModule.GetPath());
+			_gameModule.Unload();
+			return false;
+		}
+
+		_gameModuleHost = DefaultAllocator::GetInstance().New<game::RuntimeModuleHost>();
+		_gameModuleHost->Register(*runtimeModule);
+		if (_gameModuleHost->InitAll() == false)
+		{
+			DefaultAllocator::GetInstance().Delete(_gameModuleHost); // Unregisters what it registered
+			_gameModuleHost = nullptr;
+			_gameModule.Unload();
+			return false;
+		}
+
+		// Optional
+		if (FileSystem::GetInstance()->Exists(_editorModule.GetPath()) && _editorModule.Load())
+		{
+			auto startupFunc = _editorModule.LoadFunction<int (*)(ModuleRegistration&)>("StartupEditorModule");
+			if (startupFunc != nullptr)
+			{
+				_editorModuleRegistration = DefaultAllocator::GetInstance().New<ModuleRegistration>();
+				startupFunc(*_editorModuleRegistration);
+			}
+			else
+			{
+				OUTPUT_ERROR("No StartupEditorModule in the editor module {} (see HOD_DECLARE_EDITOR_MODULE)", _editorModule.GetPath());
+				_editorModule.Unload();
+			}
+		}
+		return true;
+	}
+
+	/// @brief In the reverse order of LoadProjectModules: the editor module (its shutdown, then what it registered), then the game module (its
+	/// Shutdown phase, then what it registered), while their code is still loaded
+	void Project::UnloadProjectModules()
+	{
+		if (_editorModuleRegistration != nullptr)
+		{
+			auto shutdownFunc = _editorModule.LoadFunction<int (*)()>("ShutdownEditorModule");
+			if (shutdownFunc != nullptr)
+			{
+				shutdownFunc();
+			}
+			DefaultAllocator::GetInstance().Delete(_editorModuleRegistration); // Unregisters all of it
+			_editorModuleRegistration = nullptr;
+		}
+		_editorModule.Unload();
+
+		if (_gameModuleHost != nullptr)
+		{
+			DefaultAllocator::GetInstance().Delete(_gameModuleHost); // Shutdown phase, then unregisters
+			_gameModuleHost = nullptr;
+		}
+		_gameModule.Unload();
+	}
+
 	/// @brief
 	/// @return
 	bool Project::ReloadProjectModules()
 	{
-		auto shutdownFunc = _gameModule.LoadFunction<int (*)()>("ShutdownModule");
-		if (shutdownFunc != nullptr)
-		{
-			shutdownFunc();
-		}
-		shutdownFunc = _editorModule.LoadFunction<int (*)()>("ShutdownModule");
-		if (shutdownFunc != nullptr)
-		{
-			shutdownFunc();
-		}
-
-		if (_gameModule.Reload() == false)
+		UnloadProjectModules();
+		if (LoadProjectModules() == false)
 		{
 			return false;
-		}
-		_editorModule.Reload();
-
-		auto startupFunc = _gameModule.LoadFunction<int (*)()>("StartupModule");
-		if (startupFunc == nullptr)
-		{
-			return false;
-		}
-		startupFunc();
-
-		startupFunc = _editorModule.LoadFunction<int (*)()>("StartupModule");
-		if (startupFunc != nullptr)
-		{
-			startupFunc();
 		}
 
 		_onModulesReloadedEvent.Emit();

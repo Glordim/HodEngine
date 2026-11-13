@@ -1,6 +1,8 @@
 #include "HodEngine/UI/Pch.hpp"
 #include "HodEngine/UI/Builtin.hpp"
 
+#include "HodEngine/UI/UIRegistrar.hpp"
+
 #include "HodEngine/UI/LayoutParamsFactory.hpp"
 #include "HodEngine/UI/AnchoredLayoutParams.hpp"
 #include "HodEngine/UI/BoxLayoutParams.hpp"
@@ -23,34 +25,34 @@
 
 #include "HodEngine/UI/UISettings.hpp"
 
-#include <HodEngine/GameSystems/ProjectSettings/ProjectSettingsManager.hpp>
+#include <HodEngine/GameSystems/GameSystemsRegistrar.hpp>
 
 namespace hod::inline ui
 {
-	void RegisterBuiltin()
+	/// @brief
+	/// @param registration
+	void RegisterBuiltin(ModuleRegistration& registration)
 	{
-		LayoutParamsFactory* layoutParamsFactory = LayoutParamsFactory::GetInstance();
-		layoutParamsFactory->Register<AnchoredLayoutParams>();
-		layoutParamsFactory->Register<HorizontalLayoutParams>();
-		layoutParamsFactory->Register<VerticalLayoutParams>();
+		UIRegistrar uiRegistrar(registration);
+		uiRegistrar.RegisterLayoutParams<AnchoredLayoutParams>();
+		uiRegistrar.RegisterLayoutParams<HorizontalLayoutParams>();
+		uiRegistrar.RegisterLayoutParams<VerticalLayoutParams>();
 
-		NodeFactory* nodeFactory = NodeFactory::GetInstance();
-		nodeFactory->Register<Node>();
-		nodeFactory->Register<ImageNode>();
-		nodeFactory->Register<TextNode>();
-		nodeFactory->Register<MaskNode>();
-		nodeFactory->Register<ShapeNode>();
+		uiRegistrar.RegisterNode<Node>();
+		uiRegistrar.RegisterNode<ImageNode>();
+		uiRegistrar.RegisterNode<TextNode>();
+		uiRegistrar.RegisterNode<MaskNode>();
+		uiRegistrar.RegisterNode<ShapeNode>();
 
-		LayoutFactory* layoutFactory = LayoutFactory::GetInstance();
-		layoutFactory->Register<HorizontalLayout>();
-		layoutFactory->Register<VerticalLayout>();
+		uiRegistrar.RegisterLayout<HorizontalLayout>();
+		uiRegistrar.RegisterLayout<VerticalLayout>();
 
-		InteractionFactory* interactionFactory = InteractionFactory::GetInstance();
-		interactionFactory->Register<Button>();
-		interactionFactory->Register<Toggle>();
-		interactionFactory->Register<Slider>();
-		interactionFactory->Register<ScrollView>();
+		uiRegistrar.RegisterInteraction<Button>();
+		uiRegistrar.RegisterInteraction<Toggle>();
+		uiRegistrar.RegisterInteraction<Slider>();
+		uiRegistrar.RegisterInteraction<ScrollView>();
 
-		ProjectSettingsManager::GetInstance()->Register<UISettings>();
+		GameSystemsRegistrar gameSystemsRegistrar(registration);
+		gameSystemsRegistrar.RegisterProjectSettings<UISettings>();
 	}
 }

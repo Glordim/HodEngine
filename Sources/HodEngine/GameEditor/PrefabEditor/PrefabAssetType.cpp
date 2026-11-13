@@ -7,7 +7,7 @@
 #include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/EditorModuleRegistration.hpp"
+#include "HodEngine/Editor/EditorRegistrar.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include <HodEngine/Game/PrefabResource.hpp>
@@ -82,10 +82,10 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param registration
-	void PrefabAssetType::OnRegistered(EditorModuleRegistration& registration)
+	void PrefabAssetType::OnRegistered(EditorRegistrar& editorRegistrar)
 	{
 		// "Create/Prefab": an empty one
-		registration.RegisterContextualMenuAction({
+		editorRegistrar.RegisterContextualMenuAction({
 			.path = "Create/Prefab",
 			.group = "New",
 			.available = +[](const AssetBrowserWindow::Context& context) { return context.selectedItems.Empty(); },

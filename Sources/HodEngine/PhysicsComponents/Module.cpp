@@ -1,5 +1,7 @@
 #include "HodEngine/PhysicsComponents/Pch.hpp"
 #include "HodEngine/PhysicsComponents/Module.hpp"
+
+#include <HodEngine/Game/GameRegistrar.hpp>
 #include "HodEngine/PhysicsComponents/PhysicsWorldSystem.hpp"
 
 #include "HodEngine/PhysicsComponents/Components/BoxCollider2dComponent.hpp"
@@ -18,17 +20,18 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
 namespace
 {
-	void RegisterPhysicsModule(hod::game::RuntimeModuleRegistration& registration)
+	void RegisterPhysicsModule(hod::ModuleRegistration& registration)
 	{
-		registration.RegisterComponent<hod::physics::Collider2dComponent>();
-		registration.RegisterComponent<hod::physics::MultiShapeCollider2dComponent>();
-		registration.RegisterComponent<hod::physics::BoxCollider2dComponent>();
-		registration.RegisterComponent<hod::physics::CircleCollider2dComponent>();
-		registration.RegisterComponent<hod::physics::CapsuleCollider2dComponent>();
-		registration.RegisterComponent<hod::physics::EdgeCollider2dComponent>();
-		registration.RegisterComponent<hod::physics::Rigidbody2dComponent>();
+		hod::game::GameRegistrar gameRegistrar(registration);
+		gameRegistrar.RegisterComponent<hod::physics::Collider2dComponent>();
+		gameRegistrar.RegisterComponent<hod::physics::MultiShapeCollider2dComponent>();
+		gameRegistrar.RegisterComponent<hod::physics::BoxCollider2dComponent>();
+		gameRegistrar.RegisterComponent<hod::physics::CircleCollider2dComponent>();
+		gameRegistrar.RegisterComponent<hod::physics::CapsuleCollider2dComponent>();
+		gameRegistrar.RegisterComponent<hod::physics::EdgeCollider2dComponent>();
+		gameRegistrar.RegisterComponent<hod::physics::Rigidbody2dComponent>();
 
-		registration.RegisterWorldSystem(hod::physics::PhysicsWorldSystem::GetType());
+		gameRegistrar.RegisterWorldSystem(hod::physics::PhysicsWorldSystem::GetType());
 	}
 
 	bool InitPhysicsModule()

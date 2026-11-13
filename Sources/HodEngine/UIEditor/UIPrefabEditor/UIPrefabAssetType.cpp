@@ -6,7 +6,7 @@
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
-#include "HodEngine/Editor/EditorModuleRegistration.hpp"
+#include "HodEngine/Editor/EditorRegistrar.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include <HodEngine/UI/PrefabInstance.hpp>
@@ -107,11 +107,11 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param registration
-	void UIPrefabAssetType::OnRegistered(EditorModuleRegistration& registration)
+	void UIPrefabAssetType::OnRegistered(EditorRegistrar& editorRegistrar)
 	{
 		ui::PrefabInstance::SetSourceProvider(&LoadUIPrefabAsset); // Reset by OnUnregistered
 
-		registration.RegisterContextualMenuAction({
+		editorRegistrar.RegisterContextualMenuAction({
 			.path = "Create/UI Prefab",
 			.group = "New",
 			.available = +[](const AssetBrowserWindow::Context& context) { return context.selectedItems.Empty(); },
@@ -131,7 +131,7 @@ namespace hod::inline editor
 		});
 
 		// A node dragged from a UI prefab's hierarchy becomes a UI prefab of its own, the node an instance of it
-		registration.RegisterDropAction({
+		editorRegistrar.RegisterDropAction({
 			.payloadType = "UINode",
 			.available =
 				+[](const void* payloadData)

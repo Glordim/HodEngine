@@ -58,10 +58,10 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @param registration
-	void AssetType::OnRegistered(EditorModuleRegistration& registration)
+	/// @param editorRegistrar
+	void AssetType::OnRegistered(EditorRegistrar& editorRegistrar)
 	{
-		(void)registration;
+		(void)editorRegistrar;
 	}
 
 	/// @brief

@@ -1,5 +1,7 @@
 #include "HodEngine/AudioComponents/Pch.hpp"
 #include "HodEngine/AudioComponents/Module.hpp"
+
+#include <HodEngine/Game/GameRegistrar.hpp>
 #include "HodEngine/Audio/PlatformAudioManager.hpp"
 
 #include "HodEngine/AudioComponents/Components/AudioSourceComponent.hpp"
@@ -10,9 +12,10 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
 namespace
 {
-	void RegisterAudioModule(hod::game::RuntimeModuleRegistration& registration)
+	void RegisterAudioModule(hod::ModuleRegistration& registration)
 	{
-		registration.RegisterComponent<hod::audio::AudioSourceComponent>();
+		hod::game::GameRegistrar gameRegistrar(registration);
+		gameRegistrar.RegisterComponent<hod::audio::AudioSourceComponent>();
 	}
 
 	/// @brief The platform's audio device

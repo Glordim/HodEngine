@@ -66,7 +66,7 @@ namespace hod::inline editor
 			uint32_t                                                                       id = 0;      // Given by RegisterDropAction
 		};
 
-		/// @brief By the editor modules (through EditorModuleRegistration)
+		/// @brief By the editor modules (through EditorRegistrar)
 		static uint32_t RegisterDropAction(DropAction dropAction);
 		static void     UnregisterDropAction(uint32_t dropActionId);
 

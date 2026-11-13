@@ -1,6 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
+#include <HodEngine/GameSystems/GameSystemsRegistrar.hpp>
 #include <HodEngine/GameSystems/ProjectSettings/ProjectSettingsManager.hpp>
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 
@@ -91,5 +92,33 @@ namespace hod
 		EXPECT_EQ(settings->_value, 1);
 		ASSERT_TRUE(manager->Load(_directory));
 		EXPECT_EQ(settings->_value, 42);
+	}
+
+	TEST_F(ProjectSettingsTest, RegistrarUnregistersWithItsModule)
+	{
+		ProjectSettingsManager* manager = ProjectSettingsManager::GetInstance();
+		{
+			ModuleRegistration   registration;
+			GameSystemsRegistrar gameSystemsRegistrar(registration);
+			TestSettings*        settings = gameSystemsRegistrar.RegisterProjectSettings<TestSettings>();
+			ASSERT_NE(settings, nullptr);
+			EXPECT_EQ(manager->Get<TestSettings>(), settings);
+		}
+		EXPECT_EQ(manager->Get<TestSettings>(), nullptr);
+	}
+
+	TEST_F(ProjectSettingsTest, RegistrarDoesntTakeOverAnotherModulesSettings)
+	{
+		ProjectSettingsManager* manager = ProjectSettingsManager::GetInstance();
+		ModuleRegistration      firstModule;
+		TestSettings*           settings = GameSystemsRegistrar(firstModule).RegisterProjectSettings<TestSettings>();
+		{
+			ModuleRegistration secondModule;
+			EXPECT_EQ(GameSystemsRegistrar(secondModule).RegisterProjectSettings<TestSettings>(), settings);
+		}
+		EXPECT_EQ(manager->Get<TestSettings>(), settings); // Still the first module's
+
+		firstModule.UnregisterAll();
+		EXPECT_EQ(manager->Get<TestSettings>(), nullptr);
 	}
 }

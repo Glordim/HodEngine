@@ -2,6 +2,7 @@
 
 #include <HodEngine/Game/Component.hpp>
 #include <HodEngine/Game/ComponentFactory.hpp>
+#include <HodEngine/Game/GameRegistrar.hpp>
 #include <HodEngine/Game/RuntimeModule.hpp>
 #include <HodEngine/Game/World.hpp>
 #include <HodEngine/Game/WorldSystem.hpp>
@@ -17,6 +18,11 @@ namespace hod
 	class ModuleTestComponent : public Component
 	{
 		REFLECTED_CLASS(ModuleTestComponent, Component)
+	};
+
+	class ModuleTestDataStruct : public DataStruct
+	{
+		REFLECTED_CLASS(ModuleTestDataStruct, DataStruct)
 	};
 
 	namespace
@@ -47,11 +53,12 @@ namespace hod
 			static inline int _liveCount = 0;
 		};
 
-		void RegisterA(RuntimeModuleRegistration& registration)
+		void RegisterA(ModuleRegistration& registration)
 		{
 			g_calls.push_back("RegisterA");
-			registration.RegisterComponent<ModuleTestComponent>();
-			registration.RegisterWorldSystem(CountingWorldSystem::GetType());
+			GameRegistrar gameRegistrar(registration);
+			gameRegistrar.RegisterComponent<ModuleTestComponent>();
+			gameRegistrar.RegisterWorldSystem(CountingWorldSystem::GetType());
 		}
 
 		bool InitA()
@@ -65,7 +72,7 @@ namespace hod
 			g_calls.push_back("ShutdownA");
 		}
 
-		void RegisterB(RuntimeModuleRegistration&)
+		void RegisterB(ModuleRegistration&)
 		{
 			g_calls.push_back("RegisterB");
 		}
@@ -81,11 +88,23 @@ namespace hod
 			g_calls.push_back("ShutdownB");
 		}
 
+		void RegisterDataStructs(ModuleRegistration& registration)
+		{
+			GameRegistrar gameRegistrar(registration);
+			gameRegistrar.RegisterDataStruct<ModuleTestDataStruct>();
+		}
+
 		const RuntimeModule g_moduleA {"A", &RegisterA, &InitA, &ShutdownA};
 		const RuntimeModule g_moduleB {"B", &RegisterB, &InitB, &ShutdownB};
+		const RuntimeModule g_moduleDataStructs {"DataStructs", &RegisterDataStructs};
 	}
 
 	DESCRIBE_REFLECTED_CLASS(ModuleTestComponent, reflectionDescriptor)
+	{
+		(void)reflectionDescriptor;
+	}
+
+	DESCRIBE_REFLECTED_CLASS(ModuleTestDataStruct, reflectionDescriptor)
 	{
 		(void)reflectionDescriptor;
 	}
@@ -171,5 +190,18 @@ namespace hod
 		EXPECT_EQ(existingWorld->FindSystem(CountingWorldSystem::GetType()), nullptr);
 		EXPECT_EQ(CountingWorldSystem::_liveCount, 0);
 		DefaultAllocator::GetInstance().Delete(existingWorld);
+	}
+
+	TEST_F(RuntimeModuleTest, DataStructsFollowTheirRegistration)
+	{
+		DataStructFactory::CreateInstance();
+		const RttiType type = ModuleTestDataStruct::GetReflectionDescriptor().GetType();
+		{
+			RuntimeModuleHost host;
+			host.Register(g_moduleDataStructs);
+			EXPECT_NE(DataStructFactory::GetInstance()->FindReflectionDescriptor(type), nullptr);
+		}
+		EXPECT_EQ(DataStructFactory::GetInstance()->FindReflectionDescriptor(type), nullptr);
+		DataStructFactory::DestroyInstance();
 	}
 }

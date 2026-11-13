@@ -8,7 +8,7 @@ namespace hod::inline game
 	class World;
 	class WorldSystem;
 
-	/// @brief A kind of WorldSystem, registered by a runtime module (see RuntimeModuleRegistration::RegisterWorldSystem): each World gets one
+	/// @brief A kind of WorldSystem, registered by a runtime module (see GameRegistrar::RegisterWorldSystem): each World gets one
 	/// instance of every registered type, the existing worlds included, in the registration order (the modules' order: dependencies first),
 	/// destroyed in the reverse order. Identified by its address: define it once, in the module's code (a static of a function).
 	struct HOD_GAME_API WorldSystemType

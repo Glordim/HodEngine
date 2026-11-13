@@ -5,7 +5,7 @@
 #include "HodEngine/AudioEditor/AudioAssetType.hpp"
 #include "HodEngine/AudioEditor/AudioImporter.hpp"
 
-#include "HodEngine/Editor/EditorModuleRegistration.hpp"
+#include "HodEngine/Editor/EditorRegistrar.hpp"
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
@@ -14,9 +14,10 @@ using namespace hod::editor;
 
 HOD_STARTUP_EDITOR_MODULE(AudioEditor, registration)
 {
-	if (registration.RegisterAssetType<AudioAssetType>())
+	hod::editor::EditorRegistrar editorRegistrar(registration);
+	if (editorRegistrar.RegisterAssetType<AudioAssetType>())
 	{
-		registration.RegisterImporter<AudioImporter>("wav");
+		editorRegistrar.RegisterImporter<AudioImporter>("wav");
 	}
 	return 0;
 }

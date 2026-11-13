@@ -7,16 +7,6 @@
 struct HINSTANCE__;
 #endif
 
-#define HOD_DECLARE_MODULE(Name, API) \
-	extern "C"                        \
-	{                                 \
-		API int StartupModule();      \
-		API int ShutdownModule();     \
-	}
-
-#define HOD_STARTUP_MODULE(Name) int StartupModule()
-#define HOD_SHUTDOWN_MODULE(Name) int ShutdownModule()
-
 namespace hod::inline core
 {
 	class HOD_CORE_API DynamicLibrary

@@ -1,70 +1,23 @@
 #pragma once
 #include "HodEngine/Game/Export.hpp"
 
-#include "HodEngine/Game/ComponentFactory.hpp"
-
+#include <HodEngine/Core/ModuleRegistration.hpp>
 #include <HodEngine/Core/Vector.hpp>
-
-namespace hod::inline core
-{
-	class ReflectionDescriptor;
-}
 
 namespace hod::inline game
 {
-	struct WorldSystemType;
-
-	/// @brief What a runtime module adds (its components, its world systems), given to its Register phase (see RuntimeModule). All of it is
-	/// unregistered (UnregisterAll, or the destructor) before the module goes away.
-	class HOD_GAME_API RuntimeModuleRegistration
-	{
-	public:
-		RuntimeModuleRegistration() = default;
-		RuntimeModuleRegistration(const RuntimeModuleRegistration&) = delete;
-		RuntimeModuleRegistration(RuntimeModuleRegistration&&) = delete;
-		~RuntimeModuleRegistration();
-
-		RuntimeModuleRegistration& operator=(const RuntimeModuleRegistration&) = delete;
-		RuntimeModuleRegistration& operator=(RuntimeModuleRegistration&&) = delete;
-
-	public:
-		template<typename _Component_>
-		void RegisterComponent();
-		void RegisterComponent(ReflectionDescriptor& descriptor);
-
-		/// @return false (with an error) if registered already
-		bool RegisterWorldSystem(const WorldSystemType& type);
-
-		/// @brief What undoes a registration made elsewhere (the module's own factories, its project settings...), called by
-		/// UnregisterAll in the reverse order of the registrations, before the components and world systems are unregistered
-		void AddUnregister(void (*unregister)());
-
-		/// @brief In the reverse order of the registrations
-		void UnregisterAll();
-
-	private:
-		Vector<const ReflectionDescriptor*> _components;
-		Vector<const WorldSystemType*>      _worldSystems;
-		Vector<void (*)()>                  _unregisters;
-	};
-
-	template<typename _Component_>
-	void RuntimeModuleRegistration::RegisterComponent()
-	{
-		static_assert(std::is_base_of<Component, _Component_>::value, "_Component_ must derive from Component");
-		RegisterComponent(_Component_::GetReflectionDescriptor());
-	}
-
-	/// @brief The entry points of a runtime module (an optional engine feature, Physics...: in its Components layer, PhysicsComponents), see HOD_DEFINE_RUNTIME_MODULE.
-	/// Phases, each run for every module in the modules' order (dependencies first) before the next phase starts:
-	/// - Register: types only (components, world systems), no side effect, can't fail, doesn't read the project settings
+	/// @brief The entry points of a runtime module (an optional engine feature, Physics...: in its Components layer, PhysicsComponents; or
+	/// a game module), see HOD_DEFINE_RUNTIME_MODULE.
+	/// Phases, each run for every module in the modules' order (dependencies first, the game last) before the next phase starts:
+	/// - Register: types only, through the registrars of the modules offering them (GameRegistrar: components, data structs, world systems;
+	///   UIRegistrar: views...; see ModuleRegistration), no side effect, can't fail, doesn't read the project settings
 	/// - (the project settings are loaded)
 	/// - Init: the module's services (a physics engine...), may read its project settings, may fail
 	/// - Shutdown: in the reverse order, for the modules whose Init succeeded, then everything registered is unregistered (reverse order)
 	struct RuntimeModule
 	{
 		const char* _name = nullptr;
-		void (*_register)(RuntimeModuleRegistration& registration) = nullptr;
+		void (*_register)(ModuleRegistration& registration) = nullptr;
 		bool (*_init)() = nullptr;     // Optional
 		void (*_shutdown)() = nullptr; // Optional
 	};
@@ -102,7 +55,7 @@ namespace hod::inline game
 		struct Entry
 		{
 			const RuntimeModule*       _module = nullptr;
-			RuntimeModuleRegistration* _registration = nullptr;
+			ModuleRegistration*        _registration = nullptr;
 			bool                       _initialized = false;
 		};
 		Vector<Entry> _entries;

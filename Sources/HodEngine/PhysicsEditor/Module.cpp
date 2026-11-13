@@ -7,8 +7,9 @@
 #include "HodEngine/PhysicsEditor/CustomComponentDrawer/EdgeCollider2dCustomComponentDrawer.hpp"
 #include "HodEngine/PhysicsEditor/CustomComponentDrawer/MultiShapeCollider2dCustomComponentDrawer.hpp"
 
-#include <HodEngine/Editor/EditorModuleRegistration.hpp>
+#include <HodEngine/Editor/EditorRegistrar.hpp>
 #include <HodEngine/GameEditor/EntityBasedTabEditor/ViewportDebugView.hpp>
+#include <HodEngine/GameEditor/GameEditorRegistrar.hpp>
 
 #include <HodEngine/PhysicsComponents/Components/BoxCollider2dComponent.hpp>
 #include <HodEngine/PhysicsComponents/Components/CapsuleCollider2dComponent.hpp>
@@ -179,18 +180,14 @@ HOD_STARTUP_EDITOR_MODULE(PhysicsEditor, registration)
 	using namespace hod;
 	using namespace hod::editor;
 
-	registration.RegisterCustomComponentDrawer<BoxCollider2dComponent, BoxCollider2dCustomComponentDrawer>();
-	registration.RegisterCustomComponentDrawer<CircleCollider2dComponent, CircleCollider2dCustomComponentDrawer>();
-	registration.RegisterCustomComponentDrawer<CapsuleCollider2dComponent, CapsuleCollider2dCustomComponentDrawer>();
-	registration.RegisterCustomComponentDrawer<EdgeCollider2dComponent, EdgeCollider2dCustomComponentDrawer>();
-	registration.RegisterCustomComponentDrawer<MultiShapeCollider2dComponent, MultiShapeCollider2dCustomComponentDrawer>();
+	EditorRegistrar editorRegistrar(registration);
+	editorRegistrar.RegisterCustomComponentDrawer<BoxCollider2dComponent, BoxCollider2dCustomComponentDrawer>();
+	editorRegistrar.RegisterCustomComponentDrawer<CircleCollider2dComponent, CircleCollider2dCustomComponentDrawer>();
+	editorRegistrar.RegisterCustomComponentDrawer<CapsuleCollider2dComponent, CapsuleCollider2dCustomComponentDrawer>();
+	editorRegistrar.RegisterCustomComponentDrawer<EdgeCollider2dComponent, EdgeCollider2dCustomComponentDrawer>();
+	editorRegistrar.RegisterCustomComponentDrawer<MultiShapeCollider2dComponent, MultiShapeCollider2dCustomComponentDrawer>();
 
-	ViewportDebugViewRegistry::Register(GetPhysicsViewportDebugViewType());
-	return 0;
-}
-
-HOD_SHUTDOWN_EDITOR_MODULE(PhysicsEditor)
-{
-	hod::editor::ViewportDebugViewRegistry::Unregister(GetPhysicsViewportDebugViewType());
+	GameEditorRegistrar gameEditorRegistrar(registration);
+	gameEditorRegistrar.RegisterViewportDebugView(GetPhysicsViewportDebugViewType());
 	return 0;
 }

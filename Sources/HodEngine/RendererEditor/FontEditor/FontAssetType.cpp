@@ -8,7 +8,7 @@
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/EditorModuleRegistration.hpp"
+#include "HodEngine/Editor/EditorRegistrar.hpp"
 
 #include <HodEngine/Renderer/Resource/FontResource.hpp>
 
@@ -47,9 +47,9 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param registration
-	void FontAssetType::OnRegistered(EditorModuleRegistration& registration)
+	void FontAssetType::OnRegistered(EditorRegistrar& editorRegistrar)
 	{
-		registration.RegisterContextualMenuAction({
+		editorRegistrar.RegisterContextualMenuAction({
 			.path = "Create/Font",
 			.group = "New",
 			.available =

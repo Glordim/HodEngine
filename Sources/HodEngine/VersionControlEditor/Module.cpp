@@ -4,7 +4,7 @@
 
 #include "HodEngine/VersionControlEditor/Git/GitProvider.hpp"
 
-#include "HodEngine/Editor/EditorModuleRegistration.hpp"
+#include "HodEngine/Editor/EditorRegistrar.hpp"
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
@@ -14,6 +14,7 @@ using namespace hod::editor;
 // The version control systems offered to the user (see VersionControl::SetProviderChoice), "Auto" trying them in this order
 HOD_STARTUP_EDITOR_MODULE(VersionControlEditor, registration)
 {
-	registration.RegisterVersionControlProvider<GitProvider>();
+	hod::editor::EditorRegistrar editorRegistrar(registration);
+	editorRegistrar.RegisterVersionControlProvider<GitProvider>();
 	return 0;
 }

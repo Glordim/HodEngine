@@ -57,10 +57,10 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @param registration
-	void DataTableAssetType::OnRegistered(EditorModuleRegistration& registration)
+	/// @param editorRegistrar
+	void DataTableAssetType::OnRegistered(EditorRegistrar& editorRegistrar)
 	{
-		(void)registration; // Its own: registered again when the project modules reload
+		(void)editorRegistrar; // Its own: registered again when the project modules reload
 		RegisterCreateActions();
 		Project::GetInstance()->GetOnModulesReloadedEvent().Connect(_onProjectModulesReloadedSlot);
 	}
@@ -70,10 +70,11 @@ namespace hod::inline editor
 	{
 		_createActionsRegistration.UnregisterAll();
 
+		EditorRegistrar editorRegistrar(_createActionsRegistration);
 		for (const auto& pair : DataStructFactory::GetInstance()->GetAllDescriptors())
 		{
 			ReflectionDescriptor* descriptor = pair.second;
-			_createActionsRegistration.RegisterContextualMenuAction({
+			editorRegistrar.RegisterContextualMenuAction({
 				.path = String("Create/DataTable/") + descriptor->GetDisplayName(),
 				.group = "New",
 				.available = +[](const AssetBrowserWindow::Context& context) { return context.selectedItems.Empty(); },

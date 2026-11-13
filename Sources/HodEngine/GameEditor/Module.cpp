@@ -2,7 +2,7 @@
 #include "HodEngine/GameEditor/Module.hpp"
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
-#include "HodEngine/Editor/EditorModuleRegistration.hpp"
+#include "HodEngine/Editor/EditorRegistrar.hpp"
 
 #include "HodEngine/Game/WeakComponent.hpp"
 
@@ -29,15 +29,16 @@ using namespace hod::editor;
 
 HOD_STARTUP_EDITOR_MODULE(GameEditor, registration)
 {
-	registration.RegisterCustomPropertyDrawer<ZOrder, ZOrderCustomPropertyDrawer>();
-	registration.RegisterCustomPropertyDrawer<WeakComponentBase, WeakComponentCustomPropertyDrawer>();
+	hod::editor::EditorRegistrar editorRegistrar(registration);
+	editorRegistrar.RegisterCustomPropertyDrawer<ZOrder, ZOrderCustomPropertyDrawer>();
+	editorRegistrar.RegisterCustomPropertyDrawer<WeakComponentBase, WeakComponentCustomPropertyDrawer>();
 
-	registration.RegisterCustomComponentDrawer<Node2dComponent, Node2dCustomComponentDrawer>();
-	registration.RegisterCustomComponentDrawer<MissingComponent, MissingComponentCustomComponentDrawer>();
+	editorRegistrar.RegisterCustomComponentDrawer<Node2dComponent, Node2dCustomComponentDrawer>();
+	editorRegistrar.RegisterCustomComponentDrawer<MissingComponent, MissingComponentCustomComponentDrawer>();
 
-	registration.RegisterAssetType<SceneAssetType>();
-	registration.RegisterAssetType<PrefabAssetType>();
-	registration.RegisterAssetType<DataItemAssetType>();
-	registration.RegisterAssetType<DataTableAssetType>();
+	editorRegistrar.RegisterAssetType<SceneAssetType>();
+	editorRegistrar.RegisterAssetType<PrefabAssetType>();
+	editorRegistrar.RegisterAssetType<DataItemAssetType>();
+	editorRegistrar.RegisterAssetType<DataTableAssetType>();
 	return 0;
 }

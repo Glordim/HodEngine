@@ -2,7 +2,7 @@
 #include "HodEngine/RendererEditor/Module.hpp"
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
-#include "HodEngine/Editor/EditorModuleRegistration.hpp"
+#include "HodEngine/Editor/EditorRegistrar.hpp"
 
 #include "HodEngine/RendererEditor/FontEditor/FontAssetType.hpp"
 #include "HodEngine/RendererEditor/FontFaceEditor/FontFaceAssetType.hpp"
@@ -16,7 +16,7 @@
 #include "HodEngine/RendererEditor/CustomComponentDrawer/CameraCustomComponentDrawer.hpp"
 #include "HodEngine/RendererEditor/CustomComponentDrawer/TextureRendererCustomComponentDrawer.hpp"
 
-#include <HodEngine/GameEditor/EntityBasedTabEditor/ViewportWorldRenderer.hpp>
+#include <HodEngine/GameEditor/GameEditorRegistrar.hpp>
 #include <HodEngine/RendererComponents/Components/CameraComponent.hpp>
 #include <HodEngine/RendererComponents/Components/TextureRendererComponent.hpp>
 #include <HodEngine/RendererComponents/RendererWorldSystem.hpp>
@@ -51,34 +51,30 @@ namespace
 
 HOD_STARTUP_EDITOR_MODULE(RendererEditor, registration)
 {
-	registration.RegisterCustomComponentDrawer<CameraComponent, CameraCustomComponentDrawer>();
-	registration.RegisterCustomComponentDrawer<TextureRendererComponent, TextureRendererCustomComponentDrawer>();
+	hod::editor::EditorRegistrar editorRegistrar(registration);
+	editorRegistrar.RegisterCustomComponentDrawer<CameraComponent, CameraCustomComponentDrawer>();
+	editorRegistrar.RegisterCustomComponentDrawer<TextureRendererComponent, TextureRendererCustomComponentDrawer>();
 
-	ViewportWorldRenderer::Set(&DrawWorldInViewport, &SetupPlayCameraInViewport);
+	hod::editor::GameEditorRegistrar gameEditorRegistrar(registration);
+	gameEditorRegistrar.SetViewportWorldRenderer(&DrawWorldInViewport, &SetupPlayCameraInViewport);
 
 	// The importers after the types they import into, only if registered: an importer producing several types would need them all
-	if (registration.RegisterAssetType<TextureAssetType>())
+	if (editorRegistrar.RegisterAssetType<TextureAssetType>())
 	{
-		registration.RegisterImporter<TextureImporter>("png", "tga", "jpg", "bmp", "psd", "gif", "hdr", "pic");
+		editorRegistrar.RegisterImporter<TextureImporter>("png", "tga", "jpg", "bmp", "psd", "gif", "hdr", "pic");
 	}
 
-	if (registration.RegisterAssetType<FontFaceAssetType>())
+	if (editorRegistrar.RegisterAssetType<FontFaceAssetType>())
 	{
-		registration.RegisterImporter<FontFaceImporter>("ttf", "otf");
+		editorRegistrar.RegisterImporter<FontFaceImporter>("ttf", "otf");
 	}
 
-	if (registration.RegisterAssetType<MaterialAssetType>())
+	if (editorRegistrar.RegisterAssetType<MaterialAssetType>())
 	{
-		registration.RegisterImporter<MaterialImporter>("slang");
+		editorRegistrar.RegisterImporter<MaterialImporter>("slang");
 	}
 
-	registration.RegisterAssetType<FontAssetType>();
-	registration.RegisterAssetType<MaterialInstanceAssetType>();
-	return 0;
-}
-
-HOD_SHUTDOWN_EDITOR_MODULE(RendererEditor)
-{
-	ViewportWorldRenderer::Set(nullptr, nullptr);
+	editorRegistrar.RegisterAssetType<FontAssetType>();
+	editorRegistrar.RegisterAssetType<MaterialInstanceAssetType>();
 	return 0;
 }

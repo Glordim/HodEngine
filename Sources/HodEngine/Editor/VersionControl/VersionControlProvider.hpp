@@ -15,7 +15,7 @@
 namespace hod::inline editor
 {
 	/// @brief A version control system (Git, Svn, Perforce...), through its command line (see Process::Run): the user's config
-	/// and credentials are used as they are. Registered by an editor module (EditorModuleRegistration::RegisterVersionControlProvider),
+	/// and credentials are used as they are. Registered by an editor module (EditorRegistrar::RegisterVersionControlProvider),
 	/// used through VersionControl only.
 	///
 	/// Apart from GetName/Detect, its functions are called on the worker thread of VersionControl, one at a time: no locking

@@ -180,7 +180,8 @@ function(hod_link_engine_modules target)
 endfunction()
 
 # Adds to target the source calling the entry points of the modules given after it, in their order (HodGetRuntimeModules, called by
-# Application::InitGame), generated from the engine's template
+# Application::InitGame), generated from the engine's template. The game module is a runtime module too (HOD_DEFINE_RUNTIME_MODULE): given
+# last, after the engine modules it uses
 function(hod_add_engine_modules_entry_points target)
 	set(HOD_MODULE_DECLARATIONS "")
 	set(HOD_MODULE_ENTRIES "")

@@ -100,7 +100,7 @@ namespace hod::inline editor
 		void Move(FileSystemMapping& node, const Path& newPath);
 		void Delete(FileSystemMapping& node);
 
-		/// @brief By the editor module adding the type (through EditorModuleRegistration, which owns it)
+		/// @brief By the editor module adding the type (through EditorRegistrar, its registration owning it)
 		/// @return false (with an error) if a type of the same hash or of the same extension is registered already (by one module only),
 		/// or if its extension is invalid (see AssetType::GetExtensionV)
 		bool RegisterAssetType(const AssetType& assetType);
@@ -114,7 +114,7 @@ namespace hod::inline editor
 		Vector<String> GetAssetExtensions() const;
 		Vector<String> GetImporterExtensions() const;
 
-		// By the editor modules when they unload (through EditorModuleRegistration): their code goes with them
+		// By the editor modules when they unload (through EditorRegistrar): their code goes with them
 		void UnregisterAssetType(const AssetType& assetType);
 		template<typename _Importer_>
 		void UnregisterImporter();
@@ -193,7 +193,7 @@ namespace hod::inline editor
 		Vector<PendingChange> _pendingSourceChanges;
 
 		Vector<ImporterEntry*>   _importerEntries;
-		Vector<const AssetType*> _assetTypes; // Owned by the EditorModuleRegistration of their module
+		Vector<const AssetType*> _assetTypes; // Owned by the ModuleRegistration of their module
 
 		MemberFunctionJob<AssetDatabase> _updateJob;
 	};

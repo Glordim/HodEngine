@@ -75,7 +75,7 @@ namespace hod::inline editor
 		/// editor gets the focus back (what was done outside: a commit, a pull...)
 		void Update(bool editorFocused);
 
-		/// @brief By EditorModuleRegistration. Unregistering the connected one disconnects it first (its module unloads), registering
+		/// @brief By EditorRegistrar. Unregistering the connected one disconnects it first (its module unloads), registering
 		/// the chosen one while a project is opened connects it (hot reload)
 		/// @return false if a provider of the same name is registered already
 		bool                                   RegisterProvider(VersionControlProvider& provider);
@@ -258,7 +258,7 @@ namespace hod::inline editor
 		void SaveUserSettings() const;
 
 	private:
-		Vector<VersionControlProvider*> _providers; // Owned by the EditorModuleRegistration of their module
+		Vector<VersionControlProvider*> _providers; // Owned by the ModuleRegistration of their module
 		VersionControlProvider*         _provider = nullptr;
 		std::atomic<bool>               _connected = false;
 		std::atomic<uint32_t>           _capabilities = 0;

@@ -4,7 +4,7 @@
 #include "HodEngine/Editor/Cooker/Cooker.hpp"
 #include "HodEngine/Editor/Cooker/CookJob.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/EditorModuleRegistration.hpp"
+#include <HodEngine/Core/ModuleRegistration.hpp>
 #include "HodEngine/Editor/EditorTab.hpp"
 
 #include "HodEngine/Editor/Project.hpp"
@@ -97,6 +97,7 @@ namespace hod::inline editor
 
 		// After the tabs (they release their checkouts) and before the modules (the providers go with them): runs what's queued
 		VersionControl::GetInstance()->OnProjectClosed();
+		Project::GetInstance()->UnloadProjectModules(); // Before the engine's modules: loaded after them
 		UnloadEditorModules();
 		VersionControl::DestroyInstance();
 
@@ -405,7 +406,7 @@ namespace hod::inline editor
 				continue;
 			}
 
-			auto startupFunc = library->LoadFunction<int (*)(EditorModuleRegistration&)>("StartupEditorModule");
+			auto startupFunc = library->LoadFunction<int (*)(ModuleRegistration&)>("StartupEditorModule");
 			if (startupFunc == nullptr)
 			{
 				OUTPUT_ERROR("Module '{}': no StartupEditorModule in its editor library {}", manifest._name, manifest._editorLibrary);
@@ -416,7 +417,7 @@ namespace hod::inline editor
 				}
 				continue;
 			}
-			EditorModuleRegistration* registration = DefaultAllocator::GetInstance().New<EditorModuleRegistration>();
+			ModuleRegistration* registration = DefaultAllocator::GetInstance().New<ModuleRegistration>();
 			startupFunc(*registration);
 
 			_editorModules.PushBack({library, registration});
@@ -428,16 +429,32 @@ namespace hod::inline editor
 	/// @return
 	bool Editor::UnloadEditorModules()
 	{
-		for (EditorModule& editorModule : _editorModules)
+		// The tabs of the assets first, all of them (their asset types all go): closing a tab can use the asset types of other modules
+		uint32_t index = 0;
+		while (index < _editorTabs.Size())
 		{
-			auto shutdownFunc = editorModule._library->LoadFunction<int (*)()>("ShutdownEditorModule");
+			if (_editorTabs[index]->GetAsset() != nullptr)
+			{
+				DefaultAllocator::GetInstance().Delete(_editorTabs[index]);
+				_editorTabs.Erase(index);
+			}
+			else
+			{
+				++index;
+			}
+		}
+
+		// In the reverse order of their loading: a module goes before the ones it uses
+		for (auto it = _editorModules.RBegin(); it != _editorModules.REnd(); ++it)
+		{
+			auto shutdownFunc = it->_library->LoadFunction<int (*)()>("ShutdownEditorModule");
 			if (shutdownFunc != nullptr)
 			{
 				shutdownFunc();
 			}
-			DefaultAllocator::GetInstance().Delete(editorModule._registration); // Unregisters all of it
-			editorModule._library->Unload();
-			DefaultAllocator::GetInstance().Delete(editorModule._library);
+			DefaultAllocator::GetInstance().Delete(it->_registration); // Unregisters all of it
+			it->_library->Unload();
+			DefaultAllocator::GetInstance().Delete(it->_library);
 		}
 		_editorModules.Clear();
 		return true;
@@ -617,6 +634,7 @@ namespace hod::inline editor
 					}
 					if (ImGui::MenuItem("Hot Reload") == true)
 					{
+						Project::GetInstance()->UnloadProjectModules(); // Before the engine's editor modules: loaded after them
 						UnloadEditorModules();
 						LoadEditorModules();
 						Project::GetInstance()->ReloadProjectModules();

@@ -1,6 +1,8 @@
 #include "HodEngine/UIComponents/Pch.hpp"
 #include "HodEngine/UIComponents/Module.hpp"
 
+#include <HodEngine/Game/GameRegistrar.hpp>
+
 #include "HodEngine/UI/Builtin.hpp"
 #include "HodEngine/UI/CanvasManager.hpp"
 #include "HodEngine/UIComponents/Components/UIComponent.hpp"
@@ -8,12 +10,10 @@
 #include "HodEngine/UI/LayoutFactory.hpp"
 #include "HodEngine/UI/LayoutParamsFactory.hpp"
 #include "HodEngine/UI/NodeFactory.hpp"
-#include "HodEngine/UI/UISettings.hpp"
 #include "HodEngine/UI/ViewFactory.hpp"
 
 #include <HodEngine/GameSystems/Frame/FrameSequencer.hpp>
 #include <HodEngine/GameSystems/Job/MemberFunctionJob.hpp>
-#include <HodEngine/GameSystems/ProjectSettings/ProjectSettingsManager.hpp>
 #include <HodEngine/Window/DisplayManager.hpp>
 
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
@@ -51,7 +51,7 @@ namespace
 
 	CanvasManagerUpdater* g_canvasManagerUpdater = nullptr;
 
-	void RegisterUIModule(hod::game::RuntimeModuleRegistration& registration)
+	void RegisterUIModule(hod::ModuleRegistration& registration)
 	{
 		hod::ui::LayoutParamsFactory::CreateInstance();
 		hod::ui::NodeFactory::CreateInstance();
@@ -67,10 +67,10 @@ namespace
 			hod::ui::LayoutParamsFactory::DestroyInstance();
 		});
 
-		hod::ui::RegisterBuiltin(); // Its nodes, layouts, interactions, and its project settings
-		registration.AddUnregister(+[]() { hod::ProjectSettingsManager::GetInstance()->Unregister<hod::ui::UISettings>(); });
+		hod::ui::RegisterBuiltin(registration); // Its nodes, layouts, interactions, and its project settings: unregistered before the factories go
 
-		registration.RegisterComponent<hod::ui::UIComponent>();
+		hod::game::GameRegistrar gameRegistrar(registration);
+		gameRegistrar.RegisterComponent<hod::ui::UIComponent>();
 	}
 
 	bool InitUIModule()

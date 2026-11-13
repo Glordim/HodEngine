@@ -2,14 +2,14 @@
 #include "HodEngine/UIEditor/Module.hpp"
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
-#include "HodEngine/Editor/EditorModuleRegistration.hpp"
+#include "HodEngine/Editor/EditorRegistrar.hpp"
 #include "HodEngine/UIEditor/EasingPreview.hpp"
 #include "HodEngine/UIEditor/CustomPropertyDrawer/NodeRefCustomPropertyDrawer.hpp"
 #include "HodEngine/UIEditor/CustomPropertyDrawer/RectOffsetsCustomPropertyDrawer.hpp"
 #include "HodEngine/UIEditor/UIPrefabEditor/UIPrefabAssetType.hpp"
 #include "HodEngine/UIEditor/CustomComponentDrawer/UIComponentCustomComponentDrawer.hpp"
 
-#include <HodEngine/GameEditor/EntityBasedTabEditor/ViewportGamePointer.hpp>
+#include <HodEngine/GameEditor/GameEditorRegistrar.hpp>
 
 
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp>
@@ -48,37 +48,38 @@ namespace
 
 HOD_STARTUP_EDITOR_MODULE(UIEditor, registration)
 {
+	hod::editor::EditorRegistrar editorRegistrar(registration);
 	// The same cross for both, pointing the way each one pushes
-	registration.RegisterCustomPropertyDrawer(ui::Margin::GetReflectionDescriptor(),
-	                                          DefaultAllocator::GetInstance().New<RectOffsetsCustomPropertyDrawer>(RectOffsetsCustomPropertyDrawer::Direction::Outward));
-	registration.RegisterCustomPropertyDrawer(ui::Padding::GetReflectionDescriptor(),
-	                                          DefaultAllocator::GetInstance().New<RectOffsetsCustomPropertyDrawer>(RectOffsetsCustomPropertyDrawer::Direction::Inward));
+	editorRegistrar.RegisterCustomPropertyDrawer(ui::Margin::GetReflectionDescriptor(),
+	                                             DefaultAllocator::GetInstance().New<RectOffsetsCustomPropertyDrawer>(RectOffsetsCustomPropertyDrawer::Direction::Outward));
+	editorRegistrar.RegisterCustomPropertyDrawer(ui::Padding::GetReflectionDescriptor(),
+	                                             DefaultAllocator::GetInstance().New<RectOffsetsCustomPropertyDrawer>(RectOffsetsCustomPropertyDrawer::Direction::Inward));
 
-	registration.RegisterCustomPropertyDrawer<ui::NodeRefBase, NodeRefCustomPropertyDrawer>();
+	editorRegistrar.RegisterCustomPropertyDrawer<ui::NodeRefBase, NodeRefCustomPropertyDrawer>();
 
 	if (const EnumDescriptor* easingEnum = GetEasingEnumDescriptor())
 	{
-		registration.RegisterEnumValuePreview(*easingEnum, +[](uint64_t value) { DrawEasingPreview((ui::AnimationKey::Easing)value); });
+		editorRegistrar.RegisterEnumValuePreview(*easingEnum, +[](uint64_t value) { DrawEasingPreview((ui::AnimationKey::Easing)value); });
 	}
 
-	registration.RegisterAssetType<UIPrefabAssetType>();
-	registration.RegisterCustomComponentDrawer<ui::UIComponent, UIComponentCustomComponentDrawer>();
+	editorRegistrar.RegisterAssetType<UIPrefabAssetType>();
+	editorRegistrar.RegisterCustomComponentDrawer<ui::UIComponent, UIComponentCustomComponentDrawer>();
 
+	// The canvases get the game pointer from the viewports, not from the window (the game is drawn in the viewports)
 	if (ui::CanvasManager* canvasManager = ui::CanvasManager::GetInstance())
 	{
 		canvasManager->SetPointerSource(ui::CanvasManager::PointerSource::Manual);
+		registration.AddUnregister(
+			[]()
+			{
+				if (ui::CanvasManager* canvasManager = ui::CanvasManager::GetInstance())
+				{
+					canvasManager->SetPointerSource(ui::CanvasManager::PointerSource::Window);
+				}
+			});
 	}
-	ViewportGamePointer::Register(&GiveGamePointerToCanvases);
+	GameEditorRegistrar gameEditorRegistrar(registration);
+	gameEditorRegistrar.RegisterViewportGamePointer(&GiveGamePointerToCanvases);
 
-	return 0;
-}
-
-HOD_SHUTDOWN_EDITOR_MODULE(UIEditor)
-{
-	ViewportGamePointer::Unregister(&GiveGamePointerToCanvases);
-	if (ui::CanvasManager* canvasManager = ui::CanvasManager::GetInstance())
-	{
-		canvasManager->SetPointerSource(ui::CanvasManager::PointerSource::Window);
-	}
 	return 0;
 }

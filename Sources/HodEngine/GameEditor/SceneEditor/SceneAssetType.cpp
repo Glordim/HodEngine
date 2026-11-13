@@ -7,7 +7,7 @@
 #include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/EditorModuleRegistration.hpp"
+#include "HodEngine/Editor/EditorRegistrar.hpp"
 #include "HodEngine/Editor/Project.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
@@ -49,10 +49,10 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param registration
-	void SceneAssetType::OnRegistered(EditorModuleRegistration& registration)
+	void SceneAssetType::OnRegistered(EditorRegistrar& editorRegistrar)
 	{
 		// "Create/Scene": an empty one
-		registration.RegisterContextualMenuAction({
+		editorRegistrar.RegisterContextualMenuAction({
 			.path = "Create/Scene",
 			.group = "New",
 			.available = +[](const AssetBrowserWindow::Context& context) { return context.selectedItems.Empty(); },
@@ -71,7 +71,7 @@ namespace hod::inline editor
 		});
 
 		// "Set as startup scene" of the project
-		registration.RegisterContextualMenuAction({
+		editorRegistrar.RegisterContextualMenuAction({
 			.path = "Set as startup scene",
 			.group = "",
 			.available =

@@ -22,13 +22,13 @@ namespace hod::inline editor
 {
 	class Asset;
 	class Cooker;
-	class EditorModuleRegistration;
+	class EditorRegistrar;
 	class EditorTab;
 
 	/// @brief A type of asset and what the editor does with its assets. Declared once by the editor module adding it (with
 	/// HOD_ASSET_TYPE, its name, hash and extension given to all the code using it: TextureAssetType::GetHash(),
 	/// TextureAssetType::GetFileName("Goblin")...) and registered by it
-	/// (EditorModuleRegistration::RegisterAssetType<_AssetType_>()), by one module only. Each part is optional.
+	/// (EditorRegistrar::RegisterAssetType<_AssetType_>()), by one module only. Each part is optional.
 	class HOD_EDITOR_API AssetType
 	{
 	public:
@@ -65,9 +65,9 @@ namespace hod::inline editor
 		virtual void OnRenamed(Asset& asset) const;
 
 		/// @brief Once registered by its module (not when refused): what it adds along with it (its asset browser actions...),
-		/// registered through registration so that it goes with it. Not its importers: registered by the module once all the types
+		/// registered through editorRegistrar so that it goes with it. Not its importers: registered by the module once all the types
 		/// they import into are
-		virtual void OnRegistered(EditorModuleRegistration& registration);
+		virtual void OnRegistered(EditorRegistrar& editorRegistrar);
 		/// @brief Before its module unloads, its tabs closed already: undoes what OnRegistered did besides registration (which
 		/// unregisters on its own)
 		virtual void OnUnregistered();

@@ -16,6 +16,6 @@ namespace hod::inline editor
 		EditorTab*                  CreateEditorTab(std::shared_ptr<Asset> asset) const override;
 		Texture*                    GetIcon() const override;
 		void                        OnRenamed(Asset& asset) const override;
-		void                        OnRegistered(EditorModuleRegistration& registration) override;
+		void                        OnRegistered(EditorRegistrar& editorRegistrar) override;
 	};
 }

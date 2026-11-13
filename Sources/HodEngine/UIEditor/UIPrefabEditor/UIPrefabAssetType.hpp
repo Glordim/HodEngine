@@ -15,7 +15,7 @@ namespace hod::inline editor
 		const ReflectionDescriptor* GetCookedResource() const override;
 		EditorTab*                  CreateEditorTab(std::shared_ptr<Asset> asset) const override;
 		void                        OnRenamed(Asset& asset) const override;
-		void                        OnRegistered(EditorModuleRegistration& registration) override;
+		void                        OnRegistered(EditorRegistrar& editorRegistrar) override;
 		void                        OnUnregistered() override;
 	};
 }

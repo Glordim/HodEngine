@@ -36,7 +36,6 @@ namespace hod::inline rhi
 namespace hod::inline editor
 {
 	class MainBar;
-	class EditorModuleRegistration;
 	class Project;
 	class Asset;
 	class EditorTab;
@@ -190,7 +189,7 @@ namespace hod::inline editor
 		struct EditorModule
 		{
 			DynamicLibrary*           _library = nullptr;
-			EditorModuleRegistration* _registration = nullptr;
+			ModuleRegistration*       _registration = nullptr;
 		};
 		Vector<EditorModule> _editorModules;
 

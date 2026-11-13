@@ -2,17 +2,12 @@
 #include "HodEngine/Editor/Export.hpp"
 
 #include "HodEngine/Editor/AssetDatabase.hpp"
-#include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
-#include <HodEngine/Core/String.hpp>
-#include <HodEngine/Core/Vector.hpp>
-
 #include <HodEngine/Core/Memory/DefaultAllocator.hpp>
-
-#include <cstdint>
-#include <string_view>
+#include <HodEngine/Core/ModuleRegistration.hpp>
+#include <HodEngine/Core/String.hpp>
 
 namespace hod::inline core
 {
@@ -27,20 +22,14 @@ namespace hod::inline editor
 	class CustomComponentDrawer;
 	class VersionControlProvider;
 
-	/// @brief What an editor module adds to the editor (importers, asset types, asset browser actions, drawers, windows). Given
-	/// to the module's startup by the editor (see HOD_DECLARE_EDITOR_MODULE), which unregisters all of it (UnregisterAll, or the
-	/// destructor) before unloading the module: its code goes away, "Hot Reload" included. Only what was actually registered is
-	/// unregistered: what another module has registered already is refused, not taken over.
-	class HOD_EDITOR_API EditorModuleRegistration
+	/// @brief The registrar of the editor (see ModuleRegistration): importers, asset types, asset browser actions, drawers, windows, version
+	/// control providers, unregistered with the rest of what the module registered, before it unloads ("Hot Reload" included). In an
+	/// editor module's startup (see HOD_DECLARE_EDITOR_MODULE). Only what was actually registered is unregistered: what another module has
+	/// registered already is refused, not taken over.
+	class HOD_EDITOR_API EditorRegistrar
 	{
 	public:
-		EditorModuleRegistration() = default;
-		EditorModuleRegistration(const EditorModuleRegistration&) = delete;
-		EditorModuleRegistration(EditorModuleRegistration&&) = delete;
-		~EditorModuleRegistration();
-
-		EditorModuleRegistration& operator=(const EditorModuleRegistration&) = delete;
-		EditorModuleRegistration& operator=(EditorModuleRegistration&&) = delete;
+		explicit EditorRegistrar(ModuleRegistration& registration);
 
 	public:
 		/// @brief An instance of _AssetType_ (see AssetType), owned by the registration, then what it adds (AssetType::OnRegistered)
@@ -58,10 +47,12 @@ namespace hod::inline editor
 
 		template<typename _Type_, typename _Drawer_>
 		void RegisterCustomPropertyDrawer();
+		/// @param drawer Owned by the registry
 		void RegisterCustomPropertyDrawer(const ReflectionDescriptor& descriptor, CustomPropertyDrawer* drawer);
 
 		template<typename _Type_, typename _Drawer_>
 		void RegisterCustomComponentDrawer();
+		/// @param drawer Owned by the registry
 		void RegisterCustomComponentDrawer(const ReflectionDescriptor& descriptor, CustomComponentDrawer* drawer);
 
 		/// @brief See PropertyDrawer::EnumValuePreview
@@ -79,9 +70,6 @@ namespace hod::inline editor
 		template<typename _Provider_>
 		bool RegisterVersionControlProvider();
 
-		/// @brief In the reverse order of the registrations
-		void UnregisterAll();
-
 	private:
 		/// @param assetType Owned by the registration, deleted right away if refused
 		bool RegisterAssetType(AssetType* assetType);
@@ -89,55 +77,46 @@ namespace hod::inline editor
 		bool RegisterVersionControlProvider(VersionControlProvider* provider);
 
 	private:
-		Vector<VersionControlProvider*> _versionControlProviders;
-		Vector<void (*)()> _importerUnregisters; // One per importer type, the importers being identified by their type
-		Vector<AssetType*> _assetTypes;
-		Vector<uint32_t>   _contextualMenuActionIds;
-		Vector<uint32_t>   _dropActionIds;
-
-		Vector<const ReflectionDescriptor*> _customPropertyDrawerDescriptors;
-		Vector<const ReflectionDescriptor*> _customComponentDrawerDescriptors;
-		Vector<const EnumDescriptor*>       _enumValuePreviewDescriptors;
-		Vector<ReflectionDescriptor*>       _windowDescriptors;
+		ModuleRegistration& _registration;
 	};
 
 	template<typename _AssetType_>
-	bool EditorModuleRegistration::RegisterAssetType()
+	bool EditorRegistrar::RegisterAssetType()
 	{
 		return RegisterAssetType(DefaultAllocator::GetInstance().New<_AssetType_>());
 	}
 
 	template<typename _Provider_>
-	bool EditorModuleRegistration::RegisterVersionControlProvider()
+	bool EditorRegistrar::RegisterVersionControlProvider()
 	{
 		return RegisterVersionControlProvider(DefaultAllocator::GetInstance().New<_Provider_>());
 	}
 
 	template<typename _Importer_, typename... Args>
-	bool EditorModuleRegistration::RegisterImporter(Args... extensions)
+	bool EditorRegistrar::RegisterImporter(Args... extensions)
 	{
 		if (AssetDatabase::GetInstance()->RegisterImporter<_Importer_>(extensions...) == false)
 		{
 			return false;
 		}
-		_importerUnregisters.PushBack(+[]() { AssetDatabase::GetInstance()->UnregisterImporter<_Importer_>(); });
+		_registration.AddUnregister([]() { AssetDatabase::GetInstance()->UnregisterImporter<_Importer_>(); });
 		return true;
 	}
 
 	template<typename _Type_, typename _Drawer_>
-	void EditorModuleRegistration::RegisterCustomPropertyDrawer()
+	void EditorRegistrar::RegisterCustomPropertyDrawer()
 	{
 		RegisterCustomPropertyDrawer(_Type_::GetReflectionDescriptor(), DefaultAllocator::GetInstance().New<_Drawer_>());
 	}
 
 	template<typename _Type_, typename _Drawer_>
-	void EditorModuleRegistration::RegisterCustomComponentDrawer()
+	void EditorRegistrar::RegisterCustomComponentDrawer()
 	{
 		RegisterCustomComponentDrawer(_Type_::GetReflectionDescriptor(), DefaultAllocator::GetInstance().New<_Drawer_>());
 	}
 
 	template<typename _Window_>
-	void EditorModuleRegistration::RegisterWindow(const String& route)
+	void EditorRegistrar::RegisterWindow(const String& route)
 	{
 		RegisterWindow(route, _Window_::GetReflectionDescriptor());
 	}

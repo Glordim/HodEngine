@@ -1,25 +1,21 @@
 #include "[[MODULE_NAME]]Module.hpp"
-#include <HodEngine/Game/ComponentFactory.hpp>
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
+#include <HodEngine/Game/GameRegistrar.hpp>
 
 #include "Components/MyFirstComponent.hpp"
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
-/// @brief 
-/// @return 
-HOD_STARTUP_MODULE([[MODULE_NAME]])
+namespace
 {
-	hod::ComponentFactory* componentFactory = hod::ComponentFactory::GetInstance();
-	componentFactory->Register<MyFirstComponent>();
-	return 0;
+	/// @brief The game's types, through the registrars of the modules offering them (GameRegistrar: components, data structs, world
+	/// systems; UIRegistrar: views...), unregistered by the engine when the module goes away (Hot Reload included)
+	/// @param registration
+	void Register(hod::ModuleRegistration& registration)
+	{
+		hod::game::GameRegistrar gameRegistrar(registration);
+		gameRegistrar.RegisterComponent<MyFirstComponent>();
+	}
 }
 
-/// @brief 
-/// @return 
-HOD_SHUTDOWN_MODULE([[MODULE_NAME]])
-{
-	hod::ComponentFactory* componentFactory = hod::ComponentFactory::GetInstance();
-	componentFactory->Unregister<MyFirstComponent>();
-	return 0;
-}
+HOD_DEFINE_RUNTIME_MODULE([[MODULE_NAME]], &Register)

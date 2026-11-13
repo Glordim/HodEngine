@@ -17,6 +17,16 @@
 
 #include <memory>
 
+namespace hod::inline core
+{
+	class ModuleRegistration;
+}
+
+namespace hod::inline game
+{
+	class RuntimeModuleHost;
+}
+
 namespace hod::inline editor
 {
 	class Asset;
@@ -78,6 +88,10 @@ namespace hod::inline editor
 		bool ConfigureGameModule() const;
 		bool BuildGameModule() const;
 
+		/// @brief The game module (a runtime module, see RuntimeModule) and its editor library (an editor module, see HOD_DECLARE_EDITOR_MODULE),
+		/// loaded after the engine's
+		bool LoadProjectModules();
+		void UnloadProjectModules();
 		bool ReloadProjectModules();
 
 		/// @brief The engine modules (see ModuleGraph), resolved against the project's disabled ones when it is opened
@@ -119,11 +133,13 @@ namespace hod::inline editor
 		Vector<String> _disabledModules; // Names of the engine modules the project doesn't use (see ModuleGraph::Resolve)
 		ModuleGraph    _moduleGraph;
 
-		DynamicLibrary    _gameModule;
-		FileSystemWatcher _gameModuleFileSystemWatcher;
+		DynamicLibrary          _gameModule;
+		FileSystemWatcher       _gameModuleFileSystemWatcher;
+		game::RuntimeModuleHost* _gameModuleHost = nullptr; // While the game module is loaded
 
-		DynamicLibrary    _editorModule;
-		FileSystemWatcher _editorModuleFileSystemWatcher;
+		DynamicLibrary            _editorModule;
+		FileSystemWatcher         _editorModuleFileSystemWatcher;
+		ModuleRegistration*       _editorModuleRegistration = nullptr; // While the editor module is loaded
 
 		Event<> _onModulesReloadedEvent;
 	};

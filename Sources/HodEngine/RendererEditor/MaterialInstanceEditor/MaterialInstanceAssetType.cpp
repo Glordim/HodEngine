@@ -7,7 +7,7 @@
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetContainer.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
-#include "HodEngine/Editor/EditorModuleRegistration.hpp"
+#include "HodEngine/Editor/EditorRegistrar.hpp"
 
 #include <HodEngine/Renderer/Resource/MaterialInstanceResource.hpp>
 
@@ -42,9 +42,9 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param registration
-	void MaterialInstanceAssetType::OnRegistered(EditorModuleRegistration& registration)
+	void MaterialInstanceAssetType::OnRegistered(EditorRegistrar& editorRegistrar)
 	{
-		registration.RegisterContextualMenuAction({
+		editorRegistrar.RegisterContextualMenuAction({
 			.path = "Create/Material Instance",
 			.group = "New",
 			.available =
