@@ -49,7 +49,7 @@ namespace hod::inline editor
 	{
 		AddPropertyT(reflectionDescriptor, &Project::_name, "_name");
 		AddPropertyT(reflectionDescriptor, &Project::_startupScene, "_startupScene");
-		AddPropertyT(reflectionDescriptor, &Project::_disabledModules, "_disabledModules");
+		AddPropertyT(reflectionDescriptor, &Project::_disabledPlugins, "_disabledPlugins");
 	}
 
 	_SingletonConstructor(Project) {}
@@ -79,7 +79,7 @@ namespace hod::inline editor
 
 		_projectPath = directory / (directory.Filename().GetString() + ".hod");
 		_name = _projectPath.Stem().GetString();
-		_disabledModules = createInfo._disabledModules;
+		_disabledPlugins = createInfo._disabledPlugins;
 
 		if (CreateMinimalSourceForModule(directory) == false)
 		{
@@ -155,10 +155,10 @@ namespace hod::inline editor
 	/// @brief
 	/// @param moduleGraph
 	/// @return
-	bool Project::BuildEngineModuleGraph(ModuleGraph& moduleGraph)
+	bool Project::BuildEngineModuleGraph(PluginGraph& moduleGraph)
 	{
-		Vector<ModuleManifest> manifests;
-		bool                   result = ModuleGraph::LoadManifests(FileSystem::GetExecutablePath().ParentPath() / "Modules", manifests);
+		Vector<PluginManifest> manifests;
+		bool                   result = PluginGraph::LoadManifests(FileSystem::GetExecutablePath().ParentPath() / "Plugins", manifests);
 		result &= moduleGraph.Build(manifests);
 		return result;
 	}
@@ -380,47 +380,47 @@ namespace hod::inline editor
 		{
 			return false;
 		}
-		ResolveModules();
+		ResolvePlugins();
 		return true;
 	}
 
-	/// @brief The engine modules described next to the editor (see ModuleManifest), without the ones the project disables
-	void Project::ResolveModules()
+	/// @brief The engine plugins described next to the editor (see PluginManifest), without the ones the project disables
+	void Project::ResolvePlugins()
 	{
-		BuildEngineModuleGraph(_moduleGraph);
-		_moduleGraph.Resolve(_disabledModules);
+		BuildEngineModuleGraph(_pluginGraph);
+		_pluginGraph.Resolve(_disabledPlugins);
 
-		for (const String& error : _moduleGraph.GetErrors())
+		for (const String& error : _pluginGraph.GetErrors())
 		{
 			OUTPUT_ERROR("Modules: {}", error);
 		}
-		for (const ModuleGraph::Module& module : _moduleGraph.GetModules())
+		for (const PluginGraph::Plugin& plugin : _pluginGraph.GetPlugins())
 		{
-			if (module._enabled == false)
+			if (plugin._enabled == false)
 			{
-				OUTPUT_MESSAGE("Module '{}' disabled: {}", module._manifest._name, module._disabledReason);
+				OUTPUT_MESSAGE("Plugin '{}' disabled: {}", plugin._manifest._name, plugin._disabledReason);
 			}
 		}
 	}
 
 	/// @brief
 	/// @return
-	const ModuleGraph& Project::GetModuleGraph() const
+	const PluginGraph& Project::GetPluginGraph() const
 	{
-		return _moduleGraph;
+		return _pluginGraph;
 	}
 
 	/// @brief
 	/// @return
-	const Vector<String>& Project::GetDisabledModules() const
+	const Vector<String>& Project::GetDisabledPlugins() const
 	{
-		return _disabledModules;
+		return _disabledPlugins;
 	}
 
 	/// @brief
-	/// @param disabledModules
+	/// @param disabledPlugins
 	/// @return
-	bool Project::SetDisabledModules(const Vector<String>& disabledModules)
+	bool Project::SetDisabledPlugins(const Vector<String>& disabledPlugins)
 	{
 		String error;
 		if (VersionControl::GetInstance() != nullptr && VersionControl::GetInstance()->PrepareWrite(ArrayView<Path>(&_projectPath, 1), &error) == false)
@@ -428,11 +428,11 @@ namespace hod::inline editor
 			OUTPUT_ERROR("Can't save {}: {}", _projectPath, error);
 			return false;
 		}
-		Vector<String> previous = _disabledModules;
-		_disabledModules = disabledModules;
+		Vector<String> previous = _disabledPlugins;
+		_disabledPlugins = disabledPlugins;
 		if (Save() == false)
 		{
-			_disabledModules = previous;
+			_disabledPlugins = previous;
 			return false;
 		}
 		return true;
@@ -440,19 +440,19 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
-	Path Project::GetGameModuleRuntimeLibrariesStampPath() const
+	Path Project::GetGameModuleRuntimeModulesStampPath() const
 	{
 		return GetCacheBuildDirPath() / "Editor" / "HodModules.txt";
 	}
 
 	/// @brief
 	/// @return
-	String Project::GetRuntimeLibrariesStamp() const
+	String Project::GetRuntimeModulesStamp() const
 	{
 		String stamp;
-		for (const String& runtimeLibrary : _moduleGraph.GetEnabledRuntimeLibraries())
+		for (const String& runtimeModule : _pluginGraph.GetEnabledRuntimeModules())
 		{
-			stamp += runtimeLibrary;
+			stamp += runtimeModule;
 			stamp += "\n";
 		}
 		return stamp;
@@ -580,12 +580,12 @@ namespace hod::inline editor
 	/// @return
 	bool Project::CanLoadProjectModules()
 	{
-		// Built with other modules than the ones the project uses now: it links the libraries of the modules it was built with
+		// Built with other plugins than the ones the project uses now: it links the runtime modules of the plugins it was built with
 		String builtStamp;
-		if (FileSystem::GetInstance()->Exists(GetGameModuleRuntimeLibrariesStampPath()) == false ||
-		    FileSystem::GetInstance()->ReadAllText(GetGameModuleRuntimeLibrariesStampPath(), builtStamp) == false || builtStamp != GetRuntimeLibrariesStamp())
+		if (FileSystem::GetInstance()->Exists(GetGameModuleRuntimeModulesStampPath()) == false ||
+		    FileSystem::GetInstance()->ReadAllText(GetGameModuleRuntimeModulesStampPath(), builtStamp) == false || builtStamp != GetRuntimeModulesStamp())
 		{
-			OUTPUT_MESSAGE("The game module was built with other engine modules, it must be rebuilt");
+			OUTPUT_MESSAGE("The game module was built with other plugins, it must be rebuilt");
 			return false;
 		}
 
@@ -625,12 +625,12 @@ namespace hod::inline editor
 		String projectGameExport = _name + "_GAME_EXPORT";
 		std::transform(projectGameExport.begin(), projectGameExport.end(), projectGameExport.begin(), [](char c) { return std::toupper(c); });
 
-		// The runtime libraries of the enabled modules, dependencies first: linked by the game, started by a static game in that order
+		// The runtime modules of the enabled plugins, dependencies first: linked by the game, started by a static game in that order
 		// (the game's CMakeLists turns the list into links and the source calling them: hod_link_engine_modules... in HodEngineConfig.cmake), loaded by the editor from their libraries
 		String moduleList;
-		for (const String& runtimeLibrary : _moduleGraph.GetEnabledRuntimeLibraries())
+		for (const String& runtimeModule : _pluginGraph.GetEnabledRuntimeModules())
 		{
-			moduleList += runtimeLibrary;
+			moduleList += runtimeModule;
 			moduleList += "\n";
 		}
 
@@ -711,11 +711,11 @@ namespace hod::inline editor
 			return false;
 		}
 		// What it links now (see CanLoadProjectModules)
-		FileSystem::GetInstance()->WriteAllText(GetGameModuleRuntimeLibrariesStampPath(), GetRuntimeLibrariesStamp());
+		FileSystem::GetInstance()->WriteAllText(GetGameModuleRuntimeModulesStampPath(), GetRuntimeModulesStamp());
 		return true;
 	}
 
-	/// @brief The game module is a runtime module (HOD_STARTUP_RUNTIME_MODULE, started after the engine ones), its editor library an editor
+	/// @brief The game module is a runtime module (HOD_STARTUP_RUNTIME_MODULE, started after the engine ones), its editor module an editor
 	/// module (HOD_STARTUP_EDITOR_MODULE, started after the engine ones)
 	/// @return false (with an error) if the game module can't be loaded or started
 	bool Project::LoadProjectModules()
@@ -763,7 +763,7 @@ namespace hod::inline editor
 	/// registered), while their code is still loaded
 	void Project::UnloadProjectModules()
 	{
-		_projectModuleHost.StopAll(); // The editor library, then the game module
+		_projectModuleHost.StopAll(); // Its editor module, then the game module
 		_editorModule.Unload();
 		_gameModule.Unload();
 	}

@@ -2,7 +2,7 @@
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/MissingProjectModuleModal.hpp"
 #include "HodEngine/Editor/TitleBar.hpp"
-#include "HodEngine/Editor/Modules/PluginsWindow.hpp"
+#include "HodEngine/Editor/Plugins/PluginsWindow.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
@@ -68,7 +68,7 @@ namespace hod::inline editor
 		bool failed = _prepareResult == StepStatus::Failed || _configureResult == StepStatus::Failed || _buildResult == StepStatus::Failed;
 		if (failed)
 		{
-			// The game code may use a module the project disables now: re-enable it from there (the editor restarts)
+			// The game code may use a plugin the project disables now: re-enable it from there (the editor restarts)
 			ImGui::SameLine();
 			float buttonsWidth = ImGui::CalcTextSize("Plugins...").x + ImGui::CalcTextSize("Retry").x + ImGui::GetStyle().FramePadding.x * 4.0f + ImGui::GetStyle().ItemSpacing.x;
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() + ImGui::GetContentRegionAvail().x - buttonsWidth);

@@ -8,7 +8,7 @@
 namespace hod::inline gamesystems
 {
 	/// @brief The registrar of GameSystems (see ModuleRegistration): project settings, unregistered with the rest of what the module
-	/// registered. In a runtime library's startup (see HOD_STARTUP_RUNTIME_MODULE): the settings are loaded after it
+	/// registered. In a runtime module's startup (see HOD_STARTUP_RUNTIME_MODULE): the settings are loaded after it
 	class GameSystemsRegistrar
 	{
 	public:

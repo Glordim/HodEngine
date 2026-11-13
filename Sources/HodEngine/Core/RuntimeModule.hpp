@@ -3,13 +3,13 @@
 
 #include "HodEngine/Core/ModuleHost.hpp"
 
-/// @brief The entry point of a runtime library loaded as a plugin (a DLL: the editor), the same in each one
+/// @brief The entry point of a runtime module loaded from a DLL (the editor), the same in each one
 #define HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME "StartupRuntimeModule"
 
-/// @brief The entry point of the runtime library Name (see ModuleStartup, started by a ModuleHost in the modules' order, the project settings
+/// @brief The entry point of the runtime module Name (see ModuleStartup, started by a ModuleHost in its plugin's order, the project settings
 /// loaded before), returning false if it couldn't start: registers its types through the registrars, starts its services (it may read its
 /// settings), pushes on the registration what stops them. Usable in the library's namespace (extern "C").
-/// - A DLL: the exported StartupRuntimeModule, found by the editor in each library (a library first, before its dependencies)
+/// - A DLL: the exported StartupRuntimeModule, found by the editor in each module (in the module itself first, before its dependencies)
 /// - HOD_MONOLITHIC (a game build, everything in one binary): HodRuntimeModule_<Name>, unique, not exported, called by the generated code
 ///   (HodModules.generated.cpp, see hod_add_engine_modules_entry_points)
 #if defined(HOD_MONOLITHIC)

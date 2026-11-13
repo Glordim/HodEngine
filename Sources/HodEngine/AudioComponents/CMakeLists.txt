@@ -14,7 +14,7 @@ target_include_directories(AudioComponents PUBLIC
 )
 target_precompile_headers(AudioComponents PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
-# The Components layer of the Audio module (see HodModule.json in Audio): the only one that knows Game (the AudioSourceComponent, the
+# The Components layer of the Audio plugin (see HodPlugin.json in Audio): the only one that knows Game (the AudioSourceComponent, the
 # runtime module's entry point), over the Audio library that doesn't
 target_link_libraries(AudioComponents
 	PUBLIC Audio Game

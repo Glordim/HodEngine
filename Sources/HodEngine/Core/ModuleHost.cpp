@@ -21,7 +21,7 @@ namespace hod::inline core
 		ModuleRegistration* registration = DefaultAllocator::GetInstance().New<ModuleRegistration>();
 		if (startup(*registration) == false)
 		{
-			OUTPUT_ERROR("Module library '{}': its startup failed", name);
+			OUTPUT_ERROR("Module '{}': its startup failed", name);
 			DefaultAllocator::GetInstance().Delete(registration); // What it registered before failing
 			return false;
 		}

@@ -20,7 +20,7 @@
 
 #include "HodEngine/Editor/ProjectBrowser.hpp"
 #include "HodEngine/Editor/ProjectSettingsWindow.hpp"
-#include "HodEngine/Editor/Modules/PluginsWindow.hpp"
+#include "HodEngine/Editor/Plugins/PluginsWindow.hpp"
 #include "HodEngine/Core/Process/Process.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/TaskTracker/TaskTrackerWindow.hpp"
@@ -96,9 +96,9 @@ namespace hod::inline editor
 		}
 		_editorTabs.Clear();
 
-		// After the tabs (they release their checkouts) and before the modules (the providers go with them): runs what's queued
+		// After the tabs (they release their checkouts) and before the editor modules (the providers go with them): runs what's queued
 		VersionControl::GetInstance()->OnProjectClosed();
-		Project::GetInstance()->UnloadProjectModules(); // Before the engine's modules: loaded after them
+		Project::GetInstance()->UnloadProjectModules(); // Before the engine's editor modules: loaded after them
 		UnloadEditorModules();
 		VersionControl::DestroyInstance();
 
@@ -146,7 +146,7 @@ namespace hod::inline editor
 	{
 		_taskTracker = DefaultAllocator::GetInstance().New<TaskTracker>();
 
-		// Every editor screen (project browser, missing module, editor) draws its own title bar, see TitleBar
+		// Every editor screen (project browser, missing game module, editor) draws its own title bar, see TitleBar
 		static_cast<DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow())->SetCustomTitleBar(true);
 
 		Project::CreateInstance();
@@ -244,21 +244,21 @@ namespace hod::inline editor
 		return false;
 	}
 
-	/// @brief The startup of each module's runtime libraries (in the modules' order: dependencies first; a module's base then its Components
-	/// layer), the project settings loaded already (Project::Open). A module that fails (and the ones needing it) is left out, with an
+	/// @brief The startup of each plugin's runtime modules (in the plugins' order: dependencies first; a plugin's base then its Components
+	/// layer), the project settings loaded already (Project::Open). A plugin that fails (and the ones needing it) is left out, with an
 	/// error: the editor still opens
 	/// @return
 	bool Editor::LoadRuntimeModules()
 	{
 		_runtimeModuleHost = DefaultAllocator::GetInstance().New<ModuleHost>();
 
-		auto dependsOnFailed = [this](const ModuleManifest& manifest)
+		auto dependsOnFailed = [this](const PluginManifest& manifest)
 		{
 			for (const String& dependency : manifest._dependencies)
 			{
-				for (const String& failedModule : _failedModules)
+				for (const String& failedPlugin : _failedPlugins)
 				{
-					if (failedModule == dependency)
+					if (failedPlugin == dependency)
 					{
 						return true;
 					}
@@ -267,61 +267,61 @@ namespace hod::inline editor
 			return false;
 		};
 
-		for (const ModuleGraph::Module& module : Project::GetInstance()->GetModuleGraph().GetModules())
+		for (const PluginGraph::Plugin& plugin : Project::GetInstance()->GetPluginGraph().GetPlugins())
 		{
-			const ModuleManifest& manifest = module._manifest;
-			if (module._enabled == false || manifest._runtimeLibraries.Empty())
+			const PluginManifest& manifest = plugin._manifest;
+			if (plugin._enabled == false || manifest._runtimeModules.Empty())
 			{
 				continue;
 			}
 			if (dependsOnFailed(manifest))
 			{
-				OUTPUT_ERROR("Module '{}' left out: it needs a module that failed", manifest._name);
-				_failedModules.PushBack(manifest._name);
+				OUTPUT_ERROR("Plugin '{}' left out: it needs a plugin that failed", manifest._name);
+				_failedPlugins.PushBack(manifest._name);
 				continue;
 			}
 
-			// All of its libraries found before any is started: a module is in, or out
+			// All of its modules found before any is started: a plugin is in, or out
 			Vector<DynamicLibrary*>       libraries;
 			Vector<ModuleStartup>   startups;
-			for (const String& runtimeLibrary : manifest._runtimeLibraries)
+			for (const String& runtimeModule : manifest._runtimeModules)
 			{
 				DynamicLibrary* library = DefaultAllocator::GetInstance().New<DynamicLibrary>();
-				library->Init(FileSystem::GetExecutablePath().ParentPath() / runtimeLibrary, false);
+				library->Init(FileSystem::GetExecutablePath().ParentPath() / runtimeModule, false);
 				ModuleStartup startup = library->Load() ? library->LoadFunction<ModuleStartup>(HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME) : nullptr;
 				libraries.PushBack(library);
 				if (startup == nullptr)
 				{
-					OUTPUT_ERROR("Module '{}' left out: no " HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME " in the library {} (see HOD_STARTUP_RUNTIME_MODULE)", manifest._name, runtimeLibrary);
+					OUTPUT_ERROR("Plugin '{}' left out: no " HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME " in its module {} (see HOD_STARTUP_RUNTIME_MODULE)", manifest._name, runtimeModule);
 					break;
 				}
 				startups.PushBack(startup);
 			}
-			if (startups.Size() != manifest._runtimeLibraries.Size())
+			if (startups.Size() != manifest._runtimeModules.Size())
 			{
 				for (auto it = libraries.RBegin(); it != libraries.REnd(); ++it)
 				{
 					DefaultAllocator::GetInstance().Delete(*it);
 				}
-				_failedModules.PushBack(manifest._name);
+				_failedPlugins.PushBack(manifest._name);
 				continue;
 			}
 
 			uint32_t started = 0;
-			while (started < startups.Size() && _runtimeModuleHost->Start(manifest._runtimeLibraries[started], startups[started]))
+			while (started < startups.Size() && _runtimeModuleHost->Start(manifest._runtimeModules[started], startups[started]))
 			{
 				++started;
 			}
 			if (started != startups.Size())
 			{
 				// The libraries it started already undone (its base when its Components layer failed), the ones needing it left out
-				OUTPUT_ERROR("Module '{}' left out: its library {} failed to start", manifest._name, manifest._runtimeLibraries[started]);
+				OUTPUT_ERROR("Plugin '{}' left out: its module {} failed to start", manifest._name, manifest._runtimeModules[started]);
 				_runtimeModuleHost->StopLast(started);
 				for (auto it = libraries.RBegin(); it != libraries.REnd(); ++it)
 				{
 					DefaultAllocator::GetInstance().Delete(*it);
 				}
-				_failedModules.PushBack(manifest._name);
+				_failedPlugins.PushBack(manifest._name);
 				continue;
 			}
 			for (DynamicLibrary* library : libraries)
@@ -357,11 +357,11 @@ namespace hod::inline editor
 	/// @brief
 	/// @param name
 	/// @return
-	bool Editor::HasModuleFailed(const String& name) const
+	bool Editor::HasPluginFailed(const String& name) const
 	{
-		for (const String& failedModule : _failedModules)
+		for (const String& failedPlugin : _failedPlugins)
 		{
-			if (failedModule == name)
+			if (failedPlugin == name)
 			{
 				return true;
 			}
@@ -389,17 +389,17 @@ namespace hod::inline editor
 	/// @return
 	bool Editor::LoadEditorModules()
 	{
-		for (const ModuleGraph::Module& module : Project::GetInstance()->GetModuleGraph().GetModules())
+		for (const PluginGraph::Plugin& plugin : Project::GetInstance()->GetPluginGraph().GetPlugins())
 		{
-			const ModuleManifest& manifest = module._manifest;
-			if (module._enabled == false || manifest._editorLibrary.Empty())
+			const PluginManifest& manifest = plugin._manifest;
+			if (plugin._enabled == false || manifest._editorModule.Empty())
 			{
 				continue;
 			}
 			bool failed = false;
-			for (const String& failedModule : _failedModules)
+			for (const String& failedPlugin : _failedPlugins)
 			{
-				if (failedModule == manifest._name)
+				if (failedPlugin == manifest._name)
 				{
 					failed = true;
 					break;
@@ -411,10 +411,10 @@ namespace hod::inline editor
 			}
 
 			DynamicLibrary* library = DefaultAllocator::GetInstance().New<DynamicLibrary>();
-			library->Init(FileSystem::GetExecutablePath().ParentPath() / manifest._editorLibrary, false);
+			library->Init(FileSystem::GetExecutablePath().ParentPath() / manifest._editorModule, false);
 			if (library->Load() == false)
 			{
-				OUTPUT_ERROR("Module '{}': its editor library {} can't be loaded", manifest._name, manifest._editorLibrary);
+				OUTPUT_ERROR("Plugin '{}': its editor module {} can't be loaded", manifest._name, manifest._editorModule);
 				DefaultAllocator::GetInstance().Delete(library);
 				if (manifest._required)
 				{
@@ -426,7 +426,7 @@ namespace hod::inline editor
 			ModuleStartup startup = library->LoadFunction<ModuleStartup>(HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME);
 			if (startup == nullptr)
 			{
-				OUTPUT_ERROR("Module '{}': no " HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME " in its editor library {} (see HOD_STARTUP_EDITOR_MODULE)", manifest._name, manifest._editorLibrary);
+				OUTPUT_ERROR("Plugin '{}': no " HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME " in its editor module {} (see HOD_STARTUP_EDITOR_MODULE)", manifest._name, manifest._editorModule);
 				DefaultAllocator::GetInstance().Delete(library);
 				if (manifest._required)
 				{
@@ -434,7 +434,7 @@ namespace hod::inline editor
 				}
 				continue;
 			}
-			if (_editorModuleHost.Start(manifest._editorLibrary, startup) == false)
+			if (_editorModuleHost.Start(manifest._editorModule, startup) == false)
 			{
 				DefaultAllocator::GetInstance().Delete(library); // What it registered before failing undone already, while its code was loaded
 				if (manifest._required)
@@ -448,11 +448,11 @@ namespace hod::inline editor
 		return true;
 	}
 
-	/// @brief What the modules registered, while their code is still loaded
+	/// @brief What the editor modules registered, while their code is still loaded
 	/// @return
 	bool Editor::UnloadEditorModules()
 	{
-		// The tabs of the assets first, all of them (their asset types all go): closing a tab can use the asset types of other modules
+		// The tabs of the assets first, all of them (their asset types all go): closing a tab can use the asset types of other editor modules
 		uint32_t index = 0;
 		while (index < _editorTabs.Size())
 		{
@@ -467,7 +467,7 @@ namespace hod::inline editor
 			}
 		}
 
-		// In the reverse order of their loading (a module goes before the ones it uses), while their code is still loaded
+		// In the reverse order of their loading (a plugin's goes before the ones of the plugins it uses), while their code is still loaded
 		_editorModuleHost.StopAll();
 		for (auto it = _editorModuleLibraries.RBegin(); it != _editorModuleLibraries.REnd(); ++it)
 		{
@@ -510,7 +510,7 @@ namespace hod::inline editor
 
 	bool Editor::LoadEditor()
 	{
-		// The editor libraries of the engine modules the project uses (their runtime libraries are loaded, see OpenProject), before its own
+		// The editor modules of the plugins the project uses (their runtime modules are loaded, see OpenProject), before its own
 		if (_modulesLoaded == false)
 		{
 			_modulesLoaded = true;
@@ -1007,7 +1007,7 @@ namespace hod::inline editor
 		const AssetType* assetType = AssetDatabase::GetInstance()->FindAssetType(asset->GetType());
 		if (assetType == nullptr)
 		{
-			OUTPUT_WARNING("{}: its asset type is unknown, its module is disabled or missing (see Edit > Plugins)", asset->GetPath());
+			OUTPUT_WARNING("{}: its asset type is unknown, its plugin is disabled or missing (see Edit > Plugins)", asset->GetPath());
 			return nullptr;
 		}
 		EditorTab* editorTab = assetType->CreateEditorTab(asset);

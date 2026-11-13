@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
-#include "HodEngine/Editor/Modules/ModuleGraph.hpp"
+#include "HodEngine/Editor/Plugins/PluginGraph.hpp"
 
 #include <HodEngine/Core/FileSystem/Path.hpp>
 #include <HodEngine/Core/String.hpp>
@@ -11,7 +11,7 @@ namespace hod::inline editor
 {
 	/// @brief The "New project" page of the ProjectBrowser: a location (the folder the project goes in) and a name, the project folder
 	/// being <location>/<name> (its full path shown, checked as it's typed, see Project::CheckNewProjectDirectory), the version control
-	/// to create its workspace with, the engine modules it uses (as Edit > Plugins)
+	/// to create its workspace with, the engine plugins it uses (as Edit > Plugins)
 	class HOD_EDITOR_API NewProjectForm
 	{
 	public:
@@ -29,7 +29,7 @@ namespace hod::inline editor
 		Result Draw();
 
 		/// @brief From the top of the window to the bottom of the buttons, padding included, as of the last Draw: what the window
-		/// needs (the modules' section is collapsed by default, an advanced use)
+		/// needs (the plugins' section is collapsed by default, an advanced use)
 		float GetContentHeight() const;
 
 	private:
@@ -41,12 +41,12 @@ namespace hod::inline editor
 		char _location[1024] = {};
 		bool _focusName = false;
 
-		ModuleGraph    _moduleGraph; // Of the engine, resolved against _disabledModules each frame
-		Vector<String> _disabledModules;
+		PluginGraph    _pluginGraph; // Of the engine, resolved against _disabledPlugins each frame
+		Vector<String> _disabledPlugins;
 		float          _contentHeight = 0.0f;
 		bool           _resetModulesHeader = false; // Collapsed again on the next frame (ImGui keeps its state)
 
-		Vector<String> _versionControlSystems; // Offered by the enabled modules (see ModuleManifest::_versionControlSystems)
+		Vector<String> _versionControlSystems; // Offered by the enabled plugins (see PluginManifest::_versionControlSystems)
 		String         _versionControl;        // Empty: none
 
 		String _creationError;

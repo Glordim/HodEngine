@@ -1,8 +1,8 @@
 {
 	"_name": "Physics",
 	"_description": "2D physics (Box2D): rigidbodies, colliders, the physics debug view",
-	"_runtimeLibraries": ["Physics", "PhysicsComponents"],
-	"_editorLibrary": "PhysicsEditor",
+	"_runtimeModules": ["Physics", "PhysicsComponents"],
+	"_editorModule": "PhysicsEditor",
 	"_dependencies": [
 		"Game"
 	],

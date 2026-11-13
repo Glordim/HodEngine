@@ -14,7 +14,7 @@ target_include_directories(UI PUBLIC
 )
 target_precompile_headers(UI PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
-# The base layer of the UI module (see HodModule.json): prefabs, nodes, layouts, canvases, usable without Game (the UIComponent and the
+# The base layer of the UI plugin (see HodPlugin.json): prefabs, nodes, layouts, canvases, usable without Game (the UIComponent and the
 # runtime module are in UIComponents)
 target_link_libraries(UI
 	PUBLIC Core Math GameSystems Renderer
@@ -29,4 +29,4 @@ else()
 endif()
 
 hod_install_lib(UI)
-hod_module_manifest(UI UI "${CMAKE_CURRENT_SOURCE_DIR}/HodModule.json")
+hod_plugin_manifest(UI UI "${CMAKE_CURRENT_SOURCE_DIR}/HodPlugin.json")

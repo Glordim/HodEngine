@@ -7,9 +7,9 @@
 
 namespace hod::inline editor
 {
-	/// @brief Edit > Plugins: the engine modules (see ModuleGraph), enabled or not for the project. The changes are pending (their effect
-	/// shown: the modules needing a disabled one, the conflicts) until applied: saved in the project (_disabledModules), then the editor
-	/// restarts on it (the game module is rebuilt with the libraries of the enabled modules, see Project::CanLoadProjectModules).
+	/// @brief Edit > Plugins: the engine plugins (see PluginGraph), enabled or not for the project. The changes are pending (their effect
+	/// shown: the plugins needing a disabled one, the conflicts) until applied: saved in the project (_disabledPlugins), then the editor
+	/// restarts on it (the game module is rebuilt with the runtime modules of the enabled plugins, see Project::CanLoadProjectModules).
 	class HOD_EDITOR_API PluginsWindow : public imgui::Window
 	{
 		REFLECTED_CLASS(PluginsWindow, imgui::Window)
@@ -28,6 +28,6 @@ namespace hod::inline editor
 		void Apply(bool saveTabs);
 
 	private:
-		Vector<String> _disabledModules; // Pending, as the project's _disabledModules
+		Vector<String> _disabledPlugins; // Pending, as the project's _disabledPlugins
 	};
 }

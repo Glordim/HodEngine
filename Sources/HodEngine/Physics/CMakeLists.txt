@@ -16,7 +16,7 @@ target_include_directories(Physics PUBLIC
 )
 target_precompile_headers(Physics PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
-# The base layer of the Physics module (see HodModule.json): the physics service, usable without Game (the components, the world system and
+# The base layer of the Physics plugin (see HodPlugin.json): the physics service, usable without Game (the components, the world system and
 # the runtime module are in PhysicsComponents)
 target_link_libraries(Physics
 	PUBLIC Core Math
@@ -31,4 +31,4 @@ else()
 endif()
 
 hod_install_lib(Physics)
-hod_module_manifest(Physics Physics "${CMAKE_CURRENT_SOURCE_DIR}/HodModule.json")
+hod_plugin_manifest(Physics Physics "${CMAKE_CURRENT_SOURCE_DIR}/HodPlugin.json")

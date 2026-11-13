@@ -1,7 +1,7 @@
 #include <gtest/gtest.h>
 
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
-#include <HodEngine/Editor/Modules/ModuleGraph.hpp>
+#include <HodEngine/Editor/Plugins/PluginGraph.hpp>
 
 #include <string>
 #include <vector>
@@ -10,15 +10,15 @@ namespace hod
 {
 	namespace
 	{
-		ModuleManifest Manifest(const char* name, std::initializer_list<const char*> dependencies = {}, bool required = false, std::initializer_list<const char*> provides = {},
-		                        std::initializer_list<const char*> runtimeLibraries = {})
+		PluginManifest Manifest(const char* name, std::initializer_list<const char*> dependencies = {}, bool required = false, std::initializer_list<const char*> provides = {},
+		                        std::initializer_list<const char*> runtimeModules = {})
 		{
-			ModuleManifest manifest;
+			PluginManifest manifest;
 			manifest._name = name;
 			manifest._required = required;
-			for (const char* runtimeLibrary : runtimeLibraries)
+			for (const char* runtimeModule : runtimeModules)
 			{
-				manifest._runtimeLibraries.PushBack(runtimeLibrary);
+				manifest._runtimeModules.PushBack(runtimeModule);
 			}
 			for (const char* dependency : dependencies)
 			{
@@ -31,134 +31,134 @@ namespace hod
 			return manifest;
 		}
 
-		std::vector<std::string> Names(const ModuleGraph& graph)
+		std::vector<std::string> Names(const PluginGraph& graph)
 		{
 			std::vector<std::string> names;
-			for (const ModuleGraph::Module& module : graph.GetModules())
+			for (const PluginGraph::Plugin& plugin : graph.GetPlugins())
 			{
-				names.push_back(module._manifest._name.CStr());
+				names.push_back(plugin._manifest._name.CStr());
 			}
 			return names;
 		}
 
-		std::vector<std::string> EnabledNames(const ModuleGraph& graph)
+		std::vector<std::string> EnabledNames(const PluginGraph& graph)
 		{
 			std::vector<std::string> names;
-			for (const ModuleGraph::Module& module : graph.GetModules())
+			for (const PluginGraph::Plugin& plugin : graph.GetPlugins())
 			{
-				if (module._enabled)
+				if (plugin._enabled)
 				{
-					names.push_back(module._manifest._name.CStr());
+					names.push_back(plugin._manifest._name.CStr());
 				}
 			}
 			return names;
 		}
 	}
 
-	TEST(ModuleGraph, SortsDependenciesFirstThenByName)
+	TEST(PluginGraph, SortsDependenciesFirstThenByName)
 	{
-		Vector<ModuleManifest> manifests;
+		Vector<PluginManifest> manifests;
 		manifests.PushBack(Manifest("UI", {"Core"}));
 		manifests.PushBack(Manifest("Physics", {"Game"}));
 		manifests.PushBack(Manifest("Game", {"Core"}));
 		manifests.PushBack(Manifest("Core"));
 		manifests.PushBack(Manifest("Audio", {"Core"}));
 
-		ModuleGraph graph;
+		PluginGraph graph;
 		EXPECT_TRUE(graph.Build(manifests));
 		std::vector<std::string> expected {"Core", "Audio", "Game", "Physics", "UI"};
 		EXPECT_EQ(Names(graph), expected);
 	}
 
-	TEST(ModuleGraph, SameOrderWhateverTheInputOrder)
+	TEST(PluginGraph, SameOrderWhateverTheInputOrder)
 	{
-		Vector<ModuleManifest> forward;
+		Vector<PluginManifest> forward;
 		forward.PushBack(Manifest("Core"));
 		forward.PushBack(Manifest("B", {"Core"}));
 		forward.PushBack(Manifest("A", {"Core"}));
-		Vector<ModuleManifest> backward;
+		Vector<PluginManifest> backward;
 		backward.PushBack(Manifest("A", {"Core"}));
 		backward.PushBack(Manifest("B", {"Core"}));
 		backward.PushBack(Manifest("Core"));
 
-		ModuleGraph forwardGraph;
-		ModuleGraph backwardGraph;
+		PluginGraph forwardGraph;
+		PluginGraph backwardGraph;
 		forwardGraph.Build(forward);
 		backwardGraph.Build(backward);
 		EXPECT_EQ(Names(forwardGraph), Names(backwardGraph));
 	}
 
-	TEST(ModuleGraph, MissingDependencyLeavesOutTheModuleAndItsDependents)
+	TEST(PluginGraph, MissingDependencyLeavesOutTheModuleAndItsDependents)
 	{
-		Vector<ModuleManifest> manifests;
+		Vector<PluginManifest> manifests;
 		manifests.PushBack(Manifest("Core"));
 		manifests.PushBack(Manifest("Wwise", {"Core", "AudioBackend"}));
 		manifests.PushBack(Manifest("WwiseTools", {"Wwise"}));
 
-		ModuleGraph graph;
+		PluginGraph graph;
 		EXPECT_FALSE(graph.Build(manifests));
 		std::vector<std::string> expected {"Core"};
 		EXPECT_EQ(Names(graph), expected);
 		EXPECT_EQ(graph.GetErrors().Size(), 2u);
 	}
 
-	TEST(ModuleGraph, CycleLeavesOutTheModulesInIt)
+	TEST(PluginGraph, CycleLeavesOutTheModulesInIt)
 	{
-		Vector<ModuleManifest> manifests;
+		Vector<PluginManifest> manifests;
 		manifests.PushBack(Manifest("Core"));
 		manifests.PushBack(Manifest("A", {"B"}));
 		manifests.PushBack(Manifest("B", {"A"}));
 		manifests.PushBack(Manifest("C", {"A"}));
 
-		ModuleGraph graph;
+		PluginGraph graph;
 		EXPECT_FALSE(graph.Build(manifests));
 		std::vector<std::string> expected {"Core"};
 		EXPECT_EQ(Names(graph), expected);
 	}
 
-	TEST(ModuleGraph, DuplicateNameKeepsTheFirst)
+	TEST(PluginGraph, DuplicateNameKeepsTheFirst)
 	{
-		Vector<ModuleManifest> manifests;
+		Vector<PluginManifest> manifests;
 		manifests.PushBack(Manifest("Core", {}, true));
 		manifests.PushBack(Manifest("Core", {}, false));
 
-		ModuleGraph graph;
+		PluginGraph graph;
 		EXPECT_FALSE(graph.Build(manifests));
-		ASSERT_EQ(graph.GetModules().Size(), 1u);
-		EXPECT_TRUE(graph.GetModules()[0]._manifest._required);
+		ASSERT_EQ(graph.GetPlugins().Size(), 1u);
+		EXPECT_TRUE(graph.GetPlugins()[0]._manifest._required);
 	}
 
-	TEST(ModuleGraph, DisablingCascadesToDependents)
+	TEST(PluginGraph, DisablingCascadesToDependents)
 	{
-		Vector<ModuleManifest> manifests;
+		Vector<PluginManifest> manifests;
 		manifests.PushBack(Manifest("Core", {}, true));
 		manifests.PushBack(Manifest("Game", {"Core"}, true));
 		manifests.PushBack(Manifest("Physics", {"Game"}, false, {}, {"Physics", "PhysicsComponents"}));
 		manifests.PushBack(Manifest("Ragdoll", {"Physics"}, false, {}, {"RagdollComponents"}));
 
-		ModuleGraph graph;
+		PluginGraph graph;
 		ASSERT_TRUE(graph.Build(manifests));
 		graph.Resolve({String("Physics")});
 
 		std::vector<std::string> expected {"Core", "Game"};
 		EXPECT_EQ(EnabledNames(graph), expected);
 		EXPECT_FALSE(graph.Find("Ragdoll")->_disabledReason.Empty());
-		EXPECT_TRUE(graph.GetEnabledRuntimeLibraries().Empty());
+		EXPECT_TRUE(graph.GetEnabledRuntimeModules().Empty());
 
 		graph.Resolve({});
-		Vector<String> runtimeLibraries = graph.GetEnabledRuntimeLibraries();
-		ASSERT_EQ(runtimeLibraries.Size(), 3u); // In the modules' order, each module's in its order
-		EXPECT_EQ(runtimeLibraries[0], String("Physics"));
-		EXPECT_EQ(runtimeLibraries[1], String("PhysicsComponents"));
-		EXPECT_EQ(runtimeLibraries[2], String("RagdollComponents"));
+		Vector<String> runtimeModules = graph.GetEnabledRuntimeModules();
+		ASSERT_EQ(runtimeModules.Size(), 3u); // In the plugins' order, each plugin's in its order
+		EXPECT_EQ(runtimeModules[0], String("Physics"));
+		EXPECT_EQ(runtimeModules[1], String("PhysicsComponents"));
+		EXPECT_EQ(runtimeModules[2], String("RagdollComponents"));
 	}
 
-	TEST(ModuleGraph, RequiredModuleCantBeDisabled)
+	TEST(PluginGraph, RequiredModuleCantBeDisabled)
 	{
-		Vector<ModuleManifest> manifests;
+		Vector<PluginManifest> manifests;
 		manifests.PushBack(Manifest("Core", {}, true));
 
-		ModuleGraph graph;
+		PluginGraph graph;
 		ASSERT_TRUE(graph.Build(manifests));
 		graph.Resolve({String("Core"), String("Unknown")});
 		EXPECT_TRUE(graph.Find("Core")->_enabled);
@@ -168,14 +168,14 @@ namespace hod
 		EXPECT_TRUE(graph.GetErrors().Empty()); // The errors of a previous Resolve are gone
 	}
 
-	TEST(ModuleGraph, TwoModulesCantProvideTheSameThing)
+	TEST(PluginGraph, TwoModulesCantProvideTheSameThing)
 	{
-		Vector<ModuleManifest> manifests;
+		Vector<PluginManifest> manifests;
 		manifests.PushBack(Manifest("Core", {}, true));
 		manifests.PushBack(Manifest("Audio", {"Core"}, false, {"AudioBackend"}));
 		manifests.PushBack(Manifest("Wwise", {"Core"}, false, {"AudioBackend"}));
 
-		ModuleGraph graph;
+		PluginGraph graph;
 		ASSERT_TRUE(graph.Build(manifests));
 
 		graph.Resolve({});
@@ -190,38 +190,38 @@ namespace hod
 		EXPECT_TRUE(graph.GetErrors().Empty());
 	}
 
-	TEST(ModuleGraph, SetEnabledEnablesTheDependencies)
+	TEST(PluginGraph, SetEnabledEnablesTheDependencies)
 	{
-		Vector<ModuleManifest> manifests;
+		Vector<PluginManifest> manifests;
 		manifests.PushBack(Manifest("Core", {}, true));
 		manifests.PushBack(Manifest("Game", {"Core"}));
 		manifests.PushBack(Manifest("Physics", {"Game"}));
 
-		ModuleGraph graph;
+		PluginGraph graph;
 		ASSERT_TRUE(graph.Build(manifests));
 
-		Vector<String> disabledModules;
-		graph.SetEnabled(disabledModules, "Game", false);
-		graph.SetEnabled(disabledModules, "Game", false); // Once only
-		graph.SetEnabled(disabledModules, "Physics", false);
-		ASSERT_EQ(disabledModules.Size(), 2u);
+		Vector<String> disabledPlugins;
+		graph.SetEnabled(disabledPlugins, "Game", false);
+		graph.SetEnabled(disabledPlugins, "Game", false); // Once only
+		graph.SetEnabled(disabledPlugins, "Physics", false);
+		ASSERT_EQ(disabledPlugins.Size(), 2u);
 
 		// Physics needs Game: enabled with it
-		graph.SetEnabled(disabledModules, "Physics", true);
-		EXPECT_TRUE(disabledModules.Empty());
-		graph.Resolve(disabledModules);
+		graph.SetEnabled(disabledPlugins, "Physics", true);
+		EXPECT_TRUE(disabledPlugins.Empty());
+		graph.Resolve(disabledPlugins);
 		std::vector<std::string> expected {"Core", "Game", "Physics"};
 		EXPECT_EQ(EnabledNames(graph), expected);
 
 		// Game disabled: Physics left asked for, disabled by Resolve
-		graph.SetEnabled(disabledModules, "Game", false);
-		ASSERT_EQ(disabledModules.Size(), 1u);
-		graph.Resolve(disabledModules);
+		graph.SetEnabled(disabledPlugins, "Game", false);
+		ASSERT_EQ(disabledPlugins.Size(), 1u);
+		graph.Resolve(disabledPlugins);
 		EXPECT_FALSE(graph.Find("Physics")->_enabled);
 	}
 
-	// The manifests the build copies next to the executables (hod_module_manifest): a module's base before its Components layer
-	TEST(ModuleGraph, EngineManifestsListTheirRuntimeLibraries)
+	// The manifests the build copies next to the executables (hod_module_manifest): a plugin's base before its Components layer
+	TEST(PluginGraph, EngineManifestsListTheirRuntimeModules)
 	{
 		bool ownsFileSystem = FileSystem::GetInstance() == nullptr;
 		if (ownsFileSystem)
@@ -229,10 +229,10 @@ namespace hod
 			ASSERT_TRUE(FileSystem::CreateInstance()->Init());
 		}
 
-		Vector<ModuleManifest> manifests;
-		EXPECT_TRUE(ModuleGraph::LoadManifests(FileSystem::GetExecutablePath().ParentPath() / "Modules", manifests));
-		const ModuleManifest* physics = nullptr;
-		for (const ModuleManifest& manifest : manifests)
+		Vector<PluginManifest> manifests;
+		EXPECT_TRUE(PluginGraph::LoadManifests(FileSystem::GetExecutablePath().ParentPath() / "Plugins", manifests));
+		const PluginManifest* physics = nullptr;
+		for (const PluginManifest& manifest : manifests)
 		{
 			if (manifest._name == "Physics")
 			{
@@ -240,9 +240,9 @@ namespace hod
 			}
 		}
 		ASSERT_NE(physics, nullptr);
-		ASSERT_EQ(physics->_runtimeLibraries.Size(), 2u);
-		EXPECT_EQ(physics->_runtimeLibraries[0], String("Physics"));
-		EXPECT_EQ(physics->_runtimeLibraries[1], String("PhysicsComponents"));
+		ASSERT_EQ(physics->_runtimeModules.Size(), 2u);
+		EXPECT_EQ(physics->_runtimeModules[0], String("Physics"));
+		EXPECT_EQ(physics->_runtimeModules[1], String("PhysicsComponents"));
 
 		if (ownsFileSystem)
 		{

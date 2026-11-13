@@ -28,7 +28,7 @@ target_include_directories(Audio PUBLIC
 )
 target_precompile_headers(Audio PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
-# The base layer of the Audio module (see HodModule.json): audio resources, the platform audio device, usable without Game (the
+# The base layer of the Audio plugin (see HodPlugin.json): audio resources, the platform audio device, usable without Game (the
 # AudioSourceComponent and the runtime module are in AudioComponents)
 target_link_libraries(Audio
 	PUBLIC Core GameSystems
@@ -46,4 +46,4 @@ else()
 endif()
 
 hod_install_lib(Audio)
-hod_module_manifest(Audio Audio "${CMAKE_CURRENT_SOURCE_DIR}/HodModule.json")
+hod_plugin_manifest(Audio Audio "${CMAKE_CURRENT_SOURCE_DIR}/HodPlugin.json")

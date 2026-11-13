@@ -1,7 +1,7 @@
 {
 	"_name": "Game",
 	"_description": "Entities, components, scenes, prefabs, data items and tables",
-	"_editorLibrary": "GameEditor",
+	"_editorModule": "GameEditor",
 	"_dependencies": [
 		"Core"
 	],

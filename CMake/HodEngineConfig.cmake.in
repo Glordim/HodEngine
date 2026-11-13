@@ -158,7 +158,7 @@ endfunction()
 
 set(_HOD_CONFIG_DIR "${CMAKE_CURRENT_LIST_DIR}")
 
-# The runtime libraries of the engine modules the project enables, in outputVariable: listed by the editor, one per line, dependencies
+# The runtime modules of the plugins the project enables, in outputVariable: listed by the editor, one per line, dependencies
 # first (see Project::GenerateGameModuleCMakeList). Configured again when the list changes
 function(hod_read_engine_modules moduleListPath outputVariable)
 	set_property(DIRECTORY APPEND PROPERTY CMAKE_CONFIGURE_DEPENDS "${moduleListPath}")
@@ -172,14 +172,14 @@ function(hod_read_engine_modules moduleListPath outputVariable)
 	set(${outputVariable} "${modules}" PARENT_SCOPE)
 endfunction()
 
-# Links target with the runtime libraries of the modules given after it
+# Links target with the runtime modules given after it
 function(hod_link_engine_modules target)
 	foreach(module IN LISTS ARGN)
 		target_link_libraries(${target} HodEngine::${module})
 	endforeach()
 endfunction()
 
-# Adds to target the source starting the runtime libraries given after it, in their order (HodStartRuntimeModules, called by
+# Adds to target the source starting the runtime modules given after it, in their order (HodStartRuntimeModules, called by
 # Application::InitModules), generated from the engine's template. The game module is a runtime library too
 # (HOD_STARTUP_RUNTIME_MODULE): given last, after the engine's it uses
 function(hod_add_engine_modules_entry_points target)

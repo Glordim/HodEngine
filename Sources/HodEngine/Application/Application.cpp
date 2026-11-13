@@ -32,7 +32,7 @@
 #if defined(HOD_APPLICATION_STATIC)
 extern "C"
 {
-	// Generated in the game (HodModules.generated.cpp): starts the runtime libraries of the modules the project enables, dependencies
+	// Generated in the game (HodModules.generated.cpp): starts the runtime modules of the plugins the project enables, dependencies
 	// first, then the game module
 	bool HodStartRuntimeModules(hod::core::ModuleHost& host);
 }
@@ -81,7 +81,7 @@ namespace hod::inline application
 		return true;
 	}
 
-	/// @brief The project settings loaded (the libraries may read theirs), then the startup of the runtime libraries, in their order
+	/// @brief The project settings loaded (the modules may read theirs), then the startup of the runtime modules, in their order
 	/// @return false if one failed: the ones started already are stopped
 	bool Application::InitModules()
 	{
@@ -99,7 +99,7 @@ namespace hod::inline application
 		return true;
 	}
 
-	/// @brief Each runtime library stopped, in the reverse order
+	/// @brief Each runtime module stopped, in the reverse order
 	/// @return
 	bool Application::TerminateModules()
 	{

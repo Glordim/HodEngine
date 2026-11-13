@@ -14,7 +14,7 @@ target_include_directories(RendererComponents PUBLIC
 )
 target_precompile_headers(RendererComponents PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
-# The Components layer of the Renderer module (see HodModule.json in Renderer): the only one that knows Game (its components, the world system drawing
+# The Components layer of the Renderer plugin (see HodPlugin.json in Renderer): the only one that knows Game (its components, the world system drawing
 # the worlds, the runtime module's entry point), over the Renderer library that doesn't
 target_link_libraries(RendererComponents
 	PUBLIC Core Math GameSystems Window Renderer Game

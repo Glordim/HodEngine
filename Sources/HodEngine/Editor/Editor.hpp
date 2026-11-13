@@ -168,31 +168,31 @@ namespace hod::inline editor
 		/// @brief A tab has changes not saved
 		bool HasDirtyTabs() const;
 
-		/// @brief Its runtime library couldn't be loaded or initialized (see LoadRuntimeModules): its editor library isn't loaded
-		bool HasModuleFailed(const String& name) const;
+		/// @brief One of its runtime modules couldn't be loaded or started (see LoadRuntimeModules): its editor module isn't loaded
+		bool HasPluginFailed(const String& name) const;
 
 	private:
 		bool AddProjectInRecentProject(const Path& path) const;
 
-		/// @brief The runtime libraries of the project's enabled modules (see Project::GetModuleGraph): loaded, registered, initialized
+		/// @brief The runtime modules of the project's enabled plugins (see Project::GetPluginGraph): loaded, started
 		bool LoadRuntimeModules();
 		void UnloadRuntimeModules();
 
-		/// @brief The editor libraries of the project's enabled modules, in the modules' order
+		/// @brief The editor modules of the project's enabled plugins, in the plugins' order
 		bool LoadEditorModules();
 		bool UnloadEditorModules();
 
 	private:
 		Event<>::Slot _onProjectModulesReloadedSlot;
 
-		// The editor libraries of the project's modules (see HOD_STARTUP_EDITOR_MODULE), in their order, undone before they unload
+		// The editor modules of the project's plugins (see HOD_STARTUP_EDITOR_MODULE), in their order, undone before they unload
 		ModuleHost              _editorModuleHost;
 		Vector<DynamicLibrary*> _editorModuleLibraries;
 
-		// The runtime libraries of the project's optional modules (see HOD_STARTUP_RUNTIME_MODULE), for the editor's life
+		// The runtime modules of the project's optional plugins (see HOD_STARTUP_RUNTIME_MODULE), for the editor's life
 		Vector<DynamicLibrary*>  _runtimeModuleLibraries;
 		ModuleHost*              _runtimeModuleHost = nullptr;
-		Vector<String>           _failedModules; // Whose runtime library couldn't be loaded or initialized: their editor library isn't loaded
+		Vector<String>           _failedPlugins; // One of whose runtime modules couldn't be loaded or started: their editor module isn't loaded
 		bool                     _modulesLoaded = false;
 
 		bool _restartRequested = false;

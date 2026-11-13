@@ -1,7 +1,7 @@
 {
 	"_name": "VersionControl",
 	"_description": "Version control in the editor (Git with LFS locks)",
-	"_editorLibrary": "VersionControlEditor",
+	"_editorModule": "VersionControlEditor",
 	"_dependencies": [
 		"Core"
 	],

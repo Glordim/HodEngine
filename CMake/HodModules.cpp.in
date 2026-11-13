@@ -1,13 +1,13 @@
 // clang-format off
 // Generated at configure time by hod_add_engine_modules_entry_points (HodEngineConfig.cmake) from the list of the project's runtime
-// libraries, don't edit
+// modules, don't edit
 #include <HodEngine/Core/RuntimeModule.hpp>
 
 extern "C"
 {
 @HOD_MODULE_DECLARATIONS@}
 
-// Called by Application::InitModules: starts the runtime libraries of the game, dependencies first, the game module last
+// Called by Application::InitModules: starts the runtime modules of the game, dependencies first, the game module last
 // @return false at the first that fails (the ones started already stay in host)
 extern "C" bool HodStartRuntimeModules(hod::core::ModuleHost& host)
 {

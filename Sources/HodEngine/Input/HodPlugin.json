@@ -1,7 +1,7 @@
 {
 	"_name": "Input",
 	"_description": "Input devices and actions",
-	"_editorLibrary": "InputEditor",
+	"_editorModule": "InputEditor",
 	"_dependencies": [
 		"Core"
 	],

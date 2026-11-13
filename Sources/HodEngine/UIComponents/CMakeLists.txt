@@ -14,7 +14,7 @@ target_include_directories(UIComponents PUBLIC
 )
 target_precompile_headers(UIComponents PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
-# The Components layer of the UI module (see HodModule.json in UI): the only one that knows Game (the UIComponent, the runtime module's
+# The Components layer of the UI plugin (see HodPlugin.json in UI): the only one that knows Game (the UIComponent, the runtime module's
 # entry point), over the UI library that doesn't
 target_link_libraries(UIComponents
 	PUBLIC UI Renderer Game RendererComponents

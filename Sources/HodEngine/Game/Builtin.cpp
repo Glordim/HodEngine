@@ -8,7 +8,7 @@
 
 namespace hod::inline game
 {
-	/// @brief The components of Game itself, the other modules register theirs in their runtime library (see HOD_STARTUP_RUNTIME_MODULE)
+	/// @brief The components of Game itself, the plugins register theirs in their runtime modules (see HOD_STARTUP_RUNTIME_MODULE)
 	void RegisterBuiltin()
 	{
 		ComponentFactory* componentFactory = ComponentFactory::GetInstance();

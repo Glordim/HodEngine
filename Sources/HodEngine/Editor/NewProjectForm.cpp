@@ -56,9 +56,9 @@ namespace hod::inline editor
 		CopyTo(_location, sizeof(_location), location.GetString());
 		_focusName = true;
 
-		_moduleGraph = ModuleGraph();
-		Project::BuildEngineModuleGraph(_moduleGraph);
-		_disabledModules.Clear();
+		_pluginGraph = PluginGraph();
+		Project::BuildEngineModuleGraph(_pluginGraph);
+		_disabledPlugins.Clear();
 		_resetModulesHeader = true;
 		_contentHeight = 0.0f; // Known once drawn
 		_versionControl.Clear();
@@ -80,15 +80,15 @@ namespace hod::inline editor
 	/// @return
 	NewProjectForm::Result NewProjectForm::Draw()
 	{
-		_moduleGraph.Resolve(_disabledModules);
+		_pluginGraph.Resolve(_disabledPlugins);
 
-		// The version control systems of the enabled modules, the choice dropped if its module was disabled
+		// The version control systems of the enabled plugins, the choice dropped if its plugin was disabled
 		_versionControlSystems.Clear();
-		for (const ModuleGraph::Module& module : _moduleGraph.GetModules())
+		for (const PluginGraph::Plugin& plugin : _pluginGraph.GetPlugins())
 		{
-			if (module._enabled)
+			if (plugin._enabled)
 			{
-				for (const String& system : module._manifest._versionControlSystems)
+				for (const String& system : plugin._manifest._versionControlSystems)
 				{
 					_versionControlSystems.PushBack(system);
 				}
@@ -228,7 +228,7 @@ namespace hod::inline editor
 		{
 			Project::CreateInfo createInfo;
 			createInfo._directory = projectDirectory;
-			createInfo._disabledModules = _disabledModules;
+			createInfo._disabledPlugins = _disabledPlugins;
 			if (Editor::GetInstance()->CreateProject(createInfo, _versionControl) == false)
 			{
 				_creationError = "The project couldn't be created or opened (see the console)";
@@ -246,16 +246,16 @@ namespace hod::inline editor
 		return _contentHeight;
 	}
 
-	/// @brief The engine modules, as Edit > Plugins (changed there afterwards). Collapsed by default, what's disabled told in its title
+	/// @brief The engine plugins, as Edit > Plugins (changed there afterwards). Collapsed by default, what's disabled told in its title
 	void NewProjectForm::DrawModules()
 	{
 		uint32_t disabledCount = 0;
-		for (const ModuleGraph::Module& module : _moduleGraph.GetModules())
+		for (const PluginGraph::Plugin& plugin : _pluginGraph.GetPlugins())
 		{
-			disabledCount += module._enabled ? 0 : 1;
+			disabledCount += plugin._enabled ? 0 : 1;
 		}
-		String title = disabledCount == 0 ? String("Modules: all enabled") : String::Format("Modules: %u disabled", disabledCount);
-		title += "###Modules";
+		String title = disabledCount == 0 ? String("Plugins: all enabled") : String::Format("Plugins: %u disabled", disabledCount);
+		title += "###Plugins";
 
 		if (_resetModulesHeader)
 		{
@@ -265,7 +265,7 @@ namespace hod::inline editor
 		bool shown = ImGui::CollapsingHeader(title.CStr());
 		if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip))
 		{
-			ImGui::SetTooltip("The engine modules the project uses, all by default. Changed afterwards in Edit > Plugins");
+			ImGui::SetTooltip("The engine plugins the project uses, all by default. Changed afterwards in Edit > Plugins");
 		}
 		if (shown == false)
 		{
@@ -275,29 +275,29 @@ namespace hod::inline editor
 		// As high as its rows (the window fits the form, see GetContentHeight), up to MaxVisibleRows: a scrollbar then
 		constexpr uint32_t    MaxVisibleRows = 8;
 		const float           rowHeight = ImGui::GetFrameHeight() + ImGui::GetStyle().CellPadding.y * 2.0f;
-		const uint32_t        visibleRows = Min(static_cast<uint32_t>(_moduleGraph.GetModules().Size()), MaxVisibleRows);
+		const uint32_t        visibleRows = Min(static_cast<uint32_t>(_pluginGraph.GetPlugins().Size()), MaxVisibleRows);
 		const float           tableHeight = rowHeight * static_cast<float>(visibleRows + 1); // + the headers
 		const ImGuiTableFlags tableFlags = ImGuiTableFlags_RowBg | ImGuiTableFlags_BordersInnerH | ImGuiTableFlags_ScrollY;
-		if (ImGui::BeginTable("Modules", 3, tableFlags, ImVec2(0.0f, tableHeight)))
+		if (ImGui::BeginTable("Plugins", 3, tableFlags, ImVec2(0.0f, tableHeight)))
 		{
 			ImGui::TableSetupScrollFreeze(0, 1);
 			ImGui::TableSetupColumn("##Enabled", ImGuiTableColumnFlags_WidthFixed, ImGui::GetFrameHeight());
-			ImGui::TableSetupColumn("Module", ImGuiTableColumnFlags_WidthStretch, 2.0f);
+			ImGui::TableSetupColumn("Plugin", ImGuiTableColumnFlags_WidthStretch, 2.0f);
 			ImGui::TableSetupColumn("State", ImGuiTableColumnFlags_WidthStretch, 1.0f);
 			ImGui::TableHeadersRow();
 
-			for (const ModuleGraph::Module& module : _moduleGraph.GetModules())
+			for (const PluginGraph::Plugin& plugin : _pluginGraph.GetPlugins())
 			{
-				const ModuleManifest& manifest = module._manifest;
+				const PluginManifest& manifest = plugin._manifest;
 				ImGui::PushID(manifest._name.CStr());
 				ImGui::TableNextRow();
 
 				ImGui::TableNextColumn();
-				bool asked = Contains(_disabledModules, manifest._name) == false;
+				bool asked = Contains(_disabledPlugins, manifest._name) == false;
 				ImGui::BeginDisabled(manifest._required);
 				if (ImGui::Checkbox("##Enabled", &asked))
 				{
-					_moduleGraph.SetEnabled(_disabledModules, manifest._name, asked);
+					_pluginGraph.SetEnabled(_disabledPlugins, manifest._name, asked);
 				}
 				ImGui::EndDisabled();
 
@@ -312,13 +312,13 @@ namespace hod::inline editor
 
 				ImGui::TableNextColumn();
 				ImGui::AlignTextToFramePadding();
-				if (module._enabled == false && asked)
+				if (plugin._enabled == false && asked)
 				{
-					ImGui::TextColored(WarningColor, ICON_MDI_ALERT " %s", module._disabledReason.CStr());
+					ImGui::TextColored(WarningColor, ICON_MDI_ALERT " %s", plugin._disabledReason.CStr());
 				}
-				else if (module._enabled == false)
+				else if (plugin._enabled == false)
 				{
-					ImGui::TextDisabled("%s", module._disabledReason.CStr());
+					ImGui::TextDisabled("%s", plugin._disabledReason.CStr());
 				}
 				else if (manifest._required)
 				{

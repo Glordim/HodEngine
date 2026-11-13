@@ -16,7 +16,7 @@ target_include_directories(PhysicsComponents PUBLIC
 )
 target_precompile_headers(PhysicsComponents PRIVATE $<$<COMPILE_LANGUAGE:CXX>:"${CMAKE_CURRENT_SOURCE_DIR}/Pch.hpp">)
 
-# The Components layer of the Physics module (see HodModule.json in Physics): the only one that knows Game (components, world system, the
+# The Components layer of the Physics plugin (see HodPlugin.json in Physics): the only one that knows Game (components, world system, the
 # runtime module's entry point), over the Physics library that doesn't
 target_link_libraries(PhysicsComponents
 	PUBLIC Core Math Game Physics

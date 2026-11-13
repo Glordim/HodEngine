@@ -24,4 +24,4 @@ target_compile_definitions(VersionControlEditor
 )
 
 hod_install_lib(VersionControlEditor)
-hod_module_manifest(VersionControlEditor VersionControl "${CMAKE_CURRENT_SOURCE_DIR}/HodModule.json")
+hod_plugin_manifest(VersionControlEditor VersionControl "${CMAKE_CURRENT_SOURCE_DIR}/HodPlugin.json")
