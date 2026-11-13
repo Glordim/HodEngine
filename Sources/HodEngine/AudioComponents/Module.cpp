@@ -1,5 +1,5 @@
 #include "HodEngine/AudioComponents/Pch.hpp"
-#include <HodEngine/Core/RuntimeModule.hpp>
+#include <HodEngine/Core/Module.hpp>
 
 #include "HodEngine/AudioComponents/Components/AudioSourceComponent.hpp"
 
@@ -11,7 +11,7 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 namespace hod::inline audio
 {
 	/// @brief The components (the audio device is Audio's)
-	HOD_STARTUP_RUNTIME_MODULE(AudioComponents, registration)
+	HOD_STARTUP_MODULE(AudioComponents, registration)
 	{
 		GameRegistrar gameRegistrar(registration);
 		gameRegistrar.RegisterComponent<AudioSourceComponent>();

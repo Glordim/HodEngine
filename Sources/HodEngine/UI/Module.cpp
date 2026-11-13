@@ -1,5 +1,5 @@
 #include "HodEngine/UI/Pch.hpp"
-#include <HodEngine/Core/RuntimeModule.hpp>
+#include <HodEngine/Core/Module.hpp>
 
 #include "HodEngine/UI/Builtin.hpp"
 #include "HodEngine/UI/CanvasManager.hpp"
@@ -51,7 +51,7 @@ namespace hod::inline ui
 	}
 
 	/// @brief The factories and UI's own types, the CanvasManager (UIComponent is UIComponents')
-	HOD_STARTUP_RUNTIME_MODULE(UI, registration)
+	HOD_STARTUP_MODULE(UI, registration)
 	{
 		LayoutParamsFactory::CreateInstance();
 		NodeFactory::CreateInstance();

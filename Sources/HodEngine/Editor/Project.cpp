@@ -10,9 +10,7 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyArray.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
-#include "HodEngine/Editor/EditorModule.hpp"
 #include <HodEngine/Core/ModuleHost.hpp>
-#include <HodEngine/Core/RuntimeModule.hpp>
 #include "HodEngine/GameSystems/Resource/ResourceContainer.hpp"
 #include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
 
@@ -712,13 +710,12 @@ namespace hod::inline editor
 		return true;
 	}
 
-	/// @brief The game module is a runtime module (HOD_STARTUP_RUNTIME_MODULE, started after the engine ones), its editor module an editor
-	/// module (HOD_STARTUP_EDITOR_MODULE, started after the engine ones)
+	/// @brief The game module is a runtime module, its editor module an editor module (HOD_STARTUP_MODULE), started after the engine ones
 	/// @return false (with an error) if the game module can't be loaded or started
 	bool Project::LoadProjectModules()
 	{
 		// A copy: the game module can be rebuilt while it's loaded (then reloaded, see its watcher)
-		if (_projectModuleHost.Load(_name + "Game", _gameModuleLibraryPath, HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME, true) == false)
+		if (_projectModuleHost.Load(_name + "Game", _gameModuleLibraryPath, true) == false)
 		{
 			return false;
 		}
@@ -726,7 +723,7 @@ namespace hod::inline editor
 		// Optional (its failure is logged, the game module stays)
 		if (FileSystem::GetInstance()->Exists(DynamicLibrary::GetFilePath(_editorModuleLibraryPath)))
 		{
-			_projectModuleHost.Load(_name + "Editor", _editorModuleLibraryPath, HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME);
+			_projectModuleHost.Load(_name + "Editor", _editorModuleLibraryPath);
 		}
 		return true;
 	}

@@ -10,8 +10,7 @@ namespace hod::inline core
 	class DynamicLibrary;
 	class Path;
 
-	/// @brief The entry point of a module (a library of a plugin), runtime or editor (see HOD_STARTUP_RUNTIME_MODULE,
-	/// HOD_STARTUP_EDITOR_MODULE): registers through the registrars, starts its services, pushes on the registration what undoes them
+	/// @brief The entry point of a module (a library of a plugin), runtime or editor (see HOD_STARTUP_MODULE): registers through the registrars, starts its services, pushes on the registration what undoes them
 	/// @return false (with an error): it couldn't start, what it registered already is undone
 	using ModuleStartup = bool (*)(ModuleRegistration& registration);
 
@@ -36,11 +35,11 @@ namespace hod::inline core
 		bool Start(const String& name, ModuleStartup startup);
 
 		/// @brief A module in its own library: the library loaded (path as DynamicLibrary::Init takes it: no prefix, no extension), its entry
-		/// point found (HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME or HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME) and started. The library is the
-		/// host's from then on, unloaded right after its module is stopped
+		/// point found (HOD_MODULE_STARTUP_FUNCTION_NAME) and started. The library is the host's from then on, unloaded right after its module
+		/// is stopped
 		/// @param copyForReload Loads a copy of the library, the original can be rebuilt meanwhile (see DynamicLibrary::Init)
 		/// @return false (with an error naming the module) if it can't be loaded, has no entry point or failed to start: nothing is kept
-		bool Load(const String& name, const Path& path, const char* startupFunctionName, bool copyForReload = false);
+		bool Load(const String& name, const Path& path, bool copyForReload = false);
 
 		/// @brief The last count modules started undone, in the reverse order (a plugin's, when its next one failed to start)
 		void StopLast(uint32_t count);

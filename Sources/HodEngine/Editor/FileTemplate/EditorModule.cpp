@@ -1,5 +1,5 @@
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
-#include <HodEngine/Editor/EditorModule.hpp>
+#include <HodEngine/Core/Module.hpp>
 #include <HodEngine/Editor/EditorRegistrar.hpp>
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
@@ -8,7 +8,7 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 /// GameEditorRegistrar: viewport debug views...), unregistered by the editor when the module goes away (Hot Reload included)
 /// @param registration
 /// @return false if it couldn't start
-HOD_STARTUP_EDITOR_MODULE([[MODULE_NAME]], registration)
+HOD_STARTUP_MODULE([[MODULE_NAME]], registration)
 {
 	hod::editor::EditorRegistrar editorRegistrar(registration);
 	(void)editorRegistrar;

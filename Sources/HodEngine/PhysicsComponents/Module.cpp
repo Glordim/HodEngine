@@ -1,5 +1,5 @@
 #include "HodEngine/PhysicsComponents/Pch.hpp"
-#include <HodEngine/Core/RuntimeModule.hpp>
+#include <HodEngine/Core/Module.hpp>
 #include "HodEngine/PhysicsComponents/PhysicsWorldSystem.hpp"
 
 #include "HodEngine/PhysicsComponents/Components/BoxCollider2dComponent.hpp"
@@ -18,7 +18,7 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 namespace hod::inline physics
 {
 	/// @brief The components and the world system (the physics engine is Physics')
-	HOD_STARTUP_RUNTIME_MODULE(PhysicsComponents, registration)
+	HOD_STARTUP_MODULE(PhysicsComponents, registration)
 	{
 		GameRegistrar gameRegistrar(registration);
 		gameRegistrar.RegisterComponent<Collider2dComponent>();

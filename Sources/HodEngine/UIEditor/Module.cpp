@@ -1,5 +1,5 @@
 #include "HodEngine/UIEditor/Pch.hpp"
-#include <HodEngine/Editor/EditorModule.hpp>
+#include <HodEngine/Core/Module.hpp>
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
 #include "HodEngine/Editor/EditorRegistrar.hpp"
@@ -44,7 +44,7 @@ namespace hod::inline ui
 		}
 	}
 
-	HOD_STARTUP_EDITOR_MODULE(UIEditor, registration)
+	HOD_STARTUP_MODULE(UIEditor, registration)
 	{
 		EditorRegistrar editorRegistrar(registration);
 		// The same cross for both, pointing the way each one pushes

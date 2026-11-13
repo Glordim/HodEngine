@@ -184,10 +184,10 @@ namespace hod::inline editor
 	private:
 		Event<>::Slot _onProjectModulesReloadedSlot;
 
-		// The editor modules of the project's plugins (see HOD_STARTUP_EDITOR_MODULE), in their order, undone before they unload
+		// The editor modules of the project's plugins (see HOD_STARTUP_MODULE), in their order, undone before they unload
 		ModuleHost _editorModuleHost;
 
-		// The runtime modules of the project's plugins (see HOD_STARTUP_RUNTIME_MODULE), for the editor's life
+		// The runtime modules of the project's plugins (see HOD_STARTUP_MODULE), for the editor's life
 		ModuleHost*              _runtimeModuleHost = nullptr;
 		Vector<String>           _failedPlugins; // One of whose runtime modules couldn't be loaded or started: their editor module isn't loaded
 		bool                     _modulesLoaded = false;

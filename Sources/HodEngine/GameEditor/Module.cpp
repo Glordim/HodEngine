@@ -1,5 +1,5 @@
 #include "HodEngine/GameEditor/Pch.hpp"
-#include <HodEngine/Editor/EditorModule.hpp>
+#include <HodEngine/Core/Module.hpp>
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
 #include "HodEngine/Editor/EditorRegistrar.hpp"
@@ -25,7 +25,7 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
 namespace hod::inline game
 {
-	HOD_STARTUP_EDITOR_MODULE(GameEditor, registration)
+	HOD_STARTUP_MODULE(GameEditor, registration)
 	{
 		EditorRegistrar editorRegistrar(registration);
 		editorRegistrar.RegisterCustomPropertyDrawer<ZOrder, ZOrderCustomPropertyDrawer>();

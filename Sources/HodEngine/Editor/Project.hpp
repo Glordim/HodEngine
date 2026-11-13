@@ -78,7 +78,7 @@ namespace hod::inline editor
 		bool ConfigureGameModule() const;
 		bool BuildGameModule() const;
 
-		/// @brief The game module (a runtime module, see HOD_STARTUP_RUNTIME_MODULE) and its editor module (see HOD_STARTUP_EDITOR_MODULE),
+		/// @brief The game module (a runtime module) and its editor module (see HOD_STARTUP_MODULE),
 		/// loaded after the engine's
 		bool LoadProjectModules();
 		void UnloadProjectModules();

@@ -1,5 +1,5 @@
 #include "HodEngine/Game/Pch.hpp"
-#include <HodEngine/Core/RuntimeModule.hpp>
+#include <HodEngine/Core/Module.hpp>
 
 #include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
@@ -15,7 +15,7 @@ namespace hod::inline game
 {
 	/// @brief The factories the other plugins and the game module register into (Game is required, every plugin knowing it depends on it:
 	/// started before them, stopped after them) and Game's own components
-	HOD_STARTUP_RUNTIME_MODULE(Game, registration)
+	HOD_STARTUP_MODULE(Game, registration)
 	{
 		ComponentFactory::CreateInstance();
 		DataStructFactory::CreateInstance();

@@ -1,5 +1,5 @@
 #include "HodEngine/CoreEditor/Pch.hpp"
-#include <HodEngine/Editor/EditorModule.hpp>
+#include <HodEngine/Core/Module.hpp>
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
 #include "HodEngine/Math/Color.hpp"
@@ -17,7 +17,7 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
 namespace hod::inline core
 {
-	HOD_STARTUP_EDITOR_MODULE(CoreEditor, registration)
+	HOD_STARTUP_MODULE(CoreEditor, registration)
 	{
 		EditorRegistrar editorRegistrar(registration);
 		editorRegistrar.RegisterCustomPropertyDrawer<Color, ColorCustomPropertyDrawer>();

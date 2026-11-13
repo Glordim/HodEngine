@@ -1,5 +1,5 @@
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
-#include <HodEngine/Core/RuntimeModule.hpp>
+#include <HodEngine/Core/Module.hpp>
 #include <HodEngine/Game/GameRegistrar.hpp>
 
 #include "Components/MyFirstComponent.hpp"
@@ -11,7 +11,7 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 /// included). The project settings are loaded already: a service can start here, what stops it pushed with registration.AddUnregister.
 /// @return false if it couldn't start
 /// @param registration
-HOD_STARTUP_RUNTIME_MODULE([[MODULE_NAME]], registration)
+HOD_STARTUP_MODULE([[MODULE_NAME]], registration)
 {
 	hod::game::GameRegistrar gameRegistrar(registration);
 	gameRegistrar.RegisterComponent<MyFirstComponent>();

@@ -9,7 +9,6 @@
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <HodEngine/Core/FileSystem/FileSystem.hpp>
 #include <HodEngine/Core/ModuleHost.hpp>
-#include <HodEngine/Core/RuntimeModule.hpp>
 #include <HodEngine/GameSystems/Frame/FrameSequencer.hpp>
 
 #include <string>
@@ -155,12 +154,12 @@ namespace hod
 		ModuleHost host;
 
 		// A real one: Physics, a plugin base (it starts the physics engine, doesn't need Game)
-		EXPECT_TRUE(host.Load("Physics", modulesDirectory / "Physics", HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME));
+		EXPECT_TRUE(host.Load("Physics", modulesDirectory / "Physics"));
 		EXPECT_EQ(host.GetModuleCount(), 1u);
 
 		// Not kept: a library without the entry point (Core isn't a module), one that doesn't exist
-		EXPECT_FALSE(host.Load("Core", modulesDirectory / "Core", HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME));
-		EXPECT_FALSE(host.Load("Missing", modulesDirectory / "NoSuchModule", HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME));
+		EXPECT_FALSE(host.Load("Core", modulesDirectory / "Core"));
+		EXPECT_FALSE(host.Load("Missing", modulesDirectory / "NoSuchModule"));
 		EXPECT_EQ(host.GetModuleCount(), 1u);
 
 		host.StopAll();

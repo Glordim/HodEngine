@@ -1,5 +1,5 @@
 #include "HodEngine/AudioEditor/Pch.hpp"
-#include <HodEngine/Editor/EditorModule.hpp>
+#include <HodEngine/Core/Module.hpp>
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
 #include "HodEngine/AudioEditor/AudioAssetType.hpp"
@@ -11,7 +11,7 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
 namespace hod::inline audio
 {
-	HOD_STARTUP_EDITOR_MODULE(AudioEditor, registration)
+	HOD_STARTUP_MODULE(AudioEditor, registration)
 	{
 		EditorRegistrar editorRegistrar(registration);
 		if (editorRegistrar.RegisterAssetType<AudioAssetType>())

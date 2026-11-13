@@ -18,13 +18,13 @@ namespace hod::inline editor
 		String _name;
 		String _description;
 
-		/// @brief Its runtime modules: the libraries (CMake targets HodEngine::<module>) with an entry point (HOD_STARTUP_RUNTIME_MODULE), in
+		/// @brief Its runtime modules: the libraries (CMake targets HodEngine::<module>) with an entry point (HOD_STARTUP_MODULE), in
 		/// their order: its base, then its Components layer (Physics: the physics engine, PhysicsComponents: its components). Linked in the
 		/// game only if the plugin is enabled, loaded by the editor. Empty for the plugins always linked (Core, Game...). A library without
 		/// anything to start (Renderer: the application's) isn't listed
 		Vector<String> _runtimeModules;
 
-		/// @brief Its editor module (see HOD_STARTUP_EDITOR_MODULE), loaded after the ones of its dependencies. Optional
+		/// @brief Its editor module (see HOD_STARTUP_MODULE), loaded after the ones of its dependencies. Optional
 		String _editorModule;
 
 		/// @brief Names of the plugins it needs: enabled, loaded, initialized before it

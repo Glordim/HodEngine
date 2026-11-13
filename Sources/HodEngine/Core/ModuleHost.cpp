@@ -2,6 +2,7 @@
 #include "HodEngine/Core/ModuleHost.hpp"
 
 #include "HodEngine/Core/DynamicLibrary/DynamicLibrary.hpp"
+#include "HodEngine/Core/Module.hpp"
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
 #include "HodEngine/Core/Output/OutputService.hpp"
 
@@ -33,10 +34,9 @@ namespace hod::inline core
 	/// @brief
 	/// @param name
 	/// @param path
-	/// @param startupFunctionName
 	/// @param copyForReload
 	/// @return
-	bool ModuleHost::Load(const String& name, const Path& path, const char* startupFunctionName, bool copyForReload)
+	bool ModuleHost::Load(const String& name, const Path& path, bool copyForReload)
 	{
 		DynamicLibrary* library = DefaultAllocator::GetInstance().New<DynamicLibrary>();
 		library->Init(path, copyForReload);
@@ -47,10 +47,10 @@ namespace hod::inline core
 			return false;
 		}
 
-		ModuleStartup startup = library->LoadFunction<ModuleStartup>(startupFunctionName);
+		ModuleStartup startup = library->LoadFunction<ModuleStartup>(HOD_MODULE_STARTUP_FUNCTION_NAME);
 		if (startup == nullptr)
 		{
-			OUTPUT_ERROR("Module '{}': no entry point {} in its library {}", name, startupFunctionName, library->GetPath());
+			OUTPUT_ERROR("Module '{}': no entry point " HOD_MODULE_STARTUP_FUNCTION_NAME " in its library {} (see HOD_STARTUP_MODULE)", name, library->GetPath());
 			DefaultAllocator::GetInstance().Delete(library);
 			return false;
 		}

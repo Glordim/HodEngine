@@ -180,14 +180,14 @@ function(hod_link_engine_modules target)
 endfunction()
 
 # Adds to target the source starting the runtime modules given after it, in their order (HodStartRuntimeModules, called by
-# Application::InitModules), generated from the engine's template. The game module is a runtime library too
-# (HOD_STARTUP_RUNTIME_MODULE): given last, after the engine's it uses
+# Application::InitModules), generated from the engine's template. The game module is a runtime module too
+# (HOD_STARTUP_MODULE): given last, after the engine's it uses
 function(hod_add_engine_modules_entry_points target)
 	set(HOD_MODULE_DECLARATIONS "")
 	set(HOD_MODULE_STARTS "")
 	foreach(module IN LISTS ARGN)
-		string(APPEND HOD_MODULE_DECLARATIONS "\tbool HodRuntimeModule_${module}(hod::core::ModuleRegistration& registration);\n")
-		string(APPEND HOD_MODULE_STARTS "\tif (host.Start(\"${module}\", &HodRuntimeModule_${module}) == false)\n\t{\n\t\treturn false;\n\t}\n")
+		string(APPEND HOD_MODULE_DECLARATIONS "HOD_STARTUP_MODULE(${module}, registration);\n")
+		string(APPEND HOD_MODULE_STARTS "\tif (host.Start(\"${module}\", &HOD_MODULE_STARTUP_FUNCTION_OF(${module})) == false)\n\t{\n\t\treturn false;\n\t}\n")
 	endforeach()
 	set(source "${CMAKE_CURRENT_BINARY_DIR}/HodModules.generated.cpp")
 	configure_file("${_HOD_CONFIG_DIR}/HodModules.cpp.in" "${source}" @ONLY)

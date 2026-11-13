@@ -1,12 +1,15 @@
 // clang-format off
 // Generated at configure time by hod_add_engine_modules_entry_points (HodEngineConfig.cmake) from the list of the project's runtime
-// modules, don't edit
-#include <HodEngine/Core/RuntimeModule.hpp>
+// modules, don't edit. Built with HOD_MONOLITHIC (static builds): the names of the entry points come from Module.hpp
+#include <HodEngine/Core/Module.hpp>
+#include <HodEngine/Core/ModuleHost.hpp>
 
-extern "C"
-{
-@HOD_MODULE_DECLARATIONS@}
+#if !defined(HOD_MONOLITHIC)
+	#error "An Application build links the engine statically (HOD_MONOLITHIC, defined by Core): the modules' entry points are linked in"
+#endif
 
+// Their entry points (defined in the modules, see HOD_STARTUP_MODULE)
+@HOD_MODULE_DECLARATIONS@
 // Called by Application::InitModules: starts the runtime modules of the game, dependencies first, the game module last
 // @return false at the first that fails (the ones started already stay in host)
 extern "C" bool HodStartRuntimeModules(hod::core::ModuleHost& host)

@@ -5,7 +5,6 @@
 #include "HodEngine/Editor/Cooker/CookJob.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include <HodEngine/Core/ModuleHost.hpp>
-#include "HodEngine/Editor/EditorModule.hpp"
 #include "HodEngine/Editor/EditorTab.hpp"
 
 #include "HodEngine/Editor/Project.hpp"
@@ -44,7 +43,6 @@
 #include "HodEngine/Editor/Importer/ImportJob.hpp"
 #include "HodEngine/Editor/RecentProjects.hpp"
 #include "HodEngine/Game/Scene.hpp"
-#include <HodEngine/Core/RuntimeModule.hpp>
 
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
@@ -285,7 +283,7 @@ namespace hod::inline editor
 			// needing it left out
 			uint32_t started = 0;
 			while (started < manifest._runtimeModules.Size() &&
-			       _runtimeModuleHost->Load(manifest._runtimeModules[started], modulesDirectory / manifest._runtimeModules[started], HOD_RUNTIME_MODULE_STARTUP_FUNCTION_NAME))
+			       _runtimeModuleHost->Load(manifest._runtimeModules[started], modulesDirectory / manifest._runtimeModules[started]))
 			{
 				++started;
 			}
@@ -367,7 +365,7 @@ namespace hod::inline editor
 				continue;
 			}
 
-			if (_editorModuleHost.Load(manifest._editorModule, modulesDirectory / manifest._editorModule, HOD_EDITOR_MODULE_STARTUP_FUNCTION_NAME) == false)
+			if (_editorModuleHost.Load(manifest._editorModule, modulesDirectory / manifest._editorModule) == false)
 			{
 				OUTPUT_ERROR("Plugin '{}': its editor module couldn't be loaded or started", manifest._name);
 				if (manifest._required)

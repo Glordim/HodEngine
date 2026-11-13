@@ -12,7 +12,7 @@
 namespace hod::inline ui
 {
 	/// @brief The registrar of UI (see ModuleRegistration): nodes, layouts, layout params, interactions, views (UI's builtin ones, a game's),
-	/// unregistered with the rest of what the module registered. In a runtime module's startup (see HOD_STARTUP_RUNTIME_MODULE)
+	/// unregistered with the rest of what the module registered. In a runtime module's startup (see HOD_STARTUP_MODULE)
 	class UIRegistrar
 	{
 	public:

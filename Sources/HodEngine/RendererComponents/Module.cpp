@@ -1,5 +1,5 @@
 #include "HodEngine/RendererComponents/Pch.hpp"
-#include <HodEngine/Core/RuntimeModule.hpp>
+#include <HodEngine/Core/Module.hpp>
 
 #include <HodEngine/Game/GameRegistrar.hpp>
 #include "HodEngine/RendererComponents/RendererWorldSystem.hpp"
@@ -16,7 +16,7 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 namespace hod::inline renderer
 {
 	/// @brief The components and the world system. The Renderer itself (the GPU device, the frames) is the application's, created before the modules
-	HOD_STARTUP_RUNTIME_MODULE(RendererComponents, registration)
+	HOD_STARTUP_MODULE(RendererComponents, registration)
 	{
 		GameRegistrar gameRegistrar(registration);
 		gameRegistrar.RegisterComponent<BoxComponent>();

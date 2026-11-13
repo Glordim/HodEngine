@@ -8,7 +8,7 @@
 #include <HodEngine/GameSystems/Job/JobScheduler.hpp>
 #include <HodEngine/GameSystems/ProjectSettings/ProjectSettingsManager.hpp>
 
-#include <HodEngine/Core/RuntimeModule.hpp>
+#include <HodEngine/Core/ModuleHost.hpp>
 
 #include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
 #include "HodEngine/Core/Time/SystemTime.hpp"

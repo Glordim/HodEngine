@@ -1,5 +1,5 @@
 #include "HodEngine/RendererEditor/Pch.hpp"
-#include <HodEngine/Editor/EditorModule.hpp>
+#include <HodEngine/Core/Module.hpp>
 #include <HodEngine/Core/Memory/MemoryOperator.hpp>
 
 #include "HodEngine/Editor/EditorRegistrar.hpp"
@@ -48,7 +48,7 @@ namespace hod::inline renderer
 		}
 	}
 
-	HOD_STARTUP_EDITOR_MODULE(RendererEditor, registration)
+	HOD_STARTUP_MODULE(RendererEditor, registration)
 	{
 		EditorRegistrar editorRegistrar(registration);
 		editorRegistrar.RegisterCustomComponentDrawer<CameraComponent, CameraCustomComponentDrawer>();

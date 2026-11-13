@@ -1,5 +1,5 @@
 #include "HodEngine/PhysicsEditor/Pch.hpp"
-#include <HodEngine/Editor/EditorModule.hpp>
+#include <HodEngine/Core/Module.hpp>
 
 #include "HodEngine/PhysicsEditor/CustomComponentDrawer/BoxCollider2dCustomComponentDrawer.hpp"
 #include "HodEngine/PhysicsEditor/CustomComponentDrawer/CapsuleCollider2dCustomComponentDrawer.hpp"
@@ -177,7 +177,7 @@ namespace hod::inline physics
 		}
 	}
 
-	HOD_STARTUP_EDITOR_MODULE(PhysicsEditor, registration)
+	HOD_STARTUP_MODULE(PhysicsEditor, registration)
 	{
 		EditorRegistrar editorRegistrar(registration);
 		editorRegistrar.RegisterCustomComponentDrawer<BoxCollider2dComponent, BoxCollider2dCustomComponentDrawer>();
