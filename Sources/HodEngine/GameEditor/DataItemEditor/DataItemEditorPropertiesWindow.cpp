@@ -32,10 +32,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(DataItemEditorPropertiesWindow, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(DataItemEditorPropertiesWindow, reflectionDescriptor) {}
 
 	/// @brief
 	/// @param editorTab

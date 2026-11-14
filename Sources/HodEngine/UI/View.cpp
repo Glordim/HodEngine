@@ -8,10 +8,7 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_CLASS(View, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor; // base interface, no own serializable fields
-	}
+	DESCRIBE_REFLECTED_CLASS(View, reflectionDescriptor) {} // base interface, no own serializable fields
 
 	/// @brief
 	/// @return

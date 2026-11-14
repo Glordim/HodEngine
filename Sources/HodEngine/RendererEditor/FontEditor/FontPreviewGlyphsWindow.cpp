@@ -150,10 +150,7 @@ namespace hod::inline editor
 		}
 	}
 
-	DESCRIBE_REFLECTED_CLASS(FontPreviewGlyphsWindow, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(FontPreviewGlyphsWindow, reflectionDescriptor) {}
 
 	/// @brief
 	/// @param editorTab

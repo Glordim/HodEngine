@@ -28,10 +28,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(FontPreviewViewportWindow, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(FontPreviewViewportWindow, reflectionDescriptor) {}
 
 	/// @brief
 	/// @param editorTab

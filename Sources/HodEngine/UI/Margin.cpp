@@ -3,8 +3,5 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_CLASS(Margin, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(Margin, reflectionDescriptor) {}
 }

@@ -6,10 +6,7 @@
 
 namespace hod::inline game
 {
-	DESCRIBE_REFLECTED_CLASS(PrefabResource, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(PrefabResource, reflectionDescriptor) {}
 
 	/// @brief 
 	PrefabResource::~PrefabResource()

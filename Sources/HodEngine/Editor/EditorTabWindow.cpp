@@ -4,10 +4,7 @@
 
 namespace hod::inline editor
 {
-    DESCRIBE_REFLECTED_CLASS(EditorTabWindow, reflectionDescriptor)
-    {
-        (void)reflectionDescriptor;
-    }
+    DESCRIBE_REFLECTED_CLASS(EditorTabWindow, reflectionDescriptor) {}
 
     /// @brief 
     /// @param owner 

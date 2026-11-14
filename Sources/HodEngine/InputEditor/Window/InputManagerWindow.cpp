@@ -15,10 +15,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(InputManagerWindow, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(InputManagerWindow, reflectionDescriptor) {}
 
 	void InputManagerWindow::DrawContent()
 	{

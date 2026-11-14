@@ -37,10 +37,7 @@ namespace hod::inline editor
 		const ImVec4 MissingColor(1.0f, 0.6f, 0.2f, 1.0f);
 	}
 
-	DESCRIBE_REFLECTED_CLASS(ProjectBrowser, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(ProjectBrowser, reflectionDescriptor) {}
 
 	/// @brief
 	ProjectBrowser::ProjectBrowser()

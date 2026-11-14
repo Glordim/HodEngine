@@ -3,8 +3,5 @@
 
 namespace hod::inline gamesystems
 {
-	DESCRIBE_REFLECTED_CLASS(Resource, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(Resource, reflectionDescriptor) {}
 }

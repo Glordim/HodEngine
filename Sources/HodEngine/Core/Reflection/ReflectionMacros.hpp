@@ -106,8 +106,8 @@ public:                                                                         
 		CLASS::FillReflectionDescriptor(reflectionDescriptor);                                               \
 	}
 
-///@brief
-#define DESCRIBE_REFLECTED_CLASS(__TYPE__, reflectionDescriptor) void __TYPE__::FillReflectionDescriptorUser(hod::ReflectionDescriptor& reflectionDescriptor)
+///@brief Its properties, traits... A type without any: DESCRIBE_REFLECTED_CLASS(Type, reflectionDescriptor) {}
+#define DESCRIBE_REFLECTED_CLASS(__TYPE__, reflectionDescriptor) void __TYPE__::FillReflectionDescriptorUser([[maybe_unused]] hod::ReflectionDescriptor& reflectionDescriptor)
 
 #define REFLECTED_ENUM(__API__, __TYPE__) __API__ friend void DescribeEnum(hod::EnumDescriptor& reflectionDescriptor, __TYPE__)
 #define REFLECTED_ENUM2(__API__, __TYPE__) __API__ void DescribeEnum(hod::EnumDescriptor& reflectionDescriptor, __TYPE__)

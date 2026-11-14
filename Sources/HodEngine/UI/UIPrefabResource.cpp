@@ -8,10 +8,7 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_CLASS(UIPrefabResource, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(UIPrefabResource, reflectionDescriptor) {}
 
 	UIPrefabResource::~UIPrefabResource()
 	{

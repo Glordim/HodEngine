@@ -73,8 +73,6 @@ namespace hod::inline gamesystems
 	};
 
 	template<typename _Resource_>
-	void WeakResource<_Resource_>::FillReflectionDescriptorUser(ReflectionDescriptor& reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	void WeakResource<_Resource_>::FillReflectionDescriptorUser([[maybe_unused]] ReflectionDescriptor& reflectionDescriptor)
+	{}
 }

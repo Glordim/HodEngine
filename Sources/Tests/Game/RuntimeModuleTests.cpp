@@ -85,15 +85,9 @@ namespace hod
 		}
 	}
 
-	DESCRIBE_REFLECTED_CLASS(ModuleTestComponent, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(ModuleTestComponent, reflectionDescriptor) {}
 
-	DESCRIBE_REFLECTED_CLASS(ModuleTestDataStruct, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(ModuleTestDataStruct, reflectionDescriptor) {}
 
 	class RuntimeModuleTest : public ::testing::Test
 	{

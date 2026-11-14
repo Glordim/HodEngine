@@ -38,10 +38,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(MaterialEditorPropertiesWindow, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(MaterialEditorPropertiesWindow, reflectionDescriptor) {}
 
 	/// @brief
 	/// @param value

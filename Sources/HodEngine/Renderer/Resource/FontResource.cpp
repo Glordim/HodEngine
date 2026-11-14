@@ -21,10 +21,7 @@ namespace hod::inline renderer
 		reflectionDescriptor.AddEnumValue(FontResource::Weight::Black, "Black");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(FontResource, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(FontResource, reflectionDescriptor) {}
 
 	/// @brief
 	/// @param resourceContainer

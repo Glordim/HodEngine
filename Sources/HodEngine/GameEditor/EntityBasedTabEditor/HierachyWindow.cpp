@@ -27,10 +27,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(HierachyWindow, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(HierachyWindow, reflectionDescriptor) {}
 
 	/// @brief
 	HierachyWindow::HierachyWindow(EditorTab* editorTab)

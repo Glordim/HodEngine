@@ -20,10 +20,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(VersionControlChangesWindow, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(VersionControlChangesWindow, reflectionDescriptor) {}
 
 	namespace
 	{

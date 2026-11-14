@@ -9,10 +9,7 @@
 
 namespace hod::inline renderer
 {
-	DESCRIBE_REFLECTED_CLASS(PrimitiveComponent, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(PrimitiveComponent, reflectionDescriptor) {}
 
 	//-----------------------------------------------------------------------------
 	//! @brief		

@@ -3,10 +3,7 @@
 
 namespace hod::inline game
 {
-	DESCRIBE_REFLECTED_CLASS(MissingComponent, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(MissingComponent, reflectionDescriptor) {}
 
 	/// @brief
 	/// @param componentNode

@@ -20,10 +20,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(FontFaceEditorPropertiesWindow, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(FontFaceEditorPropertiesWindow, reflectionDescriptor) {}
 
 	/// @brief
 	/// @param editorTab

@@ -55,10 +55,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(ViewportWindow, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(ViewportWindow, reflectionDescriptor) {}
 
 	/// @brief
 	ViewportWindow::ViewportWindow(EditorTab* editorTab)

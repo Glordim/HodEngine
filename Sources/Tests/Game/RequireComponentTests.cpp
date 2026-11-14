@@ -17,10 +17,7 @@ namespace hod
 		REFLECTED_CLASS(RequiredBaseComponent, Component)
 	};
 
-	DESCRIBE_REFLECTED_CLASS(RequiredBaseComponent, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(RequiredBaseComponent, reflectionDescriptor) {}
 
 	/// @brief Stands in for RequiredBaseComponent
 	class RequiredDerivedComponent : public RequiredBaseComponent
@@ -28,10 +25,7 @@ namespace hod
 		REFLECTED_CLASS(RequiredDerivedComponent, RequiredBaseComponent)
 	};
 
-	DESCRIBE_REFLECTED_CLASS(RequiredDerivedComponent, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(RequiredDerivedComponent, reflectionDescriptor) {}
 
 	class NeedsBaseComponent : public Component
 	{
@@ -49,10 +43,7 @@ namespace hod
 		REFLECTED_CLASS(NeedsBaseDerivedComponent, NeedsBaseComponent)
 	};
 
-	DESCRIBE_REFLECTED_CLASS(NeedsBaseDerivedComponent, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(NeedsBaseDerivedComponent, reflectionDescriptor) {}
 
 	/// @brief Requires one requiring another
 	class NeedsNeedsBaseComponent : public Component

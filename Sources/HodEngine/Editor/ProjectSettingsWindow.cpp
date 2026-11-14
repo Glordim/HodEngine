@@ -13,10 +13,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(ProjectSettingsWindow, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(ProjectSettingsWindow, reflectionDescriptor) {}
 
 	namespace
 	{

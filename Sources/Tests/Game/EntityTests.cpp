@@ -21,10 +21,7 @@ namespace hod
 		static inline int _destroyedCount = 0;
 	};
 
-	DESCRIBE_REFLECTED_CLASS(TrackedComponent, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(TrackedComponent, reflectionDescriptor) {}
 
 	class EntityTest : public ::testing::Test
 	{

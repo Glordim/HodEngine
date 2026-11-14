@@ -3,8 +3,5 @@
 
 namespace hod::inline game
 {
-	DESCRIBE_REFLECTED_CLASS(DataStruct, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(DataStruct, reflectionDescriptor) {}
 }

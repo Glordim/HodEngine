@@ -28,10 +28,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(FontFaceEditorAtlasWindow, reflectionDescriptor)
-	{
-		(void)reflectionDescriptor;
-	}
+	DESCRIBE_REFLECTED_CLASS(FontFaceEditorAtlasWindow, reflectionDescriptor) {}
 
 	/// @brief
 	/// @param editorTab
