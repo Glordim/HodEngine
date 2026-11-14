@@ -213,6 +213,21 @@ namespace hod::inline game
 	}
 
 	/// @brief
+	void Entity::AddMissingRequiredComponents()
+	{
+		Vector<Component*> written = _components; // The ones added below have their requirements added with them
+		for (Component* component : written)
+		{
+			for (const ReflectionDescriptor* requiredComponent : GetMissingRequiredComponents(component->GetReflectionDescriptorV()))
+			{
+				OUTPUT_MESSAGE("Entity '{}': {} requires {}, missing from the data, added", GetName(), component->GetReflectionDescriptorV().GetDisplayName(),
+				               requiredComponent->GetDisplayName());
+				AddComponent(static_cast<Component*>(requiredComponent->CreateInstance()));
+			}
+		}
+	}
+
+	/// @brief
 	/// @param descriptor
 	/// @return
 	const Component* Entity::FindComponent(const ReflectionDescriptor& descriptor) const

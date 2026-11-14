@@ -3,7 +3,6 @@
 #include "HodEngine/PhysicsComponents/Components/Rigidbody2dComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
 #include "HodEngine/Game/Entity.hpp"
-#include "HodEngine/Game/Traits/ReflectionTraitRequireComponent.hpp"
 
 #include "HodEngine/Game/Scene.hpp"
 
@@ -24,8 +23,9 @@ namespace hod::inline physics
 		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_SHAPE_OUTLINE);
 		// The base of the colliders, without a shape: not offered in the editor
 		HOD_TRAIT(ReflectionTraitHide);
+
 		// Not a Rigidbody2d: a collider without one is static (see TODO.txt)
-		HOD_TRAIT(ReflectionTraitRequireComponent, &Node2dComponent::GetReflectionDescriptor);
+		HOD_REQUIRED_COMPONENT(_node2d);
 
 		HOD_PROPERTY(_isTrigger);
 		HOD_PROPERTY(_friction);
@@ -67,15 +67,6 @@ namespace hod::inline physics
 	/// @return 
 	Vector2 Collider2dComponent::GetScale() const
 	{
-		Entity* entity = GetOwner();
-		if (entity != nullptr)
-		{
-			Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
-			if (node2dComponent != nullptr)
-			{
-				return node2dComponent->GetScale();
-			}
-		}
-		return Vector2::One;
+		return _node2d->GetScale();
 	}
 }

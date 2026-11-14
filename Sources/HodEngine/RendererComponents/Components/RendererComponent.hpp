@@ -4,12 +4,18 @@
 #include "HodEngine/Core/Vector.hpp"
 
 #include "HodEngine/Game/Component.hpp"
+#include "HodEngine/Game/RequiredComponent.hpp"
 
 #include <HodEngine/Math/Rect.hpp>
 
 namespace hod::inline renderer
 {
 	class RenderView;
+}
+
+namespace hod::inline game
+{
+	class Node2dComponent;
 }
 
 namespace hod::inline renderer
@@ -38,5 +44,9 @@ namespace hod::inline renderer
 
 		virtual void	PushRenderCommand(RenderView& renderView) = 0;
 		virtual Rect	GetBoundingBox() const = 0;
+
+	protected:
+
+		RequiredComponent<Node2dComponent>	_node2d; // Drawn where its node is
 	};
 }

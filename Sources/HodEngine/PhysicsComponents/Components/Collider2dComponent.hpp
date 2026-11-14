@@ -2,6 +2,7 @@
 #include "HodEngine/PhysicsComponents/Export.hpp"
 
 #include "HodEngine/Game/Component.hpp"
+#include "HodEngine/Game/RequiredComponent.hpp"
 #include "HodEngine/Math/Vector2.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
@@ -9,6 +10,11 @@
 namespace hod::inline physics
 {
 	class Collider;
+}
+
+namespace hod::inline game
+{
+	class Node2dComponent;
 }
 
 namespace hod::inline physics
@@ -82,5 +88,7 @@ namespace hod::inline physics
 		float			_density = 1.0f;
 
 		WeakPtr<Rigidbody2dComponent>	_rigidbody;
+
+		RequiredComponent<Node2dComponent>	_node2d;
 	};
 }

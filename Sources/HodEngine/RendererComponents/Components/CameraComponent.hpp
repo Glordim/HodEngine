@@ -5,8 +5,14 @@
 
 #include "HodEngine/Math/Matrix4.hpp"
 #include "HodEngine/Game/Component.hpp"
+#include "HodEngine/Game/RequiredComponent.hpp"
 
 #include "HodEngine/Game/Scene.hpp"
+
+namespace hod::inline game
+{
+	class Node2dComponent;
+}
 
 namespace hod::inline rhi
 {
@@ -79,5 +85,7 @@ namespace hod::inline renderer
 		bool _dirtyFlag = true;
 
 		Matrix4 _projectionMatrix;
+
+		RequiredComponent<Node2dComponent> _node2d;
 	};
 }

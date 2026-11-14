@@ -2,7 +2,6 @@
 #include "HodEngine/RendererComponents/Components/CameraComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
 #include "HodEngine/Game/Components/NodeComponent.hpp"
-#include "HodEngine/Game/Traits/ReflectionTraitRequireComponent.hpp"
 
 #include <HodEngine/Math/Rect.hpp>
 
@@ -28,7 +27,8 @@ namespace hod::inline renderer
 		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_CAMERA);
 		HOD_TRAIT(ReflectionTraitCategory, "Rendering");
 		HOD_TRAIT(ReflectionTraitDescription, "Point of view the world is rendered from");
-		HOD_TRAIT(ReflectionTraitRequireComponent, &Node2dComponent::GetReflectionDescriptor);
+
+		HOD_REQUIRED_COMPONENT(_node2d);
 
 		HOD_PROPERTY(_projection);
 		HOD_PROPERTY(_near);
@@ -121,17 +121,7 @@ namespace hod::inline renderer
 		SetAspect(resolution.GetX() / resolution.GetY());
 
 		Matrix4 projection = GetProjectionMatrix();
-		Matrix4 view = Matrix4::Identity;
-
-		Entity* entity = GetOwner();
-		if (entity != nullptr)
-		{
-			NodeComponent* nodeComponent = entity->GetComponent<NodeComponent>();
-			if (nodeComponent != nullptr)
-			{
-				view = nodeComponent->GetWorldMatrix();
-			}
-		}
+		Matrix4 view = _node2d->GetWorldMatrix();
 
 		renderView.SetupCamera(projection, view, viewport);
 	}

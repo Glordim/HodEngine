@@ -12,7 +12,6 @@
 #include <HodEngine/PhysicsComponents/PhysicsWorldSystem.hpp>
 
 #include "HodEngine/Game/Scene.hpp"
-#include "HodEngine/Game/Traits/ReflectionTraitRequireComponent.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitCategory.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDescription.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp"
@@ -32,7 +31,8 @@ namespace hod::inline physics
 		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_WEIGHT);
 		HOD_TRAIT(ReflectionTraitCategory, "Physics");
 		HOD_TRAIT(ReflectionTraitDescription, "Moves the entity and its colliders with the 2D physics: static, kinematic or dynamic");
-		HOD_TRAIT(ReflectionTraitRequireComponent, &Node2dComponent::GetReflectionDescriptor);
+
+		HOD_REQUIRED_COMPONENT(_node2d);
 
 		HOD_PROPERTY(_mode, &Rigidbody2dComponent::SetMode);
 		HOD_PROPERTY(_gravityScale, &Rigidbody2dComponent::SetGravityScale);
@@ -69,16 +69,8 @@ namespace hod::inline physics
 		_body->SetMoveEventCallback(
 			[this](const Vector2& position, float rotation)
 			{
-				Entity* entity = GetOwner();
-				if (entity != nullptr)
-				{
-					Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
-					if (node2dComponent != nullptr)
-					{
-						node2dComponent->SetPosition(position);
-						node2dComponent->SetRotation(rotation);
-					}
-				}
+				_node2d->SetPosition(position);
+				_node2d->SetRotation(rotation);
 			});
 		_body->SetCollisionEnterCallback(
 			[this](const Collision& collision)
@@ -146,21 +138,11 @@ namespace hod::inline physics
 	}
 
 	/// @brief
-	bool Rigidbody2dComponent::GetNodeTransform(Vector2& position, float& rotation) const
+	void Rigidbody2dComponent::GetNodeTransform(Vector2& position, float& rotation) const
 	{
-		Entity* entity = GetOwner();
-		if (entity != nullptr)
-		{
-			Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
-			if (node2dComponent != nullptr)
-			{
-				Matrix4 worldMatrix = node2dComponent->GetWorldMatrix();
-				position = worldMatrix.GetTranslation();
-				rotation = RadianToDegree(worldMatrix.GetRotation().GetAngleZ()); // the body's in degrees, as the node's
-				return true;
-			}
-		}
-		return false;
+		Matrix4 worldMatrix = _node2d->GetWorldMatrix();
+		position = worldMatrix.GetTranslation();
+		rotation = RadianToDegree(worldMatrix.GetRotation().GetAngleZ()); // the body's in degrees, as the node's
 	}
 
 	/// @brief
@@ -168,8 +150,9 @@ namespace hod::inline physics
 	{
 		Vector2 position;
 		float   rotation = 0.0f;
-		if (_body != nullptr && GetNodeTransform(position, rotation))
+		if (_body != nullptr)
 		{
+			GetNodeTransform(position, rotation);
 			_body->SetTransform(position, rotation, Vector2::One);
 			if (_mode == Mode::Kinematic)
 			{
@@ -185,8 +168,9 @@ namespace hod::inline physics
 		// A kinematic body goes where its node is over the step (a velocity, not a teleport): what it pushes is pushed, not crossed
 		Vector2 position;
 		float   rotation = 0.0f;
-		if (_mode == Mode::Kinematic && _body != nullptr && GetNodeTransform(position, rotation))
+		if (_mode == Mode::Kinematic && _body != nullptr)
 		{
+			GetNodeTransform(position, rotation);
 			_body->MoveTo(position, rotation, GetWorld()->GetFixedTimestep());
 		}
 		else
@@ -224,7 +208,7 @@ namespace hod::inline physics
 	Vector2 Rigidbody2dComponent::GetParentOffset(Collider2dComponent* collider) const
 	{
 		Node2dComponent* colliderNode2dComponent = collider->GetComponent<Node2dComponent>();
-		Node2dComponent* bodyNode2dComponent = GetComponent<Node2dComponent>();
+		Node2dComponent* bodyNode2dComponent = _node2d;
 		if (colliderNode2dComponent == bodyNode2dComponent)
 		{
 			return Vector2::Zero;

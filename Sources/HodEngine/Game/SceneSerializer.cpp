@@ -339,6 +339,7 @@ namespace hod::inline game
 
 			componentNode = componentNode->GetNextSibling();
 		}
+		entity->AddMissingRequiredComponents();
 
 		if (_contextualEntityMap.try_emplace(entity->GetLocalId(), entity).second == false)
 		{

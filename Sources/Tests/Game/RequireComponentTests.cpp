@@ -3,7 +3,10 @@
 #include <HodEngine/Game/Component.hpp>
 #include <HodEngine/Game/ComponentFactory.hpp>
 #include <HodEngine/Game/Entity.hpp>
+#include <HodEngine/Game/RequiredComponent.hpp>
+#include <HodEngine/Game/Scene.hpp>
 #include <HodEngine/Game/SceneSerializer.hpp>
+#include <HodEngine/Game/World.hpp>
 #include <HodEngine/Game/Traits/ReflectionTraitRequireComponent.hpp>
 
 #include <HodEngine/Core/Document/Document.hpp>
@@ -78,6 +81,34 @@ namespace hod
 	{
 		HOD_TRAIT(ReflectionTraitRequireComponent, &CycleAComponent::GetReflectionDescriptor);
 	}
+
+	/// @brief Requires RequiredBaseComponent through its member
+	class CachesBaseComponent : public Component
+	{
+		REFLECTED_CLASS(CachesBaseComponent, Component)
+
+	public:
+		void OnConstruct() override
+		{
+			_seenInOnConstruct = _base.Get();
+		}
+
+		RequiredComponent<RequiredBaseComponent> _base;
+		RequiredBaseComponent*                   _seenInOnConstruct = nullptr;
+	};
+
+	DESCRIBE_REFLECTED_CLASS(CachesBaseComponent)
+	{
+		HOD_REQUIRED_COMPONENT(_base);
+	}
+
+	/// @brief Its parent's member filled too
+	class CachesBaseDerivedComponent : public CachesBaseComponent
+	{
+		REFLECTED_CLASS(CachesBaseDerivedComponent, CachesBaseComponent)
+	};
+
+	DESCRIBE_REFLECTED_CLASS(CachesBaseDerivedComponent) {}
 
 	class RequireComponentTest : public ::testing::Test
 	{
@@ -187,8 +218,8 @@ namespace hod
 		EXPECT_EQ(missing[0]->GetType(), NeedsBaseComponent::GetReflectionDescriptor().GetType());
 	}
 
-	/// @brief Loading keeps the data as written: no requirement added
-	TEST(RequireComponentLoadTest, LoadingDoesNotAddRequirements)
+	/// @brief Loading adds what the components written require and is missing (a requirement declared since the data was saved), after them
+	TEST(RequireComponentLoadTest, LoadingAddsTheMissingRequirements)
 	{
 		ComponentFactory::CreateInstance();
 		ComponentFactory::GetInstance()->Register<RequiredBaseComponent>();
@@ -206,14 +237,62 @@ namespace hod
 		ASSERT_TRUE(loader.Deserialize(source.GetRootNode()));
 		ASSERT_EQ(loader.GetEntities().Size(), 1u);
 		Entity* entity = loader.GetEntities()[0];
-		ASSERT_EQ(entity->GetComponents().Size(), 1u);
+		ASSERT_EQ(entity->GetComponents().Size(), 2u);
 		EXPECT_EQ(entity->GetComponents()[0]->GetReflectionDescriptorV().GetType(), NeedsBaseComponent::GetReflectionDescriptor().GetType());
-
-		Vector<const ReflectionDescriptor*> missing = entity->GetMissingRequiredComponents(NeedsBaseComponent::GetReflectionDescriptor());
-		ASSERT_EQ(missing.Size(), 1u);
-		EXPECT_EQ(missing[0]->GetType(), RequiredBaseComponent::GetReflectionDescriptor().GetType());
+		EXPECT_EQ(entity->GetComponents()[1]->GetReflectionDescriptorV().GetType(), RequiredBaseComponent::GetReflectionDescriptor().GetType());
+		EXPECT_EQ(entity->GetComponents()[0]->GetLocalId(), 2u);
+		EXPECT_EQ(entity->GetComponents()[1]->GetLocalId(), 0u); // Given one when saved
+		EXPECT_TRUE(entity->GetMissingRequiredComponents(NeedsBaseComponent::GetReflectionDescriptor()).Empty());
 
 		DefaultAllocator::GetInstance().Delete(entity);
 		ComponentFactory::DestroyInstance();
+	}
+
+	class RequiredComponentTest : public ::testing::Test
+	{
+	protected:
+		void SetUp() override
+		{
+			// Not initialized: no frame job nor systems needed to construct the entities
+			_world = DefaultAllocator::GetInstance().New<World>();
+			_scene = DefaultAllocator::GetInstance().New<Scene>();
+			_world->AddScene(_scene);
+		}
+
+		void TearDown() override
+		{
+			_world->RemoveScene(_scene);
+			DefaultAllocator::GetInstance().Delete(_scene);
+			DefaultAllocator::GetInstance().Delete(_world);
+		}
+
+		World* _world = nullptr;
+		Scene* _scene = nullptr;
+	};
+
+	// The member is the requirement: added with it, then filled before its OnConstruct
+	TEST_F(RequiredComponentTest, MemberIsTheRequirementFilledBeforeOnConstruct)
+	{
+		Entity*              entity = _scene->CreateEntity("Entity");
+		CachesBaseComponent* caches = entity->AddComponent<CachesBaseComponent>();
+		ASSERT_NE(caches, nullptr);
+
+		RequiredBaseComponent* base = entity->GetComponent<RequiredBaseComponent>();
+		ASSERT_NE(base, nullptr);
+		EXPECT_EQ(caches->_base.Get(), base);
+		EXPECT_EQ(caches->_seenInOnConstruct, base);
+		EXPECT_EQ(entity->GetComponentRequiring(base), caches);
+
+		// Not a property: neither serialized nor shown
+		EXPECT_EQ(CachesBaseComponent::GetReflectionDescriptor().FindProperty("_base"), nullptr);
+	}
+
+	TEST_F(RequiredComponentTest, StandInAndParentMember)
+	{
+		Entity*                     entity = _scene->CreateEntity("Entity");
+		RequiredDerivedComponent*   standIn = entity->AddComponent<RequiredDerivedComponent>();
+		CachesBaseDerivedComponent* caches = entity->AddComponent<CachesBaseDerivedComponent>();
+		ASSERT_EQ(entity->GetComponents().Size(), 2u);
+		EXPECT_EQ(caches->_base.Get(), standIn);
 	}
 }

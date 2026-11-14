@@ -119,8 +119,11 @@ namespace hod::inline game
 
 	private:
 		Component* AddComponent(Component* instance);
-		/// @brief For loading (SceneSerializer): the data stays as written, its requirements are not added
+		/// @brief For loading (SceneSerializer): the components as written, then AddMissingRequiredComponents
 		Component* AddComponentWithoutRequirements(const ReflectionDescriptor& descriptor);
+		/// @brief For loading (SceneSerializer), once the components as written are there: the ones they require and that are missing
+		/// (a requirement declared since the data was saved), added after them (logged), saved with them next time
+		void       AddMissingRequiredComponents();
 		void       CollectMissingRequiredComponents(const ReflectionDescriptor& descriptor, Vector<const ReflectionDescriptor*>& missing,
 		                                            Vector<const ReflectionDescriptor*>& visiting) const;
 		const Component* FindComponent(const ReflectionDescriptor& descriptor) const;

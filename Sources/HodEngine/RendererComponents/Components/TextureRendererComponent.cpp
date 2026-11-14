@@ -105,46 +105,38 @@ namespace hod::inline renderer
 	//-----------------------------------------------------------------------------
 	void TextureRendererComponent::PushRenderCommand(RenderView& renderView)
 	{
-		Entity* entity = GetOwner();
-		if (entity != nullptr)
+		Rect bb = GetBoundingBox();
+
+		StaticArray<Vector2, 4> vertices = {
+			Vector2(-0.5f * bb._size.GetX(), 0.5f * bb._size.GetY()),
+			Vector2(0.5f * bb._size.GetX(), 0.5f * bb._size.GetY()),
+			Vector2(0.5f * bb._size.GetX(), -0.5f * bb._size.GetY()),
+			Vector2(-0.5f * bb._size.GetX(), -0.5f * bb._size.GetY()),
+		};
+
+		static StaticArray<Vector2, 4> uvs = {
+			Vector2(0, 0),
+			Vector2(1, 0),
+			Vector2(1, 1),
+			Vector2(0, 1),
+		};
+
+		static StaticArray<uint16_t, 3 * 2> indices = {
+			0, 1, 2, 0, 2, 3,
+		};
+
+		if (_materialInstance == nullptr)
 		{
-			Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
-			if (node2dComponent != nullptr)
-			{
-				Rect bb = GetBoundingBox();
-
-				StaticArray<Vector2, 4> vertices = {
-					Vector2(-0.5f * bb._size.GetX(), 0.5f * bb._size.GetY()),
-					Vector2(0.5f * bb._size.GetX(), 0.5f * bb._size.GetY()),
-					Vector2(0.5f * bb._size.GetX(), -0.5f * bb._size.GetY()),
-					Vector2(-0.5f * bb._size.GetX(), -0.5f * bb._size.GetY()),
-				};
-
-				static StaticArray<Vector2, 4> uvs = {
-					Vector2(0, 0),
-					Vector2(1, 0),
-					Vector2(1, 1),
-					Vector2(0, 1),
-				};
-
-				static StaticArray<uint16_t, 3 * 2> indices = {
-					0, 1, 2, 0, 2, 3,
-				};
-
-				if (_materialInstance == nullptr)
-				{
-					const Material* material =
-						BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
-					_builtinMaterialInstance = MaterialInstance::Create(material);
-					_materialInstance = _builtinMaterialInstance;
-					RefreshMaterialInstance();
-				}
-
-				renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-					vertices.Data(), uvs.Data(), nullptr, (uint32_t)vertices.Size(), indices.Data(), (uint32_t)indices.Size(), node2dComponent->GetWorldMatrix(), _materialInstance,
-					node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
-			}
+			const Material* material =
+				BuiltinMaterialManager::GetInstance()->GetBuiltinMaterial(BuiltinMaterialManager::BuiltinMaterial::P2fT2f_Texture_Unlit_Color);
+			_builtinMaterialInstance = MaterialInstance::Create(material);
+			_materialInstance = _builtinMaterialInstance;
+			RefreshMaterialInstance();
 		}
+
+		renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(
+			vertices.Data(), uvs.Data(), nullptr, (uint32_t)vertices.Size(), indices.Data(), (uint32_t)indices.Size(), _node2d->GetWorldMatrix(), _materialInstance,
+			_node2d->GetZOrder().GetValue(), (uint32_t)GetOwner()->GetInstanceId()));
 	}
 
 	/// @brief

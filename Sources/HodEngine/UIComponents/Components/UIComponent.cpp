@@ -4,7 +4,6 @@
 #include "HodEngine/RendererComponents/Components/CameraComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
 #include "HodEngine/Game/Entity.hpp"
-#include "HodEngine/Game/Traits/ReflectionTraitRequireComponent.hpp"
 #include <HodEngine/Game/World.hpp>
 
 #include <HodEngine/Core/Document/Document.hpp>
@@ -32,7 +31,6 @@ namespace hod::inline ui
 		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_VIEW_DASHBOARD);
 		HOD_TRAIT(ReflectionTraitCategory, "UI");
 		HOD_TRAIT(ReflectionTraitDescription, "Shows a UI prefab, over the game or in the world");
-		HOD_TRAIT(ReflectionTraitRequireComponent, &Node2dComponent::GetReflectionDescriptor);
 
 		HOD_PROPERTY(_prefab, &UIComponent::SetPrefab);
 		HOD_PROPERTY(_renderMode, &UIComponent::SetRenderMode);
@@ -181,8 +179,7 @@ namespace hod::inline ui
 		int64_t priority = ScreenPointerPriority + _sortingOrder;
 		if (_renderMode == RenderMode::World)
 		{
-			Node2dComponent* node2dComponent = GetComponent<Node2dComponent>();
-			priority = (node2dComponent != nullptr) ? node2dComponent->GetZOrder().GetValue() : 0;
+			priority = _node2d->GetZOrder().GetValue();
 		}
 
 		CanvasManager::GetInstance()->SetPointerMapping(
@@ -202,9 +199,7 @@ namespace hod::inline ui
 	Matrix4 UIComponent::ComputeWorldCanvasMatrix() const
 	{
 		float            scale = (_pixelsPerUnit > 0.0f) ? 1.0f / _pixelsPerUnit : 1.0f;
-		Node2dComponent* node2dComponent = GetComponent<Node2dComponent>();
-		Matrix4          worldMatrix = (node2dComponent != nullptr) ? node2dComponent->GetWorldMatrix() : Matrix4::Identity;
-		return worldMatrix * Matrix4::Scale(Vector2(scale, scale));
+		return _node2d->GetWorldMatrix() * Matrix4::Scale(Vector2(scale, scale));
 	}
 
 	/// @brief The inverse of how PushRenderCommand draws the canvas in game
@@ -260,8 +255,7 @@ namespace hod::inline ui
 
 		if (_renderMode == RenderMode::World)
 		{
-			Node2dComponent* node2dComponent = GetComponent<Node2dComponent>();
-			uint32_t         order = (node2dComponent != nullptr) ? node2dComponent->GetZOrder().GetValue() : 0;
+			uint32_t order = _node2d->GetZOrder().GetValue();
 
 			_canvas->SetTargetResolution(Vector2::Zero);
 			_canvas->UpdateLayout();

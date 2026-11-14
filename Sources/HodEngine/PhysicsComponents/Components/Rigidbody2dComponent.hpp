@@ -4,6 +4,7 @@
 #include "HodEngine/Core/Event.hpp"
 #include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Game/Component.hpp"
+#include "HodEngine/Game/RequiredComponent.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
 
@@ -12,6 +13,11 @@ namespace hod::inline physics
 	class Body;
 	struct Collision;
 	class Collider;
+}
+
+namespace hod::inline game
+{
+	class Node2dComponent;
 }
 
 namespace hod::inline physics
@@ -107,8 +113,7 @@ namespace hod::inline physics
 		Event<const TriggerEvent&>& GetOnTriggerExitEvent();
 
 	private:
-		/// @return false without a node
-		bool GetNodeTransform(Vector2& position, float& rotation) const;
+		void GetNodeTransform(Vector2& position, float& rotation) const;
 
 	private:
 		Body* _body = nullptr;
@@ -125,5 +130,7 @@ namespace hod::inline physics
 
 		Event<const TriggerEvent&> _onTriggerEnterEvent;
 		Event<const TriggerEvent&> _onTriggerExitEvent;
+
+		RequiredComponent<Node2dComponent> _node2d;
 	};
 }

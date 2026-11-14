@@ -96,17 +96,9 @@ namespace hod::inline renderer
 	//-----------------------------------------------------------------------------
 	void BoxComponent::PushRenderCommand(RenderView& renderView)
 	{
-		Entity* entity = GetOwner();
-		if (entity != nullptr)
-		{
-			Node2dComponent* node2dComponent = entity->GetComponent<Node2dComponent>();
-			if (node2dComponent != nullptr)
-			{
-				renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(
-					_positions.Data(), _uvs.Data(), nullptr, 4, _indices.Data(), (uint32_t)_indices.Size(), node2dComponent->GetWorldMatrix(), _materialInstance,
-					node2dComponent->GetZOrder().GetValue(), (uint32_t)entity->GetInstanceId()));
-			}
-		}
+		renderView.PushRenderCommand(DefaultAllocator::GetInstance().New<RenderCommandMesh>(
+			_positions.Data(), _uvs.Data(), nullptr, 4, _indices.Data(), (uint32_t)_indices.Size(), _node2d->GetWorldMatrix(), _materialInstance,
+			_node2d->GetZOrder().GetValue(), (uint32_t)GetOwner()->GetInstanceId()));
 	}
 
 	Rect BoxComponent::GetBoundingBox() const

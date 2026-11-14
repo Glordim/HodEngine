@@ -3,6 +3,7 @@
 #include "HodEngine/Game/Entity.hpp"
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/World.hpp"
+#include "HodEngine/Game/Traits/ReflectionTraitRequireComponent.hpp"
 
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp>
 #include <HodEngine/Core/Reflection/Traits/ReflectionTraitNoSerialization.hpp>
@@ -143,6 +144,7 @@ namespace hod::inline game
 		if (_internalState == InternalState::None)
 		{
 			_internalState = InternalState::Constructed;
+			ReflectionTraitRequireComponent::AssignRequiredComponents(*this); // Its RequiredComponent members, usable in OnConstruct
 			OnConstruct();
 		}
 	}
