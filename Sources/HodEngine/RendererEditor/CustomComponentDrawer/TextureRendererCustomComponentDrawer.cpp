@@ -32,7 +32,7 @@ namespace hod::inline editor
 		TextureRendererComponent* textureRenderer = static_cast<TextureRendererComponent*>(component);
 		if (textureRenderer != nullptr)
 		{
-			Node2dComponent* node2D = textureRenderer->GetOwner()->GetComponent<Node2dComponent>();
+			Node2dComponent* node2D = textureRenderer->GetComponent<Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				Rect bb = textureRenderer->GetBoundingBox();

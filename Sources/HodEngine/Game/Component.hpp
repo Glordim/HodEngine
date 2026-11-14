@@ -4,6 +4,7 @@
 #include <HodEngine/Core/Weakable/Weakable.hpp>
 #include <HodEngine/Core/Weakable/WeakPtr.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
+#include "HodEngine/Game/Entity.hpp"
 #include <memory>
 #include <atomic>
 
@@ -27,6 +28,16 @@ namespace hod::inline game
 		Entity*					GetOwner() const;
 		Scene*					GetScene() const;
 		World*					GetWorld() const;
+
+		// The components of its entity (see Entity): null without an owner
+		template<typename _Component_>
+		_Component_*			GetComponent() const;
+		Component*				GetComponent(const ReflectionDescriptor& descriptor) const;
+
+		// Its entity's first, then up the hierarchy
+		template<typename _Component_>
+		_Component_*			GetComponentInParent() const;
+		Component*				GetComponentInParent(const ReflectionDescriptor& descriptor) const;
 
 		void					SetEnabled(bool enabled);
 		bool					GetEnabled() const;
@@ -93,4 +104,26 @@ namespace hod::inline game
 
 		static std::atomic<uint64_t> _nextInstanceId;
 	};
+
+	/// @brief
+	/// @tparam _Component_
+	/// @return
+	template<typename _Component_>
+	_Component_* Component::GetComponent() const
+	{
+		static_assert(std::is_base_of<Component, _Component_>::value, "_Component_ must derive from Component to use GetComponent()");
+		Entity* owner = GetOwner();
+		return (owner != nullptr) ? owner->GetComponent<_Component_>() : nullptr;
+	}
+
+	/// @brief
+	/// @tparam _Component_
+	/// @return
+	template<typename _Component_>
+	_Component_* Component::GetComponentInParent() const
+	{
+		static_assert(std::is_base_of<Component, _Component_>::value, "_Component_ must derive from Component to use GetComponentInParent()");
+		Entity* owner = GetOwner();
+		return (owner != nullptr) ? owner->GetComponentInParent<_Component_>() : nullptr;
+	}
 }

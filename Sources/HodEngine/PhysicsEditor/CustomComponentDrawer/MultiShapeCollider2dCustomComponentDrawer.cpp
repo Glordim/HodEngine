@@ -33,7 +33,7 @@ namespace hod::inline editor
 		MultiShapeCollider2dComponent* multiShapeCollider2d = static_cast<MultiShapeCollider2dComponent*>(component);
 		if (multiShapeCollider2d != nullptr)
 		{
-			Node2dComponent* node2D = multiShapeCollider2d->GetOwner()->GetComponent<Node2dComponent>();
+			Node2dComponent* node2D = multiShapeCollider2d->GetComponent<Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				Vector2     scale = node2D->GetScale();

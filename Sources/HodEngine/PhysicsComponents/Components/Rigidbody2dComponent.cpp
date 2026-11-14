@@ -223,8 +223,8 @@ namespace hod::inline physics
 	/// @return
 	Vector2 Rigidbody2dComponent::GetParentOffset(Collider2dComponent* collider) const
 	{
-		Node2dComponent* colliderNode2dComponent = collider->GetOwner()->GetComponent<Node2dComponent>();
-		Node2dComponent* bodyNode2dComponent = GetOwner()->GetComponent<Node2dComponent>();
+		Node2dComponent* colliderNode2dComponent = collider->GetComponent<Node2dComponent>();
+		Node2dComponent* bodyNode2dComponent = GetComponent<Node2dComponent>();
 		if (colliderNode2dComponent == bodyNode2dComponent)
 		{
 			return Vector2::Zero;

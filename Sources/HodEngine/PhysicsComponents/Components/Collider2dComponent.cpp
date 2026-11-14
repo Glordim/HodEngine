@@ -45,7 +45,7 @@ namespace hod::inline physics
 	/// @brief 
 	void Collider2dComponent::OnStart()
 	{
-		_rigidbody = GetOwner()->GetComponentInParent<Rigidbody2dComponent>();
+		_rigidbody = GetComponentInParent<Rigidbody2dComponent>();
 		if (_rigidbody == nullptr)
 		{
 			OUTPUT_ERROR("{} on '{}': no Rigidbody2d on the entity or its parents, the collider is ignored", GetReflectionDescriptorV().GetDisplayName(), GetOwner()->GetName());
@@ -58,7 +58,7 @@ namespace hod::inline physics
 	{
 		if (_rigidbody == nullptr)
 		{
-			_rigidbody = GetOwner()->GetComponentInParent<Rigidbody2dComponent>();
+			_rigidbody = GetComponentInParent<Rigidbody2dComponent>();
 		}
 		return _rigidbody.Get();
 	}

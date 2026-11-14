@@ -181,7 +181,7 @@ namespace hod::inline ui
 		int64_t priority = ScreenPointerPriority + _sortingOrder;
 		if (_renderMode == RenderMode::World)
 		{
-			Node2dComponent* node2dComponent = (GetOwner() != nullptr) ? GetOwner()->GetComponent<Node2dComponent>() : nullptr;
+			Node2dComponent* node2dComponent = GetComponent<Node2dComponent>();
 			priority = (node2dComponent != nullptr) ? node2dComponent->GetZOrder().GetValue() : 0;
 		}
 
@@ -202,7 +202,7 @@ namespace hod::inline ui
 	Matrix4 UIComponent::ComputeWorldCanvasMatrix() const
 	{
 		float            scale = (_pixelsPerUnit > 0.0f) ? 1.0f / _pixelsPerUnit : 1.0f;
-		Node2dComponent* node2dComponent = (GetOwner() != nullptr) ? GetOwner()->GetComponent<Node2dComponent>() : nullptr;
+		Node2dComponent* node2dComponent = GetComponent<Node2dComponent>();
 		Matrix4          worldMatrix = (node2dComponent != nullptr) ? node2dComponent->GetWorldMatrix() : Matrix4::Identity;
 		return worldMatrix * Matrix4::Scale(Vector2(scale, scale));
 	}
@@ -260,7 +260,7 @@ namespace hod::inline ui
 
 		if (_renderMode == RenderMode::World)
 		{
-			Node2dComponent* node2dComponent = (GetOwner() != nullptr) ? GetOwner()->GetComponent<Node2dComponent>() : nullptr;
+			Node2dComponent* node2dComponent = GetComponent<Node2dComponent>();
 			uint32_t         order = (node2dComponent != nullptr) ? node2dComponent->GetZOrder().GetValue() : 0;
 
 			_canvas->SetTargetResolution(Vector2::Zero);

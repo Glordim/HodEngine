@@ -32,7 +32,7 @@ namespace hod::inline editor
 		CapsuleCollider2dComponent* capsuleCollider2d = static_cast<CapsuleCollider2dComponent*>(component);
 		if (capsuleCollider2d != nullptr)
 		{
-			Node2dComponent* node2D = capsuleCollider2d->GetOwner()->GetComponent<Node2dComponent>();
+			Node2dComponent* node2D = capsuleCollider2d->GetComponent<Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				Vector2 scale = node2D->GetScale();

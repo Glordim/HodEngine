@@ -32,7 +32,7 @@ namespace hod::inline editor
 		CameraComponent* cameraComponent = static_cast<CameraComponent*>(component);
 		if (cameraComponent != nullptr)
 		{
-			Node2dComponent* node2D = cameraComponent->GetOwner()->GetComponent<Node2dComponent>();
+			Node2dComponent* node2D = cameraComponent->GetComponent<Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				cameraComponent->SetAspect((float)viewport.GetPlayRatio().GetX() / (float)viewport.GetPlayRatio().GetY());

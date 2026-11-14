@@ -33,7 +33,7 @@ namespace hod::inline editor
 		CircleCollider2dComponent* circleCollider2d = static_cast<CircleCollider2dComponent*>(component);
 		if (circleCollider2d != nullptr)
 		{
-			Node2dComponent* node2D = circleCollider2d->GetOwner()->GetComponent<Node2dComponent>();
+			Node2dComponent* node2D = circleCollider2d->GetComponent<Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				Vector2 scale = node2D->GetScale();

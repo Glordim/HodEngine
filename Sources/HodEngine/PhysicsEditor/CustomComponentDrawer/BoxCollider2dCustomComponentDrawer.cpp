@@ -32,7 +32,7 @@ namespace hod::inline editor
 		BoxCollider2dComponent* boxCollider2d = static_cast<BoxCollider2dComponent*>(component);
 		if (boxCollider2d != nullptr)
 		{
-			Node2dComponent* node2D = boxCollider2d->GetOwner()->GetComponent<Node2dComponent>();
+			Node2dComponent* node2D = boxCollider2d->GetComponent<Node2dComponent>();
 			if (node2D != nullptr)
 			{
 				Matrix4 localMatrix = Matrix4::Translation(boxCollider2d->GetOffset()) * Matrix4::Rotation(boxCollider2d->GetRotation());
