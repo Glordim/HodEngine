@@ -20,11 +20,11 @@
 
 namespace hod::inline physics
 {
-	DESCRIBE_REFLECTED_ENUM(Rigidbody2dComponent::Mode, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(Rigidbody2dComponent::Mode)
 	{
-		reflectionDescriptor.AddEnumValue(Rigidbody2dComponent::Mode::Static, "Static");
-		reflectionDescriptor.AddEnumValue(Rigidbody2dComponent::Mode::Kinematic, "Kinematic");
-		reflectionDescriptor.AddEnumValue(Rigidbody2dComponent::Mode::Dynamic, "Dynamic");
+		HOD_ENUM_VALUE(Static);
+		HOD_ENUM_VALUE(Kinematic);
+		HOD_ENUM_VALUE(Dynamic);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(Rigidbody2dComponent)

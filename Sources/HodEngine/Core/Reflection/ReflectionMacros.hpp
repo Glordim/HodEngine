@@ -127,11 +127,19 @@ public:                                                                         
 /// @brief HOD_PROPERTY with its name given (a string literal): the member renamed, its data kept
 #define HOD_PROPERTY_NAMED(MEMBER, NAME, ...) hod::AddPropertyT(reflectionDescriptor, &ReflectedClassType::MEMBER, NAME __VA_OPT__(, ) __VA_ARGS__)
 
-#define REFLECTED_ENUM(__API__, __TYPE__) __API__ friend void DescribeEnum(hod::EnumDescriptor& reflectionDescriptor, __TYPE__)
-#define REFLECTED_ENUM2(__API__, __TYPE__) __API__ void DescribeEnum(hod::EnumDescriptor& reflectionDescriptor, __TYPE__)
+#define REFLECTED_ENUM(__API__, __TYPE__) __API__ friend void DescribeEnum(hod::EnumDescriptor& enumDescriptor, __TYPE__)
+#define REFLECTED_ENUM2(__API__, __TYPE__) __API__ void DescribeEnum(hod::EnumDescriptor& enumDescriptor, __TYPE__)
 
-///@brief
-#define DESCRIBE_REFLECTED_ENUM(__TYPE__, reflectionDescriptor) void DescribeEnum(hod::EnumDescriptor& reflectionDescriptor, __TYPE__)
-#define DESCRIBE_REFLECTED_ENUM2(__API__, __TYPE__, reflectionDescriptor) \
-	template class __API__ hod::ReflectedEnum<__TYPE__>;                  \
-	void                   DescribeEnum(hod::EnumDescriptor& reflectionDescriptor, __TYPE__)
+///@brief Its values (HOD_ENUM_VALUE). The descriptor being built is the parameter enumDescriptor, the enum's type the one of reflectedEnum,
+/// which the HOD_ENUM_ macros use
+#define DESCRIBE_REFLECTED_ENUM(__TYPE__) void DescribeEnum([[maybe_unused]] hod::EnumDescriptor& enumDescriptor, [[maybe_unused]] __TYPE__ reflectedEnum)
+#define DESCRIBE_REFLECTED_ENUM2(__API__, __TYPE__)          \
+	template class __API__ hod::ReflectedEnum<__TYPE__>; \
+	void                   DescribeEnum([[maybe_unused]] hod::EnumDescriptor& enumDescriptor, [[maybe_unused]] __TYPE__ reflectedEnum)
+
+/// @brief In a DESCRIBE_REFLECTED_ENUM: a value of the enum, labelled with its name as written (HOD_ENUM_VALUE(Dynamic): "Dynamic").
+/// The label is what the editor shows, the files keep the value
+#define HOD_ENUM_VALUE(VALUE) enumDescriptor.AddEnumValue(decltype(reflectedEnum)::VALUE, #VALUE)
+
+/// @brief HOD_ENUM_VALUE with its label given (a string literal): "Space Between" for SpaceBetween
+#define HOD_ENUM_VALUE_NAMED(VALUE, LABEL) enumDescriptor.AddEnumValue(decltype(reflectedEnum)::VALUE, LABEL)

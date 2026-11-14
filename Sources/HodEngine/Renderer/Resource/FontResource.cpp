@@ -8,17 +8,17 @@
 
 namespace hod::inline renderer
 {
-	DESCRIBE_REFLECTED_ENUM(FontResource::Weight, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(FontResource::Weight)
 	{
-		reflectionDescriptor.AddEnumValue(FontResource::Weight::Thin, "Thin");
-		reflectionDescriptor.AddEnumValue(FontResource::Weight::ExtraLight, "ExtraLight");
-		reflectionDescriptor.AddEnumValue(FontResource::Weight::Light, "Light");
-		reflectionDescriptor.AddEnumValue(FontResource::Weight::Regular, "Regular");
-		reflectionDescriptor.AddEnumValue(FontResource::Weight::Medium, "Medium");
-		reflectionDescriptor.AddEnumValue(FontResource::Weight::SemiBold, "SemiBold");
-		reflectionDescriptor.AddEnumValue(FontResource::Weight::Bold, "Bold");
-		reflectionDescriptor.AddEnumValue(FontResource::Weight::ExtraBold, "ExtraBold");
-		reflectionDescriptor.AddEnumValue(FontResource::Weight::Black, "Black");
+		HOD_ENUM_VALUE(Thin);
+		HOD_ENUM_VALUE(ExtraLight);
+		HOD_ENUM_VALUE(Light);
+		HOD_ENUM_VALUE(Regular);
+		HOD_ENUM_VALUE(Medium);
+		HOD_ENUM_VALUE(SemiBold);
+		HOD_ENUM_VALUE(Bold);
+		HOD_ENUM_VALUE(ExtraBold);
+		HOD_ENUM_VALUE(Black);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(FontResource) {}

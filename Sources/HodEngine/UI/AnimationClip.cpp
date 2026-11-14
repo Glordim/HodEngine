@@ -10,22 +10,22 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_ENUM(AnimationKey::Easing, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(AnimationKey::Easing)
 	{
-		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::Linear, "Linear");
-		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::Constant, "Constant");
-		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::QuadIn, "QuadIn");
-		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::QuadOut, "QuadOut");
-		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::QuadInOut, "QuadInOut");
-		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::CubicIn, "CubicIn");
-		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::CubicOut, "CubicOut");
-		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::CubicInOut, "CubicInOut");
-		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::BackIn, "BackIn");
-		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::BackOut, "BackOut");
-		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::BackInOut, "BackInOut");
-		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::BounceOut, "BounceOut");
-		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::ElasticOut, "ElasticOut");
-		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::Smooth, "Smooth");
+		HOD_ENUM_VALUE(Linear);
+		HOD_ENUM_VALUE(Constant);
+		HOD_ENUM_VALUE(QuadIn);
+		HOD_ENUM_VALUE(QuadOut);
+		HOD_ENUM_VALUE(QuadInOut);
+		HOD_ENUM_VALUE(CubicIn);
+		HOD_ENUM_VALUE(CubicOut);
+		HOD_ENUM_VALUE(CubicInOut);
+		HOD_ENUM_VALUE(BackIn);
+		HOD_ENUM_VALUE(BackOut);
+		HOD_ENUM_VALUE(BackInOut);
+		HOD_ENUM_VALUE(BounceOut);
+		HOD_ENUM_VALUE(ElasticOut);
+		HOD_ENUM_VALUE(Smooth);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(AnimationKey)
@@ -42,11 +42,11 @@ namespace hod::inline ui
 		HOD_PROPERTY(_keys);
 	}
 
-	DESCRIBE_REFLECTED_ENUM(AnimationClip::WrapMode, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(AnimationClip::WrapMode)
 	{
-		reflectionDescriptor.AddEnumValue(AnimationClip::WrapMode::Once, "Once");
-		reflectionDescriptor.AddEnumValue(AnimationClip::WrapMode::Loop, "Loop");
-		reflectionDescriptor.AddEnumValue(AnimationClip::WrapMode::PingPong, "PingPong");
+		HOD_ENUM_VALUE(Once);
+		HOD_ENUM_VALUE(Loop);
+		HOD_ENUM_VALUE(PingPong);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(AnimationClip)

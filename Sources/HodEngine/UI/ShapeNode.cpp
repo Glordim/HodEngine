@@ -14,17 +14,17 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_ENUM(ShapeNode::ShadowDirection, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(ShapeNode::ShadowDirection)
 	{
-		reflectionDescriptor.AddEnumValue(ShapeNode::ShadowDirection::Around, "Around");
-		reflectionDescriptor.AddEnumValue(ShapeNode::ShadowDirection::Down, "Down");
-		reflectionDescriptor.AddEnumValue(ShapeNode::ShadowDirection::Up, "Up");
-		reflectionDescriptor.AddEnumValue(ShapeNode::ShadowDirection::Left, "Left");
-		reflectionDescriptor.AddEnumValue(ShapeNode::ShadowDirection::Right, "Right");
-		reflectionDescriptor.AddEnumValue(ShapeNode::ShadowDirection::DownLeft, "DownLeft");
-		reflectionDescriptor.AddEnumValue(ShapeNode::ShadowDirection::DownRight, "DownRight");
-		reflectionDescriptor.AddEnumValue(ShapeNode::ShadowDirection::UpLeft, "UpLeft");
-		reflectionDescriptor.AddEnumValue(ShapeNode::ShadowDirection::UpRight, "UpRight");
+		HOD_ENUM_VALUE(Around);
+		HOD_ENUM_VALUE(Down);
+		HOD_ENUM_VALUE(Up);
+		HOD_ENUM_VALUE(Left);
+		HOD_ENUM_VALUE(Right);
+		HOD_ENUM_VALUE(DownLeft);
+		HOD_ENUM_VALUE(DownRight);
+		HOD_ENUM_VALUE(UpLeft);
+		HOD_ENUM_VALUE(UpRight);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(ShapeNode)

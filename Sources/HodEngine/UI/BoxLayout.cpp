@@ -259,14 +259,14 @@ namespace hod::inline ui
 		}
 	}
 
-	DESCRIBE_REFLECTED_ENUM(HorizontalLayout::Alignment, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(HorizontalLayout::Alignment)
 	{
-		reflectionDescriptor.AddEnumValue(HorizontalLayout::Alignment::Left, "Left");
-		reflectionDescriptor.AddEnumValue(HorizontalLayout::Alignment::Center, "Center");
-		reflectionDescriptor.AddEnumValue(HorizontalLayout::Alignment::Right, "Right");
-		reflectionDescriptor.AddEnumValue(HorizontalLayout::Alignment::SpaceBetween, "Space Between");
-		reflectionDescriptor.AddEnumValue(HorizontalLayout::Alignment::SpaceAround, "Space Around");
-		reflectionDescriptor.AddEnumValue(HorizontalLayout::Alignment::SpaceEvenly, "Space Evenly");
+		HOD_ENUM_VALUE(Left);
+		HOD_ENUM_VALUE(Center);
+		HOD_ENUM_VALUE(Right);
+		HOD_ENUM_VALUE_NAMED(SpaceBetween, "Space Between");
+		HOD_ENUM_VALUE_NAMED(SpaceAround, "Space Around");
+		HOD_ENUM_VALUE_NAMED(SpaceEvenly, "Space Evenly");
 	}
 
 	DESCRIBE_REFLECTED_CLASS(HorizontalLayout)
@@ -308,14 +308,14 @@ namespace hod::inline ui
 		SetAlignment(static_cast<Alignment>(mainAlignIndex));
 	}
 
-	DESCRIBE_REFLECTED_ENUM(VerticalLayout::Alignment, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(VerticalLayout::Alignment)
 	{
-		reflectionDescriptor.AddEnumValue(VerticalLayout::Alignment::Top, "Top");
-		reflectionDescriptor.AddEnumValue(VerticalLayout::Alignment::Center, "Center");
-		reflectionDescriptor.AddEnumValue(VerticalLayout::Alignment::Bottom, "Bottom");
-		reflectionDescriptor.AddEnumValue(VerticalLayout::Alignment::SpaceBetween, "Space Between");
-		reflectionDescriptor.AddEnumValue(VerticalLayout::Alignment::SpaceAround, "Space Around");
-		reflectionDescriptor.AddEnumValue(VerticalLayout::Alignment::SpaceEvenly, "Space Evenly");
+		HOD_ENUM_VALUE(Top);
+		HOD_ENUM_VALUE(Center);
+		HOD_ENUM_VALUE(Bottom);
+		HOD_ENUM_VALUE_NAMED(SpaceBetween, "Space Between");
+		HOD_ENUM_VALUE_NAMED(SpaceAround, "Space Around");
+		HOD_ENUM_VALUE_NAMED(SpaceEvenly, "Space Evenly");
 	}
 
 	DESCRIBE_REFLECTED_CLASS(VerticalLayout)

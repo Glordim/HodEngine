@@ -15,10 +15,10 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_ENUM(ScrollView::MovementType, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(ScrollView::MovementType)
 	{
-		reflectionDescriptor.AddEnumValue(ScrollView::MovementType::Clamped, "Clamped");
-		reflectionDescriptor.AddEnumValue(ScrollView::MovementType::Elastic, "Elastic");
+		HOD_ENUM_VALUE(Clamped);
+		HOD_ENUM_VALUE(Elastic);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(ScrollView)

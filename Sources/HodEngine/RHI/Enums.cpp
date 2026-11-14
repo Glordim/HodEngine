@@ -3,30 +3,30 @@
 
 namespace hod::inline rhi
 {
-	DESCRIBE_REFLECTED_ENUM(FilterMode, enumReflection)
+	DESCRIBE_REFLECTED_ENUM(FilterMode)
 	{
-		enumReflection.AddEnumValue(FilterMode::Linear, "Linear");
-		enumReflection.AddEnumValue(FilterMode::Nearest, "Nearest");
+		HOD_ENUM_VALUE(Linear);
+		HOD_ENUM_VALUE(Nearest);
 	}
 
-	DESCRIBE_REFLECTED_ENUM(WrapMode, enumReflection)
+	DESCRIBE_REFLECTED_ENUM(WrapMode)
 	{
-		enumReflection.AddEnumValue(WrapMode::Clamp, "Clamp");
-		enumReflection.AddEnumValue(WrapMode::Repeat, "Repeat");
+		HOD_ENUM_VALUE(Clamp);
+		HOD_ENUM_VALUE(Repeat);
 	}
 
-	DESCRIBE_REFLECTED_ENUM(BlendMode, enumReflection)
+	DESCRIBE_REFLECTED_ENUM(BlendMode)
 	{
-		enumReflection.AddEnumValue(BlendMode::Opaque, "Opaque");
-		enumReflection.AddEnumValue(BlendMode::Alpha, "Alpha");
-		enumReflection.AddEnumValue(BlendMode::PremultipliedAlpha, "PremultipliedAlpha");
-		enumReflection.AddEnumValue(BlendMode::Additive, "Additive");
+		HOD_ENUM_VALUE(Opaque);
+		HOD_ENUM_VALUE(Alpha);
+		HOD_ENUM_VALUE(PremultipliedAlpha);
+		HOD_ENUM_VALUE(Additive);
 	}
 
-	DESCRIBE_REFLECTED_ENUM(CullMode, enumReflection)
+	DESCRIBE_REFLECTED_ENUM(CullMode)
 	{
-		enumReflection.AddEnumValue(CullMode::None, "None");
-		enumReflection.AddEnumValue(CullMode::Back, "Back");
-		enumReflection.AddEnumValue(CullMode::Front, "Front");
+		HOD_ENUM_VALUE(None);
+		HOD_ENUM_VALUE(Back);
+		HOD_ENUM_VALUE(Front);
 	}
 }

@@ -3,10 +3,10 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_ENUM(BoxLayoutParams::Rule, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(BoxLayoutParams::Rule)
 	{
-		reflectionDescriptor.AddEnumValue(BoxLayoutParams::Rule::OwnSize, "Own Size");
-		reflectionDescriptor.AddEnumValue(BoxLayoutParams::Rule::Fill, "Fill");
+		HOD_ENUM_VALUE_NAMED(OwnSize, "Own Size");
+		HOD_ENUM_VALUE(Fill);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(BoxLayoutParams)
@@ -68,12 +68,12 @@ namespace hod::inline ui
 		}
 	}
 
-	DESCRIBE_REFLECTED_ENUM(HorizontalLayoutParams::VerticalAlign, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(HorizontalLayoutParams::VerticalAlign)
 	{
-		reflectionDescriptor.AddEnumValue(HorizontalLayoutParams::VerticalAlign::Top, "Top");
-		reflectionDescriptor.AddEnumValue(HorizontalLayoutParams::VerticalAlign::Center, "Center");
-		reflectionDescriptor.AddEnumValue(HorizontalLayoutParams::VerticalAlign::Bottom, "Bottom");
-		reflectionDescriptor.AddEnumValue(HorizontalLayoutParams::VerticalAlign::Stretch, "Stretch");
+		HOD_ENUM_VALUE(Top);
+		HOD_ENUM_VALUE(Center);
+		HOD_ENUM_VALUE(Bottom);
+		HOD_ENUM_VALUE(Stretch);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(HorizontalLayoutParams)
@@ -105,12 +105,12 @@ namespace hod::inline ui
 		SetVerticalAlign(static_cast<VerticalAlign>(crossAlignIndex));
 	}
 
-	DESCRIBE_REFLECTED_ENUM(VerticalLayoutParams::HorizontalAlign, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(VerticalLayoutParams::HorizontalAlign)
 	{
-		reflectionDescriptor.AddEnumValue(VerticalLayoutParams::HorizontalAlign::Left, "Left");
-		reflectionDescriptor.AddEnumValue(VerticalLayoutParams::HorizontalAlign::Center, "Center");
-		reflectionDescriptor.AddEnumValue(VerticalLayoutParams::HorizontalAlign::Right, "Right");
-		reflectionDescriptor.AddEnumValue(VerticalLayoutParams::HorizontalAlign::Stretch, "Stretch");
+		HOD_ENUM_VALUE(Left);
+		HOD_ENUM_VALUE(Center);
+		HOD_ENUM_VALUE(Right);
+		HOD_ENUM_VALUE(Stretch);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(VerticalLayoutParams)

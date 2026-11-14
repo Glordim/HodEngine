@@ -22,27 +22,27 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_ENUM(TextNode::HorizontalAlignment, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(TextNode::HorizontalAlignment)
 	{
-		reflectionDescriptor.AddEnumValue(TextNode::HorizontalAlignment::Left, "Left");
-		reflectionDescriptor.AddEnumValue(TextNode::HorizontalAlignment::Center, "Center");
-		reflectionDescriptor.AddEnumValue(TextNode::HorizontalAlignment::Right, "Right");
+		HOD_ENUM_VALUE(Left);
+		HOD_ENUM_VALUE(Center);
+		HOD_ENUM_VALUE(Right);
 	}
 
-	DESCRIBE_REFLECTED_ENUM(TextNode::VerticalAlignment, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(TextNode::VerticalAlignment)
 	{
-		reflectionDescriptor.AddEnumValue(TextNode::VerticalAlignment::Top, "Top");
-		reflectionDescriptor.AddEnumValue(TextNode::VerticalAlignment::Middle, "Middle");
-		reflectionDescriptor.AddEnumValue(TextNode::VerticalAlignment::Capline, "Capline");
-		reflectionDescriptor.AddEnumValue(TextNode::VerticalAlignment::Bottom, "Bottom");
+		HOD_ENUM_VALUE(Top);
+		HOD_ENUM_VALUE(Middle);
+		HOD_ENUM_VALUE(Capline);
+		HOD_ENUM_VALUE(Bottom);
 	}
 
-	DESCRIBE_REFLECTED_ENUM(TextNode::Overflow, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(TextNode::Overflow)
 	{
-		reflectionDescriptor.AddEnumValue(TextNode::Overflow::Overflow, "Overflow");
-		reflectionDescriptor.AddEnumValue(TextNode::Overflow::Clip, "Clip");
-		reflectionDescriptor.AddEnumValue(TextNode::Overflow::Ellipsis, "Ellipsis");
-		reflectionDescriptor.AddEnumValue(TextNode::Overflow::Shrink, "Shrink");
+		HOD_ENUM_VALUE(Overflow);
+		HOD_ENUM_VALUE(Clip);
+		HOD_ENUM_VALUE(Ellipsis);
+		HOD_ENUM_VALUE(Shrink);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(TextNode)

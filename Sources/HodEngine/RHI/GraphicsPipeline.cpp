@@ -8,24 +8,24 @@
 
 namespace hod::inline rhi
 {
-	DESCRIBE_REFLECTED_ENUM(GraphicsPipeline::PolygonMode, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(GraphicsPipeline::PolygonMode)
 	{
 		// constexpr auto names = EnumTrait::GetEnumNames<Entity::InternalState, 0, 1>();
 
-		reflectionDescriptor.AddEnumValue(GraphicsPipeline::PolygonMode::Fill, "Fill");
-		reflectionDescriptor.AddEnumValue(GraphicsPipeline::PolygonMode::Line, "Line");
-		reflectionDescriptor.AddEnumValue(GraphicsPipeline::PolygonMode::Point, "Point");
+		HOD_ENUM_VALUE(Fill);
+		HOD_ENUM_VALUE(Line);
+		HOD_ENUM_VALUE(Point);
 	}
 
-	DESCRIBE_REFLECTED_ENUM(GraphicsPipeline::Topology, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(GraphicsPipeline::Topology)
 	{
 		// constexpr auto names = EnumTrait::GetEnumNames<Entity::InternalState, 0, 1>();
 
-		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topology::POINT, "Point");
-		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topology::LINE, "Line");
-		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topology::LINE_STRIP, "LineStrip");
-		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topology::TRIANGLE, "Triangle");
-		reflectionDescriptor.AddEnumValue(GraphicsPipeline::Topology::TRIANGLE_FAN, "TriangleFan");
+		HOD_ENUM_VALUE_NAMED(POINT, "Point");
+		HOD_ENUM_VALUE_NAMED(LINE, "Line");
+		HOD_ENUM_VALUE_NAMED(LINE_STRIP, "LineStrip");
+		HOD_ENUM_VALUE_NAMED(TRIANGLE, "Triangle");
+		HOD_ENUM_VALUE_NAMED(TRIANGLE_FAN, "TriangleFan");
 	}
 
 	GraphicsPipeline::GraphicsPipeline() {}

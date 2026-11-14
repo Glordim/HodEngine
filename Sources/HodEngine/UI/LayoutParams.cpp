@@ -6,10 +6,10 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_ENUM(LayoutParams::SizeMode, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(LayoutParams::SizeMode)
 	{
-		reflectionDescriptor.AddEnumValue(LayoutParams::SizeMode::Fixed, "Fixed");
-		reflectionDescriptor.AddEnumValue(LayoutParams::SizeMode::Content, "Content");
+		HOD_ENUM_VALUE(Fixed);
+		HOD_ENUM_VALUE(Content);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(LayoutParams)

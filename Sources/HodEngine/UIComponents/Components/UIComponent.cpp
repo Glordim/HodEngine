@@ -21,10 +21,10 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_ENUM(UIComponent::RenderMode, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(UIComponent::RenderMode)
 	{
-		reflectionDescriptor.AddEnumValue(UIComponent::RenderMode::Screen, "Screen");
-		reflectionDescriptor.AddEnumValue(UIComponent::RenderMode::World, "World");
+		HOD_ENUM_VALUE(Screen);
+		HOD_ENUM_VALUE(World);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(UIComponent)

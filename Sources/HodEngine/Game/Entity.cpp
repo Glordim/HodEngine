@@ -21,15 +21,15 @@ namespace hod::inline game
 	// From 1: 0 is "none" (WeakEntity, PickingManager::InvalidId: an entity of id 0 would not be pickable in the viewports)
 	std::atomic<uint64_t> Entity::_nextInstanceId = 1;
 
-	DESCRIBE_REFLECTED_ENUM(Entity::InternalState, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(Entity::InternalState)
 	{
 		// constexpr auto names = EnumTrait::GetEnumNames<Entity::InternalState, 0, 1>();
 
-		reflectionDescriptor.AddEnumValue(Entity::InternalState::None, "None");
-		reflectionDescriptor.AddEnumValue(Entity::InternalState::Constructed, "Constructed");
-		reflectionDescriptor.AddEnumValue(Entity::InternalState::Awaked, "Awaked");
-		reflectionDescriptor.AddEnumValue(Entity::InternalState::Started, "Started");
-		reflectionDescriptor.AddEnumValue(Entity::InternalState::Destructed, "Destructed");
+		HOD_ENUM_VALUE(None);
+		HOD_ENUM_VALUE(Constructed);
+		HOD_ENUM_VALUE(Awaked);
+		HOD_ENUM_VALUE(Started);
+		HOD_ENUM_VALUE(Destructed);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(Entity)

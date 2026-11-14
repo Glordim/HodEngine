@@ -12,11 +12,11 @@
 
 namespace hod::inline renderer
 {
-	DESCRIBE_REFLECTED_ENUM(FontFaceResource::RenderMode, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(FontFaceResource::RenderMode)
 	{
-		reflectionDescriptor.AddEnumValue(FontFaceResource::RenderMode::Smooth, "Smooth");
-		reflectionDescriptor.AddEnumValue(FontFaceResource::RenderMode::PixelArt, "PixelArt");
-		reflectionDescriptor.AddEnumValue(FontFaceResource::RenderMode::Sdf, "Sdf");
+		HOD_ENUM_VALUE(Smooth);
+		HOD_ENUM_VALUE(PixelArt);
+		HOD_ENUM_VALUE(Sdf);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(FontFaceResource)

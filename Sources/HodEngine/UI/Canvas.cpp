@@ -12,13 +12,13 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_ENUM(CanvasScaler::Mode, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(CanvasScaler::Mode)
 	{
-		reflectionDescriptor.AddEnumValue(CanvasScaler::Mode::Fit, "Fit");
-		reflectionDescriptor.AddEnumValue(CanvasScaler::Mode::Expand, "Expand");
-		reflectionDescriptor.AddEnumValue(CanvasScaler::Mode::Shrink, "Shrink");
-		reflectionDescriptor.AddEnumValue(CanvasScaler::Mode::MatchWidth, "MatchWidth");
-		reflectionDescriptor.AddEnumValue(CanvasScaler::Mode::MatchHeight, "MatchHeight");
+		HOD_ENUM_VALUE(Fit);
+		HOD_ENUM_VALUE(Expand);
+		HOD_ENUM_VALUE(Shrink);
+		HOD_ENUM_VALUE(MatchWidth);
+		HOD_ENUM_VALUE(MatchHeight);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(CanvasScaler)

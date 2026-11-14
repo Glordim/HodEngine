@@ -17,10 +17,10 @@ namespace hod::inline renderer
 {
 	CameraComponent* CameraComponent::_main = nullptr;
 
-	DESCRIBE_REFLECTED_ENUM(CameraComponent::Projection, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(CameraComponent::Projection)
 	{
-		reflectionDescriptor.AddEnumValue(CameraComponent::Projection::Orthographic, "Orthographic");
-		reflectionDescriptor.AddEnumValue(CameraComponent::Projection::Perpective, "Perpective");
+		HOD_ENUM_VALUE(Orthographic);
+		HOD_ENUM_VALUE(Perpective);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(CameraComponent)

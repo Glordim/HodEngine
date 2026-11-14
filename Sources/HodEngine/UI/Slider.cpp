@@ -16,12 +16,12 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_ENUM(Slider::Direction, reflectionDescriptor)
+	DESCRIBE_REFLECTED_ENUM(Slider::Direction)
 	{
-		reflectionDescriptor.AddEnumValue(Slider::Direction::LeftToRight, "LeftToRight");
-		reflectionDescriptor.AddEnumValue(Slider::Direction::RightToLeft, "RightToLeft");
-		reflectionDescriptor.AddEnumValue(Slider::Direction::BottomToTop, "BottomToTop");
-		reflectionDescriptor.AddEnumValue(Slider::Direction::TopToBottom, "TopToBottom");
+		HOD_ENUM_VALUE(LeftToRight);
+		HOD_ENUM_VALUE(RightToLeft);
+		HOD_ENUM_VALUE(BottomToTop);
+		HOD_ENUM_VALUE(TopToBottom);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(Slider)
