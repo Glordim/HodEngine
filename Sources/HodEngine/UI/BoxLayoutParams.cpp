@@ -11,9 +11,9 @@ namespace hod::inline ui
 
 	DESCRIBE_REFLECTED_CLASS(BoxLayoutParams, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &BoxLayoutParams::_margin, "Margin", &BoxLayoutParams::SetMargin);
-		AddPropertyT(reflectionDescriptor, &BoxLayoutParams::_rule, "Rule", &BoxLayoutParams::SetRule);
-		AddPropertyT(reflectionDescriptor, &BoxLayoutParams::_weight, "Weight", &BoxLayoutParams::SetWeight);
+		HOD_PROPERTY(_margin, &BoxLayoutParams::SetMargin);
+		HOD_PROPERTY(_rule, &BoxLayoutParams::SetRule);
+		HOD_PROPERTY(_weight, &BoxLayoutParams::SetWeight);
 	}
 
 	/// @brief The cross-axis alignment, that each concrete type names after its own axis (VerticalAlign in a row, HorizontalAlign in a column):
@@ -78,7 +78,7 @@ namespace hod::inline ui
 
 	DESCRIBE_REFLECTED_CLASS(HorizontalLayoutParams, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &HorizontalLayoutParams::_verticalAlign, "VerticalAlign", &HorizontalLayoutParams::SetVerticalAlign);
+		HOD_PROPERTY(_verticalAlign, &HorizontalLayoutParams::SetVerticalAlign);
 	}
 
 	HorizontalLayoutParams::VerticalAlign HorizontalLayoutParams::GetVerticalAlign() const
@@ -115,7 +115,7 @@ namespace hod::inline ui
 
 	DESCRIBE_REFLECTED_CLASS(VerticalLayoutParams, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &VerticalLayoutParams::_horizontalAlign, "HorizontalAlign", &VerticalLayoutParams::SetHorizontalAlign);
+		HOD_PROPERTY(_horizontalAlign, &VerticalLayoutParams::SetHorizontalAlign);
 	}
 
 	VerticalLayoutParams::HorizontalAlign VerticalLayoutParams::GetHorizontalAlign() const

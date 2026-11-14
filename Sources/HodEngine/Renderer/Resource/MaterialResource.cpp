@@ -19,14 +19,14 @@ namespace hod::inline renderer
 {
 	DESCRIBE_REFLECTED_CLASS(MaterialResource, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &MaterialResource::_polygonMode, "_polygonMode");
-		AddPropertyT(reflectionDescriptor, &MaterialResource::_topology, "_topology");
-		AddPropertyT(reflectionDescriptor, &MaterialResource::_blendMode, "_blendMode");
-		AddPropertyT(reflectionDescriptor, &MaterialResource::_cullMode, "_cullMode");
-		AddPropertyT(reflectionDescriptor, &MaterialResource::_depthTest, "_depthTest");
-		AddPropertyT(reflectionDescriptor, &MaterialResource::_depthWrite, "_depthWrite");
+		HOD_PROPERTY(_polygonMode);
+		HOD_PROPERTY(_topology);
+		HOD_PROPERTY(_blendMode);
+		HOD_PROPERTY(_cullMode);
+		HOD_PROPERTY(_depthTest);
+		HOD_PROPERTY(_depthWrite);
 
-		AddPropertyT(reflectionDescriptor, &MaterialResource::_defaultInstanceParams, "_defaultInstanceParams");
+		HOD_PROPERTY(_defaultInstanceParams);
 	}
 
 	/// @brief

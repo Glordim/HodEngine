@@ -30,7 +30,7 @@ namespace hod::inline ui
 		/// own instance of an enum's descriptor, this one's is UI's.
 		const EnumDescriptor* GetEasingEnumDescriptor()
 		{
-			ReflectionPropertyVariable* property = AnimationKey::GetReflectionDescriptor().FindProperty<ReflectionPropertyVariable>("Easing");
+			ReflectionPropertyVariable* property = AnimationKey::GetReflectionDescriptor().FindProperty<ReflectionPropertyVariable>("_easing");
 			return (property != nullptr) ? property->GetEnumDescriptor() : nullptr;
 		}
 

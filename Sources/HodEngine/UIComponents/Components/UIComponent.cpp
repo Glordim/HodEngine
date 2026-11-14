@@ -33,13 +33,13 @@ namespace hod::inline ui
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("UI");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Shows a UI prefab, over the game or in the world");
 		reflectionDescriptor.AddTrait<ReflectionTraitRequireComponent>(&Node2dComponent::GetReflectionDescriptor);
-		AddPropertyT(reflectionDescriptor, &UIComponent::_prefab, "Prefab", &UIComponent::SetPrefab);
-		AddPropertyT(reflectionDescriptor, &UIComponent::_renderMode, "RenderMode", &UIComponent::SetRenderMode);
-		AddPropertyT(reflectionDescriptor, &UIComponent::_sortingOrder, "SortingOrder", &UIComponent::SetSortingOrder);
-		AddPropertyT(reflectionDescriptor, &UIComponent::_pixelsPerUnit, "PixelsPerUnit", &UIComponent::SetPixelsPerUnit);
+		HOD_PROPERTY(_prefab, &UIComponent::SetPrefab);
+		HOD_PROPERTY(_renderMode, &UIComponent::SetRenderMode);
+		HOD_PROPERTY(_sortingOrder, &UIComponent::SetSortingOrder);
+		HOD_PROPERTY(_pixelsPerUnit, &UIComponent::SetPixelsPerUnit);
 		// Named as before the prefab existed: the scenes saved then keep them
-		AddPropertyT(reflectionDescriptor, &UIComponent::_overrideScaler, "_overrideScaler", &UIComponent::SetOverrideScaler);
-		AddPropertyT(reflectionDescriptor, &UIComponent::_scaler, "_scaler", &UIComponent::SetScaler);
+		HOD_PROPERTY(_overrideScaler, &UIComponent::SetOverrideScaler);
+		HOD_PROPERTY(_scaler, &UIComponent::SetScaler);
 	}
 
 	namespace

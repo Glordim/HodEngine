@@ -15,14 +15,14 @@ namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(PluginManifest, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &PluginManifest::_name, "_name");
-		AddPropertyT(reflectionDescriptor, &PluginManifest::_description, "_description");
-		AddPropertyT(reflectionDescriptor, &PluginManifest::_runtimeModules, "_runtimeModules");
-		AddPropertyT(reflectionDescriptor, &PluginManifest::_editorModule, "_editorModule");
-		AddPropertyT(reflectionDescriptor, &PluginManifest::_dependencies, "_dependencies");
-		AddPropertyT(reflectionDescriptor, &PluginManifest::_provides, "_provides");
-		AddPropertyT(reflectionDescriptor, &PluginManifest::_required, "_required");
-		AddPropertyT(reflectionDescriptor, &PluginManifest::_versionControlSystems, "_versionControlSystems");
+		HOD_PROPERTY(_name);
+		HOD_PROPERTY(_description);
+		HOD_PROPERTY(_runtimeModules);
+		HOD_PROPERTY(_editorModule);
+		HOD_PROPERTY(_dependencies);
+		HOD_PROPERTY(_provides);
+		HOD_PROPERTY(_required);
+		HOD_PROPERTY(_versionControlSystems);
 	}
 
 	/// @brief

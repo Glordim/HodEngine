@@ -25,14 +25,14 @@ namespace hod::inline ui
 	{
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_PAN_VERTICAL);
 
-		AddPropertyT(reflectionDescriptor, &ScrollView::_content, "Content");
-		AddPropertyT(reflectionDescriptor, &ScrollView::_horizontal, "Horizontal", &ScrollView::SetHorizontal);
-		AddPropertyT(reflectionDescriptor, &ScrollView::_vertical, "Vertical", &ScrollView::SetVertical);
-		AddPropertyT(reflectionDescriptor, &ScrollView::_movementType, "MovementType", &ScrollView::SetMovementType);
-		AddPropertyT(reflectionDescriptor, &ScrollView::_elasticity, "Elasticity", &ScrollView::SetElasticity);
-		AddPropertyT(reflectionDescriptor, &ScrollView::_inertia, "Inertia", &ScrollView::SetInertia);
-		AddPropertyT(reflectionDescriptor, &ScrollView::_decelerationRate, "DecelerationRate", &ScrollView::SetDecelerationRate);
-		AddPropertyT(reflectionDescriptor, &ScrollView::_scrollSensitivity, "ScrollSensitivity", &ScrollView::SetScrollSensitivity);
+		HOD_PROPERTY(_content);
+		HOD_PROPERTY(_horizontal, &ScrollView::SetHorizontal);
+		HOD_PROPERTY(_vertical, &ScrollView::SetVertical);
+		HOD_PROPERTY(_movementType, &ScrollView::SetMovementType);
+		HOD_PROPERTY(_elasticity, &ScrollView::SetElasticity);
+		HOD_PROPERTY(_inertia, &ScrollView::SetInertia);
+		HOD_PROPERTY(_decelerationRate, &ScrollView::SetDecelerationRate);
+		HOD_PROPERTY(_scrollSensitivity, &ScrollView::SetScrollSensitivity);
 	}
 
 	namespace

@@ -131,7 +131,7 @@ namespace hod::inline editor
 				// The style reflected on its own: an element of the array has no parent object to reach the window through
 				ImGui::TableNextColumn();
 				EditorReflectedObject    styleObject(&style, &style.GetReflectionDescriptorV(), nullptr, this);
-				EditorReflectedProperty* faceProperty = styleObject.FindProperty("Face");
+				EditorReflectedProperty* faceProperty = styleObject.FindProperty("_face");
 				if (faceProperty != nullptr)
 				{
 					changed |= PropertyDrawer::DrawPropertyObject(*faceProperty, true);

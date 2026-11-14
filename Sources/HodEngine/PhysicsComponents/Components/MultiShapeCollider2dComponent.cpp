@@ -15,15 +15,15 @@ namespace hod::inline physics
 {
 	DESCRIBE_REFLECTED_CLASS(MultiShapeCollider2dComponent::CircleShape, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &CircleShape::_origin, "Origin");
-		AddPropertyT(reflectionDescriptor, &CircleShape::_radius, "Radius");
+		HOD_PROPERTY(_origin);
+		HOD_PROPERTY(_radius);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(MultiShapeCollider2dComponent::BoxShape, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &BoxShape::_origin, "Origin");
-		AddPropertyT(reflectionDescriptor, &BoxShape::_size, "Size");
-		AddPropertyT(reflectionDescriptor, &BoxShape::_angle, "Angle");
+		HOD_PROPERTY(_origin);
+		HOD_PROPERTY(_size);
+		HOD_PROPERTY(_angle);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(MultiShapeCollider2dComponent, reflectionDescriptor)
@@ -31,8 +31,8 @@ namespace hod::inline physics
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_SHAPE_PLUS_OUTLINE);
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Physics/Colliders");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("2D collision shape made of several circles and boxes");
-		AddPropertyT(reflectionDescriptor, &MultiShapeCollider2dComponent::_circles, "Circles");
-		AddPropertyT(reflectionDescriptor, &MultiShapeCollider2dComponent::_boxes, "Boxes");
+		HOD_PROPERTY(_circles);
+		HOD_PROPERTY(_boxes);
 	}
 
 	/// @brief

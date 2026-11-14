@@ -20,10 +20,10 @@ namespace hod::inline ui
 	{
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_IMAGE);
 
-		AddPropertyT(reflectionDescriptor, &ImageNode::_texture, "Texture", &ImageNode::SetTexture);
-		AddPropertyT(reflectionDescriptor, &ImageNode::_color, "Color", &ImageNode::SetColor);
-		AddPropertyT(reflectionDescriptor, &ImageNode::_slices, "Slices", &ImageNode::SetSlices);
-		AddPropertyT(reflectionDescriptor, &ImageNode::_sliceScale, "SliceScale", &ImageNode::SetSliceScale);
+		HOD_PROPERTY(_texture, &ImageNode::SetTexture);
+		HOD_PROPERTY(_color, &ImageNode::SetColor);
+		HOD_PROPERTY(_slices, &ImageNode::SetSlices);
+		HOD_PROPERTY(_sliceScale, &ImageNode::SetSliceScale);
 	}
 
 	/// @brief

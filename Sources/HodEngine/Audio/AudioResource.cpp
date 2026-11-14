@@ -12,8 +12,8 @@ namespace hod::inline audio
 {
 	DESCRIBE_REFLECTED_CLASS(AudioResource, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &AudioResource::_sampleRate, "_sampleRate");
-		AddPropertyT(reflectionDescriptor, &AudioResource::_channelCount, "_channelCount");
+		HOD_PROPERTY(_sampleRate);
+		HOD_PROPERTY(_channelCount);
 	}
 
 	/// @brief

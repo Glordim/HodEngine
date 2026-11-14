@@ -15,15 +15,15 @@ namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(FontSettings::Style, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &FontSettings::Style::_face, "Face");
-		AddPropertyT(reflectionDescriptor, &FontSettings::Style::_weight, "Weight");
-		AddPropertyT(reflectionDescriptor, &FontSettings::Style::_italic, "Italic");
+		HOD_PROPERTY(_face);
+		HOD_PROPERTY(_weight);
+		HOD_PROPERTY(_italic);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(FontSettings, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &FontSettings::_styles, "Styles");
-		AddPropertyT(reflectionDescriptor, &FontSettings::_fallbacks, "Fallbacks");
+		HOD_PROPERTY(_styles);
+		HOD_PROPERTY(_fallbacks);
 	}
 
 	/// @brief None set ("None" picked) are left out

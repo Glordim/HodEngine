@@ -44,9 +44,9 @@ namespace hod::inline editor
 
 	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorInspectorWindow::CanvasScalerFields, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &CanvasScalerFields::_overrideProjectSettings, "OverrideProjectSettings");
-		AddPropertyT(reflectionDescriptor, &CanvasScalerFields::_designResolution, "DesignResolution");
-		AddPropertyT(reflectionDescriptor, &CanvasScalerFields::_mode, "Mode");
+		HOD_PROPERTY(_overrideProjectSettings);
+		HOD_PROPERTY(_designResolution);
+		HOD_PROPERTY(_mode);
 	}
 
 	/// @brief
@@ -72,14 +72,14 @@ namespace hod::inline editor
 
 		// Node properties that are not drawn among the node's content: the name has its own row on top, the
 		// transform goes with the LayoutParams in the Placement block.
-		constexpr std::string_view NameProperty = "Name";
+		constexpr std::string_view NameProperty = "_name";
 
 		// Node property drawn greyed out when the node has an Interaction, which catches the pointer anyway
-		constexpr std::string_view PointerTargetProperty = "PointerTarget";
-		constexpr std::string_view GeometryProperties[] = {"Rotation", "Scale", "Pivot"};
+		constexpr std::string_view PointerTargetProperty = "_pointerTarget";
+		constexpr std::string_view GeometryProperties[] = {"_rotation", "_scale", "_pivot"};
 
 		// CanvasScalerFields' row toggling the other ones (see DrawCanvasBlock)
-		constexpr std::string_view OverrideProjectSettingsProperty = "OverrideProjectSettings";
+		constexpr std::string_view OverrideProjectSettingsProperty = "_overrideProjectSettings";
 
 		bool IsGeometryProperty(std::string_view name)
 		{
@@ -94,11 +94,11 @@ namespace hod::inline editor
 		}
 
 		// LayoutParams' WidthMode/HeightMode, drawn together on one Size Mode row (see DrawSizeModeRow)
-		constexpr std::string_view WidthModeProperty = "WidthMode";
-		constexpr std::string_view HeightModeProperty = "HeightMode";
+		constexpr std::string_view WidthModeProperty = "_widthMode";
+		constexpr std::string_view HeightModeProperty = "_heightMode";
 
 		// Declared by LayoutParams itself, hence shared by every LayoutParams type: drawn in their own section (see DrawSizeFields)
-		constexpr std::string_view CommonLayoutParamsProperties[] = {WidthModeProperty, HeightModeProperty, "Size", "MinSize", "MaxSize"};
+		constexpr std::string_view CommonLayoutParamsProperties[] = {WidthModeProperty, HeightModeProperty, "_size", "_minSize", "_maxSize"};
 
 		bool IsCommonLayoutParamsProperty(std::string_view name)
 		{
@@ -675,9 +675,9 @@ namespace hod::inline editor
 			}
 			anchorsChanged = true;
 		}
-		anchorsChanged |= DrawLayoutParamsProperty(layoutParamsObject, "AnchorMin");
-		anchorsChanged |= DrawLayoutParamsProperty(layoutParamsObject, "AnchorMax");
-		anchorsChanged |= DrawLayoutParamsProperty(layoutParamsObject, "Alignment");
+		anchorsChanged |= DrawLayoutParamsProperty(layoutParamsObject, "_anchorMin");
+		anchorsChanged |= DrawLayoutParamsProperty(layoutParamsObject, "_anchorMax");
+		anchorsChanged |= DrawLayoutParamsProperty(layoutParamsObject, "_alignment");
 
 		if (anchorsChanged)
 		{
@@ -688,7 +688,7 @@ namespace hod::inline editor
 			changed = true;
 		}
 
-		changed |= DrawLayoutParamsProperty(layoutParamsObject, "Offset");
+		changed |= DrawLayoutParamsProperty(layoutParamsObject, "_offset");
 
 		return changed;
 	}
@@ -725,7 +725,7 @@ namespace hod::inline editor
 		                           "Unused: the height is stretched, the anchors and the size delta give it");
 
 		// Size, by hand rather than reflected to tell its components apart: a delta added to the anchors' span on a stretched axis (dX/dY), the node's own size on the others
-		if (EditorReflectedProperty* sizeProperty = layoutParamsObject.FindProperty("Size"))
+		if (EditorReflectedProperty* sizeProperty = layoutParamsObject.FindProperty("_size"))
 		{
 			// A Content axis anchored on a point takes its size from the content: that component is unused
 			bool usedX = anyFixedX || anyStretchedX;
@@ -773,8 +773,8 @@ namespace hod::inline editor
 			ImGui::PopID();
 		}
 
-		changed |= DrawLayoutParamsProperty(layoutParamsObject, "MinSize");
-		changed |= DrawLayoutParamsProperty(layoutParamsObject, "MaxSize");
+		changed |= DrawLayoutParamsProperty(layoutParamsObject, "_minSize");
+		changed |= DrawLayoutParamsProperty(layoutParamsObject, "_maxSize");
 
 		return changed;
 	}

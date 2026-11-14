@@ -18,10 +18,10 @@ namespace hod::inline physics
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_PILL);
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Physics/Colliders");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Capsule-shaped 2D collision shape");
-		AddPropertyT(reflectionDescriptor, &CapsuleCollider2dComponent::_offset, "Offset", &CapsuleCollider2dComponent::SetOffset);
-		AddPropertyT(reflectionDescriptor, &CapsuleCollider2dComponent::_height, "Height", &CapsuleCollider2dComponent::SetHeight);
-		AddPropertyT(reflectionDescriptor, &CapsuleCollider2dComponent::_radius, "Radius", &CapsuleCollider2dComponent::SetRadius);
-		AddPropertyT(reflectionDescriptor, &CapsuleCollider2dComponent::_rotation, "Rotation", &CapsuleCollider2dComponent::SetRotation);
+		HOD_PROPERTY(_offset, &CapsuleCollider2dComponent::SetOffset);
+		HOD_PROPERTY(_height, &CapsuleCollider2dComponent::SetHeight);
+		HOD_PROPERTY(_radius, &CapsuleCollider2dComponent::SetRadius);
+		HOD_PROPERTY(_rotation, &CapsuleCollider2dComponent::SetRotation);
 	}
 
 	/// @brief 

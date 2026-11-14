@@ -15,12 +15,12 @@ namespace hod::inline renderer
 {
 	DESCRIBE_REFLECTED_CLASS(TextureResource, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &TextureResource::_width, "_width");
-		AddPropertyT(reflectionDescriptor, &TextureResource::_height, "_height");
-		AddPropertyT(reflectionDescriptor, &TextureResource::_mipLevelCount, "_mipLevelCount");
-		AddPropertyT(reflectionDescriptor, &TextureResource::_componentCount, "_componentCount");
-		AddPropertyT(reflectionDescriptor, &TextureResource::_filterMode, "_filterMode");
-		AddPropertyT(reflectionDescriptor, &TextureResource::_wrapMode, "_wrapMode");
+		HOD_PROPERTY(_width);
+		HOD_PROPERTY(_height);
+		HOD_PROPERTY(_mipLevelCount);
+		HOD_PROPERTY(_componentCount);
+		HOD_PROPERTY(_filterMode);
+		HOD_PROPERTY(_wrapMode);
 	}
 
 	/// @brief

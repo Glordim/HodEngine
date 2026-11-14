@@ -23,9 +23,9 @@ namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(TextureSettings, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &TextureSettings::_generateMipmap, "GenerateMipmap");
-		AddPropertyT(reflectionDescriptor, &TextureSettings::_filterMode, "FilterMode");
-		AddPropertyT(reflectionDescriptor, &TextureSettings::_wrapMode, "WrapMode");
+		HOD_PROPERTY(_generateMipmap);
+		HOD_PROPERTY(_filterMode);
+		HOD_PROPERTY(_wrapMode);
 	}
 
 	static constexpr std::underlying_type_t<Platform> bcPlatforms = std::to_underlying(Platform::Windows) | std::to_underlying(Platform::Linux);

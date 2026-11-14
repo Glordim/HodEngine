@@ -26,9 +26,9 @@ namespace hod::inline physics
 		reflectionDescriptor.AddTrait<ReflectionTraitHide>();
 		// Not a Rigidbody2d: a collider without one is static (see TODO.txt)
 		reflectionDescriptor.AddTrait<ReflectionTraitRequireComponent>(&Node2dComponent::GetReflectionDescriptor);
-		AddPropertyT(reflectionDescriptor, &Collider2dComponent::_isTrigger, "IsTrigger");
-		AddPropertyT(reflectionDescriptor, &Collider2dComponent::_friction, "Friction");
-		AddPropertyT(reflectionDescriptor, &Collider2dComponent::_density, "Density");
+		HOD_PROPERTY(_isTrigger);
+		HOD_PROPERTY(_friction);
+		HOD_PROPERTY(_density);
 	}
 
 	Collider2dComponent::Collider2dComponent()

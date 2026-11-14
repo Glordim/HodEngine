@@ -1318,7 +1318,7 @@ namespace hod::inline editor
 		{
 			return false;
 		}
-		DocumentNode& nameNode = childrenNode->GetFirstChild()->GetOrAddChild("Name");
+		DocumentNode& nameNode = childrenNode->GetFirstChild()->GetOrAddChild("_name");
 		if (nameNode.GetType() == DocumentNode::Type::String && std::string_view(nameNode.GetString().CStr(), nameNode.GetString().Length()) == assetName)
 		{
 			return false;

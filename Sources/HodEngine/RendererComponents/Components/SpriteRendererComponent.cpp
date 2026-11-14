@@ -12,7 +12,7 @@ namespace hod::inline renderer
 {
 	DESCRIBE_REFLECTED_CLASS(SpriteRendererComponent, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &SpriteRendererComponent::_sprite, "_sprite");
+		HOD_PROPERTY(_sprite);
 		// ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
 	}
 

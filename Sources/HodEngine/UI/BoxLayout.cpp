@@ -10,8 +10,8 @@ namespace hod::inline ui
 {
 	DESCRIBE_REFLECTED_CLASS(BoxLayout, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &BoxLayout::_padding, "Padding", &BoxLayout::SetPadding);
-		AddPropertyT(reflectionDescriptor, &BoxLayout::_spacing, "Spacing", &BoxLayout::SetSpacing);
+		HOD_PROPERTY(_padding, &BoxLayout::SetPadding);
+		HOD_PROPERTY(_spacing, &BoxLayout::SetSpacing);
 	}
 
 	BoxLayout::BoxLayout(Axis axis)
@@ -271,7 +271,7 @@ namespace hod::inline ui
 
 	DESCRIBE_REFLECTED_CLASS(HorizontalLayout, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &HorizontalLayout::_alignment, "Alignment", &HorizontalLayout::SetAlignment);
+		HOD_PROPERTY(_alignment, &HorizontalLayout::SetAlignment);
 	}
 
 	HorizontalLayout::HorizontalLayout()
@@ -320,7 +320,7 @@ namespace hod::inline ui
 
 	DESCRIBE_REFLECTED_CLASS(VerticalLayout, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &VerticalLayout::_alignment, "Alignment", &VerticalLayout::SetAlignment);
+		HOD_PROPERTY(_alignment, &VerticalLayout::SetAlignment);
 	}
 
 	VerticalLayout::VerticalLayout()

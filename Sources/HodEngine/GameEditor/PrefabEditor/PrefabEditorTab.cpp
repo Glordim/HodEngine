@@ -162,7 +162,7 @@ namespace hod::inline editor
 		const DocumentNode* rootNode = nullptr;
 		for (const DocumentNode* entityNode = entitiesNode->GetFirstChild(); entityNode != nullptr; entityNode = entityNode->GetNextSibling())
 		{
-			const DocumentNode* parentNode = entityNode->GetChild("Parent");
+			const DocumentNode* parentNode = entityNode->GetChild("_parent");
 			const DocumentNode* parentIdNode = parentNode != nullptr ? parentNode->GetChild("Id") : nullptr;
 			if (parentIdNode == nullptr || parentIdNode->GetUInt64() == 0)
 			{

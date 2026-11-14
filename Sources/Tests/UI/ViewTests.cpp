@@ -59,9 +59,9 @@ namespace hod
 
 	DESCRIBE_REFLECTED_CLASS(TestView, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &TestView::_label, "Label");
-		AddPropertyT(reflectionDescriptor, &TestView::_panel, "Panel");
-		AddPropertyT(reflectionDescriptor, &TestView::_nested, "Nested");
+		HOD_PROPERTY(_label);
+		HOD_PROPERTY(_panel);
+		HOD_PROPERTY(_nested);
 	}
 
 	namespace

@@ -29,14 +29,14 @@ namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(MaterialSettings, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &MaterialSettings::_polygonMode, "_polygonMode");
-		AddPropertyT(reflectionDescriptor, &MaterialSettings::_topology, "_topology");
-		AddPropertyT(reflectionDescriptor, &MaterialSettings::_blendMode, "_blendMode");
-		AddPropertyT(reflectionDescriptor, &MaterialSettings::_cullMode, "_cullMode");
-		AddPropertyT(reflectionDescriptor, &MaterialSettings::_depthTest, "_depthTest");
-		AddPropertyT(reflectionDescriptor, &MaterialSettings::_depthWrite, "_depthWrite");
+		HOD_PROPERTY(_polygonMode);
+		HOD_PROPERTY(_topology);
+		HOD_PROPERTY(_blendMode);
+		HOD_PROPERTY(_cullMode);
+		HOD_PROPERTY(_depthTest);
+		HOD_PROPERTY(_depthWrite);
 
-		AddPropertyT(reflectionDescriptor, &MaterialSettings::_defaultInstanceParams, "_defaultInstanceParams")->AddTrait<ReflectionTraitHide>();
+		HOD_PROPERTY(_defaultInstanceParams)->AddTrait<ReflectionTraitHide>();
 	}
 
 	/// @brief 

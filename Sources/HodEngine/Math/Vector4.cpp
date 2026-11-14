@@ -7,10 +7,10 @@ namespace hod::inline math
 {
 	DESCRIBE_REFLECTED_CLASS(Vector4, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &Vector4::_x, "_x");
-		AddPropertyT(reflectionDescriptor, &Vector4::_y, "_y");
-		AddPropertyT(reflectionDescriptor, &Vector4::_z, "_z");
-		AddPropertyT(reflectionDescriptor, &Vector4::_w, "_w");
+		HOD_PROPERTY(_x);
+		HOD_PROPERTY(_y);
+		HOD_PROPERTY(_z);
+		HOD_PROPERTY(_w);
 	}
 
 	Vector4 Vector4::Zero(0.0f, 0.0f, 0.0f, 0.0f);

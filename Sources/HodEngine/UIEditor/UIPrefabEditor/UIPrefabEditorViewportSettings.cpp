@@ -11,18 +11,18 @@ namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorViewportSettings::Device, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &Device::_name, "Name");
-		AddPropertyT(reflectionDescriptor, &Device::_resolution, "Resolution");
+		HOD_PROPERTY(_name);
+		HOD_PROPERTY(_resolution);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorViewportSettings, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &UIPrefabEditorViewportSettings::_devices, "Devices");
-		AddPropertyT(reflectionDescriptor, &UIPrefabEditorViewportSettings::_activeDevice, "ActiveDevice");
-		AddPropertyT(reflectionDescriptor, &UIPrefabEditorViewportSettings::_deviceRotated, "DeviceRotated");
-		AddPropertyT(reflectionDescriptor, &UIPrefabEditorViewportSettings::_gridVisible, "GridVisible");
-		AddPropertyT(reflectionDescriptor, &UIPrefabEditorViewportSettings::_gridCellSize, "GridCellSize");
-		AddPropertyT(reflectionDescriptor, &UIPrefabEditorViewportSettings::_preview, "Preview");
+		HOD_PROPERTY(_devices);
+		HOD_PROPERTY(_activeDevice);
+		HOD_PROPERTY(_deviceRotated);
+		HOD_PROPERTY(_gridVisible);
+		HOD_PROPERTY(_gridCellSize);
+		HOD_PROPERTY(_preview);
 	}
 
 	namespace
@@ -53,7 +53,7 @@ namespace hod::inline editor
 		}
 
 		// Saved before devices existed (they replaced the guides): start from the built-in list.
-		if (document.GetRootNode().GetChild("Devices") == nullptr)
+		if (document.GetRootNode().GetChild("_devices") == nullptr)
 		{
 			ResetDevices();
 		}

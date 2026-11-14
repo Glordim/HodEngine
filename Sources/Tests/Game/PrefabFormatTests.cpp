@@ -39,14 +39,14 @@ namespace hod
 		const DocumentNode* childNode = rootNode->GetNextSibling();
 		ASSERT_NE(childNode, nullptr);
 
-		ASSERT_NE(rootNode->GetChild("Parent"), nullptr);
-		ASSERT_NE(rootNode->GetChild("Parent")->GetChild("Id"), nullptr);
-		EXPECT_EQ(rootNode->GetChild("Parent")->GetChild("Id")->GetUInt64(), 0u);
+		ASSERT_NE(rootNode->GetChild("_parent"), nullptr);
+		ASSERT_NE(rootNode->GetChild("_parent")->GetChild("Id"), nullptr);
+		EXPECT_EQ(rootNode->GetChild("_parent")->GetChild("Id")->GetUInt64(), 0u);
 		ASSERT_NE(rootNode->GetChild("_name"), nullptr);
 		EXPECT_EQ(rootNode->GetChild("_name")->GetString(), "Goblin");
 
-		ASSERT_NE(childNode->GetChild("Parent"), nullptr);
-		EXPECT_EQ(childNode->GetChild("Parent")->GetChild("Id")->GetUInt64(), root->GetLocalId());
+		ASSERT_NE(childNode->GetChild("_parent"), nullptr);
+		EXPECT_EQ(childNode->GetChild("_parent")->GetChild("Id")->GetUInt64(), root->GetLocalId());
 
 		// Renamed in the document, the prefab loads with that name
 		const_cast<DocumentNode*>(rootNode)->GetOrAddChild("_name").SetString("Orc");

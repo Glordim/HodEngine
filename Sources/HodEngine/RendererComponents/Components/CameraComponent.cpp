@@ -29,11 +29,11 @@ namespace hod::inline renderer
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Rendering");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Point of view the world is rendered from");
 		reflectionDescriptor.AddTrait<ReflectionTraitRequireComponent>(&Node2dComponent::GetReflectionDescriptor);
-		AddPropertyT(reflectionDescriptor, &CameraComponent::_projection, "Projection");
-		AddPropertyT(reflectionDescriptor, &CameraComponent::_near, "Near");
-		AddPropertyT(reflectionDescriptor, &CameraComponent::_far, "Far");
-		AddPropertyT(reflectionDescriptor, &CameraComponent::_fov, "Fov");
-		AddPropertyT(reflectionDescriptor, &CameraComponent::_size, "Size", &CameraComponent::SetSize);
+		HOD_PROPERTY(_projection);
+		HOD_PROPERTY(_near);
+		HOD_PROPERTY(_far);
+		HOD_PROPERTY(_fov);
+		HOD_PROPERTY(_size, &CameraComponent::SetSize);
 	}
 
 	/// @brief

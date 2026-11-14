@@ -33,12 +33,12 @@ namespace hod::inline physics
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Physics");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Moves the entity and its colliders with the 2D physics: static, kinematic or dynamic");
 		reflectionDescriptor.AddTrait<ReflectionTraitRequireComponent>(&Node2dComponent::GetReflectionDescriptor);
-		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_mode, "Mode", &Rigidbody2dComponent::SetMode);
-		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_gravityScale, "GravityScale", &Rigidbody2dComponent::SetGravityScale);
-		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_fixedRotation, "FixedRotation", &Rigidbody2dComponent::SetFixedRotation);
-		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_continuousCollision, "ContinuousCollision", &Rigidbody2dComponent::SetContinuousCollision);
-		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_freezePositionX, "FreezePositionX", &Rigidbody2dComponent::SetFreezePositionX);
-		AddPropertyT(reflectionDescriptor, &Rigidbody2dComponent::_freezePositionY, "FreezePositionY", &Rigidbody2dComponent::SetFreezePositionY);
+		HOD_PROPERTY(_mode, &Rigidbody2dComponent::SetMode);
+		HOD_PROPERTY(_gravityScale, &Rigidbody2dComponent::SetGravityScale);
+		HOD_PROPERTY(_fixedRotation, &Rigidbody2dComponent::SetFixedRotation);
+		HOD_PROPERTY(_continuousCollision, &Rigidbody2dComponent::SetContinuousCollision);
+		HOD_PROPERTY(_freezePositionX, &Rigidbody2dComponent::SetFreezePositionX);
+		HOD_PROPERTY(_freezePositionY, &Rigidbody2dComponent::SetFreezePositionY);
 	}
 
 	/// @brief

@@ -16,8 +16,8 @@ namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(FontFaceSettings, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &FontFaceSettings::_renderMode, "RenderMode");
-		AddPropertyT(reflectionDescriptor, &FontFaceSettings::_pixelSize, "PixelSize");
+		HOD_PROPERTY(_renderMode);
+		HOD_PROPERTY(_pixelSize);
 	}
 
 	/// @brief

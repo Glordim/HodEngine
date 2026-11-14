@@ -18,8 +18,8 @@ namespace hod::inline physics
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_VECTOR_LINE);
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Physics/Colliders");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("2D collision segment between two points");
-		AddPropertyT(reflectionDescriptor, &EdgeCollider2dComponent::_start, "Start", &EdgeCollider2dComponent::SetStart);
-		AddPropertyT(reflectionDescriptor, &EdgeCollider2dComponent::_end, "End", &EdgeCollider2dComponent::SetEnd);
+		HOD_PROPERTY(_start, &EdgeCollider2dComponent::SetStart);
+		HOD_PROPERTY(_end, &EdgeCollider2dComponent::SetEnd);
 	}
 
 	/// @brief 

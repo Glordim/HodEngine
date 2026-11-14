@@ -78,11 +78,11 @@ namespace hod::inline game
 	{
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_AXIS_ARROW);
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("2D position, rotation, scale and z-order of the entity");
-		AddPropertyT(reflectionDescriptor, &Node2dComponent::_position, "_position", &Node2dComponent::SetPosition);
-		AddPropertyT(reflectionDescriptor, &Node2dComponent::_rotation, "_rotation", &Node2dComponent::SetRotation);
-		AddPropertyT(reflectionDescriptor, &Node2dComponent::_scale, "_scale", &Node2dComponent::SetScale);
+		HOD_PROPERTY(_position, &Node2dComponent::SetPosition);
+		HOD_PROPERTY(_rotation, &Node2dComponent::SetRotation);
+		HOD_PROPERTY(_scale, &Node2dComponent::SetScale);
 
-		AddPropertyT(reflectionDescriptor, &Node2dComponent::_zOrder, "_zOrder");
+		HOD_PROPERTY(_zOrder);
 	}
 
 	//-----------------------------------------------------------------------------

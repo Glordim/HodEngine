@@ -30,16 +30,16 @@ namespace hod::inline ui
 
 	DESCRIBE_REFLECTED_CLASS(AnimationKey, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &AnimationKey::_time, "Time");
-		AddPropertyT(reflectionDescriptor, &AnimationKey::_value, "Value");
-		AddPropertyT(reflectionDescriptor, &AnimationKey::_easing, "Easing");
+		HOD_PROPERTY(_time);
+		HOD_PROPERTY(_value);
+		HOD_PROPERTY(_easing);
 	}
 
 	DESCRIBE_REFLECTED_CLASS(AnimationTrack, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &AnimationTrack::_target, "Target");
-		AddPropertyT(reflectionDescriptor, &AnimationTrack::_property, "Property");
-		AddPropertyT(reflectionDescriptor, &AnimationTrack::_keys, "Keys");
+		HOD_PROPERTY(_target);
+		HOD_PROPERTY(_property);
+		HOD_PROPERTY(_keys);
 	}
 
 	DESCRIBE_REFLECTED_ENUM(AnimationClip::WrapMode, reflectionDescriptor)
@@ -51,10 +51,10 @@ namespace hod::inline ui
 
 	DESCRIBE_REFLECTED_CLASS(AnimationClip, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &AnimationClip::_name, "Name");
-		AddPropertyT(reflectionDescriptor, &AnimationClip::_duration, "Duration");
-		AddPropertyT(reflectionDescriptor, &AnimationClip::_wrapMode, "WrapMode");
-		AddPropertyT(reflectionDescriptor, &AnimationClip::_tracks, "Tracks");
+		HOD_PROPERTY(_name);
+		HOD_PROPERTY(_duration);
+		HOD_PROPERTY(_wrapMode);
+		HOD_PROPERTY(_tracks);
 	}
 
 	namespace

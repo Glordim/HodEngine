@@ -23,8 +23,8 @@ namespace hod::inline ui
 
 	DESCRIBE_REFLECTED_CLASS(CanvasScaler, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &CanvasScaler::_designResolution, "DesignResolution");
-		AddPropertyT(reflectionDescriptor, &CanvasScaler::_mode, "Mode");
+		HOD_PROPERTY(_designResolution);
+		HOD_PROPERTY(_mode);
 	}
 
 	/// @brief

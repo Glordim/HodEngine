@@ -27,10 +27,10 @@ namespace hod::inline renderer
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_IMAGE);
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Rendering");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Draws a texture, tinted by a color");
-		AddPropertyT(reflectionDescriptor, &TextureRendererComponent::_texture, "_texture", &TextureRendererComponent::SetTexture);
-		AddPropertyT(reflectionDescriptor, &TextureRendererComponent::_material, "_material", &TextureRendererComponent::SetMaterialInstanceResource);
-		AddPropertyT(reflectionDescriptor, &TextureRendererComponent::_pixelPerUnit, "_pixelPerUnit");
-		AddPropertyT(reflectionDescriptor, &TextureRendererComponent::_color, "_color", &TextureRendererComponent::SetColor);
+		HOD_PROPERTY(_texture, &TextureRendererComponent::SetTexture);
+		HOD_PROPERTY(_material, &TextureRendererComponent::SetMaterialInstanceResource);
+		HOD_PROPERTY(_pixelPerUnit);
+		HOD_PROPERTY(_color, &TextureRendererComponent::SetColor);
 	}
 
 	TextureRendererComponent::TextureRendererComponent() {}

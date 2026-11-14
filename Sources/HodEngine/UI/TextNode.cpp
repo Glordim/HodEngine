@@ -49,17 +49,17 @@ namespace hod::inline ui
 	{
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_FORMAT_TEXT);
 
-		AddPropertyT(reflectionDescriptor, &TextNode::_font, "Font", &TextNode::SetFont);
-		AddPropertyT(reflectionDescriptor, &TextNode::_value, "Value", &TextNode::SetValue);
-		AddPropertyT(reflectionDescriptor, &TextNode::_fontSize, "FontSize", &TextNode::SetFontSize);
-		AddPropertyT(reflectionDescriptor, &TextNode::_fontWeight, "FontWeight", &TextNode::SetFontWeight);
-		AddPropertyT(reflectionDescriptor, &TextNode::_italic, "Italic", &TextNode::SetItalic);
-		AddPropertyT(reflectionDescriptor, &TextNode::_horizontalAlignment, "HorizontalAlignment", &TextNode::SetHorizontalAlignment);
-		AddPropertyT(reflectionDescriptor, &TextNode::_verticalAlignment, "VerticalAlignment", &TextNode::SetVerticalAlignment);
-		AddPropertyT(reflectionDescriptor, &TextNode::_alignByGeometry, "AlignByGeometry", &TextNode::SetAlignByGeometry);
-		AddPropertyT(reflectionDescriptor, &TextNode::_overflow, "Overflow", &TextNode::SetOverflow);
-		AddPropertyT(reflectionDescriptor, &TextNode::_minFontSize, "MinFontSize", &TextNode::SetMinFontSize);
-		AddPropertyT(reflectionDescriptor, &TextNode::_color, "Color", &TextNode::SetColor);
+		HOD_PROPERTY(_font, &TextNode::SetFont);
+		HOD_PROPERTY(_value, &TextNode::SetValue);
+		HOD_PROPERTY(_fontSize, &TextNode::SetFontSize);
+		HOD_PROPERTY(_fontWeight, &TextNode::SetFontWeight);
+		HOD_PROPERTY(_italic, &TextNode::SetItalic);
+		HOD_PROPERTY(_horizontalAlignment, &TextNode::SetHorizontalAlignment);
+		HOD_PROPERTY(_verticalAlignment, &TextNode::SetVerticalAlignment);
+		HOD_PROPERTY(_alignByGeometry, &TextNode::SetAlignByGeometry);
+		HOD_PROPERTY(_overflow, &TextNode::SetOverflow);
+		HOD_PROPERTY(_minFontSize, &TextNode::SetMinFontSize);
+		HOD_PROPERTY(_color, &TextNode::SetColor);
 	}
 
 	/// @brief

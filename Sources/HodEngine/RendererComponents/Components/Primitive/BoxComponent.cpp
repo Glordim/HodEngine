@@ -49,7 +49,7 @@ namespace hod::inline renderer
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_SQUARE);
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Rendering");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Draws a box with a material");
-		AddPropertyT(reflectionDescriptor, &BoxComponent::_material, "_material", &BoxComponent::SetMaterialInstanceResource);
+		HOD_PROPERTY(_material, &BoxComponent::SetMaterialInstanceResource);
 	}
 
 	//-----------------------------------------------------------------------------

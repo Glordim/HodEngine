@@ -31,18 +31,18 @@ namespace hod::inline ui
 	{
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_SQUARE_ROUNDED_OUTLINE);
 
-		AddPropertyT(reflectionDescriptor, &ShapeNode::_fillColor, "FillColor", &ShapeNode::SetFillColor);
-		AddPropertyT(reflectionDescriptor, &ShapeNode::_cornerRadii, "CornerRadii", &ShapeNode::SetCornerRadii);
-		AddPropertyT(reflectionDescriptor, &ShapeNode::_borderWidth, "BorderWidth", &ShapeNode::SetBorderWidth);
-		AddPropertyT(reflectionDescriptor, &ShapeNode::_borderColor, "BorderColor", &ShapeNode::SetBorderColor);
-		AddPropertyT(reflectionDescriptor, &ShapeNode::_depth, "Depth", &ShapeNode::SetDepth);
-		AddPropertyT(reflectionDescriptor, &ShapeNode::_press, "Press", &ShapeNode::SetPress);
-		AddPropertyT(reflectionDescriptor, &ShapeNode::_depthColor, "DepthColor", &ShapeNode::SetDepthColor);
-		AddPropertyT(reflectionDescriptor, &ShapeNode::_shadowColor, "ShadowColor", &ShapeNode::SetShadowColor);
-		AddPropertyT(reflectionDescriptor, &ShapeNode::_shadowOffset, "ShadowOffset", &ShapeNode::SetShadowOffset);
-		AddPropertyT(reflectionDescriptor, &ShapeNode::_shadowBlur, "ShadowBlur", &ShapeNode::SetShadowBlur);
-		AddPropertyT(reflectionDescriptor, &ShapeNode::_shadowSpread, "ShadowSpread", &ShapeNode::SetShadowSpread);
-		AddPropertyT(reflectionDescriptor, &ShapeNode::_shadowDirection, "ShadowDirection", &ShapeNode::SetShadowDirection);
+		HOD_PROPERTY(_fillColor, &ShapeNode::SetFillColor);
+		HOD_PROPERTY(_cornerRadii, &ShapeNode::SetCornerRadii);
+		HOD_PROPERTY(_borderWidth, &ShapeNode::SetBorderWidth);
+		HOD_PROPERTY(_borderColor, &ShapeNode::SetBorderColor);
+		HOD_PROPERTY(_depth, &ShapeNode::SetDepth);
+		HOD_PROPERTY(_press, &ShapeNode::SetPress);
+		HOD_PROPERTY(_depthColor, &ShapeNode::SetDepthColor);
+		HOD_PROPERTY(_shadowColor, &ShapeNode::SetShadowColor);
+		HOD_PROPERTY(_shadowOffset, &ShapeNode::SetShadowOffset);
+		HOD_PROPERTY(_shadowBlur, &ShapeNode::SetShadowBlur);
+		HOD_PROPERTY(_shadowSpread, &ShapeNode::SetShadowSpread);
+		HOD_PROPERTY(_shadowDirection, &ShapeNode::SetShadowDirection);
 	}
 
 	/// @brief

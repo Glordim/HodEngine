@@ -8,10 +8,10 @@ namespace hod::inline math
 
 	DESCRIBE_REFLECTED_CLASS(Color, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &Color::r, "r");
-		AddPropertyT(reflectionDescriptor, &Color::g, "g");
-		AddPropertyT(reflectionDescriptor, &Color::b, "b");
-		AddPropertyT(reflectionDescriptor, &Color::a, "a");
+		HOD_PROPERTY(r);
+		HOD_PROPERTY(g);
+		HOD_PROPERTY(b);
+		HOD_PROPERTY(a);
 	}
 
 	//-----------------------------------------------------------------------------

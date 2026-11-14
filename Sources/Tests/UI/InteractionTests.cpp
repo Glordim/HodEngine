@@ -47,11 +47,11 @@ namespace hod::interaction_tests // named: the other test files have helpers of 
 			Node scratch;
 			scratch.SetRotation(rotation);
 			PropertyValue value;
-			value.Read(scratch, "Rotation");
+			value.Read(scratch, "_rotation");
 
 			PropertyOverride propertyOverride;
 			propertyOverride._target = target;
-			propertyOverride._property = "Rotation";
+			propertyOverride._property = "_rotation";
 			propertyOverride.SetValue(value);
 			return propertyOverride;
 		}
@@ -217,8 +217,8 @@ namespace hod::interaction_tests // named: the other test files have helpers of 
 		AssignIds();
 
 		// Referenced as the editor does: by id, through reflection
-		GetReference(slider, "Fill").SetLocalId(fill->GetLocalId());
-		GetReference(slider, "Handle").SetLocalId(handle->GetLocalId());
+		GetReference(slider, "_fill").SetLocalId(fill->GetLocalId());
+		GetReference(slider, "_handle").SetLocalId(handle->GetLocalId());
 
 		slider.SetMinValue(0.0f);
 		slider.SetMaxValue(10.0f);
@@ -276,7 +276,7 @@ namespace hod::interaction_tests // named: the other test files have helpers of 
 			_scrollView = &_viewport->SetInteraction<ScrollView>();
 			AssignIds();
 
-			GetReference(*_scrollView, "Content").SetLocalId(_content->GetLocalId());
+			GetReference(*_scrollView, "_content").SetLocalId(_content->GetLocalId());
 			_scrollView->SetInertia(false);
 			Frame(_canvas);
 		}

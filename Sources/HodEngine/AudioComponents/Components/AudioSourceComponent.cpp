@@ -14,8 +14,8 @@ namespace hod::inline audio
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_VOLUME_HIGH);
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Audio");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Plays an audio clip, once or in a loop");
-		AddPropertyT(reflectionDescriptor, &AudioSourceComponent::_audioResource, "Audio");
-		AddPropertyT(reflectionDescriptor, &AudioSourceComponent::_loop, "Loop");
+		HOD_PROPERTY_NAMED(_audioResource, "Audio");
+		HOD_PROPERTY(_loop);
 	}
 
 	void AudioSourceComponent::OnStart()

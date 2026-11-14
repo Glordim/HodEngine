@@ -14,11 +14,11 @@ namespace hod::inline ui
 
 	DESCRIBE_REFLECTED_CLASS(LayoutParams, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &LayoutParams::_widthMode, "WidthMode", &LayoutParams::SetWidthMode);
-		AddPropertyT(reflectionDescriptor, &LayoutParams::_heightMode, "HeightMode", &LayoutParams::SetHeightMode);
-		AddPropertyT(reflectionDescriptor, &LayoutParams::_size, "Size", &LayoutParams::SetSize);
-		AddPropertyT(reflectionDescriptor, &LayoutParams::_minSize, "MinSize", &LayoutParams::SetMinSize);
-		AddPropertyT(reflectionDescriptor, &LayoutParams::_maxSize, "MaxSize", &LayoutParams::SetMaxSize);
+		HOD_PROPERTY(_widthMode, &LayoutParams::SetWidthMode);
+		HOD_PROPERTY(_heightMode, &LayoutParams::SetHeightMode);
+		HOD_PROPERTY(_size, &LayoutParams::SetSize);
+		HOD_PROPERTY(_minSize, &LayoutParams::SetMinSize);
+		HOD_PROPERTY(_maxSize, &LayoutParams::SetMaxSize);
 	}
 
 	LayoutParams::SizeMode LayoutParams::GetWidthMode() const

@@ -5,9 +5,9 @@ namespace hod::inline math
 {
 	DESCRIBE_REFLECTED_CLASS(RectOffsets, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &RectOffsets::_left, "_left");
-		AddPropertyT(reflectionDescriptor, &RectOffsets::_top, "_top");
-		AddPropertyT(reflectionDescriptor, &RectOffsets::_right, "_right");
-		AddPropertyT(reflectionDescriptor, &RectOffsets::_bottom, "_bottom");
+		HOD_PROPERTY(_left);
+		HOD_PROPERTY(_top);
+		HOD_PROPERTY(_right);
+		HOD_PROPERTY(_bottom);
 	}
 }

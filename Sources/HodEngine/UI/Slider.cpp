@@ -28,14 +28,14 @@ namespace hod::inline ui
 	{
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_TUNE_VARIANT);
 
-		AddPropertyT(reflectionDescriptor, &Slider::_minValue, "MinValue", &Slider::SetMinValue);
-		AddPropertyT(reflectionDescriptor, &Slider::_maxValue, "MaxValue", &Slider::SetMaxValue);
-		AddPropertyT(reflectionDescriptor, &Slider::_value, "Value", &Slider::SetValueProperty);
-		AddPropertyT(reflectionDescriptor, &Slider::_wholeNumbers, "WholeNumbers", &Slider::SetWholeNumbers);
-		AddPropertyT(reflectionDescriptor, &Slider::_direction, "Direction", &Slider::SetDirection);
-		AddPropertyT(reflectionDescriptor, &Slider::_fill, "Fill");
-		AddPropertyT(reflectionDescriptor, &Slider::_handle, "Handle");
-		AddPropertyT(reflectionDescriptor, &Slider::_action, "Action", &Slider::SetAction);
+		HOD_PROPERTY(_minValue, &Slider::SetMinValue);
+		HOD_PROPERTY(_maxValue, &Slider::SetMaxValue);
+		HOD_PROPERTY(_value, &Slider::SetValueProperty);
+		HOD_PROPERTY(_wholeNumbers, &Slider::SetWholeNumbers);
+		HOD_PROPERTY(_direction, &Slider::SetDirection);
+		HOD_PROPERTY(_fill);
+		HOD_PROPERTY(_handle);
+		HOD_PROPERTY(_action, &Slider::SetAction);
 	}
 
 	namespace

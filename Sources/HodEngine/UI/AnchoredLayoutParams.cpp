@@ -11,10 +11,10 @@ namespace hod::inline ui
 {
 	DESCRIBE_REFLECTED_CLASS(AnchoredLayoutParams, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &AnchoredLayoutParams::_anchorMin, "AnchorMin", &AnchoredLayoutParams::SetAnchorMin);
-		AddPropertyT(reflectionDescriptor, &AnchoredLayoutParams::_anchorMax, "AnchorMax", &AnchoredLayoutParams::SetAnchorMax);
-		AddPropertyT(reflectionDescriptor, &AnchoredLayoutParams::_alignment, "Alignment", &AnchoredLayoutParams::SetAlignment);
-		AddPropertyT(reflectionDescriptor, &AnchoredLayoutParams::_offset, "Offset", &AnchoredLayoutParams::SetOffset);
+		HOD_PROPERTY(_anchorMin, &AnchoredLayoutParams::SetAnchorMin);
+		HOD_PROPERTY(_anchorMax, &AnchoredLayoutParams::SetAnchorMax);
+		HOD_PROPERTY(_alignment, &AnchoredLayoutParams::SetAlignment);
+		HOD_PROPERTY(_offset, &AnchoredLayoutParams::SetOffset);
 	}
 
 	namespace

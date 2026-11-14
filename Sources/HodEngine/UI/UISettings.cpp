@@ -7,7 +7,7 @@ namespace hod::inline ui
 {
 	DESCRIBE_REFLECTED_CLASS(UISettings, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &UISettings::_canvasScaler, "CanvasScaler");
+		HOD_PROPERTY(_canvasScaler);
 	}
 
 	/// @brief

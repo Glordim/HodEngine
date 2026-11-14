@@ -11,20 +11,20 @@ namespace hod::inline ui
 {
 	DESCRIBE_REFLECTED_CLASS(Selectable, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &Selectable::_disabled, "Disabled", &Selectable::SetDisabled);
-		AddPropertyT(reflectionDescriptor, &Selectable::_transitionDuration, "TransitionDuration", &Selectable::SetTransitionDuration);
-		AddPropertyT(reflectionDescriptor, &Selectable::_transitionEasing, "TransitionEasing", &Selectable::SetTransitionEasing);
+		HOD_PROPERTY(_disabled, &Selectable::SetDisabled);
+		HOD_PROPERTY(_transitionDuration, &Selectable::SetTransitionDuration);
+		HOD_PROPERTY(_transitionEasing, &Selectable::SetTransitionEasing);
 
 		// Edited by the UI prefab editor's own drawer (target node and property pickers), not the generic one
-		AddPropertyT(reflectionDescriptor, &Selectable::_hoveredOverrides, "HoveredOverrides")->AddTrait<ReflectionTraitHide>();
-		AddPropertyT(reflectionDescriptor, &Selectable::_pressedOverrides, "PressedOverrides")->AddTrait<ReflectionTraitHide>();
-		AddPropertyT(reflectionDescriptor, &Selectable::_disabledOverrides, "DisabledOverrides")->AddTrait<ReflectionTraitHide>();
+		HOD_PROPERTY(_hoveredOverrides)->AddTrait<ReflectionTraitHide>();
+		HOD_PROPERTY(_pressedOverrides)->AddTrait<ReflectionTraitHide>();
+		HOD_PROPERTY(_disabledOverrides)->AddTrait<ReflectionTraitHide>();
 
 		// Picked among the prefab's clips by the UI prefab editor's drawer
-		AddPropertyT(reflectionDescriptor, &Selectable::_normalAnimation, "NormalAnimation")->AddTrait<ReflectionTraitHide>();
-		AddPropertyT(reflectionDescriptor, &Selectable::_hoveredAnimation, "HoveredAnimation")->AddTrait<ReflectionTraitHide>();
-		AddPropertyT(reflectionDescriptor, &Selectable::_pressedAnimation, "PressedAnimation")->AddTrait<ReflectionTraitHide>();
-		AddPropertyT(reflectionDescriptor, &Selectable::_disabledAnimation, "DisabledAnimation")->AddTrait<ReflectionTraitHide>();
+		HOD_PROPERTY(_normalAnimation)->AddTrait<ReflectionTraitHide>();
+		HOD_PROPERTY(_hoveredAnimation)->AddTrait<ReflectionTraitHide>();
+		HOD_PROPERTY(_pressedAnimation)->AddTrait<ReflectionTraitHide>();
+		HOD_PROPERTY(_disabledAnimation)->AddTrait<ReflectionTraitHide>();
 	}
 
 	/// @brief

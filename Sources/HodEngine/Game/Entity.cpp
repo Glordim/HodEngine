@@ -34,17 +34,17 @@ namespace hod::inline game
 
 	DESCRIBE_REFLECTED_CLASS(Entity, reflectionDescriptor)
 	{
-		ReflectionProperty* instanceIdProperty = AddPropertyT(reflectionDescriptor, &Entity::_instanceId, "_instanceId");
+		ReflectionProperty* instanceIdProperty = HOD_PROPERTY(_instanceId);
 		instanceIdProperty->AddTrait<ReflectionTraitNoSerialization>();
 		instanceIdProperty->AddTrait<ReflectionTraitHide>();
 
-		AddPropertyT(reflectionDescriptor, &Entity::_localId, "_localId")->AddTrait<ReflectionTraitHide>();
+		HOD_PROPERTY(_localId)->AddTrait<ReflectionTraitHide>();
 
-		AddPropertyT(reflectionDescriptor, &Entity::_name, "_name");
-		AddPropertyT(reflectionDescriptor, &Entity::_active, "_active");
+		HOD_PROPERTY(_name);
+		HOD_PROPERTY(_active);
 
-		AddPropertyT(reflectionDescriptor, &Entity::_parent, "Parent", &Entity::SetParent)->AddTrait<ReflectionTraitHide>();
-		AddPropertyT(reflectionDescriptor, &Entity::_children, "Children")->AddTrait<ReflectionTraitHide>();
+		HOD_PROPERTY(_parent, &Entity::SetParent)->AddTrait<ReflectionTraitHide>();
+		HOD_PROPERTY(_children)->AddTrait<ReflectionTraitHide>();
 	}
 
 	/// @brief

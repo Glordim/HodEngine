@@ -13,7 +13,7 @@ namespace hod::inline ui
 	{
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_GESTURE_TAP_BUTTON);
 
-		AddPropertyT(reflectionDescriptor, &Button::_action, "Action", &Button::SetAction);
+		HOD_PROPERTY(_action, &Button::SetAction);
 	}
 
 	/// @brief

@@ -49,7 +49,7 @@ namespace hod::animation_tests // named: the other test files have helpers of th
 			Node scratch;
 			scratch.SetRotation(rotation);
 			PropertyValue value;
-			value.Read(scratch, "Rotation");
+			value.Read(scratch, "_rotation");
 			return value;
 		}
 
@@ -58,7 +58,7 @@ namespace hod::animation_tests // named: the other test files have helpers of th
 			Node scratch;
 			scratch.SetScale(scale);
 			PropertyValue value;
-			value.Read(scratch, "Scale");
+			value.Read(scratch, "_scale");
 			return value;
 		}
 
@@ -69,8 +69,8 @@ namespace hod::animation_tests // named: the other test files have helpers of th
 			clip._name = "Spin";
 			clip._duration = 1.0f;
 			clip._wrapMode = wrapMode;
-			clip.SetKey(target, "Rotation", 0.0f, RotationValue(0.0f));
-			clip.SetKey(target, "Rotation", 1.0f, RotationValue(10.0f));
+			clip.SetKey(target, "_rotation", 0.0f, RotationValue(0.0f));
+			clip.SetKey(target, "_rotation", 1.0f, RotationValue(10.0f));
 			clip._tracks[0]._keys[0]._easing = easing;
 			return clip;
 		}
@@ -186,9 +186,9 @@ namespace hod::animation_tests // named: the other test files have helpers of th
 		AnimationClip clip;
 		clip._name = "Grow";
 		clip._duration = 2.0f;
-		clip.SetKey(3, "Scale", 0.0f, ScaleValue(Vector2(1.0f, 1.0f)));
-		clip.SetKey(3, "Scale", 1.0f, ScaleValue(Vector2(3.0f, 5.0f)));
-		clip.SetKey(3, "Scale", 2.0f, ScaleValue(Vector2(5.0f, 9.0f)));
+		clip.SetKey(3, "_scale", 0.0f, ScaleValue(Vector2(1.0f, 1.0f)));
+		clip.SetKey(3, "_scale", 1.0f, ScaleValue(Vector2(3.0f, 5.0f)));
+		clip.SetKey(3, "_scale", 2.0f, ScaleValue(Vector2(5.0f, 9.0f)));
 		for (AnimationKey& key : clip._tracks[0]._keys)
 		{
 			key._easing = AnimationKey::Easing::Smooth;
@@ -283,9 +283,9 @@ namespace hod::animation_tests // named: the other test files have helpers of th
 	{
 		AnimationClip clip;
 		clip._name = "Grow";
-		clip.SetKey(3, "Scale", 0.0f, ScaleValue(Vector2(1.0f, 1.0f)));
-		clip.SetKey(3, "Scale", 1.0f, ScaleValue(Vector2(3.0f, 5.0f)));
-		clip.SetKey(3, "Scale", 1.0f, ScaleValue(Vector2(3.0f, 9.0f))); // replaces
+		clip.SetKey(3, "_scale", 0.0f, ScaleValue(Vector2(1.0f, 1.0f)));
+		clip.SetKey(3, "_scale", 1.0f, ScaleValue(Vector2(3.0f, 5.0f)));
+		clip.SetKey(3, "_scale", 1.0f, ScaleValue(Vector2(3.0f, 9.0f))); // replaces
 		ASSERT_EQ(clip._tracks.Size(), 1u);
 		ASSERT_EQ(clip._tracks[0]._keys.Size(), 2u);
 		_root->GetAnimations().PushBack(clip);
@@ -380,8 +380,8 @@ namespace hod::animation_tests // named: the other test files have helpers of th
 		// Grow: the label's Scale from 1 to 3; the clips are the prefab root's, the button deeper
 		AnimationClip grow;
 		grow._name = "Grow";
-		grow.SetKey(3, "Scale", 0.0f, ScaleValue(Vector2(1.0f, 1.0f)));
-		grow.SetKey(3, "Scale", 1.0f, ScaleValue(Vector2(3.0f, 3.0f)));
+		grow.SetKey(3, "_scale", 0.0f, ScaleValue(Vector2(1.0f, 1.0f)));
+		grow.SetKey(3, "_scale", 1.0f, ScaleValue(Vector2(3.0f, 3.0f)));
 		_root->GetAnimations().PushBack(grow);
 		_root->GetAnimations().PushBack(MakeSpin(3, AnimationClip::WrapMode::Loop));
 
@@ -441,7 +441,7 @@ namespace hod::animation_tests // named: the other test files have helpers of th
 		button.SetTransitionEasing(AnimationKey::Easing::QuadIn);
 		PropertyOverride& rotation = button.GetOverrides(Button::State::Hovered)->EmplaceBack();
 		rotation._target = 3;
-		rotation._property = "Rotation";
+		rotation._property = "_rotation";
 		rotation.SetValue(RotationValue(10.0f));
 		button.Update(0.0f);
 

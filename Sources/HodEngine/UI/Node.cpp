@@ -35,15 +35,15 @@ namespace hod::inline ui
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_VECTOR_SQUARE);
 
 		// Serialized like any property, but never edited by hand: hidden from the inspector (same as the ECS' _localId).
-		AddPropertyT(reflectionDescriptor, &Node::_localId, "_localId")->AddTrait<ReflectionTraitHide>();
+		HOD_PROPERTY(_localId)->AddTrait<ReflectionTraitHide>();
 
-		AddPropertyT(reflectionDescriptor, &Node::_name, "Name", &Node::SetName);
+		HOD_PROPERTY(_name, &Node::SetName);
 
-		AddPropertyT(reflectionDescriptor, &Node::_rotation, "Rotation", &Node::SetRotation);
-		AddPropertyT(reflectionDescriptor, &Node::_scale, "Scale", &Node::SetScale);
-		AddPropertyT(reflectionDescriptor, &Node::_pivot, "Pivot", &Node::SetPivot);
+		HOD_PROPERTY(_rotation, &Node::SetRotation);
+		HOD_PROPERTY(_scale, &Node::SetScale);
+		HOD_PROPERTY(_pivot, &Node::SetPivot);
 
-		AddPropertyT(reflectionDescriptor, &Node::_pointerTarget, "PointerTarget", &Node::SetPointerTarget);
+		HOD_PROPERTY(_pointerTarget, &Node::SetPointerTarget);
 	}
 
 	namespace

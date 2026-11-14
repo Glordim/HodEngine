@@ -43,8 +43,8 @@ namespace hod::inline core
 {
 	DESCRIBE_REFLECTED_CLASS(UID, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &UID::_low, "_low");
-		AddPropertyT(reflectionDescriptor, &UID::_high, "_high");
+		HOD_PROPERTY(_low);
+		HOD_PROPERTY(_high);
 	}
 
 	HOD_CORE_API UID UID::INVALID_UID;

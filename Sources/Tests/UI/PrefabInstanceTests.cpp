@@ -56,11 +56,11 @@ namespace hod
 			Node scratch;
 			scratch.SetName(name);
 			PropertyValue value;
-			value.Read(scratch, "Name");
+			value.Read(scratch, "_name");
 
 			PropertyOverride propertyOverride;
 			propertyOverride._target = target;
-			propertyOverride._property = "Name";
+			propertyOverride._property = "_name";
 			propertyOverride.SetValue(value);
 			return propertyOverride;
 		}
@@ -287,7 +287,7 @@ namespace hod
 		ASSERT_TRUE(placeholder->SerializeAsChildInDocument(saved.GetRootNode()));
 		const DocumentNode* overrides = saved.GetRootNode().GetChild("PrefabInstance")->GetChild("Overrides");
 		ASSERT_NE(overrides->GetFirstChild(), nullptr);
-		EXPECT_EQ(overrides->GetFirstChild()->GetChild("Target")->GetUInt64(), 5u);
+		EXPECT_EQ(overrides->GetFirstChild()->GetChild("_target")->GetUInt64(), 5u);
 	}
 
 	// What the UI editor's undo relies on (see UIPrefabEditorTab::RestoreUndoState): a canvas emptied and given back its document

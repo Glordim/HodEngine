@@ -15,14 +15,14 @@ namespace hod::inline ui
 	{
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_TOGGLE_SWITCH);
 
-		AddPropertyT(reflectionDescriptor, &Toggle::_on, "On", &Toggle::SetOnProperty);
-		AddPropertyT(reflectionDescriptor, &Toggle::_group, "Group", &Toggle::SetGroup);
-		AddPropertyT(reflectionDescriptor, &Toggle::_action, "Action", &Toggle::SetAction);
+		HOD_PROPERTY(_on, &Toggle::SetOnProperty);
+		HOD_PROPERTY(_group, &Toggle::SetGroup);
+		HOD_PROPERTY(_action, &Toggle::SetAction);
 
 		// Edited by the UI prefab editor's own drawer, as the states' (see Selectable)
-		AddPropertyT(reflectionDescriptor, &Toggle::_onOverrides, "OnOverrides")->AddTrait<ReflectionTraitHide>();
-		AddPropertyT(reflectionDescriptor, &Toggle::_offAnimation, "OffAnimation")->AddTrait<ReflectionTraitHide>();
-		AddPropertyT(reflectionDescriptor, &Toggle::_onAnimation, "OnAnimation")->AddTrait<ReflectionTraitHide>();
+		HOD_PROPERTY(_onOverrides)->AddTrait<ReflectionTraitHide>();
+		HOD_PROPERTY(_offAnimation)->AddTrait<ReflectionTraitHide>();
+		HOD_PROPERTY(_onAnimation)->AddTrait<ReflectionTraitHide>();
 	}
 
 	/// @brief

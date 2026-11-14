@@ -6,8 +6,8 @@ namespace hod::inline math
 {
 	DESCRIBE_REFLECTED_CLASS(Rect, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &Rect::_position, "_position");
-		AddPropertyT(reflectionDescriptor, &Rect::_size, "_size");
+		HOD_PROPERTY(_position);
+		HOD_PROPERTY(_size);
 	}
 
 	/// @brief

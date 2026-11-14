@@ -46,9 +46,9 @@ namespace hod::inline editor
 {
 	DESCRIBE_REFLECTED_CLASS(Project, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &Project::_name, "_name");
-		AddPropertyT(reflectionDescriptor, &Project::_startupScene, "_startupScene");
-		AddPropertyT(reflectionDescriptor, &Project::_disabledPlugins, "_disabledPlugins");
+		HOD_PROPERTY(_name);
+		HOD_PROPERTY(_startupScene);
+		HOD_PROPERTY(_disabledPlugins);
 	}
 
 	_SingletonConstructor(Project) {}

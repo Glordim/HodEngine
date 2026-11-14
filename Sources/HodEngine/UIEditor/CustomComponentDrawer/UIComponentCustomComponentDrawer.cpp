@@ -33,8 +33,8 @@ namespace hod::inline editor
 		for (EditorReflectedProperty* property : reflectedObject.GetProperties())
 		{
 			const char* name = property->GetReflectionProperty()->GetName();
-			bool        screenOnly = std::strcmp(name, "SortingOrder") == 0 || std::strcmp(name, "_overrideScaler") == 0 || std::strcmp(name, "_scaler") == 0;
-			bool        worldOnly = std::strcmp(name, "PixelsPerUnit") == 0;
+			bool        screenOnly = std::strcmp(name, "_sortingOrder") == 0 || std::strcmp(name, "_overrideScaler") == 0 || std::strcmp(name, "_scaler") == 0;
+			bool        worldOnly = std::strcmp(name, "_pixelsPerUnit") == 0;
 			if ((screenOnly && showScreen == false) || (worldOnly && showWorld == false))
 			{
 				continue;

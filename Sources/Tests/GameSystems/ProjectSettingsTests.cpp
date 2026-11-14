@@ -19,7 +19,7 @@ namespace hod
 
 	DESCRIBE_REFLECTED_CLASS(TestSettings, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &TestSettings::_value, "Value");
+		HOD_PROPERTY(_value);
 	}
 
 	class ProjectSettingsTest : public ::testing::Test

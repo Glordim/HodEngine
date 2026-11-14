@@ -18,8 +18,8 @@ namespace hod::inline renderer
 {
 	DESCRIBE_REFLECTED_CLASS(MaterialInstanceResource, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &MaterialInstanceResource::_material, "_material");
-		AddPropertyT(reflectionDescriptor, &MaterialInstanceResource::_params, "_params");
+		HOD_PROPERTY(_material);
+		HOD_PROPERTY(_params);
 	}
 
 	/// @brief 

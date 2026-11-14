@@ -26,8 +26,8 @@ namespace hod::inline renderer
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_FORMAT_TEXT);
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Rendering");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Draws a text with a font");
-		AddPropertyT(reflectionDescriptor, &TextRendererComponent::_fontResource, "_fontResource", &TextRendererComponent::SetFont);
-		AddPropertyT(reflectionDescriptor, &TextRendererComponent::_text, "_text" /*, &TextRendererComponent::SetText*/);
+		HOD_PROPERTY(_fontResource, &TextRendererComponent::SetFont);
+		HOD_PROPERTY(_text /*, &TextRendererComponent::SetText*/);
 		// ADD_PROPERTY(TextureRendererComponent, _textureResource);
 		// ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
 	}

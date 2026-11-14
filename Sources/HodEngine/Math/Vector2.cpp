@@ -8,8 +8,8 @@ namespace hod::inline math
 {
 	DESCRIBE_REFLECTED_CLASS(Vector2, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &Vector2::_x, "_x");
-		AddPropertyT(reflectionDescriptor, &Vector2::_y, "_y");
+		HOD_PROPERTY(_x);
+		HOD_PROPERTY(_y);
 	}
 
 	Vector2 Vector2::Zero(0.0f, 0.0f);

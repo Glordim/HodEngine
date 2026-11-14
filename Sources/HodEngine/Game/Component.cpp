@@ -14,12 +14,12 @@ namespace hod::inline game
 
 	DESCRIBE_REFLECTED_CLASS(Component, reflectionDescriptor)
 	{
-		ReflectionProperty* instanceIdProperty = AddPropertyT(reflectionDescriptor, &Component::_instanceId, "_instanceId");
+		ReflectionProperty* instanceIdProperty = HOD_PROPERTY(_instanceId);
 		instanceIdProperty->AddTrait<ReflectionTraitNoSerialization>();
 		instanceIdProperty->AddTrait<ReflectionTraitHide>();
 
-		AddPropertyT(reflectionDescriptor, &Component::_localId, "_localId")->AddTrait<ReflectionTraitHide>();
-		AddPropertyT(reflectionDescriptor, &Component::_enabled, "_enabled")->AddTrait<ReflectionTraitHide>();
+		HOD_PROPERTY(_localId)->AddTrait<ReflectionTraitHide>();
+		HOD_PROPERTY(_enabled)->AddTrait<ReflectionTraitHide>();
 	}
 
 	/// @brief 

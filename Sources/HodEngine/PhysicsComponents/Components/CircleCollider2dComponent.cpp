@@ -18,10 +18,10 @@ namespace hod::inline physics
 		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_CIRCLE_OUTLINE);
 		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Physics/Colliders");
 		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Circular 2D collision shape");
-		AddPropertyT(reflectionDescriptor, &CircleCollider2dComponent::_offset, "Offset", &CircleCollider2dComponent::SetOffset);
-		AddPropertyT(reflectionDescriptor, &CircleCollider2dComponent::_radius, "Radius", &CircleCollider2dComponent::SetRadius);
+		HOD_PROPERTY(_offset, &CircleCollider2dComponent::SetOffset);
+		HOD_PROPERTY(_radius, &CircleCollider2dComponent::SetRadius);
 
-		AddPropertyT(reflectionDescriptor, &CircleCollider2dComponent::_bounciness, "Bounciness"); // tmp
+		HOD_PROPERTY(_bounciness); // tmp
 	}
 
 	/// @brief 

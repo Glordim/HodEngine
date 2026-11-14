@@ -21,8 +21,8 @@ namespace hod::inline renderer
 
 	DESCRIBE_REFLECTED_CLASS(FontFaceResource, reflectionDescriptor)
 	{
-		AddPropertyT(reflectionDescriptor, &FontFaceResource::_renderMode, "RenderMode", &FontFaceResource::SetRenderMode);
-		AddPropertyT(reflectionDescriptor, &FontFaceResource::_pixelSize, "PixelSize", &FontFaceResource::SetPixelSize);
+		HOD_PROPERTY(_renderMode, &FontFaceResource::SetRenderMode);
+		HOD_PROPERTY(_pixelSize, &FontFaceResource::SetPixelSize);
 	}
 
 	/// @brief
