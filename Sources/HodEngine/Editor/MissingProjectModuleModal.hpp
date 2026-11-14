@@ -52,6 +52,8 @@ namespace hod::inline editor
 
 		OutputBucket _outputBucket;
 
+		Vector<String> _pluginsDisabledSinceLastBuild; // Shown if the build fails (see Project::GetPluginsDisabledSinceLastBuild)
+
 		MemberFunctionJob<MissingProjectModuleModal> _generationJob;
 	};
 }

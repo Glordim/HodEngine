@@ -1,22 +1,9 @@
 cmake_minimum_required(VERSION 3.10)
-
 project([[PROJECT_NAME]])
 
-if(HOD_PROJECT_BUILD_TYPE STREQUAL "Editor")
-	set(BUILD_SHARED_LIBS ON)
-	set(HOD_LIB_TYPE "shared")
-else()
-	set(BUILD_SHARED_LIBS OFF)
-	set(HOD_LIB_TYPE "static")
-endif()
-
+# The engine (HodEngineConfig.cmake): its variant, shared or static, follows the build type the editor gives (HOD_PROJECT_BUILD_TYPE).
+# Written once, yours afterwards: add what the project needs (third-party libraries, options)
 find_package(HodEngine REQUIRED)
 
-set(CMAKE_FIND_ROOT_PATH_MODE_LIBRARY BOTH)
-set(CMAKE_FIND_ROOT_PATH_MODE_INCLUDE BOTH)
-set(CMAKE_FIND_ROOT_PATH_MODE_PACKAGE BOTH)
-
 add_subdirectory("Code/[[PROJECT_NAME]]")
-if(NOT HOD_PROJECT_BUILD_TYPE STREQUAL "Application")
-	add_subdirectory("Code/[[PROJECT_EDITOR_NAME]]")
-endif()
+add_subdirectory("Code/[[PROJECT_EDITOR_NAME]]") # Nothing in an application build

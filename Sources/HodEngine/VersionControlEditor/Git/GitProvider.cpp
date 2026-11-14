@@ -228,6 +228,10 @@ namespace hod::inline editor
 			{
 				content += toPattern(file) + "\n";
 			}
+			for (const String& name : setup._ignoredNames)
+			{
+				content += name + "\n"; // Not anchored: in any folder
+			}
 			if (FileSystem::GetInstance()->WriteAllText(_projectDir / ".gitignore", content))
 			{
 				created.PushBack(".gitignore");

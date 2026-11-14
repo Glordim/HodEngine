@@ -102,7 +102,7 @@ function(CollectSourceFiles ProjectSourceDir SourcesVar IncludesVar)
 	endif()
 
 	foreach(item ${Sources})
-		if(${item} MATCHES ".+\\..+\\.cpp")
+		if(${item} MATCHES "[^/]+\\.[^/]+\\.cpp$") # Foo.windows.cpp: the file name only (a folder above may have a dot)
 			list(REMOVE_ITEM Sources ${item})
 		endif()
 	endforeach()
@@ -122,8 +122,9 @@ function(CollectSourceFiles ProjectSourceDir SourcesVar IncludesVar)
 
 	foreach(item ${Sources})
 		set(shouldRemove FALSE)
-		string(TOLOWER ${item} lower_item)
-		
+		file(RELATIVE_PATH relative_item "${ProjectSourceDir}" "${item}") # The folders inside only (a project may be in a folder named Android)
+		string(TOLOWER ${relative_item} lower_item)
+
 		foreach(platform ${PlatformDirs})
 			string(TOLOWER ${platform} lower_platform)
 			if(${lower_item} MATCHES "(/|^)(${lower_platform})(/|$)")

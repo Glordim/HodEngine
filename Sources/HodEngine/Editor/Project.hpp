@@ -98,6 +98,10 @@ namespace hod::inline editor
 		/// @return false (with an error) if the project file can't be written
 		bool SetDisabledPlugins(const Vector<String>& disabledPlugins);
 
+		/// @brief The plugins enabled when its modules were last built and not anymore: its code may use them (an enabled plugin is linked
+		/// and its headers are there, nothing else declares what the code uses), the first suspects when its modules don't build anymore
+		Vector<String> GetPluginsDisabledSinceLastBuild() const;
+
 		bool CreateMinimalSourceForModule(const Path& directory);
 
 		/// @brief Its runtime module or its editor module was rebuilt (their libraries changed): the editor reloads them

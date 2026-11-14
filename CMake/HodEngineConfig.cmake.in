@@ -1,6 +1,15 @@
 @PACKAGE_INIT@
 
-if(NOT DEFINED HOD_LIB_TYPE)
+# A project's build (HOD_PROJECT_BUILD_TYPE, given by the editor, see CMakeHelper::Configure): its modules are libraries loaded by the
+# editor, against the engine's shared variant, or the game's executable, against the static one. Read in the scope of find_package's
+# caller: BUILD_SHARED_LIBS is the project's too
+if(HOD_PROJECT_BUILD_TYPE STREQUAL "Editor")
+	set(HOD_LIB_TYPE "shared")
+	set(BUILD_SHARED_LIBS ON)
+elseif(DEFINED HOD_PROJECT_BUILD_TYPE)
+	set(HOD_LIB_TYPE "static")
+	set(BUILD_SHARED_LIBS OFF)
+elseif(NOT DEFINED HOD_LIB_TYPE)
 	set(HOD_LIB_TYPE "shared")
 endif()
 
@@ -175,7 +184,7 @@ endfunction()
 # Links target with the runtime modules given after it
 function(hod_link_engine_modules target)
 	foreach(module IN LISTS ARGN)
-		target_link_libraries(${target} HodEngine::${module})
+		target_link_libraries(${target} PUBLIC HodEngine::${module})
 	endforeach()
 endfunction()
 
@@ -192,4 +201,89 @@ function(hod_add_engine_modules_entry_points target)
 	set(source "${CMAKE_CURRENT_BINARY_DIR}/HodModules.generated.cpp")
 	configure_file("${_HOD_CONFIG_DIR}/HodModules.cpp.in" "${source}" @ONLY)
 	target_sources(${target} PRIVATE "${source}")
+endfunction()
+
+# The project's runtime module, from Code/<name>/CMakeLists.txt (written once by the editor, the project's afterwards, see
+# Project::GenerateProjectCMakeLists): the C++ of the folder (platform files and folders as the engine's, see CollectSourceFiles), the
+# engine and the runtime modules of the plugins the project enables linked (Cache/Generated/HodModules.txt, written by the editor), its
+# export macro <NAME>_EXPORT. A library loaded by the editor (and on Android), the game's executable in an application build: the runtime
+# modules started in their order, its own last. What else it needs is added after the call, with the keyword signature
+# (target_link_libraries(<name> PRIVATE ...))
+function(hod_add_project_runtime_module name)
+	CollectSourceFiles("${CMAKE_CURRENT_SOURCE_DIR}" sources includes)
+	assign_source_group(${sources} ${includes}) # For VS
+
+	if(HOD_PROJECT_BUILD_TYPE STREQUAL "Editor" OR ANDROID)
+		add_library(${name} SHARED ${sources} ${includes})
+		add_library(${name}::${name} ALIAS ${name})
+	else()
+		add_executable(${name} ${sources} ${includes})
+	endif()
+
+	install(TARGETS ${name}
+		RUNTIME DESTINATION .
+		LIBRARY DESTINATION .
+		ARCHIVE DESTINATION .
+	)
+
+	target_include_directories(${name} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
+
+	target_link_libraries(${name} PUBLIC
+		HodEngine::Core
+		HodEngine::Math
+		HodEngine::Window
+		HodEngine::Renderer
+		HodEngine::Input
+		HodEngine::GameSystems
+		HodEngine::Game
+		HodEngine::ImGui
+		HodEngine::Application
+	)
+
+	hod_read_engine_modules("${CMAKE_SOURCE_DIR}/Cache/Generated/HodModules.txt" engineModules)
+	hod_link_engine_modules(${name} ${engineModules})
+
+	if(HOD_PROJECT_BUILD_TYPE STREQUAL "Application")
+		hod_add_engine_modules_entry_points(${name} ${engineModules} ${name}) # The project's runtime module last
+		if(ANDROID)
+			target_link_options(${name} PRIVATE
+				"-Wl,--undefined=Java_com_google_androidgamesdk_GameActivity_initializeNativeCode"
+			)
+		endif()
+		target_link_libraries(${name} PRIVATE HodEngine::Main)
+		hod_deploy_runtime_files(${name})
+	endif()
+
+	string(TOUPPER "${name}_EXPORT" exportDefinition)
+	target_compile_definitions(${name}
+		PUBLIC ${HOD_PLATFORM_DEFINE}
+		PRIVATE ${exportDefinition}
+	)
+endfunction()
+
+# The project's editor module, from Code/<name>/CMakeLists.txt (as the runtime module's): the C++ of the folder, built against the
+# project's runtime module and the editor, its export macro <RUNTIMEMODULE>_EDITOR_EXPORT. Nothing in an application build (no editor)
+function(hod_add_project_editor_module name runtimeModule)
+	if(HOD_PROJECT_BUILD_TYPE STREQUAL "Application")
+		return()
+	endif()
+
+	CollectSourceFiles("${CMAKE_CURRENT_SOURCE_DIR}" sources includes)
+	assign_source_group(${sources} ${includes}) # For VS
+
+	add_library(${name} SHARED ${sources} ${includes})
+	add_library(${runtimeModule}::${name} ALIAS ${name})
+
+	target_include_directories(${name} PUBLIC "${CMAKE_CURRENT_SOURCE_DIR}/..")
+
+	target_link_libraries(${name} PUBLIC
+		${runtimeModule}::${runtimeModule}
+		HodEngine::Editor
+	)
+
+	string(TOUPPER "${runtimeModule}_EDITOR_EXPORT" exportDefinition)
+	target_compile_definitions(${name}
+		PUBLIC ${HOD_PLATFORM_DEFINE}
+		PRIVATE ${exportDefinition}
+	)
 endfunction()

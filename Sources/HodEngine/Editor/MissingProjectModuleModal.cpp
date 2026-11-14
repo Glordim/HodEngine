@@ -23,7 +23,8 @@ namespace hod::inline editor
 
 	/// @brief
 	MissingProjectModuleModal::MissingProjectModuleModal()
-	: _generationJob(this, &MissingProjectModuleModal::GenerationJob)
+	: _pluginsDisabledSinceLastBuild(Project::GetInstance()->GetPluginsDisabledSinceLastBuild()) // The plugins change with a restart only: a new modal
+	, _generationJob(this, &MissingProjectModuleModal::GenerationJob)
 	{
 		DesktopWindow* mainWindow = static_cast<DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow());
 		mainWindow->SetSize(800, 600);
@@ -87,6 +88,18 @@ namespace hod::inline editor
 		DrawStep("Prepare", _prepareResult);
 		DrawStep("Configure", _configureResult);
 		DrawStep("Build", _buildResult);
+
+		// An enabled plugin is linked and its headers are there: the code uses it without declaring it, disabling it is the first suspect
+		if (failed && _pluginsDisabledSinceLastBuild.Empty() == false)
+		{
+			String plugins;
+			for (const String& plugin : _pluginsDisabledSinceLastBuild)
+			{
+				plugins += plugins.Empty() ? "" : ", ";
+				plugins += plugin;
+			}
+			ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.3f, 1.0f), ICON_MDI_ALERT " Disabled since the last build: %s. If the project's code uses them, enable them again (Plugins...) or remove what uses them from the code.", plugins.CStr());
+		}
 
 		if (ImGui::BeginChild("Output", ImVec2(0.0f, -1.0f), ImGuiChildFlags_FrameStyle))
 		{

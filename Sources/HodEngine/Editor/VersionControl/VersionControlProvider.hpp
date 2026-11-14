@@ -62,7 +62,8 @@ namespace hod::inline editor
 		struct WorkspaceSetup
 		{
 			Vector<Path>   _ignoredFolders;   // Cache, Build
-			Vector<Path>   _ignoredFiles;     // UserSettings.json, the generated CMakeLists.txt
+			Vector<Path>   _ignoredFiles;     // UserSettings.json
+			Vector<String> _ignoredNames;     // Anywhere in the project, what the systems create (".DS_Store")
 			Vector<String> _binaryExtensions; // Not mergeable ("texture", "png"...): the asset files and the binary sources, without the dot
 		};
 

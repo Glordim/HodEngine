@@ -1473,7 +1473,8 @@ namespace hod::inline editor
 	{
 		VersionControlProvider::WorkspaceSetup setup;
 		setup._ignoredFolders = {_projectDir / "Cache", _projectDir / "Build"};
-		setup._ignoredFiles = {_userSettingsPath, _projectDir / "CMakeLists.txt"}; // Generated (Project::GenerateProjectCMakeLists)
+		setup._ignoredFiles = {_userSettingsPath}; // Per user (the CMakeLists.txt are the project's, versioned, see Project::GenerateProjectCMakeLists)
+		setup._ignoredNames = {".DS_Store"};       // macOS's Finder, in every folder it opens
 
 		Vector<String> extensions = AssetDatabase::GetInstance()->GetAssetExtensions();
 		for (String& extension : AssetDatabase::GetInstance()->GetImporterExtensions())

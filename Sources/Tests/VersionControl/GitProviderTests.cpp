@@ -387,6 +387,7 @@ TEST_F(GitProviderTest, SetupWorkspaceCreatesWhatsMissing)
 	VersionControlProvider::WorkspaceSetup setup;
 	setup._ignoredFolders = {_projectDir / "Cache", _projectDir / "Build"};
 	setup._ignoredFiles = {_projectDir / "UserSettings.json"};
+	setup._ignoredNames = {".DS_Store"};
 	setup._binaryExtensions = {"texture", "png"};
 	VersionControlProvider::Result result = _provider.SetupWorkspace(_projectDir, setup);
 	ASSERT_TRUE(result._success) << result._error.CStr();
@@ -396,6 +397,7 @@ TEST_F(GitProviderTest, SetupWorkspaceCreatesWhatsMissing)
 	EXPECT_NE(ignore.Find("/Cache/\n"), String::Npos);
 	EXPECT_NE(ignore.Find("/Build/\n"), String::Npos);
 	EXPECT_NE(ignore.Find("/UserSettings.json\n"), String::Npos);
+	EXPECT_NE(ignore.Find("\n.DS_Store\n"), String::Npos); // Not anchored
 
 	String attributes;
 	ASSERT_TRUE(FileSystem::GetInstance()->ReadAllText(_projectDir / ".gitattributes", attributes));

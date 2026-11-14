@@ -1,31 +1,3 @@
-file(GLOB_RECURSE Srcs
-	"${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/*.inl"
-	"${CMAKE_CURRENT_SOURCE_DIR}/*.h"
-)
-
-file(GLOB_RECURSE Includes
-	"${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
-	"${CMAKE_CURRENT_SOURCE_DIR}/*.inl"
-	"${CMAKE_CURRENT_SOURCE_DIR}/*.h"
-)
-
-assign_source_group(${Srcs}) # for VS
-
-add_library([[PROJECT_EDITOR_NAME]] SHARED ${Srcs} ${Includes})
-add_library([[PROJECT_NAME]]::[[PROJECT_EDITOR_NAME]] ALIAS [[PROJECT_EDITOR_NAME]])
-
-target_include_directories([[PROJECT_EDITOR_NAME]] PUBLIC
-	"${CMAKE_CURRENT_SOURCE_DIR}/.."
-)
-
-target_link_libraries([[PROJECT_EDITOR_NAME]]
-	[[PROJECT_NAME]]::[[PROJECT_NAME]]
-	HodEngine::Editor
-)
-
-target_compile_definitions([[PROJECT_EDITOR_NAME]]
-	PUBLIC ${HOD_PLATFORM_DEFINE}
-	PRIVATE [[PROJECT_EDITOR_EXPORT]]
-)
+# The project's editor module: everything is in hod_add_project_editor_module (HodEngineConfig.cmake). Written once, yours afterwards:
+# add what it needs below (target_link_libraries([[PROJECT_EDITOR_NAME]] PRIVATE ...))
+hod_add_project_editor_module([[PROJECT_EDITOR_NAME]] [[PROJECT_NAME]])

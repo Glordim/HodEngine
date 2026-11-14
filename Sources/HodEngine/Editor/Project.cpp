@@ -485,6 +485,36 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
+	Vector<String> Project::GetPluginsDisabledSinceLastBuild() const
+	{
+		Vector<String> plugins;
+		String         builtStamp;
+		if (FileSystem::GetInstance()->Exists(GetRuntimeModulesStampPath()) == false || FileSystem::GetInstance()->ReadAllText(GetRuntimeModulesStampPath(), builtStamp) == false)
+		{
+			return plugins; // Never built: nothing to compare with
+		}
+		builtStamp = String("\n") + builtStamp; // One module per line (see GetRuntimeModulesStamp): each found between two line breaks
+		for (const PluginGraph::Plugin& plugin : _pluginGraph.GetPlugins())
+		{
+			if (plugin._enabled)
+			{
+				continue;
+			}
+			bool wasBuilt = false;
+			for (const String& runtimeModule : plugin._manifest._runtimeModules)
+			{
+				wasBuilt |= builtStamp.Find(String("\n") + runtimeModule + "\n") != String::Npos;
+			}
+			if (wasBuilt)
+			{
+				plugins.PushBack(plugin._manifest._name);
+			}
+		}
+		return plugins;
+	}
+
+	/// @brief
+	/// @return
 	Path Project::GetRuntimeModulesStampPath() const
 	{
 		return GetCacheBuildDirPath() / "Editor" / "HodModules.txt";
@@ -666,15 +696,15 @@ namespace hod::inline editor
 		return DynamicLibrary::GetFilePath(_runtimeModuleLibraryPath);
 	}
 
-	/// @brief
+	/// @brief The list of the runtime modules of the enabled plugins (Cache/Generated/HodModules.txt), and the CMakeLists.txt, written only if missing:
+	/// the project's afterwards (versioned), find_package(HodEngine) and the modules' folders for the root one, a call to hod_add_project_runtime_module /
+	/// hod_add_project_editor_module for the modules' (HodEngineConfig.cmake, where the plumbing is, so it follows the engine), then what the project adds
 	/// @return
 	bool Project::GenerateProjectCMakeLists() const
 	{
 		String projectName = _name;
-
 		String projectRuntimeName = GetRuntimeModuleName(_name);
-		String projectRuntimeExport = projectRuntimeName + "_EXPORT";
-		std::transform(projectRuntimeExport.begin(), projectRuntimeExport.end(), projectRuntimeExport.begin(), [](char c) { return std::toupper(c); });
+		String projectEditorName = GetEditorModuleName(_name);
 
 		// The runtime modules of the enabled plugins, dependencies first: linked by the project's runtime module, started in that order by an application build
 		// (its CMakeLists turns the list into links and the source calling them: hod_link_engine_modules... in HodEngineConfig.cmake), loaded by the editor from their libraries
@@ -694,28 +724,31 @@ namespace hod::inline editor
 			result &= FileSystem::GetInstance()->CreateDirectories(moduleListPath.ParentPath()) && FileSystem::GetInstance()->WriteAllText(moduleListPath, moduleList);
 		}
 
-		result &= CMakeHelper::GenerateCMakeLists(_codeDirPath / projectRuntimeName / "CMakeLists.txt", CMakeListsRuntime_txt,
-		                                          {
-													  {"[[PROJECT_NAME]]", projectRuntimeName},
-													  {"[[PROJECT_EXPORT]]", projectRuntimeExport},
-												  });
+		Path runtimeCMakeListsPath = _codeDirPath / projectRuntimeName / "CMakeLists.txt";
+		if (FileSystem::GetInstance()->Exists(runtimeCMakeListsPath) == false)
+		{
+			result &= CMakeHelper::GenerateCMakeLists(runtimeCMakeListsPath, CMakeListsRuntime_txt, {{"[[PROJECT_NAME]]", projectRuntimeName}});
+		}
 
-		String projectEditorName = GetEditorModuleName(_name);
-		String projectEditorExport = _name + "_EDITOR_EXPORT";
-		std::transform(projectEditorExport.begin(), projectEditorExport.end(), projectEditorExport.begin(), [](char c) { return std::toupper(c); });
+		Path editorCMakeListsPath = _codeDirPath / projectEditorName / "CMakeLists.txt";
+		if (FileSystem::GetInstance()->Exists(editorCMakeListsPath) == false)
+		{
+			result &= CMakeHelper::GenerateCMakeLists(editorCMakeListsPath, CMakeListsEditor_txt,
+			                                          {
+														  {"[[PROJECT_NAME]]", projectRuntimeName},
+														  {"[[PROJECT_EDITOR_NAME]]", projectEditorName},
+													  });
+		}
 
-		result &= CMakeHelper::GenerateCMakeLists(_codeDirPath / projectEditorName / "CMakeLists.txt", CMakeListsEditor_txt,
-		                                          {
-													  {"[[PROJECT_NAME]]", projectName},
-													  {"[[PROJECT_EDITOR_NAME]]", projectEditorName},
-													  {"[[PROJECT_EDITOR_EXPORT]]", projectEditorExport},
-												  });
-
-		result &= CMakeHelper::GenerateCMakeLists(_projectPath.ParentPath() / "CMakeLists.txt", CMakeListsRoot_txt,
-		                                          {
-													  {"[[PROJECT_NAME]]", projectName},
-													  {"[[PROJECT_EDITOR_NAME]]", projectEditorName},
-												  });
+		Path rootCMakeListsPath = _projectPath.ParentPath() / "CMakeLists.txt";
+		if (FileSystem::GetInstance()->Exists(rootCMakeListsPath) == false)
+		{
+			result &= CMakeHelper::GenerateCMakeLists(rootCMakeListsPath, CMakeListsRoot_txt,
+			                                          {
+														  {"[[PROJECT_NAME]]", projectName},
+														  {"[[PROJECT_EDITOR_NAME]]", projectEditorName},
+													  });
+		}
 
 		return result;
 	}
