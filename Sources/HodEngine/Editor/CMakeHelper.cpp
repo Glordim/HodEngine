@@ -119,19 +119,19 @@ namespace hod::inline editor
 	{
 		Path toolchainPath;
 		Path engineDirPath;
-		String gameBuildType;
+		String projectBuildType;
 		switch (target)
 		{
 			case Target::Retail:
 				engineDirPath = GetInstalledCmakeDirPath();
 				toolchainPath = GetInstalledToolchainPath();
-				gameBuildType = "Application";
+				projectBuildType = "Application";
 				break;
 
 			case Target::Editor:
 				engineDirPath = GetRunningCmakeDirPath();
 				toolchainPath = GetRunningToolchainPath();
-				gameBuildType = "GameModule";
+				projectBuildType = "Editor";
 				break;
 		}
 
@@ -139,7 +139,7 @@ namespace hod::inline editor
 		Vector<String> arguments = {
 			fmt::format("-DCMAKE_TOOLCHAIN_FILE:FILEPATH={}", toolchainPath).c_str(),
 			fmt::format("-DHodEngine_DIR={}", engineDirPath).c_str(),
-			fmt::format("-DHOD_GAME_BUILD_TYPE={}", gameBuildType).c_str(),
+			fmt::format("-DHOD_PROJECT_BUILD_TYPE={}", projectBuildType).c_str(),
 			"--no-warn-unused-cli",
 			"-B",
 			buildDir.GetString(),

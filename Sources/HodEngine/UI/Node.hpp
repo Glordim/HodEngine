@@ -207,7 +207,7 @@ namespace hod::inline ui
 		template<typename _View_>
 		_View_*						GetView() const;
 		View*						GetView() const;
-		// A view of a type no loaded module registers (its game module missing): kept as read, to be saved back as is, until a
+		// A view of a type no loaded module registers (its runtime module missing): kept as read, to be saved back as is, until a
 		// view is set (SetView) or it is dropped.
 		bool						HasUnknownView() const;
 		void						DropUnknownView();

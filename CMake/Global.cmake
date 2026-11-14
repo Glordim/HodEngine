@@ -48,7 +48,7 @@ macro(hod_install_lib TARGET_NAME)
 endmacro()
 
 # The manifest of an engine plugin (see PluginManifest in Editor/Plugins/PluginGraph.hpp), copied to <bin>/Plugins/<PluginName>.json where
-# the editor reads them, when target is built. Shared builds only: the editor's (a static game links the runtime modules the editor chose)
+# the editor reads them, when target is built. Shared builds only: the editor's (an application build links the runtime modules the editor chose)
 function(hod_plugin_manifest target pluginName manifestPath)
 	if(NOT BUILD_SHARED_LIBS)
 		return()

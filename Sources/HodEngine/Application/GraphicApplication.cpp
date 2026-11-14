@@ -36,7 +36,7 @@ namespace hod::inline application
 		if (!initGuard.Push([this]{ return InitRenderer(); },    [this]{ TerminateRenderer(); }))    return false;
 		if (!initGuard.Push([this]{ return InitImGui(); },       [this]{ TerminateImGui(); }))       return false;
 		if (!initGuard.Push([this]{ return InitModules(); },     [this]{ TerminateModules(); }))     return false;
-		if (!initGuard.Push([this]{ return BootGame(); },        [this]{ TerminateBoot(); }))        return false;
+		if (!initGuard.Push([this]{ return InitWorld(); },       [this]{ TerminateWorld(); }))       return false;
 
 		return RunGraphicLoop();
 	}

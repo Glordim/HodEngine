@@ -21,7 +21,7 @@
 #include <fmt/format.h>
 
 #include "FileTemplates/CMakeListsEditor.txt.hpp"
-#include "FileTemplates/CMakeListsGame.txt.hpp"
+#include "FileTemplates/CMakeListsRuntime.txt.hpp"
 #include "FileTemplates/CMakeListsRoot.txt.hpp"
 #include "FileTemplates/Component.cpp.hpp"
 #include "FileTemplates/Component.hpp.hpp"
@@ -85,24 +85,58 @@ namespace hod::inline editor
 		return Save();
 	}
 
-	/// @brief The project name is used for the CMake targets and the C++ export macros of its modules, it must be a valid C identifier
+	/// @brief
 	/// @param name
 	/// @return
-	bool Project::IsValidName(const String& name)
+	String Project::CheckName(const String& name)
 	{
-		if (name.Empty() || (name[0] >= '0' && name[0] <= '9'))
+		if (name.Empty())
 		{
-			return false;
+			return "Name the project";
 		}
+		bool identifier = (name[0] >= '0' && name[0] <= '9') == false;
 		for (char c : name)
 		{
-			bool valid = (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_';
-			if (valid == false)
+			identifier &= (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || (c >= '0' && c <= '9') || c == '_';
+		}
+		if (identifier == false)
+		{
+			return String::Format("'%s' isn't a valid project name: letters, digits and '_' only, not starting with a digit", name.CStr());
+		}
+
+		String macroPrefix = name;
+		std::transform(macroPrefix.begin(), macroPrefix.end(), macroPrefix.begin(), [](char c) { return static_cast<char>(std::toupper(c)); });
+		if (macroPrefix == "HOD" || macroPrefix.StartsWith("HOD_"))
+		{
+			return String::Format("'%s' isn't a valid project name: its export macros would be the engine's (HOD_...)", name.CStr());
+		}
+
+		// Two libraries of the same name in a process: the loader gives the first to whoever imports the name (case insensitive on Windows)
+		const Path engineDirectory = FileSystem::GetExecutablePath().ParentPath();
+		for (const String& module : {GetRuntimeModuleName(name), GetEditorModuleName(name)})
+		{
+			if (FileSystem::GetInstance()->Exists(DynamicLibrary::GetFilePath(engineDirectory / module)))
 			{
-				return false;
+				return String::Format("'%s' isn't a valid project name: its module %s would have the name of a library of the engine", name.CStr(), module.CStr());
 			}
 		}
-		return true;
+		return String();
+	}
+
+	/// @brief
+	/// @param projectName
+	/// @return
+	String Project::GetRuntimeModuleName(const String& projectName)
+	{
+		return projectName;
+	}
+
+	/// @brief
+	/// @param projectName
+	/// @return
+	String Project::GetEditorModuleName(const String& projectName)
+	{
+		return projectName + "Editor";
 	}
 
 	/// @brief
@@ -118,14 +152,9 @@ namespace hod::inline editor
 		{
 			return String::Format("%s isn't an absolute path", directory.GetString().CStr());
 		}
-		const String name = directory.Filename().GetString();
-		if (name.Empty())
+		if (String error = CheckName(directory.Filename().GetString()); error.Empty() == false)
 		{
-			return "Name the project";
-		}
-		if (IsValidName(name) == false)
-		{
-			return String::Format("'%s' isn't a valid project name: letters, digits and '_' only, not starting with a digit", name.CStr());
+			return error;
 		}
 		if (FileSystem::GetInstance()->Exists(directory) == false)
 		{
@@ -162,8 +191,8 @@ namespace hod::inline editor
 	/// @brief Write a module source file from a template, replacing [[MODULE_NAME]], [[MODULE_API]] and [[MODULE_EXPORT]]
 	/// @param path
 	/// @param templateContent
-	/// @param moduleName ex: CircleGame
-	/// @param macroPrefix ex: Circle_GAME (uppercased to give CIRCLE_GAME_API / CIRCLE_GAME_EXPORT)
+	/// @param moduleName ex: Circle
+	/// @param macroPrefix ex: Circle (uppercased to give CIRCLE_API / CIRCLE_EXPORT)
 	/// @return
 	bool Project::WriteModuleSourceFile(const Path& path, std::string_view templateContent, const String& moduleName, const String& macroPrefix)
 	{
@@ -197,24 +226,24 @@ namespace hod::inline editor
 		return true;
 	}
 
-	/// @brief Generate the minimal sources of the game and editor modules
-	/// Layout expected by GenerateGameModuleCMakeList: Code/<Name>Game and Code/<Name>Editor
+	/// @brief Generate the minimal sources of the runtime and editor modules
+	/// Layout expected by GenerateProjectCMakeLists: Code/<Name> and Code/<Name>Editor
 	/// @param directory
 	/// @return
 	bool Project::CreateMinimalSourceForModule(const Path& directory)
 	{
-		// Game module (macro prefix gives <NAME>_GAME_EXPORT, matching GenerateGameModuleCMakeList)
-		String gameModuleName = _name + "Game";
-		String gameMacroPrefix = _name + "_GAME";
-		Path   gameDirPath = directory / "Code" / gameModuleName;
-		Path   gameComponentsDirPath = gameDirPath / "Components";
-		if (FileSystem::GetInstance()->Exists(gameComponentsDirPath) == false && FileSystem::GetInstance()->CreateDirectories(gameComponentsDirPath) == false)
+		// Runtime module (macro prefix gives <NAME>_EXPORT, matching GenerateProjectCMakeLists)
+		String runtimeModuleName = GetRuntimeModuleName(_name);
+		String runtimeMacroPrefix = runtimeModuleName;
+		Path   runtimeDirPath = directory / "Code" / runtimeModuleName;
+		Path   runtimeComponentsDirPath = runtimeDirPath / "Components";
+		if (FileSystem::GetInstance()->Exists(runtimeComponentsDirPath) == false && FileSystem::GetInstance()->CreateDirectories(runtimeComponentsDirPath) == false)
 		{
 			return false;
 		}
 
 		// Editor module
-		String editorModuleName = _name + "Editor";
+		String editorModuleName = GetEditorModuleName(_name);
 		String editorMacroPrefix = _name + "_EDITOR";
 		Path   editorDirPath = directory / "Code" / editorModuleName;
 		if (FileSystem::GetInstance()->Exists(editorDirPath) == false && FileSystem::GetInstance()->CreateDirectories(editorDirPath) == false)
@@ -231,12 +260,12 @@ namespace hod::inline editor
 		};
 
 		const FileToWrite files[] = {
-			{gameDirPath / "Export.hpp", Export_hpp, gameModuleName, gameMacroPrefix},
-			{gameDirPath / (gameModuleName + "Module.cpp").CStr(), Module_cpp, gameModuleName, gameMacroPrefix},
-			{gameComponentsDirPath / "MyFirstComponent.hpp", Component_hpp, gameModuleName, gameMacroPrefix},
-			{gameComponentsDirPath / "MyFirstComponent.cpp", Component_cpp, gameModuleName, gameMacroPrefix},
+			{runtimeDirPath / "Export.hpp", Export_hpp, runtimeModuleName, runtimeMacroPrefix},
+			{runtimeDirPath / "Module.cpp", Module_cpp, runtimeModuleName, runtimeMacroPrefix},
+			{runtimeComponentsDirPath / "MyFirstComponent.hpp", Component_hpp, runtimeModuleName, runtimeMacroPrefix},
+			{runtimeComponentsDirPath / "MyFirstComponent.cpp", Component_cpp, runtimeModuleName, runtimeMacroPrefix},
 			{editorDirPath / "Export.hpp", Export_hpp, editorModuleName, editorMacroPrefix},
-			{editorDirPath / (editorModuleName + "Module.cpp").CStr(), EditorModule_cpp, editorModuleName, editorMacroPrefix},
+			{editorDirPath / "Module.cpp", EditorModule_cpp, editorModuleName, editorMacroPrefix},
 		};
 		for (const FileToWrite& file : files)
 		{
@@ -271,6 +300,11 @@ namespace hod::inline editor
 
 		_projectPath = projectPath;
 		_name = _projectPath.Stem().GetString();
+		if (String error = CheckName(_name); error.Empty() == false)
+		{
+			OUTPUT_ERROR("Project::Open fail: {}", error);
+			return false;
+		}
 
 		_sourceDirPath = _projectPath.ParentPath() / "Source";
 		if (FileSystem::GetInstance()->Exists(_sourceDirPath) == false && FileSystem::GetInstance()->CreateDirectories(_sourceDirPath) == false)
@@ -356,13 +390,13 @@ namespace hod::inline editor
 		FileSystem::GetInstance()->CreateDirectories(modulesDirectoryPath);
 
 		_modulesDirectoryPath = modulesDirectoryPath;
-		_gameModuleLibraryPath = modulesDirectoryPath / (_name + "Game");
-		if (_gameModuleFileSystemWatcher.Init(GetGameModulePath(), nullptr, nullptr, [this](const Path&) { _onModulesRebuiltEvent.Emit(); }, nullptr) == false)
+		_runtimeModuleLibraryPath = modulesDirectoryPath / GetRuntimeModuleName(_name);
+		if (_runtimeModuleFileSystemWatcher.Init(GetRuntimeModulePath(), nullptr, nullptr, [this](const Path&) { _onModulesRebuiltEvent.Emit(); }, nullptr) == false)
 		{
 			return false;
 		}
 
-		_editorModuleLibraryPath = modulesDirectoryPath / (_name + "Editor");
+		_editorModuleLibraryPath = modulesDirectoryPath / GetEditorModuleName(_name);
 		if (_editorModuleFileSystemWatcher.Init(DynamicLibrary::GetFilePath(_editorModuleLibraryPath), nullptr, nullptr, [this](const Path&) { _onModulesRebuiltEvent.Emit(); },
 		                                        nullptr) == false)
 		{
@@ -386,9 +420,9 @@ namespace hod::inline editor
 
 		PluginManifest projectPlugin;
 		projectPlugin._name = _name;
-		projectPlugin._description = "The project's code: its game module and its editor module";
-		projectPlugin._runtimeModules.PushBack(_name + "Game");
-		projectPlugin._editorModule = _name + "Editor"; // Optional (see Editor::LoadProjectPlugin)
+		projectPlugin._description = "The project's code: its runtime module and its editor module";
+		projectPlugin._runtimeModules.PushBack(GetRuntimeModuleName(_name));
+		projectPlugin._editorModule = GetEditorModuleName(_name); // Optional (see Editor::LoadProjectPlugin)
 		projectPlugin._modulesDirectory = _modulesDirectoryPath;
 		projectPlugin._builtFromSources = true;
 		_pluginGraph.AppendLast(projectPlugin);
@@ -451,7 +485,7 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
-	Path Project::GetGameModuleRuntimeModulesStampPath() const
+	Path Project::GetRuntimeModulesStampPath() const
 	{
 		return GetCacheBuildDirPath() / "Editor" / "HodModules.txt";
 	}
@@ -582,9 +616,9 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
-	bool Project::HasGameModule() const
+	bool Project::HasRuntimeModule() const
 	{
-		return FileSystem::GetInstance()->Exists(GetGameModulePath());
+		return FileSystem::GetInstance()->Exists(GetRuntimeModulePath());
 	}
 
 	/// @brief Try to load then unload the project modules, a module linked against outdated engine libraries fails to load
@@ -593,23 +627,23 @@ namespace hod::inline editor
 	{
 		// Built with other plugins than the ones the project uses now: it links the runtime modules of the plugins it was built with
 		String builtStamp;
-		if (FileSystem::GetInstance()->Exists(GetGameModuleRuntimeModulesStampPath()) == false ||
-		    FileSystem::GetInstance()->ReadAllText(GetGameModuleRuntimeModulesStampPath(), builtStamp) == false || builtStamp != GetRuntimeModulesStamp())
+		if (FileSystem::GetInstance()->Exists(GetRuntimeModulesStampPath()) == false ||
+		    FileSystem::GetInstance()->ReadAllText(GetRuntimeModulesStampPath(), builtStamp) == false || builtStamp != GetRuntimeModulesStamp())
 		{
-			OUTPUT_MESSAGE("The game module was built with other plugins, it must be rebuilt");
+			OUTPUT_MESSAGE("The project's runtime module was built with other plugins, it must be rebuilt");
 			return false;
 		}
 
-		DynamicLibrary gameModule;
-		gameModule.Init(_gameModuleLibraryPath, true); // A copy, as the editor loads it (see PluginManifest::_builtFromSources)
-		if (gameModule.Load() == false)
+		DynamicLibrary runtimeModule;
+		runtimeModule.Init(_runtimeModuleLibraryPath, true); // A copy, as the editor loads it (see PluginManifest::_builtFromSources)
+		if (runtimeModule.Load() == false)
 		{
 			return false;
 		}
 		// Built against an engine whose entry point had another name (see HOD_STARTUP_MODULE): it loads, but can't be started
-		if (gameModule.LoadFunction<void*>(HOD_MODULE_STARTUP_FUNCTION_NAME) == nullptr)
+		if (runtimeModule.LoadFunction<void*>(HOD_MODULE_STARTUP_FUNCTION_NAME) == nullptr)
 		{
-			OUTPUT_MESSAGE("The game module has no entry point " HOD_MODULE_STARTUP_FUNCTION_NAME " (built against another engine), it must be rebuilt");
+			OUTPUT_MESSAGE("The project's runtime module has no entry point " HOD_MODULE_STARTUP_FUNCTION_NAME " (built against another engine), it must be rebuilt");
 			return false;
 		}
 
@@ -627,23 +661,23 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
-	Path Project::GetGameModulePath() const
+	Path Project::GetRuntimeModulePath() const
 	{
-		return DynamicLibrary::GetFilePath(_gameModuleLibraryPath);
+		return DynamicLibrary::GetFilePath(_runtimeModuleLibraryPath);
 	}
 
 	/// @brief
 	/// @return
-	bool Project::GenerateGameModuleCMakeList() const
+	bool Project::GenerateProjectCMakeLists() const
 	{
 		String projectName = _name;
 
-		String projectGameName = _name + "Game";
-		String projectGameExport = _name + "_GAME_EXPORT";
-		std::transform(projectGameExport.begin(), projectGameExport.end(), projectGameExport.begin(), [](char c) { return std::toupper(c); });
+		String projectRuntimeName = GetRuntimeModuleName(_name);
+		String projectRuntimeExport = projectRuntimeName + "_EXPORT";
+		std::transform(projectRuntimeExport.begin(), projectRuntimeExport.end(), projectRuntimeExport.begin(), [](char c) { return std::toupper(c); });
 
-		// The runtime modules of the enabled plugins, dependencies first: linked by the game, started by a static game in that order
-		// (the game's CMakeLists turns the list into links and the source calling them: hod_link_engine_modules... in HodEngineConfig.cmake), loaded by the editor from their libraries
+		// The runtime modules of the enabled plugins, dependencies first: linked by the project's runtime module, started in that order by an application build
+		// (its CMakeLists turns the list into links and the source calling them: hod_link_engine_modules... in HodEngineConfig.cmake), loaded by the editor from their libraries
 		String moduleList;
 		for (const String& runtimeModule : _pluginGraph.GetEnabledRuntimeModules())
 		{
@@ -660,21 +694,19 @@ namespace hod::inline editor
 			result &= FileSystem::GetInstance()->CreateDirectories(moduleListPath.ParentPath()) && FileSystem::GetInstance()->WriteAllText(moduleListPath, moduleList);
 		}
 
-		result &= CMakeHelper::GenerateCMakeLists(_codeDirPath / projectGameName / "CMakeLists.txt", CMakeListsGame_txt,
+		result &= CMakeHelper::GenerateCMakeLists(_codeDirPath / projectRuntimeName / "CMakeLists.txt", CMakeListsRuntime_txt,
 		                                          {
-													  {"[[PROJECT_NAME]]", projectName},
-													  {"[[PROJECT_GAME_NAME]]", projectGameName},
-													  {"[[PROJECT_GAME_EXPORT]]", projectGameExport},
+													  {"[[PROJECT_NAME]]", projectRuntimeName},
+													  {"[[PROJECT_EXPORT]]", projectRuntimeExport},
 												  });
 
-		String projectEditorName = _name + "Editor";
+		String projectEditorName = GetEditorModuleName(_name);
 		String projectEditorExport = _name + "_EDITOR_EXPORT";
 		std::transform(projectEditorExport.begin(), projectEditorExport.end(), projectEditorExport.begin(), [](char c) { return std::toupper(c); });
 
 		result &= CMakeHelper::GenerateCMakeLists(_codeDirPath / projectEditorName / "CMakeLists.txt", CMakeListsEditor_txt,
 		                                          {
 													  {"[[PROJECT_NAME]]", projectName},
-													  {"[[PROJECT_GAME_NAME]]", projectGameName},
 													  {"[[PROJECT_EDITOR_NAME]]", projectEditorName},
 													  {"[[PROJECT_EDITOR_EXPORT]]", projectEditorExport},
 												  });
@@ -682,7 +714,6 @@ namespace hod::inline editor
 		result &= CMakeHelper::GenerateCMakeLists(_projectPath.ParentPath() / "CMakeLists.txt", CMakeListsRoot_txt,
 		                                          {
 													  {"[[PROJECT_NAME]]", projectName},
-													  {"[[PROJECT_GAME_NAME]]", projectGameName},
 													  {"[[PROJECT_EDITOR_NAME]]", projectEditorName},
 												  });
 
@@ -692,43 +723,43 @@ namespace hod::inline editor
 	/// @brief
 	/// @param outputs
 	/// @return
-	bool Project::ConfigureGameModule() const
+	bool Project::ConfigureProjectModules() const
 	{
-		Path gameModuleSourceDirectoryPath = _projectPath.ParentPath();
-		Path gameModuleBuildDirectoryPath = GetCacheBuildDirPath() / "Editor";
+		Path sourceDirectoryPath = _projectPath.ParentPath();
+		Path buildDirectoryPath = GetCacheBuildDirPath() / "Editor";
 
 		try
 		{
-			if (FileSystem::GetInstance()->Exists(gameModuleBuildDirectoryPath) == false)
+			if (FileSystem::GetInstance()->Exists(buildDirectoryPath) == false)
 			{
-				FileSystem::GetInstance()->CreateDirectories(gameModuleBuildDirectoryPath);
-				OUTPUT_MESSAGE("Create Build directory at {}", gameModuleBuildDirectoryPath);
+				FileSystem::GetInstance()->CreateDirectories(buildDirectoryPath);
+				OUTPUT_MESSAGE("Create Build directory at {}", buildDirectoryPath);
 			}
 			else
 			{
-				OUTPUT_MESSAGE("Build directory already exist at {}", gameModuleBuildDirectoryPath);
+				OUTPUT_MESSAGE("Build directory already exist at {}", buildDirectoryPath);
 			}
 		}
 		catch (const std::exception& e)
 		{
-			OUTPUT_MESSAGE("Failed to create Build directory at {} : ", gameModuleBuildDirectoryPath, e.what());
+			OUTPUT_MESSAGE("Failed to create Build directory at {} : ", buildDirectoryPath, e.what());
 			return false;
 		}
 
-		return CMakeHelper::Configure(gameModuleSourceDirectoryPath, gameModuleBuildDirectoryPath, "", CMakeHelper::Target::Editor);
+		return CMakeHelper::Configure(sourceDirectoryPath, buildDirectoryPath, "", CMakeHelper::Target::Editor);
 	}
 
 	/// @brief
 	/// @return
-	bool Project::BuildGameModule() const
+	bool Project::BuildProjectModules() const
 	{
-		Path gameModuleBuildDirectoryPath = GetCacheBuildDirPath() / "Editor";
-		if (CMakeHelper::Build(gameModuleBuildDirectoryPath, "Release") == false)
+		Path buildDirectoryPath = GetCacheBuildDirPath() / "Editor";
+		if (CMakeHelper::Build(buildDirectoryPath, "Release") == false)
 		{
 			return false;
 		}
 		// What it links now (see CanLoadProjectModules)
-		FileSystem::GetInstance()->WriteAllText(GetGameModuleRuntimeModulesStampPath(), GetRuntimeModulesStamp());
+		FileSystem::GetInstance()->WriteAllText(GetRuntimeModulesStampPath(), GetRuntimeModulesStamp());
 		return true;
 	}
 

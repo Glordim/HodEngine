@@ -258,7 +258,7 @@ namespace hod::inline rhi
 			}
 			else if (_selectedGpu->compatible == false)
 			{
-				OUTPUT_ERROR("D3d12: Selected adapter {} is not compatible with GameEngine requirement, fallback on recommanded adapter", physicalDeviceIdentifier);
+				OUTPUT_ERROR("D3d12: Selected adapter {} is not compatible with the engine's requirements, fallback on the recommended adapter", physicalDeviceIdentifier);
 				_selectedGpu = _recommandedGpu;
 			}
 		}
@@ -269,7 +269,7 @@ namespace hod::inline rhi
 
 		if (_selectedGpu == nullptr)
 		{
-			OUTPUT_ERROR("D3d12: No adapter compatible with GameEngine requirement... sorry");
+			OUTPUT_ERROR("D3d12: No adapter compatible with the engine's requirements");
 			return false;
 		}
 

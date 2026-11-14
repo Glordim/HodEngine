@@ -57,7 +57,7 @@ namespace hod::inline ui
 		NodeFactory::CreateInstance();
 		LayoutFactory::CreateInstance();
 		InteractionFactory::CreateInstance();
-		ViewFactory::CreateInstance(); // Filled by the game modules (their views)
+		ViewFactory::CreateInstance(); // Filled by the projects' runtime modules (their views)
 		registration.AddUnregister(
 			[]()
 			{

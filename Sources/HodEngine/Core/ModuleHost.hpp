@@ -15,8 +15,8 @@ namespace hod::inline core
 	using ModuleStartup = bool (*)(ModuleRegistration& registration);
 
 	/// @brief Starts modules in order (their plugins' order: dependencies first) and stops them in the reverse order, each with its
-	/// ModuleRegistration: Application for the runtime modules compiled in a game (Start), the editor for the modules of the project's plugins
-	/// (one host for the runtime ones, one for the editor ones), Project for the game module and its editor module (Load: the host loads
+	/// ModuleRegistration: Application for the runtime modules compiled in an application (Start), the editor for the modules of the project's plugins
+	/// (one host for the runtime ones, one for the editor ones), the editor for the project's runtime module and editor module (Load: the host loads
 	/// their library and unloads it once the module is stopped)
 	class HOD_CORE_API ModuleHost
 	{
@@ -30,7 +30,7 @@ namespace hod::inline core
 		ModuleHost& operator=(ModuleHost&&) = delete;
 
 	public:
-		/// @brief A module linked in (a game build, see HodStartRuntimeModules): its startup, right away
+		/// @brief A module linked in (an application build, see HodStartRuntimeModules): its startup, right away
 		/// @return false (with an error naming the module) if it failed: what it registered is undone, it isn't kept
 		bool Start(const String& name, ModuleStartup startup);
 

@@ -1473,7 +1473,7 @@ namespace hod::inline editor
 	{
 		VersionControlProvider::WorkspaceSetup setup;
 		setup._ignoredFolders = {_projectDir / "Cache", _projectDir / "Build"};
-		setup._ignoredFiles = {_userSettingsPath, _projectDir / "CMakeLists.txt"}; // Generated (Project::GenerateGameModuleCMakeList)
+		setup._ignoredFiles = {_userSettingsPath, _projectDir / "CMakeLists.txt"}; // Generated (Project::GenerateProjectCMakeLists)
 
 		Vector<String> extensions = AssetDatabase::GetInstance()->GetAssetExtensions();
 		for (String& extension : AssetDatabase::GetInstance()->GetImporterExtensions())

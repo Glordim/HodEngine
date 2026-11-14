@@ -13,7 +13,7 @@ REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
 namespace hod::inline game
 {
-	/// @brief The factories the other plugins and the game module register into (Game is required, every plugin knowing it depends on it:
+	/// @brief The factories the other plugins and the project's runtime module register into (Game is required, every plugin knowing it depends on it:
 	/// started before them, stopped after them) and Game's own components
 	HOD_STARTUP_MODULE(Game, registration)
 	{

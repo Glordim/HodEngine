@@ -10,7 +10,7 @@ namespace hod::inline editor
 {
 	/// @brief Describes a plugin (a feature: its runtime modules and/or its editor module, each a library with an entry point): an engine
 	/// plugin from its HodPlugin.json, copied by the build next to the editor in Plugins/<Name>.json (see hod_plugin_manifest in Global.cmake),
-	/// or the project's own (its game module and its editor module, described by Project, see PluginGraph::AppendLast)
+	/// or the project's own (its runtime module and its editor module, described by Project, see PluginGraph::AppendLast)
 	struct HOD_EDITOR_API PluginManifest
 	{
 		REFLECTED_CLASS_NO_VIRTUAL(PluginManifest)
@@ -56,7 +56,7 @@ namespace hod::inline editor
 	};
 
 	/// @brief The engine plugins: validated, sorted (dependencies first, then by name: the same order everywhere, the editor's and the
-	/// games'), then resolved against what a project disables
+	/// applications'), then resolved against what a project disables
 	class HOD_EDITOR_API PluginGraph
 	{
 	public:
@@ -91,7 +91,7 @@ namespace hod::inline editor
 		const Vector<Plugin>& GetPlugins() const;
 		const Plugin*         Find(const std::string_view& name) const;
 
-		/// @brief The _runtimeModules of the enabled engine plugins (not _builtFromSources: what a game links from the engine), in the
+		/// @brief The _runtimeModules of the enabled engine plugins (not _builtFromSources: what the project's runtime module links from the engine), in the
 		/// plugins' order
 		Vector<String> GetEnabledRuntimeModules() const;
 

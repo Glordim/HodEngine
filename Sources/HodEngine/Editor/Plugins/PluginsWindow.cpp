@@ -91,7 +91,7 @@ namespace hod::inline editor
 	}
 
 	/// @brief Saved in the project, then the editor restarts on it: the modules of the plugins are loaded with the project, and the
-	/// game module links them (rebuilt then)
+	/// project's runtime module links them (rebuilt then)
 	/// @param saveTabs
 	void PluginsWindow::Apply(bool saveTabs)
 	{
@@ -225,14 +225,14 @@ namespace hod::inline editor
 		if (hasChanges)
 		{
 			ImGui::SameLine();
-			ImGui::TextDisabled("The editor restarts, the game module is rebuilt");
+			ImGui::TextDisabled("The editor restarts, the project's modules are rebuilt");
 		}
 
 		CenterNextWindowOnCurrentWindow();
 		if (ImGui::BeginPopupModal(ApplyModalName, nullptr, ImGuiWindowFlags_AlwaysAutoResize))
 		{
 			bool dirtyTabs = Editor::GetInstance()->HasDirtyTabs();
-			ImGui::TextUnformatted("The editor restarts on the project to load the plugins, the game module is rebuilt.");
+			ImGui::TextUnformatted("The editor restarts on the project to load the plugins, the project's modules are rebuilt.");
 			if (dirtyTabs)
 			{
 				ImGui::TextColored(ImVec4(1.0f, 0.8f, 0.3f, 1.0f), ICON_MDI_ALERT " Some tabs have unsaved changes.");

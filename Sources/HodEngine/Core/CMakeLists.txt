@@ -57,7 +57,7 @@ target_compile_definitions(Core
 )
 
 if(NOT BUILD_SHARED_LIBS)
-	# HOD_MONOLITHIC: everything linked in one binary (a game build), seen by every library and the game through Core: the modules'
+	# HOD_MONOLITHIC: everything linked in one binary (an application build), seen by every library and the application through Core: the modules'
 	# entry points get unique names (see HOD_STARTUP_MODULE)
 	target_compile_definitions(Core PUBLIC HOD_CORE_STATIC HOD_MONOLITHIC)
 else()

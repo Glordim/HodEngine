@@ -17,7 +17,7 @@ namespace hod::inline core
 namespace hod::inline gamesystems
 {
 	/// @brief Owns the instance of every registered ProjectSettings class. A class registered after Load() is
-	/// loaded right away, so registering (module startup, game module included) and loading can come in any order.
+	/// loaded right away, so registering (module startup, the project's included) and loading can come in any order.
 	/// A settings class without file keeps its default values.
 	class HOD_GAME_SYSTEMS_API ProjectSettingsManager
 	{

@@ -11,7 +11,7 @@
 
 namespace hod::inline ui
 {
-	/// @brief The registrar of UI (see ModuleRegistration): nodes, layouts, layout params, interactions, views (UI's builtin ones, a game's),
+	/// @brief The registrar of UI (see ModuleRegistration): nodes, layouts, layout params, interactions, views (UI's builtin ones, a project's),
 	/// unregistered with the rest of what the module registered. In a runtime module's startup (see HOD_STARTUP_MODULE). Each returns false
 	/// (with an error) if the type is registered already (by another module): the first one stays, nothing is undone for this one
 	class UIRegistrar

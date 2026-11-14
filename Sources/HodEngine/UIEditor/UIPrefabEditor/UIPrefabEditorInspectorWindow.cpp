@@ -1301,7 +1301,7 @@ namespace hod::inline editor
 	}
 
 	/// @brief View attached to `node` (the prefab's code, see ui::View): its properties, the node references first among them.
-	/// Added to the prefab's root only (a view found on another node is still shown), from the views the game modules register.
+	/// Added to the prefab's root only (a view found on another node is still shown), from the views the projects' runtime modules register.
 	/// A view of an unknown type (its module not loaded) is kept as is, only removable. An instance root's view is its prefab's:
 	/// read-only.
 	/// @return true if the node's view was added, removed or edited
@@ -1334,7 +1334,7 @@ namespace hod::inline editor
 		{
 			if (DrawHelper::BeginInspectorBlock((const void*)BlockView, ICON_MDI_CODE_BRACES, "View: unknown type", nullptr, canEditStructure ? &removeView : nullptr))
 			{
-				ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1.0f), ICON_MDI_ALERT " Its game module isn't loaded");
+				ImGui::TextColored(ImVec4(1.0f, 0.6f, 0.2f, 1.0f), ICON_MDI_ALERT " Its runtime module isn't loaded");
 				ImGui::TextDisabled("Kept as is until then");
 			}
 			DrawHelper::EndInspectorBlock();
@@ -1347,13 +1347,13 @@ namespace hod::inline editor
 			{
 				ImGui::OpenPopup("UIPrefabAddView");
 			}
-			ImGui::SetItemTooltip("The code gameplay drives the prefab through (a ui::View of the game module)");
+			ImGui::SetItemTooltip("The code gameplay drives the prefab through (a ui::View of the project's runtime module)");
 			if (ImGui::BeginPopup("UIPrefabAddView"))
 			{
 				const auto& viewDescriptors = ui::ViewFactory::GetInstance()->GetAllDescriptors();
 				if (viewDescriptors.empty())
 				{
-					ImGui::TextDisabled("No view: a game module registers its own (ui::ViewFactory)");
+					ImGui::TextDisabled("No view: the project's runtime module registers its own (ui::ViewFactory)");
 				}
 				for (const auto& descriptorPair : viewDescriptors)
 				{

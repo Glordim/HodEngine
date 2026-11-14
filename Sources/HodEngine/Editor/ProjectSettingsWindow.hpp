@@ -23,7 +23,7 @@ namespace hod::inline editor
 		void DrawContent() override;
 
 	private:
-		// Reflection types rather than pointers: a game module's settings go away with it ("Hot Reload")
+		// Reflection types rather than pointers: a module's settings go away with it ("Hot Reload")
 		uint64_t _selectedType = 0;
 		uint64_t _pendingSaveType = 0;
 	};

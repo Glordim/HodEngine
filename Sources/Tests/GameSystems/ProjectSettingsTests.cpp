@@ -80,7 +80,7 @@ namespace hod
 		ASSERT_TRUE(manager->Save(*settings));
 		EXPECT_TRUE(FileSystem::GetInstance()->Exists(ProjectSettingsManager::GetFilePath(_directory, TestSettings::GetReflectionDescriptor())));
 
-		// Registered after the load (game module reloaded)
+		// Registered after the load (the project's runtime module reloaded)
 		manager->Unregister<TestSettings>();
 		settings = manager->Register<TestSettings>();
 		EXPECT_EQ(settings->_value, 42);

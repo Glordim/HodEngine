@@ -4,7 +4,7 @@
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
-/// @brief What the game adds to the editor, through the registrars of the modules offering it (EditorRegistrar: drawers, windows...;
+/// @brief What the project adds to the editor, through the registrars of the modules offering it (EditorRegistrar: drawers, windows...;
 /// GameEditorRegistrar: viewport debug views...), unregistered by the editor when the module goes away (Hot Reload included)
 /// @param registration
 /// @return false if it couldn't start

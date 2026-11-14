@@ -1608,7 +1608,7 @@ namespace hod::inline ui
 			}
 		}
 
-		// Views come from game modules: one that isn't loaded leaves the view's data as is, for it not to be lost on save.
+		// Views come from the projects' runtime modules: one that isn't loaded leaves the view's data as is, for it not to be lost on save.
 		const DocumentNode* viewNode = documentNode.GetChild("View");
 		if (viewNode != nullptr)
 		{

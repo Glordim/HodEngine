@@ -28,8 +28,8 @@
 #if defined(HOD_APPLICATION_STATIC)
 extern "C"
 {
-	// Generated in the game (HodModules.generated.cpp): starts the runtime modules of the plugins the project enables, dependencies
-	// first, then the game module
+	// Generated in the application build (HodModules.generated.cpp): starts the runtime modules of the plugins the project enables, dependencies
+	// first, then the project's runtime module
 	bool HodStartRuntimeModules(hod::core::ModuleHost& host);
 }
 #endif
@@ -104,7 +104,9 @@ namespace hod::inline application
 		return true;
 	}
 
-	bool Application::BootGame()
+	/// @brief The world, its startup scene added and activated, the resources read from Datas
+	/// @return false if the startup scene couldn't be loaded
+	bool Application::InitWorld()
 	{
 #if defined(HOD_APPLICATION_STATIC)
 		hod::Path buildPath = FileSystem::GetExecutablePath().ParentPath();
@@ -142,7 +144,7 @@ namespace hod::inline application
 
 	/// @brief Before the runtime modules shut down: the world's systems and components use them
 	/// @return
-	bool Application::TerminateBoot()
+	bool Application::TerminateWorld()
 	{
 		hod::DefaultAllocator::GetInstance().Delete(_world);
 		_world = nullptr;
@@ -158,7 +160,7 @@ namespace hod::inline application
 		if (!initGuard.Push([this]{ return InitCore(); },        [this]{ TerminateCore(); }))        return false;
 		if (!initGuard.Push([this]{ return InitGameSystems(); }, [this]{ TerminateGameSystems(); })) return false;
 		if (!initGuard.Push([this]{ return InitModules(); },     [this]{ TerminateModules(); }))     return false;
-		if (!initGuard.Push([this]{ return BootGame(); },        [this]{ TerminateBoot(); }))        return false;
+		if (!initGuard.Push([this]{ return InitWorld(); },       [this]{ TerminateWorld(); }))       return false;
 
 		FrameSequencer* frameSequencer = FrameSequencer::GetInstance();
 

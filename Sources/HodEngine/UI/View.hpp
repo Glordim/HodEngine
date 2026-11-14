@@ -18,7 +18,7 @@ namespace hod::inline ui
 	/// or renaming nodes in the prefab doesn't break it: the references follow the nodes' local ids.
 	///
 	/// Attached to a Node (the prefab's root, normally) via Node::SetView, a single, optional slot like Layout and Interaction.
-	/// A game module declares its views (REFLECTED_CLASS(MyView, ui::View)), their references as reflected properties, and
+	/// A project's runtime module declares its views (REFLECTED_CLASS(MyView, ui::View)), their references as reflected properties, and
 	/// registers them in ViewFactory. A nested prefab instance has its prefab's view: the containing view reaches it through a
 	/// ViewRef, each view only knowing its own prefab.
 	///

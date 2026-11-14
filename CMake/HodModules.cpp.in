@@ -10,7 +10,7 @@
 
 // Their entry points (defined in the modules, see HOD_STARTUP_MODULE)
 @HOD_MODULE_DECLARATIONS@
-// Called by Application::InitModules: starts the runtime modules of the game, dependencies first, the game module last
+// Called by Application::InitModules: starts the runtime modules of the game, dependencies first, the project's runtime module last
 // @return false at the first that fails (the ones started already stay in host)
 extern "C" bool HodStartRuntimeModules(hod::core::ModuleHost& host)
 {

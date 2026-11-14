@@ -51,9 +51,9 @@ namespace hod::inline application
 		bool InitModules();
 		bool TerminateModules();
 
-		// The game module, then its startup scene
-		bool BootGame();
-		bool TerminateBoot();
+		// Its world, the startup scene added (the runtime modules started already)
+		bool InitWorld();
+		bool TerminateWorld();
 
 	protected:
 		bool _shouldQuit = false;

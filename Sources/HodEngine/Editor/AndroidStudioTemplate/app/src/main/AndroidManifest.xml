@@ -19,7 +19,7 @@
 
             <meta-data
                 android:name="android.app.lib_name"
-                android:value="[[PROJECT_GAME_NAME]]" />
+                android:value="[[PROJECT_NAME]]" />
         </activity>
     </application>
 

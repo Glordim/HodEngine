@@ -1,16 +1,14 @@
-project([[PROJECT_EDITOR_NAME]] LANGUAGES CXX)
-
 file(GLOB_RECURSE Srcs
-	"${PROJECT_SOURCE_DIR}/*.cpp"
-	"${PROJECT_SOURCE_DIR}/*.hpp"
-	"${PROJECT_SOURCE_DIR}/*.inl"
-	"${PROJECT_SOURCE_DIR}/*.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/*.cpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/*.inl"
+	"${CMAKE_CURRENT_SOURCE_DIR}/*.h"
 )
 
 file(GLOB_RECURSE Includes
-	"${PROJECT_SOURCE_DIR}/*.hpp"
-	"${PROJECT_SOURCE_DIR}/*.inl"
-	"${PROJECT_SOURCE_DIR}/*.h"
+	"${CMAKE_CURRENT_SOURCE_DIR}/*.hpp"
+	"${CMAKE_CURRENT_SOURCE_DIR}/*.inl"
+	"${CMAKE_CURRENT_SOURCE_DIR}/*.h"
 )
 
 assign_source_group(${Srcs}) # for VS
@@ -23,7 +21,7 @@ target_include_directories([[PROJECT_EDITOR_NAME]] PUBLIC
 )
 
 target_link_libraries([[PROJECT_EDITOR_NAME]]
-	[[PROJECT_NAME]]::[[PROJECT_GAME_NAME]]
+	[[PROJECT_NAME]]::[[PROJECT_NAME]]
 	HodEngine::Editor
 )
 

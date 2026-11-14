@@ -20,7 +20,7 @@ namespace hod::inline editor
 		const ImVec4 ErrorColor(1.0f, 0.4f, 0.4f, 1.0f);
 		const ImVec4 WarningColor(1.0f, 0.6f, 0.2f, 1.0f);
 
-		/// @brief Only what Project::IsValidName accepts (a leading digit is told by the check)
+		/// @brief Only what Project::CheckName accepts (a leading digit is told by the check)
 		int FilterNameCharacter(ImGuiInputTextCallbackData* data)
 		{
 			ImWchar c = data->EventChar;

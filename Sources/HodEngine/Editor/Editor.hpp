@@ -186,11 +186,11 @@ namespace hod::inline editor
 		bool LoadEditorModules();
 		bool UnloadEditorModules();
 
-		/// @brief The project's own plugin (see Project::GetProjectPlugin), once built: its game module after the runtime modules, its
+		/// @brief The project's own plugin (see Project::GetProjectPlugin), once built: its runtime module after the engine's, its
 		/// editor module (optional: its failure is logged) after the editor modules. Last of each host: stopped alone (rebuilt, Hot Reload)
-		/// @return false (with an error) if its game module couldn't be loaded or started: the project can't be opened
+		/// @return false (with an error) if its runtime module couldn't be loaded or started: the project can't be opened
 		bool LoadProjectPlugin();
-		/// @brief Its editor module, then its game module, while the engine's stay
+		/// @brief Its editor module, then its runtime module, while the engine's stay
 		void UnloadProjectPlugin();
 		/// @brief Unloaded, loaded again, then Project's OnModulesReloaded
 		bool ReloadProjectPlugin();

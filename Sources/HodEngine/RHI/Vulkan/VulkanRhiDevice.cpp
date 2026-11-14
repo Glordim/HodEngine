@@ -946,7 +946,7 @@ namespace hod::inline rhi
 			}
 			else if (_selectedGpu->compatible == false)
 			{
-				OUTPUT_ERROR("Vulkan: Selected PhysicalDevice {} is not compatible with GameEngine requirement, fallback on recommanded physical device", physicalDeviceIdentifier);
+				OUTPUT_ERROR("Vulkan: Selected PhysicalDevice {} is not compatible with the engine's requirements, fallback on the recommended physical device", physicalDeviceIdentifier);
 				_selectedGpu = _recommandedGpu;
 			}
 		}
@@ -957,7 +957,7 @@ namespace hod::inline rhi
 
 		if (_selectedGpu == nullptr)
 		{
-			OUTPUT_ERROR("Vulkan: No PhysicalDevice compatible with GameEngine requirement... sorry");
+			OUTPUT_ERROR("Vulkan: No PhysicalDevice compatible with the engine's requirements");
 			return false;
 		}
 

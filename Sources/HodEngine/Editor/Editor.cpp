@@ -111,7 +111,7 @@ namespace hod::inline editor
 
 		UnloadRuntimeModules(); // Last: their components and world systems may be used until then
 
-		// Once everything is released (the copy of the game module, the libraries): the new editor reloads and rebuilds them
+		// Once everything is released (the copy of the project's runtime module, the libraries): the new editor reloads and rebuilds them
 		if (_restartRequested)
 		{
 			Process::Desc desc;
@@ -145,7 +145,7 @@ namespace hod::inline editor
 	{
 		_taskTracker = DefaultAllocator::GetInstance().New<TaskTracker>();
 
-		// Every editor screen (project browser, missing game module, editor) draws its own title bar, see TitleBar
+		// Every editor screen (project browser, missing project module, editor) draws its own title bar, see TitleBar
 		static_cast<DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow())->SetCustomTitleBar(true);
 
 		Project::CreateInstance();
@@ -491,15 +491,15 @@ namespace hod::inline editor
 		}
 		AddProjectInRecentProject(path);
 
-		// Before the game module is loaded, even to test it (CanLoadProjectModules): it links their libraries, which are next to the editor,
+		// Before the project's runtime module is loaded, even to test it (CanLoadProjectModules): it links their libraries, which are next to the editor,
 		// not next to it (DynamicLibrary loads with LOAD_WITH_ALTERED_SEARCH_PATH: the libraries loaded already are found, not the others)
 		if (_runtimeModuleHost == nullptr && LoadRuntimeModules() == false)
 		{
 			return false;
 		}
 
-		// Missing or outdated (linked against engine libraries that changed since) game module, rebuild it
-		if (Project::GetInstance()->HasGameModule() == false || Project::GetInstance()->CanLoadProjectModules() == false)
+		// Missing or outdated (linked against engine libraries that changed since) project modules, rebuild them
+		if (Project::GetInstance()->HasRuntimeModule() == false || Project::GetInstance()->CanLoadProjectModules() == false)
 		{
 			ImGuiManager::GetInstance()->CloseAllWindow();
 			ImGuiManager::GetInstance()->OpenWindow<MissingProjectModuleModal>();
@@ -523,7 +523,7 @@ namespace hod::inline editor
 			}
 		}
 
-		// Its own plugin last (loaded again if it was already: rebuilt from the missing game module modal)
+		// Its own plugin last (loaded again if it was already: rebuilt from the missing project module modal)
 		if (ReloadProjectPlugin() == false)
 		{
 			return false;
@@ -1144,7 +1144,7 @@ namespace hod::inline editor
 		Path intermediateDir = Project::GetInstance()->GetCacheBuildDirPath() / Path(CMakeHelper::GetCurrentPlatform());
 		FileSystem::GetInstance()->CreateDirectories(intermediateDir);
 
-		if (Project::GetInstance()->GenerateGameModuleCMakeList() == false)
+		if (Project::GetInstance()->GenerateProjectCMakeLists() == false)
 		{
 			return;
 		}
@@ -1185,7 +1185,7 @@ namespace hod::inline editor
 				}
 			}
 
-			// Loaded by Application::BootGame, absent when every setting has its default value
+			// Loaded by Application::InitModules, absent when every setting has its default value
 			Path projectSettingsDirPath = Project::GetInstance()->GetProjectSettingsDirPath();
 			if (FileSystem::GetInstance()->Exists(projectSettingsDirPath))
 			{
@@ -1222,11 +1222,11 @@ namespace hod::inline editor
 			Path   externalJarDirPath = installDir / "platforms" / "android" / "jar";
 			Path   jniLibsDirPath = installDir / "platforms" / "android" / "jniLibs";
 			Path   engineDirPath = installDir / "cmake";
-			String gameBuildType = "Application";
+			String projectBuildType = "Application";
 
 			engineDirPath.PortableSeparator();
 
-			std::string cmakeArgs = fmt::format("\"-DHodEngine_DIR={}\", \"-DHOD_GAME_BUILD_TYPE={}\"", engineDirPath, gameBuildType);
+			std::string cmakeArgs = fmt::format("\"-DHodEngine_DIR={}\", \"-DHOD_PROJECT_BUILD_TYPE={}\"", engineDirPath, projectBuildType);
 
 			{
 				Path   buildGradlePath = buildDir / "AndroidStudioProject" / "app" / "build.gradle.kts";
@@ -1274,12 +1274,13 @@ namespace hod::inline editor
 					return;
 				}
 
-				String   projectGameName = Project::GetInstance()->GetName() + "Game";
-				uint32_t pos = 0;
-				while ((pos = content.Find("[[PROJECT_GAME_NAME]]", pos)) != String::Npos)
+				String projectRuntimeName = Project::GetRuntimeModuleName(Project::GetInstance()->GetName()); // The library the activity loads
+				const std::string_view tag = "[[PROJECT_NAME]]";
+				uint32_t               pos = 0;
+				while ((pos = content.Find(tag, pos)) != String::Npos)
 				{
-					content.Replace(pos, 21, projectGameName);
-					pos += projectGameName.Length();
+					content.Replace(pos, static_cast<uint32_t>(tag.size()), projectRuntimeName);
+					pos += projectRuntimeName.Length();
 				}
 
 				if (FileSystem::GetInstance()->WriteAllText(manifestPath, content) == false)

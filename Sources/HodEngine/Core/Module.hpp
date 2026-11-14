@@ -12,14 +12,14 @@
 #define HOD_MODULE_CONCAT_(a, b) a##b
 #define HOD_MODULE_CONCAT(a, b) HOD_MODULE_CONCAT_(a, b)
 
-/// @brief The entry point of the module Name, runtime (Physics, PhysicsComponents, a game's <Name>Game) or editor (PhysicsEditor, a game's
+/// @brief The entry point of the module Name, runtime (Physics, PhysicsComponents, a project's <Name>) or editor (PhysicsEditor, a project's
 /// <Name>Editor), see ModuleStartup: started by a ModuleHost in its plugin's order, the project settings loaded before, returning false if
 /// it couldn't start. It registers what it adds through the registrars (GameRegistrar, EditorRegistrar...), starts its services (it may
 /// read its settings) and pushes on the registration what undoes them: there is no shutdown, it's undone before its code goes (Hot Reload
 /// included). Usable in the library's namespace (extern "C").
 /// - Its own library (a DLL: the editor): the exported HOD_MODULE_STARTUP_FUNCTION (HodStartupModule), Name unused. Found in the module
 ///   itself first, before its dependencies (which have theirs): GetProcAddress, dlsym (the library first), RTLD_FIRST on macOS
-/// - HOD_MONOLITHIC (a game build, everything in one binary): HOD_MODULE_STARTUP_FUNCTION_OF(Name) (HodStartupModule_Physics), unique, not
+/// - HOD_MONOLITHIC (an application build, everything in one binary): HOD_MODULE_STARTUP_FUNCTION_OF(Name) (HodStartupModule_Physics), unique, not
 ///   exported, declared and called by the generated code with these macros (HodModules.generated.cpp, see
 ///   hod_add_engine_modules_entry_points)
 #if defined(HOD_MONOLITHIC)

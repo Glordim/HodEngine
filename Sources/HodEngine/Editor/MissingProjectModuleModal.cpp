@@ -63,7 +63,7 @@ namespace hod::inline editor
 		}
 
 		ImGui::AlignTextToFramePadding();
-		ImGui::TextUnformatted("Building the game module of the project:");
+		ImGui::TextUnformatted("Building the project's modules:");
 
 		bool failed = _prepareResult == StepStatus::Failed || _configureResult == StepStatus::Failed || _buildResult == StepStatus::Failed;
 		if (failed)
@@ -138,7 +138,7 @@ namespace hod::inline editor
 		_buildResult = StepStatus::Pending;
 
 		_prepareResult = StepStatus::Running;
-		if (Project::GetInstance()->GenerateGameModuleCMakeList() == false)
+		if (Project::GetInstance()->GenerateProjectCMakeLists() == false)
 		{
 			_prepareResult = StepStatus::Failed;
 			return;
@@ -146,7 +146,7 @@ namespace hod::inline editor
 		_prepareResult = StepStatus::Succeeded;
 
 		_configureResult = StepStatus::Running;
-		if (Project::GetInstance()->ConfigureGameModule() == false)
+		if (Project::GetInstance()->ConfigureProjectModules() == false)
 		{
 			_configureResult = StepStatus::Failed;
 			return;
@@ -154,7 +154,7 @@ namespace hod::inline editor
 		_configureResult = StepStatus::Succeeded;
 
 		_buildResult = StepStatus::Running;
-		if (Project::GetInstance()->BuildGameModule() == false)
+		if (Project::GetInstance()->BuildProjectModules() == false)
 		{
 			_buildResult = StepStatus::Failed;
 			return;
