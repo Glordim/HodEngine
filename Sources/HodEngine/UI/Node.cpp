@@ -30,9 +30,9 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_CLASS(Node, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(Node)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_VECTOR_SQUARE);
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_VECTOR_SQUARE);
 
 		// Serialized like any property, but never edited by hand: hidden from the inspector (same as the ECS' _localId).
 		HOD_PROPERTY(_localId)->AddTrait<ReflectionTraitHide>();

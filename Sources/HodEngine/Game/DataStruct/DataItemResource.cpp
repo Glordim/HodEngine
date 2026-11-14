@@ -9,7 +9,7 @@
 
 namespace hod::inline game
 {
-	DESCRIBE_REFLECTED_CLASS(DataItemResource, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(DataItemResource) {}
 
 	/// @brief
 	/// @return

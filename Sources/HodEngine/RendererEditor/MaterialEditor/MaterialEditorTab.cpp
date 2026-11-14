@@ -27,7 +27,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(MaterialSettings, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(MaterialSettings)
 	{
 		HOD_PROPERTY(_polygonMode);
 		HOD_PROPERTY(_topology);

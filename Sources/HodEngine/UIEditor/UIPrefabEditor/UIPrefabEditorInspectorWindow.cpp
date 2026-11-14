@@ -40,9 +40,9 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorInspectorWindow, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorInspectorWindow) {}
 
-	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorInspectorWindow::CanvasScalerFields, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorInspectorWindow::CanvasScalerFields)
 	{
 		HOD_PROPERTY(_overrideProjectSettings);
 		HOD_PROPERTY(_designResolution);

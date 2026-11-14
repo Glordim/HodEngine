@@ -3,7 +3,7 @@
 
 namespace hod::inline input
 {
-	DESCRIBE_REFLECTED_CLASS(InputButton, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(InputButton) {}
 
 	InputButton::InputButton(Identifier identifier, const String& displayName, const StateView& stateView)
 	: Input(identifier, displayName, stateView)

@@ -44,7 +44,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorViewportWindow, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorViewportWindow) {}
 
 	/// @brief
 	UIPrefabEditorViewportWindow::UIPrefabEditorViewportWindow(EditorTab* editorTab)

@@ -12,7 +12,7 @@ namespace hod::inline game
 	// From 1: 0 is "none", as for the entities
 	std::atomic<uint64_t> Component::_nextInstanceId = 1;
 
-	DESCRIBE_REFLECTED_CLASS(Component, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(Component)
 	{
 		ReflectionProperty* instanceIdProperty = HOD_PROPERTY(_instanceId);
 		instanceIdProperty->AddTrait<ReflectionTraitNoSerialization>();

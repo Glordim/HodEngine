@@ -4,7 +4,7 @@
 
 namespace hod::inline imgui
 {
-	DESCRIBE_REFLECTED_CLASS(Modal, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(Modal) {}
 
 	/// @brief 
 	/// @return 

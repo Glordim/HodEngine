@@ -87,7 +87,7 @@ namespace hod::inline editor
 
 	//
 
-	DESCRIBE_REFLECTED_CLASS(InspectorWindow, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(InspectorWindow) {}
 
 	/// @brief
 	/// @param editorTab

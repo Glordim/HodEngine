@@ -13,7 +13,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorLibraryWindow, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorLibraryWindow) {}
 
 	/// @brief
 	UIPrefabEditorLibraryWindow::UIPrefabEditorLibraryWindow(EditorTab* editorTab)

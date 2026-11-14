@@ -5,7 +5,7 @@
 
 namespace hod::inline math
 {
-	DESCRIBE_REFLECTED_CLASS(Vector4, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(Vector4)
 	{
 		HOD_PROPERTY(_x);
 		HOD_PROPERTY(_y);

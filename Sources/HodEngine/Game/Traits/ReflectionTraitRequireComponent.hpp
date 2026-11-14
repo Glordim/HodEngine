@@ -17,7 +17,7 @@ namespace hod::inline game
 	/// The required type must be instantiable (it is added as is). Not checked when loading: the data stays as written.
 	/// Given by its GetReflectionDescriptor function, read when needed: two types may require each other (their descriptors are built
 	/// lazily, calling the other's GetReflectionDescriptor while describing one would recurse forever).
-	/// reflectionDescriptor.AddTrait<ReflectionTraitRequireComponent>(&Node2dComponent::GetReflectionDescriptor);
+	/// HOD_TRAIT(ReflectionTraitRequireComponent, &Node2dComponent::GetReflectionDescriptor);
 	class HOD_GAME_API ReflectionTraitRequireComponent : public ReflectionTrait
 	{
 		RTTI(ReflectionTraitRequireComponent, ReflectionTrait)

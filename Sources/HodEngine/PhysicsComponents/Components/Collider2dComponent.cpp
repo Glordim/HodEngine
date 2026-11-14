@@ -19,13 +19,14 @@
 
 namespace hod::inline physics
 {
-	DESCRIBE_REFLECTED_CLASS(Collider2dComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(Collider2dComponent)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_SHAPE_OUTLINE);
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_SHAPE_OUTLINE);
 		// The base of the colliders, without a shape: not offered in the editor
-		reflectionDescriptor.AddTrait<ReflectionTraitHide>();
+		HOD_TRAIT(ReflectionTraitHide);
 		// Not a Rigidbody2d: a collider without one is static (see TODO.txt)
-		reflectionDescriptor.AddTrait<ReflectionTraitRequireComponent>(&Node2dComponent::GetReflectionDescriptor);
+		HOD_TRAIT(ReflectionTraitRequireComponent, &Node2dComponent::GetReflectionDescriptor);
+
 		HOD_PROPERTY(_isTrigger);
 		HOD_PROPERTY(_friction);
 		HOD_PROPERTY(_density);

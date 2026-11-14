@@ -6,7 +6,7 @@
 
 namespace hod::inline math
 {
-	DESCRIBE_REFLECTED_CLASS(Vector2, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(Vector2)
 	{
 		HOD_PROPERTY(_x);
 		HOD_PROPERTY(_y);

@@ -14,7 +14,7 @@
 
 namespace hod::inline game
 {
-	DESCRIBE_REFLECTED_CLASS(Prefab, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(Prefab)
 	{
 		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
 		[](const void* instance, DocumentNode& documentNode)

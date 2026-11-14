@@ -4,7 +4,7 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_CLASS(Layout, reflectionDescriptor) {} // abstract interface, no own serializable fields
+	DESCRIBE_REFLECTED_CLASS(Layout) {} // abstract interface, no own serializable fields
 
 	void Layout::CarryOverFrom(const Layout& previous)
 	{

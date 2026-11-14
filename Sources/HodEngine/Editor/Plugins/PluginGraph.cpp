@@ -13,7 +13,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(PluginManifest, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(PluginManifest)
 	{
 		HOD_PROPERTY(_name);
 		HOD_PROPERTY(_description);

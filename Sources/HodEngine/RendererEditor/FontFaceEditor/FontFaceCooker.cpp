@@ -14,7 +14,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(FontFaceSettings, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(FontFaceSettings)
 	{
 		HOD_PROPERTY(_renderMode);
 		HOD_PROPERTY(_pixelSize);

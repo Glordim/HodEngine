@@ -16,7 +16,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(MissingProjectModuleModal, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(MissingProjectModuleModal) {}
 
 	/// @brief
 	MissingProjectModuleModal::MissingProjectModuleModal()

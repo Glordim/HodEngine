@@ -15,7 +15,7 @@
 
 namespace hod::inline game
 {
-	DESCRIBE_REFLECTED_CLASS(ZOrder, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(ZOrder)
 	{
 		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
 		[](const void* instance, DocumentNode& documentNode)
@@ -74,10 +74,11 @@ namespace hod::inline game
 		return (static_cast<uint32_t>(_unifiedValue.split._layer) << 16) | order;
 	}
 
-	DESCRIBE_REFLECTED_CLASS(Node2dComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(Node2dComponent)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_AXIS_ARROW);
-		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("2D position, rotation, scale and z-order of the entity");
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_AXIS_ARROW);
+		HOD_TRAIT(ReflectionTraitDescription, "2D position, rotation, scale and z-order of the entity");
+
 		HOD_PROPERTY(_position, &Node2dComponent::SetPosition);
 		HOD_PROPERTY(_rotation, &Node2dComponent::SetRotation);
 		HOD_PROPERTY(_scale, &Node2dComponent::SetScale);

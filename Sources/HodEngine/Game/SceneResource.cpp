@@ -6,7 +6,7 @@
 
 namespace hod::inline game
 {
-	DESCRIBE_REFLECTED_CLASS(SceneResource, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(SceneResource) {}
 
 	/// @brief 
 	SceneResource::~SceneResource()

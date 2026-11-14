@@ -10,10 +10,10 @@
 
 namespace hod::inline renderer
 {
-	DESCRIBE_REFLECTED_CLASS(SpriteRendererComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(SpriteRendererComponent)
 	{
 		HOD_PROPERTY(_sprite);
-		// ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
+		// HOD_PROPERTY(_materialInstance);
 	}
 
 	//-----------------------------------------------------------------------------

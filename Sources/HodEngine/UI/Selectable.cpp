@@ -9,7 +9,7 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_CLASS(Selectable, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(Selectable)
 	{
 		HOD_PROPERTY(_disabled, &Selectable::SetDisabled);
 		HOD_PROPERTY(_transitionDuration, &Selectable::SetTransitionDuration);

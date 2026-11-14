@@ -16,7 +16,7 @@
 
 namespace hod::inline renderer
 {
-	DESCRIBE_REFLECTED_CLASS(MaterialInstanceResource, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(MaterialInstanceResource)
 	{
 		HOD_PROPERTY(_material);
 		HOD_PROPERTY(_params);

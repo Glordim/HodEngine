@@ -9,7 +9,7 @@ namespace hod::inline ui
 		reflectionDescriptor.AddEnumValue(BoxLayoutParams::Rule::Fill, "Fill");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(BoxLayoutParams, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(BoxLayoutParams)
 	{
 		HOD_PROPERTY(_margin, &BoxLayoutParams::SetMargin);
 		HOD_PROPERTY(_rule, &BoxLayoutParams::SetRule);
@@ -76,7 +76,7 @@ namespace hod::inline ui
 		reflectionDescriptor.AddEnumValue(HorizontalLayoutParams::VerticalAlign::Stretch, "Stretch");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(HorizontalLayoutParams, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(HorizontalLayoutParams)
 	{
 		HOD_PROPERTY(_verticalAlign, &HorizontalLayoutParams::SetVerticalAlign);
 	}
@@ -113,7 +113,7 @@ namespace hod::inline ui
 		reflectionDescriptor.AddEnumValue(VerticalLayoutParams::HorizontalAlign::Stretch, "Stretch");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(VerticalLayoutParams, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(VerticalLayoutParams)
 	{
 		HOD_PROPERTY(_horizontalAlign, &VerticalLayoutParams::SetHorizontalAlign);
 	}

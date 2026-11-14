@@ -12,7 +12,7 @@ namespace hod
 		REFLECTED_CLASS(RegistrarTestNode, Node)
 	};
 
-	DESCRIBE_REFLECTED_CLASS(RegistrarTestNode, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(RegistrarTestNode) {}
 
 	namespace
 	{

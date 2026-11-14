@@ -16,9 +16,9 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_CLASS(ImageNode, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(ImageNode)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_IMAGE);
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_IMAGE);
 
 		HOD_PROPERTY(_texture, &ImageNode::SetTexture);
 		HOD_PROPERTY(_color, &ImageNode::SetColor);

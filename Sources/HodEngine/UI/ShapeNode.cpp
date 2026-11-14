@@ -27,9 +27,9 @@ namespace hod::inline ui
 		reflectionDescriptor.AddEnumValue(ShapeNode::ShadowDirection::UpRight, "UpRight");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(ShapeNode, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(ShapeNode)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_SQUARE_ROUNDED_OUTLINE);
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_SQUARE_ROUNDED_OUTLINE);
 
 		HOD_PROPERTY(_fillColor, &ShapeNode::SetFillColor);
 		HOD_PROPERTY(_cornerRadii, &ShapeNode::SetCornerRadii);

@@ -12,7 +12,7 @@ namespace hod::inline ui
 		reflectionDescriptor.AddEnumValue(LayoutParams::SizeMode::Content, "Content");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(LayoutParams, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(LayoutParams)
 	{
 		HOD_PROPERTY(_widthMode, &LayoutParams::SetWidthMode);
 		HOD_PROPERTY(_heightMode, &LayoutParams::SetHeightMode);

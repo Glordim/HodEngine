@@ -22,7 +22,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorAnimationWindow, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorAnimationWindow) {}
 
 	namespace
 	{

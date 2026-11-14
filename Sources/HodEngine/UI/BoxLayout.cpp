@@ -8,7 +8,7 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_CLASS(BoxLayout, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(BoxLayout)
 	{
 		HOD_PROPERTY(_padding, &BoxLayout::SetPadding);
 		HOD_PROPERTY(_spacing, &BoxLayout::SetSpacing);
@@ -269,7 +269,7 @@ namespace hod::inline ui
 		reflectionDescriptor.AddEnumValue(HorizontalLayout::Alignment::SpaceEvenly, "Space Evenly");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(HorizontalLayout, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(HorizontalLayout)
 	{
 		HOD_PROPERTY(_alignment, &HorizontalLayout::SetAlignment);
 	}
@@ -318,7 +318,7 @@ namespace hod::inline ui
 		reflectionDescriptor.AddEnumValue(VerticalLayout::Alignment::SpaceEvenly, "Space Evenly");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(VerticalLayout, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(VerticalLayout)
 	{
 		HOD_PROPERTY(_alignment, &VerticalLayout::SetAlignment);
 	}

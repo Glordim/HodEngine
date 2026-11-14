@@ -28,14 +28,14 @@ namespace hod::inline ui
 		reflectionDescriptor.AddEnumValue(AnimationKey::Easing::Smooth, "Smooth");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(AnimationKey, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(AnimationKey)
 	{
 		HOD_PROPERTY(_time);
 		HOD_PROPERTY(_value);
 		HOD_PROPERTY(_easing);
 	}
 
-	DESCRIBE_REFLECTED_CLASS(AnimationTrack, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(AnimationTrack)
 	{
 		HOD_PROPERTY(_target);
 		HOD_PROPERTY(_property);
@@ -49,7 +49,7 @@ namespace hod::inline ui
 		reflectionDescriptor.AddEnumValue(AnimationClip::WrapMode::PingPong, "PingPong");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(AnimationClip, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(AnimationClip)
 	{
 		HOD_PROPERTY(_name);
 		HOD_PROPERTY(_duration);

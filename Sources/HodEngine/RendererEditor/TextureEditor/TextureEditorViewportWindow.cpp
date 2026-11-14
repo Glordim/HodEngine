@@ -55,7 +55,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(TextureEditorViewportWindow, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(TextureEditorViewportWindow) {}
 
 	/// @brief 
 	/// @param editorTab 

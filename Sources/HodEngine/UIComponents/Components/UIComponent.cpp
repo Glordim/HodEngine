@@ -27,12 +27,13 @@ namespace hod::inline ui
 		reflectionDescriptor.AddEnumValue(UIComponent::RenderMode::World, "World");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(UIComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(UIComponent)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_VIEW_DASHBOARD);
-		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("UI");
-		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Shows a UI prefab, over the game or in the world");
-		reflectionDescriptor.AddTrait<ReflectionTraitRequireComponent>(&Node2dComponent::GetReflectionDescriptor);
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_VIEW_DASHBOARD);
+		HOD_TRAIT(ReflectionTraitCategory, "UI");
+		HOD_TRAIT(ReflectionTraitDescription, "Shows a UI prefab, over the game or in the world");
+		HOD_TRAIT(ReflectionTraitRequireComponent, &Node2dComponent::GetReflectionDescriptor);
+
 		HOD_PROPERTY(_prefab, &UIComponent::SetPrefab);
 		HOD_PROPERTY(_renderMode, &UIComponent::SetRenderMode);
 		HOD_PROPERTY(_sortingOrder, &UIComponent::SetSortingOrder);

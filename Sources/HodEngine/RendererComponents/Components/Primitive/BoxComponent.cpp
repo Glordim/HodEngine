@@ -44,11 +44,12 @@ namespace hod::inline renderer
 		0, 1, 3, 3, 1, 2,
 	};
 
-	DESCRIBE_REFLECTED_CLASS(BoxComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(BoxComponent)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_SQUARE);
-		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Rendering");
-		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Draws a box with a material");
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_SQUARE);
+		HOD_TRAIT(ReflectionTraitCategory, "Rendering");
+		HOD_TRAIT(ReflectionTraitDescription, "Draws a box with a material");
+
 		HOD_PROPERTY(_material, &BoxComponent::SetMaterialInstanceResource);
 	}
 

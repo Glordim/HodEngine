@@ -8,11 +8,11 @@
 
 namespace hod::inline game
 {
-	DESCRIBE_REFLECTED_CLASS(NodeComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(NodeComponent)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_FILE_TREE);
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_FILE_TREE);
 		// A base (of Node2dComponent...): not offered in the editor
-		reflectionDescriptor.AddTrait<ReflectionTraitHide>();
+		HOD_TRAIT(ReflectionTraitHide);
 	}
 
 	//-----------------------------------------------------------------------------

@@ -44,7 +44,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(Project, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(Project)
 	{
 		HOD_PROPERTY(_name);
 		HOD_PROPERTY(_startupScene);

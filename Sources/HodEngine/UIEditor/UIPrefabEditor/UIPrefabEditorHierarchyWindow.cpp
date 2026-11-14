@@ -21,7 +21,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorHierarchyWindow, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorHierarchyWindow) {}
 
 	/// @brief
 	UIPrefabEditorHierarchyWindow::UIPrefabEditorHierarchyWindow(EditorTab* editorTab)

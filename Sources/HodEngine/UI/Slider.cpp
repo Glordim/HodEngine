@@ -24,9 +24,9 @@ namespace hod::inline ui
 		reflectionDescriptor.AddEnumValue(Slider::Direction::TopToBottom, "TopToBottom");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(Slider, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(Slider)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_TUNE_VARIANT);
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_TUNE_VARIANT);
 
 		HOD_PROPERTY(_minValue, &Slider::SetMinValue);
 		HOD_PROPERTY(_maxValue, &Slider::SetMaxValue);

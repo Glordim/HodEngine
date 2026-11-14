@@ -8,9 +8,9 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_CLASS(MaskNode, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(MaskNode)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_CROP_FREE);
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_CROP_FREE);
 	}
 
 	/// @brief

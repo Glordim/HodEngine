@@ -12,7 +12,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(DataTableEditorPropertiesWindow, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(DataTableEditorPropertiesWindow) {}
 
 	/// @brief
 	/// @param editorTab

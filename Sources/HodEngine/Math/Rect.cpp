@@ -4,7 +4,7 @@
 
 namespace hod::inline math
 {
-	DESCRIBE_REFLECTED_CLASS(Rect, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(Rect)
 	{
 		HOD_PROPERTY(_position);
 		HOD_PROPERTY(_size);

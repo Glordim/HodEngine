@@ -6,7 +6,7 @@
 
 namespace hod::inline gamesystems
 {
-	DESCRIBE_REFLECTED_CLASS(WeakResourceBase, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(WeakResourceBase)
 	{
 		HOD_PROPERTY(_uid);
 	}

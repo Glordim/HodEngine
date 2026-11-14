@@ -25,7 +25,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(MaterialInstanceSettings, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(MaterialInstanceSettings)
 	{
 		HOD_PROPERTY(_material);
 		HOD_PROPERTY(_params)->AddTrait<ReflectionTraitHide>();

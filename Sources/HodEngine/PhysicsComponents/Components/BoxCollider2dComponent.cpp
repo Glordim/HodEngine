@@ -13,11 +13,12 @@
 
 namespace hod::inline physics
 {
-	DESCRIBE_REFLECTED_CLASS(BoxCollider2dComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(BoxCollider2dComponent)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_SQUARE_OUTLINE);
-		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Physics/Colliders");
-		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Rectangular 2D collision shape");
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_SQUARE_OUTLINE);
+		HOD_TRAIT(ReflectionTraitCategory, "Physics/Colliders");
+		HOD_TRAIT(ReflectionTraitDescription, "Rectangular 2D collision shape");
+
 		HOD_PROPERTY(_offset, &BoxCollider2dComponent::SetOffset);
 		HOD_PROPERTY(_size, &BoxCollider2dComponent::SetSize);
 		HOD_PROPERTY(_rotation, &BoxCollider2dComponent::SetRotation);

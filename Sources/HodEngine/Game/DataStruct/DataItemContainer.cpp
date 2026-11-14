@@ -8,7 +8,7 @@
 
 namespace hod::inline game
 {
-	DESCRIBE_REFLECTED_CLASS(DataItemContainer, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(DataItemContainer)
 	{
 		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>([](const void* instance, DocumentNode& documentNode)
 		{

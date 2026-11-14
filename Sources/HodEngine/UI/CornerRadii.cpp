@@ -5,7 +5,7 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_CLASS(CornerRadii, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(CornerRadii)
 	{
 		HOD_PROPERTY(_topLeft);
 		HOD_PROPERTY(_topRight);

@@ -22,11 +22,12 @@
 
 namespace hod::inline renderer
 {
-	DESCRIBE_REFLECTED_CLASS(TextureRendererComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(TextureRendererComponent)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_IMAGE);
-		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Rendering");
-		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Draws a texture, tinted by a color");
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_IMAGE);
+		HOD_TRAIT(ReflectionTraitCategory, "Rendering");
+		HOD_TRAIT(ReflectionTraitDescription, "Draws a texture, tinted by a color");
+
 		HOD_PROPERTY(_texture, &TextureRendererComponent::SetTexture);
 		HOD_PROPERTY(_material, &TextureRendererComponent::SetMaterialInstanceResource);
 		HOD_PROPERTY(_pixelPerUnit);

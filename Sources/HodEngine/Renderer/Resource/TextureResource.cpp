@@ -13,7 +13,7 @@
 
 namespace hod::inline renderer
 {
-	DESCRIBE_REFLECTED_CLASS(TextureResource, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(TextureResource)
 	{
 		HOD_PROPERTY(_width);
 		HOD_PROPERTY(_height);

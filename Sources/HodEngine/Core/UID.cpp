@@ -41,7 +41,7 @@ union UuidConverter
 
 namespace hod::inline core
 {
-	DESCRIBE_REFLECTED_CLASS(UID, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(UID)
 	{
 		HOD_PROPERTY(_low);
 		HOD_PROPERTY(_high);

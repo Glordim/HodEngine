@@ -13,14 +13,14 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(FontSettings::Style, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(FontSettings::Style)
 	{
 		HOD_PROPERTY(_face);
 		HOD_PROPERTY(_weight);
 		HOD_PROPERTY(_italic);
 	}
 
-	DESCRIBE_REFLECTED_CLASS(FontSettings, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(FontSettings)
 	{
 		HOD_PROPERTY(_styles);
 		HOD_PROPERTY(_fallbacks);

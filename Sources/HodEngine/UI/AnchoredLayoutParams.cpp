@@ -9,7 +9,7 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_CLASS(AnchoredLayoutParams, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(AnchoredLayoutParams)
 	{
 		HOD_PROPERTY(_anchorMin, &AnchoredLayoutParams::SetAnchorMin);
 		HOD_PROPERTY(_anchorMax, &AnchoredLayoutParams::SetAnchorMax);

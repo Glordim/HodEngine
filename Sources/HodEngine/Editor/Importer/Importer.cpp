@@ -26,7 +26,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(ImporterSettings, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(ImporterSettings) {}
 
 	bool Importer::Import(const Path& sourcePath, const Path& destinationPath, const UID& uid, ImporterSettings* importSettings, uint64_t taskId)
 	{

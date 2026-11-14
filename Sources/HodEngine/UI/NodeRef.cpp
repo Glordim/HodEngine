@@ -6,7 +6,7 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_CLASS(NodeRefBase, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(NodeRefBase)
 	{
 		HOD_PROPERTY(_localId, &NodeRefBase::SetLocalId);
 	}

@@ -12,7 +12,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(PluginsWindow, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(PluginsWindow) {}
 
 	namespace
 	{

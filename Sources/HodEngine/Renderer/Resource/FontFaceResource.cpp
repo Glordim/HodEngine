@@ -19,7 +19,7 @@ namespace hod::inline renderer
 		reflectionDescriptor.AddEnumValue(FontFaceResource::RenderMode::Sdf, "Sdf");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(FontFaceResource, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(FontFaceResource)
 	{
 		HOD_PROPERTY(_renderMode, &FontFaceResource::SetRenderMode);
 		HOD_PROPERTY(_pixelSize, &FontFaceResource::SetPixelSize);

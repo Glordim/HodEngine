@@ -32,7 +32,7 @@ namespace hod::inline game
 		reflectionDescriptor.AddEnumValue(Entity::InternalState::Destructed, "Destructed");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(Entity, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(Entity)
 	{
 		ReflectionProperty* instanceIdProperty = HOD_PROPERTY(_instanceId);
 		instanceIdProperty->AddTrait<ReflectionTraitNoSerialization>();

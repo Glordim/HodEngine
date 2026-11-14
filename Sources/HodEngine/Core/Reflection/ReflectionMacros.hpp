@@ -110,8 +110,14 @@ public:                                                                         
 		CLASS::FillReflectionDescriptor(reflectionDescriptor);                                               \
 	}
 
-///@brief Its properties, traits... A type without any: DESCRIBE_REFLECTED_CLASS(Type, reflectionDescriptor) {}
-#define DESCRIBE_REFLECTED_CLASS(__TYPE__, reflectionDescriptor) void __TYPE__::FillReflectionDescriptorUser([[maybe_unused]] hod::ReflectionDescriptor& reflectionDescriptor)
+///@brief Its traits (HOD_TRAIT), its properties (HOD_PROPERTY)... A type without any: DESCRIBE_REFLECTED_CLASS(Type) {}. The descriptor
+/// being built is the parameter reflectionDescriptor, which the HOD_ macros use (not ReflectedClassType::GetReflectionDescriptor(): it
+/// would describe the class again)
+#define DESCRIBE_REFLECTED_CLASS(__TYPE__) void __TYPE__::FillReflectionDescriptorUser([[maybe_unused]] hod::ReflectionDescriptor& reflectionDescriptor)
+
+/// @brief In a DESCRIBE_REFLECTED_CLASS: a trait of the class, made of the arguments (HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_CAMERA)).
+/// Returns it. A property's: HOD_PROPERTY(_member)->AddTrait<Trait>(...)
+#define HOD_TRAIT(TRAIT, ...) reflectionDescriptor.AddTrait<TRAIT>(__VA_ARGS__)
 
 /// @brief In a DESCRIBE_REFLECTED_CLASS: the member of the class as a property, then its setter if any (&Class::SetValue). Returns the
 /// ReflectionProperty* (->AddTrait<...>(...)). Its name is the member's, as written (_jumpPower): its identity, the key of its value in

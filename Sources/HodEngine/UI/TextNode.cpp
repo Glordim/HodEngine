@@ -45,9 +45,9 @@ namespace hod::inline ui
 		reflectionDescriptor.AddEnumValue(TextNode::Overflow::Shrink, "Shrink");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(TextNode, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(TextNode)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_FORMAT_TEXT);
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_FORMAT_TEXT);
 
 		HOD_PROPERTY(_font, &TextNode::SetFont);
 		HOD_PROPERTY(_value, &TextNode::SetValue);

@@ -44,7 +44,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(MaterialEditorViewportWindow, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(MaterialEditorViewportWindow) {}
 
 	/// @brief
 	/// @param editorTab

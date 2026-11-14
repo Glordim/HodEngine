@@ -21,7 +21,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(TextureSettings, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(TextureSettings)
 	{
 		HOD_PROPERTY(_generateMipmap);
 		HOD_PROPERTY(_filterMode);

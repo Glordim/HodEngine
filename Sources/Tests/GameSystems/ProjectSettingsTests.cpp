@@ -17,7 +17,7 @@ namespace hod
 		int32_t _value = 1;
 	};
 
-	DESCRIBE_REFLECTED_CLASS(TestSettings, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(TestSettings)
 	{
 		HOD_PROPERTY(_value);
 	}

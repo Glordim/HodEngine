@@ -4,7 +4,7 @@
 
 namespace hod::inline imgui
 {
-	DESCRIBE_REFLECTED_CLASS(Popup, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(Popup) {}
 
 	/// @brief 
 	Popup::Popup()

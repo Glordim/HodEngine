@@ -17,7 +17,7 @@ namespace hod
 		REFLECTED_CLASS(RequiredBaseComponent, Component)
 	};
 
-	DESCRIBE_REFLECTED_CLASS(RequiredBaseComponent, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(RequiredBaseComponent) {}
 
 	/// @brief Stands in for RequiredBaseComponent
 	class RequiredDerivedComponent : public RequiredBaseComponent
@@ -25,16 +25,16 @@ namespace hod
 		REFLECTED_CLASS(RequiredDerivedComponent, RequiredBaseComponent)
 	};
 
-	DESCRIBE_REFLECTED_CLASS(RequiredDerivedComponent, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(RequiredDerivedComponent) {}
 
 	class NeedsBaseComponent : public Component
 	{
 		REFLECTED_CLASS(NeedsBaseComponent, Component)
 	};
 
-	DESCRIBE_REFLECTED_CLASS(NeedsBaseComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(NeedsBaseComponent)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitRequireComponent>(&RequiredBaseComponent::GetReflectionDescriptor);
+		HOD_TRAIT(ReflectionTraitRequireComponent, &RequiredBaseComponent::GetReflectionDescriptor);
 	}
 
 	/// @brief Inherits its parent's requirement
@@ -43,7 +43,7 @@ namespace hod
 		REFLECTED_CLASS(NeedsBaseDerivedComponent, NeedsBaseComponent)
 	};
 
-	DESCRIBE_REFLECTED_CLASS(NeedsBaseDerivedComponent, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(NeedsBaseDerivedComponent) {}
 
 	/// @brief Requires one requiring another
 	class NeedsNeedsBaseComponent : public Component
@@ -51,9 +51,9 @@ namespace hod
 		REFLECTED_CLASS(NeedsNeedsBaseComponent, Component)
 	};
 
-	DESCRIBE_REFLECTED_CLASS(NeedsNeedsBaseComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(NeedsNeedsBaseComponent)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitRequireComponent>(&NeedsBaseComponent::GetReflectionDescriptor);
+		HOD_TRAIT(ReflectionTraitRequireComponent, &NeedsBaseComponent::GetReflectionDescriptor);
 	}
 
 	class CycleBComponent;
@@ -69,14 +69,14 @@ namespace hod
 		REFLECTED_CLASS(CycleBComponent, Component)
 	};
 
-	DESCRIBE_REFLECTED_CLASS(CycleAComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(CycleAComponent)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitRequireComponent>(&CycleBComponent::GetReflectionDescriptor);
+		HOD_TRAIT(ReflectionTraitRequireComponent, &CycleBComponent::GetReflectionDescriptor);
 	}
 
-	DESCRIBE_REFLECTED_CLASS(CycleBComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(CycleBComponent)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitRequireComponent>(&CycleAComponent::GetReflectionDescriptor);
+		HOD_TRAIT(ReflectionTraitRequireComponent, &CycleAComponent::GetReflectionDescriptor);
 	}
 
 	class RequireComponentTest : public ::testing::Test

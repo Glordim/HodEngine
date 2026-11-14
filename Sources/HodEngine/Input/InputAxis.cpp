@@ -3,7 +3,7 @@
 
 namespace hod::inline input
 {
-	DESCRIBE_REFLECTED_CLASS(InputAxis, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(InputAxis) {}
 
 	InputAxis::InputAxis(Identifier identifier, const String& displayName, const StateView& stateView)
 	: Input(identifier, displayName, stateView)

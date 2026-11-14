@@ -6,9 +6,9 @@
 
 namespace hod::inline renderer
 {
-	DESCRIBE_REFLECTED_CLASS(RendererComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(RendererComponent)
 	{
 		// Drawn where its node is
-		reflectionDescriptor.AddTrait<ReflectionTraitRequireComponent>(&Node2dComponent::GetReflectionDescriptor);
+		HOD_TRAIT(ReflectionTraitRequireComponent, &Node2dComponent::GetReflectionDescriptor);
 	}
 }

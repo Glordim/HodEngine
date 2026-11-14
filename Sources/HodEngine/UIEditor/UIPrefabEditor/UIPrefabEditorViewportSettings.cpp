@@ -9,13 +9,13 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorViewportSettings::Device, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorViewportSettings::Device)
 	{
 		HOD_PROPERTY(_name);
 		HOD_PROPERTY(_resolution);
 	}
 
-	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorViewportSettings, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(UIPrefabEditorViewportSettings)
 	{
 		HOD_PROPERTY(_devices);
 		HOD_PROPERTY(_activeDevice);

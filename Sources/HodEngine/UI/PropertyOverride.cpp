@@ -19,7 +19,7 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_CLASS(PropertyOverride, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(PropertyOverride)
 	{
 		HOD_PROPERTY(_target);
 		HOD_PROPERTY(_property);

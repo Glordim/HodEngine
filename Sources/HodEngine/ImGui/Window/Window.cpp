@@ -7,7 +7,7 @@
 
 namespace hod::inline imgui
 {
-	DESCRIBE_REFLECTED_CLASS(Window, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(Window) {}
 
 	namespace
 	{

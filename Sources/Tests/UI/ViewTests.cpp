@@ -27,7 +27,7 @@ namespace hod
 		REFLECTED_CLASS(LabelNode, Node)
 	};
 
-	DESCRIBE_REFLECTED_CLASS(LabelNode, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(LabelNode) {}
 
 	// What the views went through, in order: "Bind <name of its node>", "Unbind <...>"
 	static std::vector<std::string> viewEvents;
@@ -57,7 +57,7 @@ namespace hod
 		}
 	};
 
-	DESCRIBE_REFLECTED_CLASS(TestView, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(TestView)
 	{
 		HOD_PROPERTY(_label);
 		HOD_PROPERTY(_panel);

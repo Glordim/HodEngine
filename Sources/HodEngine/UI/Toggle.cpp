@@ -11,9 +11,9 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_CLASS(Toggle, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(Toggle)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_TOGGLE_SWITCH);
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_TOGGLE_SWITCH);
 
 		HOD_PROPERTY(_on, &Toggle::SetOnProperty);
 		HOD_PROPERTY(_group, &Toggle::SetGroup);

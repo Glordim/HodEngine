@@ -1,3 +1,3 @@
 #include "MyFirstComponent.hpp"
 
-DESCRIBE_REFLECTED_CLASS(MyFirstComponent, reflectionDescriptor) {}
+DESCRIBE_REFLECTED_CLASS(MyFirstComponent) {}

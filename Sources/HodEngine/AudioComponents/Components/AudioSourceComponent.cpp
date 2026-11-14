@@ -9,11 +9,12 @@
 
 namespace hod::inline audio
 {
-	DESCRIBE_REFLECTED_CLASS(AudioSourceComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(AudioSourceComponent)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_VOLUME_HIGH);
-		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Audio");
-		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Plays an audio clip, once or in a loop");
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_VOLUME_HIGH);
+		HOD_TRAIT(ReflectionTraitCategory, "Audio");
+		HOD_TRAIT(ReflectionTraitDescription, "Plays an audio clip, once or in a loop");
+
 		HOD_PROPERTY_NAMED(_audioResource, "Audio");
 		HOD_PROPERTY(_loop);
 	}

@@ -21,9 +21,9 @@ namespace hod::inline ui
 		reflectionDescriptor.AddEnumValue(ScrollView::MovementType::Elastic, "Elastic");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(ScrollView, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(ScrollView)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_PAN_VERTICAL);
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_PAN_VERTICAL);
 
 		HOD_PROPERTY(_content);
 		HOD_PROPERTY(_horizontal, &ScrollView::SetHorizontal);

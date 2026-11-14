@@ -14,7 +14,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(DeviceWindow, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(DeviceWindow) {}
 
 	DeviceWindow::DeviceWindow(Device* device)
 	: _device(device)

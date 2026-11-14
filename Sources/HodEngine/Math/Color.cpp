@@ -6,7 +6,7 @@ namespace hod::inline math
 	Color Color::White(1.0f, 1.0f, 1.0f, 1.0f);
 	Color Color::Black(0.0f, 0.0f, 0.0f, 1.0f);
 
-	DESCRIBE_REFLECTED_CLASS(Color, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(Color)
 	{
 		HOD_PROPERTY(r);
 		HOD_PROPERTY(g);

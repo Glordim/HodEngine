@@ -9,9 +9,9 @@
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_CLASS(Button, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(Button)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_GESTURE_TAP_BUTTON);
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_GESTURE_TAP_BUTTON);
 
 		HOD_PROPERTY(_action, &Button::SetAction);
 	}

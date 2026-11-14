@@ -21,7 +21,7 @@ namespace hod::inline ui
 		reflectionDescriptor.AddEnumValue(CanvasScaler::Mode::MatchHeight, "MatchHeight");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(CanvasScaler, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(CanvasScaler)
 	{
 		HOD_PROPERTY(_designResolution);
 		HOD_PROPERTY(_mode);

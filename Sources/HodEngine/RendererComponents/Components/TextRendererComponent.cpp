@@ -21,15 +21,16 @@
 
 namespace hod::inline renderer
 {
-	DESCRIBE_REFLECTED_CLASS(TextRendererComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(TextRendererComponent)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_FORMAT_TEXT);
-		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Rendering");
-		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Draws a text with a font");
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_FORMAT_TEXT);
+		HOD_TRAIT(ReflectionTraitCategory, "Rendering");
+		HOD_TRAIT(ReflectionTraitDescription, "Draws a text with a font");
+
 		HOD_PROPERTY(_fontResource, &TextRendererComponent::SetFont);
 		HOD_PROPERTY(_text /*, &TextRendererComponent::SetText*/);
-		// ADD_PROPERTY(TextureRendererComponent, _textureResource);
-		// ADD_PROPERTY(SpriteRendererComponent, _materialInstance);
+		// HOD_PROPERTY(_textureResource);
+		// HOD_PROPERTY(_materialInstance);
 	}
 
 	/// @brief

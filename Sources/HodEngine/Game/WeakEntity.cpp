@@ -7,7 +7,7 @@
 
 namespace hod::inline game
 {
-    DESCRIBE_REFLECTED_CLASS(WeakEntity, reflectionDescriptor)
+    DESCRIBE_REFLECTED_CLASS(WeakEntity)
     {
         reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
             [](const void* instance, DocumentNode& documentNode)

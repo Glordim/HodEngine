@@ -11,7 +11,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(TaskTrackerWindow, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(TaskTrackerWindow) {}
 
 	/// @brief
 	TaskTrackerWindow::TaskTrackerWindow()

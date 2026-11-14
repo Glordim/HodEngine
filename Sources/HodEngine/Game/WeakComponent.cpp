@@ -7,9 +7,9 @@
 
 namespace hod::inline game
 {
-    DESCRIBE_REFLECTED_CLASS(WeakComponentBase, reflectionDescriptor)
+    DESCRIBE_REFLECTED_CLASS(WeakComponentBase)
     {
-        reflectionDescriptor.AddTrait<ReflectionTraitSerializedByCallback>();
+        HOD_TRAIT(ReflectionTraitSerializedByCallback);
     }
 
     /// @brief 

@@ -27,12 +27,13 @@ namespace hod::inline physics
 		reflectionDescriptor.AddEnumValue(Rigidbody2dComponent::Mode::Dynamic, "Dynamic");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(Rigidbody2dComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(Rigidbody2dComponent)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_WEIGHT);
-		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Physics");
-		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Moves the entity and its colliders with the 2D physics: static, kinematic or dynamic");
-		reflectionDescriptor.AddTrait<ReflectionTraitRequireComponent>(&Node2dComponent::GetReflectionDescriptor);
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_WEIGHT);
+		HOD_TRAIT(ReflectionTraitCategory, "Physics");
+		HOD_TRAIT(ReflectionTraitDescription, "Moves the entity and its colliders with the 2D physics: static, kinematic or dynamic");
+		HOD_TRAIT(ReflectionTraitRequireComponent, &Node2dComponent::GetReflectionDescriptor);
+
 		HOD_PROPERTY(_mode, &Rigidbody2dComponent::SetMode);
 		HOD_PROPERTY(_gravityScale, &Rigidbody2dComponent::SetGravityScale);
 		HOD_PROPERTY(_fixedRotation, &Rigidbody2dComponent::SetFixedRotation);

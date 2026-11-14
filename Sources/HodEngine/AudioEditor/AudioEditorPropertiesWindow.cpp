@@ -11,7 +11,7 @@
 
 namespace hod::inline editor
 {
-	DESCRIBE_REFLECTED_CLASS(AudioEditorPropertiesWindow, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(AudioEditorPropertiesWindow) {}
 
 	/// @brief 
 	/// @param editorTab 

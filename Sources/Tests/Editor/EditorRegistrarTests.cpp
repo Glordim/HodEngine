@@ -13,7 +13,7 @@ namespace hod
 		REFLECTED_CLASS_NO_VIRTUAL(EditorRegistrarTestType)
 	};
 
-	DESCRIBE_REFLECTED_CLASS(EditorRegistrarTestType, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(EditorRegistrarTestType) {}
 
 	namespace
 	{

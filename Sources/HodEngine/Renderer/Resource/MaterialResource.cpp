@@ -17,7 +17,7 @@
 
 namespace hod::inline renderer
 {
-	DESCRIBE_REFLECTED_CLASS(MaterialResource, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(MaterialResource)
 	{
 		HOD_PROPERTY(_polygonMode);
 		HOD_PROPERTY(_topology);

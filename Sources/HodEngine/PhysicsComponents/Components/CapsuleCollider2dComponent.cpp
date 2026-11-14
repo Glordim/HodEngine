@@ -13,11 +13,12 @@
 
 namespace hod::inline physics
 {
-	DESCRIBE_REFLECTED_CLASS(CapsuleCollider2dComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(CapsuleCollider2dComponent)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_PILL);
-		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Physics/Colliders");
-		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Capsule-shaped 2D collision shape");
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_PILL);
+		HOD_TRAIT(ReflectionTraitCategory, "Physics/Colliders");
+		HOD_TRAIT(ReflectionTraitDescription, "Capsule-shaped 2D collision shape");
+
 		HOD_PROPERTY(_offset, &CapsuleCollider2dComponent::SetOffset);
 		HOD_PROPERTY(_height, &CapsuleCollider2dComponent::SetHeight);
 		HOD_PROPERTY(_radius, &CapsuleCollider2dComponent::SetRadius);

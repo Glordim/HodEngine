@@ -3,7 +3,7 @@
 
 namespace hod::inline math
 {
-	DESCRIBE_REFLECTED_CLASS(RectOffsets, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(RectOffsets)
 	{
 		HOD_PROPERTY(_left);
 		HOD_PROPERTY(_top);

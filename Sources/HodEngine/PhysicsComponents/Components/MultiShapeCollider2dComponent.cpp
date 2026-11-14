@@ -13,24 +13,25 @@
 
 namespace hod::inline physics
 {
-	DESCRIBE_REFLECTED_CLASS(MultiShapeCollider2dComponent::CircleShape, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(MultiShapeCollider2dComponent::CircleShape)
 	{
 		HOD_PROPERTY(_origin);
 		HOD_PROPERTY(_radius);
 	}
 
-	DESCRIBE_REFLECTED_CLASS(MultiShapeCollider2dComponent::BoxShape, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(MultiShapeCollider2dComponent::BoxShape)
 	{
 		HOD_PROPERTY(_origin);
 		HOD_PROPERTY(_size);
 		HOD_PROPERTY(_angle);
 	}
 
-	DESCRIBE_REFLECTED_CLASS(MultiShapeCollider2dComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(MultiShapeCollider2dComponent)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_SHAPE_PLUS_OUTLINE);
-		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Physics/Colliders");
-		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("2D collision shape made of several circles and boxes");
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_SHAPE_PLUS_OUTLINE);
+		HOD_TRAIT(ReflectionTraitCategory, "Physics/Colliders");
+		HOD_TRAIT(ReflectionTraitDescription, "2D collision shape made of several circles and boxes");
+
 		HOD_PROPERTY(_circles);
 		HOD_PROPERTY(_boxes);
 	}

@@ -87,7 +87,7 @@ namespace hod::inline editor
 	static constexpr float FolderTreeFramePaddingX = 2.0f;
 	static constexpr float FolderTreeLabelSpacing = 2.0f;
 
-	DESCRIBE_REFLECTED_CLASS(AssetBrowserWindow, reflectionDescriptor) {}
+	DESCRIBE_REFLECTED_CLASS(AssetBrowserWindow) {}
 
 	uint32_t AssetBrowserWindow::RegisterContextualMenuAction(ContextualMenuAction contextualMenuAction)
 	{

@@ -7,7 +7,7 @@
 
 namespace hod::inline core
 {
-	DESCRIBE_REFLECTED_CLASS(Document, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(Document)
 	{
 		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
 			[](const void* instance, DocumentNode& documentNode)

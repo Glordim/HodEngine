@@ -23,12 +23,13 @@ namespace hod::inline renderer
 		reflectionDescriptor.AddEnumValue(CameraComponent::Projection::Perpective, "Perpective");
 	}
 
-	DESCRIBE_REFLECTED_CLASS(CameraComponent, reflectionDescriptor)
+	DESCRIBE_REFLECTED_CLASS(CameraComponent)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitIcon>(ICON_MDI_CAMERA);
-		reflectionDescriptor.AddTrait<ReflectionTraitCategory>("Rendering");
-		reflectionDescriptor.AddTrait<ReflectionTraitDescription>("Point of view the world is rendered from");
-		reflectionDescriptor.AddTrait<ReflectionTraitRequireComponent>(&Node2dComponent::GetReflectionDescriptor);
+		HOD_TRAIT(ReflectionTraitIcon, ICON_MDI_CAMERA);
+		HOD_TRAIT(ReflectionTraitCategory, "Rendering");
+		HOD_TRAIT(ReflectionTraitDescription, "Point of view the world is rendered from");
+		HOD_TRAIT(ReflectionTraitRequireComponent, &Node2dComponent::GetReflectionDescriptor);
+
 		HOD_PROPERTY(_projection);
 		HOD_PROPERTY(_near);
 		HOD_PROPERTY(_far);
