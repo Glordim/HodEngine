@@ -10,7 +10,7 @@ namespace hod::inline game
 {
 	DESCRIBE_REFLECTED_CLASS(DataItemContainer)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>([](const void* instance, DocumentNode& documentNode)
+		HOD_TRAIT(ReflectionTraitCustomSerialization, [](const void* instance, DocumentNode& documentNode)
 		{
 			const DataItemContainer* dataItemContainer = static_cast<const DataItemContainer*>(instance);
 
@@ -22,9 +22,9 @@ namespace hod::inline game
 			DataItemContainer* dataItemContainer = static_cast<DataItemContainer*>(instance);
 
 			RttiType RttiType = documentNode.GetChild("Type")->GetUInt64();
-			ReflectionDescriptor* reflectionDescriptor = DataStructFactory::GetInstance()->FindReflectionDescriptor(RttiType);
+			ReflectionDescriptor* dataReflectionDescriptor = DataStructFactory::GetInstance()->FindReflectionDescriptor(RttiType);
 			DefaultAllocator::GetInstance().Delete(dataItemContainer->_data);
-			dataItemContainer->_data = static_cast<DataStruct*>(reflectionDescriptor->CreateInstance());
+			dataItemContainer->_data = static_cast<DataStruct*>(dataReflectionDescriptor->CreateInstance());
 			return Serializer::Deserialize(*static_cast<DataStruct*>(dataItemContainer->_data), *documentNode.GetChild("Data"));
 		});
 	}

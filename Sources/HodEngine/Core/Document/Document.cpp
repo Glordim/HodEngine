@@ -9,7 +9,7 @@ namespace hod::inline core
 {
 	DESCRIBE_REFLECTED_CLASS(Document)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
+		HOD_TRAIT(ReflectionTraitCustomSerialization,
 			[](const void* instance, DocumentNode& documentNode)
 			{
 				String name = documentNode.GetName();

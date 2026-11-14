@@ -17,7 +17,7 @@ namespace hod::inline game
 {
 	DESCRIBE_REFLECTED_CLASS(ZOrder)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
+		HOD_TRAIT(ReflectionTraitCustomSerialization,
 		[](const void* instance, DocumentNode& documentNode)
 		{
 			const ZOrder* zorder = static_cast<const ZOrder*>(instance);

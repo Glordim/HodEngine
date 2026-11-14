@@ -28,7 +28,7 @@ namespace hod::inline game
 {
 	DESCRIBE_REFLECTED_CLASS(Scene)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
+		HOD_TRAIT(ReflectionTraitCustomSerialization,
 			[](const void* instance, DocumentNode& documentNode) { return const_cast<Scene*>(static_cast<const Scene*>(instance))->SerializeInDocument(documentNode); },
 			[](void* instance, const DocumentNode& documentNode) { return static_cast<Scene*>(instance)->DeserializeFromDocument(documentNode); });
 	}

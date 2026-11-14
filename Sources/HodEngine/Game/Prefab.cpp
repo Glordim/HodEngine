@@ -16,7 +16,7 @@ namespace hod::inline game
 {
 	DESCRIBE_REFLECTED_CLASS(Prefab)
 	{
-		reflectionDescriptor.AddTrait<ReflectionTraitCustomSerialization>(
+		HOD_TRAIT(ReflectionTraitCustomSerialization,
 		[](const void* instance, DocumentNode& documentNode)
 		{
 			return const_cast<Prefab*>(static_cast<const Prefab*>(instance))->SerializeInDocument(documentNode);
