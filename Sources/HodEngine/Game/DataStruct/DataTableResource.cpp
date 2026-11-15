@@ -15,6 +15,8 @@
 
 namespace hod::inline game
 {
+	DESCRIBE_REFLECTED_CLASS(DataTableResource) {}
+
 	DataTableResource::~DataTableResource()
 	{
 		for (auto& pair : _rows)

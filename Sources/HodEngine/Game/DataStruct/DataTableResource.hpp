@@ -17,6 +17,8 @@ namespace hod::inline game
 	/// editor-side container favors preserving row order for display/edition.
 	class HOD_GAME_API DataTableResource : public Resource
 	{
+		REFLECTED_CLASS(DataTableResource, Resource)
+
 	public:
 								DataTableResource() = default;
 								DataTableResource(const DataTableResource&) = delete;

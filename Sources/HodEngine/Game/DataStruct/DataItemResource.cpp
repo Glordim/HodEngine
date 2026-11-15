@@ -41,8 +41,8 @@ namespace hod::inline game
 
 	/// @brief
 	/// @return
-	DataStruct& DataItemResource::GetDataItem()
+	DataStruct* DataItemResource::GetDataItem()
 	{
-		return *_dataItemContainer.GetData();
+		return _dataItemContainer.GetData();
 	}
 }

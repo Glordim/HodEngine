@@ -25,7 +25,8 @@ namespace hod::inline game
 
 		bool					Initialize(const ResourceContainer& resourceContainer) override;
 
-		DataStruct&			GetDataItem();
+		/// @return Its data, null when its struct is unknown (its module not loaded)
+		DataStruct*			GetDataItem();
 
 	private:
 

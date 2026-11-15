@@ -32,10 +32,9 @@ namespace hod::inline editor
 	public:
 		bool Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue = false) override;
 
-		/// @brief expectedSubType, when non-zero, restricts the asset picker to resources whose subType
-		/// (see ReflectionTraitAssetSubType) matches.
+		/// @brief The asset picker of weakResource: only the assets holding the data it expects (WeakResourceBase::GetExpectedSubType)
 		/// @param mixed the objects edited together reference different resources: shows the mixed value label in place of weakResource's
-		static bool Draw(WeakResourceBase& weakResource, uint64_t expectedSubType = 0, bool mixed = false);
+		static bool Draw(WeakResourceBase& weakResource, bool mixed = false);
 
 		/// @brief Left out of the pickers drawn until the pop (the font itself, the ones already in a list...). Not copied: alive until then
 		static void PushExcludedResources(const Vector<UID>& excludedResources);

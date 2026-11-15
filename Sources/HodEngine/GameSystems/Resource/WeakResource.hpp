@@ -3,6 +3,7 @@
 #include <memory>
 
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
+#include <HodEngine/Core/Reflection/Rtti.hpp>
 #include <HodEngine/Core/UID.hpp>
 
 namespace hod::inline gamesystems
@@ -31,6 +32,10 @@ namespace hod::inline gamesystems
 		const UID&                GetForSerialization() const;
 
 		ReflectionDescriptor* GetResourceDescriptor() const;
+
+		/// @brief The type of the data the referenced asset must hold (Asset::GetSubType: a data item's struct, a data table's
+		/// rows), 0 for any: the asset pickers only offer those. WeakDataItem<T> and WeakDataTable<T> give their T
+		virtual RttiType GetExpectedSubType() const;
 
 		void SetUid(const UID& uid);
 

@@ -4,7 +4,6 @@
 #include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
-#include "HodEngine/Core/Reflection/Traits/ReflectionTraitAssetSubType.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 #include "HodEngine/ImGui/Helper.hpp"
@@ -78,17 +77,7 @@ namespace hod::inline editor
 
 		WeakResourceBase* value = editorReflectedProperty.GetObject<WeakResourceBase>();
 
-		uint64_t expectedSubType = 0;
-		ReflectionProperty* reflectionProperty = editorReflectedProperty.GetReflectionProperty();
-		if (reflectionProperty != nullptr)
-		{
-			if (ReflectionTraitAssetSubType* subTypeTrait = reflectionProperty->FindTrait<ReflectionTraitAssetSubType>())
-			{
-				expectedSubType = subTypeTrait->GetExpectedSubType();
-			}
-		}
-
-		changed |= WeakResourceCustomPropertyDrawer::Draw(*value, expectedSubType, editorReflectedProperty.HasDifferentValues());
+		changed |= WeakResourceCustomPropertyDrawer::Draw(*value, editorReflectedProperty.HasDifferentValues());
 		if (changed == true)
 		{
 			editorReflectedProperty.SetObject(*value); // Set to itself for call SetFunction // todo affect a new object, wrong if SetFunction check if the value is the same
@@ -99,7 +88,7 @@ namespace hod::inline editor
 	/// @brief
 	/// @param weakResource
 	/// @return
-	bool WeakResourceCustomPropertyDrawer::Draw(WeakResourceBase& weakResource, uint64_t expectedSubType, bool mixed)
+	bool WeakResourceCustomPropertyDrawer::Draw(WeakResourceBase& weakResource, bool mixed)
 	{
 		static Vector<AssetDatabase::FileSystemMapping*> assetList;
 
@@ -155,7 +144,7 @@ namespace hod::inline editor
 					clicked = true;
 
 					assetList.Clear();
-					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), *weakResource.GetResourceDescriptor(), expectedSubType);
+					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), *weakResource.GetResourceDescriptor(), weakResource.GetExpectedSubType());
 				}
 			}
 		}
@@ -175,7 +164,7 @@ namespace hod::inline editor
 					clicked = true;
 
 					assetList.Clear();
-					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), *weakResource.GetResourceDescriptor(), expectedSubType);
+					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), *weakResource.GetResourceDescriptor(), weakResource.GetExpectedSubType());
 				}
 			}
 		}

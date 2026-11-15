@@ -96,4 +96,10 @@ namespace hod::inline gamesystems
 	{
 		return _resourceDescriptor;
 	}
+
+	/// @brief
+	RttiType WeakResourceBase::GetExpectedSubType() const
+	{
+		return 0;
+	}
 }
