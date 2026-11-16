@@ -2,6 +2,7 @@
 #include "HodEngine/Game/Export.hpp"
 
 #include "HodEngine/Game/Entity.hpp"
+#include "HodEngine/Game/WorldTime.hpp"
 
 #include "HodEngine/Core/Vector.hpp"
 #include <memory>
@@ -75,8 +76,9 @@ namespace hod::inline game
 		/// @brief The instance of a WorldSystemType registered by a module, nullptr if the module isn't there
 		WorldSystem*				FindSystem(const WorldSystemType& type) const;
 
-		/// @brief Of the scenes' FixedUpdate and the systems' OnFixedUpdate
-		float						GetFixedTimestep() const;
+		/// @brief Its frame's delta, elapsed time, time scale and fixed steps (what Update runs)
+		WorldTime&					GetTime();
+		const WorldTime&			GetTime() const;
 
 	private:
 		friend class WorldSystemRegistry;
@@ -100,8 +102,7 @@ namespace hod::inline game
 
 		bool						_jobInserted = false;
 
-		float						_fixedTimestep = 1.0f / 120.0f;
-		float						_accumulatedFixedTime = 0.0f;
+		WorldTime					_time;
 
 		struct SystemInstance
 		{

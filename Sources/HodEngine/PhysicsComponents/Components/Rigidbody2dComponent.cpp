@@ -157,7 +157,7 @@ namespace hod::inline physics
 			if (_mode == Mode::Kinematic)
 			{
 				// Its velocity was only to reach its node (see OnFixedUpdate): there already, it stops
-				_body->MoveTo(position, rotation, GetWorld()->GetFixedTimestep());
+				_body->MoveTo(position, rotation, GetWorld()->GetTime().GetFixedTimestep());
 			}
 		}
 	}
@@ -171,7 +171,7 @@ namespace hod::inline physics
 		if (_mode == Mode::Kinematic && _body != nullptr)
 		{
 			GetNodeTransform(position, rotation);
-			_body->MoveTo(position, rotation, GetWorld()->GetFixedTimestep());
+			_body->MoveTo(position, rotation, GetWorld()->GetTime().GetFixedTimestep());
 		}
 		else
 		{

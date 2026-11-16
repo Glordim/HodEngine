@@ -30,10 +30,10 @@ namespace hod::inline game
 		WorldSystem& operator=(WorldSystem&&) = delete;
 
 	public:
-		/// @brief Each fixed step (see World::GetFixedTimestep), after the scenes' FixedUpdate
+		/// @brief Each fixed step (see WorldTime::GetFixedTimestep), after the scenes' FixedUpdate
 		virtual void OnFixedUpdate(float fixedDeltaTime);
 
-		/// @brief Each frame the world is updated, after the scenes' Update
+		/// @brief Each frame the world is updated, after the scenes' Update (deltaTime scaled, see WorldTime)
 		virtual void OnUpdate(float deltaTime);
 
 		World& GetWorld() const;

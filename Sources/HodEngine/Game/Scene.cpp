@@ -388,7 +388,10 @@ namespace hod::inline game
 		{
 			for (Component* component : entityPair.second->GetComponents())
 			{
-				component->OnFixedUpdate();
+				if (component->IsEnabledInHierarchy())
+				{
+					component->OnFixedUpdate();
+				}
 			}
 		}
 	}

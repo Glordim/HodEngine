@@ -47,7 +47,9 @@ namespace hod::inline game
 		virtual void			OnAwake();
 		virtual void			OnEnable();
 		virtual void			OnStart();
+		/// @brief Each frame while enabled, deltaTime scaled (0 while the time scale is: see World::GetTime)
 		virtual void			OnUpdate(float deltaTime);
+		/// @brief Each fixed step while enabled (WorldTime::GetFixedTimestep), none while the time scale is 0
 		virtual void			OnFixedUpdate();
 		virtual void			OnDisable();
 		virtual void			OnDestruct();

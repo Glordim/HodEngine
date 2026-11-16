@@ -251,30 +251,31 @@ namespace hod::inline game
 			return;
 		}
 
-		float                 deltaTime = (float)SystemTime::ElapsedTimeInSeconds(_lastUpdateTimestamp, now);
+		float                 realDeltaTime = (float)SystemTime::ElapsedTimeInSeconds(_lastUpdateTimestamp, now);
 		_lastUpdateTimestamp = now;
 
 		if (_editorNextFrame == true)
 		{
-			deltaTime = Min(deltaTime, 0.016f);
+			realDeltaTime = Min(realDeltaTime, 1.0f / 60.0f);
 			_editorNextFrame = false;
 		}
 		//
 
-		_accumulatedFixedTime += deltaTime;
-		while (_accumulatedFixedTime >= _fixedTimestep)
+		_time.Advance(realDeltaTime);
+
+		while (_time.ConsumeFixedStep())
 		{
-			_accumulatedFixedTime -= _fixedTimestep;
 			for (Scene* scene : _scenes)
 			{
 				scene->FixedUpdate();
 			}
 			for (const SystemInstance& systemInstance : _systems)
 			{
-				systemInstance._system->OnFixedUpdate(_fixedTimestep);
+				systemInstance._system->OnFixedUpdate(_time.GetFixedTimestep());
 			}
 		}
 
+		float deltaTime = _time.GetDeltaTime();
 		for (Scene* scene : _scenes)
 		{
 			scene->Update(deltaTime);
@@ -355,9 +356,16 @@ namespace hod::inline game
 
 	/// @brief
 	/// @return
-	float World::GetFixedTimestep() const
+	WorldTime& World::GetTime()
 	{
-		return _fixedTimestep;
+		return _time;
+	}
+
+	/// @brief
+	/// @return
+	const WorldTime& World::GetTime() const
+	{
+		return _time;
 	}
 
 	/// @brief
