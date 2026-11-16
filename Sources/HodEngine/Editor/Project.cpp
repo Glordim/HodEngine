@@ -23,6 +23,7 @@
 #include "FileTemplates/CMakeListsEditor.txt.hpp"
 #include "FileTemplates/CMakeListsRuntime.txt.hpp"
 #include "FileTemplates/CMakeListsRoot.txt.hpp"
+#include "FileTemplates/CMakePresets.json.hpp"
 #include "FileTemplates/Component.cpp.hpp"
 #include "FileTemplates/Component.hpp.hpp"
 #include "FileTemplates/EditorModule.cpp.hpp"
@@ -409,6 +410,7 @@ namespace hod::inline editor
 			return false;
 		}
 		ResolvePlugins();
+		GenerateCMakePresets(); // The engine's paths for the IDEs follow the editor opening the project (not needed by the editor itself)
 		return true;
 	}
 
@@ -797,6 +799,62 @@ namespace hod::inline editor
 													  });
 		}
 
+		result &= GenerateCMakePresets();
+		return result;
+	}
+
+	/// @brief The project's CMakePresets.json, written only if missing (the project's afterwards, versioned: editor, application, Android), and what it
+	/// includes, the engine's paths on this machine (Cache/Generated/HodEnginePresets.json, written again when they change: the engine running the editor
+	/// for its modules, the installed one for the applications): the IDEs configure the project as the editor does (see CMakeHelper::Configure)
+	/// @return
+	bool Project::GenerateCMakePresets() const
+	{
+		auto enginePreset = [](std::string_view name, const Path& cmakeDirPath)
+		{
+			Path engineDirPath = cmakeDirPath.ParentPath();
+			engineDirPath.PortableSeparator(); // JSON: no backslash to escape
+			return fmt::format("\t\t{{\n"
+			                   "\t\t\t\"name\": \"{}\",\n"
+			                   "\t\t\t\"hidden\": true,\n"
+			                   "\t\t\t\"environment\": {{\n"
+			                   "\t\t\t\t\"HOD_ENGINE_DIR\": \"{}\",\n"
+			                   "\t\t\t\t\"HOD_PLATFORM\": \"{}\",\n"
+			                   "\t\t\t\t\"HOD_ABI\": \"{}\"\n"
+			                   "\t\t\t}}\n"
+			                   "\t\t}}",
+			                   name, engineDirPath, CMakeHelper::GetCurrentPlatform(), CMakeHelper::GetCurrentAbi());
+		};
+		std::string enginePresets = fmt::format("{{\n"
+		                                        "\t\"version\": 6,\n"
+		                                        "\t\"configurePresets\": [\n"
+		                                        "{},\n"
+		                                        "{}\n"
+		                                        "\t]\n"
+		                                        "}}\n",
+		                                        enginePreset("hod-engine-editor", CMakeHelper::GetRunningCmakeDirPath()),
+		                                        enginePreset("hod-engine-installed", CMakeHelper::GetInstalledCmakeDirPath()));
+		String enginePresetsContent(enginePresets.data(), (uint32_t)enginePresets.size());
+
+		bool   result = true;
+		Path   enginePresetsPath = _projectPath.ParentPath() / "Cache" / "Generated" / "HodEnginePresets.json";
+		String existingEnginePresets;
+		if (FileSystem::GetInstance()->Exists(enginePresetsPath) == false || FileSystem::GetInstance()->ReadAllText(enginePresetsPath, existingEnginePresets) == false ||
+		    existingEnginePresets != enginePresetsContent) // The IDEs reconfigure when it changes
+		{
+			result &= FileSystem::GetInstance()->CreateDirectories(enginePresetsPath.ParentPath()) &&
+			          FileSystem::GetInstance()->WriteAllText(enginePresetsPath, enginePresetsContent);
+		}
+
+		Path presetsPath = _projectPath.ParentPath() / "CMakePresets.json";
+		if (FileSystem::GetInstance()->Exists(presetsPath) == false)
+		{
+			result &= CMakeHelper::GenerateCMakeLists(presetsPath, CMakePresets_json, {});
+		}
+
+		if (result == false)
+		{
+			OUTPUT_ERROR("Failed to generate the CMake presets of the project");
+		}
 		return result;
 	}
 

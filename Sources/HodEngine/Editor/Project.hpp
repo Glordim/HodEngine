@@ -81,6 +81,7 @@ namespace hod::inline editor
 		Path GetRuntimeModulePath() const;
 
 		bool GenerateProjectCMakeLists() const;
+		bool GenerateCMakePresets() const;
 		bool ConfigureProjectModules() const;
 		bool BuildProjectModules() const;
 

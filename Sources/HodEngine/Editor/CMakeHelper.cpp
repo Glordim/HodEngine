@@ -108,10 +108,10 @@ namespace hod::inline editor
 		if (FileSystem::GetInstance()->CreateDirectories(outputPath.ParentPath()) == false ||
 			FileSystem::GetInstance()->WriteAllText(outputPath, contentStr) == false)
 		{
-			OUTPUT_ERROR("Failed to generate CMakeLists.txt at {}", outputPath);
+			OUTPUT_ERROR("Failed to generate {}", outputPath);
 			return false;
 		}
-		OUTPUT_MESSAGE("CMakeLists.txt generated at {}", outputPath);
+		OUTPUT_MESSAGE("{} generated", outputPath);
 		return true;
 	}
 

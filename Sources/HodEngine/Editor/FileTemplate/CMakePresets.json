@@ -1,0 +1,71 @@
+{
+	"version": 6,
+	"include": ["Cache/Generated/HodEnginePresets.json"],
+	"configurePresets": [
+		{
+			"name": "hod-base",
+			"hidden": true,
+			"description": "Written once by the editor, yours afterwards. The engine's paths come from Cache/Generated/HodEnginePresets.json, written by the editor each time it opens the project",
+			"generator": "Ninja",
+			"toolchainFile": "$env{HOD_ENGINE_DIR}/platforms/$env{HOD_PLATFORM}/$env{HOD_ABI}/$env{HOD_LIB_TYPE}/cmake/toolchain.cmake",
+			"cacheVariables": {
+				"HodEngine_DIR": "$env{HOD_ENGINE_DIR}/cmake"
+			}
+		},
+		{
+			"name": "editor",
+			"displayName": "Editor",
+			"description": "The project's modules loaded by the editor, against the engine running it (its build folder, the editor's builds go there too)",
+			"inherits": ["hod-engine-editor", "hod-base"],
+			"binaryDir": "${sourceDir}/Cache/Build/Editor",
+			"environment": {
+				"HOD_LIB_TYPE": "shared"
+			},
+			"cacheVariables": {
+				"HOD_PROJECT_BUILD_TYPE": "Editor"
+			}
+		},
+		{
+			"name": "hod-application",
+			"hidden": true,
+			"inherits": ["hod-engine-installed", "hod-base"],
+			"binaryDir": "${sourceDir}/Cache/Build/$env{HOD_PLATFORM}",
+			"environment": {
+				"HOD_LIB_TYPE": "static"
+			},
+			"cacheVariables": {
+				"HOD_PROJECT_BUILD_TYPE": "Application",
+				"CMAKE_BUILD_TYPE": "Release"
+			}
+		},
+		{
+			"name": "application",
+			"displayName": "Application",
+			"description": "The game's executable for this machine, against the installed engine",
+			"inherits": "hod-application",
+			"installDir": "${sourceDir}/Build"
+		},
+		{
+			"name": "application-android-arm64-v8a",
+			"displayName": "Application Android arm64-v8a",
+			"description": "The game's library for Android, against the installed engine (needs ANDROID_NDK_ROOT)",
+			"inherits": "hod-application",
+			"binaryDir": "${sourceDir}/Cache/Build/android-arm64-v8a",
+			"environment": {
+				"HOD_PLATFORM": "android",
+				"HOD_ABI": "arm64-v8a"
+			}
+		},
+		{
+			"name": "application-android-x86_64",
+			"displayName": "Application Android x86_64",
+			"description": "The game's library for Android, against the installed engine (needs ANDROID_NDK_ROOT)",
+			"inherits": "hod-application",
+			"binaryDir": "${sourceDir}/Cache/Build/android-x86_64",
+			"environment": {
+				"HOD_PLATFORM": "android",
+				"HOD_ABI": "x86_64"
+			}
+		}
+	]
+}
