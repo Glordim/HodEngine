@@ -27,6 +27,10 @@ namespace hod::inline editor
 		void	DrawMenuBar() override;
 		bool	OnSave() override;
 
+		/// @brief Undo: its data (its type and its properties, as saved)
+		bool	CaptureUndoState(Document& document) override;
+		bool	RestoreUndoState(const Document& document) override;
+
 	private:
 
 		DataStruct*	_data = nullptr;

@@ -36,7 +36,7 @@ namespace hod::inline editor
 
 		if (changed)
 		{
-			GetOwner()->MarkAsDirty();
+			GetOwner()->MarkAsDirty("Edit Row");
 		}
 	}
 }

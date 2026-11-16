@@ -53,7 +53,7 @@ namespace hod::inline editor
 			}
 			editorTab->AddRow(newKey);
 			editorTab->SetRowSelection(newKey);
-			changed = true;
+			editorTab->MarkAsDirty("Add Row");
 		}
 
 		// The selected row (also its context menu in the table)
@@ -63,7 +63,7 @@ namespace hod::inline editor
 		if (ImGui::Button(ICON_MDI_DELETE " Remove Row") == true)
 		{
 			editorTab->RemoveRow(selectedKey);
-			changed = true;
+			editorTab->MarkAsDirty("Remove Row");
 		}
 		ImGui::EndDisabled();
 
@@ -95,9 +95,9 @@ namespace hod::inline editor
 					std::snprintf(keyBuffer, sizeof(keyBuffer), "%s", row._key.CStr());
 					ImGui::SetNextItemWidth(-FLT_MIN);
 					ImGui::InputText("##key", keyBuffer, sizeof(keyBuffer));
-					if (ImGui::IsItemDeactivatedAfterEdit() && row._key != keyBuffer)
+					if (ImGui::IsItemDeactivatedAfterEdit() && row._key != keyBuffer && editorTab->RenameRow(row._key, keyBuffer))
 					{
-						changed |= editorTab->RenameRow(row._key, keyBuffer);
+						editorTab->MarkAsDirty("Rename Row");
 					}
 
 					EditorReflectedObject reflectedObject(row._data, reflectionDescriptor, nullptr, this);
@@ -136,7 +136,7 @@ namespace hod::inline editor
 				if (keyToRemove.Empty() == false)
 				{
 					editorTab->RemoveRow(keyToRemove);
-					changed = true;
+					editorTab->MarkAsDirty("Remove Row");
 				}
 
 				ImGui::EndTable();
@@ -145,7 +145,7 @@ namespace hod::inline editor
 
 		if (changed)
 		{
-			editorTab->MarkAsDirty();
+			editorTab->MarkAsDirty("Edit Row");
 		}
 	}
 }

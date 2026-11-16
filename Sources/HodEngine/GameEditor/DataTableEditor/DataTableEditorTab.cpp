@@ -220,6 +220,23 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @param document
+	/// @return false when its asset couldn't be read: no undo
+	bool DataTableEditorTab::CaptureUndoState(Document& document)
+	{
+		return _readable && _data.Write(document.GetRootNode());
+	}
+
+	/// @brief Its rows replaced (what the windows show is read from them each frame)
+	/// @param document
+	/// @return
+	bool DataTableEditorTab::RestoreUndoState(const Document& document)
+	{
+		_readable = _data.Read(document.GetRootNode());
+		return _readable;
+	}
+
+	/// @brief
 	void DataTableEditorTab::DrawMenuBar()
 	{
 	}

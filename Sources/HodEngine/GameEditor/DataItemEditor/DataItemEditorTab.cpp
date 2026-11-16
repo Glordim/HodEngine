@@ -120,6 +120,34 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @param document
+	/// @return false without data (unknown struct): no undo
+	bool DataItemEditorTab::CaptureUndoState(Document& document)
+	{
+		return _data != nullptr && Serializer::SerializeWithType(*_data, document.GetRootNode());
+	}
+
+	/// @brief A new instance replaces its data (what the properties window shows is read from it each frame)
+	/// @param document
+	/// @return
+	bool DataItemEditorTab::RestoreUndoState(const Document& document)
+	{
+		DataStruct* data = Serializer::DeserializeWithType<DataStruct>(document.GetRootNode(),
+		                                                               [](RttiType type) { return DataStructFactory::GetInstance()->FindReflectionDescriptor(type); });
+		if (data == nullptr)
+		{
+			return false;
+		}
+
+		if (_data != nullptr)
+		{
+			_data->GetReflectionDescriptorV().DeleteInstance(_data);
+		}
+		_data = data;
+		return true;
+	}
+
+	/// @brief
 	void DataItemEditorTab::DrawMenuBar()
 	{
 	}

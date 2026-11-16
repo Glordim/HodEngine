@@ -42,6 +42,10 @@ namespace hod::inline editor
 		void	DrawMenuBar() override;
 		bool	OnSave() override;
 
+		/// @brief Undo: its rows (as saved), not the selection (found back by its key)
+		bool	CaptureUndoState(Document& document) override;
+		bool	RestoreUndoState(const Document& document) override;
+
 	private:
 
 		DataTableAssetData	_data;
