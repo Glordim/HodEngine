@@ -1,8 +1,9 @@
 #include "HodEngine/Math/Pch.hpp"
 #include "HodEngine/Math/Vector2.hpp"
 
+#include <HodEngine/Core/Math.hpp>
+
 #include <cmath>
-#include <limits>
 
 namespace hod::inline math
 {
@@ -18,7 +19,7 @@ namespace hod::inline math
 	Vector2 Vector2::Down(0.0f, -1.0f);
 	Vector2 Vector2::Left(-1.0f, 0.0f);
 	Vector2 Vector2::Right(1.0f, 0.0f);
-	Vector2 Vector2::Infinity(std::numeric_limits<float>::infinity(), std::numeric_limits<float>::infinity());
+	Vector2 Vector2::Infinity(core::Infinity<float>, core::Infinity<float>);
 
 	/// @brief
 	/// @param x

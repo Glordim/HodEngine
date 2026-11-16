@@ -1,5 +1,7 @@
 #pragma once
 
+#include <limits>
+
 namespace hod::inline core
 {
 	template<typename T>
@@ -19,4 +21,7 @@ namespace hod::inline core
 	{
 		return (value < min) ? min : (value > max) ? max : value;
 	}
+
+	template<typename T>
+	inline constexpr T Infinity = std::numeric_limits<T>::infinity();
 }
