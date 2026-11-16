@@ -1,6 +1,10 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
 
+#include "HodEngine/Core/String.hpp"
+
+#include <cstdint>
+
 namespace hod::inline core
 {
 // Macro ensures the breakpoint triggers in caller code
