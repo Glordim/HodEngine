@@ -119,6 +119,11 @@ namespace hod::inline editor
 		Path   GetRuntimeModulesStampPath() const;
 		String GetRuntimeModulesStamp() const;
 
+		/// @brief The build of the engine the project's modules built for the editor were compiled against (see BuildProjectModules): a module
+		/// compiled against other engine headers still loads, but its view of the engine's classes (their layout) may differ: it must be rebuilt
+		Path          GetEngineStampPath() const;
+		static String GetEngineStamp();
+
 	private:
 		Path _projectPath;
 		Path _sourceDirPath;

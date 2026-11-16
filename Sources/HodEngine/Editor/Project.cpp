@@ -29,6 +29,7 @@
 #include "FileTemplates/Export.hpp.hpp"
 #include "FileTemplates/Module.cpp.hpp"
 #include "HodEngine/Core/FileSystem/FileSystem.hpp"
+#include "HodEngine/Core/Hash.hpp"
 #include "HodEngine/Editor/CMakeHelper.hpp"
 #include "HodEngine/Editor/VersionControl/VersionControl.hpp"
 #include "HodEngine/Editor/Cooker/Cooker.hpp"
@@ -535,6 +536,43 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
+	Path Project::GetEngineStampPath() const
+	{
+		return GetCacheBuildDirPath() / "Editor" / "HodEngine.txt";
+	}
+
+	/// @brief The engine's libraries next to the editor (name, size, last write time): any rebuild of one of them changes it. Prudent: a rebuild
+	/// that changed no header the project uses asks for a project build too (incremental: only relinked)
+	/// @return
+	String Project::GetEngineStamp()
+	{
+		Path              binDirectory = FileSystem::GetExecutablePath().ParentPath();
+		String            libraryExtension = DynamicLibrary::GetFilePath(Path("Name")).Extension().GetString(); // ".dll"...
+		Vector<String>    entries;
+		std::error_code   error;
+		for (const std::filesystem::directory_entry& entry : std::filesystem::directory_iterator(binDirectory.GetString().CStr(), error))
+		{
+			if (entry.is_regular_file(error) == false || entry.path().extension().string() != libraryExtension.CStr())
+			{
+				continue;
+			}
+			uint64_t size = static_cast<uint64_t>(entry.file_size(error));
+			int64_t  writeTime = static_cast<int64_t>(entry.last_write_time(error).time_since_epoch().count());
+			entries.PushBack(String::Format("%s %llu %lld", entry.path().filename().string().c_str(), static_cast<unsigned long long>(size), static_cast<long long>(writeTime)));
+		}
+		std::sort(entries.begin(), entries.end()); // The directory's order isn't guaranteed
+
+		String stamp;
+		for (const String& entry : entries)
+		{
+			stamp += entry;
+			stamp += "\n";
+		}
+		return String::Format("%016llx", static_cast<unsigned long long>(Hash::ComputeXxh3_64(std::string_view(stamp))));
+	}
+
+	/// @brief
+	/// @return
 	bool Project::Load()
 	{
 		Document           document;
@@ -661,6 +699,15 @@ namespace hod::inline editor
 		    FileSystem::GetInstance()->ReadAllText(GetRuntimeModulesStampPath(), builtStamp) == false || builtStamp != GetRuntimeModulesStamp())
 		{
 			OUTPUT_MESSAGE("The project's runtime module was built with other plugins, it must be rebuilt");
+			return false;
+		}
+
+		// Built against another build of the engine: it would load, its view of the engine's classes possibly wrong (a crash, or worse)
+		String builtEngineStamp;
+		if (FileSystem::GetInstance()->Exists(GetEngineStampPath()) == false || FileSystem::GetInstance()->ReadAllText(GetEngineStampPath(), builtEngineStamp) == false ||
+		    builtEngineStamp != GetEngineStamp())
+		{
+			OUTPUT_MESSAGE("The project's modules were built against another build of the engine, they must be rebuilt");
 			return false;
 		}
 
@@ -791,8 +838,9 @@ namespace hod::inline editor
 		{
 			return false;
 		}
-		// What it links now (see CanLoadProjectModules)
+		// What it links now, and against which engine (see CanLoadProjectModules)
 		FileSystem::GetInstance()->WriteAllText(GetRuntimeModulesStampPath(), GetRuntimeModulesStamp());
+		FileSystem::GetInstance()->WriteAllText(GetEngineStampPath(), GetEngineStamp());
 		return true;
 	}
 
