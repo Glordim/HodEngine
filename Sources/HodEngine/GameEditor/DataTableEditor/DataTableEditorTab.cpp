@@ -12,6 +12,7 @@
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 #include <HodEngine/Core/Document/DocumentWriterJson.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <HodEngine/Game/DataStruct/DataStruct.hpp>
 #include <HodEngine/Game/DataStruct/DataStructFactory.hpp>
@@ -103,9 +104,46 @@ namespace hod::inline editor
 				DataStruct* data = _data._rows[index]._data;
 				data->GetReflectionDescriptorV().DeleteInstance(data);
 				_data._rows.Erase(index);
+				if (_rowSelectionKey == key)
+				{
+					_rowSelectionKey = "";
+				}
 				return;
 			}
 		}
+	}
+
+	/// @brief
+	/// @param key
+	/// @param newKey
+	/// @return
+	bool DataTableEditorTab::RenameRow(const String& key, const String& newKey)
+	{
+		if (newKey.Empty())
+		{
+			OUTPUT_ERROR("Data table: a row's key can't be empty");
+			return false;
+		}
+		if (FindRow(newKey) != nullptr)
+		{
+			OUTPUT_ERROR("Data table: the key '{}' is taken by another row", newKey);
+			return false;
+		}
+
+		const String oldKey = key; // key may be the row's own: changed below
+		for (DataTableAssetData::Row& row : _data._rows)
+		{
+			if (row._key == oldKey)
+			{
+				row._key = newKey;
+				if (_rowSelectionKey == oldKey)
+				{
+					_rowSelectionKey = newKey;
+				}
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/// @brief

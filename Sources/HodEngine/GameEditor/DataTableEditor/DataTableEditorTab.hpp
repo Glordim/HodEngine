@@ -26,7 +26,10 @@ namespace hod::inline editor
 		DataStruct*		FindRow(const String& key) const;
 		/// @return The new row (default values) at the end, null when the key exists already
 		DataStruct*		AddRow(const String& key);
+		/// @brief Its selection cleared when it is this row
 		void			RemoveRow(const String& key);
+		/// @return false (an error) when the new key is empty or taken by another row: the row keeps its key. Its selection follows it
+		bool			RenameRow(const String& key, const String& newKey);
 
 		void			SetRowSelection(const String& key);
 		const String&	GetRowSelectionKey() const;

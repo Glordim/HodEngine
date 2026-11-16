@@ -12,7 +12,9 @@
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
+#include <cfloat>
 #include <cstdint>
+#include <cstdio>
 
 namespace hod::inline editor
 {
@@ -54,6 +56,17 @@ namespace hod::inline editor
 			changed = true;
 		}
 
+		// The selected row (also its context menu in the table)
+		ImGui::SameLine();
+		String selectedKey = editorTab->GetRowSelectionKey();
+		ImGui::BeginDisabled(editorTab->FindRow(selectedKey) == nullptr);
+		if (ImGui::Button(ICON_MDI_DELETE " Remove Row") == true)
+		{
+			editorTab->RemoveRow(selectedKey);
+			changed = true;
+		}
+		ImGui::EndDisabled();
+
 		ReflectionDescriptor* reflectionDescriptor = DataStructFactory::GetInstance()->FindReflectionDescriptor(data._rowType);
 		if (reflectionDescriptor != nullptr)
 		{
@@ -67,20 +80,24 @@ namespace hod::inline editor
 				}
 				ImGui::TableHeadersRow();
 
-				const String& selectedKey = editorTab->GetRowSelectionKey();
-				const String* keyToDelete = nullptr;
+				String keyToRemove; // After the loop: the rows aren't changed while drawn
 
-				for (DataTableAssetData::Row& row : data._rows)
+				for (uint32_t rowIndex = 0; rowIndex < data._rows.Size(); ++rowIndex)
 				{
-					ImGui::PushID(row._key.CStr());
+					DataTableAssetData::Row& row = data._rows[rowIndex];
+
+					ImGui::PushID(static_cast<int>(rowIndex)); // Not the key: it changes while edited
 					ImGui::TableNextRow();
 
+					// The key, applied once its edit is done (Enter or focus lost), refused when empty or taken (kept as it was)
 					ImGui::TableNextColumn();
-					row._key.Reserve(255);
-					if (ImGui::InputText("##key", row._key.Data(), row._key.Capacity(), ImGuiInputTextFlags_EnterReturnsTrue))
+					char keyBuffer[256];
+					std::snprintf(keyBuffer, sizeof(keyBuffer), "%s", row._key.CStr());
+					ImGui::SetNextItemWidth(-FLT_MIN);
+					ImGui::InputText("##key", keyBuffer, sizeof(keyBuffer));
+					if (ImGui::IsItemDeactivatedAfterEdit() && row._key != keyBuffer)
 					{
-						row._key = row._key.Data(); // refresh size
-						changed |= true;
+						changed |= editorTab->RenameRow(row._key, keyBuffer);
 					}
 
 					EditorReflectedObject reflectedObject(row._data, reflectionDescriptor, nullptr, this);
@@ -97,26 +114,29 @@ namespace hod::inline editor
 					ImGui::TableSetColumnIndex(0);
 					ImGuiTable* table = ImGui::GetCurrentTable();
 					float rowHeight = table->RowPosY2 - table->RowPosY1;
-					bool selected = (row._key == selectedKey);
-					if (ImGui::Selectable("##row_select", selected, 
-										ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap, 
+					bool selected = (row._key == editorTab->GetRowSelectionKey());
+					if (ImGui::Selectable("##row_select", selected,
+										ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap,
 										ImVec2(0, rowHeight - 20)))
 					{
 						editorTab->SetRowSelection(row._key);
+					}
+					if (ImGui::BeginPopupContextItem("##row_menu"))
+					{
+						if (ImGui::MenuItem(ICON_MDI_DELETE " Remove Row"))
+						{
+							keyToRemove = row._key;
+						}
+						ImGui::EndPopup();
 					}
 
 					ImGui::PopID();
 				}
 
-				if (keyToDelete != nullptr)
+				if (keyToRemove.Empty() == false)
 				{
-					String deletedKey = *keyToDelete;
-					editorTab->RemoveRow(deletedKey);
-					if (editorTab->GetRowSelectionKey() == deletedKey)
-					{
-						editorTab->SetRowSelection("");
-					}
-					editorTab->MarkAsDirty();
+					editorTab->RemoveRow(keyToRemove);
+					changed = true;
 				}
 
 				ImGui::EndTable();
