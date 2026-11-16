@@ -15,6 +15,7 @@ namespace hod::inline renderer
 		_projection = renderView.GetProjectionMatrix();
 		_view = Matrix4::Inverse(renderView.GetViewMatrix());
 		_viewport = renderView.GetViewport();
+		_time = renderView.GetTime();
 
 		// Stable: the commands of a same order (e.g. a UI canvas' ones, see ui::DrawContext) are drawn in the order they were pushed
 		std::stable_sort(_renderCommands.begin(), _renderCommands.end(), [](RenderCommand* a, RenderCommand* b) { return a->GetRenderingOrder() < b->GetRenderingOrder(); });

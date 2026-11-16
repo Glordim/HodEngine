@@ -105,6 +105,10 @@ namespace hod::inline renderer
 		{
 			SetupPlayCamera(renderView);
 		}
+		if (world.GetEditorPlaying() == true)
+		{
+			renderView.SetTime(static_cast<float>(world.GetTime().GetElapsed())); // Its effects follow its time scale, stop with its pause
+		}
 
 		for (game::Scene* scene : world.GetScenes())
 		{

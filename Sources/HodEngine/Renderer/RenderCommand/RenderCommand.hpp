@@ -34,8 +34,8 @@ namespace hod::inline renderer
 
 	public:
 
-		// projection, view: the camera of the RenderView the command is drawn in
-		virtual void		Execute(CommandBuffer* commandBuffer, const Matrix4& projection, const Matrix4& view, MaterialInstance* overrideMaterial = nullptr) = 0;
+		// projection, view: the camera of the RenderView the command is drawn in; time: its time in seconds (RenderView::GetTime, the shaders' global.time)
+		virtual void		Execute(CommandBuffer* commandBuffer, const Matrix4& projection, const Matrix4& view, float time, MaterialInstance* overrideMaterial = nullptr) = 0;
 		virtual uint32_t	GetRenderingOrder() const = 0;
 	};
 }

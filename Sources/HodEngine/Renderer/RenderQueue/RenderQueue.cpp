@@ -39,7 +39,7 @@ namespace hod::inline renderer
 
 		for (RenderCommand* renderCommand : _renderCommands)
 		{
-			renderCommand->Execute(commandBuffer, _projection, _view, overrideMaterial);
+			renderCommand->Execute(commandBuffer, _projection, _view, _time, overrideMaterial);
 		}
 	}
 

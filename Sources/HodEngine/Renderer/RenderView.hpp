@@ -63,6 +63,11 @@ namespace hod::inline renderer
 		const Matrix4& GetProjectionMatrix() const;
 		const Rect&    GetViewport() const;
 
+		/// @brief The time of what it draws, in seconds: the shaders' global.time (a running world's, see RendererWorldSystem::Draw).
+		/// Not set: the real time since the application started
+		void           SetTime(float time);
+		float          GetTime() const;
+
 		// Color the target is cleared to before drawing (e.g. transparent for an offscreen capture)
 		void           SetClearColor(const Color& clearColor);
 		const Color&   GetClearColor() const;
@@ -95,6 +100,8 @@ namespace hod::inline renderer
 		Matrix4 _view;
 		Rect    _viewport;
 		Color   _clearColor = Color(0.1f, 0.1f, 0.1f, 1.0f);
+		float   _time = 0.0f;
+		bool    _timeSet = false;
 
 		Vector<MaterialInstance*> _materialInstancesToDelete;
 		bool                      _autoDestroy = true;

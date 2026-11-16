@@ -14,6 +14,8 @@
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/RHI/RhiDevice.hpp"
 
+#include <HodEngine/Core/Time/SystemTime.hpp>
+
 namespace hod::inline renderer
 {
 	/// @brief
@@ -93,6 +95,21 @@ namespace hod::inline renderer
 	const Rect& RenderView::GetViewport() const
 	{
 		return _viewport;
+	}
+
+	/// @brief
+	/// @param time
+	void RenderView::SetTime(float time)
+	{
+		_time = time;
+		_timeSet = true;
+	}
+
+	/// @brief
+	/// @return
+	float RenderView::GetTime() const
+	{
+		return _timeSet ? _time : static_cast<float>(SystemTime::ToSeconds(SystemTime::Now()));
 	}
 
 	/// @brief

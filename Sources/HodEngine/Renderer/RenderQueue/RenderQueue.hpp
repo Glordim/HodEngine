@@ -42,6 +42,7 @@ namespace hod::inline renderer
 		Matrix4							_projection;
 		Matrix4							_view;
 		Rect							_viewport;
+		float							_time = 0.0f; // RenderView::GetTime
 
 		Vector<RenderCommand*>			_renderCommands;
 	};

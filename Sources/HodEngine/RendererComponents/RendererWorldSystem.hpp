@@ -37,7 +37,7 @@ namespace hod::inline renderer
 		DebugShapes&        GetDebugShapes();
 
 		/// @brief Its renderers, then its debug shapes over them. Through its main camera when the world is playing (not paused), through the camera
-		/// already set up in renderView otherwise (the editor's)
+		/// already set up in renderView otherwise (the editor's). At the world's time when it is playing (RenderView::SetTime: the shaders' global.time)
 		void Draw(RenderView& renderView);
 
 		/// @brief Sets up renderView with its main camera (a builtin one without), as Draw does when playing

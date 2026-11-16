@@ -10,7 +10,6 @@
 #include "HodEngine/Renderer/Renderer.hpp"
 #include "HodEngine/RHI/RhiDevice.hpp"
 
-#include <HodEngine/Core/Time/SystemTime.hpp>
 #include <HodEngine/Core/StaticArray.hpp>
 
 #include <cassert>
@@ -68,7 +67,7 @@ namespace hod::inline renderer
 
 	/// @brief
 	/// @param commandBuffer
-	void RenderCommandMesh::Execute(CommandBuffer* commandBuffer, const Matrix4& projection, const Matrix4& view, MaterialInstance* overrideMaterial)
+	void RenderCommandMesh::Execute(CommandBuffer* commandBuffer, const Matrix4& projection, const Matrix4& view, float time, MaterialInstance* overrideMaterial)
 	{
 		if (overrideMaterial != nullptr && _pickingId == PickingManager::InvalidId)
 		{
@@ -80,7 +79,7 @@ namespace hod::inline renderer
 		MaterialInstance* materialInstance = const_cast<MaterialInstance*>(_materialInstance);
 		materialInstance->SetMat4("global.view", view);
 		materialInstance->SetMat4("global.proj", projection);
-		materialInstance->SetFloat("global.time", (float)SystemTime::ToSeconds(SystemTime::Now()));
+		materialInstance->SetFloat("global.time", time);
 		if (overrideMaterial != nullptr)
 		{
 			Color color = PickingManager::ConvertIdToColor(_pickingId);
