@@ -362,7 +362,7 @@ namespace hod::inline editor
 		ui::Canvas*					_interactionCanvas = nullptr; // Play mode's copy, null when not playing
 		bool							_paused = false;
 		bool							_nextFrameRequested = false;
-		ui::Canvas::ActionEvent::Slot	_onInteractionAction;
+		EventConnection					_onInteractionAction;
 		Vector<InteractionLogEntry>		_interactionLog;
 
 		// Cut (see CutNodes): the cut nodes' local ids (empty when none), and the clipboard's text the cut put there, which must
@@ -371,7 +371,7 @@ namespace hod::inline editor
 		String		_cutClipboardText;
 
 		// Nested prefabs (see RefreshInstances): the save is told once written, i.e. on the next frame
-		PrefabSavedEvent::Slot	_onPrefabSaved;
+		EventConnection			_onPrefabSaved;
 		bool					_savedNotificationPending = false;
 		uint32_t				_rebuildCount = 0;
 	};

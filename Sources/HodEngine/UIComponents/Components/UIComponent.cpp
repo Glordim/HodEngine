@@ -48,15 +48,6 @@ namespace hod::inline ui
 	}
 
 	UIComponent::UIComponent()
-	: _onCanvasAction([this](const String& action, Node& node) { _actionEvent.Emit(action, node); })
-	, _onPrefabSourceChanged(
-		  [this](const UID& prefab)
-		  {
-			  if (_prefab.GetUid().IsValid() && PrefabInstance::Contains(_prefab.GetUid(), prefab))
-			  {
-				  BuildCanvas();
-			  }
-		  })
 	{
 	}
 
@@ -68,7 +59,14 @@ namespace hod::inline ui
 	void UIComponent::OnConstruct()
 	{
 		_constructed = true;
-		PrefabInstance::GetSourceChangedEvent().Connect(_onPrefabSourceChanged);
+		_onPrefabSourceChanged = PrefabInstance::GetSourceChangedEvent().Connect(
+			[this](const UID& prefab)
+			{
+				if (_prefab.GetUid().IsValid() && PrefabInstance::Contains(_prefab.GetUid(), prefab))
+				{
+					BuildCanvas();
+				}
+			});
 		BuildCanvas();
 	}
 
@@ -120,7 +118,7 @@ namespace hod::inline ui
 		_prefabScaler = _canvas->GetScaler();
 		ApplyScaler();
 
-		_canvas->GetActionEvent().Connect(_onCanvasAction);
+		_onCanvasAction = _canvas->GetActionEvent().Connect([this](const String& action, Node& node) { _actionEvent.Emit(action, node); });
 		if (CanvasManager* canvasManager = CanvasManager::GetInstance())
 		{
 			canvasManager->AddCanvas(_canvas);

@@ -141,7 +141,7 @@ namespace hod::animation_tests // named: the other test files have helpers of th
 		AnimationPlayer& player = _root->GetAnimationPlayer();
 
 		std::vector<String> finished;
-		player.GetFinishedEvent().Add([&finished](const String& name) { finished.push_back(name); });
+		EventConnection onFinished = player.GetFinishedEvent().Connect([&finished](const String& name) { finished.push_back(name); });
 
 		ASSERT_TRUE(player.Play("Spin"));
 		EXPECT_FALSE(player.Play("Missing"));
@@ -242,7 +242,7 @@ namespace hod::animation_tests // named: the other test files have helpers of th
 		_root->GetAnimations().PushBack(MakeSpin(3));
 		AnimationPlayer& player = _root->GetAnimationPlayer();
 		int              finishedCount = 0;
-		player.GetFinishedEvent().Add([&finishedCount](const String&) { ++finishedCount; });
+		EventConnection onFinished = player.GetFinishedEvent().Connect([&finishedCount](const String&) { ++finishedCount; });
 
 		player.Play("Spin", -2.0f);
 		EXPECT_FLOAT_EQ(_label->GetRotation(), 10.0f);

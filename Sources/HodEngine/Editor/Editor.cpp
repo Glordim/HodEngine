@@ -81,8 +81,6 @@
 namespace hod::inline editor
 {
 	_SingletonConstructor(Editor)
-	: _onProjectModulesReloadedSlot([]() { AssetBrowserWindow::PopulateContextualMenuActions(); })
-	, _onProjectModulesRebuiltSlot([this]() { ReloadProjectPlugin(); })
 	{
 	}
 
@@ -149,8 +147,8 @@ namespace hod::inline editor
 		static_cast<DesktopWindow*>(ImGuiManager::GetInstance()->GetMainWindow())->SetCustomTitleBar(true);
 
 		Project::CreateInstance();
-		Project::GetInstance()->GetOnModulesReloadedEvent().Connect(_onProjectModulesReloadedSlot);
-		Project::GetInstance()->GetOnModulesRebuiltEvent().Connect(_onProjectModulesRebuiltSlot);
+		_projectListener.Listen(Project::GetInstance()->GetOnModulesReloadedEvent(), []() { AssetBrowserWindow::PopulateContextualMenuActions(); });
+		_projectListener.Listen(Project::GetInstance()->GetOnModulesRebuiltEvent(), [this]() { ReloadProjectPlugin(); });
 
 		WindowFactory::CreateInstance();
 		AssetDatabase::CreateInstance(); // Before the editor modules (loaded with the project, see LoadEditor): they register their asset types into it

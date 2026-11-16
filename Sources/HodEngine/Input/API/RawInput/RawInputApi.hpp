@@ -77,8 +77,6 @@ namespace hod::inline input
 		void OnWinProc(HWND, UINT, WPARAM, LPARAM);
 
 	private:
-		Event<HWND, UINT, WPARAM, LPARAM>::Slot _onWinProcSlot;
-
 		Vector<RawInputMouse*>    _pendingArrivalMice;
 		Vector<RawInputKeyboard*> _pendingArrivalKeyboards;
 
@@ -96,8 +94,6 @@ namespace hod::inline input
 
 		// bool										_bIgnoreNextMouseMessage = false;
 		bool _bJustGainFocus = false;
-
-		Event<bool>::Slot _onFocusChangeSlot;
 
 		Win32Window* _window = nullptr;
 	};

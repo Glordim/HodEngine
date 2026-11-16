@@ -51,15 +51,6 @@ namespace hod::inline editor
 	/// @brief
 	UIPrefabEditorTab::UIPrefabEditorTab(std::shared_ptr<Asset> asset)
 	: EditorTab(asset, ICON_MDI_VIEW_DASHBOARD)
-	, _onInteractionAction(
-		  [this](const String& action, ui::Node& node)
-		  {
-			  InteractionLogEntry& entry = _interactionLog.EmplaceBack();
-			  entry._action = action;
-			  entry._nodeName = node.GetName();
-			  entry._time = ImGui::GetTime();
-		  })
-	, _onPrefabSaved([this](const UID& savedPrefab) { RefreshInstances(savedPrefab); })
 	{
 		if (asset != nullptr)
 		{
@@ -69,7 +60,7 @@ namespace hod::inline editor
 		SyncPrefabRootName();
 		SetSelectedNode(GetPrefabRoot()); // Single root: what the inspector shows on opening
 
-		GetPrefabSavedEvent().Connect(_onPrefabSaved);
+		_onPrefabSaved = GetPrefabSavedEvent().Connect(this, &UIPrefabEditorTab::RefreshInstances);
 	}
 
 	/// @brief
@@ -438,7 +429,14 @@ namespace hod::inline editor
 		interactionCanvas->SetTargetResolution(_canvas.GetTargetResolution());
 
 		_interactionCanvas = interactionCanvas;
-		_interactionCanvas->GetActionEvent().Connect(_onInteractionAction);
+		_onInteractionAction = _interactionCanvas->GetActionEvent().Connect(
+			[this](const String& action, ui::Node& node)
+			{
+				InteractionLogEntry& entry = _interactionLog.EmplaceBack();
+				entry._action = action;
+				entry._nodeName = node.GetName();
+				entry._time = ImGui::GetTime();
+			});
 		_interactionLog.Clear();
 	}
 

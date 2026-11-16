@@ -134,15 +134,13 @@ namespace hod::interaction_tests // named: the other test files have helpers of 
 		int  actions = 0;
 		int  changes = 0;
 		bool lastValue = false;
-		Canvas::ActionEvent::Slot onAction([&](const String& action, Node&) { actions += (action == "Switched") ? 1 : 0; });
-		_canvas.GetActionEvent().Connect(onAction);
-		Toggle::ValueChangedEvent::Slot onChanged(
+		EventConnection onAction = _canvas.GetActionEvent().Connect([&](const String& action, Node&) { actions += (action == "Switched") ? 1 : 0; });
+		EventConnection onChanged = toggle.GetValueChangedEvent().Connect(
 			[&](bool on)
 			{
 				++changes;
 				lastValue = on;
 			});
-		toggle.GetValueChangedEvent().Connect(onChanged);
 		Frame(_canvas);
 
 		Pointer(_canvas, Vector2::Zero, false);
@@ -225,8 +223,7 @@ namespace hod::interaction_tests // named: the other test files have helpers of 
 		slider.SetWholeNumbers(true);
 
 		int actions = 0;
-		Canvas::ActionEvent::Slot onAction([&](const String&, Node&) { ++actions; });
-		_canvas.GetActionEvent().Connect(onAction);
+		EventConnection onAction = _canvas.GetActionEvent().Connect([&](const String&, Node&) { ++actions; });
 
 		// Pressed at 3/4: the value jumps there (7.5, rounded)
 		Pointer(_canvas, Vector2(50.0f, 0.0f), false);
@@ -272,7 +269,7 @@ namespace hod::interaction_tests // named: the other test files have helpers of 
 			_content = AddNode(_viewport, "Content", Vector2(0.0f, 1.0f), Vector2(1.0f, 1.0f), Vector2(0.0f, 3000.0f), Vector2(0.5f, 1.0f));
 			_buttonNode = AddNode(_content, "Button", Vector2::Zero, Vector2::One);
 			_button = &_buttonNode->SetInteraction<Button>();
-			_button->GetClickEvent().Connect(_onClick);
+			_onClick = _button->GetClickEvent().Connect([this]() { ++_clicks; });
 			_scrollView = &_viewport->SetInteraction<ScrollView>();
 			AssignIds();
 
@@ -310,7 +307,7 @@ namespace hod::interaction_tests // named: the other test files have helpers of 
 		Button*     _button = nullptr;
 		ScrollView* _scrollView = nullptr;
 		int         _clicks = 0;
-		Button::ClickEvent::Slot _onClick = Button::ClickEvent::Slot([this]() { ++_clicks; });
+		EventConnection _onClick;
 	};
 
 	TEST_F(ScrollViewTest, DragTakesThePressFromAButton)

@@ -29,6 +29,6 @@ namespace hod::inline editor
 	private:
 		// "Create/DataTable/<data struct>", one per data struct of the project modules: registered again when they reload
 		ModuleRegistration _createActionsRegistration;
-		Event<>::Slot      _onProjectModulesReloadedSlot; // After _createActionsRegistration: disconnected first
+		EventConnection    _onProjectModulesReloaded; // After _createActionsRegistration: disconnected first
 	};
 }

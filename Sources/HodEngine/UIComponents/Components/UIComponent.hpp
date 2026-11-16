@@ -128,8 +128,8 @@ namespace hod::inline ui
 		bool							_bindViews = false; // The game plays: the canvas' views are bound, the ones of the canvases built again too
 
 		ActionEvent						_actionEvent;
-		ActionEvent::Slot				_onCanvasAction;
-		PrefabInstance::SourceChangedEvent::Slot	_onPrefabSourceChanged;
+		EventConnection					_onCanvasAction;        // Relayed by _actionEvent
+		EventConnection					_onPrefabSourceChanged; // Its canvas built again
 	};
 
 	template<typename _Node_>

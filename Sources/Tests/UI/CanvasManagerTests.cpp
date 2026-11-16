@@ -125,8 +125,7 @@ namespace hod
 			0);
 
 		uint32_t                  actionCount = 0;
-		Canvas::ActionEvent::Slot onAction([&](const String&, Node&) { ++actionCount; });
-		canvas.GetActionEvent().Connect(onAction);
+		EventConnection onAction = canvas.GetActionEvent().Connect([&](const String&, Node&) { ++actionCount; });
 
 		// Pressed out of the canvas, then moved over the button and released: no click
 		Vector2 left(-100.0f, 0.0f);
@@ -167,8 +166,7 @@ namespace hod
 		CanvasManager::GetInstance()->SetPointerMapping(&below, &MapAsIs, 0);
 
 		uint32_t                  actionCount = 0;
-		Canvas::ActionEvent::Slot onAction([&](const String&, Node&) { ++actionCount; });
-		above.GetActionEvent().Connect(onAction);
+		EventConnection onAction = above.GetActionEvent().Connect([&](const String&, Node&) { ++actionCount; });
 
 		Vector2 left(-100.0f, 0.0f);
 		Vector2 right(100.0f, 0.0f);

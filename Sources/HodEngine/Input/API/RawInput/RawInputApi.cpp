@@ -21,8 +21,6 @@ namespace hod::inline input
 	/// @brief
 	RawInputApi::RawInputApi()
 	: Api("RawInput")
-	, _onWinProcSlot(std::bind(&RawInputApi::OnWinProc, this, std::placeholders::_1, std::placeholders::_2, std::placeholders::_3, std::placeholders::_4))
-	, _onFocusChangeSlot(std::bind(&RawInputApi::OnFocusChange, this, std::placeholders::_1))
 	{
 	}
 
@@ -51,10 +49,6 @@ namespace hod::inline input
 			OUTPUT_ERROR("Unable to register RawInput devices type ({})", OS::GetLastWin32ErrorMessage());
 			return false;
 		}
-
-		//_window->OnWinProc.Connect(_onWinProcSlot);
-
-		//_window->GetFocusedEvent().Connect(_onFocusChangeSlot);
 
 		SetInitialized(true);
 

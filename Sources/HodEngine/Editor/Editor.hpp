@@ -199,8 +199,7 @@ namespace hod::inline editor
 		static Path GetModulePath(const PluginManifest& manifest, const String& module);
 
 	private:
-		Event<>::Slot _onProjectModulesReloadedSlot;
-		Event<>::Slot _onProjectModulesRebuiltSlot;
+		EventListener _projectListener; // Its modules reloaded, rebuilt
 
 		// The editor modules of the project's plugins (see HOD_STARTUP_MODULE), in their order, undone before they unload
 		ModuleHost _editorModuleHost;

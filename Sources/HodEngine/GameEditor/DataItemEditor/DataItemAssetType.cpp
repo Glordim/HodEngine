@@ -23,7 +23,6 @@ namespace hod::inline editor
 {
 	/// @brief
 	DataItemAssetType::DataItemAssetType()
-	: _onProjectModulesReloadedSlot([this]() { RegisterCreateActions(); })
 	{
 	}
 
@@ -62,7 +61,7 @@ namespace hod::inline editor
 	{
 		(void)editorRegistrar; // Its own: registered again when the project modules reload
 		RegisterCreateActions();
-		Project::GetInstance()->GetOnModulesReloadedEvent().Connect(_onProjectModulesReloadedSlot);
+		_onProjectModulesReloaded = Project::GetInstance()->GetOnModulesReloadedEvent().Connect(this, &DataItemAssetType::RegisterCreateActions);
 	}
 
 	/// @brief
@@ -106,7 +105,7 @@ namespace hod::inline editor
 	/// @brief
 	void DataItemAssetType::OnUnregistered()
 	{
-		_onProjectModulesReloadedSlot.Disconnect();
+		_onProjectModulesReloaded.Disconnect();
 		_createActionsRegistration.UnregisterAll();
 	}
 }
