@@ -1,5 +1,6 @@
 #include "HodEngine/GameEditor/Pch.hpp"
 #include "HodEngine/GameEditor/DataTableEditor/DataTableAssetType.hpp"
+#include "HodEngine/GameEditor/DataTableEditor/DataTableAssetData.hpp"
 #include "HodEngine/GameEditor/DataTableEditor/DataTableCooker.hpp"
 #include "HodEngine/GameEditor/DataTableEditor/DataTableEditorTab.hpp"
 
@@ -10,7 +11,6 @@
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include <HodEngine/Game/DataStruct/DataStructFactory.hpp>
-#include <HodEngine/Game/DataStruct/DataTableContainer.hpp>
 #include <HodEngine/Game/DataStruct/DataTableResource.hpp>
 
 #include <HodEngine/Core/Document/Document.hpp>
@@ -81,9 +81,10 @@ namespace hod::inline editor
 				.execute =
 					[descriptor](const AssetBrowserWindow::Context& context)
 					{
-						DataTableContainer container(descriptor->GetType());
+						DataTableAssetData data;
+						data._rowType = descriptor->GetType();
 						Document settingsDocument;
-						Serializer::Serialize(container, settingsDocument.GetRootNode());
+						data.Write(settingsDocument.GetRootNode());
 
 						AssetContainer assetContainer;
 						assetContainer.SetAssetType(GetHash());

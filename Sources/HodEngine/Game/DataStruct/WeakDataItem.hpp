@@ -4,6 +4,7 @@
 #include "HodEngine/Game/DataStruct/DataItemResource.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
+#include <HodEngine/Core/UID.hpp>
 #include <HodEngine/GameSystems/Resource/WeakResource.hpp>
 
 #include <memory>
@@ -11,8 +12,9 @@
 
 namespace hod::inline game
 {
-	/// @brief A data item asset holding a _DataStruct_ (or a struct deriving from it): the editor's pickers only offer those,
-	/// Lock() reads it typed. Serialized as any WeakResource (its UID)
+	/// @brief A data item asset holding a _DataStruct_ (or a struct deriving from it), read typed by Get(). The editor's pickers
+	/// only offer those. Serialized as any WeakResource (its UID).
+	/// Its data is valid while the WeakDataItem references its asset (it keeps it alive once resolved)
 	template<typename _DataStruct_>
 	class WeakDataItem : public WeakResource<DataItemResource>
 	{
@@ -26,24 +28,36 @@ namespace hod::inline game
 			return _DataStruct_::GetReflectionDescriptor().GetType();
 		}
 
-		/// @return Its data, keeping its resource alive. Null without an asset, or when the asset holds another struct (an error)
-		std::shared_ptr<const _DataStruct_> Lock() const
+		/// @return Its data. Null without an asset, or when the asset holds another struct (an error, once per asset)
+		const _DataStruct_* Get() const
 		{
-			std::shared_ptr<DataItemResource> resource = WeakResource<DataItemResource>::Lock();
+			std::shared_ptr<DataItemResource> resource = Lock();
 			if (resource == nullptr)
 			{
 				return nullptr;
 			}
 
 			const DataStruct* data = resource->GetDataItem();
-			if (data == nullptr || data->GetReflectionDescriptorV().IsCompatible(_DataStruct_::GetReflectionDescriptor()) == false)
+
+			// Checked once per asset resolved, not on each access
+			if (resource.get() != _checkedItem || resource->GetUid() != _checkedUid)
 			{
-				OUTPUT_ERROR("Data item {}: holds {}, not {}", GetUid().ToString(), (data != nullptr) ? data->GetReflectionDescriptorV().GetTypeName() : String("nothing"),
-				             _DataStruct_::GetReflectionDescriptor().GetTypeName());
-				return nullptr;
+				_checkedItem = resource.get();
+				_checkedUid = resource->GetUid();
+				_dataMatches = (data != nullptr && data->GetReflectionDescriptorV().IsCompatible(_DataStruct_::GetReflectionDescriptor()));
+				if (_dataMatches == false)
+				{
+					OUTPUT_ERROR("Data item {}: holds {}, not {}", GetUid().ToString(), (data != nullptr) ? data->GetReflectionDescriptorV().GetTypeName() : String("nothing"),
+					             _DataStruct_::GetReflectionDescriptor().GetTypeName());
+				}
 			}
-			return std::shared_ptr<const _DataStruct_>(resource, static_cast<const _DataStruct_*>(data));
+			return _dataMatches ? static_cast<const _DataStruct_*>(data) : nullptr;
 		}
+
+	private:
+		mutable const DataItemResource* _checkedItem = nullptr;
+		mutable UID                     _checkedUid;
+		mutable bool                    _dataMatches = false;
 	};
 
 	template<typename _DataStruct_>

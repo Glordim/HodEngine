@@ -26,6 +26,7 @@ target_include_directories(TestsEditor
 target_link_libraries(TestsEditor
 	PRIVATE
 		Editor
+		GameEditor
 		GTest::gtest
 		GTest::gtest_main
 )

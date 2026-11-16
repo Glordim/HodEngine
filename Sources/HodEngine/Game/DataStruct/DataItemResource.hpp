@@ -3,11 +3,10 @@
 
 #include <HodEngine/GameSystems/Resource/Resource.hpp>
 #include "HodEngine/Game/DataStruct/DataStruct.hpp"
-#include "HodEngine/Game/DataStruct/DataItemContainer.hpp"
 
 namespace hod::inline game
 {
-	/// @brief
+	/// @brief A data item: one DataStruct, its type written with it (Serializer::SerializeWithType, the asset's "Settings" block as is)
 	class HOD_GAME_API DataItemResource : public Resource
 	{
 		REFLECTED_CLASS(DataItemResource, Resource)
@@ -16,7 +15,7 @@ namespace hod::inline game
 								DataItemResource() = default;
 								DataItemResource(const DataItemResource&) = delete;
 								DataItemResource(DataItemResource&&) = delete;
-								~DataItemResource() override = default;
+								~DataItemResource() override;
 
 		DataItemResource&	operator=(const DataItemResource&) = delete;
 		DataItemResource&	operator=(DataItemResource&&) = delete;
@@ -25,11 +24,11 @@ namespace hod::inline game
 
 		bool					Initialize(const ResourceContainer& resourceContainer) override;
 
-		/// @return Its data, null when its struct is unknown (its module not loaded)
-		DataStruct*			GetDataItem();
+		/// @return Its data
+		const DataStruct*	GetDataItem() const;
 
 	private:
 
-		DataItemContainer	_dataItemContainer;
+		DataStruct*			_data = nullptr;
 	};
 }

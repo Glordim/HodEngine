@@ -12,7 +12,9 @@
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 #include <HodEngine/Core/Document/DocumentWriterJson.hpp>
-#include <HodEngine/Core/Serialization/Serializer.hpp>
+#include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
+#include <HodEngine/Game/DataStruct/DataStruct.hpp>
+#include <HodEngine/Game/DataStruct/DataStructFactory.hpp>
 
 namespace hod::inline editor
 {
@@ -29,7 +31,7 @@ namespace hod::inline editor
 				DocumentReaderJson documentReader;
 				if (documentReader.Read(settingsDocument, *settingsDataBlock->_stream) == true)
 				{
-					Serializer::Deserialize(_dataTableContainer, settingsDocument.GetRootNode());
+					_readable = _data.Read(settingsDocument.GetRootNode());
 				}
 			}
 		}
@@ -42,9 +44,68 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
-	DataTableContainer& DataTableEditorTab::GetDataTableContainer()
+	DataTableAssetData& DataTableEditorTab::GetData()
 	{
-		return _dataTableContainer;
+		return _data;
+	}
+
+	/// @brief
+	/// @return
+	bool DataTableEditorTab::IsReadable() const
+	{
+		return _readable;
+	}
+
+	/// @brief
+	/// @param key
+	/// @return
+	DataStruct* DataTableEditorTab::FindRow(const String& key) const
+	{
+		for (const DataTableAssetData::Row& row : _data._rows)
+		{
+			if (row._key == key)
+			{
+				return row._data;
+			}
+		}
+		return nullptr;
+	}
+
+	/// @brief
+	/// @param key
+	/// @return
+	DataStruct* DataTableEditorTab::AddRow(const String& key)
+	{
+		if (_readable == false || FindRow(key) != nullptr)
+		{
+			return nullptr;
+		}
+
+		const ReflectionDescriptor* rowDescriptor = DataStructFactory::GetInstance()->FindReflectionDescriptor(_data._rowType);
+		if (rowDescriptor == nullptr)
+		{
+			return nullptr;
+		}
+
+		DataStruct* data = static_cast<DataStruct*>(rowDescriptor->CreateInstance());
+		_data._rows.PushBack(DataTableAssetData::Row {key, data});
+		return data;
+	}
+
+	/// @brief
+	/// @param key
+	void DataTableEditorTab::RemoveRow(const String& key)
+	{
+		for (uint32_t index = 0; index < _data._rows.Size(); ++index)
+		{
+			if (_data._rows[index]._key == key)
+			{
+				DataStruct* data = _data._rows[index]._data;
+				data->GetReflectionDescriptorV().DeleteInstance(data);
+				_data._rows.Erase(index);
+				return;
+			}
+		}
 	}
 
 	/// @brief
@@ -65,7 +126,7 @@ namespace hod::inline editor
 	/// @return
 	DataStruct* DataTableEditorTab::GetRowSelection() const
 	{
-		return const_cast<DataTableContainer&>(_dataTableContainer).FindRow(_rowSelectionKey);
+		return FindRow(_rowSelectionKey);
 	}
 
 	/// @brief
@@ -99,8 +160,13 @@ namespace hod::inline editor
 	/// @return
 	bool DataTableEditorTab::OnSave()
 	{
+		if (_readable == false)
+		{
+			return false; // Not read: its asset kept as it is
+		}
+
 		Document settingsDocument;
-		if (Serializer::Serialize(_dataTableContainer, settingsDocument.GetRootNode()) == false)
+		if (_data.Write(settingsDocument.GetRootNode()) == false)
 		{
 			return false;
 		}

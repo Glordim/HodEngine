@@ -7,15 +7,12 @@
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 #include "HodEngine/Game/DataStruct/DataStructFactory.hpp"
-#include "HodEngine/Game/DataStruct/DataTableContainer.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui_internal.h"
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
 
-#include <algorithm>
 #include <cstdint>
-#include <vector>
 
 namespace hod::inline editor
 {
@@ -33,7 +30,13 @@ namespace hod::inline editor
 	void DataTableEditorTableWindow::DrawContent()
 	{
 		DataTableEditorTab* editorTab = GetOwner<DataTableEditorTab>();
-		DataTableContainer& dataTableContainer = editorTab->GetDataTableContainer();
+		if (editorTab->IsReadable() == false)
+		{
+			ImGui::TextUnformatted("Its row type is unknown: its module isn't loaded");
+			return;
+		}
+
+		DataTableAssetData& data = editorTab->GetData();
 
 		bool changed = false;
 
@@ -41,25 +44,17 @@ namespace hod::inline editor
 		{
 			uint32_t suffix = 0;
 			String   newKey = "NewRow";
-			while (dataTableContainer.FindRow(newKey) != nullptr)
+			while (editorTab->FindRow(newKey) != nullptr)
 			{
 				++suffix;
 				newKey = String::Format("NewRow%u", suffix);
 			}
-			dataTableContainer.AddRow(newKey);
+			editorTab->AddRow(newKey);
 			editorTab->SetRowSelection(newKey);
 			changed = true;
 		}
 
-		std::vector<const String*> keys;
-		keys.reserve(dataTableContainer.GetRows().size());
-		for (const auto& pair : dataTableContainer.GetRows())
-		{
-			keys.push_back(&pair.first);
-		}
-		std::sort(keys.begin(), keys.end(), [](const String* left, const String* right) { return *left < *right; });
-
-		ReflectionDescriptor* reflectionDescriptor = DataStructFactory::GetInstance()->FindReflectionDescriptor(dataTableContainer.GetRowType());
+		ReflectionDescriptor* reflectionDescriptor = DataStructFactory::GetInstance()->FindReflectionDescriptor(data._rowType);
 		if (reflectionDescriptor != nullptr)
 		{
 			uint32_t columnCount = 1 + reflectionDescriptor->GetProperties().Size();
@@ -75,22 +70,20 @@ namespace hod::inline editor
 				const String& selectedKey = editorTab->GetRowSelectionKey();
 				const String* keyToDelete = nullptr;
 
-				DataTableContainer& dataTable = editorTab->GetDataTableContainer();
-
-				for (auto& pair : dataTable.GetRows())
+				for (DataTableAssetData::Row& row : data._rows)
 				{
-					ImGui::PushID(pair.first.CStr());
+					ImGui::PushID(row._key.CStr());
 					ImGui::TableNextRow();
 
 					ImGui::TableNextColumn();
-					pair.first.Reserve(255);
-					if (ImGui::InputText("##key", pair.first.Data(), pair.first.Capacity(), ImGuiInputTextFlags_EnterReturnsTrue))
+					row._key.Reserve(255);
+					if (ImGui::InputText("##key", row._key.Data(), row._key.Capacity(), ImGuiInputTextFlags_EnterReturnsTrue))
 					{
-						pair.first = pair.first.Data(); // refresh size
+						row._key = row._key.Data(); // refresh size
 						changed |= true;
 					}
 
-					EditorReflectedObject reflectedObject(pair.second, reflectionDescriptor, nullptr, this);
+					EditorReflectedObject reflectedObject(row._data, reflectionDescriptor, nullptr, this);
 					for (ReflectionProperty* reflectionProperty : reflectionDescriptor->GetProperties())
 					{
 						ImGui::TableNextColumn();
@@ -104,12 +97,12 @@ namespace hod::inline editor
 					ImGui::TableSetColumnIndex(0);
 					ImGuiTable* table = ImGui::GetCurrentTable();
 					float rowHeight = table->RowPosY2 - table->RowPosY1;
-					bool selected = (pair.first == selectedKey);
+					bool selected = (row._key == selectedKey);
 					if (ImGui::Selectable("##row_select", selected, 
 										ImGuiSelectableFlags_SpanAllColumns | ImGuiSelectableFlags_AllowOverlap, 
 										ImVec2(0, rowHeight - 20)))
 					{
-						editorTab->SetRowSelection(pair.first);
+						editorTab->SetRowSelection(row._key);
 					}
 
 					ImGui::PopID();
@@ -118,7 +111,7 @@ namespace hod::inline editor
 				if (keyToDelete != nullptr)
 				{
 					String deletedKey = *keyToDelete;
-					dataTableContainer.RemoveRow(deletedKey);
+					editorTab->RemoveRow(deletedKey);
 					if (editorTab->GetRowSelectionKey() == deletedKey)
 					{
 						editorTab->SetRowSelection("");

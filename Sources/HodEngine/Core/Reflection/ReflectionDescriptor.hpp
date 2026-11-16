@@ -4,6 +4,7 @@
 #include "HodEngine/Core/FunctionPtr.hpp"
 #include "HodEngine/Core/Vector.hpp"
 #include <cstdint>
+#include <new>
 #include <string_view>
 
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
@@ -24,7 +25,11 @@ namespace hod::inline core
 			ReflectionDescriptor*                       _parent = nullptr;
 			FunctionPtr<void*()>                        _allocateFunction = nullptr;
 			FunctionPtr<void(void*)>                    _deleteFunction = nullptr;
+			FunctionPtr<void(void*)>                    _constructAtFunction = nullptr;
+			FunctionPtr<void(void*)>                    _destroyAtFunction = nullptr;
 			FunctionPtr<bool(const void*, const void*)> _compareFunction = nullptr;
+			uint32_t                                    _size = 0;
+			uint32_t                                    _alignment = 0;
 		};
 
 		template<typename _Class_, typename _ParentClass_ = void>
@@ -78,6 +83,14 @@ namespace hod::inline core
 		template<typename _Type_>
 		_Type_* CreateInstance() const;
 
+		/// @brief Its size and alignment: instances laid out in a block of their own (an array of a type known at runtime), 0 for a descriptor without a class
+		uint32_t GetSize() const;
+		uint32_t GetAlignment() const;
+		/// @brief Default constructs an instance at this address (GetSize() bytes, aligned on GetAlignment()), CanCreateInstance() types only
+		void* ConstructAt(void* address) const;
+		/// @brief Destroys the instance constructed at this address by ConstructAt, without freeing it
+		void DestroyAt(void* instance) const;
+
 		void Copy(const void* sourceInstance, void* destinationInstance);
 
 		bool Compare(const void* left, const void* right) const;
@@ -100,7 +113,11 @@ namespace hod::inline core
 		ReflectionDescriptor*                       _parent = nullptr;
 		FunctionPtr<void*()>                        _allocateFunction = nullptr;
 		FunctionPtr<void(void*)>                    _deleteFunction = nullptr;
+		FunctionPtr<void(void*)>                    _constructAtFunction = nullptr;
+		FunctionPtr<void(void*)>                    _destroyAtFunction = nullptr;
 		FunctionPtr<bool(const void*, const void*)> _compareFunction = nullptr;
+		uint32_t                                    _size = 0;
+		uint32_t                                    _alignment = 0;
 
 		Vector<ReflectionTrait*>    _traits;
 		Vector<ReflectionProperty*> _properties;
@@ -121,6 +138,9 @@ namespace hod::inline core
 			data._parent = &_ParentClass_::GetReflectionDescriptor();
 		}
 
+		data._size = static_cast<uint32_t>(sizeof(_Class_));
+		data._alignment = static_cast<uint32_t>(alignof(_Class_));
+
 		if constexpr (std::is_abstract<_Class_>::value == true || std::is_default_constructible<_Class_>::value == false)
 		{
 			data._allocateFunction = nullptr;
@@ -130,6 +150,8 @@ namespace hod::inline core
 		{
 			data._allocateFunction = +[]() -> void* { return DefaultAllocator::GetInstance().New<_Class_>(); };
 			data._deleteFunction = +[](void* instance) { hod::DefaultAllocator::GetInstance().Delete(static_cast<_Class_*>(instance)); };
+			data._constructAtFunction = +[](void* address) { ::new (address) _Class_(); };
+			data._destroyAtFunction = +[](void* instance) { static_cast<_Class_*>(instance)->~_Class_(); };
 		}
 
 		if constexpr (HasEqualOperator<_Class_>::value)

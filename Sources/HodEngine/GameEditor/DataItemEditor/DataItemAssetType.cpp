@@ -9,7 +9,6 @@
 #include "HodEngine/Editor/Project.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
-#include <HodEngine/Game/DataStruct/DataItemContainer.hpp>
 #include <HodEngine/Game/DataStruct/DataItemResource.hpp>
 #include <HodEngine/Game/DataStruct/DataStruct.hpp>
 #include <HodEngine/Game/DataStruct/DataStructFactory.hpp>
@@ -82,9 +81,10 @@ namespace hod::inline editor
 				.execute =
 					[descriptor](const AssetBrowserWindow::Context& context)
 					{
-						DataItemContainer container(descriptor->CreateInstance<DataStruct>());
-						Document settingsDocument;
-						Serializer::Serialize(container, settingsDocument.GetRootNode());
+						DataStruct* data = descriptor->CreateInstance<DataStruct>();
+						Document    settingsDocument;
+						Serializer::SerializeWithType(*descriptor, data, settingsDocument.GetRootNode());
+						descriptor->DeleteInstance(data);
 
 						AssetContainer assetContainer;
 						assetContainer.SetAssetType(GetHash());

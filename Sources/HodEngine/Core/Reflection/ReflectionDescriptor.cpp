@@ -29,7 +29,11 @@ namespace hod::inline core
 	, _parent(data._parent)
 	, _allocateFunction(data._allocateFunction)
 	, _deleteFunction(data._deleteFunction)
+	, _constructAtFunction(data._constructAtFunction)
+	, _destroyAtFunction(data._destroyAtFunction)
 	, _compareFunction(data._compareFunction)
+	, _size(data._size)
+	, _alignment(data._alignment)
 	{
 	}
 
@@ -42,7 +46,11 @@ namespace hod::inline core
 		_parent = data._parent;
 		_allocateFunction = data._allocateFunction;
 		_deleteFunction = data._deleteFunction;
+		_constructAtFunction = data._constructAtFunction;
+		_destroyAtFunction = data._destroyAtFunction;
 		_compareFunction = data._compareFunction;
+		_size = data._size;
+		_alignment = data._alignment;
 	}
 
 	/// @brief
@@ -91,6 +99,38 @@ namespace hod::inline core
 	void ReflectionDescriptor::DeleteInstance(void* instance) const
 	{
 		_deleteFunction(instance);
+	}
+
+	/// @brief
+	/// @return
+	uint32_t ReflectionDescriptor::GetSize() const
+	{
+		return _size;
+	}
+
+	/// @brief
+	/// @return
+	uint32_t ReflectionDescriptor::GetAlignment() const
+	{
+		return _alignment;
+	}
+
+	/// @brief
+	/// @param address
+	/// @return The instance (address)
+	void* ReflectionDescriptor::ConstructAt(void* address) const
+	{
+		assert(_constructAtFunction != nullptr);
+		_constructAtFunction(address);
+		return address;
+	}
+
+	/// @brief
+	/// @param instance
+	void ReflectionDescriptor::DestroyAt(void* instance) const
+	{
+		assert(_destroyAtFunction != nullptr);
+		_destroyAtFunction(instance);
 	}
 
 	uint64_t ReflectionDescriptor::GetType() const

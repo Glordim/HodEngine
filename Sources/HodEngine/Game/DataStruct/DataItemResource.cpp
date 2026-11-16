@@ -1,5 +1,6 @@
 #include "HodEngine/Game/Pch.hpp"
 #include "HodEngine/Game/DataStruct/DataItemResource.hpp"
+#include "HodEngine/Game/DataStruct/DataStructFactory.hpp"
 
 #include "HodEngine/Core/Document/Document.hpp"
 #include "HodEngine/Core/Document/DocumentReaderJson.hpp"
@@ -10,6 +11,14 @@
 namespace hod::inline game
 {
 	DESCRIBE_REFLECTED_CLASS(DataItemResource) {}
+
+	DataItemResource::~DataItemResource()
+	{
+		if (_data != nullptr)
+		{
+			_data->GetReflectionDescriptorV().DeleteInstance(_data);
+		}
+	}
 
 	/// @brief
 	/// @return
@@ -30,9 +39,12 @@ namespace hod::inline game
 			return false;
 		}
 
-		if (Serializer::Deserialize(_dataItemContainer, settingsDocument.GetRootNode()) == false)
+		_data = Serializer::DeserializeWithType<DataStruct>(settingsDocument.GetRootNode(),
+		                                                    [](RttiType type) { return DataStructFactory::GetInstance()->FindReflectionDescriptor(type); });
+		if (_data == nullptr)
 		{
-			OUTPUT_ERROR("DataItemResource::Initialize: unable to deserialize 'Settings' data block");
+			OUTPUT_ERROR("DataItemResource::Initialize: unable to read its data (data struct {}, unknown when its module isn't loaded)",
+			             Serializer::ReadType(settingsDocument.GetRootNode()));
 			return false;
 		}
 
@@ -41,8 +53,8 @@ namespace hod::inline game
 
 	/// @brief
 	/// @return
-	DataStruct* DataItemResource::GetDataItem()
+	const DataStruct* DataItemResource::GetDataItem() const
 	{
-		return _dataItemContainer.GetData();
+		return _data;
 	}
 }

@@ -1,4 +1,5 @@
 #include "HodEngine/Core/Pch.hpp"
+#include "HodEngine/Core/Output/OutputService.hpp"
 #include "HodEngine/Core/Reflection/Rtti.hpp"
 #include "HodEngine/Core/Serialization/Serializer.hpp"
 
@@ -147,6 +148,69 @@ namespace hod::inline core
 	/// @param reflectionDescriptor
 	/// @param instance
 	/// @param documentNode
+	/// @return
+	bool Serializer::SerializeWithType(const ReflectionDescriptor& reflectionDescriptor, const void* instance, DocumentNode& documentNode)
+	{
+		documentNode.GetOrAddChild("Type").SetUInt64(reflectionDescriptor.GetType());
+		return Serializer::Serialize(reflectionDescriptor, instance, documentNode);
+	}
+
+	/// @brief
+	/// @param documentNode
+	/// @return
+	RttiType Serializer::ReadType(const DocumentNode& documentNode)
+	{
+		const DocumentNode* typeNode = documentNode.GetChild("Type");
+		return (typeNode != nullptr) ? typeNode->GetUInt64() : 0;
+	}
+
+	/// @brief
+	/// @param documentNode
+	/// @param findDescriptor
+	/// @param expectedBase
+	/// @return
+	void* Serializer::DeserializeWithType(const DocumentNode& documentNode, const std::function<const ReflectionDescriptor*(RttiType)>& findDescriptor,
+	                                      const ReflectionDescriptor& expectedBase)
+	{
+		RttiType type = ReadType(documentNode);
+		if (type == 0)
+		{
+			OUTPUT_ERROR("Serializer::DeserializeWithType: no type written (a {} expected)", expectedBase.GetTypeName());
+			return nullptr;
+		}
+
+		const ReflectionDescriptor* descriptor = findDescriptor(type);
+		if (descriptor == nullptr)
+		{
+			return nullptr; // Unknown: the caller decides
+		}
+
+		if (descriptor->IsCompatible(expectedBase) == false)
+		{
+			OUTPUT_ERROR("Serializer::DeserializeWithType: {} isn't a {}", descriptor->GetTypeName(), expectedBase.GetTypeName());
+			return nullptr;
+		}
+		if (descriptor->CanCreateInstance() == false)
+		{
+			OUTPUT_ERROR("Serializer::DeserializeWithType: {} can't be created", descriptor->GetTypeName());
+			return nullptr;
+		}
+
+		void* instance = descriptor->CreateInstance();
+		if (Serializer::Deserialize(*descriptor, instance, documentNode) == false)
+		{
+			OUTPUT_ERROR("Serializer::DeserializeWithType: unable to read a {}", descriptor->GetTypeName());
+			descriptor->DeleteInstance(instance);
+			return nullptr;
+		}
+		return instance;
+	}
+
+	/// @brief
+	/// @param reflectionDescriptor
+	/// @param instance
+	/// @param documentNode
+	/// @param customDeserializationCallback
 	/// @return
 	bool Serializer::Deserialize(const ReflectionDescriptor& reflectionDescriptor, void* instance, const DocumentNode& documentNode,
 	                             const std::function<bool(void*, const ReflectionDescriptor&, const DocumentNode&)>& customDeserializationCallback)

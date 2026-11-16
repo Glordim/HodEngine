@@ -13,7 +13,10 @@
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentReaderJson.hpp>
 #include <HodEngine/Core/Document/DocumentWriterJson.hpp>
+#include <HodEngine/Core/Output/OutputService.hpp>
+#include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
+#include <HodEngine/Game/DataStruct/DataStructFactory.hpp>
 #include <HodEngine/GameSystems/Resource/ResourceManager.hpp>
 
 namespace hod::inline editor
@@ -31,7 +34,13 @@ namespace hod::inline editor
 				DocumentReaderJson documentReader;
 				if (documentReader.Read(settingsDocument, *settingsDataBlock->_stream) == true)
 				{
-					Serializer::Deserialize(_dataItemContainer, settingsDocument.GetRootNode());
+					_data = Serializer::DeserializeWithType<DataStruct>(settingsDocument.GetRootNode(),
+					                                                    [](RttiType type) { return DataStructFactory::GetInstance()->FindReflectionDescriptor(type); });
+					if (_data == nullptr)
+					{
+						OUTPUT_ERROR("Data item {}: unable to read its data (data struct {}, unknown when its module isn't loaded)", asset->GetName(),
+						             Serializer::ReadType(settingsDocument.GetRootNode()));
+					}
 				}
 			}
 		}
@@ -40,13 +49,17 @@ namespace hod::inline editor
 	/// @brief
 	DataItemEditorTab::~DataItemEditorTab()
 	{
+		if (_data != nullptr)
+		{
+			_data->GetReflectionDescriptorV().DeleteInstance(_data);
+		}
 	}
 
 	/// @brief
 	/// @return
-	DataItemContainer& DataItemEditorTab::GetDataItemContainer()
+	DataStruct* DataItemEditorTab::GetDataItem()
 	{
-		return _dataItemContainer;
+		return _data;
 	}
 
 	/// @brief
@@ -85,8 +98,13 @@ namespace hod::inline editor
 	/// @return
 	bool DataItemEditorTab::OnSave()
 	{
+		if (_data == nullptr)
+		{
+			return false; // Not read: its asset kept as it is
+		}
+
 		Document settingsDocument;
-		if (Serializer::Serialize(_dataItemContainer, settingsDocument.GetRootNode()) == false)
+		if (Serializer::SerializeWithType(*_data, settingsDocument.GetRootNode()) == false)
 		{
 			return false;
 		}

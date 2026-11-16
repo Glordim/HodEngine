@@ -6,7 +6,7 @@
 #include <memory>
 #include "HodEngine/Core/Vector.hpp"
 
-#include "HodEngine/Game/DataStruct/DataTableContainer.hpp"
+#include "HodEngine/GameEditor/DataTableEditor/DataTableAssetData.hpp"
 
 namespace hod::inline editor
 {
@@ -17,7 +17,16 @@ namespace hod::inline editor
 				DataTableEditorTab(std::shared_ptr<Asset> asset);
 				~DataTableEditorTab() override;
 
-		DataTableContainer&	GetDataTableContainer();
+		/// @return What it edits. Its rows are valid when IsReadable()
+		DataTableAssetData&	GetData();
+		/// @return false when its asset couldn't be read (unknown row type): shown, not saved
+		bool				IsReadable() const;
+
+		/// @return The row of this key, null without it
+		DataStruct*		FindRow(const String& key) const;
+		/// @return The new row (default values) at the end, null when the key exists already
+		DataStruct*		AddRow(const String& key);
+		void			RemoveRow(const String& key);
 
 		void			SetRowSelection(const String& key);
 		const String&	GetRowSelectionKey() const;
@@ -32,7 +41,8 @@ namespace hod::inline editor
 
 	private:
 
-		DataTableContainer	_dataTableContainer;
+		DataTableAssetData	_data;
+		bool				_readable = false;
 		String				_rowSelectionKey;
 	};
 }

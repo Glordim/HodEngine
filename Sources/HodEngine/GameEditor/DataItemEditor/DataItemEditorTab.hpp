@@ -6,7 +6,7 @@
 #include <memory>
 #include "HodEngine/Core/Vector.hpp"
 
-#include "HodEngine/Game/DataStruct/DataItemContainer.hpp"
+#include "HodEngine/Game/DataStruct/DataStruct.hpp"
 
 namespace hod::inline editor
 {
@@ -17,7 +17,8 @@ namespace hod::inline editor
 				DataItemEditorTab(std::shared_ptr<Asset> asset);
 				~DataItemEditorTab() override;
 
-		DataItemContainer&	GetDataItemContainer();
+		/// @return Its data, null when its struct is unknown (its module not loaded)
+		DataStruct*	GetDataItem();
 
 	protected:
 
@@ -28,6 +29,6 @@ namespace hod::inline editor
 
 	private:
 
-		DataItemContainer	_dataItemContainer;
+		DataStruct*	_data = nullptr;
 	};
 }

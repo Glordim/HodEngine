@@ -9,7 +9,7 @@ namespace hod::inline editor
 	{
 	public:
 
-									DataTableCooker() = default;
+									DataTableCooker();
 									DataTableCooker(DataTableCooker&) = delete;
 									DataTableCooker(DataTableCooker&&) = delete;
 									~DataTableCooker() override = default;

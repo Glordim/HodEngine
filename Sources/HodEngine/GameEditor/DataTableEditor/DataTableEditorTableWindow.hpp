@@ -8,7 +8,7 @@
 
 namespace hod::inline editor
 {
-	/// @brief Displays the rows of a DataTableContainer in an ImGui table, letting the user select
+	/// @brief Displays the rows of a data table (DataTableAssetData) in an ImGui table, letting the user select
 	/// the row whose properties get shown in the DataTableEditorPropertiesWindow.
 	class HOD_GAME_EDITOR_API DataTableEditorTableWindow : public EditorTabWindow
 	{

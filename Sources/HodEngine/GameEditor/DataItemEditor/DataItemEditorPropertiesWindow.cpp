@@ -3,7 +3,6 @@
 
 #include "HodEngine/Editor/EditorTab.hpp"
 #include "HodEngine/GameEditor/DataItemEditor/DataItemEditorTab.hpp"
-#include "HodEngine/Game/DataStruct/DataItemContainer.hpp"
 #include "HodEngine/Game/DataStruct/DataStruct.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -46,9 +45,14 @@ namespace hod::inline editor
 	void DataItemEditorPropertiesWindow::DrawContent()
 	{
 		bool changed = false;
-		DataItemContainer& dataItemContainer = GetOwner<DataItemEditorTab>()->GetDataItemContainer();
+		DataStruct* data = GetOwner<DataItemEditorTab>()->GetDataItem();
+		if (data == nullptr)
+		{
+			ImGui::TextUnformatted("Its data struct is unknown: its module isn't loaded");
+			return;
+		}
 
-		EditorReflectedObject reflectedObject(dataItemContainer.GetData(), &dataItemContainer.GetData()->GetReflectionDescriptorV(), nullptr, this);
+		EditorReflectedObject reflectedObject(data, &data->GetReflectionDescriptorV(), nullptr, this);
 		changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
 
 		if (changed)
