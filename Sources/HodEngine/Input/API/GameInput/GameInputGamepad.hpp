@@ -29,7 +29,7 @@ namespace hod::inline input
 
 		bool ApplyFeedback(Feedback& feedback) override;
 
-		void Vibrate(float left, float right);
+		void Vibrate(float left, float right, float leftTrigger = 0.0f, float rightTrigger = 0.0f);
 
 		void WriteState(const ::GameInput::v4::GameInputGamepadState& gamepadState);
 		void ClearState();

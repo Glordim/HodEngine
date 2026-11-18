@@ -22,8 +22,82 @@ namespace hod::inline editor
 		SetTitle(fmt::format("{} {}", deviceTypeToIcon[(uint8_t)device->GetType()], device->GetName()));
 	}
 
+	DeviceWindow::~DeviceWindow()
+	{
+		StopVibration();
+	}
+
+	/// @brief Stops the vibration started from the window, if any
+	void DeviceWindow::StopVibration()
+	{
+		if (_vibrating)
+		{
+			FeedbackVibration stop;
+			stop._left = 0.0f;
+			stop._right = 0.0f;
+			stop._leftTrigger = 0.0f;
+			stop._rightTrigger = 0.0f;
+			_device->ApplyFeedback(stop);
+			_vibrating = false;
+		}
+	}
+
+	/// @brief The feedbacks of a gamepad: its motors' speeds, applied while started (changed live), stopped with the window
+	void DeviceWindow::DrawFeedbacks()
+	{
+		if (ImGui::CollapsingHeader("Feedbacks") == false)
+		{
+			return;
+		}
+
+		ImGui::BeginDisabled(_device->IsConnected() == false);
+
+		bool changed = false;
+		changed |= ImGui::SliderFloat("Left (low frequency)", &_vibration._left, 0.0f, 1.0f);
+		changed |= ImGui::SliderFloat("Right (high frequency)", &_vibration._right, 0.0f, 1.0f);
+		changed |= ImGui::SliderFloat("Left Trigger", &_vibration._leftTrigger, 0.0f, 1.0f);
+		changed |= ImGui::SliderFloat("Right Trigger", &_vibration._rightTrigger, 0.0f, 1.0f);
+
+		if (_vibrating == false)
+		{
+			if (ImGui::Button(ICON_MDI_VIBRATE " Start"))
+			{
+				_vibrationSupported = _device->ApplyFeedback(_vibration);
+				_vibrating = _vibrationSupported;
+			}
+		}
+		else
+		{
+			if (changed)
+			{
+				_device->ApplyFeedback(_vibration);
+			}
+			if (ImGui::Button(ICON_MDI_STOP " Stop"))
+			{
+				StopVibration();
+			}
+		}
+
+		ImGui::EndDisabled();
+
+		if (_device->IsConnected() == false)
+		{
+			_vibrating = false; // Nothing to stop anymore
+			ImGui::TextDisabled("Disconnected");
+		}
+		else if (_vibrationSupported == false)
+		{
+			ImGui::TextDisabled("Vibration not supported by this device");
+		}
+	}
+
 	void DeviceWindow::DrawContent()
 	{
+		if (_device->GetType() == Device::Type::PAD)
+		{
+			DrawFeedbacks();
+		}
+
 		if (ImGui::CollapsingHeader("Raw State"))
 		{
 			const State*   state = _device->GetCurrentState();

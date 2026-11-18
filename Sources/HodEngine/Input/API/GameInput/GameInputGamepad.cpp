@@ -122,20 +122,24 @@ namespace hod::inline input
 		if (feedback.GetRttiType() == FeedbackVibration::GetRttiTypeStatic())
 		{
 			FeedbackVibration& feedbackVibration = static_cast<FeedbackVibration&>(feedback);
-			Vibrate(feedbackVibration._left, feedbackVibration._right);
+			Vibrate(feedbackVibration._left, feedbackVibration._right, feedbackVibration._leftTrigger, feedbackVibration._rightTrigger);
 			return true;
 		}
 		return false;
 	}
 
-	/// @brief
-	/// @param left The low frequency motor, in [0, 1]
-	/// @param right The high frequency motor, in [0, 1]
-	void GameInputGamepad::Vibrate(float left, float right)
+	/// @brief Each motor's speed in [0, 1], those the gamepad doesn't have ignored
+	/// @param left The low frequency motor
+	/// @param right The high frequency motor
+	/// @param leftTrigger The left trigger's motor
+	/// @param rightTrigger The right trigger's motor
+	void GameInputGamepad::Vibrate(float left, float right, float leftTrigger, float rightTrigger)
 	{
 		GameInputRumbleParams params = {};
 		params.lowFrequency = left;
 		params.highFrequency = right;
+		params.leftTrigger = leftTrigger;
+		params.rightTrigger = rightTrigger;
 		_device->SetRumbleState(&params);
 	}
 
