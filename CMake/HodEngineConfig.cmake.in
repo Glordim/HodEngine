@@ -97,6 +97,19 @@ if(WIN32 AND NOT TARGET WindowsHModular::WindowsHModular)
 	)
 endif()
 
+# GameInput: linked by Input (static variant), its runtime deployed next to the game's executable by hod_deploy_runtime_files
+if(WIN32 AND NOT TARGET GameInput::GameInput)
+	add_library(GameInput::GameInput STATIC IMPORTED)
+	set_target_properties(GameInput::GameInput PROPERTIES
+		IMPORTED_LOCATION "${_HOD_DEPS_DIR}/lib/GameInput.lib"
+		INTERFACE_INCLUDE_DIRECTORIES "${_HOD_DEPS_DIR}/include/GameInput"
+	)
+endif()
+if(WIN32)
+	set_property(GLOBAL PROPERTY HOD_GAMEINPUT_REDIST_DLL "${_HOD_DEPS_DIR}/GameInput/GameInputRedist.dll")
+	set_property(GLOBAL PROPERTY HOD_GAMEINPUT_LICENSE_FILES "${_HOD_DEPS_DIR}/GameInput/LICENSE.txt;${_HOD_DEPS_DIR}/GameInput/NOTICE.txt")
+endif()
+
 if(NOT APPLE AND NOT ANDROID)
 	find_package(VulkanHeaders REQUIRED CONFIG
 		PATHS "${_HOD_DEPS_DIR}/share/cmake"
@@ -162,6 +175,22 @@ function(hod_deploy_runtime_files target)
 				DESTINATION "ValidationLayers"
 			)
 		endif()
+	endif()
+
+	if(WIN32)
+		# GameInput's runtime, next to the executable (the most recent of the system's and this one is taken), its license with the game
+		get_property(_gameInputDll GLOBAL PROPERTY HOD_GAMEINPUT_REDIST_DLL)
+		get_property(_gameInputLicenses GLOBAL PROPERTY HOD_GAMEINPUT_LICENSE_FILES)
+		add_custom_command(TARGET ${target} POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${_gameInputDll}" "$<TARGET_FILE_DIR:${target}>/"
+			COMMENT "Deploying GameInput's runtime"
+		)
+		install(FILES "${_gameInputDll}"
+			DESTINATION "."
+		)
+		install(FILES ${_gameInputLicenses}
+			DESTINATION "ThirdPartyLicenses/GameInput"
+		)
 	endif()
 endfunction()
 

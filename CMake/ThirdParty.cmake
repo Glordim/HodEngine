@@ -187,6 +187,28 @@ if(WIN32)
 	)
 endif()
 
+# GameInput (Windows only): its header, GameInput.lib (a loader, static) and its runtime, GameInputRedist.dll, deployed next to the
+# executables (GAMEINPUT_REDIST_DLL): the loader takes the most recent of the system's and this one, nothing to install
+if(WIN32)
+	add_library(GameInput::GameInput STATIC IMPORTED GLOBAL)
+	set_target_properties(GameInput::GameInput PROPERTIES
+		IMPORTED_LOCATION "${THIRDPARTY_ROOT}/GameInput/lib/GameInput.lib"
+		INTERFACE_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/GameInput/include"
+		INTERFACE_SYSTEM_INCLUDE_DIRECTORIES "${THIRDPARTY_ROOT}/GameInput/include"
+	)
+	set(GAMEINPUT_REDIST_DLL "${THIRDPARTY_ROOT}/GameInput/bin/GameInputRedist.dll")
+
+	install(FILES "${THIRDPARTY_ROOT}/GameInput/lib/GameInput.lib"
+		DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/lib"
+	)
+	install(DIRECTORY "${THIRDPARTY_ROOT}/GameInput/include/"
+		DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/include/GameInput"
+	)
+	install(FILES "${GAMEINPUT_REDIST_DLL}" "${THIRDPARTY_ROOT}/GameInput/LICENSE.txt" "${THIRDPARTY_ROOT}/GameInput/NOTICE.txt"
+		DESTINATION "${HOD_PLATFORM_SUBDIR}/deps/GameInput"
+	)
+endif()
+
 if(NOT APPLE AND NOT ANDROID)
 	find_package(VulkanHeaders REQUIRED CONFIG
 		PATHS "${THIRDPARTY_ROOT}/VulkanHeaders/share/cmake"

@@ -28,7 +28,18 @@ if (APPLE)
 	target_link_libraries(Input PRIVATE "-framework GameController")
 endif()
 if (WIN32)
-	target_link_libraries(Input PRIVATE WindowsHModular::WindowsHModular)
+	target_link_libraries(Input PRIVATE WindowsHModular::WindowsHModular GameInput::GameInput)
+
+	# GameInput's runtime next to the engine's executables (the editor, the tests), the applications' by hod_deploy_runtime_files
+	if(BUILD_SHARED_LIBS)
+		add_custom_command(TARGET Input POST_BUILD
+			COMMAND ${CMAKE_COMMAND} -E copy_if_different "${GAMEINPUT_REDIST_DLL}" "$<TARGET_FILE_DIR:Input>/"
+			COMMENT "Copying GameInput's runtime to output directory"
+		)
+		install(FILES "${GAMEINPUT_REDIST_DLL}"
+			DESTINATION "${HOD_PLATFORM_SUBDIR}/${HOD_LIB_TYPE_SUBDIR}/bin"
+		)
+	endif()
 endif()
 if(ANDROID)
 	find_library(android-lib android)

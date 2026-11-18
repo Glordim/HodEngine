@@ -25,6 +25,7 @@ namespace hod::inline input
 		{
 			RAW_INPUT = 1000,
 			XINPUT = 2000,
+			GAMEINPUT = 3000,
 			COUNT
 		};
 

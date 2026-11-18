@@ -1,6 +1,7 @@
 #include "HodEngine/Input/Pch.hpp"
 #include "HodEngine/Input/InputManager.hpp"
 // #include "HodEngine/Input/API/RawInput/RawInputApi.hpp"
+#include "HodEngine/Input/API/GameInput/GameInputApi.hpp"
 #include "HodEngine/Input/API/WindowLib/WindowLibApi.hpp"
 #include "HodEngine/Input/API/XInput/XInputApi.hpp"
 
@@ -14,9 +15,14 @@ namespace hod::inline input
 		{
 			return false;
 		}
-		if (CreateApi<XInputApi>() == false)
+		// The gamepads: GameInput, XInput without its runtime
+		if (CreateApi<GameInputApi>() == false)
 		{
-			return false;
+			OUTPUT_MESSAGE("Gamepads through XInput");
+			if (CreateApi<XInputApi>() == false)
+			{
+				return false;
+			}
 		}
 		return true;
 	}
