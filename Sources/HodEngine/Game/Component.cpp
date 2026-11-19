@@ -75,6 +75,15 @@ namespace hod::inline game
 		return (owner != nullptr) ? owner->GetComponentInParent(descriptor) : nullptr;
 	}
 
+	/// @brief
+	/// @param descriptor
+	/// @return
+	Component* Component::GetComponentInChildren(const ReflectionDescriptor& descriptor) const
+	{
+		Entity* owner = GetOwner();
+		return (owner != nullptr) ? owner->GetComponentInChildren(descriptor) : nullptr;
+	}
+
 	/// @brief 
 	/// @return 
 	Scene* Component::GetScene() const

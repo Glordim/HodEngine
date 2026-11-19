@@ -150,6 +150,14 @@ namespace hod::inline game
 		_Component_* GetComponentInParent();
 		Component*   GetComponentInParent(const ReflectionDescriptor& descriptor);
 
+		/// @brief Its own first, then down its descendants (depth first, in their order, inactive ones included)
+		/// @warning Avoid it: it walks the whole subtree on each call (slow, the more so the bigger the hierarchy) and the one found depends
+		/// on the hierarchy's order (a child added or moved, by a designer or at runtime, silently changes it). Never in an update. Prefer a
+		/// reference set in the editor (a WeakComponent<T> property), or, at least, find it once (OnAwake) and keep it
+		template<typename _Component_>
+		_Component_* GetComponentInChildren();
+		Component*   GetComponentInChildren(const ReflectionDescriptor& descriptor);
+
 		/// @brief Returns the one already there if any. Otherwise adds first the components it requires that are missing
 		/// (ReflectionTraitRequireComponent, recursively, see GetMissingRequiredComponents), then it.
 		template<typename _Component_>

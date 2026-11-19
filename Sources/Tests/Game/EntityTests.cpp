@@ -110,6 +110,34 @@ namespace hod
 		DefaultAllocator::GetInstance().Delete(child);
 	}
 
+	// Its entity's first, then down depth first: a grandchild of the first child before the second child
+	TEST_F(EntityTest, ComponentGetsTheComponentsDownItsHierarchy)
+	{
+		TrackedComponent* tracked = _entity->AddComponent<TrackedComponent>();
+
+		Entity* first = DefaultAllocator::GetInstance().New<Entity>("First");
+		Entity* grandchild = DefaultAllocator::GetInstance().New<Entity>("Grandchild");
+		Entity* second = DefaultAllocator::GetInstance().New<Entity>("Second");
+		first->SetParent(_entity);
+		grandchild->SetParent(first);
+		second->SetParent(_entity);
+		EXPECT_EQ(tracked->GetComponentInChildren<OtherComponent>(), nullptr);
+
+		OtherComponent* secondOther = second->AddComponent<OtherComponent>();
+		EXPECT_EQ(tracked->GetComponentInChildren<OtherComponent>(), secondOther);
+
+		OtherComponent* grandchildOther = grandchild->AddComponent<OtherComponent>();
+		EXPECT_EQ(tracked->GetComponentInChildren<OtherComponent>(), grandchildOther); // Depth first
+		EXPECT_EQ(tracked->GetComponentInChildren(OtherComponent::GetReflectionDescriptor()), grandchildOther);
+
+		OtherComponent* ownOther = _entity->AddComponent<OtherComponent>();
+		EXPECT_EQ(tracked->GetComponentInChildren<OtherComponent>(), ownOther); // Its entity's first
+
+		DefaultAllocator::GetInstance().Delete(second);
+		DefaultAllocator::GetInstance().Delete(grandchild);
+		DefaultAllocator::GetInstance().Delete(first);
+	}
+
 	// The children as Entity*, in their order: iterated, by index, copied
 	TEST_F(EntityTest, ChildrenAsEntities)
 	{

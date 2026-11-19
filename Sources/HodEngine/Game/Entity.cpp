@@ -181,6 +181,31 @@ namespace hod::inline game
 	/// @brief
 	/// @param descriptor
 	/// @return
+	Component* Entity::GetComponentInChildren(const ReflectionDescriptor& descriptor)
+	{
+		Component* component = GetComponent(descriptor);
+		if (component != nullptr)
+		{
+			return component;
+		}
+
+		for (const WeakEntity& child : _children)
+		{
+			if (Entity* childEntity = child.Lock())
+			{
+				component = childEntity->GetComponentInChildren(descriptor);
+				if (component != nullptr)
+				{
+					return component;
+				}
+			}
+		}
+		return nullptr;
+	}
+
+	/// @brief
+	/// @param descriptor
+	/// @return
 	Component* Entity::AddComponent(const ReflectionDescriptor& descriptor)
 	{
 		Component* existingComponent = GetComponent(descriptor);

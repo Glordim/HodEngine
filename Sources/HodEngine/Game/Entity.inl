@@ -22,6 +22,13 @@ namespace hod::inline game
 	}
 
 	template<typename _Component_>
+	_Component_* Entity::GetComponentInChildren()
+	{
+		static_assert(std::is_base_of<Component, _Component_>::value, "_Component_ must derive from Component to use GetComponentInChildren()");
+		return static_cast<_Component_*>(GetComponentInChildren(_Component_::GetReflectionDescriptor()));
+	}
+
+	template<typename _Component_>
 	_Component_* Entity::AddComponent()
 	{
 		static_assert(std::is_base_of<Component, _Component_>::value, "_Component_ must derive from Component to use AddComponent()");

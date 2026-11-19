@@ -39,6 +39,14 @@ namespace hod::inline game
 		_Component_*			GetComponentInParent() const;
 		Component*				GetComponentInParent(const ReflectionDescriptor& descriptor) const;
 
+		/// @brief Its entity's first, then down its descendants (see Entity::GetComponentInChildren)
+		/// @warning Avoid it: it walks the whole subtree on each call (slow, the more so the bigger the hierarchy) and the one found depends
+		/// on the hierarchy's order (a child added or moved, by a designer or at runtime, silently changes it). Never in an update. Prefer a
+		/// reference set in the editor (a WeakComponent<T> property), or, at least, find it once (OnAwake) and keep it
+		template<typename _Component_>
+		_Component_*			GetComponentInChildren() const;
+		Component*				GetComponentInChildren(const ReflectionDescriptor& descriptor) const;
+
 		void					SetEnabled(bool enabled);
 		bool					GetEnabled() const;
 		bool					IsEnabledInHierarchy() const;
@@ -127,5 +135,16 @@ namespace hod::inline game
 		static_assert(std::is_base_of<Component, _Component_>::value, "_Component_ must derive from Component to use GetComponentInParent()");
 		Entity* owner = GetOwner();
 		return (owner != nullptr) ? owner->GetComponentInParent<_Component_>() : nullptr;
+	}
+
+	/// @brief
+	/// @tparam _Component_
+	/// @return
+	template<typename _Component_>
+	_Component_* Component::GetComponentInChildren() const
+	{
+		static_assert(std::is_base_of<Component, _Component_>::value, "_Component_ must derive from Component to use GetComponentInChildren()");
+		Entity* owner = GetOwner();
+		return (owner != nullptr) ? owner->GetComponentInChildren<_Component_>() : nullptr;
 	}
 }
