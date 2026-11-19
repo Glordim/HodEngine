@@ -1,11 +1,10 @@
 #include "HodEngine/UIEditor/Pch.hpp"
-#include "HodEngine/UIEditor/CustomComponentDrawer/UIComponentCustomComponentDrawer.hpp"
+#include "HodEngine/UIEditor/ComponentInspector/UIComponentInspector.hpp"
 
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 #include "HodEngine/Editor/PropertyDrawer.hpp"
 
 #include <HodEngine/Core/Reflection/ReflectionProperty.hpp>
-#include <HodEngine/UIComponents/Components/UIComponent.hpp>
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
 #include <cstring>
@@ -13,17 +12,17 @@
 namespace hod::inline editor
 {
 	/// @brief
+	/// @param uiComponents
 	/// @param reflectedObject
 	/// @return
-	bool UIComponentCustomComponentDrawer::OnDrawInspector(EditorReflectedObject& reflectedObject)
+	bool UIComponentInspector::OnDraw(const Vector<UIComponent*>& uiComponents, EditorReflectedObject& reflectedObject)
 	{
 		// Every property for a multi-selection mixing the modes
 		bool showScreen = false;
 		bool showWorld = false;
 		bool overrideScaler = true;
-		for (void* instance : reflectedObject.GetInstances())
+		for (const UIComponent* uiComponent : uiComponents)
 		{
-			const UIComponent* uiComponent = static_cast<const UIComponent*>(instance);
 			showScreen |= (uiComponent->GetRenderMode() == UIComponent::RenderMode::Screen);
 			showWorld |= (uiComponent->GetRenderMode() == UIComponent::RenderMode::World);
 			overrideScaler &= uiComponent->GetOverrideScaler();

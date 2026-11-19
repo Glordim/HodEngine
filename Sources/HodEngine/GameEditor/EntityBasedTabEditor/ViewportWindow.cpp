@@ -35,8 +35,8 @@
 #include "HodEngine/Game/Scene.hpp"
 #include "HodEngine/Game/World.hpp"
 
-#include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawer.hpp"
-#include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
+#include "HodEngine/GameEditor/ComponentGizmo/ComponentGizmo.hpp"
+#include "HodEngine/GameEditor/ComponentGizmo/ComponentGizmoRegistry.hpp"
 
 #include "HodEngine/GameEditor/EntityBasedTabEditor/ViewportDebugView.hpp"
 #include "HodEngine/GameEditor/EntityBasedTabEditor/ViewportWorldRenderer.hpp"
@@ -453,7 +453,7 @@ namespace hod::inline editor
 
 				DrawWorld(*renderView);
 
-				// The gizmos: their handles for the active entity only (a drawer has one set of handles). Its move moves the other selected
+				// The gizmos: their handles for the active entity only (a gizmo has one set of handles). Its move moves the other selected
 				// entities along (see MoveSelectionAlong).
 				Entity* activeEntity = GetOwner<EntityEditorTab>()->GetEntitySelection();
 				Vector2 activeMove = Vector2::Zero;
@@ -469,10 +469,10 @@ namespace hod::inline editor
 						{
 							if (component->IsEnabledInHierarchy())
 							{
-								CustomComponentDrawer* drawer = CustomComponentDrawerRegistry::Find(component->GetReflectionDescriptorV());
-								if (drawer != nullptr)
+								ComponentGizmoBase* gizmo = ComponentGizmoRegistry::Find(component->GetReflectionDescriptorV());
+								if (gizmo != nullptr)
 								{
-									if (drawer->OnDrawGizmo(component, *this, active))
+									if (gizmo->Draw(*component, *this, active))
 									{
 										GetOwner()->MarkAsDirty(fmt::format("Edit {}", GetComponentDisplayName(component->GetReflectionDescriptorV())));
 									}

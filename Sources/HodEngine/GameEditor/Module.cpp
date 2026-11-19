@@ -13,8 +13,9 @@
 #include "HodEngine/GameEditor/CustomPropertyDrawer/ZOrderCustomPropertyDrawer.hpp"
 #include "HodEngine/GameEditor/CustomPropertyDrawer/WeakComponentCustomPropertyDrawer.hpp"
 
-#include "HodEngine/GameEditor/CustomComponentDrawer/Node2dCustomComponentDrawer.hpp"
-#include "HodEngine/GameEditor/CustomComponentDrawer/MissingComponentCustomComponentDrawer.hpp"
+#include "HodEngine/GameEditor/ComponentGizmo/Node2dGizmo.hpp"
+#include "HodEngine/GameEditor/ComponentInspector/MissingComponentInspector.hpp"
+#include "HodEngine/GameEditor/GameEditorRegistrar.hpp"
 
 #include "HodEngine/GameEditor/DataItemEditor/DataItemAssetType.hpp"
 #include "HodEngine/GameEditor/DataTableEditor/DataTableAssetType.hpp"
@@ -31,8 +32,9 @@ namespace hod::inline game
 		editorRegistrar.RegisterCustomPropertyDrawer<ZOrder, ZOrderCustomPropertyDrawer>();
 		editorRegistrar.RegisterCustomPropertyDrawer<WeakComponentBase, WeakComponentCustomPropertyDrawer>();
 
-		editorRegistrar.RegisterCustomComponentDrawer<Node2dComponent, Node2dCustomComponentDrawer>();
-		editorRegistrar.RegisterCustomComponentDrawer<MissingComponent, MissingComponentCustomComponentDrawer>();
+		GameEditorRegistrar gameEditorRegistrar(registration);
+		gameEditorRegistrar.RegisterComponentGizmo<Node2dGizmo>();
+		gameEditorRegistrar.RegisterComponentInspector<MissingComponentInspector>();
 
 		editorRegistrar.RegisterAssetType<SceneAssetType>();
 		editorRegistrar.RegisterAssetType<PrefabAssetType>();

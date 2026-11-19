@@ -13,8 +13,8 @@
 #include "HodEngine/RendererEditor/TextureEditor/TextureAssetType.hpp"
 #include "HodEngine/RendererEditor/TextureEditor/TextureImporter.hpp"
 
-#include "HodEngine/RendererEditor/CustomComponentDrawer/CameraCustomComponentDrawer.hpp"
-#include "HodEngine/RendererEditor/CustomComponentDrawer/TextureRendererCustomComponentDrawer.hpp"
+#include "HodEngine/RendererEditor/ComponentGizmo/CameraGizmo.hpp"
+#include "HodEngine/RendererEditor/ComponentGizmo/TextureRendererGizmo.hpp"
 
 #include <HodEngine/GameEditor/GameEditorRegistrar.hpp>
 #include <HodEngine/RendererComponents/Components/CameraComponent.hpp>
@@ -51,12 +51,6 @@ namespace hod::inline renderer
 	HOD_STARTUP_MODULE(RendererEditor, registration)
 	{
 		EditorRegistrar editorRegistrar(registration);
-		editorRegistrar.RegisterCustomComponentDrawer<CameraComponent, CameraCustomComponentDrawer>();
-		editorRegistrar.RegisterCustomComponentDrawer<TextureRendererComponent, TextureRendererCustomComponentDrawer>();
-
-		GameEditorRegistrar gameEditorRegistrar(registration);
-		gameEditorRegistrar.SetViewportWorldRenderer(&DrawWorldInViewport, &SetupPlayCameraInViewport);
-
 		// The importers after the types they import into, only if registered: an importer producing several types would need them all
 		if (editorRegistrar.RegisterAssetType<TextureAssetType>())
 		{
@@ -75,6 +69,12 @@ namespace hod::inline renderer
 
 		editorRegistrar.RegisterAssetType<FontAssetType>();
 		editorRegistrar.RegisterAssetType<MaterialInstanceAssetType>();
+
+		GameEditorRegistrar gameEditorRegistrar(registration);
+		gameEditorRegistrar.RegisterComponentGizmo<CameraGizmo>();
+		gameEditorRegistrar.RegisterComponentGizmo<TextureRendererGizmo>();
+		gameEditorRegistrar.SetViewportWorldRenderer(&DrawWorldInViewport, &SetupPlayCameraInViewport);
+
 		return true;
 	}
 }

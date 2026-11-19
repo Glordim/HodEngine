@@ -17,7 +17,6 @@
 #include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
-#include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawer.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 

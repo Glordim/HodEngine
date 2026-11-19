@@ -308,6 +308,7 @@ function(hod_add_project_editor_module name runtimeModule)
 	target_link_libraries(${name} PUBLIC
 		${runtimeModule}::${runtimeModule}
 		HodEngine::Editor
+		HodEngine::GameEditor
 	)
 
 	string(TOUPPER "${runtimeModule}_EDITOR_EXPORT" exportDefinition)

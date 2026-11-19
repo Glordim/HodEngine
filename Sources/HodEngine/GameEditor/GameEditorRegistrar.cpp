@@ -1,5 +1,7 @@
 #include "HodEngine/GameEditor/Pch.hpp"
 #include "HodEngine/GameEditor/GameEditorRegistrar.hpp"
+#include "HodEngine/GameEditor/ComponentGizmo/ComponentGizmoRegistry.hpp"
+#include "HodEngine/GameEditor/ComponentInspector/ComponentInspectorRegistry.hpp"
 #include "HodEngine/GameEditor/EntityBasedTabEditor/ViewportDebugView.hpp"
 
 namespace hod::inline editor
@@ -9,6 +11,34 @@ namespace hod::inline editor
 	GameEditorRegistrar::GameEditorRegistrar(ModuleRegistration& registration)
 	: _registration(registration)
 	{
+	}
+
+	/// @brief
+	/// @param descriptor
+	/// @param gizmo
+	/// @return
+	bool GameEditorRegistrar::RegisterComponentGizmo(const ReflectionDescriptor& descriptor, ComponentGizmoBase* gizmo)
+	{
+		if (ComponentGizmoRegistry::Register(descriptor, gizmo) == false)
+		{
+			return false;
+		}
+		_registration.AddUnregister([&descriptor]() { ComponentGizmoRegistry::Unregister(descriptor); });
+		return true;
+	}
+
+	/// @brief
+	/// @param descriptor
+	/// @param inspector
+	/// @return
+	bool GameEditorRegistrar::RegisterComponentInspector(const ReflectionDescriptor& descriptor, ComponentInspectorBase* inspector)
+	{
+		if (ComponentInspectorRegistry::Register(descriptor, inspector) == false)
+		{
+			return false;
+		}
+		_registration.AddUnregister([&descriptor]() { ComponentInspectorRegistry::Unregister(descriptor); });
+		return true;
 	}
 
 	/// @brief

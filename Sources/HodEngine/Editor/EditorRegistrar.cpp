@@ -1,7 +1,6 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/EditorRegistrar.hpp"
 #include "HodEngine/Editor/AssetType.hpp"
-#include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
 #include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawerRegistry.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/VersionControl/VersionControl.hpp"
@@ -85,19 +84,6 @@ namespace hod::inline editor
 			return false;
 		}
 		_registration.AddUnregister([&descriptor]() { CustomPropertyDrawerRegistry::Unregister(descriptor); });
-		return true;
-	}
-
-	/// @brief
-	/// @param descriptor
-	/// @param drawer
-	bool EditorRegistrar::RegisterCustomComponentDrawer(const ReflectionDescriptor& descriptor, CustomComponentDrawer* drawer)
-	{
-		if (CustomComponentDrawerRegistry::Register(descriptor, drawer) == false)
-		{
-			return false;
-		}
-		_registration.AddUnregister([&descriptor]() { CustomComponentDrawerRegistry::Unregister(descriptor); });
 		return true;
 	}
 

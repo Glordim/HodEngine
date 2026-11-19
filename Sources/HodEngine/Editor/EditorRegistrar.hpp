@@ -19,7 +19,6 @@ namespace hod::inline editor
 {
 	class AssetType;
 	class CustomPropertyDrawer;
-	class CustomComponentDrawer;
 	class VersionControlProvider;
 
 	/// @brief The registrar of the editor (see ModuleRegistration): importers, asset types, asset browser actions, drawers, windows, version
@@ -50,12 +49,6 @@ namespace hod::inline editor
 		bool RegisterCustomPropertyDrawer();
 		/// @param drawer Owned by the registry, deleted right away if refused
 		bool RegisterCustomPropertyDrawer(const ReflectionDescriptor& descriptor, CustomPropertyDrawer* drawer);
-
-		/// @return false (with an error) if the type has a drawer already
-		template<typename _Type_, typename _Drawer_>
-		bool RegisterCustomComponentDrawer();
-		/// @param drawer Owned by the registry, deleted right away if refused
-		bool RegisterCustomComponentDrawer(const ReflectionDescriptor& descriptor, CustomComponentDrawer* drawer);
 
 		/// @brief See PropertyDrawer::EnumValuePreview
 		/// @return false (with an error) if the enum has a preview already (from another module)
@@ -110,12 +103,6 @@ namespace hod::inline editor
 	bool EditorRegistrar::RegisterCustomPropertyDrawer()
 	{
 		return RegisterCustomPropertyDrawer(_Type_::GetReflectionDescriptor(), DefaultAllocator::GetInstance().New<_Drawer_>());
-	}
-
-	template<typename _Type_, typename _Drawer_>
-	bool EditorRegistrar::RegisterCustomComponentDrawer()
-	{
-		return RegisterCustomComponentDrawer(_Type_::GetReflectionDescriptor(), DefaultAllocator::GetInstance().New<_Drawer_>());
 	}
 
 	template<typename _Window_>

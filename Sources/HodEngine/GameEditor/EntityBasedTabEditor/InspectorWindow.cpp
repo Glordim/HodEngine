@@ -26,8 +26,8 @@
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
 #include <HodEngine/Core/Math.hpp>
-#include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawer.hpp"
-#include "HodEngine/Editor/CustomComponentDrawer/CustomComponentDrawerRegistry.hpp"
+#include "HodEngine/GameEditor/ComponentInspector/ComponentInspector.hpp"
+#include "HodEngine/GameEditor/ComponentInspector/ComponentInspectorRegistry.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 #include "HodEngine/Game/Component.hpp"
@@ -280,10 +280,10 @@ namespace hod::inline editor
 
 					bool                   changed = false;
 					ReflectionDescriptor&  reflectionDescriptor = component->GetReflectionDescriptorV();
-					CustomComponentDrawer* drawer = CustomComponentDrawerRegistry::Find(reflectionDescriptor);
-					if (drawer != nullptr)
+					ComponentInspectorBase* inspector = ComponentInspectorRegistry::Find(reflectionDescriptor);
+					if (inspector != nullptr)
 					{
-						changed = drawer->OnDrawInspector(reflectedObject);
+						changed = inspector->Draw(reflectedObject);
 					}
 					else
 					{

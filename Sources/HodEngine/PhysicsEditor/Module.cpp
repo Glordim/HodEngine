@@ -1,11 +1,11 @@
 #include "HodEngine/PhysicsEditor/Pch.hpp"
 #include <HodEngine/Core/Module.hpp>
 
-#include "HodEngine/PhysicsEditor/CustomComponentDrawer/BoxCollider2dCustomComponentDrawer.hpp"
-#include "HodEngine/PhysicsEditor/CustomComponentDrawer/CapsuleCollider2dCustomComponentDrawer.hpp"
-#include "HodEngine/PhysicsEditor/CustomComponentDrawer/CircleCollider2dCustomComponentDrawer.hpp"
-#include "HodEngine/PhysicsEditor/CustomComponentDrawer/EdgeCollider2dCustomComponentDrawer.hpp"
-#include "HodEngine/PhysicsEditor/CustomComponentDrawer/MultiShapeCollider2dCustomComponentDrawer.hpp"
+#include "HodEngine/PhysicsEditor/ComponentGizmo/BoxCollider2dGizmo.hpp"
+#include "HodEngine/PhysicsEditor/ComponentGizmo/CapsuleCollider2dGizmo.hpp"
+#include "HodEngine/PhysicsEditor/ComponentGizmo/CircleCollider2dGizmo.hpp"
+#include "HodEngine/PhysicsEditor/ComponentGizmo/EdgeCollider2dGizmo.hpp"
+#include "HodEngine/PhysicsEditor/ComponentGizmo/MultiShapeCollider2dGizmo.hpp"
 
 #include <HodEngine/Editor/EditorRegistrar.hpp>
 #include <HodEngine/GameEditor/EntityBasedTabEditor/ViewportDebugView.hpp>
@@ -179,14 +179,12 @@ namespace hod::inline physics
 
 	HOD_STARTUP_MODULE(PhysicsEditor, registration)
 	{
-		EditorRegistrar editorRegistrar(registration);
-		editorRegistrar.RegisterCustomComponentDrawer<BoxCollider2dComponent, BoxCollider2dCustomComponentDrawer>();
-		editorRegistrar.RegisterCustomComponentDrawer<CircleCollider2dComponent, CircleCollider2dCustomComponentDrawer>();
-		editorRegistrar.RegisterCustomComponentDrawer<CapsuleCollider2dComponent, CapsuleCollider2dCustomComponentDrawer>();
-		editorRegistrar.RegisterCustomComponentDrawer<EdgeCollider2dComponent, EdgeCollider2dCustomComponentDrawer>();
-		editorRegistrar.RegisterCustomComponentDrawer<MultiShapeCollider2dComponent, MultiShapeCollider2dCustomComponentDrawer>();
-
 		GameEditorRegistrar gameEditorRegistrar(registration);
+		gameEditorRegistrar.RegisterComponentGizmo<BoxCollider2dGizmo>();
+		gameEditorRegistrar.RegisterComponentGizmo<CircleCollider2dGizmo>();
+		gameEditorRegistrar.RegisterComponentGizmo<CapsuleCollider2dGizmo>();
+		gameEditorRegistrar.RegisterComponentGizmo<EdgeCollider2dGizmo>();
+		gameEditorRegistrar.RegisterComponentGizmo<MultiShapeCollider2dGizmo>();
 		gameEditorRegistrar.RegisterViewportDebugView(GetPhysicsViewportDebugViewType());
 		return true;
 	}

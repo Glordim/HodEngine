@@ -7,7 +7,7 @@
 #include "HodEngine/UIEditor/CustomPropertyDrawer/NodeRefCustomPropertyDrawer.hpp"
 #include "HodEngine/UIEditor/CustomPropertyDrawer/RectOffsetsCustomPropertyDrawer.hpp"
 #include "HodEngine/UIEditor/UIPrefabEditor/UIPrefabAssetType.hpp"
-#include "HodEngine/UIEditor/CustomComponentDrawer/UIComponentCustomComponentDrawer.hpp"
+#include "HodEngine/UIEditor/ComponentInspector/UIComponentInspector.hpp"
 
 #include <HodEngine/GameEditor/GameEditorRegistrar.hpp>
 
@@ -61,7 +61,6 @@ namespace hod::inline ui
 		}
 
 		editorRegistrar.RegisterAssetType<UIPrefabAssetType>();
-		editorRegistrar.RegisterCustomComponentDrawer<UIComponent, UIComponentCustomComponentDrawer>();
 
 		// The canvases get the game pointer from the viewports, not from the window (the game is drawn in the viewports)
 		if (CanvasManager* canvasManager = CanvasManager::GetInstance())
@@ -77,6 +76,7 @@ namespace hod::inline ui
 				});
 		}
 		GameEditorRegistrar gameEditorRegistrar(registration);
+		gameEditorRegistrar.RegisterComponentInspector<UIComponentInspector>();
 		gameEditorRegistrar.RegisterViewportGamePointer(&GiveGamePointerToCanvases);
 		return true;
 	}
