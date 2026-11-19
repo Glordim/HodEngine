@@ -358,9 +358,9 @@ namespace hod::inline editor
 				subtrees.PushBack(entity);
 				return;
 			}
-			for (const WeakEntity& child : entity->GetChildren())
+			for (Entity* childEntity : entity->GetChildren())
 			{
-				if (Entity* childEntity = child.Lock())
+				if (childEntity != nullptr)
 				{
 					CollectSelectedSubtrees(tab, childEntity, subtrees);
 				}
@@ -486,9 +486,9 @@ namespace hod::inline editor
 			{
 				component->SetLocalId(0);
 			}
-			for (const WeakEntity& child : entity->GetChildren())
+			for (Entity* childEntity : entity->GetChildren())
 			{
-				if (Entity* childEntity = child.Lock())
+				if (childEntity != nullptr)
 				{
 					ClearLocalIds(childEntity);
 				}
@@ -919,9 +919,8 @@ namespace hod::inline editor
 			{
 				Entity* parent = found;
 				found = nullptr;
-				for (const WeakEntity& child : parent->GetChildren())
+				for (Entity* childEntity : parent->GetChildren())
 				{
-					Entity* childEntity = child.Lock();
 					if (childEntity != nullptr && childEntity->GetLocalId() == path[index])
 					{
 						found = childEntity;

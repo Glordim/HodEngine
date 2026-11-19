@@ -67,7 +67,71 @@ namespace hod::inline game
 		void              SetParent(const WeakEntity& parent);
 		const WeakEntity& GetParent() const;
 
-		const Vector<WeakEntity>& GetChildren() const;
+		/// @brief Its children as Entity* (kept as WeakEntity, for the serialization): for (Entity* child : entity->GetChildren()). A view of
+		/// them: a child moved (SetParent, a pooled object released...) while iterating is skipped or seen twice, iterate ToVector() then
+		class HOD_GAME_API ChildrenView
+		{
+		public:
+			class HOD_GAME_API Iterator
+			{
+			public:
+				Iterator(const Vector<WeakEntity>& children, uint32_t index)
+				: _children(&children)
+				, _index(index)
+				{
+				}
+
+				Entity*   operator*() const;
+				Iterator& operator++()
+				{
+					++_index;
+					return *this;
+				}
+				bool operator==(const Iterator& other) const = default;
+
+			private:
+				const Vector<WeakEntity>* _children;
+				uint32_t                  _index;
+			};
+
+		public:
+			explicit ChildrenView(const Vector<WeakEntity>& children)
+			: _children(children)
+			{
+			}
+
+			Iterator begin() const
+			{
+				return Iterator(_children, 0);
+			}
+
+			Iterator end() const
+			{
+				return Iterator(_children, _children.Size());
+			}
+
+			uint32_t Size() const
+			{
+				return _children.Size();
+			}
+
+			bool Empty() const
+			{
+				return _children.Empty();
+			}
+
+			Entity*         operator[](uint32_t index) const;
+			/// @return A copy: to iterate while the children change
+			Vector<Entity*> ToVector() const;
+
+		private:
+			const Vector<WeakEntity>& _children;
+		};
+
+		ChildrenView GetChildren() const;
+		/// @return The child at index (see GetSiblingIndex)
+		Entity*      GetChild(uint32_t index) const;
+		uint32_t     GetChildCount() const;
 
 		void     SetSiblingIndex(uint32_t index);
 		uint32_t GetSiblingIndex() const;

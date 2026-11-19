@@ -55,9 +55,8 @@ namespace hod::inline game
 			entity->SetLocalId(nextLocalId);
 			++nextLocalId;
 		}
-		for (const WeakEntity& child : entity->GetChildren()) // TODO TMP !! Must be move in CustomEntitySerializationCallback (related to WeakEntity -> WeakPtr<Entity>)
+		for (Entity* childEntity : entity->GetChildren()) // TODO TMP !! Must be move in CustomEntitySerializationCallback (related to WeakEntity -> WeakPtr<Entity>)
 		{
-			Entity* childEntity = child.Lock();
 			if (childEntity && childEntity->GetLocalId() == 0)
 			{
 				childEntity->SetLocalId(nextLocalId);
@@ -96,9 +95,9 @@ namespace hod::inline game
 			}
 		}
 
-		for (const WeakEntity& child : entity->GetChildren())
+		for (Entity* child : entity->GetChildren())
 		{
-			if (SceneSerializer::SerializeEntity(child.Lock(), true, entitiesNode, nextLocalId) == false)
+			if (SceneSerializer::SerializeEntity(child, true, entitiesNode, nextLocalId) == false)
 			{
 				return false;
 			}

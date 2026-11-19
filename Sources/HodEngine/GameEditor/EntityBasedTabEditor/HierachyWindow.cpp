@@ -502,10 +502,7 @@ namespace hod::inline editor
 					Vector<Entity*> siblings;
 					if (parent != nullptr)
 					{
-						for (const WeakEntity& sibling : parent->GetChildren())
-						{
-							siblings.PushBack(sibling.Lock());
-						}
+						siblings = parent->GetChildren().ToVector();
 					}
 					else if (entity->GetScene() != nullptr)
 					{
@@ -695,9 +692,8 @@ namespace hod::inline editor
 
 		if (opened == true)
 		{
-			for (const WeakEntity& child : entity->GetChildren())
+			for (Entity* childEntity : entity->GetChildren())
 			{
-				Entity* childEntity = child.Lock();
 				if (childEntity != nullptr)
 				{
 					DrawEntity(childEntity);

@@ -289,7 +289,7 @@ namespace hod::inline game
 
 			while (entity->GetChildren().Empty() == false)
 			{
-				DestroyEntity(entity->GetChildren()[0].Lock());
+				DestroyEntity(entity->GetChild(0));
 			}
 
 			entity->SetParent(WeakEntity(nullptr));

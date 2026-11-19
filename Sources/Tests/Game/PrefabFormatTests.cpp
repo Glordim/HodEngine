@@ -73,15 +73,15 @@ namespace hod
 		// Towards the end: 1 2 0
 		children[0]->SetSiblingIndex(2);
 		ASSERT_EQ(parent->GetChildren().Size(), 3u);
-		EXPECT_EQ(parent->GetChildren()[0].Lock(), children[1]);
-		EXPECT_EQ(parent->GetChildren()[1].Lock(), children[2]);
-		EXPECT_EQ(parent->GetChildren()[2].Lock(), children[0]);
+		EXPECT_EQ(parent->GetChildren()[0], children[1]);
+		EXPECT_EQ(parent->GetChildren()[1], children[2]);
+		EXPECT_EQ(parent->GetChildren()[2], children[0]);
 
 		// Towards the start: 0 1 2
 		children[0]->SetSiblingIndex(0);
-		EXPECT_EQ(parent->GetChildren()[0].Lock(), children[0]);
-		EXPECT_EQ(parent->GetChildren()[1].Lock(), children[1]);
-		EXPECT_EQ(parent->GetChildren()[2].Lock(), children[2]);
+		EXPECT_EQ(parent->GetChildren()[0], children[0]);
+		EXPECT_EQ(parent->GetChildren()[1], children[1]);
+		EXPECT_EQ(parent->GetChildren()[2], children[2]);
 
 		for (Entity* child : children)
 		{
@@ -114,7 +114,7 @@ namespace hod
 		EXPECT_EQ(roots[0]->GetName(), "First");
 		EXPECT_EQ(roots[1]->GetName(), "Second");
 		ASSERT_EQ(roots[0]->GetChildren().Size(), 1u);
-		EXPECT_EQ(roots[0]->GetChildren()[0].Lock()->GetName(), "Child");
+		EXPECT_EQ(roots[0]->GetChildren()[0]->GetName(), "Child");
 		EXPECT_EQ(scene->GetEntities().size(), 3u);
 		EXPECT_EQ(roots[0]->GetScene(), scene);
 

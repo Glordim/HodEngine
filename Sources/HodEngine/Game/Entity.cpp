@@ -432,9 +432,52 @@ namespace hod::inline game
 
 	/// @brief
 	/// @return
-	const Vector<WeakEntity>& Entity::GetChildren() const
+	Entity* Entity::ChildrenView::Iterator::operator*() const
 	{
-		return _children;
+		return (*_children)[_index].Lock();
+	}
+
+	/// @brief
+	/// @param index
+	/// @return
+	Entity* Entity::ChildrenView::operator[](uint32_t index) const
+	{
+		return _children[index].Lock();
+	}
+
+	/// @brief
+	/// @return
+	Vector<Entity*> Entity::ChildrenView::ToVector() const
+	{
+		Vector<Entity*> children;
+		children.Reserve(_children.Size());
+		for (const WeakEntity& child : _children)
+		{
+			children.PushBack(child.Lock());
+		}
+		return children;
+	}
+
+	/// @brief
+	/// @return
+	Entity::ChildrenView Entity::GetChildren() const
+	{
+		return ChildrenView(_children);
+	}
+
+	/// @brief
+	/// @param index
+	/// @return
+	Entity* Entity::GetChild(uint32_t index) const
+	{
+		return _children[index].Lock();
+	}
+
+	/// @brief
+	/// @return
+	uint32_t Entity::GetChildCount() const
+	{
+		return _children.Size();
 	}
 
 	/// @brief

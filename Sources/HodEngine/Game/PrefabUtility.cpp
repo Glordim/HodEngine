@@ -72,13 +72,11 @@ namespace hod::inline PrefabUtility
 			}
 		}
 
-		for (const WeakEntity& sourceChild : source->GetChildren())
+		for (Entity* sourceChildEntity : source->GetChildren())
 		{
-			Entity* sourceChildEntity = sourceChild.Lock();
 			Entity* instanceChildEntity = nullptr;
-			for (const WeakEntity& instanceChild : instance->GetChildren())
+			for (Entity* instanceChildLock : instance->GetChildren())
 			{
-				Entity* instanceChildLock = instanceChild.Lock();
 				if (instanceChildLock->GetLocalId() == sourceChildEntity->GetLocalId())
 				{
 					instanceChildEntity = instanceChildLock;
@@ -239,9 +237,8 @@ namespace hod::inline PrefabUtility
 
 			bool childFound = false;
 
-			for (const WeakEntity& weakChild : parent->GetChildren())
+			for (Entity* child : parent->GetChildren())
 			{
-				Entity* child = weakChild.Lock();
 				if (child->GetName() == name)
 				{
 					parent = child;

@@ -109,4 +109,41 @@ namespace hod
 
 		DefaultAllocator::GetInstance().Delete(child);
 	}
+
+	// The children as Entity*, in their order: iterated, by index, copied
+	TEST_F(EntityTest, ChildrenAsEntities)
+	{
+		EXPECT_TRUE(_entity->GetChildren().Empty());
+		EXPECT_EQ(_entity->GetChildCount(), 0u);
+
+		Entity* first = DefaultAllocator::GetInstance().New<Entity>("First");
+		Entity* second = DefaultAllocator::GetInstance().New<Entity>("Second");
+		first->SetParent(_entity);
+		second->SetParent(_entity);
+
+		ASSERT_EQ(_entity->GetChildCount(), 2u);
+		EXPECT_EQ(_entity->GetChildren().Size(), 2u);
+		EXPECT_EQ(_entity->GetChild(0), first);
+		EXPECT_EQ(_entity->GetChildren()[1], second);
+
+		Vector<Entity*> iterated;
+		for (Entity* child : _entity->GetChildren())
+		{
+			iterated.PushBack(child);
+		}
+		ASSERT_EQ(iterated.Size(), 2u);
+		EXPECT_EQ(iterated[0], first);
+		EXPECT_EQ(iterated[1], second);
+
+		// A copy: to iterate while they move
+		Vector<Entity*> copy = _entity->GetChildren().ToVector();
+		for (Entity* child : copy)
+		{
+			child->SetParent(WeakEntity(nullptr));
+		}
+		EXPECT_TRUE(_entity->GetChildren().Empty());
+
+		DefaultAllocator::GetInstance().Delete(second);
+		DefaultAllocator::GetInstance().Delete(first);
+	}
 }
