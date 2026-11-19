@@ -1,16 +1,10 @@
 #include "HodEngine/GameEditor/Pch.hpp"
-#include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/Gizmos/GizmoViewport.hpp"
 #include "HodEngine/GameEditor/ComponentGizmo/Node2dGizmo.hpp"
 #include <HodEngine/Game/Components/Node2dComponent.hpp>
 
-#include <HodEngine/Renderer/BuiltinMaterialManager.hpp>
-#include <HodEngine/Renderer/PickingManager.hpp>
-#include <HodEngine/Renderer/RenderCommand/RenderCommandMesh.hpp>
-#include <HodEngine/Renderer/Renderer.hpp>
-#include <HodEngine/Renderer/RenderView.hpp>
-#include <HodEngine/Renderer/MaterialInstance.hpp>
-#include <HodEngine/RHI/RenderTarget.hpp>
+#include <HodEngine/Editor/Gizmos/Handles.hpp>
+#include <HodEngine/Math/Vector4.hpp>
 
 #include "HodEngine/Core/StaticArray.hpp"
 
@@ -18,15 +12,6 @@
 
 namespace hod::inline editor
 {
-	/// @brief
-	Node2dGizmo::Node2dGizmo()
-	{
-		_freeMoveHandle = Handles::GenerateHandle();
-
-		_XAxisHandle = Handles::GenerateHandle();
-		_YAxisHandle = Handles::GenerateHandle();
-	}
-
 	/// @brief
 	/// @param node2d
 	/// @param viewport
@@ -38,8 +23,6 @@ namespace hod::inline editor
 		{
 			return false;
 		}
-
-		bool changed = false;
 
 		float           handleSize = Handles::GetHandleSize(0.002f, viewport);
 		constexpr float thickness = 0.05f;
@@ -86,46 +69,34 @@ namespace hod::inline editor
 			Vector2(0.0f, length),
 		};
 
-		Matrix4 worldMatrix = node2d.GetWorldMatrix();
-		worldMatrix.RemoveScale();
-		worldMatrix *= Matrix4::Scale(Vector2(handleSize, handleSize));
+		constexpr float squareMin = squareOffset - squareSize * 0.5f;
+		constexpr float squareMax = squareOffset + squareSize * 0.5f;
+		StaticArray<Vector2, 6> verticesSquare = {
+			Vector2(squareMin, squareMin), Vector2(squareMax, squareMin), Vector2(squareMax, squareMax),
+			Vector2(squareMin, squareMin), Vector2(squareMax, squareMax), Vector2(squareMin, squareMax),
+		};
 
-		bool interacted = false;
-		interacted |= Handles::FreeMoveRect(_freeMoveHandle, worldMatrix, Vector2::One * squareOffset, Vector2::One * squareSize, Color(0.0f, 0.0f, 1.0f, 1.0f),
-		                                   Color(0.5f, 0.5f, 1.0f, 1.0f), viewport);
-		interacted |=
-			Handles::FreeMoveMesh(_XAxisHandle, worldMatrix, verticesX.Data(), (uint32_t)verticesX.Size(), Color(1.0f, 0.0f, 0.0f, 1.0f), Color(1.0f, 0.5f, 0.5f, 1.0f), viewport);
-		interacted |=
-			Handles::FreeMoveMesh(_YAxisHandle, worldMatrix, verticesY.Data(), (uint32_t)verticesY.Size(), Color(0.0f, 1.0f, 0.0f, 1.0f), Color(0.5f, 1.0f, 0.5f, 1.0f), viewport);
-		if (interacted)
+		// The node's position is in its parent's space; the handles are shown on the node, rotated with it, at a constant size on screen
+		Matrix4 worldMatrix = node2d.GetWorldMatrix();
+		Matrix4 parentMatrix = worldMatrix * Matrix4::Inverse(node2d.GetLocalMatrix());
+
+		Matrix4 drawMatrix = worldMatrix;
+		drawMatrix.RemoveScale();
+		Vector4 xAxis = drawMatrix * Vector4(1.0f, 0.0f, 0.0f, 0.0f);
+		Vector4 yAxis = drawMatrix * Vector4(0.0f, 1.0f, 0.0f, 0.0f);
+		drawMatrix *= Matrix4::Scale(Vector2(handleSize, handleSize));
+
+		Vector2 position = node2d.GetPosition();
+		bool    changed = false;
+		changed |= Handles::FreeMoveMesh(viewport, HandleId(&node2d, 0), parentMatrix, position, drawMatrix, verticesSquare.Data(), verticesSquare.Size(),
+		                                 Color(0.0f, 0.0f, 1.0f, 1.0f));
+		changed |= Handles::FreeMoveMesh(viewport, HandleId(&node2d, 1), parentMatrix, position, drawMatrix, verticesX.Data(), verticesX.Size(), Color(1.0f, 0.0f, 0.0f, 1.0f),
+		                                 Vector2(xAxis.GetX(), xAxis.GetY()));
+		changed |= Handles::FreeMoveMesh(viewport, HandleId(&node2d, 2), parentMatrix, position, drawMatrix, verticesY.Data(), verticesY.Size(), Color(0.0f, 1.0f, 0.0f, 1.0f),
+		                                 Vector2(yAxis.GetX(), yAxis.GetY()));
+		if (changed)
 		{
-			if (_freeMoveHandle._justPressed || _XAxisHandle._justPressed || _YAxisHandle._justPressed)
-			{
-				_initialPosition = node2d.GetPosition();
-			}
-			else if (_freeMoveHandle._canceled || _XAxisHandle._canceled || _YAxisHandle._canceled)
-			{
-				node2d.SetPosition(_initialPosition);
-				changed = true;
-			}
-			else
-			{
-				if (_freeMoveHandle._pressed)
-				{
-					node2d.SetPosition(_initialPosition + _freeMoveHandle._delta);
-					changed = true;
-				}
-				else if (_XAxisHandle._pressed)
-				{
-					node2d.SetPosition(Vector2(_initialPosition.GetX() + _XAxisHandle._delta.GetX(), _initialPosition.GetY()));
-					changed = true;
-				}
-				else if (_YAxisHandle._pressed)
-				{
-					node2d.SetPosition(Vector2(_initialPosition.GetX(), _initialPosition.GetY() + _YAxisHandle._delta.GetY()));
-					changed = true;
-				}
-			}
+			node2d.SetPosition(position);
 		}
 
 		return changed;

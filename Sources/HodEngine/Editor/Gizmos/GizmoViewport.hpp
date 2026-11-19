@@ -17,7 +17,7 @@ namespace hod::inline renderer
 
 namespace hod::inline editor
 {
-	/// @brief What the gizmos (the OnDrawGizmo of the component drawers, Handles) need of a viewport to draw and move their handles with the mouse (picking):
+	/// @brief What the gizmos (the component gizmos, ComponentGizmo, and Handles) need of a viewport to draw and move their handles with the mouse (picking):
 	/// implemented by the viewports that show gizmos
 	class HOD_EDITOR_API GizmoViewport
 	{
