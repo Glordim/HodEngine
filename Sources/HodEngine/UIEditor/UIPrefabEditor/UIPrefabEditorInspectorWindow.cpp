@@ -6,6 +6,7 @@
 #include "HodEngine/UIEditor/AnchorPresetsDrawer.hpp"
 #include "HodEngine/UIEditor/PropertyDrawer/NodeRefDrawer.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
+#include "HodEngine/Editor/PropertyDrawer/PropertyValues.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
@@ -699,8 +700,6 @@ namespace hod::inline editor
 		bool anyStretchedY = false;
 		bool allStretchedX = true;
 		bool allStretchedY = true;
-		bool anyFixedX = false;
-		bool anyFixedY = false;
 		for (const ui::LayoutParams* layoutParams : layoutParamsList)
 		{
 			const ui::AnchoredLayoutParams* anchoredLayoutParams = ui::LayoutParams::Cast<ui::AnchoredLayoutParams>(layoutParams);
@@ -710,45 +709,46 @@ namespace hod::inline editor
 			anyStretchedY |= stretchedY;
 			allStretchedX &= stretchedX;
 			allStretchedY &= stretchedY;
-			anyFixedX |= (stretchedX == false && layoutParams->GetWidthMode() == ui::LayoutParams::SizeMode::Fixed);
-			anyFixedY |= (stretchedY == false && layoutParams->GetHeightMode() == ui::LayoutParams::SizeMode::Fixed);
 		}
 
 		changed |= DrawSizeModeRow(layoutParamsObject, allStretchedX == false, allStretchedY == false, "Unused: the width is stretched, the anchors and the size delta give it",
 		                           "Unused: the height is stretched, the anchors and the size delta give it");
 
-		// Size, by hand rather than reflected to tell its components apart: a delta added to the anchors' span on a stretched axis (dX/dY), the node's own size on the others
+		// Size, by hand for its labels: a delta added to the anchors' span on a stretched axis (dWidth/dHeight), the node's own size on the others; its
+		// components unused (a Content axis anchored on a point) disabled by its trait (LayoutParams::IsSizeUsedX/Y)
 		if (EditorReflectedProperty* sizeProperty = layoutParamsObject.FindProperty("_size"))
 		{
-			// A Content axis anchored on a point takes its size from the content: that component is unused
-			bool usedX = anyFixedX || anyStretchedX;
-			bool usedY = anyFixedY || anyStretchedY;
-			bool used = usedX || usedY;
+			PropertyValuesBase      values(*sizeProperty);
+			PropertyValues<Vector2> sizes(values);
+
+			VectorFieldOptions options;
+			options._mixedComponents = (sizes.IsMixed([](const Vector2& size) { return size.GetX(); }) ? 1 : 0) |
+			                           (sizes.IsMixed([](const Vector2& size) { return size.GetY(); }) ? 2 : 0);
+			DrawHelper::ApplyVectorTraits(values, 2, options);
+			if (allStretchedX)
+			{
+				options._labels[0] = "dWidth";
+			}
+			if (allStretchedY)
+			{
+				options._labels[1] = "dHeight";
+			}
+			bool used = (options._disabledComponents & 3) != 3;
+
 			ImGui::PushID(sizeProperty->GetReflectionProperty());
 			ImGui::BeginDisabled(used == false);
 			changed |= ReflectionDrawer::BeginProperty(*sizeProperty);
-			if (used == false)
+			if (anyStretchedX || anyStretchedY) // An unused axis: its reason on its field (LayoutParams' trait)
 			{
-				ImGui::SetItemTooltip("Unused: no axis is Fixed or stretched (sized from the content)");
-			}
-			else if (anyStretchedX || anyStretchedY)
-			{
-				ImGui::SetItemTooltip("dX/dY: added to the anchors' span on a stretched axis, around the alignment point");
+				ImGui::SetItemTooltip("dWidth/dHeight: added to the anchors' span on a stretched axis, around the alignment point");
 			}
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
-			// Each component on its own: the nodes may differ on one only
-			Vector2 sizeValue = *sizeProperty->GetObject<Vector2>();
-			uint8_t mixedComponents = 0;
-			for (uint32_t index = 1; index < sizeProperty->GetInstances().Size(); ++index)
-			{
-				const Vector2& otherSize = *sizeProperty->GetObjectOf<Vector2>(index);
-				mixedComponents |= (otherSize.GetX() != sizeValue.GetX() ? 1 : 0) | (otherSize.GetY() != sizeValue.GetY() ? 2 : 0);
-			}
+			Vector2 sizeValue = sizes.Get();
 			uint8_t editedComponents = 0;
-			if (DrawHelper::DrawVector2(sizeValue, allStretchedX ? "dX" : "X", allStretchedY ? "dY" : "Y", usedX, usedY, mixedComponents, &editedComponents))
+			if (DrawHelper::DrawVector2(sizeValue, options, &editedComponents))
 			{
-				sizeProperty->EditObjects<Vector2>(
+				sizes.Edit(
 					[&](Vector2& size)
 					{
 						if (editedComponents & 1)

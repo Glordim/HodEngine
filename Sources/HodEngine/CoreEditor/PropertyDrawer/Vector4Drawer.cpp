@@ -14,13 +14,15 @@ namespace hod::inline editor
 	{
 		// Each component on its own: the values edited together may differ on one only
 		Vector4 value = values.Get();
-		uint8_t mixedComponents = (values.IsMixed([](const Vector4& vector) { return vector.GetX(); }) ? 1 : 0) |
-		                          (values.IsMixed([](const Vector4& vector) { return vector.GetY(); }) ? 2 : 0) |
-		                          (values.IsMixed([](const Vector4& vector) { return vector.GetZ(); }) ? 4 : 0) |
-		                          (values.IsMixed([](const Vector4& vector) { return vector.GetW(); }) ? 8 : 0);
+		VectorFieldOptions options;
+		options._mixedComponents = (values.IsMixed([](const Vector4& vector) { return vector.GetX(); }) ? 1 : 0) |
+		                           (values.IsMixed([](const Vector4& vector) { return vector.GetY(); }) ? 2 : 0) |
+		                           (values.IsMixed([](const Vector4& vector) { return vector.GetZ(); }) ? 4 : 0) |
+		                           (values.IsMixed([](const Vector4& vector) { return vector.GetW(); }) ? 8 : 0);
+		DrawHelper::ApplyVectorTraits(values.GetBase(), 4, options); // Its labels, its components unused
 
 		uint8_t editedComponents = 0;
-		if (DrawHelper::DrawVector4(value, "X", "Y", "Z", "W", mixedComponents, &editedComponents) == false)
+		if (DrawHelper::DrawVector4(value, options, &editedComponents) == false)
 		{
 			return false;
 		}

@@ -1,6 +1,7 @@
 #pragma once
 #include "HodEngine/Editor/Export.hpp"
 
+#include <HodEngine/Core/Reflection/ReflectionProperty.hpp>
 #include <HodEngine/Core/Vector.hpp>
 
 #include <cstdint>
@@ -35,6 +36,11 @@ namespace hod::inline editor
 		/// @return Whether they don't all have the same value (shown as a mixed value)
 		bool     IsMixed() const;
 
+		/// @return The reflected property they are the values of (its traits), nullptr for a value of its own (ReflectionDrawer::DrawValue)
+		ReflectionProperty* GetReflectionProperty() const;
+		/// @return The object having the value at index (for the predicates of the property's traits), nullptr for a value of its own
+		const void*         GetOwner(uint32_t index) const;
+
 		/// @brief edit called on each value: on a copy given back to the property's set method when it has one (its owner reacts as to any
 		/// edit), in place otherwise
 		void Edit(EditFunction edit, void* userData) const;
@@ -60,6 +66,12 @@ namespace hod::inline editor
 
 		/// @return Whether they don't all have the same value
 		bool IsMixed() const;
+
+		/// @return The trait of the property they are the values of, nullptr without one or for a value of its own
+		template<typename _Trait_>
+		const _Trait_* FindTrait() const;
+		/// @return The base: what isn't typed (GetOwner...)
+		const PropertyValuesBase& GetBase() const;
 		/// @return Whether they don't all have the same part read by get (a component of a vector: get(const _Type_&) returns it)
 		template<typename _Getter_>
 		bool IsMixed(_Getter_&& get) const;
@@ -109,6 +121,27 @@ namespace hod::inline editor
 	bool PropertyValues<_Type_>::IsMixed() const
 	{
 		return _values.IsMixed();
+	}
+
+	/// @brief
+	/// @tparam _Type_
+	/// @tparam _Trait_
+	/// @return
+	template<typename _Type_>
+	template<typename _Trait_>
+	const _Trait_* PropertyValues<_Type_>::FindTrait() const
+	{
+		ReflectionProperty* property = _values.GetReflectionProperty();
+		return property != nullptr ? property->FindTrait<_Trait_>() : nullptr;
+	}
+
+	/// @brief
+	/// @tparam _Type_
+	/// @return
+	template<typename _Type_>
+	const PropertyValuesBase& PropertyValues<_Type_>::GetBase() const
+	{
+		return _values;
 	}
 
 	/// @brief

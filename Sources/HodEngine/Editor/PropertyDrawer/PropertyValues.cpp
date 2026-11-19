@@ -50,6 +50,21 @@ namespace hod::inline editor
 	}
 
 	/// @brief
+	/// @return
+	ReflectionProperty* PropertyValuesBase::GetReflectionProperty() const
+	{
+		return _property != nullptr ? _property->GetReflectionProperty() : nullptr;
+	}
+
+	/// @brief
+	/// @param index
+	/// @return
+	const void* PropertyValuesBase::GetOwner(uint32_t index) const
+	{
+		return _property != nullptr ? _property->GetInstances()[index] : nullptr;
+	}
+
+	/// @brief
 	/// @param edit
 	/// @param userData
 	void PropertyValuesBase::Edit(EditFunction edit, void* userData) const

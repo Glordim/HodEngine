@@ -16,17 +16,28 @@ namespace hod::inline math
 
 namespace hod::inline editor
 {
+    class PropertyValuesBase;
+
+    /// @brief How DrawHelper::DrawVector2/DrawVector4 show the components (one bit per component in the masks, X first)
+    struct HOD_EDITOR_API VectorFieldOptions
+    {
+        const char* _labels[4] = {"X", "Y", "Z", "W"};
+        uint8_t     _disabledComponents = 0; // Greyed out (e.g. an axis the value is unused on)
+        uint8_t     _mixedComponents = 0;    // The values edited together differ on them: shown as a mixed value
+        const char* _disabledReasons[4] = {}; // Why a disabled component is: its tooltip (none if nullptr)
+    };
+
     class HOD_EDITOR_API DrawHelper
     {
     public:
 
-        // enabledX/enabledY grey out one component (e.g. an axis the value is unused on)
-        // mixedComponents: one bit per component (X first) the objects edited together differ on, shown as a mixed value
-        // editedComponents (optional): set to the bits of the components edited, for the caller to apply only those to each object
-        static bool				DrawVector2(Vector2& value, const char* labelX = "X", const char* labelY = "Y", bool enabledX = true, bool enabledY = true,
-                                            uint8_t mixedComponents = 0, uint8_t* editedComponents = nullptr);
-        static bool				DrawVector4(Vector4& value, const char* labelX = "X", const char* labelY = "Y", const char* labelZ = "Z", const char* labelW = "W",
-                                            uint8_t mixedComponents = 0, uint8_t* editedComponents = nullptr);
+        // editedComponents (optional): set to the bits of the components edited, for the caller to apply only those to each value
+        static bool				DrawVector2(Vector2& value, const VectorFieldOptions& options = {}, uint8_t* editedComponents = nullptr);
+        static bool				DrawVector4(Vector4& value, const VectorFieldOptions& options = {}, uint8_t* editedComponents = nullptr);
+        /// @brief options' labels, disabled components and their reasons from the traits of the property values are of
+        /// (ReflectionTraitVectorComponentLabels, ReflectionTraitVectorComponentEnabledIf: a component enabled if one of their owners uses it);
+        /// unchanged for a value of its own
+        static void				ApplyVectorTraits(const PropertyValuesBase& values, uint32_t componentCount, VectorFieldOptions& options);
 
         /// @brief Draws a toggle button glued to a small arrow button, in one unified round rect (same look as DrawVector2):
         /// the left part switches `toggled` on/off (highlighted while on), the right one opens the popup `settingsPopupId`

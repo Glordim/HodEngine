@@ -88,6 +88,16 @@ namespace hod::inline ui
 		return IsStretchedY();
 	}
 
+	bool AnchoredLayoutParams::IsSizeUsedX() const
+	{
+		return IsStretchedX() || LayoutParams::IsSizeUsedX();
+	}
+
+	bool AnchoredLayoutParams::IsSizeUsedY() const
+	{
+		return IsStretchedY() || LayoutParams::IsSizeUsedY();
+	}
+
 	bool AnchoredLayoutParams::IsStretchedX() const
 	{
 		return _anchorMin.GetX() != _anchorMax.GetX();

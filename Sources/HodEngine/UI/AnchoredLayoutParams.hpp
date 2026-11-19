@@ -32,6 +32,10 @@ namespace hod::inline ui
 		bool						IsStretchedX() const;
 		bool						IsStretchedY() const;
 
+		/// @brief Also on a stretched axis: Size is a delta added to the anchors' span there
+		bool						IsSizeUsedX() const override;
+		bool						IsSizeUsedY() const override;
+
 		const Vector2&				GetAnchorMin() const;
 		void						SetAnchorMin(const Vector2& anchorMin);
 

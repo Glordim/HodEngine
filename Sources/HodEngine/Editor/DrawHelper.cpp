@@ -4,6 +4,9 @@
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/String.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitIcon.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitVectorComponentEnabledIf.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitVectorComponentLabels.hpp"
+#include "HodEngine/Editor/PropertyDrawer/PropertyValues.hpp"
 #include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Math/Vector4.hpp"
 
@@ -35,83 +38,70 @@ namespace hod::inline editor
 			ImGui::PopItemFlag();
 			return changed;
 		}
+
+		/// @brief The components of DrawVector2/DrawVector4 on one line
+		/// @return The bits of the components edited
+		uint8_t DrawVectorComponents(const void* id, float* components, uint32_t count, const VectorFieldOptions& options)
+		{
+			static const char*  ids[4] = {"##x", "##y", "##z", "##w"};
+			static const ImVec4 labelColors[4] = {ImVec4(0.5f, 0.0f, 0.0f, 1.0f), ImVec4(0.0f, 0.5f, 0.0f, 1.0f), ImVec4(0.0f, 0.0f, 1.0f, 1.0f),
+			                                      ImVec4(0.5f, 0.5f, 0.5f, 1.0f)};
+
+			ImGui::PushID(id);
+
+			float availableWidth = ImGui::GetColumnWidth();
+			for (uint32_t index = 0; index < count; ++index)
+			{
+				availableWidth -= CalculateButtonSize(options._labels[index]).x;
+			}
+			availableWidth -= ImGui::GetStyle().ItemSpacing.x - 2;
+			float componentWidth = availableWidth * (count == 2 ? 0.5f : 0.24f);
+
+			uint8_t edited = 0;
+			for (uint32_t index = 0; index < count; ++index)
+			{
+				if (index > 0)
+				{
+					ImGui::SameLine();
+				}
+				bool disabled = (options._disabledComponents & (1 << index)) != 0;
+				ImGui::BeginDisabled(disabled);
+				if (DrawVectorComponent(ids[index], options._labels[index], labelColors[index], componentWidth, components[index], (options._mixedComponents & (1 << index)) != 0))
+				{
+					edited |= (uint8_t)(1 << index);
+				}
+				if (disabled && options._disabledReasons[index] != nullptr)
+				{
+					ImGui::SetItemTooltip("%s", options._disabledReasons[index]);
+				}
+				ImGui::EndDisabled();
+			}
+
+			ImGui::PopID();
+			return edited;
+		}
 	}
 
-	bool DrawHelper::DrawVector2(Vector2& value, const char* labelX, const char* labelY, bool enabledX, bool enabledY, uint8_t mixedComponents, uint8_t* editedComponents)
+	bool DrawHelper::DrawVector2(Vector2& value, const VectorFieldOptions& options, uint8_t* editedComponents)
 	{
-		uint8_t edited = 0;
-		float   x = value.GetX();
-		float   y = value.GetY();
-
-		ImGui::PushID(&value);
-
-		float availableWidth = ImGui::GetColumnWidth();
-		availableWidth -= CalculateButtonSize(labelX).x;
-		availableWidth -= CalculateButtonSize(labelY).x;
-		availableWidth -= ImGui::GetStyle().ItemSpacing.x - 2;
-
-		ImGui::BeginDisabled(enabledX == false);
-		if (DrawVectorComponent("##x", labelX, ImVec4(0.5f, 0.0f, 0.0f, 1.0f), availableWidth * 0.5f, x, (mixedComponents & 1) != 0))
-		{
-			edited |= 1;
-		}
-		ImGui::EndDisabled();
-
-		ImGui::SameLine();
-
-		ImGui::BeginDisabled(enabledY == false);
-		if (DrawVectorComponent("##y", labelY, ImVec4(0.0f, 0.5f, 0.0f, 1.0f), availableWidth * 0.5f, y, (mixedComponents & 2) != 0))
-		{
-			edited |= 2;
-		}
-		ImGui::EndDisabled();
-
-		ImGui::PopID();
-
+		float   components[2] = {value.GetX(), value.GetY()};
+		uint8_t edited = DrawVectorComponents(&value, components, 2, options);
 		if (edited != 0)
 		{
-			value.SetX(x);
-			value.SetY(y);
+			value.SetX(components[0]);
+			value.SetY(components[1]);
 		}
 		if (editedComponents != nullptr)
 		{
 			*editedComponents = edited;
 		}
-
 		return edited != 0;
 	}
 
-	bool DrawHelper::DrawVector4(Vector4& value, const char* labelX, const char* labelY, const char* labelZ, const char* labelW, uint8_t mixedComponents, uint8_t* editedComponents)
+	bool DrawHelper::DrawVector4(Vector4& value, const VectorFieldOptions& options, uint8_t* editedComponents)
 	{
-		uint8_t edited = 0;
 		float   components[4] = {value.GetX(), value.GetY(), value.GetZ(), value.GetW()};
-
-		ImGui::PushID(&value);
-
-		float availableWidth = ImGui::GetColumnWidth();
-		availableWidth -= CalculateButtonSize(labelX).x;
-		availableWidth -= CalculateButtonSize(labelY).x;
-		availableWidth -= CalculateButtonSize(labelZ).x;
-		availableWidth -= CalculateButtonSize("W").x;
-		availableWidth -= ImGui::GetStyle().ItemSpacing.x - 2;
-
-		const char*  ids[4] = {"##x", "##y", "##z", "##w"};
-		const char*  labels[4] = {labelX, labelY, labelZ, labelW};
-		const ImVec4 labelColors[4] = {ImVec4(0.5f, 0.0f, 0.0f, 1.0f), ImVec4(0.0f, 0.5f, 0.0f, 1.0f), ImVec4(0.0f, 0.0f, 1.0f, 1.0f), ImVec4(0.5f, 0.5f, 0.5f, 1.0f)};
-		for (uint8_t index = 0; index < 4; ++index)
-		{
-			if (index > 0)
-			{
-				ImGui::SameLine();
-			}
-			if (DrawVectorComponent(ids[index], labels[index], labelColors[index], availableWidth * 0.24f, components[index], (mixedComponents & (1 << index)) != 0))
-			{
-				edited |= (uint8_t)(1 << index);
-			}
-		}
-
-		ImGui::PopID();
-
+		uint8_t edited = DrawVectorComponents(&value, components, 4, options);
 		if (edited != 0)
 		{
 			value.SetX(components[0]);
@@ -123,8 +113,44 @@ namespace hod::inline editor
 		{
 			*editedComponents = edited;
 		}
-
 		return edited != 0;
+	}
+
+	void DrawHelper::ApplyVectorTraits(const PropertyValuesBase& values, uint32_t componentCount, VectorFieldOptions& options)
+	{
+		ReflectionProperty* property = values.GetReflectionProperty();
+		if (property == nullptr)
+		{
+			return;
+		}
+
+		if (const ReflectionTraitVectorComponentLabels* labels = property->FindTrait<ReflectionTraitVectorComponentLabels>())
+		{
+			for (uint32_t component = 0; component < componentCount; ++component)
+			{
+				if (const char* label = labels->GetLabel(component))
+				{
+					options._labels[component] = label;
+				}
+			}
+		}
+
+		if (const ReflectionTraitVectorComponentEnabledIf* enabledIf = property->FindTrait<ReflectionTraitVectorComponentEnabledIf>())
+		{
+			for (uint32_t component = 0; component < componentCount; ++component)
+			{
+				bool enabled = false;
+				for (uint32_t index = 0; index < values.GetCount() && enabled == false; ++index)
+				{
+					enabled = enabledIf->IsEnabled(component, values.GetOwner(index));
+				}
+				if (enabled == false)
+				{
+					options._disabledComponents |= (uint8_t)(1 << component);
+					options._disabledReasons[component] = enabledIf->GetReason(component);
+				}
+			}
+		}
 	}
 
 	bool DrawHelper::DrawToggleWithSettings(const char* label, const char* itemName, const char* settingsPopupId, bool& toggled)

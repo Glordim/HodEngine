@@ -14,11 +14,13 @@ namespace hod::inline editor
 	{
 		// Each component on its own: the values edited together may differ on one only
 		Vector2 value = values.Get();
-		uint8_t mixedComponents = (values.IsMixed([](const Vector2& vector) { return vector.GetX(); }) ? 1 : 0) |
-		                          (values.IsMixed([](const Vector2& vector) { return vector.GetY(); }) ? 2 : 0);
+		VectorFieldOptions options;
+		options._mixedComponents = (values.IsMixed([](const Vector2& vector) { return vector.GetX(); }) ? 1 : 0) |
+		                           (values.IsMixed([](const Vector2& vector) { return vector.GetY(); }) ? 2 : 0);
+		DrawHelper::ApplyVectorTraits(values.GetBase(), 2, options); // Its labels, its components unused
 
 		uint8_t editedComponents = 0;
-		if (DrawHelper::DrawVector2(value, "X", "Y", true, true, mixedComponents, &editedComponents) == false)
+		if (DrawHelper::DrawVector2(value, options, &editedComponents) == false)
 		{
 			return false;
 		}

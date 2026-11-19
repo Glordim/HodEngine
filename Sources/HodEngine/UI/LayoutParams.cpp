@@ -3,6 +3,8 @@
 #include "HodEngine/UI/Node.hpp"
 
 #include <HodEngine/Core/Math.hpp>
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitVectorComponentEnabledIf.hpp>
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitVectorComponentLabels.hpp>
 
 namespace hod::inline ui
 {
@@ -16,9 +18,12 @@ namespace hod::inline ui
 	{
 		HOD_PROPERTY(_widthMode, &LayoutParams::SetWidthMode);
 		HOD_PROPERTY(_heightMode, &LayoutParams::SetHeightMode);
-		HOD_PROPERTY(_size, &LayoutParams::SetSize);
-		HOD_PROPERTY(_minSize, &LayoutParams::SetMinSize);
-		HOD_PROPERTY(_maxSize, &LayoutParams::SetMaxSize);
+		ReflectionProperty* sizeProperty = HOD_PROPERTY(_size, &LayoutParams::SetSize);
+		sizeProperty->AddTrait<ReflectionTraitVectorComponentLabels>("Width", "Height");
+		sizeProperty->AddTrait<ReflectionTraitVectorComponentEnabledIf>(&LayoutParams::IsSizeUsedX, "Unused: the width is sized from the content (Content mode)",
+		                                                                &LayoutParams::IsSizeUsedY, "Unused: the height is sized from the content (Content mode)");
+		HOD_PROPERTY(_minSize, &LayoutParams::SetMinSize)->AddTrait<ReflectionTraitVectorComponentLabels>("Width", "Height");
+		HOD_PROPERTY(_maxSize, &LayoutParams::SetMaxSize)->AddTrait<ReflectionTraitVectorComponentLabels>("Width", "Height");
 	}
 
 	LayoutParams::SizeMode LayoutParams::GetWidthMode() const
@@ -47,6 +52,16 @@ namespace hod::inline ui
 			_heightMode = heightMode;
 			MarkOwnerMeasureAsDirty();
 		}
+	}
+
+	bool LayoutParams::IsSizeUsedX() const
+	{
+		return _widthMode == SizeMode::Fixed;
+	}
+
+	bool LayoutParams::IsSizeUsedY() const
+	{
+		return _heightMode == SizeMode::Fixed;
 	}
 
 	const Vector2& LayoutParams::GetSize() const
