@@ -9,13 +9,10 @@ namespace hod::inline game
 
 namespace hod::inline editor
 {
-	/// @brief 
+	/// @brief Its layer and its order in the layer, on one line
 	class HOD_GAME_EDITOR_API ZOrderDrawer : public PropertyDrawer<ZOrder>
 	{
-	public:
-		static bool Draw(ZOrder& value);
-
 	protected:
-		bool OnDraw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue) override;
+		bool OnDraw(const PropertyValues<ZOrder>& values) override;
 	};
 }

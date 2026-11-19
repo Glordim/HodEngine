@@ -13,6 +13,6 @@ namespace hod::inline editor
 	class HOD_CORE_EDITOR_API Vector4Drawer : public PropertyDrawer<Vector4>
 	{
 	protected:
-		bool OnDraw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue) override;
+		bool OnDraw(const PropertyValues<Vector4>& values) override;
 	};
 }

@@ -4,6 +4,7 @@
 #include "HodEngine/Editor/EditorTab.hpp"
 #include "HodEngine/GameEditor/ComponentDisplayName.hpp"
 #include "HodEngine/GameEditor/EntityBasedTabEditor/EntityEditorTab.hpp"
+#include "HodEngine/GameEditor/PropertyDrawer/WeakComponentDrawer.hpp"
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 #include <HodEngine/ImGui/DearImGui/imgui_internal.h>
@@ -104,6 +105,7 @@ namespace hod::inline editor
 		Entity* sceneSelection = GetOwner<EntityEditorTab>()->GetEntitySelection();
 		if (sceneSelection != nullptr)
 		{
+			WeakComponentDrawer::Scope weakComponentScope(*GetOwner<EntityEditorTab>()->GetWorld()); // The references to components pick in its world
 			uint32_t selectedCount = GetOwner<EntityEditorTab>()->GetSelectedEntities().Size();
 			if (selectedCount > 1)
 			{

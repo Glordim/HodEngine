@@ -9,13 +9,10 @@ namespace hod::inline math
 
 namespace hod::inline editor
 {
-	/// @brief
+	/// @brief Its color field (a swatch opening the picker)
 	class HOD_CORE_EDITOR_API ColorDrawer : public PropertyDrawer<Color>
 	{
-	public:
-		static bool Draw(Color& value);
-
 	protected:
-		bool OnDraw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue) override;
+		bool OnDraw(const PropertyValues<Color>& values) override;
 	};
 }

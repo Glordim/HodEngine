@@ -1,65 +1,63 @@
 #include "HodEngine/GameEditor/Pch.hpp"
 #include "HodEngine/GameEditor/PropertyDrawer/WeakComponentDrawer.hpp"
 
-#include "HodEngine/Math/Vector2.hpp"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
-
-#include "HodEngine/ImGui/DearImGui/imgui.h"
-#include "HodEngine/ImGui/Helper.hpp"
-#include "HodEngine/ImGui/Widgets.hpp"
-
-#include "HodEngine/Editor/EditorReflectedObject.hpp"
-#include "HodEngine/Editor/EditorReflectedProperty.hpp"
-#include "HodEngine/Editor/ReflectionDrawer.hpp"
-#include "HodEngine/Game/WeakComponent.hpp"
-
-#include "HodEngine/Editor/Asset.hpp"
-#include "HodEngine/Editor/AssetDatabase.hpp"
-#include "HodEngine/Editor/EditorTabWindow.hpp"
-#include "HodEngine/GameEditor/EntityBasedTabEditor/EntityEditorTab.hpp"
-
-#include "HodEngine/RHI/Texture.hpp"
-
-#include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
-#include "HodEngine/ImGui/ImGuiManager.hpp"
-
-#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
-
+#include <HodEngine/Game/Component.hpp>
+#include <HodEngine/Game/Entity.hpp>
 #include <HodEngine/Game/Scene.hpp>
+#include <HodEngine/Game/WeakComponent.hpp>
 #include <HodEngine/Game/World.hpp>
-
-#undef GetObject
+#include <HodEngine/ImGui/DearImGui/imgui.h>
+#include <HodEngine/ImGui/Font/IconsMaterialDesignIcons.h>
+#include <HodEngine/ImGui/Helper.hpp>
+#include <HodEngine/ImGui/Widgets.hpp>
 
 namespace hod::inline editor
 {
-	/// @brief
-	/// @param instance
-	/// @return
-	bool WeakComponentDrawer::OnDraw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
+	namespace
 	{
+		World* scopeWorld = nullptr;
+	}
+
+	/// @brief
+	/// @param world
+	WeakComponentDrawer::Scope::Scope(World& world)
+	: _previousWorld(scopeWorld)
+	{
+		scopeWorld = &world;
+	}
+
+	/// @brief
+	WeakComponentDrawer::Scope::~Scope()
+	{
+		scopeWorld = _previousWorld;
+	}
+
+	/// @brief
+	/// @param values
+	/// @return
+	bool WeakComponentDrawer::OnDraw(const PropertyValues<WeakComponentBase>& values)
+	{
+		const WeakComponentBase& value = values.Get();
+		bool                     mixed = values.IsMixed();
+		Component*               referenced = mixed ? nullptr : value.Lock();
+
+		if (scopeWorld == nullptr)
+		{
+			ImGui::TextDisabled("%s", mixed ? GetMixedValueLabel() : (referenced != nullptr ? referenced->GetOwner()->GetName().CStr() : "None"));
+			return false;
+		}
+
 		bool changed = false;
-		if (onlyValue == false)
+		auto assignAll = [&](Component* component)
 		{
-			changed |= ReflectionDrawer::BeginProperty(editorReflectedProperty);
-			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
-		}
+			values.Edit([component](WeakComponentBase& reference) { reference.SetPointer(component); });
+			changed = true;
+		};
 
-		static Vector<AssetDatabase::FileSystemMapping*> assetList;
+		const char* text = mixed ? GetMixedValueLabel() : (referenced != nullptr ? referenced->GetOwner()->GetName().CStr() : "None");
 
-		WeakComponentBase* value = editorReflectedProperty.GetObject<WeakComponentBase>();
-
-		ImGui::PushID(value);
-
-		const char* text = "None";
-		if (value->Lock())
-		{
-			text = value->Lock()->GetOwner()->GetName().CStr();
-		}
-
-		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - CalculateButtonSize(ICON_MDI_MAGNIFY).x - CalculateButtonSize(ICON_MDI_CURSOR_POINTER).x -
-		                        ImGui::GetStyle().ItemSpacing.x * 2);
-		if (ImGui::BeginCombo("", text, ImGuiComboFlags_HeightLarge))
+		ImGui::SetNextItemWidth(ImGui::GetContentRegionAvail().x - CalculateButtonSize(ICON_MDI_CURSOR_POINTER).x - ImGui::GetStyle().ItemSpacing.x);
+		if (ImGui::BeginCombo("##Entity", text, ImGuiComboFlags_HeightLarge))
 		{
 			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted("Name:");
@@ -76,26 +74,23 @@ namespace hod::inline editor
 
 			if (ImGui::Button("None", ImVec2(-1.0f, 0.0f)))
 			{
-				value->SetPointer(nullptr);
+				assignAll(nullptr);
 				ImGui::CloseCurrentPopup();
-				changed = true;
 			}
 
-			EntityEditorTab* entityEditorTab = editorReflectedProperty.GetParent()->GetEditorTabWindow()->GetOwner<EntityEditorTab>();
-			for (Scene* scene : entityEditorTab->GetWorld()->GetScenes())
+			for (Scene* scene : scopeWorld->GetScenes())
 			{
 				for (const auto& entityPair : scene->GetEntities())
 				{
 					if (inputTextBuffer[0] == '\0' || entityPair.second->GetName().Find(inputTextBuffer) != String::Npos)
 					{
-						Component* component = entityPair.second->GetComponent(*value->GetComponentDescriptor());
+						Component* component = entityPair.second->GetComponent(*value.GetComponentDescriptor());
 
 						ImGui::PushID(component);
 						if (component != nullptr && ImGui::Button(entityPair.second->GetName().CStr(), ImVec2(-1.0f, 0.0f)))
 						{
-							value->SetPointer(component);
+							assignAll(component);
 							ImGui::CloseCurrentPopup();
-							changed = true;
 						}
 						ImGui::PopID();
 					}
@@ -104,20 +99,12 @@ namespace hod::inline editor
 			ImGui::EndCombo();
 		}
 
-		ImGui::BeginDisabled(value->Lock() == nullptr);
+		// todo select the entity referenced
 		ImGui::SameLine();
-		if (ImGui::Button(ICON_MDI_MAGNIFY))
-		{
-			// Editor::GetInstance()->SetEntitySelection(value->Lock()->GetEntity());
-		}
-		ImGui::SameLine();
-		if (ImGui::Button(ICON_MDI_CURSOR_POINTER))
-		{
-			// Editor::GetInstance()->SetEntitySelection(value->Lock()->GetOwner());
-		}
+		ImGui::BeginDisabled(true);
+		ImGui::Button(ICON_MDI_CURSOR_POINTER);
 		ImGui::EndDisabled();
 
-		ImGui::PopID();
 		return changed;
 	}
 }

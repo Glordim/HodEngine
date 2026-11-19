@@ -1,66 +1,50 @@
 #include "HodEngine/CoreEditor/Pch.hpp"
 #include "HodEngine/CoreEditor/PropertyDrawer/Vector4Drawer.hpp"
-#include "HodEngine/Editor/DrawHelper.hpp"
-#include "HodEngine/Editor/EditorReflectedObject.hpp"
-#include "HodEngine/Editor/EditorReflectedProperty.hpp"
-#include "HodEngine/Editor/ReflectionDrawer.hpp"
+#include <HodEngine/Editor/DrawHelper.hpp>
 
-#include "HodEngine/Math/Vector4.hpp"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
-
-#include "HodEngine/ImGui/DearImGui/imgui.h"
-#include "HodEngine/ImGui/Helper.hpp"
-#include "HodEngine/ImGui/Widgets.hpp"
+#include <HodEngine/Math/Vector4.hpp>
+#include <HodEngine/ImGui/DearImGui/imgui.h>
 
 namespace hod::inline editor
 {
 	/// @brief
-	/// @param instance
+	/// @param values
 	/// @return
-	bool Vector4Drawer::OnDraw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
+	bool Vector4Drawer::OnDraw(const PropertyValues<Vector4>& values)
 	{
-		bool changed = false;
-		if (onlyValue == false)
-		{
-			changed |= ReflectionDrawer::BeginProperty(editorReflectedProperty);
-			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
-		}
-
-		// Each component on its own: the instances edited together may differ on one only
-		Vector4 value = *editorReflectedProperty.GetObject<Vector4>();
-		uint8_t mixedComponents = 0;
-		for (uint32_t index = 1; index < editorReflectedProperty.GetInstances().Size(); ++index)
-		{
-			const Vector4& other = *editorReflectedProperty.GetObjectOf<Vector4>(index);
-			mixedComponents |= (other.GetX() != value.GetX() ? 1 : 0) | (other.GetY() != value.GetY() ? 2 : 0) | (other.GetZ() != value.GetZ() ? 4 : 0) |
-			                   (other.GetW() != value.GetW() ? 8 : 0);
-		}
+		// Each component on its own: the values edited together may differ on one only
+		Vector4 value = values.Get();
+		uint8_t mixedComponents = (values.IsMixed([](const Vector4& vector) { return vector.GetX(); }) ? 1 : 0) |
+		                          (values.IsMixed([](const Vector4& vector) { return vector.GetY(); }) ? 2 : 0) |
+		                          (values.IsMixed([](const Vector4& vector) { return vector.GetZ(); }) ? 4 : 0) |
+		                          (values.IsMixed([](const Vector4& vector) { return vector.GetW(); }) ? 8 : 0);
 
 		uint8_t editedComponents = 0;
-		if (DrawHelper::DrawVector4(value, "X", "Y", "Z", "W", mixedComponents, &editedComponents))
+		if (DrawHelper::DrawVector4(value, "X", "Y", "Z", "W", mixedComponents, &editedComponents) == false)
 		{
-			editorReflectedProperty.EditObjects<Vector4>(
-				[&](Vector4& object)
-				{
-					if (editedComponents & 1)
-					{
-						object.SetX(value.GetX());
-					}
-					if (editedComponents & 2)
-					{
-						object.SetY(value.GetY());
-					}
-					if (editedComponents & 4)
-					{
-						object.SetZ(value.GetZ());
-					}
-					if (editedComponents & 8)
-					{
-						object.SetW(value.GetW());
-					}
-				});
-			changed = true;
+			return false;
 		}
-		return changed;
+
+		values.Edit(
+			[&](Vector4& edited)
+			{
+				if (editedComponents & 1)
+				{
+					edited.SetX(value.GetX());
+				}
+				if (editedComponents & 2)
+				{
+					edited.SetY(value.GetY());
+				}
+				if (editedComponents & 4)
+				{
+					edited.SetZ(value.GetZ());
+				}
+				if (editedComponents & 8)
+				{
+					edited.SetW(value.GetW());
+				}
+			});
+		return true;
 	}
 }

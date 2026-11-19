@@ -10,11 +10,6 @@ namespace hod::inline core
 	class ReflectionDescriptor;
 }
 
-namespace hod::inline game
-{
-	class Component;
-}
-
 namespace hod::inline editor
 {
 	class EditorTabWindow;

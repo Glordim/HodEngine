@@ -564,7 +564,13 @@ namespace hod::inline editor
 		PropertyDrawerBase* propertyDrawer = PropertyDrawerRegistry::Find(*instanceDescriptor);
 		if (propertyDrawer != nullptr)
 		{
-			changed = propertyDrawer->Draw(reflectedProperty, onlyValue);
+			if (onlyValue == false)
+			{
+				changed |= BeginProperty(reflectedProperty);
+				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+			}
+			PropertyValuesBase values(reflectedProperty);
+			changed |= propertyDrawer->Draw(values);
 		}
 		else
 		{
@@ -582,6 +588,31 @@ namespace hod::inline editor
 				}
 			}
 		}
+		return changed;
+	}
+
+	/// @brief
+	/// @param value
+	/// @param descriptor
+	/// @return
+	bool ReflectionDrawer::DrawValue(void* value, const ReflectionDescriptor& descriptor)
+	{
+		ImGui::PushID(value);
+		bool changed = false;
+
+		PropertyDrawerBase* propertyDrawer = PropertyDrawerRegistry::Find(descriptor);
+		if (propertyDrawer != nullptr)
+		{
+			PropertyValuesBase values(value);
+			changed = propertyDrawer->Draw(values);
+		}
+		else
+		{
+			EditorReflectedObject reflectedObject(value, &descriptor, nullptr, nullptr);
+			changed = DrawDescriptor(reflectedObject);
+		}
+
+		ImGui::PopID();
 		return changed;
 	}
 

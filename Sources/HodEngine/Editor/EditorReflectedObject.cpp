@@ -5,10 +5,6 @@
 #include <HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp>
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 
-#include <HodEngine/Game/Component.hpp>
-#include <HodEngine/Game/Entity.hpp>
-#include <HodEngine/Game/PrefabUtility.hpp>
-
 namespace hod::inline editor
 {
 	EditorReflectedObject::EditorReflectedObject(void* instance, const ReflectionDescriptor* reflectionDescriptor, void* source, EditorTabWindow* editorTabWindow)

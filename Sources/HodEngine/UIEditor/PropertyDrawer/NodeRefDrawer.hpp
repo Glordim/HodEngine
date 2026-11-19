@@ -32,6 +32,6 @@ namespace hod::inline editor
 		};
 
 	protected:
-		bool OnDraw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue) override;
+		bool OnDraw(const PropertyValues<NodeRefBase>& values) override;
 	};
 }

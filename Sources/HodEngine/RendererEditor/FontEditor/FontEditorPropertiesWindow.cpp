@@ -263,7 +263,7 @@ namespace hod::inline editor
 				}
 
 				ImGui::TableNextColumn();
-				changed |= WeakResourceDrawer::Draw(fontSettings._fallbacks[index]); // The picker of a resource, as the inspector draws it
+				changed |= ReflectionDrawer::DrawValue(fontSettings._fallbacks[index]); // The picker of a resource, as the inspector draws it
 
 				const UID&             uid = fontSettings._fallbacks[index].GetUid();
 				std::shared_ptr<Asset> asset = fontEditorTab->GetAsset();

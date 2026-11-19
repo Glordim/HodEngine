@@ -2,17 +2,12 @@
 #include "HodEngine/CoreEditor/PropertyDrawer/WeakResourceDrawer.hpp"
 
 #include "HodEngine/Math/Vector2.hpp"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
-#include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 #include "HodEngine/ImGui/Helper.hpp"
 #include "HodEngine/ImGui/Widgets.hpp"
 
 #include "HodEngine/GameSystems/Resource/WeakResource.hpp"
-#include "HodEngine/Editor/EditorReflectedObject.hpp"
-#include "HodEngine/Editor/EditorReflectedProperty.hpp"
-#include "HodEngine/Editor/ReflectionDrawer.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
@@ -64,31 +59,25 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @param instance
+	/// @param values
 	/// @return
-	bool WeakResourceDrawer::OnDraw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
+	bool WeakResourceDrawer::OnDraw(const PropertyValues<WeakResourceBase>& values)
 	{
-		bool changed = false;
-		if (onlyValue == false)
+		UID picked;
+		if (DrawPicker(values.Get(), values.IsMixed(), picked) == false)
 		{
-			changed |= ReflectionDrawer::BeginProperty(editorReflectedProperty);
-			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
+			return false;
 		}
-
-		WeakResourceBase* value = editorReflectedProperty.GetObject<WeakResourceBase>();
-
-		changed |= WeakResourceDrawer::Draw(*value, editorReflectedProperty.HasDifferentValues());
-		if (changed == true)
-		{
-			editorReflectedProperty.SetObject(*value); // Set to itself for call SetFunction // todo affect a new object, wrong if SetFunction check if the value is the same
-		}
-		return changed;
+		values.Edit([&picked](WeakResourceBase& weakResource) { weakResource.SetUid(picked); });
+		return true;
 	}
 
 	/// @brief
 	/// @param weakResource
+	/// @param mixed
+	/// @param picked
 	/// @return
-	bool WeakResourceDrawer::Draw(WeakResourceBase& weakResource, bool mixed)
+	bool WeakResourceDrawer::DrawPicker(const WeakResourceBase& weakResource, bool mixed, UID& picked)
 	{
 		static Vector<AssetDatabase::FileSystemMapping*> assetList;
 
@@ -193,7 +182,7 @@ namespace hod::inline editor
 			ImGui::PopStyleVar();
 			if (clicked)
 			{
-				weakResource.SetUid(UID::INVALID_UID);
+				picked = UID::INVALID_UID;
 				changed = true;
 
 				ImGui::CloseCurrentPopup();
@@ -226,7 +215,7 @@ namespace hod::inline editor
 					ImGui::PopStyleVar();
 					if (clicked)
 					{
-						weakResource.SetUid(assetNode->_asset->GetUid());
+						picked = assetNode->_asset->GetUid();
 						changed = true;
 
 						ImGui::CloseCurrentPopup();
@@ -309,7 +298,7 @@ namespace hod::inline editor
 			ImGui::PopStyleVar();
 			if (clicked)
 			{
-				weakResource.SetUid(UID::INVALID_UID);
+				picked = UID::INVALID_UID;
 				changed = true;
 			}
 
@@ -336,7 +325,7 @@ namespace hod::inline editor
 					ImGui::PopStyleVar();
 					if (clicked)
 					{
-						weakResource.SetUid(assetNode->_asset->GetUid());
+						picked = assetNode->_asset->GetUid();
 						changed = true;
 					}
 					else if (ImGui::IsItemHovered() && ImGui::IsMouseDoubleClicked(ImGuiMouseButton_Left))

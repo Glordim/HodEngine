@@ -19,12 +19,9 @@
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
-#include "HodEngine/Editor/EditorReflectedProperty.hpp"
-#include "HodEngine/Game/ComponentFactory.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
-#include "HodEngine/Editor/ReflectionDrawer.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include <HodEngine/Renderer/Resource/MaterialResource.hpp>
@@ -47,8 +44,7 @@ namespace hod::inline editor
 	{
 		if (color == false)
 		{
-			EditorReflectedObject editorObject(&value, &Vector4::GetReflectionDescriptor(), nullptr, nullptr);
-			return ReflectionDrawer::DrawDescriptor(editorObject);
+			return ReflectionDrawer::DrawValue(value);
 		}
 
 		float rgba[4] = {value.GetX(), value.GetY(), value.GetZ(), value.GetW()};
@@ -101,9 +97,8 @@ namespace hod::inline editor
 						ImGui::AlignTextToFramePadding();
 						ImGui::TextUnformatted(scalarParameter._name.CStr());
 						ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
-						ReflectionPropertyVariable reflectionPropertyVariable(ReflectionPropertyVariable::Type::Float32, 0, scalarParameter._name.CStr(), nullptr, nullptr);
-						EditorReflectedProperty    editorProperty(&scalarParameter._value.floatValue, nullptr, &reflectionPropertyVariable, nullptr);
-						if (ReflectionDrawer::DrawProperty(editorProperty))
+						ImGui::SetNextItemWidth(-1);
+						if (ImGui::DragFloat("##value", &scalarParameter._value.floatValue, 0.01f))
 						{
 							GetOwner<MaterialEditorTab>()->GetMaterial()->EditDefaultInstance()->SetFloat("ubo." + scalarParameter._name,
 							                                                                                             scalarParameter._value.floatValue);
@@ -126,8 +121,7 @@ namespace hod::inline editor
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(vec2Parameter._name.CStr());
 				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
-				EditorReflectedObject editorObject(&vec2Parameter._value, &Vector2::GetReflectionDescriptor(), nullptr, nullptr);
-				if (ReflectionDrawer::DrawDescriptor(editorObject))
+				if (ReflectionDrawer::DrawValue(vec2Parameter._value))
 				{
 					GetOwner<MaterialEditorTab>()->GetMaterial()->EditDefaultInstance()->SetVec2("ubo." + vec2Parameter._name, vec2Parameter._value);
 					changed = true;
@@ -153,8 +147,7 @@ namespace hod::inline editor
 				ImGui::AlignTextToFramePadding();
 				ImGui::TextUnformatted(textureParameter._name.CStr());
 				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
-				EditorReflectedObject editorObject(&textureParameter._value, &WeakResourceBase::GetReflectionDescriptor(), nullptr, nullptr);
-				if (ReflectionDrawer::DrawDescriptor(editorObject))
+				if (ReflectionDrawer::DrawValue(textureParameter._value))
 				{
 					std::shared_ptr<hod::TextureResource> textureResource = textureParameter._value.Lock();
 					if (textureResource != nullptr)

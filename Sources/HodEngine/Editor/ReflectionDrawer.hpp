@@ -42,6 +42,13 @@ namespace hod::inline editor
 		static bool     DrawPropertyArray(EditorReflectedProperty& reflectedProperty, bool onlyValue = false);
 		static bool     DrawPropertyObject(EditorReflectedProperty& reflectedProperty, bool onlyValue = false);
 
+		/// @brief value alone, outside of a reflected object (a material's parameter...), on the rest of the line: by the PropertyDrawer of
+		/// its type, its properties otherwise. No label, override or context menu
+		/// @return true if it changed
+		template<typename _Type_>
+		static bool     DrawValue(_Type_& value);
+		static bool     DrawValue(void* value, const ReflectionDescriptor& descriptor);
+
         // Draws a value of an enum (e.g. an easing's shape) in a tooltip: of each entry of the enum's combos, and of a closed combo
         // for its value. Registered by the module owning the enum's editor, through its EditorRegistrar.
         using EnumValuePreview = void (*)(uint64_t value);
@@ -52,4 +59,14 @@ namespace hod::inline editor
         static bool     BeginProperty(EditorReflectedProperty& editorReflectedProperty);
         static bool     DrawContextMenu(EditorReflectedProperty& editorReflectedProperty);
     };
+
+	/// @brief
+	/// @tparam _Type_
+	/// @param value
+	/// @return
+	template<typename _Type_>
+	bool ReflectionDrawer::DrawValue(_Type_& value)
+	{
+		return DrawValue(&value, _Type_::GetReflectionDescriptor());
+	}
 }

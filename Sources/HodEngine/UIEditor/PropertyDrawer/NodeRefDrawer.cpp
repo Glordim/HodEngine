@@ -3,8 +3,6 @@
 #include "HodEngine/UIEditor/UIPrefabEditor/UIPrefabEditorTab.hpp"
 
 #include "HodEngine/Editor/DrawHelper.hpp"
-#include "HodEngine/Editor/EditorReflectedProperty.hpp"
-#include "HodEngine/Editor/ReflectionDrawer.hpp"
 
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -87,19 +85,12 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @param editorReflectedProperty
-	/// @param onlyValue
+	/// @param values
 	/// @return
-	bool NodeRefDrawer::OnDraw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
+	bool NodeRefDrawer::OnDraw(const PropertyValues<NodeRefBase>& values)
 	{
-		bool changed = false;
-		if (onlyValue == false)
-		{
-			changed |= ReflectionDrawer::BeginProperty(editorReflectedProperty);
-			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
-		}
-
-		ui::NodeRefBase* reference = editorReflectedProperty.GetObject<ui::NodeRefBase>();
+		bool                   changed = false;
+		const ui::NodeRefBase* reference = &values.Get();
 		ImGui::PushID(reference);
 
 		const ReflectionDescriptor* expectedDescriptor = (reference->GetViewDescriptor() != nullptr) ? reference->GetViewDescriptor() : reference->GetNodeDescriptor();
@@ -112,22 +103,22 @@ namespace hod::inline editor
 			return changed;
 		}
 
-		// The references edited together, set together (in place, as they are their owners' members)
-		bool mixed = editorReflectedProperty.HasDifferentValues();
+		// The references edited together, set together
+		bool mixed = values.IsMixed();
 		auto assignAll = [&](ui::Node* node)
 		{
-			for (uint32_t index = 0; index < editorReflectedProperty.GetInstances().Size(); ++index)
-			{
-				ui::NodeRefBase* instanceReference = editorReflectedProperty.GetObjectOf<ui::NodeRefBase>(index);
-				if (node != nullptr)
+			values.Edit(
+				[node](ui::NodeRefBase& instanceReference)
 				{
-					Assign(*instanceReference, *node);
-				}
-				else
-				{
-					instanceReference->SetLocalId(0);
-				}
-			}
+					if (node != nullptr)
+					{
+						Assign(instanceReference, *node);
+					}
+					else
+					{
+						instanceReference.SetLocalId(0);
+					}
+				});
 		};
 
 		ui::Node* referenced = mixed ? nullptr : scopeRoot->FindByLocalId(reference->GetLocalId());
