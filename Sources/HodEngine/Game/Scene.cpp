@@ -413,9 +413,9 @@ namespace hod::inline game
 	/// @brief
 	/// @param prefab
 	/// @return
-	Entity* Scene::Instantiate(std::shared_ptr<PrefabResource> prefabResource)
+	Entity* Scene::Instantiate(std::shared_ptr<PrefabResource> prefabResource, Entity* parent)
 	{
-		Entity* entity = Instantiate(prefabResource->GetPrefab().GetRootEntity());
+		Entity* entity = Instantiate(prefabResource->GetPrefab().GetRootEntity(), parent);
 		entity->SetPrefabResource(prefabResource);
 		entity->SetLocalId(0);
 		return entity;
@@ -423,8 +423,9 @@ namespace hod::inline game
 
 	/// @brief
 	/// @param entity
+	/// @param parent
 	/// @return
-	Entity* Scene::Instantiate(Entity* entity)
+	Entity* Scene::Instantiate(Entity* entity, Entity* parent)
 	{
 		if (entity == nullptr)
 		{
@@ -451,6 +452,10 @@ namespace hod::inline game
 		}
 
 		clonedEntity->SetPrefabResource(entity->GetPrefabResource());
+		if (parent != nullptr)
+		{
+			clonedEntity->SetParent(parent); // Before its activation
+		}
 		clonedEntity->ProcessActivation();
 
 		return clonedEntity;

@@ -126,4 +126,39 @@ namespace hod
 		DefaultAllocator::GetInstance().Delete(first);
 		DefaultAllocator::GetInstance().Delete(second);
 	}
+
+	// Instantiated under a parent: its parent set before its activation, an inactive parent leaving it never activated
+	TEST(Scene, InstantiateUnderParent)
+	{
+		Entity* source = DefaultAllocator::GetInstance().New<Entity>("Source");
+
+		// Not initialized: no frame job nor systems needed to activate entities; playing: activated up to Start
+		World* world = DefaultAllocator::GetInstance().New<World>();
+		world->SetEditorPlaying(true);
+		Scene* scene = DefaultAllocator::GetInstance().New<Scene>();
+		world->AddScene(scene);
+
+		Entity* parent = scene->CreateEntity("Parent");
+		parent->SetActive(false);
+
+		Entity* instance = scene->Instantiate(source, parent);
+		ASSERT_NE(instance, nullptr);
+		EXPECT_EQ(instance->GetParent().Lock(), parent);
+		ASSERT_EQ(parent->GetChildCount(), 1u);
+		EXPECT_EQ(parent->GetChild(0), instance);
+		EXPECT_EQ(scene->GetRootEntities().Size(), 1u); // The parent only
+		EXPECT_FALSE(instance->IsActiveInHierarchy());
+		EXPECT_EQ(instance->GetInternalState(), Entity::InternalState::Constructed); // Never awaked under its inactive parent
+
+		Entity* root = scene->Instantiate(source);
+		ASSERT_NE(root, nullptr);
+		EXPECT_EQ(root->GetParent().Lock(), nullptr);
+		EXPECT_TRUE(root->IsActiveInHierarchy());
+		EXPECT_EQ(root->GetInternalState(), Entity::InternalState::Started);
+
+		world->RemoveScene(scene);
+		DefaultAllocator::GetInstance().Delete(scene);
+		DefaultAllocator::GetInstance().Delete(world);
+		DefaultAllocator::GetInstance().Delete(source);
+	}
 }

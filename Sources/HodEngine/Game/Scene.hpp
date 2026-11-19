@@ -47,8 +47,11 @@ namespace hod::inline game
 		/// @brief Destructs and deletes all its entities (as its destruction does), the scene left empty
 		void   DestroyEntities();
 
-		Entity* Instantiate(std::shared_ptr<PrefabResource> prefabResource);
-		Entity* Instantiate(Entity* entity);
+		/// @brief A copy of the prefab's entities (an entity and its children) added to the scene and activated
+		/// @param parent Its parent from the start, before it is activated: its components see it in their OnAwake, an inactive parent leaves
+		/// it inactive. nullptr: a root of the scene
+		Entity* Instantiate(std::shared_ptr<PrefabResource> prefabResource, Entity* parent = nullptr);
+		Entity* Instantiate(Entity* entity, Entity* parent = nullptr);
 		/// @brief The entities of a document written by SceneSerializer::SerializeEntity (its children), added to the scene and activated.
 		/// Their local ids are the document's: cleared by the caller if they may already exist in the scene
 		/// @return the roots among them (without parent), in the document's order

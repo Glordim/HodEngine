@@ -580,11 +580,7 @@ namespace hod::inline editor
 							{
 								std::shared_ptr<PrefabResource> prefabResource = ResourceManager::GetInstance()->GetResource<PrefabResource>(asset->GetUid());
 
-								Entity* instance = tab->GetCurrentScene()->Instantiate(prefabResource);
-								if (instance != nullptr && tab->GetDefaultParent() != nullptr)
-								{
-									instance->SetParent(tab->GetDefaultParent());
-								}
+								Entity* instance = tab->GetCurrentScene()->Instantiate(prefabResource, tab->GetDefaultParent());
 
 								tab->SetEntitySelection(instance);
 								GetOwner()->MarkAsDirty(fmt::format("Add {}", asset->GetName()));

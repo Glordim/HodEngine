@@ -509,18 +509,12 @@ namespace hod::inline editor
 				continue;
 			}
 
-			Entity* copy = entity->GetScene()->Instantiate(entity);
+			Entity* copy = entity->GetScene()->Instantiate(entity, entity->GetParent().Lock());
 			if (copy == nullptr)
 			{
 				continue;
 			}
 			ClearLocalIds(copy);
-
-			Entity* parent = entity->GetParent().Lock();
-			if (parent != nullptr)
-			{
-				copy->SetParent(parent);
-			}
 			copy->SetSiblingIndex(entity->GetSiblingIndex() + 1); // among the roots of its scene, the source's, when it has no parent
 			copies.PushBack(copy);
 		}
