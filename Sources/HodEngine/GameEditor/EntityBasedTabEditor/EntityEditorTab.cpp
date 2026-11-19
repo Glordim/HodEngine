@@ -231,7 +231,7 @@ namespace hod::inline editor
 					continue;
 				}
 				bool inside = false;
-				for (Entity* ancestor = entity->GetParent().Lock(); ancestor != nullptr && inside == false; ancestor = ancestor->GetParent().Lock())
+				for (Entity* ancestor = entity->GetParent(); ancestor != nullptr && inside == false; ancestor = ancestor->GetParent())
 				{
 					inside = std::find(entities.CBegin(), entities.CEnd(), ancestor) != entities.CEnd();
 				}
@@ -245,7 +245,7 @@ namespace hod::inline editor
 
 		bool IsInside(const Entity* entity, const Entity* ancestor)
 		{
-			for (; entity != nullptr; entity = entity->GetParent().Lock())
+			for (; entity != nullptr; entity = entity->GetParent())
 			{
 				if (entity == ancestor)
 				{
@@ -423,7 +423,7 @@ namespace hod::inline editor
 		{
 			return GetRootEntity() == nullptr;
 		}
-		for (const Entity* ancestor = parent; ancestor != nullptr; ancestor = ancestor->GetParent().Lock())
+		for (const Entity* ancestor = parent; ancestor != nullptr; ancestor = ancestor->GetParent())
 		{
 			if (ancestor == entity)
 			{
@@ -509,7 +509,7 @@ namespace hod::inline editor
 				continue;
 			}
 
-			Entity* copy = entity->GetScene()->Instantiate(entity, entity->GetParent().Lock());
+			Entity* copy = entity->GetScene()->Instantiate(entity, entity->GetParent());
 			if (copy == nullptr)
 			{
 				continue;
@@ -540,7 +540,7 @@ namespace hod::inline editor
 			{
 				return false;
 			}
-			moves |= (entity->GetParent().Lock() != parent);
+			moves |= (entity->GetParent() != parent);
 		}
 		return moves;
 	}
@@ -841,7 +841,7 @@ namespace hod::inline editor
 		{
 			return PasteEntities(GetDefaultParent());
 		}
-		Entity* parent = selection->GetParent().Lock();
+		Entity* parent = selection->GetParent();
 		return PasteEntities(parent, parent != nullptr ? selection->GetSiblingIndex() + 1 : UINT32_MAX);
 	}
 
@@ -885,7 +885,7 @@ namespace hod::inline editor
 		Vector<uint64_t> GetLocalIdPath(const Entity* entity)
 		{
 			Vector<uint64_t> path;
-			for (; entity != nullptr; entity = entity->GetParent().Lock())
+			for (; entity != nullptr; entity = entity->GetParent())
 			{
 				path.PushBack(entity->GetLocalId());
 			}

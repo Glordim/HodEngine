@@ -59,7 +59,7 @@ namespace hod::inline game
 
 		for (const auto& entityPair : _entities)
 		{
-			if (entityPair.second->GetParent().Lock() == nullptr)
+			if (entityPair.second->GetParent() == nullptr)
 			{
 				SceneSerializer sceneSerializer;
 				if (sceneSerializer.SerializeEntity(entityPair.second, true, entitiesNode, _nextLocalId) == false)
@@ -100,7 +100,7 @@ namespace hod::inline game
 		for (Entity* entity : sceneSerializer.GetEntities())
 		{
 			_entities.emplace(entity->GetInstanceId(), entity);
-			if (_rootEntity == nullptr && entity->GetParent().Lock() == nullptr)
+			if (_rootEntity == nullptr && entity->GetParent() == nullptr)
 			{
 				_rootEntity = entity;
 			}

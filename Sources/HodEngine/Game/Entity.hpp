@@ -64,8 +64,9 @@ namespace hod::inline game
 		bool IsActiveInHierarchy() const;
 
 		// Hierarchy
-		void              SetParent(const WeakEntity& parent);
-		const WeakEntity& GetParent() const;
+		void    SetParent(const WeakEntity& parent);
+		/// @return Its parent, nullptr for a root of its scene
+		Entity* GetParent() const;
 
 		/// @brief Its children as Entity* (kept as WeakEntity, for the serialization): for (Entity* child : entity->GetChildren()). A view of
 		/// them: a child moved (SetParent, a pooled object released...) while iterating is skipped or seen twice, iterate ToVector() then

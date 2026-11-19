@@ -194,7 +194,7 @@ namespace hod::inline game
 
 		for (auto& entityPair : _contextualEntityMap)
 		{
-			uint64_t parentId = entityPair.second->GetParent().GetInstanceId();
+			uint64_t parentId = entityPair.second->_parent.GetInstanceId(); // Its id as read, not resolved yet
 			if (parentId != 0)
 			{
 				auto it = _contextualEntityMap.find(parentId);
@@ -426,7 +426,7 @@ namespace hod::inline game
 
 		for (Entity* entity : sceneSerializer._totalEntities)
 		{
-			if (rootEntity == nullptr && entity->GetParent().Lock() == nullptr)
+			if (rootEntity == nullptr && entity->GetParent() == nullptr)
 			{
 				rootEntity = entity;
 			}
@@ -497,7 +497,7 @@ namespace hod::inline game
 						route._componentId = 0;
 						routes.push_back(route);
 					}
-					entity = entity->GetParent().Lock();
+					entity = entity->GetParent();
 				}
 
 				for (auto it = routes.RBegin(); it != routes.REnd(); ++it)

@@ -612,9 +612,9 @@ namespace hod::inline game
 
 	/// @brief
 	/// @return
-	const WeakEntity& Entity::GetParent() const
+	Entity* Entity::GetParent() const
 	{
-		return _parent;
+		return _parent.Lock();
 	}
 
 	Entity::ChildrenChangedEvent& Entity::GetChildrenChangedEvent()

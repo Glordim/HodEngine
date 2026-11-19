@@ -42,7 +42,7 @@ namespace hod::inline game
 	/// @return 
 	Matrix4 NodeComponent::GetWorldMatrix()
 	{
-		Entity* parent = GetOwner()->GetParent().Lock();
+		Entity* parent = GetOwner()->GetParent();
 		if (parent == nullptr)
 		{
 			return GetLocalMatrix();
@@ -55,7 +55,7 @@ namespace hod::inline game
 			{
 				return parentNodeComponent->GetWorldMatrix() * GetLocalMatrix();
 			}
-			parent = parent->GetParent().Lock();
+			parent = parent->GetParent();
 		}
 		return GetLocalMatrix();
 	}

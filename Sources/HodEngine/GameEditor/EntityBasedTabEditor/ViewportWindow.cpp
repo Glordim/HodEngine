@@ -790,7 +790,7 @@ namespace hod::inline editor
 	{
 		auto isInside = [](const Entity* entity, const Entity* ancestor)
 		{
-			for (; entity != nullptr; entity = entity->GetParent().Lock())
+			for (; entity != nullptr; entity = entity->GetParent())
 			{
 				if (entity == ancestor)
 				{

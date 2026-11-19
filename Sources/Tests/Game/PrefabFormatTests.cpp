@@ -143,7 +143,7 @@ namespace hod
 
 		Entity* instance = scene->Instantiate(source, parent);
 		ASSERT_NE(instance, nullptr);
-		EXPECT_EQ(instance->GetParent().Lock(), parent);
+		EXPECT_EQ(instance->GetParent(), parent);
 		ASSERT_EQ(parent->GetChildCount(), 1u);
 		EXPECT_EQ(parent->GetChild(0), instance);
 		EXPECT_EQ(scene->GetRootEntities().Size(), 1u); // The parent only
@@ -152,7 +152,7 @@ namespace hod
 
 		Entity* root = scene->Instantiate(source);
 		ASSERT_NE(root, nullptr);
-		EXPECT_EQ(root->GetParent().Lock(), nullptr);
+		EXPECT_EQ(root->GetParent(), nullptr);
 		EXPECT_TRUE(root->IsActiveInHierarchy());
 		EXPECT_EQ(root->GetInternalState(), Entity::InternalState::Started);
 

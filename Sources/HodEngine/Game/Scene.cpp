@@ -86,7 +86,7 @@ namespace hod::inline game
 
 		for (const auto& entityPair : _entities)
 		{
-			if (entityPair.second->GetParent().Lock() == nullptr)
+			if (entityPair.second->GetParent() == nullptr)
 			{
 				entityPair.second->Destruct();
 			}
@@ -244,7 +244,7 @@ namespace hod::inline game
 		{
 			_entities.emplace(entity->GetInstanceId(), entity);
 			entity->SetScene(this);
-			if (entity->GetParent().Lock() == nullptr)
+			if (entity->GetParent() == nullptr)
 			{
 				unorderedRoots.PushBack(entity);
 			}
@@ -327,7 +327,7 @@ namespace hod::inline game
 		for (const auto& entityPair : _entities)
 		{
 			Entity* entity = entityPair.second;
-			if (entity->GetParent().Lock() == nullptr)
+			if (entity->GetParent() == nullptr)
 			{
 				entity->Construct();
 			}
@@ -336,7 +336,7 @@ namespace hod::inline game
 		for (const auto& entityPair : _entities)
 		{
 			Entity* entity = entityPair.second;
-			if (entity->GetParent().Lock() == nullptr)
+			if (entity->GetParent() == nullptr)
 			{
 				if (entity->GetActive())
 				{
@@ -356,7 +356,7 @@ namespace hod::inline game
 		for (const auto& entityPair : _entities)
 		{
 			Entity* entity = entityPair.second;
-			if (entity->GetParent().Lock() == nullptr && entity->GetActive())
+			if (entity->GetParent() == nullptr && entity->GetActive())
 			{
 				if (entity->GetScene()->GetWorld()->GetEditorPlaying())
 				{
@@ -445,7 +445,7 @@ namespace hod::inline game
 			_entities.emplace(entity->GetInstanceId(), entity);
 			entity->SetScene(this);
 
-			if (clonedEntity == nullptr && entity->GetParent().Lock() == nullptr)
+			if (clonedEntity == nullptr && entity->GetParent() == nullptr)
 			{
 				clonedEntity = entity;
 			}
@@ -479,7 +479,7 @@ namespace hod::inline game
 		{
 			_entities.emplace(entity->GetInstanceId(), entity);
 			entity->SetScene(this);
-			if (entity->GetParent().Lock() == nullptr)
+			if (entity->GetParent() == nullptr)
 			{
 				unorderedRoots.push_back(entity);
 			}

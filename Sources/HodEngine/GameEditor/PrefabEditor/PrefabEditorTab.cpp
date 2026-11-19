@@ -70,7 +70,7 @@ namespace hod::inline editor
 	{
 		for (const auto& entityPair : _scene->GetEntities())
 		{
-			if (entityPair.second->GetParent().Lock() == nullptr)
+			if (entityPair.second->GetParent() == nullptr)
 			{
 				return entityPair.second;
 			}

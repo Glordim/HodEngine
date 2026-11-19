@@ -197,7 +197,7 @@ namespace hod::inline PrefabUtility
 			}
 			else
 			{
-				entity = entity->GetParent().Lock();
+				entity = entity->GetParent();
 			}
 		}
 		return nullptr;
@@ -218,7 +218,7 @@ namespace hod::inline PrefabUtility
 			}
 			relativePath.Insert(0, child->GetName());
 
-			child = child->GetParent().Lock();
+			child = child->GetParent();
 		}
 		return relativePath;
 	}

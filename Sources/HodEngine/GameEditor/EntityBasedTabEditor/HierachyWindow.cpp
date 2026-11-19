@@ -193,7 +193,7 @@ namespace hod::inline editor
 			Vector<Entity*> deleted = tab->GetSelectedSubtrees();
 			for (Entity* entity : deleted)
 			{
-				for (Entity* renamed = _renamedEntity.Get(); renamed != nullptr; renamed = renamed->GetParent().Lock())
+				for (Entity* renamed = _renamedEntity.Get(); renamed != nullptr; renamed = renamed->GetParent())
 				{
 					if (renamed == entity)
 					{
@@ -480,7 +480,7 @@ namespace hod::inline editor
 				// Next to entity: under its parent (not out of the prefab's root, nor into the dragged entities themselves)
 				Entity*         draggedEntity = reinterpret_cast<EntityDragAndDropPayload*>(peekedPayload->Data)->_entity;
 				Vector<Entity*> draggedEntities = GetDraggedEntities(draggedEntity);
-				Entity*         parent = entity->GetParent().Lock();
+				Entity*         parent = entity->GetParent();
 				bool            canDrop = std::find(draggedEntities.Begin(), draggedEntities.End(), entity) == draggedEntities.End();
 				for (Entity* dragged : draggedEntities)
 				{
@@ -549,7 +549,7 @@ namespace hod::inline editor
 		Entity* activeEntity = tab->GetEntitySelection();
 		if (_revealSelection)
 		{
-			for (Entity* ancestor = activeEntity->GetParent().Lock(); ancestor != nullptr; ancestor = ancestor->GetParent().Lock())
+			for (Entity* ancestor = activeEntity->GetParent(); ancestor != nullptr; ancestor = ancestor->GetParent())
 			{
 				if (ancestor == entity)
 				{
