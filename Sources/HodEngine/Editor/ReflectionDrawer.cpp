@@ -10,17 +10,23 @@
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitVisibleIf.hpp"
 #include "HodEngine/Editor/PropertyDrawer/PropertyDrawer.hpp"
 #include "HodEngine/Editor/PropertyDrawer/PropertyDrawerRegistry.hpp"
+#include "HodEngine/Editor/PropertyHighlight.hpp"
 #include "HodEngine/Editor/ReflectionDrawer.hpp"
+
+#include <HodEngine/Core/Math.hpp>
+#include <HodEngine/Math/Vector2.hpp>
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui.h"
+#include "HodEngine/ImGui/DearImGui/imgui_internal.h"
 #include "HodEngine/ImGui/Font/IconsMaterialDesignIcons.h"
 #include "HodEngine/ImGui/Widgets.hpp"
 
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 
+#include <cmath>
 #include <unordered_map>
 
 namespace hod::inline editor
@@ -28,6 +34,56 @@ namespace hod::inline editor
 	namespace
 	{
 		std::unordered_map<const EnumDescriptor*, ReflectionDrawer::EnumValuePreview> enumValuePreviews;
+
+		/// @brief The frame of a highlighted property around min/max, pulsing (its alpha and its margin) in the color of the asset browser's ping
+		void DrawHighlightFrame(const ImVec2& min, const ImVec2& max)
+		{
+			constexpr float pulseSpeed = 6.0f; // About once a second
+			float           pulse = 0.5f + 0.5f * std::cos((float)ImGui::GetTime() * pulseSpeed);
+			float           margin = 1.0f + 2.0f * pulse;
+			ImU32           color = ImGui::GetColorU32(ImVec4(1.0f, 0.5f, 0.2f, 0.4f + 0.6f * pulse));
+			ImGui::GetWindowDrawList()->AddRect(ImVec2(min.x - margin, min.y - margin), ImVec2(max.x + margin, max.y + margin), color, ImGui::GetStyle().FrameRounding, 2.0f);
+		}
+
+		/// @brief The disabled property's row hovered (not an ImGui item: its widgets are), for its tooltip
+		struct DisabledRowHover
+		{
+			const void* _property = nullptr;
+			const void* _owner = nullptr;
+			double      _start = 0.0;
+			bool        _stationary = false;
+			int         _lastFrame = -1;
+		};
+
+		/// @return Whether the tooltip of the row can show, as an item's (SetItemTooltip: the mouse stationary once, then style.HoverDelayShort)
+		bool IsDisabledRowTooltipReady(const void* property, const void* owner)
+		{
+			static DisabledRowHover hover;
+
+			int frame = ImGui::GetFrameCount();
+			if (hover._property != property || hover._owner != owner || hover._lastFrame < frame - 1)
+			{
+				hover = DisabledRowHover {property, owner, ImGui::GetTime(), false, frame};
+			}
+			hover._lastFrame = frame;
+
+			const ImGuiContext& context = *ImGui::GetCurrentContext();
+			hover._stationary |= context.MouseStationaryTimer >= context.Style.HoverStationaryDelay;
+			return hover._stationary && ImGui::GetTime() - hover._start >= context.Style.HoverDelayShort;
+		}
+
+		/// @return The editor's highlighted properties, up to date with the ImGui frame
+		PropertyHighlight& GetPropertyHighlight()
+		{
+			static PropertyHighlight propertyHighlight;
+			static int               frame = -1;
+			if (frame != ImGui::GetFrameCount())
+			{
+				frame = ImGui::GetFrameCount();
+				propertyHighlight.NewFrame();
+			}
+			return propertyHighlight;
+		}
 
 		void DrawEnumValuePreview(ReflectionDrawer::EnumValuePreview preview, uint64_t value, const char* label)
 		{
@@ -87,6 +143,9 @@ namespace hod::inline editor
 		ImGui::PushID(reflectionProperty);
 		bool changed = false;
 		bool enabled = IsPropertyEnabled(reflectedProperty);
+		// Its row (no group: SameLine's offsets would start from it), measured for the hover of a disabled property and the highlight frame
+		ImVec2 rowMin = ImGui::GetCursorScreenPos();
+		float  rowWidth = ImGui::GetContentRegionAvail().x;
 		ImGui::BeginDisabled(enabled == false);
 
 		if (reflectionProperty->GetRttiType() == ReflectionPropertyVariable::GetRttiTypeStatic())
@@ -107,6 +166,22 @@ namespace hod::inline editor
 			}
 		}
 		ImGui::EndDisabled();
+		ImVec2 rowMax(rowMin.x + rowWidth, Max(ImGui::GetItemRectMax().y, rowMin.y + ImGui::GetFrameHeight()));
+		// Hovered long enough for a tooltip: why it is disabled, and the property deciding it highlighted at the same time
+		if (enabled == false && ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(rowMin, rowMax) &&
+		    IsDisabledRowTooltipReady(reflectionProperty, reflectedProperty.GetInstance()))
+		{
+			ReflectionTraitEnabledIf* enabledIf = reflectionProperty->FindTrait<ReflectionTraitEnabledIf>();
+			if (enabledIf->GetReason().Empty() == false)
+			{
+				ImGui::SetTooltip("%s", enabledIf->GetReason().CStr());
+			}
+			RequestHighlight(reflectedProperty.GetInstance(), enabledIf->GetDecidingProperty());
+		}
+		if (IsHighlighted(reflectedProperty))
+		{
+			DrawHighlightFrame(rowMin, rowMax);
+		}
 		ImGui::PopID();
 
 		return changed;
@@ -635,14 +710,43 @@ namespace hod::inline editor
 
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted(editorReflectedProperty.GetReflectionProperty()->GetDisplayName().CStr());
-		ReflectionTraitEnabledIf* enabledIf = editorReflectedProperty.GetReflectionProperty()->FindTrait<ReflectionTraitEnabledIf>();
-		if (enabledIf != nullptr && enabledIf->GetReason().Empty() == false && IsPropertyEnabled(editorReflectedProperty) == false)
-		{
-			ImGui::SetItemTooltip("%s", enabledIf->GetReason().CStr());
-		}
 		changed |= DrawContextMenu(editorReflectedProperty);
 
 		return changed;
+	}
+
+	/// @brief
+	/// @param owner
+	/// @param property
+	void ReflectionDrawer::RequestHighlight(const void* owner, std::string_view property)
+	{
+		GetPropertyHighlight().Request(owner, property);
+	}
+
+	/// @brief
+	/// @param editorReflectedProperty
+	/// @return
+	bool ReflectionDrawer::IsHighlighted(const EditorReflectedProperty& editorReflectedProperty)
+	{
+		if (editorReflectedProperty.GetInstances().Empty())
+		{
+			return false;
+		}
+		return GetPropertyHighlight().IsHighlighted(editorReflectedProperty.GetInstances()[0], editorReflectedProperty.GetReflectionProperty()->GetName());
+	}
+
+	/// @brief
+	void ReflectionDrawer::HighlightLastItem()
+	{
+		DrawHighlightFrame(ImGui::GetItemRectMin(), ImGui::GetItemRectMax());
+	}
+
+	/// @brief
+	/// @param min
+	/// @param max
+	void ReflectionDrawer::HighlightRect(const Vector2& min, const Vector2& max)
+	{
+		DrawHighlightFrame(ImVec2(min.GetX(), min.GetY()), ImVec2(max.GetX(), max.GetY()));
 	}
 
 	/// @brief

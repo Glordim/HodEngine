@@ -36,11 +36,11 @@ namespace hod::inline physics
 		HOD_REQUIRED_COMPONENT(_node2d);
 
 		HOD_PROPERTY(_mode, &Rigidbody2dComponent::SetMode);
-		HOD_PROPERTY(_gravityScale, &Rigidbody2dComponent::SetGravityScale)->AddTrait<ReflectionTraitEnabledIf>(&Rigidbody2dComponent::IsDynamic, "Unused: only a Dynamic body is moved by the physics");
-		HOD_PROPERTY(_fixedRotation, &Rigidbody2dComponent::SetFixedRotation)->AddTrait<ReflectionTraitEnabledIf>(&Rigidbody2dComponent::IsDynamic, "Unused: only a Dynamic body is moved by the physics");
-		HOD_PROPERTY(_continuousCollision, &Rigidbody2dComponent::SetContinuousCollision)->AddTrait<ReflectionTraitEnabledIf>(&Rigidbody2dComponent::IsDynamic, "Unused: only a Dynamic body is moved by the physics");
-		HOD_PROPERTY(_freezePositionX, &Rigidbody2dComponent::SetFreezePositionX)->AddTrait<ReflectionTraitEnabledIf>(&Rigidbody2dComponent::IsDynamic, "Unused: only a Dynamic body is moved by the physics");
-		HOD_PROPERTY(_freezePositionY, &Rigidbody2dComponent::SetFreezePositionY)->AddTrait<ReflectionTraitEnabledIf>(&Rigidbody2dComponent::IsDynamic, "Unused: only a Dynamic body is moved by the physics");
+		HOD_PROPERTY(_gravityScale, &Rigidbody2dComponent::SetGravityScale)->AddTrait<ReflectionTraitEnabledIf>(&Rigidbody2dComponent::IsDynamic, "Unused: only a Dynamic body is moved by the physics", "_mode");
+		HOD_PROPERTY(_fixedRotation, &Rigidbody2dComponent::SetFixedRotation)->AddTrait<ReflectionTraitEnabledIf>(&Rigidbody2dComponent::IsDynamic, "Unused: only a Dynamic body is moved by the physics", "_mode");
+		HOD_PROPERTY(_continuousCollision, &Rigidbody2dComponent::SetContinuousCollision)->AddTrait<ReflectionTraitEnabledIf>(&Rigidbody2dComponent::IsDynamic, "Unused: only a Dynamic body is moved by the physics", "_mode");
+		HOD_PROPERTY(_freezePositionX, &Rigidbody2dComponent::SetFreezePositionX)->AddTrait<ReflectionTraitEnabledIf>(&Rigidbody2dComponent::IsDynamic, "Unused: only a Dynamic body is moved by the physics", "_mode");
+		HOD_PROPERTY(_freezePositionY, &Rigidbody2dComponent::SetFreezePositionY)->AddTrait<ReflectionTraitEnabledIf>(&Rigidbody2dComponent::IsDynamic, "Unused: only a Dynamic body is moved by the physics", "_mode");
 	}
 
 	/// @brief

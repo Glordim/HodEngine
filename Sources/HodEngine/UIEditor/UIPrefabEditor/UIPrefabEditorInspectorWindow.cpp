@@ -140,6 +140,7 @@ namespace hod::inline editor
 			bool changed = false;
 
 			ImGui::PushID(property.GetReflectionProperty());
+			ImVec2 componentMin = ImGui::GetCursorScreenPos();
 			ImGui::BeginDisabled(used == false);
 			ImGui::PushStyleColor(ImGuiCol_FrameBg, axisColor);
 			FramedText(axisLabel, ImDrawFlags_RoundLeft);
@@ -191,9 +192,15 @@ namespace hod::inline editor
 				ImGui::EndComboPreview();
 			}
 			ImGui::EndDisabled();
-			if (used == false)
+			if (ReflectionDrawer::IsHighlighted(property)) // It decides why a Size component is disabled: its axis label and its combo framed
 			{
-				ImGui::SetItemTooltip("%s", unusedReason);
+				ReflectionDrawer::HighlightRect(Vector2(componentMin.x, componentMin.y), Vector2(ImGui::GetItemRectMax().x, ImGui::GetItemRectMax().y));
+			}
+			if (used == false && ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip)) // The tooltip and the highlight together
+			{
+				ImGui::SetTooltip("%s", unusedReason);
+				ReflectionDrawer::RequestHighlight(property.GetInstance(), "_anchorMin"); // The anchors stretch the axis
+				ReflectionDrawer::RequestHighlight(property.GetInstance(), "_anchorMax");
 			}
 			changed |= ReflectionDrawer::DrawContextMenu(property);
 			ImGui::PopID();
@@ -227,15 +234,15 @@ namespace hod::inline editor
 			ImGui::EndDisabled();
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 
-			// Same split as DrawHelper::DrawVector2, for the combos to line up with the Size row's fields
+			// Same split as DrawHelper::DrawVector2, for the combos to line up with the Size row's fields (labelled as them, see LayoutParams)
 			float availableWidth = ImGui::GetColumnWidth();
-			availableWidth -= CalculateButtonSize("X").x;
-			availableWidth -= CalculateButtonSize("Y").x;
+			availableWidth -= CalculateButtonSize("Width").x;
+			availableWidth -= CalculateButtonSize("Height").x;
 			availableWidth -= ImGui::GetStyle().ItemSpacing.x - 2;
 
-			bool changed = DrawSizeModeComponent(*widthMode, "X", ImVec4(0.5f, 0.0f, 0.0f, 1.0f), availableWidth * 0.5f, usedX, unusedReasonX);
+			bool changed = DrawSizeModeComponent(*widthMode, "Width", ImVec4(0.5f, 0.0f, 0.0f, 1.0f), availableWidth * 0.5f, usedX, unusedReasonX);
 			ImGui::SameLine();
-			changed |= DrawSizeModeComponent(*heightMode, "Y", ImVec4(0.0f, 0.5f, 0.0f, 1.0f), availableWidth * 0.5f, usedY, unusedReasonY);
+			changed |= DrawSizeModeComponent(*heightMode, "Height", ImVec4(0.0f, 0.5f, 0.0f, 1.0f), availableWidth * 0.5f, usedY, unusedReasonY);
 			return changed;
 		}
 

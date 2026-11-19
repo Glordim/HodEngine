@@ -2,6 +2,7 @@
 #include "HodEngine/Editor/Export.hpp"
 
 #include <cstdint>
+#include <string_view>
 
 namespace hod::inline core
 {
@@ -11,6 +12,11 @@ namespace hod::inline core
     class ReflectionPropertyVariable;
     class ReflectionPropertyArray;
     class ReflectionPropertyObject;
+}
+
+namespace hod::inline math
+{
+    class Vector2;
 }
 
 namespace hod::inline editor
@@ -62,6 +68,18 @@ namespace hod::inline editor
         static bool     IsPropertyVisible(const EditorReflectedProperty& editorReflectedProperty);
         /// @return Whether the property is enabled: not disabled by its ReflectionTraitEnabledIf for each of its owners (enabled if one uses it)
         static bool     IsPropertyEnabled(const EditorReflectedProperty& editorReflectedProperty);
+
+        /// @brief The property of owner highlighted (the one deciding why a disabled property hovered is, see ReflectionTraitEnabledIf):
+        /// during this frame and the next one (see PropertyHighlight)
+        /// @param owner The first of the objects edited together
+        /// @param property Its name, as written in its class
+        static void     RequestHighlight(const void* owner, std::string_view property);
+        /// @return Whether the property is highlighted (DrawProperty frames its row; a row drawn by hand calls HighlightLastItem)
+        static bool     IsHighlighted(const EditorReflectedProperty& editorReflectedProperty);
+        /// @brief The last ImGui item framed as a highlighted property (as the navigation cursor)
+        static void     HighlightLastItem();
+        /// @brief A rect of the window (screen coordinates) framed as a highlighted property
+        static void     HighlightRect(const Vector2& min, const Vector2& max);
         static bool     DrawContextMenu(EditorReflectedProperty& editorReflectedProperty);
     };
 

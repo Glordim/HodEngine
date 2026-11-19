@@ -14,7 +14,7 @@ namespace hod::inline ui
 	{
 		HOD_PROPERTY(_margin, &BoxLayoutParams::SetMargin);
 		HOD_PROPERTY(_rule, &BoxLayoutParams::SetRule);
-		HOD_PROPERTY(_weight, &BoxLayoutParams::SetWeight)->AddTrait<ReflectionTraitEnabledIf>(&BoxLayoutParams::IsFill, "Unused: only a Fill child shares the space left");
+		HOD_PROPERTY(_weight, &BoxLayoutParams::SetWeight)->AddTrait<ReflectionTraitEnabledIf>(&BoxLayoutParams::IsFill, "Unused: only a Fill child shares the space left", "_rule");
 	}
 
 	/// @brief The cross-axis alignment, that each concrete type names after its own axis (VerticalAlign in a row, HorizontalAlign in a column):

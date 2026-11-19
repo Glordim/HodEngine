@@ -20,8 +20,8 @@ namespace hod::inline ui
 		HOD_PROPERTY(_heightMode, &LayoutParams::SetHeightMode);
 		ReflectionProperty* sizeProperty = HOD_PROPERTY(_size, &LayoutParams::SetSize);
 		sizeProperty->AddTrait<ReflectionTraitVectorComponentLabels>("Width", "Height");
-		sizeProperty->AddTrait<ReflectionTraitVectorComponentEnabledIf>(&LayoutParams::IsSizeUsedX, "Unused: the width is sized from the content (Content mode)",
-		                                                                &LayoutParams::IsSizeUsedY, "Unused: the height is sized from the content (Content mode)");
+		sizeProperty->AddTrait<ReflectionTraitVectorComponentEnabledIf>(&LayoutParams::IsSizeUsedX, "Unused: the width is sized from the content (Content mode)", "_widthMode",
+		                                                                &LayoutParams::IsSizeUsedY, "Unused: the height is sized from the content (Content mode)", "_heightMode");
 		HOD_PROPERTY(_minSize, &LayoutParams::SetMinSize)->AddTrait<ReflectionTraitVectorComponentLabels>("Width", "Height");
 		HOD_PROPERTY(_maxSize, &LayoutParams::SetMaxSize)->AddTrait<ReflectionTraitVectorComponentLabels>("Width", "Height");
 	}

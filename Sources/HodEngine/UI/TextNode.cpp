@@ -59,7 +59,7 @@ namespace hod::inline ui
 		HOD_PROPERTY(_verticalAlignment, &TextNode::SetVerticalAlignment);
 		HOD_PROPERTY(_alignByGeometry, &TextNode::SetAlignByGeometry);
 		HOD_PROPERTY(_overflow, &TextNode::SetOverflow);
-		HOD_PROPERTY(_minFontSize, &TextNode::SetMinFontSize)->AddTrait<ReflectionTraitEnabledIf>(&TextNode::IsShrinkOverflow, "Unused: only with the Shrink overflow");
+		HOD_PROPERTY(_minFontSize, &TextNode::SetMinFontSize)->AddTrait<ReflectionTraitEnabledIf>(&TextNode::IsShrinkOverflow, "Unused: only with the Shrink overflow", "_overflow");
 		HOD_PROPERTY(_color, &TextNode::SetColor);
 	}
 

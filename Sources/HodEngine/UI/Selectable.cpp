@@ -14,7 +14,7 @@ namespace hod::inline ui
 	{
 		HOD_PROPERTY(_disabled, &Selectable::SetDisabled);
 		HOD_PROPERTY(_transitionDuration, &Selectable::SetTransitionDuration);
-		HOD_PROPERTY(_transitionEasing, &Selectable::SetTransitionEasing)->AddTrait<ReflectionTraitEnabledIf>(&Selectable::HasTransition, "Unused: no transition duration");
+		HOD_PROPERTY(_transitionEasing, &Selectable::SetTransitionEasing)->AddTrait<ReflectionTraitEnabledIf>(&Selectable::HasTransition, "Unused: no transition duration", "_transitionDuration");
 
 		// Edited by the UI prefab editor's own drawer (target node and property pickers), not the generic one
 		HOD_PROPERTY(_hoveredOverrides)->AddTrait<ReflectionTraitHide>();

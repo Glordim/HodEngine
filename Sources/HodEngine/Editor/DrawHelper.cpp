@@ -7,6 +7,7 @@
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitVectorComponentEnabledIf.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitVectorComponentLabels.hpp"
 #include "HodEngine/Editor/PropertyDrawer/PropertyValues.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 #include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Math/Vector4.hpp"
 
@@ -70,9 +71,16 @@ namespace hod::inline editor
 				{
 					edited |= (uint8_t)(1 << index);
 				}
-				if (disabled && options._disabledReasons[index] != nullptr)
+				if (disabled && ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip)) // The tooltip and the highlight together
 				{
-					ImGui::SetItemTooltip("%s", options._disabledReasons[index]);
+					if (options._disabledReasons[index] != nullptr)
+					{
+						ImGui::SetTooltip("%s", options._disabledReasons[index]);
+					}
+					if (options._decidingProperties[index] != nullptr)
+					{
+						ReflectionDrawer::RequestHighlight(options._owner, options._decidingProperties[index]);
+					}
 				}
 				ImGui::EndDisabled();
 			}
@@ -137,6 +145,7 @@ namespace hod::inline editor
 
 		if (const ReflectionTraitVectorComponentEnabledIf* enabledIf = property->FindTrait<ReflectionTraitVectorComponentEnabledIf>())
 		{
+			options._owner = values.GetOwner(0);
 			for (uint32_t component = 0; component < componentCount; ++component)
 			{
 				bool enabled = false;
@@ -148,6 +157,7 @@ namespace hod::inline editor
 				{
 					options._disabledComponents |= (uint8_t)(1 << component);
 					options._disabledReasons[component] = enabledIf->GetReason(component);
+					options._decidingProperties[component] = enabledIf->GetDecidingProperty(component);
 				}
 			}
 		}

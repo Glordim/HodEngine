@@ -4,6 +4,7 @@
 #include <HodEngine/Editor/EditorReflectedProperty.hpp>
 #include <HodEngine/Editor/DrawHelper.hpp>
 #include <HodEngine/Editor/PropertyDrawer/PropertyValues.hpp>
+#include <HodEngine/Editor/PropertyHighlight.hpp>
 #include <HodEngine/Editor/ReflectionDrawer.hpp>
 
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
@@ -112,7 +113,7 @@ namespace hod
 	{
 		ReflectionProperty* sizeProperty = HOD_PROPERTY(_size);
 		sizeProperty->AddTrait<ReflectionTraitVectorComponentLabels>("W", "H");
-		sizeProperty->AddTrait<ReflectionTraitVectorComponentEnabledIf>(&VectorTraitsOwner::IsWidthUsed, "Unused: no width", nullptr, ""); // The height always
+		sizeProperty->AddTrait<ReflectionTraitVectorComponentEnabledIf>(&VectorTraitsOwner::IsWidthUsed, "Unused: no width", "_widthUsed", nullptr, "", ""); // The height always
 		HOD_PROPERTY(_widthUsed);
 		HOD_PROPERTY(_plain);
 	}
@@ -133,6 +134,8 @@ namespace hod
 			EXPECT_EQ(options._disabledComponents, 1); // The width
 			EXPECT_STREQ(options._disabledReasons[0], "Unused: no width");
 			EXPECT_EQ(options._disabledReasons[1], nullptr);
+			EXPECT_STREQ(options._decidingProperties[0], "_widthUsed");
+			EXPECT_EQ(options._owner, &first);
 		}
 
 		second._widthUsed = true;
@@ -159,5 +162,28 @@ namespace hod
 			DrawHelper::ApplyVectorTraits(values, 2, options);
 			EXPECT_STREQ(options._labels[1], "Y");
 		}
+	}
+
+	// A request lasts its frame and the next one, for its owner only
+	TEST(ReflectionDrawer, PropertyHighlight)
+	{
+		int owner = 0;
+		int other = 0;
+
+		PropertyHighlight highlight;
+		highlight.Request(&owner, "_mode");
+		EXPECT_TRUE(highlight.IsHighlighted(&owner, "_mode")); // Drawn after the property hovered
+		EXPECT_FALSE(highlight.IsHighlighted(&other, "_mode"));
+		EXPECT_FALSE(highlight.IsHighlighted(&owner, "_size"));
+
+		highlight.NewFrame();
+		EXPECT_TRUE(highlight.IsHighlighted(&owner, "_mode")); // Drawn before it
+
+		highlight.NewFrame();
+		EXPECT_FALSE(highlight.IsHighlighted(&owner, "_mode")); // Not hovered anymore
+
+		highlight.Request(&owner, "");
+		highlight.Request(nullptr, "_mode");
+		EXPECT_FALSE(highlight.IsHighlighted(nullptr, "_mode"));
 	}
 }

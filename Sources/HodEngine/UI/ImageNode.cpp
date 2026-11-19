@@ -24,7 +24,7 @@ namespace hod::inline ui
 		HOD_PROPERTY(_texture, &ImageNode::SetTexture);
 		HOD_PROPERTY(_color, &ImageNode::SetColor);
 		HOD_PROPERTY(_slices, &ImageNode::SetSlices);
-		HOD_PROPERTY(_sliceScale, &ImageNode::SetSliceScale)->AddTrait<ReflectionTraitEnabledIf>(&ImageNode::IsSliced, "Unused: no slices");
+		HOD_PROPERTY(_sliceScale, &ImageNode::SetSliceScale)->AddTrait<ReflectionTraitEnabledIf>(&ImageNode::IsSliced, "Unused: no slices", "_slices");
 	}
 
 	/// @brief

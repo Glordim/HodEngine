@@ -27,4 +27,16 @@ namespace hod::inline core
 		}
 		return _reasons[component].CStr();
 	}
+
+	/// @brief
+	/// @param component
+	/// @return
+	const char* ReflectionTraitVectorComponentEnabledIf::GetDecidingProperty(uint32_t component) const
+	{
+		if (component >= MaxComponentCount || _decidingProperties[component].Empty())
+		{
+			return nullptr;
+		}
+		return _decidingProperties[component].CStr();
+	}
 }

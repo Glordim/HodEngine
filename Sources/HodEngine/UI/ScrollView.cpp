@@ -30,9 +30,9 @@ namespace hod::inline ui
 		HOD_PROPERTY(_horizontal, &ScrollView::SetHorizontal);
 		HOD_PROPERTY(_vertical, &ScrollView::SetVertical);
 		HOD_PROPERTY(_movementType, &ScrollView::SetMovementType);
-		HOD_PROPERTY(_elasticity, &ScrollView::SetElasticity)->AddTrait<ReflectionTraitEnabledIf>(&ScrollView::IsElastic, "Unused: the movement is Clamped");
+		HOD_PROPERTY(_elasticity, &ScrollView::SetElasticity)->AddTrait<ReflectionTraitEnabledIf>(&ScrollView::IsElastic, "Unused: the movement is Clamped", "_movementType");
 		HOD_PROPERTY(_inertia, &ScrollView::SetInertia);
-		HOD_PROPERTY(_decelerationRate, &ScrollView::SetDecelerationRate)->AddTrait<ReflectionTraitEnabledIf>(&ScrollView::GetInertia, "Unused: no inertia");
+		HOD_PROPERTY(_decelerationRate, &ScrollView::SetDecelerationRate)->AddTrait<ReflectionTraitEnabledIf>(&ScrollView::GetInertia, "Unused: no inertia", "_inertia");
 		HOD_PROPERTY(_scrollSensitivity, &ScrollView::SetScrollSensitivity);
 	}
 

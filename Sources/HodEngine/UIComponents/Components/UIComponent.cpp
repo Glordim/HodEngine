@@ -42,7 +42,7 @@ namespace hod::inline ui
 		HOD_PROPERTY(_overrideScaler, &UIComponent::SetOverrideScaler)->AddTrait<ReflectionTraitVisibleIf>(&UIComponent::IsScreenSpace);
 		ReflectionProperty* scalerProperty = HOD_PROPERTY(_scaler, &UIComponent::SetScaler);
 		scalerProperty->AddTrait<ReflectionTraitVisibleIf>(&UIComponent::IsScreenSpace);
-		scalerProperty->AddTrait<ReflectionTraitEnabledIf>(&UIComponent::GetOverrideScaler, "Off: the canvas follows the project's UI settings (Edit > Project Settings)");
+		scalerProperty->AddTrait<ReflectionTraitEnabledIf>(&UIComponent::GetOverrideScaler, "Off: the canvas follows the project's UI settings (Edit > Project Settings)", "_overrideScaler");
 	}
 
 	namespace

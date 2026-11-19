@@ -25,6 +25,8 @@ namespace hod::inline editor
         uint8_t     _disabledComponents = 0; // Greyed out (e.g. an axis the value is unused on)
         uint8_t     _mixedComponents = 0;    // The values edited together differ on them: shown as a mixed value
         const char* _disabledReasons[4] = {}; // Why a disabled component is: its tooltip (none if nullptr)
+        const char* _decidingProperties[4] = {}; // The property of _owner deciding it, highlighted while it is hovered (see ReflectionDrawer::RequestHighlight)
+        const void* _owner = nullptr;
     };
 
     class HOD_EDITOR_API DrawHelper
@@ -34,9 +36,9 @@ namespace hod::inline editor
         // editedComponents (optional): set to the bits of the components edited, for the caller to apply only those to each value
         static bool				DrawVector2(Vector2& value, const VectorFieldOptions& options = {}, uint8_t* editedComponents = nullptr);
         static bool				DrawVector4(Vector4& value, const VectorFieldOptions& options = {}, uint8_t* editedComponents = nullptr);
-        /// @brief options' labels, disabled components and their reasons from the traits of the property values are of
-        /// (ReflectionTraitVectorComponentLabels, ReflectionTraitVectorComponentEnabledIf: a component enabled if one of their owners uses it);
-        /// unchanged for a value of its own
+        /// @brief options' labels, disabled components, their reasons and the properties deciding them from the traits of the property values
+        /// are of (ReflectionTraitVectorComponentLabels, ReflectionTraitVectorComponentEnabledIf: a component enabled if one of their owners uses
+        /// it); unchanged for a value of its own
         static void				ApplyVectorTraits(const PropertyValuesBase& values, uint32_t componentCount, VectorFieldOptions& options);
 
         /// @brief Draws a toggle button glued to a small arrow button, in one unified round rect (same look as DrawVector2):
