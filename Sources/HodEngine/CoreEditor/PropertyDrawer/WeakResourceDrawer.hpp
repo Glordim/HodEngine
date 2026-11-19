@@ -1,15 +1,9 @@
 #pragma once
 #include "HodEngine/CoreEditor/Export.hpp"
-
-#include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawer.hpp"
-
+#include <HodEngine/Editor/PropertyDrawer/PropertyDrawer.hpp>
 #include <HodEngine/Core/UID.hpp>
 #include <HodEngine/Core/Vector.hpp>
 
-namespace hod::inline core
-{
-	class ReflectionPropertyObject;
-}
 namespace hod::inline gamesystems
 {
 	class WeakResourceBase;
@@ -18,20 +12,9 @@ namespace hod::inline gamesystems
 namespace hod::inline editor
 {
 	/// @brief
-	class HOD_CORE_EDITOR_API WeakResourceCustomPropertyDrawer : public CustomPropertyDrawer
+	class HOD_CORE_EDITOR_API WeakResourceDrawer : public PropertyDrawer<WeakResourceBase>
 	{
 	public:
-		WeakResourceCustomPropertyDrawer() = default;
-		WeakResourceCustomPropertyDrawer(const WeakResourceCustomPropertyDrawer&) = delete;
-		WeakResourceCustomPropertyDrawer(WeakResourceCustomPropertyDrawer&&) = delete;
-		~WeakResourceCustomPropertyDrawer() override = default;
-
-		WeakResourceCustomPropertyDrawer& operator=(const WeakResourceCustomPropertyDrawer&) = delete;
-		WeakResourceCustomPropertyDrawer& operator=(WeakResourceCustomPropertyDrawer&&) = delete;
-
-	public:
-		bool Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue = false) override;
-
 		/// @brief The asset picker of weakResource: only the assets holding the data it expects (WeakResourceBase::GetExpectedSubType)
 		/// @param mixed the objects edited together reference different resources: shows the mixed value label in place of weakResource's
 		static bool Draw(WeakResourceBase& weakResource, bool mixed = false);
@@ -40,6 +23,9 @@ namespace hod::inline editor
 		static void PushExcludedResources(const Vector<UID>& excludedResources);
 		static void PopExcludedResources();
 		static bool IsResourceExcluded(const UID& uid);
+
+	protected:
+		bool OnDraw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue) override;
 
 	private:
 		static Vector<const Vector<UID>*> _excludedResources;

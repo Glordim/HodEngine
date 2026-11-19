@@ -7,7 +7,7 @@
 
 #include <HodEngine/ImGui/DearImGui/imgui.h>
 
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 
 namespace hod::inline editor
@@ -31,7 +31,7 @@ namespace hod::inline editor
 		if (selectedRow != nullptr)
 		{
 			EditorReflectedObject reflectedObject(selectedRow, &selectedRow->GetReflectionDescriptorV(), nullptr, this);
-			changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
+			changed |= ReflectionDrawer::DrawDescriptor(reflectedObject);
 		}
 
 		if (changed)

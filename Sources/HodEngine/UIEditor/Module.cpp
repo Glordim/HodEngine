@@ -4,8 +4,8 @@
 
 #include "HodEngine/Editor/EditorRegistrar.hpp"
 #include "HodEngine/UIEditor/EasingPreview.hpp"
-#include "HodEngine/UIEditor/CustomPropertyDrawer/NodeRefCustomPropertyDrawer.hpp"
-#include "HodEngine/UIEditor/CustomPropertyDrawer/RectOffsetsCustomPropertyDrawer.hpp"
+#include "HodEngine/UIEditor/PropertyDrawer/NodeRefDrawer.hpp"
+#include "HodEngine/UIEditor/PropertyDrawer/RectOffsetsDrawer.hpp"
 #include "HodEngine/UIEditor/UIPrefabEditor/UIPrefabAssetType.hpp"
 #include "HodEngine/UIEditor/ComponentInspector/UIComponentInspector.hpp"
 
@@ -48,12 +48,10 @@ namespace hod::inline ui
 	{
 		EditorRegistrar editorRegistrar(registration);
 		// The same cross for both, pointing the way each one pushes
-		editorRegistrar.RegisterCustomPropertyDrawer(Margin::GetReflectionDescriptor(),
-		                                             DefaultAllocator::GetInstance().New<RectOffsetsCustomPropertyDrawer>(RectOffsetsCustomPropertyDrawer::Direction::Outward));
-		editorRegistrar.RegisterCustomPropertyDrawer(Padding::GetReflectionDescriptor(),
-		                                             DefaultAllocator::GetInstance().New<RectOffsetsCustomPropertyDrawer>(RectOffsetsCustomPropertyDrawer::Direction::Inward));
+		editorRegistrar.RegisterPropertyDrawer<MarginDrawer>();
+		editorRegistrar.RegisterPropertyDrawer<PaddingDrawer>();
 
-		editorRegistrar.RegisterCustomPropertyDrawer<NodeRefBase, NodeRefCustomPropertyDrawer>();
+		editorRegistrar.RegisterPropertyDrawer<NodeRefDrawer>();
 
 		if (const EnumDescriptor* easingEnum = GetEasingEnumDescriptor())
 		{

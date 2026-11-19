@@ -1,5 +1,5 @@
 #include "HodEngine/CoreEditor/Pch.hpp"
-#include "HodEngine/CoreEditor/CustomPropertyDrawer/WeakResourceCustomPropertyDrawer.hpp"
+#include "HodEngine/CoreEditor/PropertyDrawer/WeakResourceDrawer.hpp"
 
 #include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
@@ -12,7 +12,7 @@
 #include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
@@ -30,17 +30,17 @@
 
 namespace hod::inline editor
 {
-	Vector<const Vector<UID>*> WeakResourceCustomPropertyDrawer::_excludedResources;
+	Vector<const Vector<UID>*> WeakResourceDrawer::_excludedResources;
 
 	/// @brief
 	/// @param excludedResources
-	void WeakResourceCustomPropertyDrawer::PushExcludedResources(const Vector<UID>& excludedResources)
+	void WeakResourceDrawer::PushExcludedResources(const Vector<UID>& excludedResources)
 	{
 		_excludedResources.PushBack(&excludedResources);
 	}
 
 	/// @brief
-	void WeakResourceCustomPropertyDrawer::PopExcludedResources()
+	void WeakResourceDrawer::PopExcludedResources()
 	{
 		_excludedResources.PopBack();
 	}
@@ -48,7 +48,7 @@ namespace hod::inline editor
 	/// @brief
 	/// @param uid
 	/// @return
-	bool WeakResourceCustomPropertyDrawer::IsResourceExcluded(const UID& uid)
+	bool WeakResourceDrawer::IsResourceExcluded(const UID& uid)
 	{
 		for (const Vector<UID>* excludedResources : _excludedResources)
 		{
@@ -66,18 +66,18 @@ namespace hod::inline editor
 	/// @brief
 	/// @param instance
 	/// @return
-	bool WeakResourceCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
+	bool WeakResourceDrawer::OnDraw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
 	{
 		bool changed = false;
 		if (onlyValue == false)
 		{
-			changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
+			changed |= ReflectionDrawer::BeginProperty(editorReflectedProperty);
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 		}
 
 		WeakResourceBase* value = editorReflectedProperty.GetObject<WeakResourceBase>();
 
-		changed |= WeakResourceCustomPropertyDrawer::Draw(*value, editorReflectedProperty.HasDifferentValues());
+		changed |= WeakResourceDrawer::Draw(*value, editorReflectedProperty.HasDifferentValues());
 		if (changed == true)
 		{
 			editorReflectedProperty.SetObject(*value); // Set to itself for call SetFunction // todo affect a new object, wrong if SetFunction check if the value is the same
@@ -88,7 +88,7 @@ namespace hod::inline editor
 	/// @brief
 	/// @param weakResource
 	/// @return
-	bool WeakResourceCustomPropertyDrawer::Draw(WeakResourceBase& weakResource, bool mixed)
+	bool WeakResourceDrawer::Draw(WeakResourceBase& weakResource, bool mixed)
 	{
 		static Vector<AssetDatabase::FileSystemMapping*> assetList;
 

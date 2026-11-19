@@ -8,10 +8,10 @@
 #include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 
 #include "HodEngine/Editor/EditorRegistrar.hpp"
-#include "HodEngine/CoreEditor/CustomPropertyDrawer/ColorCustomPropertyDrawer.hpp"
-#include "HodEngine/CoreEditor/CustomPropertyDrawer/Vector2CustomPropertyDrawer.hpp"
-#include "HodEngine/CoreEditor/CustomPropertyDrawer/Vector4CustomPropertyDrawer.hpp"
-#include "HodEngine/CoreEditor/CustomPropertyDrawer/WeakResourceCustomPropertyDrawer.hpp"
+#include "HodEngine/CoreEditor/PropertyDrawer/ColorDrawer.hpp"
+#include "HodEngine/CoreEditor/PropertyDrawer/Vector2Drawer.hpp"
+#include "HodEngine/CoreEditor/PropertyDrawer/Vector4Drawer.hpp"
+#include "HodEngine/CoreEditor/PropertyDrawer/WeakResourceDrawer.hpp"
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
@@ -20,10 +20,10 @@ namespace hod::inline core
 	HOD_STARTUP_MODULE(CoreEditor, registration)
 	{
 		EditorRegistrar editorRegistrar(registration);
-		editorRegistrar.RegisterCustomPropertyDrawer<Color, ColorCustomPropertyDrawer>();
-		editorRegistrar.RegisterCustomPropertyDrawer<Vector2, Vector2CustomPropertyDrawer>();
-		editorRegistrar.RegisterCustomPropertyDrawer<Vector4, Vector4CustomPropertyDrawer>();
-		editorRegistrar.RegisterCustomPropertyDrawer<WeakResourceBase, WeakResourceCustomPropertyDrawer>();
+		editorRegistrar.RegisterPropertyDrawer<ColorDrawer>();
+		editorRegistrar.RegisterPropertyDrawer<Vector2Drawer>();
+		editorRegistrar.RegisterPropertyDrawer<Vector4Drawer>();
+		editorRegistrar.RegisterPropertyDrawer<WeakResourceDrawer>();
 		return true;
 	}
 }

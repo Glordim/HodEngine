@@ -2,7 +2,7 @@
 #include "HodEngine/UIEditor/ComponentInspector/UIComponentInspector.hpp"
 
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 
 #include <HodEngine/Core/Reflection/ReflectionProperty.hpp>
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -41,7 +41,7 @@ namespace hod::inline editor
 
 			bool disabled = std::strcmp(name, "_scaler") == 0 && overrideScaler == false;
 			ImGui::BeginDisabled(disabled);
-			changed |= PropertyDrawer::DrawProperty(*property);
+			changed |= ReflectionDrawer::DrawProperty(*property);
 			ImGui::EndDisabled();
 		}
 		return changed;

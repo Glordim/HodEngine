@@ -107,7 +107,7 @@ namespace hod::inline editor
             }
             else if (property.GetRttiType() == ReflectionPropertyArray::GetRttiTypeStatic())
             {
-                // The elements aren't compared: the arrays are only edited one instance at a time (see PropertyDrawer::DrawPropertyArray)
+                // The elements aren't compared: the arrays are only edited one instance at a time (see ReflectionDrawer::DrawPropertyArray)
                 const ReflectionPropertyArray& arrayProperty = static_cast<const ReflectionPropertyArray&>(property);
                 return arrayProperty.GetElementCount(left) == arrayProperty.GetElementCount(right);
             }

@@ -15,7 +15,7 @@
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 
 #include "HodEngine/Game/Components/NodeComponent.hpp"
 #include "HodEngine/Game/Entity.hpp"
@@ -1199,6 +1199,6 @@ namespace hod::inline editor
 	/// @param object
 	bool InspectorWindow::DrawDefaultInspector(EditorReflectedObject& reflectedObject)
 	{
-		return PropertyDrawer::DrawDescriptor(reflectedObject);
+		return ReflectionDrawer::DrawDescriptor(reflectedObject);
 	}
 }

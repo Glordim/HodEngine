@@ -14,7 +14,7 @@
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitDisplayName.hpp"
@@ -24,7 +24,7 @@
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include <HodEngine/Renderer/Resource/MaterialResource.hpp>
@@ -48,7 +48,7 @@ namespace hod::inline editor
 		if (color == false)
 		{
 			EditorReflectedObject editorObject(&value, &Vector4::GetReflectionDescriptor(), nullptr, nullptr);
-			return PropertyDrawer::DrawDescriptor(editorObject);
+			return ReflectionDrawer::DrawDescriptor(editorObject);
 		}
 
 		float rgba[4] = {value.GetX(), value.GetY(), value.GetZ(), value.GetW()};
@@ -81,7 +81,7 @@ namespace hod::inline editor
 		if (ImGui::CollapsingHeader("Data", ImGuiTreeNodeFlags_DefaultOpen))
 		{
 			EditorReflectedObject reflectedObject(&materialSettings, &materialSettings.GetReflectionDescriptorV(), nullptr, this);
-			if (PropertyDrawer::DrawDescriptor(reflectedObject))
+			if (ReflectionDrawer::DrawDescriptor(reflectedObject))
 			{
 				GetOwner<MaterialEditorTab>()->ApplyPipelineStates();
 				changed = true;
@@ -103,7 +103,7 @@ namespace hod::inline editor
 						ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 						ReflectionPropertyVariable reflectionPropertyVariable(ReflectionPropertyVariable::Type::Float32, 0, scalarParameter._name.CStr(), nullptr, nullptr);
 						EditorReflectedProperty    editorProperty(&scalarParameter._value.floatValue, nullptr, &reflectionPropertyVariable, nullptr);
-						if (PropertyDrawer::DrawProperty(editorProperty))
+						if (ReflectionDrawer::DrawProperty(editorProperty))
 						{
 							GetOwner<MaterialEditorTab>()->GetMaterial()->EditDefaultInstance()->SetFloat("ubo." + scalarParameter._name,
 							                                                                                             scalarParameter._value.floatValue);
@@ -127,7 +127,7 @@ namespace hod::inline editor
 				ImGui::TextUnformatted(vec2Parameter._name.CStr());
 				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 				EditorReflectedObject editorObject(&vec2Parameter._value, &Vector2::GetReflectionDescriptor(), nullptr, nullptr);
-				if (PropertyDrawer::DrawDescriptor(editorObject))
+				if (ReflectionDrawer::DrawDescriptor(editorObject))
 				{
 					GetOwner<MaterialEditorTab>()->GetMaterial()->EditDefaultInstance()->SetVec2("ubo." + vec2Parameter._name, vec2Parameter._value);
 					changed = true;
@@ -154,7 +154,7 @@ namespace hod::inline editor
 				ImGui::TextUnformatted(textureParameter._name.CStr());
 				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 				EditorReflectedObject editorObject(&textureParameter._value, &WeakResourceBase::GetReflectionDescriptor(), nullptr, nullptr);
-				if (PropertyDrawer::DrawDescriptor(editorObject))
+				if (ReflectionDrawer::DrawDescriptor(editorObject))
 				{
 					std::shared_ptr<hod::TextureResource> textureResource = textureParameter._value.Lock();
 					if (textureResource != nullptr)

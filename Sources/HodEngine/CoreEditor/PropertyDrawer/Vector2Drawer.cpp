@@ -1,12 +1,11 @@
 #include "HodEngine/CoreEditor/Pch.hpp"
-#include "HodEngine/CoreEditor/CustomPropertyDrawer/Vector2CustomPropertyDrawer.hpp"
+#include "HodEngine/CoreEditor/PropertyDrawer/Vector2Drawer.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 
 #include "HodEngine/Math/Vector2.hpp"
-#include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
 #include "HodEngine/ImGui/DearImGui/imgui.h"
 
 namespace hod::inline editor
@@ -14,12 +13,12 @@ namespace hod::inline editor
 	/// @brief
 	/// @param editorReflectedProperty
 	/// @return
-	bool Vector2CustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
+	bool Vector2Drawer::OnDraw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
 	{
 		bool changed = false;
 		if (onlyValue == false)
 		{
-			changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
+			changed |= ReflectionDrawer::BeginProperty(editorReflectedProperty);
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 		}
 

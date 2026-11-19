@@ -18,17 +18,21 @@ namespace hod::inline editor
     class EditorReflectedObject;
     class EditorReflectedProperty;
 
-    class HOD_EDITOR_API PropertyDrawer
+    /// @brief Draws what reflection describes, for the inspector, the asset tabs, the project settings...: an object's properties
+    /// (DrawDescriptor), each one by its kind (variable, array, object), a value of a type having a PropertyDrawer<T> with it (DrawProperty),
+    /// of an object type without one under a collapsing header. Also the parts the property drawers use: a property's label and context menu
+    /// (BeginProperty), the enums' previews
+    class HOD_EDITOR_API ReflectionDrawer
     {
     public:
 
-                        PropertyDrawer() = delete;
-                        PropertyDrawer(const PropertyDrawer&) = delete;
-                        PropertyDrawer(PropertyDrawer&&) = delete;
-                        ~PropertyDrawer() = delete;
+                        ReflectionDrawer() = delete;
+                        ReflectionDrawer(const ReflectionDrawer&) = delete;
+                        ReflectionDrawer(ReflectionDrawer&&) = delete;
+                        ~ReflectionDrawer() = delete;
 
-        PropertyDrawer& operator = (const PropertyDrawer&) = delete;
-        PropertyDrawer& operator = (PropertyDrawer&&) = delete;
+        ReflectionDrawer& operator = (const ReflectionDrawer&) = delete;
+        ReflectionDrawer& operator = (ReflectionDrawer&&) = delete;
 
     public:
 

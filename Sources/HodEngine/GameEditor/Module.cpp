@@ -10,8 +10,8 @@
 
 #include "HodEngine/Game/Components/MissingComponent.hpp"
 
-#include "HodEngine/GameEditor/CustomPropertyDrawer/ZOrderCustomPropertyDrawer.hpp"
-#include "HodEngine/GameEditor/CustomPropertyDrawer/WeakComponentCustomPropertyDrawer.hpp"
+#include "HodEngine/GameEditor/PropertyDrawer/ZOrderDrawer.hpp"
+#include "HodEngine/GameEditor/PropertyDrawer/WeakComponentDrawer.hpp"
 
 #include "HodEngine/GameEditor/ComponentGizmo/Node2dGizmo.hpp"
 #include "HodEngine/GameEditor/ComponentInspector/MissingComponentInspector.hpp"
@@ -29,8 +29,8 @@ namespace hod::inline game
 	HOD_STARTUP_MODULE(GameEditor, registration)
 	{
 		EditorRegistrar editorRegistrar(registration);
-		editorRegistrar.RegisterCustomPropertyDrawer<ZOrder, ZOrderCustomPropertyDrawer>();
-		editorRegistrar.RegisterCustomPropertyDrawer<WeakComponentBase, WeakComponentCustomPropertyDrawer>();
+		editorRegistrar.RegisterPropertyDrawer<ZOrderDrawer>();
+		editorRegistrar.RegisterPropertyDrawer<WeakComponentDrawer>();
 
 		GameEditorRegistrar gameEditorRegistrar(registration);
 		gameEditorRegistrar.RegisterComponentGizmo<Node2dGizmo>();

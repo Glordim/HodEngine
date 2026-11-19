@@ -10,9 +10,9 @@
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 
-#include <HodEngine/CoreEditor/CustomPropertyDrawer/WeakResourceCustomPropertyDrawer.hpp>
+#include <HodEngine/CoreEditor/PropertyDrawer/WeakResourceDrawer.hpp>
 
 #include <HodEngine/Core/Reflection/EnumDescriptor.hpp>
 #include <HodEngine/Core/Reflection/ReflectionHelper.hpp>
@@ -134,7 +134,7 @@ namespace hod::inline editor
 				EditorReflectedProperty* faceProperty = styleObject.FindProperty("_face");
 				if (faceProperty != nullptr)
 				{
-					changed |= PropertyDrawer::DrawPropertyObject(*faceProperty, true);
+					changed |= ReflectionDrawer::DrawPropertyObject(*faceProperty, true);
 				}
 
 				// What the file says, when it is not the style it is drawn for: not wrong (a Bold drawn for Black...), to know
@@ -231,7 +231,7 @@ namespace hod::inline editor
 					excludedFonts.PushBack(fallback.GetUid());
 				}
 			}
-			WeakResourceCustomPropertyDrawer::PushExcludedResources(excludedFonts);
+			WeakResourceDrawer::PushExcludedResources(excludedFonts);
 
 			const uint32_t fallbackCount = fontSettings._fallbacks.Size();
 			for (uint32_t index = 0; index < fallbackCount; ++index)
@@ -263,7 +263,7 @@ namespace hod::inline editor
 				}
 
 				ImGui::TableNextColumn();
-				changed |= WeakResourceCustomPropertyDrawer::Draw(fontSettings._fallbacks[index]); // The picker of a resource, as the inspector draws it
+				changed |= WeakResourceDrawer::Draw(fontSettings._fallbacks[index]); // The picker of a resource, as the inspector draws it
 
 				const UID&             uid = fontSettings._fallbacks[index].GetUid();
 				std::shared_ptr<Asset> asset = fontEditorTab->GetAsset();
@@ -284,7 +284,7 @@ namespace hod::inline editor
 				}
 				ImGui::PopID();
 			}
-			WeakResourceCustomPropertyDrawer::PopExcludedResources();
+			WeakResourceDrawer::PopExcludedResources();
 			ImGui::EndTable();
 		}
 

@@ -6,9 +6,9 @@
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
-#include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawer.hpp"
-#include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawerRegistry.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/PropertyDrawer/PropertyDrawer.hpp"
+#include "HodEngine/Editor/PropertyDrawer/PropertyDrawerRegistry.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 
 #include "HodEngine/Core/Reflection/ReflectionTrait.hpp"
 
@@ -25,9 +25,9 @@ namespace hod::inline editor
 {
 	namespace
 	{
-		std::unordered_map<const EnumDescriptor*, PropertyDrawer::EnumValuePreview> enumValuePreviews;
+		std::unordered_map<const EnumDescriptor*, ReflectionDrawer::EnumValuePreview> enumValuePreviews;
 
-		void DrawEnumValuePreview(PropertyDrawer::EnumValuePreview preview, uint64_t value, const char* label)
+		void DrawEnumValuePreview(ReflectionDrawer::EnumValuePreview preview, uint64_t value, const char* label)
 		{
 			if (preview != nullptr && ImGui::BeginItemTooltip())
 			{
@@ -45,11 +45,11 @@ namespace hod::inline editor
 	/// @param enumDescriptor
 	/// @param preview
 	/// @return
-	bool PropertyDrawer::RegisterEnumValuePreview(const EnumDescriptor& enumDescriptor, EnumValuePreview preview)
+	bool ReflectionDrawer::RegisterEnumValuePreview(const EnumDescriptor& enumDescriptor, EnumValuePreview preview)
 	{
 		if (enumValuePreviews.emplace(&enumDescriptor, preview).second == false)
 		{
-			OUTPUT_ERROR("PropertyDrawer::RegisterEnumValuePreview: the enum has a preview already");
+			OUTPUT_ERROR("ReflectionDrawer::RegisterEnumValuePreview: the enum has a preview already");
 			return false;
 		}
 		return true;
@@ -57,24 +57,24 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param enumDescriptor
-	void PropertyDrawer::UnregisterEnumValuePreview(const EnumDescriptor& enumDescriptor)
+	void ReflectionDrawer::UnregisterEnumValuePreview(const EnumDescriptor& enumDescriptor)
 	{
 		enumValuePreviews.erase(&enumDescriptor);
 	}
 
-	bool PropertyDrawer::DrawDescriptor(EditorReflectedObject& reflectedObject)
+	bool ReflectionDrawer::DrawDescriptor(EditorReflectedObject& reflectedObject)
 	{
 		bool changed = false;
 
 		for (EditorReflectedProperty* property : reflectedObject.GetProperties())
 		{
-			changed |= PropertyDrawer::DrawProperty(*property);
+			changed |= ReflectionDrawer::DrawProperty(*property);
 		}
 
 		return changed;
 	}
 
-	bool PropertyDrawer::DrawProperty(EditorReflectedProperty& reflectedProperty, bool onlyValue)
+	bool ReflectionDrawer::DrawProperty(EditorReflectedProperty& reflectedProperty, bool onlyValue)
 	{
 		ReflectionProperty* reflectionProperty = reflectedProperty.GetReflectionProperty();
 		if (reflectionProperty->FindTrait<ReflectionTraitHide>() != nullptr)
@@ -127,7 +127,7 @@ namespace hod::inline editor
 		}
 
 		auto                             it = enumValuePreviews.find(enumDescriptor);
-		PropertyDrawer::EnumValuePreview preview = (it != enumValuePreviews.end()) ? it->second : nullptr;
+		ReflectionDrawer::EnumValuePreview preview = (it != enumValuePreviews.end()) ? it->second : nullptr;
 
 		if (ImGui::BeginCombo("", label))
 		{
@@ -153,7 +153,7 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param property
-	bool PropertyDrawer::DrawPropertyVariable(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
+	bool ReflectionDrawer::DrawPropertyVariable(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
 	{
 		bool changed = false;
 		if (onlyValue == false)
@@ -440,7 +440,7 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param property
-	bool PropertyDrawer::DrawPropertyArray(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
+	bool ReflectionDrawer::DrawPropertyArray(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
 	{
 		bool changed = false;
 		if (onlyValue == false)
@@ -498,7 +498,7 @@ namespace hod::inline editor
 					case ReflectionPropertyVariable::Type::Object:
 					{
 						EditorReflectedProperty elementProperty = editorReflectedProperty.GenerateElementProperty(index);
-						changed |= PropertyDrawer::DrawPropertyObject(elementProperty);
+						changed |= ReflectionDrawer::DrawPropertyObject(elementProperty);
 
 						/*
 						void* value = property->GetValue<void*>(object, index);
@@ -507,7 +507,7 @@ namespace hod::inline editor
 						{
 						    ImGui::Indent();
 						    //void* value = property->GetValue<void*>(object, index);
-						    changed |= PropertyDrawer::DrawDescriptor(subEditorReflectedObject);
+						    changed |= ReflectionDrawer::DrawDescriptor(subEditorReflectedObject);
 						    ImGui::Unindent();
 						}
 						*/
@@ -538,7 +538,7 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @param property
-	bool PropertyDrawer::DrawPropertyObject(EditorReflectedProperty& reflectedProperty, bool onlyValue)
+	bool ReflectionDrawer::DrawPropertyObject(EditorReflectedProperty& reflectedProperty, bool onlyValue)
 	{
 		ReflectionDescriptor* instanceDescriptor;
 
@@ -561,10 +561,10 @@ namespace hod::inline editor
 
 		bool changed = false;
 
-		CustomPropertyDrawer* customPropertyDrawer = CustomPropertyDrawerRegistry::Find(*instanceDescriptor);
-		if (customPropertyDrawer != nullptr)
+		PropertyDrawerBase* propertyDrawer = PropertyDrawerRegistry::Find(*instanceDescriptor);
+		if (propertyDrawer != nullptr)
 		{
-			changed = customPropertyDrawer->Draw(reflectedProperty, onlyValue);
+			changed = propertyDrawer->Draw(reflectedProperty, onlyValue);
 		}
 		else
 		{
@@ -578,14 +578,14 @@ namespace hod::inline editor
 				EditorReflectedObject* subEditorReflectedObject = reflectedProperty.GetEditorReflectedObject();
 				for (EditorReflectedProperty* subEditorReflectedProperty : subEditorReflectedObject->GetProperties())
 				{
-					changed |= PropertyDrawer::DrawProperty(*subEditorReflectedProperty);
+					changed |= ReflectionDrawer::DrawProperty(*subEditorReflectedProperty);
 				}
 			}
 		}
 		return changed;
 	}
 
-	bool PropertyDrawer::BeginProperty(EditorReflectedProperty& editorReflectedProperty)
+	bool ReflectionDrawer::BeginProperty(EditorReflectedProperty& editorReflectedProperty)
 	{
 		bool changed = false;
 		editorReflectedProperty.GetEditorReflectedObject(); // todo remove...
@@ -678,7 +678,7 @@ namespace hod::inline editor
 		return true;
 	}
 
-	bool PropertyDrawer::DrawContextMenu(EditorReflectedProperty& editorReflectedProperty)
+	bool ReflectionDrawer::DrawContextMenu(EditorReflectedProperty& editorReflectedProperty)
 	{
 		bool changed = false;
 		if (ImGui::BeginPopupContextItem("PropertyContext") == true)

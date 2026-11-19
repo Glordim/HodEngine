@@ -12,7 +12,7 @@
 #include <HodEngine/ImGui/Helper.hpp>
 
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 
 #include "HodEngine/Game/ComponentFactory.hpp"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
@@ -22,7 +22,7 @@
 
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 
@@ -52,7 +52,7 @@ namespace hod::inline editor
 		}
 
 		EditorReflectedObject reflectedObject(data, &data->GetReflectionDescriptorV(), nullptr, this);
-		changed |= PropertyDrawer::DrawDescriptor(reflectedObject);
+		changed |= ReflectionDrawer::DrawDescriptor(reflectedObject);
 
 		if (changed)
 		{

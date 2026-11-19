@@ -1,7 +1,7 @@
 #include "HodEngine/GameEditor/Pch.hpp"
 #include "HodEngine/GameEditor/ComponentInspector/ComponentInspector.hpp"
 
-#include <HodEngine/Editor/PropertyDrawer.hpp>
+#include <HodEngine/Editor/ReflectionDrawer.hpp>
 
 namespace hod::inline editor
 {
@@ -10,6 +10,6 @@ namespace hod::inline editor
 	/// @return
 	bool ComponentInspectorBase::DrawProperties(EditorReflectedObject& reflectedObject)
 	{
-		return PropertyDrawer::DrawDescriptor(reflectedObject);
+		return ReflectionDrawer::DrawDescriptor(reflectedObject);
 	}
 }

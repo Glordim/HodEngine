@@ -1,25 +1,25 @@
 #include "HodEngine/Editor/Pch.hpp"
-#include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawerRegistry.hpp"
-#include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawer.hpp"
+#include "HodEngine/Editor/PropertyDrawer/PropertyDrawerRegistry.hpp"
+#include "HodEngine/Editor/PropertyDrawer/PropertyDrawer.hpp"
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <cstdint>
 
 namespace hod::inline editor
 {
-	std::unordered_map<uint64_t, CustomPropertyDrawer*> CustomPropertyDrawerRegistry::_drawers;
+	std::unordered_map<uint64_t, PropertyDrawerBase*> PropertyDrawerRegistry::_drawers;
 
-	bool CustomPropertyDrawerRegistry::Register(const ReflectionDescriptor& descriptor, CustomPropertyDrawer* drawer)
+	bool PropertyDrawerRegistry::Register(const ReflectionDescriptor& descriptor, PropertyDrawerBase* drawer)
 	{
 		if (_drawers.try_emplace(descriptor.GetType(), drawer).second == false)
 		{
-			OUTPUT_ERROR("CustomPropertyDrawerRegistry: '{}' has a drawer already", descriptor.GetDisplayName());
+			OUTPUT_ERROR("PropertyDrawerRegistry: '{}' has a drawer already", descriptor.GetDisplayName());
 			DefaultAllocator::GetInstance().Delete(drawer);
 			return false;
 		}
 		return true;
 	}
 
-	void CustomPropertyDrawerRegistry::Unregister(const ReflectionDescriptor& descriptor)
+	void PropertyDrawerRegistry::Unregister(const ReflectionDescriptor& descriptor)
 	{
 		uint64_t type = descriptor.GetType();
 		auto it = _drawers.find(type);
@@ -30,7 +30,7 @@ namespace hod::inline editor
 		}
 	}
 
-	CustomPropertyDrawer* CustomPropertyDrawerRegistry::Find(const ReflectionDescriptor& descriptor)
+	PropertyDrawerBase* PropertyDrawerRegistry::Find(const ReflectionDescriptor& descriptor)
 	{
 		uint64_t type = descriptor.GetType();
 		auto it = _drawers.find(type);

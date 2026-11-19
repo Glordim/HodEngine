@@ -2,12 +2,15 @@
 #include "HodEngine/Editor/Export.hpp"
 
 #include "HodEngine/Editor/AssetDatabase.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/PropertyDrawer/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 #include "HodEngine/Editor/SharedWindows/AssetBrowserWindow.hpp"
 
 #include <HodEngine/Core/Memory/DefaultAllocator.hpp>
 #include <HodEngine/Core/ModuleRegistration.hpp>
 #include <HodEngine/Core/String.hpp>
+
+#include <type_traits>
 
 namespace hod::inline core
 {
@@ -18,7 +21,6 @@ namespace hod::inline core
 namespace hod::inline editor
 {
 	class AssetType;
-	class CustomPropertyDrawer;
 	class VersionControlProvider;
 
 	/// @brief The registrar of the editor (see ModuleRegistration): importers, asset types, asset browser actions, drawers, windows, version
@@ -44,15 +46,16 @@ namespace hod::inline editor
 		void RegisterContextualMenuAction(AssetBrowserWindow::ContextualMenuAction contextualMenuAction);
 		void RegisterDropAction(AssetBrowserWindow::DropAction dropAction);
 
-		/// @return false (with an error) if the type has a drawer already
-		template<typename _Type_, typename _Drawer_>
-		bool RegisterCustomPropertyDrawer();
+		/// @brief An instance of _Drawer_ (deriving from PropertyDrawer<T>) for the values of type T and the ones deriving from it
+		/// @return false (with an error) if T has a drawer already (from another module)
+		template<typename _Drawer_>
+		bool RegisterPropertyDrawer();
 		/// @param drawer Owned by the registry, deleted right away if refused
-		bool RegisterCustomPropertyDrawer(const ReflectionDescriptor& descriptor, CustomPropertyDrawer* drawer);
+		bool RegisterPropertyDrawer(const ReflectionDescriptor& descriptor, PropertyDrawerBase* drawer);
 
-		/// @brief See PropertyDrawer::EnumValuePreview
+		/// @brief See ReflectionDrawer::EnumValuePreview
 		/// @return false (with an error) if the enum has a preview already (from another module)
-		bool RegisterEnumValuePreview(const EnumDescriptor& enumDescriptor, PropertyDrawer::EnumValuePreview preview);
+		bool RegisterEnumValuePreview(const EnumDescriptor& enumDescriptor, ReflectionDrawer::EnumValuePreview preview);
 
 		/// @brief In the "Window" menu, under route
 		/// @return false (with an error) if the window type is registered already
@@ -99,10 +102,12 @@ namespace hod::inline editor
 		return true;
 	}
 
-	template<typename _Type_, typename _Drawer_>
-	bool EditorRegistrar::RegisterCustomPropertyDrawer()
+	template<typename _Drawer_>
+	bool EditorRegistrar::RegisterPropertyDrawer()
 	{
-		return RegisterCustomPropertyDrawer(_Type_::GetReflectionDescriptor(), DefaultAllocator::GetInstance().New<_Drawer_>());
+		using PropertyType = typename _Drawer_::PropertyType;
+		static_assert(std::is_base_of_v<PropertyDrawer<PropertyType>, _Drawer_>, "a property drawer derives from PropertyDrawer<T>");
+		return RegisterPropertyDrawer(PropertyType::GetReflectionDescriptor(), DefaultAllocator::GetInstance().New<_Drawer_>());
 	}
 
 	template<typename _Window_>

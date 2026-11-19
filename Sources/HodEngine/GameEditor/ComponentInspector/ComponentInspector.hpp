@@ -56,7 +56,7 @@ namespace hod::inline editor
 		/// @brief Each frame the inspector shows them: their properties by default (DrawProperties). Overridden, their properties are drawn only
 		/// if it calls ComponentInspector::OnDraw (or DrawProperties): to keep them and add to them, call it first
 		/// @param components The ones edited: several for a multi-selection, never empty
-		/// @param reflectedObject The same, for the property drawers (DrawProperties, PropertyDrawer)
+		/// @param reflectedObject The same, for the property drawers (DrawProperties, ReflectionDrawer)
 		/// @return true if they changed (a step of the tab's undo history)
 		virtual bool OnDraw(const Vector<_Component_*>& components, EditorReflectedObject& reflectedObject);
 

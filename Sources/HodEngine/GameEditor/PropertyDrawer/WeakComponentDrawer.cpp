@@ -1,5 +1,5 @@
 #include "HodEngine/GameEditor/Pch.hpp"
-#include "HodEngine/GameEditor/CustomPropertyDrawer/WeakComponentCustomPropertyDrawer.hpp"
+#include "HodEngine/GameEditor/PropertyDrawer/WeakComponentDrawer.hpp"
 
 #include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
@@ -10,7 +10,7 @@
 
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 #include "HodEngine/Game/WeakComponent.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
@@ -36,12 +36,12 @@ namespace hod::inline editor
 	/// @brief
 	/// @param instance
 	/// @return
-	bool WeakComponentCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
+	bool WeakComponentDrawer::OnDraw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
 	{
 		bool changed = false;
 		if (onlyValue == false)
 		{
-			changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
+			changed |= ReflectionDrawer::BeginProperty(editorReflectedProperty);
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 		}
 

@@ -4,12 +4,12 @@
 #include "HodEngine/UIEditor/UIPrefabEditor/SerializedValueFormat.hpp"
 
 #include "HodEngine/UIEditor/AnchorPresetsDrawer.hpp"
-#include "HodEngine/UIEditor/CustomPropertyDrawer/NodeRefCustomPropertyDrawer.hpp"
+#include "HodEngine/UIEditor/PropertyDrawer/NodeRefDrawer.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/Editor.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 
@@ -122,7 +122,7 @@ namespace hod::inline editor
 				return false;
 			}
 			ImGui::BeginDisabled(used == false);
-			bool changed = PropertyDrawer::DrawProperty(*property);
+			bool changed = ReflectionDrawer::DrawProperty(*property);
 			ImGui::EndDisabled();
 			if (used == false)
 			{
@@ -153,7 +153,7 @@ namespace hod::inline editor
 			ImGui::SameLine(0.0f, 0.0f);
 			ImGui::SetCursorPosX(ImGui::GetCursorPosX() - 1);
 
-			// Same lookup as PropertyDrawer's enum combo (SizeMode is reflected as a UInt8)
+			// Same lookup as ReflectionDrawer's enum combo (SizeMode is reflected as a UInt8)
 			EnumDescriptor* enumDescriptor = static_cast<ReflectionPropertyVariable*>(property.GetReflectionProperty())->GetEnumDescriptor();
 			uint8_t         value = property.GetValue<uint8_t>();
 			bool            mixed = property.HasDifferentValues();
@@ -201,7 +201,7 @@ namespace hod::inline editor
 			{
 				ImGui::SetItemTooltip("%s", unusedReason);
 			}
-			changed |= PropertyDrawer::DrawContextMenu(property);
+			changed |= ReflectionDrawer::DrawContextMenu(property);
 			ImGui::PopID();
 
 			return changed;
@@ -219,7 +219,7 @@ namespace hod::inline editor
 				return false;
 			}
 
-			// The override marker of PropertyDrawer::BeginProperty, for either axis
+			// The override marker of ReflectionDrawer::BeginProperty, for either axis
 			if (widthMode->IsOverride() || heightMode->IsOverride())
 			{
 				float height = ImGui::GetFontSize() + ImGui::GetStyle().FramePadding.y * 2;
@@ -453,7 +453,7 @@ namespace hod::inline editor
 		if (nameProperty != nullptr)
 		{
 			ImGui::BeginDisabled(canRename == false);
-			changed = PropertyDrawer::DrawProperty(*nameProperty, true);
+			changed = ReflectionDrawer::DrawProperty(*nameProperty, true);
 			ImGui::EndDisabled();
 			if (hasPrefabRoot)
 			{
@@ -597,7 +597,7 @@ namespace hod::inline editor
 					{
 						if (IsCommonLayoutParamsProperty(property->GetReflectionProperty()->GetName()) == false)
 						{
-							changed |= PropertyDrawer::DrawProperty(*property);
+							changed |= ReflectionDrawer::DrawProperty(*property);
 							anyOwnField = true;
 						}
 					}
@@ -622,7 +622,7 @@ namespace hod::inline editor
 			{
 				if (EditorReflectedProperty* property = nodeObject.FindProperty(geometryProperty))
 				{
-					changed |= PropertyDrawer::DrawProperty(*property);
+					changed |= ReflectionDrawer::DrawProperty(*property);
 				}
 			}
 		}
@@ -661,7 +661,7 @@ namespace hod::inline editor
 		Vector2 alignment = layoutParamsList[0]->GetAlignment();
 		bool    anchorsChanged = false;
 
-		// A row like the properties' ones (see PropertyDrawer::BeginProperty): its label, then the fixed size picker in the value column
+		// A row like the properties' ones (see ReflectionDrawer::BeginProperty): its label, then the fixed size picker in the value column
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted("Anchor Preset");
 		ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
@@ -733,7 +733,7 @@ namespace hod::inline editor
 			bool used = usedX || usedY;
 			ImGui::PushID(sizeProperty->GetReflectionProperty());
 			ImGui::BeginDisabled(used == false);
-			changed |= PropertyDrawer::BeginProperty(*sizeProperty);
+			changed |= ReflectionDrawer::BeginProperty(*sizeProperty);
 			if (used == false)
 			{
 				ImGui::SetItemTooltip("Unused: no axis is Fixed or stretched (sized from the content)");
@@ -841,7 +841,7 @@ namespace hod::inline editor
 				if (name == PointerTargetProperty)
 				{
 					ImGui::BeginDisabled(allInteractions);
-					changed |= PropertyDrawer::DrawProperty(*property);
+					changed |= ReflectionDrawer::DrawProperty(*property);
 					ImGui::EndDisabled();
 					if (ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip | ImGuiHoveredFlags_AllowWhenDisabled))
 					{
@@ -851,7 +851,7 @@ namespace hod::inline editor
 				}
 				else if (name != NameProperty && IsGeometryProperty(name) == false)
 				{
-					changed |= PropertyDrawer::DrawProperty(*property);
+					changed |= ReflectionDrawer::DrawProperty(*property);
 				}
 			}
 		}
@@ -879,7 +879,7 @@ namespace hod::inline editor
 			{
 				if (property->GetReflectionProperty()->GetName() == OverrideProjectSettingsProperty)
 				{
-					if (PropertyDrawer::DrawProperty(*property))
+					if (ReflectionDrawer::DrawProperty(*property))
 					{
 						if (_canvasScalerFields._overrideProjectSettings)
 						{
@@ -896,7 +896,7 @@ namespace hod::inline editor
 				else
 				{
 					ImGui::BeginDisabled(canvas.GetOverrideScaler() == false);
-					if (PropertyDrawer::DrawProperty(*property))
+					if (ReflectionDrawer::DrawProperty(*property))
 					{
 						ui::CanvasScaler scaler;
 						scaler._designResolution = _canvasScalerFields._designResolution;
@@ -948,8 +948,8 @@ namespace hod::inline editor
 				EditorReflectedObject interactionObject(ToInstances(interactions), interactionDescriptor, sourceInteraction, this);
 				{
 					// Its node references (a Slider's fill, a ScrollView's content) pick among the nodes of its prefab
-					NodeRefCustomPropertyDrawer::Scope scope(*GetOwner<UIPrefabEditorTab>(), *nodes[0]->GetScopeRoot());
-					changed |= PropertyDrawer::DrawDescriptor(interactionObject);
+					NodeRefDrawer::Scope scope(*GetOwner<UIPrefabEditorTab>(), *nodes[0]->GetScopeRoot());
+					changed |= ReflectionDrawer::DrawDescriptor(interactionObject);
 				}
 
 				if (ui::Selectable* selectable = ui::Interaction::Cast<ui::Selectable>(interactions[0]))
@@ -1320,9 +1320,9 @@ namespace hod::inline editor
 			                                    canEditStructure ? &removeView : nullptr))
 			{
 				ImGui::BeginDisabled(canEditStructure == false);
-				NodeRefCustomPropertyDrawer::Scope scope(*tab, *node->GetScopeRoot());
+				NodeRefDrawer::Scope scope(*tab, *node->GetScopeRoot());
 				EditorReflectedObject              viewObject(view, &currentDescriptor, nullptr, this);
-				changed |= PropertyDrawer::DrawDescriptor(viewObject);
+				changed |= ReflectionDrawer::DrawDescriptor(viewObject);
 				ImGui::EndDisabled();
 			}
 			DrawHelper::EndInspectorBlock();
@@ -1438,7 +1438,7 @@ namespace hod::inline editor
 					sourceLayout = nullptr;
 				}
 				EditorReflectedObject layoutObject(ToInstances(layouts), layoutDescriptor, sourceLayout, this);
-				changed |= PropertyDrawer::DrawDescriptor(layoutObject);
+				changed |= ReflectionDrawer::DrawDescriptor(layoutObject);
 			}
 			DrawHelper::EndInspectorBlock();
 		}

@@ -1,8 +1,8 @@
 #include "HodEngine/CoreEditor/Pch.hpp"
-#include "HodEngine/CoreEditor/CustomPropertyDrawer/ColorCustomPropertyDrawer.hpp"
+#include "HodEngine/CoreEditor/PropertyDrawer/ColorDrawer.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 
 #include "HodEngine/Math/Color.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
@@ -16,18 +16,18 @@ namespace hod::inline editor
 	/// @brief
 	/// @param instance
 	/// @return
-	bool ColorCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
+	bool ColorDrawer::OnDraw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
 	{
 		bool changed = false;
 		if (onlyValue == false)
 		{
-			changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
+			changed |= ReflectionDrawer::BeginProperty(editorReflectedProperty);
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 		}
 
 		Color value = *editorReflectedProperty.GetObject<Color>();
 		ImGui::PushItemFlag(ImGuiItemFlags_MixedValue, editorReflectedProperty.HasDifferentValues());
-		bool edited = ColorCustomPropertyDrawer::Draw(value);
+		bool edited = ColorDrawer::Draw(value);
 		ImGui::PopItemFlag();
 		if (edited)
 		{
@@ -40,7 +40,7 @@ namespace hod::inline editor
 	/// @brief
 	/// @param value
 	/// @return
-	bool ColorCustomPropertyDrawer::Draw(Color& value)
+	bool ColorDrawer::Draw(Color& value)
 	{
 		float rgba[4] = {value.r, value.g, value.b, value.a};
 

@@ -1,10 +1,10 @@
 #include "HodEngine/UIEditor/Pch.hpp"
-#include "HodEngine/UIEditor/CustomPropertyDrawer/NodeRefCustomPropertyDrawer.hpp"
+#include "HodEngine/UIEditor/PropertyDrawer/NodeRefDrawer.hpp"
 #include "HodEngine/UIEditor/UIPrefabEditor/UIPrefabEditorTab.hpp"
 
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 #include <HodEngine/ImGui/DearImGui/imgui.h>
@@ -73,14 +73,14 @@ namespace hod::inline editor
 	/// @brief
 	/// @param tab
 	/// @param root
-	NodeRefCustomPropertyDrawer::Scope::Scope(UIPrefabEditorTab& tab, ui::Node& root)
+	NodeRefDrawer::Scope::Scope(UIPrefabEditorTab& tab, ui::Node& root)
 	{
 		scopeTab = &tab;
 		scopeRoot = &root;
 	}
 
 	/// @brief
-	NodeRefCustomPropertyDrawer::Scope::~Scope()
+	NodeRefDrawer::Scope::~Scope()
 	{
 		scopeTab = nullptr;
 		scopeRoot = nullptr;
@@ -90,12 +90,12 @@ namespace hod::inline editor
 	/// @param editorReflectedProperty
 	/// @param onlyValue
 	/// @return
-	bool NodeRefCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
+	bool NodeRefDrawer::OnDraw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
 	{
 		bool changed = false;
 		if (onlyValue == false)
 		{
-			changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
+			changed |= ReflectionDrawer::BeginProperty(editorReflectedProperty);
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 		}
 

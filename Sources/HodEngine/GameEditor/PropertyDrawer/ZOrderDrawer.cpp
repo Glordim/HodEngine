@@ -1,8 +1,8 @@
 #include "HodEngine/GameEditor/Pch.hpp"
-#include "HodEngine/GameEditor/CustomPropertyDrawer/ZOrderCustomPropertyDrawer.hpp"
+#include "HodEngine/GameEditor/PropertyDrawer/ZOrderDrawer.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyObject.hpp"
@@ -16,19 +16,19 @@ namespace hod::inline editor
 	/// @brief 
 	/// @param editorReflectedProperty 
 	/// @return 
-	bool ZOrderCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
+	bool ZOrderDrawer::OnDraw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
 	{
 		bool changed = false;
 		if (onlyValue == false)
 		{
 			/*
-			changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
+			changed |= ReflectionDrawer::BeginProperty(editorReflectedProperty);
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 			*/
 		}
 
 		ZOrder& value = *editorReflectedProperty.GetObject<ZOrder>();
-		changed |= ZOrderCustomPropertyDrawer::Draw(value);
+		changed |= ZOrderDrawer::Draw(value);
 		/*
 		if (changed == true)
 		{
@@ -41,7 +41,7 @@ namespace hod::inline editor
 	/// @brief 
 	/// @param value 
 	/// @return 
-	bool ZOrderCustomPropertyDrawer::Draw(ZOrder& value)
+	bool ZOrderDrawer::Draw(ZOrder& value)
 	{
 		bool changed = false;
 		uint16_t layer = value.GetLayer();

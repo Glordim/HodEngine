@@ -5,7 +5,7 @@
 #include "HodEngine/GameEditor/DataTableEditor/DataTableEditorTableWindow.hpp"
 
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 #include "HodEngine/Game/DataStruct/DataStructFactory.hpp"
 
 #include "HodEngine/ImGui/DearImGui/imgui_internal.h"
@@ -107,7 +107,7 @@ namespace hod::inline editor
 						EditorReflectedProperty* reflectedProperty = reflectedObject.FindProperty(reflectionProperty->GetName());
 						if (reflectedProperty != nullptr)
 						{
-							changed |= PropertyDrawer::DrawProperty(*reflectedProperty, true);
+							changed |= ReflectionDrawer::DrawProperty(*reflectedProperty, true);
 						}
 					}
 

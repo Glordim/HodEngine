@@ -2,7 +2,7 @@
 #include "HodEngine/Editor/ProjectSettingsWindow.hpp"
 
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 #include "HodEngine/Editor/VersionControl/VersionControl.hpp"
 
 #include <HodEngine/GameSystems/ProjectSettings/ProjectSettingsManager.hpp>
@@ -101,7 +101,7 @@ namespace hod::inline editor
 			if (selectedSettings != nullptr)
 			{
 				EditorReflectedObject reflectedObject(selectedSettings, &selectedSettings->GetReflectionDescriptorV(), nullptr, nullptr);
-				if (PropertyDrawer::DrawDescriptor(reflectedObject))
+				if (ReflectionDrawer::DrawDescriptor(reflectedObject))
 				{
 					if (pendingSaveSettings != nullptr && pendingSaveSettings != selectedSettings)
 					{

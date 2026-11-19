@@ -1,8 +1,8 @@
 #include "HodEngine/UIEditor/Pch.hpp"
-#include "HodEngine/UIEditor/CustomPropertyDrawer/RectOffsetsCustomPropertyDrawer.hpp"
+#include "HodEngine/UIEditor/PropertyDrawer/RectOffsetsDrawer.hpp"
 #include "HodEngine/Editor/EditorReflectedObject.hpp"
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
-#include "HodEngine/Editor/PropertyDrawer.hpp"
+#include "HodEngine/Editor/ReflectionDrawer.hpp"
 
 #include "HodEngine/Math/RectOffsets.hpp"
 #include "HodEngine/ImGui/DearImGui/imgui.h"
@@ -12,21 +12,16 @@
 namespace hod::inline editor
 {
 	/// @brief
-	/// @param direction
-	RectOffsetsCustomPropertyDrawer::RectOffsetsCustomPropertyDrawer(Direction direction)
-	: _direction(direction)
-	{
-	}
-
-	/// @brief
 	/// @param editorReflectedProperty
+	/// @param onlyValue
+	/// @param direction
 	/// @return
-	bool RectOffsetsCustomPropertyDrawer::Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
+	bool RectOffsetsDrawer::Draw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue, Direction direction)
 	{
 		bool changed = false;
 		if (onlyValue == false)
 		{
-			changed |= PropertyDrawer::BeginProperty(editorReflectedProperty);
+			changed |= ReflectionDrawer::BeginProperty(editorReflectedProperty);
 			ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 		}
 
@@ -52,7 +47,7 @@ namespace hod::inline editor
 		bool editedBottom = false;
 
 		// Outward (margin): arrows towards the values. Inward (padding): arrows towards the content.
-		bool isPadding = (_direction == Direction::Inward);
+		bool isPadding = (direction == Direction::Inward);
 
 		ImGui::PushID(editorReflectedProperty.GetReflectionProperty());
 
@@ -146,5 +141,23 @@ namespace hod::inline editor
 			changed = true;
 		}
 		return changed;
+	}
+
+	/// @brief
+	/// @param editorReflectedProperty
+	/// @param onlyValue
+	/// @return
+	bool MarginDrawer::OnDraw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
+	{
+		return RectOffsetsDrawer::Draw(editorReflectedProperty, onlyValue, RectOffsetsDrawer::Direction::Outward);
+	}
+
+	/// @brief
+	/// @param editorReflectedProperty
+	/// @param onlyValue
+	/// @return
+	bool PaddingDrawer::OnDraw(EditorReflectedProperty& editorReflectedProperty, bool onlyValue)
+	{
+		return RectOffsetsDrawer::Draw(editorReflectedProperty, onlyValue, RectOffsetsDrawer::Direction::Inward);
 	}
 }

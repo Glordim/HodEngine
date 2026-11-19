@@ -1,7 +1,7 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/EditorRegistrar.hpp"
 #include "HodEngine/Editor/AssetType.hpp"
-#include "HodEngine/Editor/CustomPropertyDrawer/CustomPropertyDrawerRegistry.hpp"
+#include "HodEngine/Editor/PropertyDrawer/PropertyDrawerRegistry.hpp"
 #include "HodEngine/Editor/Editor.hpp"
 #include "HodEngine/Editor/VersionControl/VersionControl.hpp"
 #include "HodEngine/Editor/WindowFactory.hpp"
@@ -77,13 +77,13 @@ namespace hod::inline editor
 	/// @brief
 	/// @param descriptor
 	/// @param drawer
-	bool EditorRegistrar::RegisterCustomPropertyDrawer(const ReflectionDescriptor& descriptor, CustomPropertyDrawer* drawer)
+	bool EditorRegistrar::RegisterPropertyDrawer(const ReflectionDescriptor& descriptor, PropertyDrawerBase* drawer)
 	{
-		if (CustomPropertyDrawerRegistry::Register(descriptor, drawer) == false)
+		if (PropertyDrawerRegistry::Register(descriptor, drawer) == false)
 		{
 			return false;
 		}
-		_registration.AddUnregister([&descriptor]() { CustomPropertyDrawerRegistry::Unregister(descriptor); });
+		_registration.AddUnregister([&descriptor]() { PropertyDrawerRegistry::Unregister(descriptor); });
 		return true;
 	}
 
@@ -91,13 +91,13 @@ namespace hod::inline editor
 	/// @param enumDescriptor
 	/// @param preview
 	/// @return
-	bool EditorRegistrar::RegisterEnumValuePreview(const EnumDescriptor& enumDescriptor, PropertyDrawer::EnumValuePreview preview)
+	bool EditorRegistrar::RegisterEnumValuePreview(const EnumDescriptor& enumDescriptor, ReflectionDrawer::EnumValuePreview preview)
 	{
-		if (PropertyDrawer::RegisterEnumValuePreview(enumDescriptor, preview) == false)
+		if (ReflectionDrawer::RegisterEnumValuePreview(enumDescriptor, preview) == false)
 		{
 			return false;
 		}
-		_registration.AddUnregister([&enumDescriptor]() { PropertyDrawer::UnregisterEnumValuePreview(enumDescriptor); });
+		_registration.AddUnregister([&enumDescriptor]() { ReflectionDrawer::UnregisterEnumValuePreview(enumDescriptor); });
 		return true;
 	}
 
