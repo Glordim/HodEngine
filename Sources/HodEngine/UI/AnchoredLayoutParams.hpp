@@ -32,6 +32,9 @@ namespace hod::inline ui
 		bool						IsStretchedX() const;
 		bool						IsStretchedY() const;
 
+		/// @brief Not on a stretched axis: the anchors and the size delta give its size
+		bool						IsWidthModeUsed() const override;
+		bool						IsHeightModeUsed() const override;
 		/// @brief Also on a stretched axis: Size is a delta added to the anchors' span there
 		bool						IsSizeUsedX() const override;
 		bool						IsSizeUsedY() const override;

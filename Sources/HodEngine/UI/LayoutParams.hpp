@@ -60,6 +60,9 @@ namespace hod::inline ui
 
 		// The child's size on its Fixed axes; unused on its Content ones. A delta on AnchoredLayoutParams' stretched axes.
 		const Vector2&				GetSize() const;
+		/// @brief Whether WidthMode / HeightMode is used: always, but on an AnchoredLayoutParams' stretched axis
+		virtual bool				IsWidthModeUsed() const;
+		virtual bool				IsHeightModeUsed() const;
 		/// @brief Whether Size is used on the axis (its width / height): on a Fixed axis (and on an AnchoredLayoutParams' stretched one)
 		virtual bool				IsSizeUsedX() const;
 		virtual bool				IsSizeUsedY() const;

@@ -44,7 +44,7 @@ namespace hod
 	{
 		HOD_PROPERTY(_spaced);
 		HOD_PROPERTY(_customEasing);
-		HOD_PROPERTY(_spacing)->AddTrait<ReflectionTraitEnabledIf>(&ConditionalPropertiesOwner::IsSpaced, "Unused: not spaced");
+		HOD_PROPERTY(_spacing)->AddTrait<ReflectionTraitEnabledIf>(&ConditionalPropertiesOwner::IsSpaced, "Unused: not spaced", "_spaced", "_always");
 		HOD_PROPERTY(_curve)->AddTrait<ReflectionTraitVisibleIf>(&ConditionalPropertiesOwner::HasCustomEasing);
 		HOD_PROPERTY(_always);
 	}
@@ -57,6 +57,9 @@ namespace hod
 		ReflectionTraitEnabledIf* enabledIf = descriptor.FindProperty("_spacing")->FindTrait<ReflectionTraitEnabledIf>();
 		ASSERT_NE(enabledIf, nullptr);
 		EXPECT_EQ(enabledIf->GetReason(), "Unused: not spaced");
+		ASSERT_EQ(enabledIf->GetDecidingProperties().Size(), 2u);
+		EXPECT_EQ(enabledIf->GetDecidingProperties()[0], "_spaced");
+		EXPECT_EQ(enabledIf->GetDecidingProperties()[1], "_always");
 		EXPECT_FALSE(enabledIf->IsEnabled(&owner));
 		owner._spaced = true;
 		EXPECT_TRUE(enabledIf->IsEnabled(&owner));

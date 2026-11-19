@@ -171,12 +171,7 @@ namespace hod::inline editor
 		if (enabled == false && ImGui::IsWindowHovered() && ImGui::IsMouseHoveringRect(rowMin, rowMax) &&
 		    IsDisabledRowTooltipReady(reflectionProperty, reflectedProperty.GetInstance()))
 		{
-			ReflectionTraitEnabledIf* enabledIf = reflectionProperty->FindTrait<ReflectionTraitEnabledIf>();
-			if (enabledIf->GetReason().Empty() == false)
-			{
-				ImGui::SetTooltip("%s", enabledIf->GetReason().CStr());
-			}
-			RequestHighlight(reflectedProperty.GetInstance(), enabledIf->GetDecidingProperty());
+			ShowDisabledReason(reflectedProperty);
 		}
 		if (IsHighlighted(reflectedProperty))
 		{
@@ -733,6 +728,25 @@ namespace hod::inline editor
 			return false;
 		}
 		return GetPropertyHighlight().IsHighlighted(editorReflectedProperty.GetInstances()[0], editorReflectedProperty.GetReflectionProperty()->GetName());
+	}
+
+	/// @brief
+	/// @param editorReflectedProperty
+	void ReflectionDrawer::ShowDisabledReason(const EditorReflectedProperty& editorReflectedProperty)
+	{
+		ReflectionTraitEnabledIf* enabledIf = editorReflectedProperty.GetReflectionProperty()->FindTrait<ReflectionTraitEnabledIf>();
+		if (enabledIf == nullptr)
+		{
+			return;
+		}
+		if (enabledIf->GetReason().Empty() == false)
+		{
+			ImGui::SetTooltip("%s", enabledIf->GetReason().CStr());
+		}
+		for (const String& decidingProperty : enabledIf->GetDecidingProperties())
+		{
+			RequestHighlight(editorReflectedProperty.GetInstance(), decidingProperty);
+		}
 	}
 
 	/// @brief

@@ -135,9 +135,10 @@ namespace hod::inline editor
 		/// @brief One component of the Size Mode row: a framed axis label glued to the enum combo, same look as DrawHelper::DrawVector2's components.
 		/// Right-clicking the combo opens the property's own context menu (Revert, Reset).
 		/// @return true if the value was edited
-		bool DrawSizeModeComponent(EditorReflectedProperty& property, const char* axisLabel, const ImVec4& axisColor, float width, bool used, const char* unusedReason)
+		bool DrawSizeModeComponent(EditorReflectedProperty& property, const char* axisLabel, const ImVec4& axisColor, float width)
 		{
 			bool changed = false;
+			bool used = ReflectionDrawer::IsPropertyEnabled(property); // Its trait: unused on a stretched axis
 
 			ImGui::PushID(property.GetReflectionProperty());
 			ImVec2 componentMin = ImGui::GetCursorScreenPos();
@@ -198,9 +199,7 @@ namespace hod::inline editor
 			}
 			if (used == false && ImGui::IsItemHovered(ImGuiHoveredFlags_ForTooltip)) // The tooltip and the highlight together
 			{
-				ImGui::SetTooltip("%s", unusedReason);
-				ReflectionDrawer::RequestHighlight(property.GetInstance(), "_anchorMin"); // The anchors stretch the axis
-				ReflectionDrawer::RequestHighlight(property.GetInstance(), "_anchorMax");
+				ReflectionDrawer::ShowDisabledReason(property);
 			}
 			changed |= ReflectionDrawer::DrawContextMenu(property);
 			ImGui::PopID();
@@ -209,9 +208,9 @@ namespace hod::inline editor
 		}
 
 		/// @brief WidthMode and HeightMode on a single Size Mode row, as the X/Y components of a Vector2 (they go with Size, drawn the same way).
-		/// @param usedX/usedY grey out an axis the mode is unused on
+		/// An axis the mode is unused on greyed out (their trait, see LayoutParams::IsWidthModeUsed)
 		/// @return true if one of them was edited
-		bool DrawSizeModeRow(EditorReflectedObject& layoutParamsObject, bool usedX, bool usedY, const char* unusedReasonX, const char* unusedReasonY)
+		bool DrawSizeModeRow(EditorReflectedObject& layoutParamsObject)
 		{
 			EditorReflectedProperty* widthMode = layoutParamsObject.FindProperty(WidthModeProperty);
 			EditorReflectedProperty* heightMode = layoutParamsObject.FindProperty(HeightModeProperty);
@@ -228,7 +227,7 @@ namespace hod::inline editor
 				                                          ImVec2(ImGui::GetWindowPos().x + 2.0f, ImGui::GetCursorScreenPos().y + height), IM_COL32(0, 170, 255, 255));
 			}
 
-			ImGui::BeginDisabled(usedX == false && usedY == false);
+			ImGui::BeginDisabled(ReflectionDrawer::IsPropertyEnabled(*widthMode) == false && ReflectionDrawer::IsPropertyEnabled(*heightMode) == false);
 			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted("Size Mode");
 			ImGui::EndDisabled();
@@ -240,9 +239,9 @@ namespace hod::inline editor
 			availableWidth -= CalculateButtonSize("Height").x;
 			availableWidth -= ImGui::GetStyle().ItemSpacing.x - 2;
 
-			bool changed = DrawSizeModeComponent(*widthMode, "Width", ImVec4(0.5f, 0.0f, 0.0f, 1.0f), availableWidth * 0.5f, usedX, unusedReasonX);
+			bool changed = DrawSizeModeComponent(*widthMode, "Width", ImVec4(0.5f, 0.0f, 0.0f, 1.0f), availableWidth * 0.5f);
 			ImGui::SameLine();
-			changed |= DrawSizeModeComponent(*heightMode, "Height", ImVec4(0.0f, 0.5f, 0.0f, 1.0f), availableWidth * 0.5f, usedY, unusedReasonY);
+			changed |= DrawSizeModeComponent(*heightMode, "Height", ImVec4(0.0f, 0.5f, 0.0f, 1.0f), availableWidth * 0.5f);
 			return changed;
 		}
 
@@ -718,8 +717,7 @@ namespace hod::inline editor
 			allStretchedY &= stretchedY;
 		}
 
-		changed |= DrawSizeModeRow(layoutParamsObject, allStretchedX == false, allStretchedY == false, "Unused: the width is stretched, the anchors and the size delta give it",
-		                           "Unused: the height is stretched, the anchors and the size delta give it");
+		changed |= DrawSizeModeRow(layoutParamsObject);
 
 		// Size, by hand for its labels: a delta added to the anchors' span on a stretched axis (dWidth/dHeight), the node's own size on the others; its
 		// components unused (a Content axis anchored on a point) disabled by its trait (LayoutParams::IsSizeUsedX/Y)

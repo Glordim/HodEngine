@@ -6,13 +6,10 @@ namespace hod::inline core
 	/// @brief
 	/// @param isEnabled
 	/// @param reason
-	/// @param decidingProperty
-	ReflectionTraitEnabledIf::ReflectionTraitEnabledIf(Predicate isEnabled, std::string_view reason, std::string_view decidingProperty)
-	: ReflectionTrait()
-	, _isEnabled(std::move(isEnabled))
-	, _reason(reason)
-	, _decidingProperty(decidingProperty)
+	void ReflectionTraitEnabledIf::Init(Predicate isEnabled, std::string_view reason)
 	{
+		_isEnabled = std::move(isEnabled);
+		_reason = reason;
 	}
 
 	/// @brief
@@ -32,8 +29,8 @@ namespace hod::inline core
 
 	/// @brief
 	/// @return
-	const String& ReflectionTraitEnabledIf::GetDecidingProperty() const
+	const Vector<String>& ReflectionTraitEnabledIf::GetDecidingProperties() const
 	{
-		return _decidingProperty;
+		return _decidingProperties;
 	}
 }

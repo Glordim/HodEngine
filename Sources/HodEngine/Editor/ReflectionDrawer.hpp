@@ -76,7 +76,10 @@ namespace hod::inline editor
         static void     RequestHighlight(const void* owner, std::string_view property);
         /// @return Whether the property is highlighted (DrawProperty frames its row; a row drawn by hand calls HighlightLastItem)
         static bool     IsHighlighted(const EditorReflectedProperty& editorReflectedProperty);
-        /// @brief The last ImGui item framed as a highlighted property (as the navigation cursor)
+        /// @brief Why the disabled property is (its ReflectionTraitEnabledIf), once hovered long enough for a tooltip: its reason as the tooltip,
+        /// the properties deciding it highlighted. Called by DrawProperty, and by the rows drawn by hand
+        static void     ShowDisabledReason(const EditorReflectedProperty& editorReflectedProperty);
+        /// @brief The last ImGui item framed as a highlighted property
         static void     HighlightLastItem();
         /// @brief A rect of the window (screen coordinates) framed as a highlighted property
         static void     HighlightRect(const Vector2& min, const Vector2& max);

@@ -88,6 +88,16 @@ namespace hod::inline ui
 		return IsStretchedY();
 	}
 
+	bool AnchoredLayoutParams::IsWidthModeUsed() const
+	{
+		return IsStretchedX() == false;
+	}
+
+	bool AnchoredLayoutParams::IsHeightModeUsed() const
+	{
+		return IsStretchedY() == false;
+	}
+
 	bool AnchoredLayoutParams::IsSizeUsedX() const
 	{
 		return IsStretchedX() || LayoutParams::IsSizeUsedX();
