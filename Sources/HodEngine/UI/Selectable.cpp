@@ -1,5 +1,6 @@
 #include "HodEngine/UI/Pch.hpp"
 #include "HodEngine/UI/Selectable.hpp"
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitEnabledIf.hpp>
 #include "HodEngine/UI/AnimationPlayer.hpp"
 #include "HodEngine/UI/Node.hpp"
 #include "HodEngine/UI/PointerEvent.hpp"
@@ -13,7 +14,7 @@ namespace hod::inline ui
 	{
 		HOD_PROPERTY(_disabled, &Selectable::SetDisabled);
 		HOD_PROPERTY(_transitionDuration, &Selectable::SetTransitionDuration);
-		HOD_PROPERTY(_transitionEasing, &Selectable::SetTransitionEasing);
+		HOD_PROPERTY(_transitionEasing, &Selectable::SetTransitionEasing)->AddTrait<ReflectionTraitEnabledIf>(&Selectable::HasTransition, "Unused: no transition duration");
 
 		// Edited by the UI prefab editor's own drawer (target node and property pickers), not the generic one
 		HOD_PROPERTY(_hoveredOverrides)->AddTrait<ReflectionTraitHide>();
@@ -365,5 +366,12 @@ namespace hod::inline ui
 			SwitchAnimation(GetAnimation(previous), GetAnimation(_state));
 			_stateChangedEvent.Emit(_state);
 		}
+	}
+
+	/// @brief
+	/// @return
+	bool Selectable::HasTransition() const
+	{
+		return _transitionDuration > 0.0f;
 	}
 }

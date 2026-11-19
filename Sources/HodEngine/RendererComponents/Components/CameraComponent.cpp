@@ -1,5 +1,6 @@
 #include "HodEngine/RendererComponents/Pch.hpp"
 #include "HodEngine/RendererComponents/Components/CameraComponent.hpp"
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitVisibleIf.hpp>
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
 #include "HodEngine/Game/Components/NodeComponent.hpp"
 
@@ -33,8 +34,8 @@ namespace hod::inline renderer
 		HOD_PROPERTY(_projection);
 		HOD_PROPERTY(_near);
 		HOD_PROPERTY(_far);
-		HOD_PROPERTY(_fov);
-		HOD_PROPERTY(_size, &CameraComponent::SetSize);
+		HOD_PROPERTY(_fov)->AddTrait<ReflectionTraitVisibleIf>(&CameraComponent::IsPerspective);
+		HOD_PROPERTY(_size, &CameraComponent::SetSize)->AddTrait<ReflectionTraitVisibleIf>(&CameraComponent::IsOrthographic);
 	}
 
 	/// @brief
@@ -142,5 +143,19 @@ namespace hod::inline renderer
 	float CameraComponent::GetSize() const
 	{
 		return _size;
+	}
+
+	/// @brief
+	/// @return
+	bool CameraComponent::IsPerspective() const
+	{
+		return _projection == Projection::Perpective;
+	}
+
+	/// @brief
+	/// @return
+	bool CameraComponent::IsOrthographic() const
+	{
+		return _projection == Projection::Orthographic;
 	}
 }

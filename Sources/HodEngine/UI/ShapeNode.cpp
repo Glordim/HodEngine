@@ -1,5 +1,6 @@
 #include "HodEngine/UI/Pch.hpp"
 #include "HodEngine/UI/ShapeNode.hpp"
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitEnabledIf.hpp>
 #include "HodEngine/UI/DrawContext.hpp"
 
 #include <HodEngine/Core/Math.hpp>
@@ -36,13 +37,13 @@ namespace hod::inline ui
 		HOD_PROPERTY(_borderWidth, &ShapeNode::SetBorderWidth);
 		HOD_PROPERTY(_borderColor, &ShapeNode::SetBorderColor);
 		HOD_PROPERTY(_depth, &ShapeNode::SetDepth);
-		HOD_PROPERTY(_press, &ShapeNode::SetPress);
-		HOD_PROPERTY(_depthColor, &ShapeNode::SetDepthColor);
+		HOD_PROPERTY(_press, &ShapeNode::SetPress)->AddTrait<ReflectionTraitEnabledIf>(&ShapeNode::HasDepth, "Unused: no depth");
+		HOD_PROPERTY(_depthColor, &ShapeNode::SetDepthColor)->AddTrait<ReflectionTraitEnabledIf>(&ShapeNode::HasDepth, "Unused: no depth");
 		HOD_PROPERTY(_shadowColor, &ShapeNode::SetShadowColor);
-		HOD_PROPERTY(_shadowOffset, &ShapeNode::SetShadowOffset);
-		HOD_PROPERTY(_shadowBlur, &ShapeNode::SetShadowBlur);
-		HOD_PROPERTY(_shadowSpread, &ShapeNode::SetShadowSpread);
-		HOD_PROPERTY(_shadowDirection, &ShapeNode::SetShadowDirection);
+		HOD_PROPERTY(_shadowOffset, &ShapeNode::SetShadowOffset)->AddTrait<ReflectionTraitEnabledIf>(&ShapeNode::HasShadow, "Unused: the shadow color is transparent");
+		HOD_PROPERTY(_shadowBlur, &ShapeNode::SetShadowBlur)->AddTrait<ReflectionTraitEnabledIf>(&ShapeNode::HasShadow, "Unused: the shadow color is transparent");
+		HOD_PROPERTY(_shadowSpread, &ShapeNode::SetShadowSpread)->AddTrait<ReflectionTraitEnabledIf>(&ShapeNode::HasShadow, "Unused: the shadow color is transparent");
+		HOD_PROPERTY(_shadowDirection, &ShapeNode::SetShadowDirection)->AddTrait<ReflectionTraitEnabledIf>(&ShapeNode::HasShadow, "Unused: the shadow color is transparent");
 	}
 
 	/// @brief
@@ -360,5 +361,19 @@ namespace hod::inline ui
 		drawContext.PushTransform(canvasMatrix * Matrix4::Translation(Vector2(0.0f, -press)) * Matrix4::Inverse(canvasMatrix));
 		Node::DrawChildren(drawContext);
 		drawContext.PopTransform();
+	}
+
+	/// @brief
+	/// @return
+	bool ShapeNode::HasDepth() const
+	{
+		return _depth > 0.0f;
+	}
+
+	/// @brief
+	/// @return
+	bool ShapeNode::HasShadow() const
+	{
+		return _shadowColor.a > 0.0f;
 	}
 }

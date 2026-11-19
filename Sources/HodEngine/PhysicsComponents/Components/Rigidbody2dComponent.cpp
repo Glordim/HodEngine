@@ -1,5 +1,6 @@
 #include "HodEngine/PhysicsComponents/Pch.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitEnabledIf.hpp>
 #include "HodEngine/PhysicsComponents/Components/Collider2dComponent.hpp"
 #include "HodEngine/PhysicsComponents/Components/Rigidbody2dComponent.hpp"
 #include "HodEngine/Game/World.hpp"
@@ -35,11 +36,11 @@ namespace hod::inline physics
 		HOD_REQUIRED_COMPONENT(_node2d);
 
 		HOD_PROPERTY(_mode, &Rigidbody2dComponent::SetMode);
-		HOD_PROPERTY(_gravityScale, &Rigidbody2dComponent::SetGravityScale);
-		HOD_PROPERTY(_fixedRotation, &Rigidbody2dComponent::SetFixedRotation);
-		HOD_PROPERTY(_continuousCollision, &Rigidbody2dComponent::SetContinuousCollision);
-		HOD_PROPERTY(_freezePositionX, &Rigidbody2dComponent::SetFreezePositionX);
-		HOD_PROPERTY(_freezePositionY, &Rigidbody2dComponent::SetFreezePositionY);
+		HOD_PROPERTY(_gravityScale, &Rigidbody2dComponent::SetGravityScale)->AddTrait<ReflectionTraitEnabledIf>(&Rigidbody2dComponent::IsDynamic, "Unused: only a Dynamic body is moved by the physics");
+		HOD_PROPERTY(_fixedRotation, &Rigidbody2dComponent::SetFixedRotation)->AddTrait<ReflectionTraitEnabledIf>(&Rigidbody2dComponent::IsDynamic, "Unused: only a Dynamic body is moved by the physics");
+		HOD_PROPERTY(_continuousCollision, &Rigidbody2dComponent::SetContinuousCollision)->AddTrait<ReflectionTraitEnabledIf>(&Rigidbody2dComponent::IsDynamic, "Unused: only a Dynamic body is moved by the physics");
+		HOD_PROPERTY(_freezePositionX, &Rigidbody2dComponent::SetFreezePositionX)->AddTrait<ReflectionTraitEnabledIf>(&Rigidbody2dComponent::IsDynamic, "Unused: only a Dynamic body is moved by the physics");
+		HOD_PROPERTY(_freezePositionY, &Rigidbody2dComponent::SetFreezePositionY)->AddTrait<ReflectionTraitEnabledIf>(&Rigidbody2dComponent::IsDynamic, "Unused: only a Dynamic body is moved by the physics");
 	}
 
 	/// @brief
@@ -403,5 +404,12 @@ namespace hod::inline physics
 	Event<const TriggerEvent&>& Rigidbody2dComponent::GetOnTriggerExitEvent()
 	{
 		return _onTriggerExitEvent;
+	}
+
+	/// @brief
+	/// @return
+	bool Rigidbody2dComponent::IsDynamic() const
+	{
+		return _mode == Mode::Dynamic;
 	}
 }

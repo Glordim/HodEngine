@@ -1,5 +1,6 @@
 #include "HodEngine/UI/Pch.hpp"
 #include "HodEngine/UI/TextNode.hpp"
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitEnabledIf.hpp>
 #include "HodEngine/UI/DrawContext.hpp"
 
 #include <HodEngine/Core/Math.hpp>
@@ -58,7 +59,7 @@ namespace hod::inline ui
 		HOD_PROPERTY(_verticalAlignment, &TextNode::SetVerticalAlignment);
 		HOD_PROPERTY(_alignByGeometry, &TextNode::SetAlignByGeometry);
 		HOD_PROPERTY(_overflow, &TextNode::SetOverflow);
-		HOD_PROPERTY(_minFontSize, &TextNode::SetMinFontSize);
+		HOD_PROPERTY(_minFontSize, &TextNode::SetMinFontSize)->AddTrait<ReflectionTraitEnabledIf>(&TextNode::IsShrinkOverflow, "Unused: only with the Shrink overflow");
 		HOD_PROPERTY(_color, &TextNode::SetColor);
 	}
 
@@ -552,5 +553,12 @@ namespace hod::inline ui
 		{
 			drawContext.PopClipRect();
 		}
+	}
+
+	/// @brief
+	/// @return
+	bool TextNode::IsShrinkOverflow() const
+	{
+		return _overflow == Overflow::Shrink;
 	}
 }

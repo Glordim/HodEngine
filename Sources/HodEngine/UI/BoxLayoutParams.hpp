@@ -28,6 +28,7 @@ namespace hod::inline ui
 		void						SetMargin(const Margin& margin);
 
 		Rule						GetRule() const;
+		bool						IsFill() const;
 		void						SetRule(Rule rule);
 
 		float						GetWeight() const;

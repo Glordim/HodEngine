@@ -112,23 +112,16 @@ namespace hod::inline editor
 			return false;
 		}
 
-		/// @brief A reflected property of the LayoutParams, greyed out (with unusedReason as tooltip) when it is unused with the current settings.
+		/// @brief A reflected property of the LayoutParams (disabled when unused: its ReflectionTraitEnabledIf, see ReflectionDrawer::DrawProperty)
 		/// @return true if it was edited
-		bool DrawLayoutParamsProperty(EditorReflectedObject& layoutParamsObject, std::string_view name, bool used = true, const char* unusedReason = "")
+		bool DrawLayoutParamsProperty(EditorReflectedObject& layoutParamsObject, std::string_view name)
 		{
 			EditorReflectedProperty* property = layoutParamsObject.FindProperty(name);
 			if (property == nullptr)
 			{
 				return false;
 			}
-			ImGui::BeginDisabled(used == false);
-			bool changed = ReflectionDrawer::DrawProperty(*property);
-			ImGui::EndDisabled();
-			if (used == false)
-			{
-				ImGui::SetItemTooltip("%s", unusedReason);
-			}
-			return changed;
+			return ReflectionDrawer::DrawProperty(*property);
 		}
 
 		void DrawSectionSeparator()

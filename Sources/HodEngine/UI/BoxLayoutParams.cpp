@@ -1,5 +1,6 @@
 #include "HodEngine/UI/Pch.hpp"
 #include "HodEngine/UI/BoxLayoutParams.hpp"
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitEnabledIf.hpp>
 
 namespace hod::inline ui
 {
@@ -13,7 +14,7 @@ namespace hod::inline ui
 	{
 		HOD_PROPERTY(_margin, &BoxLayoutParams::SetMargin);
 		HOD_PROPERTY(_rule, &BoxLayoutParams::SetRule);
-		HOD_PROPERTY(_weight, &BoxLayoutParams::SetWeight);
+		HOD_PROPERTY(_weight, &BoxLayoutParams::SetWeight)->AddTrait<ReflectionTraitEnabledIf>(&BoxLayoutParams::IsFill, "Unused: only a Fill child shares the space left");
 	}
 
 	/// @brief The cross-axis alignment, that each concrete type names after its own axis (VerticalAlign in a row, HorizontalAlign in a column):
@@ -140,5 +141,12 @@ namespace hod::inline ui
 	void VerticalLayoutParams::SetCrossAlignIndex(uint8_t crossAlignIndex)
 	{
 		SetHorizontalAlign(static_cast<HorizontalAlign>(crossAlignIndex));
+	}
+
+	/// @brief
+	/// @return
+	bool BoxLayoutParams::IsFill() const
+	{
+		return _rule == Rule::Fill;
 	}
 }

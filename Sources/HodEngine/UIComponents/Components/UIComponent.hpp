@@ -58,6 +58,8 @@ namespace hod::inline ui
 		void									SetPrefab(const WeakResource<UIPrefabResource>& prefab);
 
 		RenderMode		GetRenderMode() const;
+		bool			IsScreenSpace() const;
+		bool			IsWorldSpace() const;
 		void			SetRenderMode(RenderMode renderMode);
 
 		// Screen: drawn over (and given the pointer before) the Screen canvases of a lower sorting order. They are all over the

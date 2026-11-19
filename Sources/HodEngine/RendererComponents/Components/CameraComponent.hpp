@@ -64,6 +64,8 @@ namespace hod::inline renderer
 
 		void       SetProjection(Projection projection);
 		Projection GetProjection() const;
+		bool       IsPerspective() const;
+		bool       IsOrthographic() const;
 
 		const Matrix4& GetProjectionMatrix();
 

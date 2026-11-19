@@ -7,7 +7,6 @@
 #include "HodEngine/UIEditor/PropertyDrawer/NodeRefDrawer.hpp"
 #include "HodEngine/UIEditor/PropertyDrawer/RectOffsetsDrawer.hpp"
 #include "HodEngine/UIEditor/UIPrefabEditor/UIPrefabAssetType.hpp"
-#include "HodEngine/UIEditor/ComponentInspector/UIComponentInspector.hpp"
 
 #include <HodEngine/GameEditor/GameEditorRegistrar.hpp>
 
@@ -74,7 +73,6 @@ namespace hod::inline ui
 				});
 		}
 		GameEditorRegistrar gameEditorRegistrar(registration);
-		gameEditorRegistrar.RegisterComponentInspector<UIComponentInspector>();
 		gameEditorRegistrar.RegisterViewportGamePointer(&GiveGamePointerToCanvases);
 		return true;
 	}

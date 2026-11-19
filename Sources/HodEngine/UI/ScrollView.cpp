@@ -1,5 +1,6 @@
 #include "HodEngine/UI/Pch.hpp"
 #include "HodEngine/UI/ScrollView.hpp"
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitEnabledIf.hpp>
 #include "HodEngine/UI/AnchoredLayoutParams.hpp"
 #include "HodEngine/UI/Node.hpp"
 #include "HodEngine/UI/PointerEvent.hpp"
@@ -29,9 +30,9 @@ namespace hod::inline ui
 		HOD_PROPERTY(_horizontal, &ScrollView::SetHorizontal);
 		HOD_PROPERTY(_vertical, &ScrollView::SetVertical);
 		HOD_PROPERTY(_movementType, &ScrollView::SetMovementType);
-		HOD_PROPERTY(_elasticity, &ScrollView::SetElasticity);
+		HOD_PROPERTY(_elasticity, &ScrollView::SetElasticity)->AddTrait<ReflectionTraitEnabledIf>(&ScrollView::IsElastic, "Unused: the movement is Clamped");
 		HOD_PROPERTY(_inertia, &ScrollView::SetInertia);
-		HOD_PROPERTY(_decelerationRate, &ScrollView::SetDecelerationRate);
+		HOD_PROPERTY(_decelerationRate, &ScrollView::SetDecelerationRate)->AddTrait<ReflectionTraitEnabledIf>(&ScrollView::GetInertia, "Unused: no inertia");
 		HOD_PROPERTY(_scrollSensitivity, &ScrollView::SetScrollSensitivity);
 	}
 
@@ -437,5 +438,12 @@ namespace hod::inline ui
 	Vector2 ScrollView::KeepAxes(const Vector2& vector) const
 	{
 		return Vector2(_horizontal ? vector.GetX() : 0.0f, _vertical ? vector.GetY() : 0.0f);
+	}
+
+	/// @brief
+	/// @return
+	bool ScrollView::IsElastic() const
+	{
+		return _movementType == MovementType::Elastic;
 	}
 }

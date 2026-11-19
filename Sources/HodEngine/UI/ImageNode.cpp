@@ -1,5 +1,6 @@
 #include "HodEngine/UI/Pch.hpp"
 #include "HodEngine/UI/ImageNode.hpp"
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitEnabledIf.hpp>
 #include "HodEngine/UI/DrawContext.hpp"
 
 #include <HodEngine/Core/Math.hpp>
@@ -23,7 +24,7 @@ namespace hod::inline ui
 		HOD_PROPERTY(_texture, &ImageNode::SetTexture);
 		HOD_PROPERTY(_color, &ImageNode::SetColor);
 		HOD_PROPERTY(_slices, &ImageNode::SetSlices);
-		HOD_PROPERTY(_sliceScale, &ImageNode::SetSliceScale);
+		HOD_PROPERTY(_sliceScale, &ImageNode::SetSliceScale)->AddTrait<ReflectionTraitEnabledIf>(&ImageNode::IsSliced, "Unused: no slices");
 	}
 
 	/// @brief
@@ -235,5 +236,12 @@ namespace hod::inline ui
 		materialInstance->SetVec4("ubo.color", Vector4(_color.r, _color.g, _color.b, _color.a));
 
 		drawContext.PushMesh(vertices.Data(), texture != nullptr ? uvs.Data() : nullptr, (uint32_t)vertices.Size(), indices, indexCount, ComputeCanvasMatrix(), materialInstance);
+	}
+
+	/// @brief
+	/// @return
+	bool ImageNode::IsSliced() const
+	{
+		return _slices._left > 0.0f || _slices._top > 0.0f || _slices._right > 0.0f || _slices._bottom > 0.0f;
 	}
 }

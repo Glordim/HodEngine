@@ -5,7 +5,9 @@
 #include "HodEngine/Core/Reflection/Properties/ReflectionPropertyVariable.hpp"
 #include "HodEngine/Core/Reflection/ReflectionDescriptor.hpp"
 #include "HodEngine/Core/Reflection/ReflectionProperty.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitEnabledIf.hpp"
 #include "HodEngine/Core/Reflection/Traits/ReflectionTraitHide.hpp"
+#include "HodEngine/Core/Reflection/Traits/ReflectionTraitVisibleIf.hpp"
 #include "HodEngine/Editor/PropertyDrawer/PropertyDrawer.hpp"
 #include "HodEngine/Editor/PropertyDrawer/PropertyDrawerRegistry.hpp"
 #include "HodEngine/Editor/ReflectionDrawer.hpp"
@@ -77,13 +79,15 @@ namespace hod::inline editor
 	bool ReflectionDrawer::DrawProperty(EditorReflectedProperty& reflectedProperty, bool onlyValue)
 	{
 		ReflectionProperty* reflectionProperty = reflectedProperty.GetReflectionProperty();
-		if (reflectionProperty->FindTrait<ReflectionTraitHide>() != nullptr)
+		if (reflectionProperty->FindTrait<ReflectionTraitHide>() != nullptr || IsPropertyVisible(reflectedProperty) == false)
 		{
 			return false;
 		}
 
 		ImGui::PushID(reflectionProperty);
 		bool changed = false;
+		bool enabled = IsPropertyEnabled(reflectedProperty);
+		ImGui::BeginDisabled(enabled == false);
 
 		if (reflectionProperty->GetRttiType() == ReflectionPropertyVariable::GetRttiTypeStatic())
 		{
@@ -102,6 +106,7 @@ namespace hod::inline editor
 				// objectProperty->SetValue(object, objectProperty->GetValue(object));
 			}
 		}
+		ImGui::EndDisabled();
 		ImGui::PopID();
 
 		return changed;
@@ -630,9 +635,54 @@ namespace hod::inline editor
 
 		ImGui::AlignTextToFramePadding();
 		ImGui::TextUnformatted(editorReflectedProperty.GetReflectionProperty()->GetDisplayName().CStr());
+		ReflectionTraitEnabledIf* enabledIf = editorReflectedProperty.GetReflectionProperty()->FindTrait<ReflectionTraitEnabledIf>();
+		if (enabledIf != nullptr && enabledIf->GetReason().Empty() == false && IsPropertyEnabled(editorReflectedProperty) == false)
+		{
+			ImGui::SetItemTooltip("%s", enabledIf->GetReason().CStr());
+		}
 		changed |= DrawContextMenu(editorReflectedProperty);
 
 		return changed;
+	}
+
+	/// @brief
+	/// @param editorReflectedProperty
+	/// @return
+	bool ReflectionDrawer::IsPropertyVisible(const EditorReflectedProperty& editorReflectedProperty)
+	{
+		ReflectionTraitVisibleIf* visibleIf = editorReflectedProperty.GetReflectionProperty()->FindTrait<ReflectionTraitVisibleIf>();
+		if (visibleIf == nullptr)
+		{
+			return true;
+		}
+		for (const void* owner : editorReflectedProperty.GetInstances())
+		{
+			if (visibleIf->IsVisible(owner))
+			{
+				return true;
+			}
+		}
+		return false;
+	}
+
+	/// @brief
+	/// @param editorReflectedProperty
+	/// @return
+	bool ReflectionDrawer::IsPropertyEnabled(const EditorReflectedProperty& editorReflectedProperty)
+	{
+		ReflectionTraitEnabledIf* enabledIf = editorReflectedProperty.GetReflectionProperty()->FindTrait<ReflectionTraitEnabledIf>();
+		if (enabledIf == nullptr)
+		{
+			return true;
+		}
+		for (const void* owner : editorReflectedProperty.GetInstances())
+		{
+			if (enabledIf->IsEnabled(owner))
+			{
+				return true;
+			}
+		}
+		return false;
 	}
 
 	/// @brief Find the root object owning the property and the chain of object properties leading from it to the property owner

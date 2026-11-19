@@ -39,6 +39,7 @@ namespace hod::inline ui
 		void				SetVertical(bool vertical);
 
 		MovementType		GetMovementType() const;
+		bool				IsElastic() const;
 		void				SetMovementType(MovementType movementType);
 
 		// Elastic: how long (seconds) a content past its edges takes to come back, about

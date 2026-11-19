@@ -53,6 +53,7 @@ namespace hod::inline ui
 		void				SetBorderColor(const Color& borderColor);
 
 		float				GetDepth() const;
+		bool				HasDepth() const;
 		void				SetDepth(float depth);
 
 		float				GetPress() const;
@@ -62,6 +63,7 @@ namespace hod::inline ui
 		void				SetDepthColor(const Color& depthColor);
 
 		const Color&		GetShadowColor() const;
+		bool				HasShadow() const;
 		void				SetShadowColor(const Color& shadowColor);
 
 		const Vector2&		GetShadowOffset() const;

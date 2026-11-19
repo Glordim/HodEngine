@@ -57,6 +57,11 @@ namespace hod::inline editor
         static void     UnregisterEnumValuePreview(const EnumDescriptor& enumDescriptor);
 
         static bool     BeginProperty(EditorReflectedProperty& editorReflectedProperty);
+
+        /// @return Whether the property is shown: not hidden by its ReflectionTraitVisibleIf for each of its owners (shown if one uses it)
+        static bool     IsPropertyVisible(const EditorReflectedProperty& editorReflectedProperty);
+        /// @return Whether the property is enabled: not disabled by its ReflectionTraitEnabledIf for each of its owners (enabled if one uses it)
+        static bool     IsPropertyEnabled(const EditorReflectedProperty& editorReflectedProperty);
         static bool     DrawContextMenu(EditorReflectedProperty& editorReflectedProperty);
     };
 

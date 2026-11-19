@@ -82,6 +82,7 @@ namespace hod::inline physics
 
 		void SetMode(Mode mode);
 		Mode GetMode() const;
+		bool IsDynamic() const;
 
 		void  SetGravityScale(float gravityScale);
 		float GetGravityScale() const;

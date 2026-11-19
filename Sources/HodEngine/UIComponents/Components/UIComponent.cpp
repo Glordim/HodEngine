@@ -1,5 +1,7 @@
 #include "HodEngine/UIComponents/Pch.hpp"
 #include "HodEngine/Core/Memory/DefaultAllocator.hpp"
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitEnabledIf.hpp>
+#include <HodEngine/Core/Reflection/Traits/ReflectionTraitVisibleIf.hpp>
 #include "HodEngine/UIComponents/Components/UIComponent.hpp"
 #include "HodEngine/RendererComponents/Components/CameraComponent.hpp"
 #include "HodEngine/Game/Components/Node2dComponent.hpp"
@@ -34,11 +36,13 @@ namespace hod::inline ui
 
 		HOD_PROPERTY(_prefab, &UIComponent::SetPrefab);
 		HOD_PROPERTY(_renderMode, &UIComponent::SetRenderMode);
-		HOD_PROPERTY(_sortingOrder, &UIComponent::SetSortingOrder);
-		HOD_PROPERTY(_pixelsPerUnit, &UIComponent::SetPixelsPerUnit);
+		HOD_PROPERTY(_sortingOrder, &UIComponent::SetSortingOrder)->AddTrait<ReflectionTraitVisibleIf>(&UIComponent::IsScreenSpace);
+		HOD_PROPERTY(_pixelsPerUnit, &UIComponent::SetPixelsPerUnit)->AddTrait<ReflectionTraitVisibleIf>(&UIComponent::IsWorldSpace);
 		// Named as before the prefab existed: the scenes saved then keep them
-		HOD_PROPERTY(_overrideScaler, &UIComponent::SetOverrideScaler);
-		HOD_PROPERTY(_scaler, &UIComponent::SetScaler);
+		HOD_PROPERTY(_overrideScaler, &UIComponent::SetOverrideScaler)->AddTrait<ReflectionTraitVisibleIf>(&UIComponent::IsScreenSpace);
+		ReflectionProperty* scalerProperty = HOD_PROPERTY(_scaler, &UIComponent::SetScaler);
+		scalerProperty->AddTrait<ReflectionTraitVisibleIf>(&UIComponent::IsScreenSpace);
+		scalerProperty->AddTrait<ReflectionTraitEnabledIf>(&UIComponent::GetOverrideScaler, "Off: the canvas follows the project's UI settings (Edit > Project Settings)");
 	}
 
 	namespace
@@ -388,5 +392,19 @@ namespace hod::inline ui
 	UIComponent::ActionEvent& UIComponent::GetActionEvent()
 	{
 		return _actionEvent;
+	}
+
+	/// @brief
+	/// @return
+	bool UIComponent::IsScreenSpace() const
+	{
+		return _renderMode == RenderMode::Screen;
+	}
+
+	/// @brief
+	/// @return
+	bool UIComponent::IsWorldSpace() const
+	{
+		return _renderMode == RenderMode::World;
 	}
 }

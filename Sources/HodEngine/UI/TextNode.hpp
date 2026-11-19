@@ -81,6 +81,7 @@ namespace hod::inline ui
 		void								SetAlignByGeometry(bool alignByGeometry);
 
 		Overflow							GetOverflow() const;
+		bool								IsShrinkOverflow() const;
 		void								SetOverflow(Overflow overflow);
 
 		// Overflow::Shrink only. A PixelArt font is shrunk by whole multiples of its PixelSize, down to the closest one to this

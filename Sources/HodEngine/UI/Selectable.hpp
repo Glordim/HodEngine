@@ -58,6 +58,7 @@ namespace hod::inline ui
 
 		// How the overrides ease over the transition's duration, when entering any look
 		AnimationKey::Easing	GetTransitionEasing() const;
+		bool				HasTransition() const;
 		void				SetTransitionEasing(AnimationKey::Easing transitionEasing);
 
 		// The looks: the states (by their value), then the type's own

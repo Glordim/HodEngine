@@ -30,6 +30,7 @@ namespace hod::inline ui
 		void									SetColor(const Color& color);
 
 		const RectOffsets&						GetSlices() const;
+		bool									IsSliced() const;
 		void									SetSlices(const RectOffsets& slices);
 
 		float									GetSliceScale() const;
