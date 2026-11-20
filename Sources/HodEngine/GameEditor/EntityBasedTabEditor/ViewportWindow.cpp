@@ -245,8 +245,17 @@ namespace hod::inline editor
 		// origin at zoom 1. Consumed even while playing: a request made then isn't for later.
 		bool frameSelection = GetOwner<EntityEditorTab>()->ConsumeFrameSelectionRequest();
 
-		if (GetOwner<EntityEditorTab>()->IsPlaying() == false || GetOwner<EntityEditorTab>()->IsPaused() == true)
+		bool editing = GetOwner<EntityEditorTab>()->IsPlaying() == false || GetOwner<EntityEditorTab>()->IsPaused() == true;
+
+		// The camera's pan and zoom (see ViewportNavigation), before the mouse is used by the picking and the gizmos below: not while
+		// playing, the mouse is the game's then. A drag started goes on until released.
+		_navigation.Update(editing && ImGui::IsWindowHovered() && _mouseOverToolbar == false);
+		if (editing)
 		{
+			ImVec2 viewPosition = ImGui::GetCursorScreenPos();
+			ImVec2 viewSize = ImGui::GetContentRegionAvail();
+			_camera.Navigate(_navigation, Vector2(viewPosition.x + viewSize.x * 0.5f, viewPosition.y + viewSize.y * 0.5f), unitScale);
+
 			if (ImGui::IsWindowFocused(ImGuiFocusedFlags_RootAndChildWindows) && ImGui::IsKeyPressed(ImGuiKey_F, false) && ImGui::GetIO().WantTextInput == false)
 			{
 				frameSelection = true;
@@ -298,12 +307,6 @@ namespace hod::inline editor
 				}
 			}
 
-			// The wheel zooms (eased), the middle button pans: by the mouse's move on screen, whatever the zoom
-			if (ImGui::IsWindowHovered() && _mouseOverToolbar == false && ImGui::GetIO().MouseWheel != 0.0f)
-			{
-				_camera.ZoomBy(ImGui::GetIO().MouseWheel);
-			}
-
 			if (ImGui::IsWindowFocused() || ImGui::IsWindowHovered())
 			{
 				if (ImGui::IsKeyPressed(ImGuiKey_T))
@@ -319,14 +322,7 @@ namespace hod::inline editor
 					//_gizmoOperation = ImGuizmo::OPERATION::SCALE;
 				}
 
-				if (ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] == true && _mouseOverToolbar == false && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
-				{
-					// Screen space is Y-down, world space Y-up
-					float scale = unitScale * _camera.GetZoom();
-					_camera.Pan(Vector2(-ImGui::GetIO().MouseDelta.x / scale, ImGui::GetIO().MouseDelta.y / scale));
-				}
-
-				if (ImGui::GetIO().MouseClicked[ImGuiMouseButton_Left] == true && ImGui::IsWindowHovered() && _mouseOverToolbar == false)
+				if (ImGui::GetIO().MouseClicked[ImGuiMouseButton_Left] == true && ImGui::IsWindowHovered() && IsMouseCaptured() == false)
 				{
 					ImVec2 mousePos = ImGui::GetIO().MousePos - ImGui::GetCursorScreenPos();
 
@@ -871,9 +867,9 @@ namespace hod::inline editor
 
 	/// @brief
 	/// @return
-	bool ViewportWindow::IsMouseOverToolbar() const
+	bool ViewportWindow::IsMouseCaptured() const
 	{
-		return _mouseOverToolbar;
+		return _mouseOverToolbar || _navigation.IsDragging();
 	}
 
 	float ViewportWindow::GetCameraSize() const

@@ -2,6 +2,7 @@
 #include "HodEngine/UIEditor/Export.hpp"
 #include "HodEngine/Editor/EditorTabWindow.hpp"
 #include "HodEngine/Editor/Framing.hpp"
+#include "HodEngine/Editor/ViewportNavigation.hpp"
 #include "HodEngine/UIEditor/UIPrefabEditor/UIPrefabEditorViewportSettings.hpp"
 
 #include <HodEngine/Core/Vector.hpp>
@@ -153,7 +154,8 @@ namespace hod::inline editor
 		float _baseScale = 0.0f;
 
 		// Zoom relative to _baseScale: the view draws at _baseScale * _camera.GetZoom() pixels per canvas unit.
-		FramingCamera _camera;
+		FramingCamera      _camera;
+		ViewportNavigation _navigation;
 		bool          _frameDeviceRequested = false; // a device was picked in the list: its frame is framed on the next frame
 
 		// Play mode: whether the left button is down after a press started over the viewport (see UpdateInteraction)

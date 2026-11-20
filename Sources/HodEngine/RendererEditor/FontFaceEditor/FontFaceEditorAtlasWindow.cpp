@@ -86,28 +86,28 @@ namespace hod::inline editor
 		}
 	}
 
-	/// @brief The wheel zooms around the cursor, a drag pans
+	/// @brief The camera's pan and zoom (see ViewportNavigation), a plain left drag panning too
 	/// @param viewportPosition
 	/// @param viewportSize
 	void FontFaceEditorAtlasWindow::HandleInput(const Vector2& viewportPosition, const Vector2& viewportSize)
 	{
-		const ImGuiIO& io = ImGui::GetIO();
+		ImGui::InvisibleButton("##Atlas", ImVec2(viewportSize.GetX(), viewportSize.GetY()),
+		                       ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight | ImGuiButtonFlags_MouseButtonMiddle);
 
-		ImGui::InvisibleButton("##Atlas", ImVec2(viewportSize.GetX(), viewportSize.GetY()), ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonMiddle);
+		ViewportNavigation::Options navigationOptions;
+		navigationOptions._leftButtonPans = true;
+		_navigation.Update(ImGui::IsItemHovered(), navigationOptions);
 
-		if (ImGui::IsItemActive() && (ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.0f) || ImGui::IsMouseDragging(ImGuiMouseButton_Middle, 0.0f)))
+		_panOffset = _panOffset + _navigation.GetPanDelta();
+
+		if (_navigation.GetZoomDelta() != 0.0f)
 		{
-			_panOffset = _panOffset + Vector2(io.MouseDelta.x, io.MouseDelta.y);
-		}
-
-		if (ImGui::IsItemHovered() && io.MouseWheel != 0.0f)
-		{
-			// The texel under the cursor stays under it
-			const Vector2 cursorFromCenter(io.MousePos.x - viewportPosition.GetX() - viewportSize.GetX() * 0.5f, io.MousePos.y - viewportPosition.GetY() - viewportSize.GetY() * 0.5f);
+			// The texel under the anchor stays under it
+			const Vector2 anchorFromCenter = _navigation.GetZoomAnchor() - viewportPosition - viewportSize * 0.5f;
 			const float   previousZoomFactor = _zoomFactor;
-			_zoomFactor = Clamp(_zoomFactor * std::pow(1.25f, io.MouseWheel), MinZoomFactor, MaxZoomFactor);
+			_zoomFactor = Clamp(_zoomFactor * _navigation.GetZoomFactor(1.25f), MinZoomFactor, MaxZoomFactor);
 			const float zoomRatio = _zoomFactor / previousZoomFactor;
-			_panOffset = cursorFromCenter - (cursorFromCenter - _panOffset) * zoomRatio;
+			_panOffset = anchorFromCenter - (anchorFromCenter - _panOffset) * zoomRatio;
 		}
 	}
 

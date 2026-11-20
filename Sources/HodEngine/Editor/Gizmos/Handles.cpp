@@ -147,7 +147,7 @@ namespace hod::inline editor
 		Color    mousePickingColor = viewport.GetPickingRenderTarget()->ReadPixel(mousePosition);
 		uint32_t mousePickingId = PickingManager::ConvertColorToId(mousePickingColor);
 
-		result._hovered = viewport.IsMouseOverToolbar() == false && mousePickingId == state._pickingId;
+		result._hovered = viewport.IsMouseCaptured() == false && mousePickingId == state._pickingId;
 
 		if (state._pressed && ImGui::IsKeyPressed(ImGuiKey_Escape))
 		{

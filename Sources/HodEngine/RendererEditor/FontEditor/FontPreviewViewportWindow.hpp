@@ -1,6 +1,7 @@
 #pragma once
 #include "HodEngine/RendererEditor/Export.hpp"
 #include "HodEngine/Editor/EditorTabWindow.hpp"
+#include "HodEngine/Editor/ViewportNavigation.hpp"
 
 #include <HodEngine/Core/String.hpp>
 #include <HodEngine/Core/Vector.hpp>
@@ -66,6 +67,7 @@ namespace hod::inline editor
 	private:
 
 		RenderTarget*		_renderTarget = nullptr;
+		ViewportNavigation	_navigation;
 
 		Vector<PreviewLine>	_lines;
 		FontChain			_fontChain; // the lines are drawn with it, see FontPreviewTab::UpdateFontChain

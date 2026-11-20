@@ -5,6 +5,11 @@
 
 namespace hod::inline editor
 {
+	class ViewportNavigation;
+}
+
+namespace hod::inline editor
+{
 	/// @brief The editor's rule for framing a rect (a node, a device frame, a prefab...) in a 2D view: centered, and
 	/// fitted so the rect fills FillRatio of the view on its tightest axis, leaving a margin around it. Whatever shows
 	/// a framed rect follows it, live views (see FramingCamera) as well as one-shot shots (thumbnails), so they all
@@ -40,6 +45,7 @@ namespace hod::inline editor
 	public:
 		static constexpr float MinZoom = 0.05f;
 		static constexpr float MaxZoom = 50.0f;
+		static constexpr float ZoomPerNotch = 1.1f; // Zoom factor of a wheel notch
 
 	public:
 		const Vector2& GetPosition() const;
@@ -59,8 +65,14 @@ namespace hod::inline editor
 		/// @brief Moves the camera at once, dropping any framing in progress
 		void Pan(const Vector2& delta);
 
-		/// @brief Zooms by wheelDelta notches, eased (Update). Takes over from a framing in progress, from where it currently is.
-		void ZoomBy(float wheelDelta);
+		/// @brief Zooms by notches (the wheel's: > 0 zooms in, by ZoomPerNotch each), eased (Update), around anchor: the point there
+		/// stays where it is on screen. anchor is from the view's center, in units at zoom 1 (screen offset / unitScale, Y up).
+		/// Takes over from a framing in progress, from where it currently is.
+		void ZoomBy(float notches, const Vector2& anchor = Vector2::Zero);
+
+		/// @brief Applies a ViewportNavigation's pan and zoom of this frame to a view centered on viewCenter (screen position) and
+		/// drawn at unitScale * GetZoom() pixels per unit, Y up
+		void Navigate(const ViewportNavigation& navigation, const Vector2& viewCenter, float unitScale);
 
 		/// @brief Advances the framing animation and the zoom easing, once per frame
 		void Update(float deltaTime);
@@ -75,6 +87,7 @@ namespace hod::inline editor
 		Vector2 _position = Vector2::Zero;
 		float   _zoom = 1.0f;
 		float   _targetZoom = 1.0f; // the wheel's, eased towards outside of a framing animation
+		Vector2 _zoomAnchor = Vector2::Zero; // what the wheel's zoom is around (see ZoomBy)
 
 		bool    _animating = false;
 		float   _progress = 0.0f;

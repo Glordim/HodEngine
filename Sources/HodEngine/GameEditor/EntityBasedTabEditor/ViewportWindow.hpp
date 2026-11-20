@@ -4,6 +4,7 @@
 #include "HodEngine/Editor/EditorTabWindow.hpp"
 #include "HodEngine/Editor/Framing.hpp"
 #include "HodEngine/Editor/Gizmos/GizmoViewport.hpp"
+#include "HodEngine/Editor/ViewportNavigation.hpp"
 #include "HodEngine/GameEditor/EntityBasedTabEditor/ViewportDebugView.hpp"
 
 #include <HodEngine/Core/Vector.hpp>
@@ -53,8 +54,9 @@ namespace hod::inline editor
 
 		const Vector2& GetPlayRatio() const override;
 
-		/// @brief true while the mouse is used by the toolbar floating over the viewport, the viewport and its gizmos must then ignore it
-		bool IsMouseOverToolbar() const override;
+		/// @brief true while the mouse is used by the toolbar floating over the viewport or by the camera's navigation, the
+		/// viewport and its gizmos must then ignore it
+		bool IsMouseCaptured() const override;
 
 	private:
 		void DrawToolbar();
@@ -93,11 +95,12 @@ namespace hod::inline editor
 
 		Vector2 _playRatio = Vector2(16.0f, 9.0f);
 
-		// The camera, panned and zoomed as the UI prefab editor's (eased zoom, pan following the mouse at any zoom). At zoom 1 the view shows
-		// DefaultCameraSize world units above and below its center (GetCameraSize: at the current zoom)
+		// The camera, panned and zoomed as the UI prefab editor's (see ViewportNavigation). At zoom 1 the view shows DefaultCameraSize
+		// world units above and below its center (GetCameraSize: at the current zoom)
 		static constexpr float DefaultCameraSize = 5.0f;
 
-		FramingCamera _camera;
+		FramingCamera      _camera;
+		ViewportNavigation _navigation;
 
 		bool _debugPicker = false;
 

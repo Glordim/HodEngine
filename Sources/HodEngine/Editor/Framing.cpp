@@ -1,5 +1,6 @@
 #include "HodEngine/Editor/Pch.hpp"
 #include "HodEngine/Editor/Framing.hpp"
+#include "HodEngine/Editor/ViewportNavigation.hpp"
 
 #include <HodEngine/Core/Math.hpp>
 
@@ -112,12 +113,44 @@ namespace hod::inline editor
 	}
 
 	/// @brief
-	/// @param wheelDelta
-	void FramingCamera::ZoomBy(float wheelDelta)
+	/// @param notches
+	/// @param anchor
+	void FramingCamera::ZoomBy(float notches, const Vector2& anchor)
 	{
-		_animating = false;
-		_targetZoom = Clamp(_targetZoom + wheelDelta * 0.1f * _targetZoom, MinZoom, MaxZoom);
+		if (_animating)
+		{
+			_animating = false;
+			_targetZoom = _zoom;
+		}
+		_targetZoom = Clamp(_targetZoom * std::pow(ZoomPerNotch, notches), MinZoom, MaxZoom);
+		_zoomAnchor = anchor;
 		_moved = true;
+	}
+
+	/// @brief
+	/// @param navigation
+	/// @param viewCenter
+	/// @param unitScale
+	void FramingCamera::Navigate(const ViewportNavigation& navigation, const Vector2& viewCenter, float unitScale)
+	{
+		if (unitScale <= 0.0f)
+		{
+			return;
+		}
+
+		// Screen space is Y-down, the view's space Y-up
+		const Vector2& panDelta = navigation.GetPanDelta();
+		if (panDelta != Vector2::Zero)
+		{
+			float scale = unitScale * _zoom;
+			Pan(Vector2(-panDelta.GetX() / scale, panDelta.GetY() / scale));
+		}
+
+		if (navigation.GetZoomDelta() != 0.0f)
+		{
+			Vector2 anchorFromCenter = navigation.GetZoomAnchor() - viewCenter;
+			ZoomBy(navigation.GetZoomDelta(), Vector2(anchorFromCenter.GetX(), -anchorFromCenter.GetY()) / unitScale);
+		}
 	}
 
 	/// @brief
@@ -126,8 +159,18 @@ namespace hod::inline editor
 	{
 		if (_animating == false)
 		{
-			// Ease towards the target zoom instead of snapping, so each wheel notch feels smooth.
-			_zoom += (_targetZoom - _zoom) * Min(1.0f, deltaTime * 12.0f);
+			// Ease towards the target zoom instead of snapping, so each wheel notch feels smooth. Around the anchor: the point
+			// there (position + anchor / zoom) stays there.
+			if (_zoom != _targetZoom)
+			{
+				float previousZoom = _zoom;
+				_zoom += (_targetZoom - _zoom) * Min(1.0f, deltaTime * 12.0f);
+				if (std::abs(_targetZoom - _zoom) < _targetZoom * 0.0001f)
+				{
+					_zoom = _targetZoom;
+				}
+				_position += _zoomAnchor * (1.0f / previousZoom - 1.0f / _zoom);
+			}
 			return;
 		}
 

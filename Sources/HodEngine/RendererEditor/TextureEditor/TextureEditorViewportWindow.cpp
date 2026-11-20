@@ -162,7 +162,12 @@ namespace hod::inline editor
 		// The input first, for the image to be drawn where it is this frame
 		const ImVec2 viewportPosition = ImGui::GetCursorScreenPos();
 		const ImVec2 viewportSize((float)resolutionWidth, (float)resolutionHeight);
-		ImGui::InvisibleButton("##Viewport", viewportSize, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonMiddle);
+		ImGui::InvisibleButton("##Viewport", viewportSize, ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight | ImGuiButtonFlags_MouseButtonMiddle);
+
+		// The camera's pan and zoom (see ViewportNavigation), a plain left drag panning too: nothing else to do with it here
+		ViewportNavigation::Options navigationOptions;
+		navigationOptions._leftButtonPans = true;
+		_navigation.Update(ImGui::IsItemHovered(), navigationOptions);
 
 		const ImGuiIO& io = ImGui::GetIO();
 		Vector2        panOffset = textureEditorTab->GetPanOffset();
@@ -174,18 +179,18 @@ namespace hod::inline editor
 			panOffset = Vector2(panOffset.GetX() * zoomRatio, panOffset.GetY() * zoomRatio);
 			textureEditorTab->SetPanOffset(panOffset);
 		}
-		if (ImGui::IsItemActive() && (ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.0f) || ImGui::IsMouseDragging(ImGuiMouseButton_Middle, 0.0f)))
+		if (_navigation.GetPanDelta() != Vector2::Zero)
 		{
-			panOffset = Vector2(panOffset.GetX() + io.MouseDelta.x, panOffset.GetY() + io.MouseDelta.y);
+			panOffset = panOffset + _navigation.GetPanDelta();
 			textureEditorTab->SetPanOffset(panOffset);
 			textureEditorTab->SetRecentering(false); // Taken back by the user
 		}
 
-		if (ImGui::IsItemHovered() && io.MouseWheel != 0.0f)
+		if (_navigation.GetZoomDelta() != 0.0f)
 		{
-			textureEditorTab->SetTargetZoomFactor(textureEditorTab->GetTargetZoomFactor() * std::pow(1.1f, io.MouseWheel)); // 10% of the zoom per notch
+			textureEditorTab->SetTargetZoomFactor(textureEditorTab->GetTargetZoomFactor() * _navigation.GetZoomFactor(1.1f)); // 10% of the zoom per notch
 			textureEditorTab->SetRecentering(false);
-			_zoomAnchor = io.MousePos - viewportPosition;
+			_zoomAnchor = ImVec2(_navigation.GetZoomAnchor().GetX(), _navigation.GetZoomAnchor().GetY()) - viewportPosition;
 		}
 
 		// Eases towards the target zoom instead of snapping, like the UI editor, so each wheel notch feels smooth

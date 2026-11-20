@@ -126,27 +126,31 @@ namespace hod::inline editor
 	void FontPreviewViewportWindow::HandleInput(const Vector2& viewportPosition, const Vector2& viewportSize)
 	{
 		FontPreviewTab* fontPreviewTab = GetOwner<FontPreviewTab>();
-		const ImGuiIO& io = ImGui::GetIO();
-
 		ImGui::SetCursorScreenPos(ImVec2(viewportPosition.GetX(), viewportPosition.GetY()));
-		ImGui::InvisibleButton("##Viewport", ImVec2(viewportSize.GetX(), viewportSize.GetY()), ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonMiddle);
+		ImGui::InvisibleButton("##Viewport", ImVec2(viewportSize.GetX(), viewportSize.GetY()),
+		                       ImGuiButtonFlags_MouseButtonLeft | ImGuiButtonFlags_MouseButtonRight | ImGuiButtonFlags_MouseButtonMiddle);
+
+		// The camera's pan and zoom (see ViewportNavigation), a plain left drag panning too: nothing else to do with it here
+		ViewportNavigation::Options navigationOptions;
+		navigationOptions._leftButtonPans = true;
+		_navigation.Update(ImGui::IsItemHovered(), navigationOptions);
 
 		Vector2 panOffset = fontPreviewTab->GetPanOffset();
-		if (ImGui::IsItemActive() && (ImGui::IsMouseDragging(ImGuiMouseButton_Left, 0.0f) || ImGui::IsMouseDragging(ImGuiMouseButton_Middle, 0.0f)))
+		if (_navigation.GetPanDelta() != Vector2::Zero)
 		{
-			panOffset = panOffset + Vector2(io.MouseDelta.x, -io.MouseDelta.y); // y up
+			panOffset = panOffset + Vector2(_navigation.GetPanDelta().GetX(), -_navigation.GetPanDelta().GetY()); // y up
 			fontPreviewTab->SetPanOffset(panOffset);
 		}
 
-		if (ImGui::IsItemHovered() && io.MouseWheel != 0.0f)
+		if (_navigation.GetZoomDelta() != 0.0f)
 		{
-			// The point of the text under the cursor stays under it
+			// The point of the text under the anchor stays under it
 			const float   zoomFactor = fontPreviewTab->GetZoomFactor();
-			const Vector2 cursor(io.MousePos.x - viewportPosition.GetX(), -(io.MousePos.y - viewportPosition.GetY()));
-			const Vector2 pointUnderCursor = (cursor - panOffset) / zoomFactor;
+			const Vector2 anchor(_navigation.GetZoomAnchor().GetX() - viewportPosition.GetX(), -(_navigation.GetZoomAnchor().GetY() - viewportPosition.GetY()));
+			const Vector2 pointUnderAnchor = (anchor - panOffset) / zoomFactor;
 
-			fontPreviewTab->SetZoomFactor(zoomFactor * std::pow(1.25f, io.MouseWheel));
-			fontPreviewTab->SetPanOffset(cursor - pointUnderCursor * fontPreviewTab->GetZoomFactor());
+			fontPreviewTab->SetZoomFactor(zoomFactor * _navigation.GetZoomFactor(1.25f));
+			fontPreviewTab->SetPanOffset(anchor - pointUnderAnchor * fontPreviewTab->GetZoomFactor());
 		}
 	}
 

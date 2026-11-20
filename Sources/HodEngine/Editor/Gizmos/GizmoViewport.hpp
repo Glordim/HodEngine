@@ -35,7 +35,8 @@ namespace hod::inline editor
 		/// @brief Of the game screen previewed in the viewport (eg. for the aspect of a camera)
 		virtual const Vector2&        GetPlayRatio() const = 0;
 
-		/// @brief true while the mouse is used by something drawn over the viewport, the gizmos must then ignore it
-		virtual bool IsMouseOverToolbar() const = 0;
+		/// @brief true while the mouse is used by the viewport itself (something drawn over it, its camera's navigation, see
+		/// ViewportNavigation), the gizmos must then ignore it
+		virtual bool IsMouseCaptured() const = 0;
 	};
 }

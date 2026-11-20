@@ -1,6 +1,7 @@
 #pragma once
 #include "HodEngine/RendererEditor/Export.hpp"
 #include "HodEngine/Editor/EditorTabWindow.hpp"
+#include "HodEngine/Editor/ViewportNavigation.hpp"
 
 #include <HodEngine/ImGui/Window/Window.hpp>
 #include <HodEngine/Math/Vector2.hpp>
@@ -43,6 +44,7 @@ namespace hod::inline editor
 	private:
 
 		RenderTarget*	_renderTarget = nullptr;
+		ViewportNavigation _navigation;
 
 		uint32_t		_pageIndex = 0;
 		bool			_outlineFontGlyphs = true;

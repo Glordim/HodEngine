@@ -220,11 +220,12 @@ namespace hod::inline editor
 		float baseScale = _baseScale;
 
 		bool hovered = ImGui::IsWindowHovered() && mouseOverToolbar == false;
-		// Playing, the wheel is the UI's (its scroll views): Ctrl + wheel zooms then
-		if (hovered && ImGui::GetIO().MouseWheel != 0.0f && (playing == false || ImGui::GetIO().KeyCtrl))
-		{
-			_camera.ZoomBy(ImGui::GetIO().MouseWheel);
-		}
+		// The camera's pan and zoom (see ViewportNavigation), applied once the camera is updated below. Playing, the wheel is the UI's
+		// (its scroll views): Ctrl + wheel zooms then. While it drags, the mouse is neither the gizmos', the selection's nor the UI's.
+		ViewportNavigation::Options navigationOptions;
+		navigationOptions._wheelZooms = playing == false || ImGui::GetIO().KeyCtrl;
+		_navigation.Update(hovered, navigationOptions);
+		bool mouseFree = hovered && _navigation.IsDragging() == false;
 
 		// F (here or in the hierarchy) frames the selected node. With the canvas selected (or nothing), the previewed device's
 		// frame is framed instead, as when picking another device in the list.
@@ -278,10 +279,12 @@ namespace hod::inline editor
 
 		float scale = baseScale * _camera.GetZoom();
 
-		if (hovered && ImGui::GetIO().MouseDown[ImGuiMouseButton_Middle] && (ImGui::GetIO().MouseDelta.x != 0.0f || ImGui::GetIO().MouseDelta.y != 0.0f))
 		{
-			// Screen space is Y-down; canvas space is Y-up, hence the flip on Y.
-			_camera.Pan(Vector2(-ImGui::GetIO().MouseDelta.x / scale, ImGui::GetIO().MouseDelta.y / scale));
+			// The image is centered in the window's content
+			ImVec2 viewPosition = ImGui::GetCursorScreenPos();
+			ImVec2 viewSize = ImGui::GetContentRegionAvail();
+			_camera.Navigate(_navigation, Vector2(viewPosition.x + viewSize.x * 0.5f, viewPosition.y + viewSize.y * 0.5f), baseScale);
+			scale = baseScale * _camera.GetZoom();
 		}
 
 		RenderView* renderView = Renderer::GetInstance()->GetCurrentFrameResources().CreateRenderView();
@@ -330,7 +333,7 @@ namespace hod::inline editor
 		{
 			if (tab->ConsumeFrame())
 			{
-				hitNode = UpdateInteraction(canvas, mouseCanvasPos, hovered && mouseInsideImage);
+				hitNode = UpdateInteraction(canvas, mouseCanvasPos, mouseFree && mouseInsideImage);
 
 				// The state transitions the pointer just started (or already playing), laid out again before drawing. A step
 				// (paused) lasts a 60 Hz frame.
@@ -357,7 +360,7 @@ namespace hod::inline editor
 		}
 		if (gizmoNodes.Empty() == false)
 		{
-			UpdateGizmoDrag(gizmoNodes, mouseCanvasPos, scale, hovered && mouseInsideImage && _marqueeState == MarqueeState::None);
+			UpdateGizmoDrag(gizmoNodes, mouseCanvasPos, scale, mouseFree && mouseInsideImage && _marqueeState == MarqueeState::None);
 		}
 		else
 		{
@@ -462,7 +465,7 @@ namespace hod::inline editor
 			_marqueeSelectionBefore.Clear();
 		}
 
-		if (playing == false && hovered && mouseInsideImage && ImGui::IsMouseClicked(ImGuiMouseButton_Left) && _draggedGizmoHandle == GizmoHandle::None)
+		if (playing == false && mouseFree && mouseInsideImage && ImGui::IsMouseClicked(ImGuiMouseButton_Left) && _draggedGizmoHandle == GizmoHandle::None)
 		{
 			// Before the click changes the selection: a drag turns it into a selection rectangle
 			StartMarquee(mouseCanvasPos);
