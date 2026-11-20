@@ -9,7 +9,7 @@
 #include <HodEngine/UI/LayoutParamsFactory.hpp>
 #include <HodEngine/UI/Node.hpp>
 #include <HodEngine/UI/NodeFactory.hpp>
-#include <HodEngine/UI/NodeRef.hpp>
+#include <HodEngine/UI/WeakNode.hpp>
 #include <HodEngine/UI/PrefabInstance.hpp>
 #include <HodEngine/UI/View.hpp>
 #include <HodEngine/UI/ViewFactory.hpp>
@@ -37,9 +37,9 @@ namespace hod
 		REFLECTED_CLASS(TestView, View)
 
 	public:
-		NodeRef<LabelNode>	_label;
-		NodeRef<Node>		_panel;
-		ViewRef<TestView>	_nested;
+		WeakNode<LabelNode>	_label;
+		WeakNode<Node>		_panel;
+		WeakView<TestView>	_nested;
 
 		// Seen from OnBind
 		bool				_nestedBoundFirst = false;
@@ -192,6 +192,26 @@ namespace hod
 
 		container.BindViews();
 		EXPECT_EQ(view->_label.Get(), nullptr);
+		EXPECT_EQ(view->_panel.Get(), panel);
+	}
+
+	TEST_F(ViewTest, ReferenceToADestroyedNodeIsNull)
+	{
+		Node  container;
+		Node* root = BuildPrefab(container);
+		Node* panel = root->GetChildren()[0];
+		Node* label = panel->GetChildren()[0];
+
+		container.BindViews();
+		TestView* view = root->GetView<TestView>();
+		ASSERT_EQ(view->_label.Get(), label);
+
+		// Destroyed while the view is bound: weak, the reference doesn't dangle
+		panel->RemoveChild(label);
+		DefaultAllocator::GetInstance().Delete(label);
+		EXPECT_EQ(view->_label.Get(), nullptr);
+		EXPECT_FALSE(view->_label);
+		EXPECT_NE(view->_label.GetLocalId(), 0u); // Its id kept: a node of that id resolves at the next bind
 		EXPECT_EQ(view->_panel.Get(), panel);
 	}
 

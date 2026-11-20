@@ -1,6 +1,6 @@
 #pragma once
 #include "HodEngine/UI/Export.hpp"
-#include "HodEngine/UI/NodeRef.hpp"
+#include "HodEngine/UI/WeakNode.hpp"
 #include "HodEngine/UI/Selectable.hpp"
 
 #include <HodEngine/Core/Event.hpp>
@@ -86,8 +86,8 @@ namespace hod::inline ui
 		float				_value = 0.0f;
 		bool				_wholeNumbers = false;
 		Direction			_direction = Direction::LeftToRight;
-		NodeRef<Node>		_fill;
-		NodeRef<Node>		_handle;
+		WeakNode<Node>		_fill;
+		WeakNode<Node>		_handle;
 		String				_action;
 
 		bool				_visualsApplied = false;

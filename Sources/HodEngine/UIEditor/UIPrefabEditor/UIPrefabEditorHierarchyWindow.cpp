@@ -480,7 +480,7 @@ namespace hod::inline editor
 		// Any node can be dragged onto another to become its child, except the prefab root: it has no
 		// place to go, being the one and only child of the hidden container. Nor an instance's content, which follows its prefab.
 		// The selection goes along when the node is in it. The payload is the dragged node only, as other targets take one node
-		// (a NodeRef, the asset browser).
+		// (a WeakNode, the asset browser).
 		if (tab->CanRemove(node) && ImGui::BeginDragDropSource())
 		{
 			ImGui::SetDragDropPayload("UINode", &node, sizeof(ui::Node*));

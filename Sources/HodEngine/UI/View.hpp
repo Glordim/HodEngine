@@ -11,16 +11,16 @@
 namespace hod::inline ui
 {
 	class Node;
-	class NodeRefBase;
+	class WeakNodeBase;
 
 	/// @brief The code side of a UI prefab: the interface gameplay talks to (SetScore, a click event...) instead of the prefab's
-	/// tree, which only the view knows, through the nodes it references (see NodeRef, ViewRef), assigned in the editor. Moving
+	/// tree, which only the view knows, through the nodes it references (see WeakNode, WeakView), assigned in the editor. Moving
 	/// or renaming nodes in the prefab doesn't break it: the references follow the nodes' local ids.
 	///
 	/// Attached to a Node (the prefab's root, normally) via Node::SetView, a single, optional slot like Layout and Interaction.
 	/// A project's runtime module declares its views (REFLECTED_CLASS(MyView, ui::View)), their references as reflected properties, and
 	/// registers them in ViewFactory. A nested prefab instance has its prefab's view: the containing view reaches it through a
-	/// ViewRef, each view only knowing its own prefab.
+	/// WeakView, each view only knowing its own prefab.
 	///
 	/// A view runs only once bound (see Bind), which whoever runs the prefab does (UIComponent, in game), never the prefab's
 	/// editor: OnBind is where it connects to its nodes' events (Button::GetClickEvent...) and sets up what it shows.
@@ -47,8 +47,8 @@ namespace hod::inline ui
 		void						Unbind();
 		bool						IsBound() const;
 
-		// The references the view holds (its reflected NodeRef / ViewRef properties, its parents' included)
-		void						CollectReferences(Vector<NodeRefBase*>& outReferences);
+		// The references the view holds (its reflected WeakNode / WeakView properties, its parents' included)
+		void						CollectReferences(Vector<WeakNodeBase*>& outReferences);
 		// Follows the nodes it references getting new ids (see Node::RenewLocalIds, Interaction::RemapTargets)
 		void						RemapReferences(const std::map<uint64_t, uint64_t>& oldToNew, bool keepOthers);
 

@@ -4,7 +4,7 @@
 
 #include "HodEngine/Editor/EditorRegistrar.hpp"
 #include "HodEngine/UIEditor/EasingPreview.hpp"
-#include "HodEngine/UIEditor/PropertyDrawer/NodeRefDrawer.hpp"
+#include "HodEngine/UIEditor/PropertyDrawer/WeakNodeDrawer.hpp"
 #include "HodEngine/UIEditor/PropertyDrawer/RectOffsetsDrawer.hpp"
 #include "HodEngine/UIEditor/UIPrefabEditor/UIPrefabAssetType.hpp"
 
@@ -16,7 +16,7 @@
 #include <HodEngine/UI/CanvasManager.hpp>
 #include <HodEngine/UIComponents/Components/UIComponent.hpp>
 #include <HodEngine/UI/Margin.hpp>
-#include <HodEngine/UI/NodeRef.hpp>
+#include <HodEngine/UI/WeakNode.hpp>
 #include <HodEngine/UI/Padding.hpp>
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
@@ -50,7 +50,7 @@ namespace hod::inline ui
 		editorRegistrar.RegisterPropertyDrawer<MarginDrawer>();
 		editorRegistrar.RegisterPropertyDrawer<PaddingDrawer>();
 
-		editorRegistrar.RegisterPropertyDrawer<NodeRefDrawer>();
+		editorRegistrar.RegisterPropertyDrawer<WeakNodeDrawer>();
 
 		if (const EnumDescriptor* easingEnum = GetEasingEnumDescriptor())
 		{

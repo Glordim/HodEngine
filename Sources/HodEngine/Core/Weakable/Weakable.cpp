@@ -9,6 +9,16 @@ namespace hod::inline core
 	{
 	}
 
+	Weakable::Weakable([[maybe_unused]] const Weakable& copy)
+	: _aliveController(std::make_shared<WeakableAliveController>())
+	{
+	}
+
+	Weakable& Weakable::operator=([[maybe_unused]] const Weakable& copy)
+	{
+		return *this;
+	}
+
 	Weakable::~Weakable()
 	{
 		_aliveController->MarkAsDead();

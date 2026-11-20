@@ -1,20 +1,20 @@
 #include "HodEngine/UI/Pch.hpp"
-#include "HodEngine/UI/NodeRef.hpp"
+#include "HodEngine/UI/WeakNode.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
 
 namespace hod::inline ui
 {
-	DESCRIBE_REFLECTED_CLASS(NodeRefBase)
+	DESCRIBE_REFLECTED_CLASS(WeakNodeBase)
 	{
-		HOD_PROPERTY(_localId, &NodeRefBase::SetLocalId);
+		HOD_PROPERTY(_localId, &WeakNodeBase::SetLocalId);
 	}
 
 	/// @brief
 	/// @param nodeDescriptor
 	/// @param viewDescriptor
-	NodeRefBase::NodeRefBase(const ReflectionDescriptor* nodeDescriptor, const ReflectionDescriptor* viewDescriptor)
+	WeakNodeBase::WeakNodeBase(const ReflectionDescriptor* nodeDescriptor, const ReflectionDescriptor* viewDescriptor)
 	: _nodeDescriptor(nodeDescriptor)
 	, _viewDescriptor(viewDescriptor)
 	{
@@ -23,21 +23,21 @@ namespace hod::inline ui
 	/// @brief
 	/// @param other
 	/// @return
-	bool NodeRefBase::operator==(const NodeRefBase& other) const
+	bool WeakNodeBase::operator==(const WeakNodeBase& other) const
 	{
 		return _localId == other._localId;
 	}
 
 	/// @brief
 	/// @return
-	uint64_t NodeRefBase::GetLocalId() const
+	uint64_t WeakNodeBase::GetLocalId() const
 	{
 		return _localId;
 	}
 
 	/// @brief
 	/// @param localId
-	void NodeRefBase::SetLocalId(uint64_t localId)
+	void WeakNodeBase::SetLocalId(uint64_t localId)
 	{
 		_localId = localId;
 		_node = nullptr;
@@ -45,14 +45,14 @@ namespace hod::inline ui
 
 	/// @brief
 	/// @return
-	const ReflectionDescriptor* NodeRefBase::GetNodeDescriptor() const
+	const ReflectionDescriptor* WeakNodeBase::GetNodeDescriptor() const
 	{
 		return _nodeDescriptor;
 	}
 
 	/// @brief
 	/// @return
-	const ReflectionDescriptor* NodeRefBase::GetViewDescriptor() const
+	const ReflectionDescriptor* WeakNodeBase::GetViewDescriptor() const
 	{
 		return _viewDescriptor;
 	}
@@ -60,7 +60,7 @@ namespace hod::inline ui
 	/// @brief
 	/// @param node
 	/// @return
-	bool NodeRefBase::Accepts(const Node& node) const
+	bool WeakNodeBase::Accepts(const Node& node) const
 	{
 		if (_nodeDescriptor != nullptr && node.GetReflectionDescriptorV().IsCompatible(*_nodeDescriptor) == false)
 		{
@@ -75,15 +75,15 @@ namespace hod::inline ui
 
 	/// @brief
 	/// @return
-	Node* NodeRefBase::GetNode() const
+	Node* WeakNodeBase::GetNode() const
 	{
-		return _node;
+		return _node.Get();
 	}
 
 	/// @brief
 	/// @param scopeRoot
 	/// @return
-	bool NodeRefBase::Resolve(Node& scopeRoot)
+	bool WeakNodeBase::Resolve(Node& scopeRoot)
 	{
 		_node = nullptr;
 		if (_localId == 0)
@@ -109,7 +109,7 @@ namespace hod::inline ui
 	}
 
 	/// @brief
-	void NodeRefBase::Reset()
+	void WeakNodeBase::Reset()
 	{
 		_node = nullptr;
 	}
@@ -117,7 +117,7 @@ namespace hod::inline ui
 	/// @brief
 	/// @param oldToNew
 	/// @param keepOthers
-	void NodeRefBase::Remap(const std::map<uint64_t, uint64_t>& oldToNew, bool keepOthers)
+	void WeakNodeBase::Remap(const std::map<uint64_t, uint64_t>& oldToNew, bool keepOthers)
 	{
 		if (_localId == 0)
 		{

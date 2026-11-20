@@ -5,17 +5,17 @@
 namespace hod::inline ui
 {
 	class Node;
-	class NodeRefBase;
+	class WeakNodeBase;
 }
 
 namespace hod::inline editor
 {
 	class UIPrefabEditorTab;
 
-	/// @brief A ui::View's reference to a node (ui::NodeRef, ui::ViewRef): the node referenced, picked among the nodes of the
+	/// @brief A ui::View's reference to a node (ui::WeakNode, ui::WeakView): the node referenced, picked among the nodes of the
 	/// view's scope that are of the expected type, or dropped from the hierarchy. Shown as missing when the node isn't there
 	/// anymore, or isn't of that type anymore. Only drawn within a Scope, which says where the nodes are.
-	class HOD_UI_EDITOR_API NodeRefDrawer : public PropertyDrawer<NodeRefBase>
+	class HOD_UI_EDITOR_API WeakNodeDrawer : public PropertyDrawer<WeakNodeBase>
 	{
 	public:
 		/// @brief While alive, the references drawn are the ones of a view of tab, resolved in scopeRoot (see ui::Node::GetScopeRoot)
@@ -32,6 +32,6 @@ namespace hod::inline editor
 		};
 
 	protected:
-		bool OnDraw(const PropertyValues<NodeRefBase>& values) override;
+		bool OnDraw(const PropertyValues<WeakNodeBase>& values) override;
 	};
 }

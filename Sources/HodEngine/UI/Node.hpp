@@ -10,6 +10,7 @@
 #include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Core/String.hpp>
 #include <HodEngine/Core/Memory/DefaultAllocator.hpp>
+#include <HodEngine/Core/Weakable/Weakable.hpp>
 
 #include "HodEngine/UI/Layout.hpp"
 #include "HodEngine/UI/Interaction.hpp"
@@ -29,8 +30,8 @@ namespace hod::inline ui
 	class PrefabInstance;
 	class AnimationPlayer;
 
-	/// @brief
-	class HOD_UI_API Node
+	/// @brief Weakable: the references to it (WeakNode, WeakView) become null when it is destroyed
+	class HOD_UI_API Node : public Weakable
 	{
 		REFLECTED_CLASS_NO_PARENT(Node)
 

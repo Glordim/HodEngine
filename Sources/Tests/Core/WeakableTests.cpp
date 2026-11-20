@@ -54,4 +54,23 @@ namespace hod
 		weakPtrA = &weakableB;
 		EXPECT_EQ(weakPtrA.Get(), &weakableB);
 	}
+
+	TEST(Weakable, CopyHasItsOwnAliveController)
+	{
+		MyWeakable*         original = DefaultAllocator::GetInstance().New<MyWeakable>();
+		WeakPtr<MyWeakable> toOriginal(original);
+		{
+			MyWeakable          copy(*original);
+			WeakPtr<MyWeakable> toCopy(copy);
+			EXPECT_EQ(toCopy.Get(), &copy);
+		}
+		EXPECT_EQ(toOriginal.Get(), original); // The copy destroyed, not the original
+
+		MyWeakable assigned;
+		*original = assigned;
+		EXPECT_EQ(toOriginal.Get(), original); // Assigned: it keeps its own
+
+		DefaultAllocator::GetInstance().Delete(original);
+		EXPECT_EQ(toOriginal.Get(), nullptr);
+	}
 }

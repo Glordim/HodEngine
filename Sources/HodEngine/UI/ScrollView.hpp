@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/UI/Export.hpp"
 #include "HodEngine/UI/Interaction.hpp"
-#include "HodEngine/UI/NodeRef.hpp"
+#include "HodEngine/UI/WeakNode.hpp"
 
 #include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Math/Vector2.hpp>
@@ -88,7 +88,7 @@ namespace hod::inline ui
 
 	private:
 
-		NodeRef<Node>		_content;
+		WeakNode<Node>		_content;
 		bool				_horizontal = false;
 		bool				_vertical = true;
 		MovementType		_movementType = MovementType::Elastic;

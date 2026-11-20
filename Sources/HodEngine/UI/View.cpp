@@ -1,7 +1,7 @@
 #include "HodEngine/UI/Pch.hpp"
 #include "HodEngine/UI/View.hpp"
 #include "HodEngine/UI/Node.hpp"
-#include "HodEngine/UI/NodeRef.hpp"
+#include "HodEngine/UI/WeakNode.hpp"
 #include "HodEngine/UI/AnimationPlayer.hpp"
 
 #include <HodEngine/Core/Reflection/ReflectionDescriptor.hpp>
@@ -25,10 +25,10 @@ namespace hod::inline ui
 			return;
 		}
 
-		Vector<NodeRefBase*> references;
+		Vector<WeakNodeBase*> references;
 		CollectReferences(references);
 		Node* scopeRoot = _node->GetScopeRoot();
-		for (NodeRefBase* reference : references)
+		for (WeakNodeBase* reference : references)
 		{
 			reference->Resolve(*scopeRoot);
 		}
@@ -48,9 +48,9 @@ namespace hod::inline ui
 		OnUnbind();
 		_bound = false;
 
-		Vector<NodeRefBase*> references;
+		Vector<WeakNodeBase*> references;
 		CollectReferences(references);
-		for (NodeRefBase* reference : references)
+		for (WeakNodeBase* reference : references)
 		{
 			reference->Reset();
 		}
@@ -65,7 +65,7 @@ namespace hod::inline ui
 
 	/// @brief
 	/// @param outReferences
-	void View::CollectReferences(Vector<NodeRefBase*>& outReferences)
+	void View::CollectReferences(Vector<WeakNodeBase*>& outReferences)
 	{
 		for (ReflectionDescriptor* descriptor = &GetReflectionDescriptorV(); descriptor != nullptr; descriptor = descriptor->GetParent())
 		{
@@ -78,9 +78,9 @@ namespace hod::inline ui
 	/// @param keepOthers
 	void View::RemapReferences(const std::map<uint64_t, uint64_t>& oldToNew, bool keepOthers)
 	{
-		Vector<NodeRefBase*> references;
+		Vector<WeakNodeBase*> references;
 		CollectReferences(references);
-		for (NodeRefBase* reference : references)
+		for (WeakNodeBase* reference : references)
 		{
 			reference->Remap(oldToNew, keepOthers);
 		}

@@ -4,7 +4,7 @@
 #include "HodEngine/UIEditor/UIPrefabEditor/SerializedValueFormat.hpp"
 
 #include "HodEngine/UIEditor/AnchorPresetsDrawer.hpp"
-#include "HodEngine/UIEditor/PropertyDrawer/NodeRefDrawer.hpp"
+#include "HodEngine/UIEditor/PropertyDrawer/WeakNodeDrawer.hpp"
 #include "HodEngine/Editor/DrawHelper.hpp"
 #include "HodEngine/Editor/PropertyDrawer/PropertyValues.hpp"
 #include "HodEngine/Editor/Asset.hpp"
@@ -946,7 +946,7 @@ namespace hod::inline editor
 				EditorReflectedObject interactionObject(ToInstances(interactions), interactionDescriptor, sourceInteraction, this);
 				{
 					// Its node references (a Slider's fill, a ScrollView's content) pick among the nodes of its prefab
-					NodeRefDrawer::Scope scope(*GetOwner<UIPrefabEditorTab>(), *nodes[0]->GetScopeRoot());
+					WeakNodeDrawer::Scope scope(*GetOwner<UIPrefabEditorTab>(), *nodes[0]->GetScopeRoot());
 					changed |= ReflectionDrawer::DrawDescriptor(interactionObject);
 				}
 
@@ -1318,7 +1318,7 @@ namespace hod::inline editor
 			                                    canEditStructure ? &removeView : nullptr))
 			{
 				ImGui::BeginDisabled(canEditStructure == false);
-				NodeRefDrawer::Scope scope(*tab, *node->GetScopeRoot());
+				WeakNodeDrawer::Scope scope(*tab, *node->GetScopeRoot());
 				EditorReflectedObject              viewObject(view, &currentDescriptor, nullptr, this);
 				changed |= ReflectionDrawer::DrawDescriptor(viewObject);
 				ImGui::EndDisabled();

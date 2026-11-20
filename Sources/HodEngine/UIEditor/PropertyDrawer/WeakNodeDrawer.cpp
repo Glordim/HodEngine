@@ -1,5 +1,5 @@
 #include "HodEngine/UIEditor/Pch.hpp"
-#include "HodEngine/UIEditor/PropertyDrawer/NodeRefDrawer.hpp"
+#include "HodEngine/UIEditor/PropertyDrawer/WeakNodeDrawer.hpp"
 #include "HodEngine/UIEditor/UIPrefabEditor/UIPrefabEditorTab.hpp"
 
 #include "HodEngine/Editor/DrawHelper.hpp"
@@ -10,7 +10,7 @@
 #include <HodEngine/ImGui/Helper.hpp>
 #include <HodEngine/ImGui/Widgets.hpp>
 #include <HodEngine/UI/Node.hpp>
-#include <HodEngine/UI/NodeRef.hpp>
+#include <HodEngine/UI/WeakNode.hpp>
 #include <HodEngine/UI/PrefabInstance.hpp>
 
 #include <algorithm>
@@ -58,7 +58,7 @@ namespace hod::inline editor
 		}
 
 		/// @brief References node, giving the nodes their local ids first if they don't have one yet
-		void Assign(ui::NodeRefBase& reference, ui::Node& node)
+		void Assign(ui::WeakNodeBase& reference, ui::Node& node)
 		{
 			if (node.GetLocalId() == 0)
 			{
@@ -71,14 +71,14 @@ namespace hod::inline editor
 	/// @brief
 	/// @param tab
 	/// @param root
-	NodeRefDrawer::Scope::Scope(UIPrefabEditorTab& tab, ui::Node& root)
+	WeakNodeDrawer::Scope::Scope(UIPrefabEditorTab& tab, ui::Node& root)
 	{
 		scopeTab = &tab;
 		scopeRoot = &root;
 	}
 
 	/// @brief
-	NodeRefDrawer::Scope::~Scope()
+	WeakNodeDrawer::Scope::~Scope()
 	{
 		scopeTab = nullptr;
 		scopeRoot = nullptr;
@@ -87,10 +87,10 @@ namespace hod::inline editor
 	/// @brief
 	/// @param values
 	/// @return
-	bool NodeRefDrawer::OnDraw(const PropertyValues<NodeRefBase>& values)
+	bool WeakNodeDrawer::OnDraw(const PropertyValues<WeakNodeBase>& values)
 	{
 		bool                   changed = false;
-		const ui::NodeRefBase* reference = &values.Get();
+		const ui::WeakNodeBase* reference = &values.Get();
 		ImGui::PushID(reference);
 
 		const ReflectionDescriptor* expectedDescriptor = (reference->GetViewDescriptor() != nullptr) ? reference->GetViewDescriptor() : reference->GetNodeDescriptor();
@@ -108,7 +108,7 @@ namespace hod::inline editor
 		auto assignAll = [&](ui::Node* node)
 		{
 			values.Edit(
-				[node](ui::NodeRefBase& instanceReference)
+				[node](ui::WeakNodeBase& instanceReference)
 				{
 					if (node != nullptr)
 					{

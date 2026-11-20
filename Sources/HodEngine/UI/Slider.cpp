@@ -56,7 +56,7 @@ namespace hod::inline ui
 		}
 
 		// The node of that id in owner's prefab, null for none (no warning: it may not be assigned yet)
-		Node* FindReferenced(Node& owner, const NodeRefBase& reference)
+		Node* FindReferenced(Node& owner, const WeakNodeBase& reference)
 		{
 			return reference.GetLocalId() != 0 ? owner.GetScopeRoot()->FindByLocalId(reference.GetLocalId()) : nullptr;
 		}

@@ -58,10 +58,10 @@ namespace hod::interaction_tests // named: the other test files have helpers of 
 
 		// A node reference of interaction, as the editor sets it: through reflection
 		template<typename _Interaction_>
-		NodeRefBase& GetReference(_Interaction_& interaction, const char* name)
+		WeakNodeBase& GetReference(_Interaction_& interaction, const char* name)
 		{
 			ReflectionPropertyObject* property = _Interaction_::GetReflectionDescriptor().template FindProperty<ReflectionPropertyObject>(name);
-			return *static_cast<NodeRefBase*>(property->GetInstance(&interaction));
+			return *static_cast<WeakNodeBase*>(property->GetInstance(&interaction));
 		}
 
 		// Laid out, then the pointer

@@ -11,7 +11,12 @@ namespace hod::inline core
 	{
 	public:
 		Weakable();
+		/// @brief A copy is another object: its own alive controller, the references to the original stay the original's
+		Weakable(const Weakable& copy);
 		virtual ~Weakable();
+
+		/// @brief Keeps its own alive controller: the references to it stay valid
+		Weakable& operator=(const Weakable& copy);
 
 		std::shared_ptr<WeakableAliveController> GetAliveController() const;
 
