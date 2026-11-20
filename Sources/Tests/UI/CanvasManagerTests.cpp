@@ -109,6 +109,42 @@ namespace hod
 		CanvasManager::GetInstance()->RemoveCanvas(&below);
 	}
 
+	TEST_F(CanvasManagerTest, NodesDestroyedOrRemovedAreForgotten)
+	{
+		Canvas canvas;
+		Node*  button = AddButton(canvas, "Destroyed");
+		CanvasManager::GetInstance()->AddCanvas(&canvas);
+		CanvasManager::GetInstance()->SetPointerMapping(&canvas, &MapAsIs, 0);
+
+		uint32_t        actionCount = 0;
+		EventConnection onAction = canvas.GetActionEvent().Connect([&](const String&, Node&) { ++actionCount; });
+
+		// Destroyed while hovered and pressed: forgotten at once (weak), never read
+		Vector2 center = Vector2::Zero;
+		Frame(&center, true);
+		EXPECT_EQ(canvas.GetHoveredNode(), button);
+		EXPECT_EQ(canvas.GetPressedNode(), button);
+		canvas.RemoveChild(button);
+		DefaultAllocator::GetInstance().Delete(button);
+		EXPECT_EQ(canvas.GetHoveredNode(), nullptr);
+		EXPECT_EQ(canvas.GetPressedNode(), nullptr);
+		Frame(&center, false);
+		EXPECT_EQ(actionCount, 0u);
+
+		// Removed from the tree but alive: forgotten too, no click on it
+		Node* removed = AddButton(canvas, "Removed");
+		Frame(&center, true);
+		EXPECT_EQ(canvas.GetPressedNode(), removed);
+		canvas.RemoveChild(removed);
+		Frame(&center, false);
+		EXPECT_EQ(canvas.GetHoveredNode(), nullptr);
+		EXPECT_EQ(canvas.GetPressedNode(), nullptr);
+		EXPECT_EQ(actionCount, 0u);
+		DefaultAllocator::GetInstance().Delete(removed);
+
+		CanvasManager::GetInstance()->RemoveCanvas(&canvas);
+	}
+
 	TEST_F(CanvasManagerTest, OnlyAPressStartedOverTheCanvasPressesIt)
 	{
 		Canvas canvas;

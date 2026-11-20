@@ -1,5 +1,6 @@
 #pragma once
 #include "HodEngine/Core/Export.hpp"
+#include <memory>
 #include <type_traits>
 
 // #include "HodEngine/Core/Weakable/Weakable.hpp"

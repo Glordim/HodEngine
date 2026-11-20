@@ -270,23 +270,6 @@ namespace hod::inline ui
 
 	namespace
 	{
-		/// @brief Whether node is root or one of its descendants. Compares addresses only: node may be a deleted one.
-		bool ContainsNode(const Node* root, const Node* node)
-		{
-			if (root == node)
-			{
-				return true;
-			}
-			for (const Node* child : root->GetChildren())
-			{
-				if (ContainsNode(child, node))
-				{
-					return true;
-				}
-			}
-			return false;
-		}
-
 		/// @brief node or its closest ancestor having an Interaction, null if none.
 		Node* FindInteractive(Node* node)
 		{
@@ -310,13 +293,16 @@ namespace hod::inline ui
 		Node* hitNode = _rootNode->HitTest(position);
 
 		Node* hoveredNode = FindInteractive(hitNode);
-		if (hoveredNode != _hoveredNode)
+		if (hoveredNode != _hoveredNode.Get())
 		{
-			Node* previousHoveredNode = _hoveredNode;
+			Node* previousHoveredNode = _hoveredNode.Get();
 			_hoveredNode = hoveredNode;
 			SendPointerEvent(previousHoveredNode, PointerEvent::Type::Exit, position);
-			SendPointerEvent(_hoveredNode, PointerEvent::Type::Enter, position);
+			SendPointerEvent(_hoveredNode.Get(), PointerEvent::Type::Enter, position); // Null if the Exit's handler destroyed it
 		}
+
+		// The handlers may destroy the node hit
+		WeakPtr<Node> hit(hitNode);
 
 		if (pressed && _pointerPressed == false)
 		{
@@ -325,63 +311,54 @@ namespace hod::inline ui
 			_lastPosition = position;
 			_dragTried = false;
 			_dragging = false;
-			for (Node* node = hitNode; node != nullptr; node = node->GetParent())
-			{
-				SendPointerEvent(node, PointerEvent::Type::PressWithin, position);
-			}
+			BubblePointerEvent(hitNode, PointerEvent::Type::PressWithin, position, false);
 			ForgetRemovedNodes();
-			hitNode = _pressHitNode;
-			for (Node* node = hitNode; node != nullptr; node = node->GetParent())
-			{
-				if (SendPointerEvent(node, PointerEvent::Type::Press, position))
-				{
-					_pressedNode = node;
-					break;
-				}
-			}
+			_pressedNode = BubblePointerEvent(_pressHitNode.Get(), PointerEvent::Type::Press, position, true);
 			ForgetRemovedNodes();
 			// Following the pointer right away (a Slider): its drag begins with the press
-			if (_pressedNode != nullptr && _pressedNode->GetInteraction() != nullptr && _pressedNode->GetInteraction()->UsesDragThreshold() == false)
+			Node* pressedNode = _pressedNode.Get();
+			if (pressedNode != nullptr && pressedNode->GetInteraction() != nullptr && pressedNode->GetInteraction()->UsesDragThreshold() == false)
 			{
 				TryBeginDrag(position);
 			}
 		}
 		else if (pressed && _pointerPressed)
 		{
-			if (_dragTried == false && _pressHitNode != nullptr && Vector2::Distance(position, _pressPosition) > DragThreshold)
+			if (_dragTried == false && _pressHitNode.Get() != nullptr && Vector2::Distance(position, _pressPosition) > DragThreshold)
 			{
 				TryBeginDrag(position);
 			}
-			if (_dragging && _pressedNode != nullptr && position != _lastPosition)
+			if (_dragging && _pressedNode.Get() != nullptr && position != _lastPosition)
 			{
 				PointerEvent event;
 				event._type = PointerEvent::Type::Drag;
 				event._position = position;
 				event._delta = position - _lastPosition;
-				SendPointerEvent(_pressedNode, event);
+				SendPointerEvent(_pressedNode.Get(), event);
 				ForgetRemovedNodes();
 			}
 		}
-		else if (pressed == false && _pointerPressed && _pressedNode != nullptr)
+		else if (pressed == false && _pointerPressed && _pressedNode.Get() != nullptr)
 		{
-			Node* pressedNode = _pressedNode;
-			bool  dragged = _dragging;
+			WeakPtr<Node> pressedNode = _pressedNode;
+			bool          dragged = _dragging;
 			_pressedNode = nullptr;
 			_dragging = false;
 			if (dragged)
 			{
-				SendPointerEvent(pressedNode, PointerEvent::Type::DragEnd, position);
-				ForgetRemovedNodes();
+				SendPointerEvent(pressedNode.Get(), PointerEvent::Type::DragEnd, position);
 			}
-			if (ContainsNode(_rootNode, pressedNode))
+			if (Contains(pressedNode.Get()))
 			{
-				SendPointerEvent(pressedNode, PointerEvent::Type::Release, position);
+				SendPointerEvent(pressedNode.Get(), PointerEvent::Type::Release, position);
 			}
-			// The Release handler may have removed it
+			// The Release handler may have removed or destroyed it, or the node hit
 			ForgetRemovedNodes();
-			if (dragged == false && ContainsNode(_rootNode, pressedNode) && hitNode != nullptr && (hitNode == pressedNode || hitNode->IsDescendantOf(pressedNode)))
+			Node* releasedNode = pressedNode.Get();
+			Node* hitNow = hit.Get();
+			if (dragged == false && Contains(releasedNode) && hitNow != nullptr && (hitNow == releasedNode || hitNow->IsDescendantOf(releasedNode)))
 			{
-				SendPointerEvent(pressedNode, PointerEvent::Type::Click, position);
+				SendPointerEvent(releasedNode, PointerEvent::Type::Click, position);
 			}
 		}
 		if (pressed == false)
@@ -395,17 +372,7 @@ namespace hod::inline ui
 		{
 			ForgetRemovedNodes();
 			hitNode = _rootNode->HitTest(position); // the events above may have changed the tree
-			for (Node* node = hitNode; node != nullptr; node = node->GetParent())
-			{
-				PointerEvent event;
-				event._type = PointerEvent::Type::Scroll;
-				event._position = position;
-				event._scroll = scroll;
-				if (SendPointerEvent(node, event))
-				{
-					break;
-				}
-			}
+			BubblePointerEvent(hitNode, PointerEvent::Type::Scroll, position, true, scroll);
 		}
 
 		return hitNode != nullptr;
@@ -416,38 +383,27 @@ namespace hod::inline ui
 	void Canvas::TryBeginDrag(const Vector2& position)
 	{
 		_dragTried = true;
-		for (Node* node = _pressHitNode; node != nullptr; node = node->GetParent())
+		WeakPtr<Node> dragNode = BubblePointerEvent(_pressHitNode.Get(), PointerEvent::Type::DragBegin, position, true);
+		ForgetRemovedNodes();
+		if (Contains(dragNode.Get()) == false)
 		{
-			PointerEvent event;
-			event._type = PointerEvent::Type::DragBegin;
-			event._position = position;
-			if (SendPointerEvent(node, event) == false)
-			{
-				continue;
-			}
-
+			return;
+		}
+		// Taken from the node holding the press: it is released, without click (a Button pressed in a ScrollView)
+		Node* pressedNode = _pressedNode.Get();
+		if (pressedNode != nullptr && pressedNode != dragNode.Get())
+		{
+			_pressedNode = nullptr;
+			SendPointerEvent(pressedNode, PointerEvent::Type::Release, position);
 			ForgetRemovedNodes();
-			if (ContainsNode(_rootNode, node) == false)
+			if (Contains(dragNode.Get()) == false)
 			{
 				return;
 			}
-			// Taken from the node holding the press: it is released, without click (a Button pressed in a ScrollView)
-			if (_pressedNode != nullptr && _pressedNode != node)
-			{
-				Node* pressedNode = _pressedNode;
-				_pressedNode = nullptr;
-				SendPointerEvent(pressedNode, PointerEvent::Type::Release, position);
-				ForgetRemovedNodes();
-				if (ContainsNode(_rootNode, node) == false)
-				{
-					return;
-				}
-			}
-			_pressedNode = node;
-			_dragging = true;
-			_lastPosition = position;
-			return;
 		}
+		_pressedNode = dragNode;
+		_dragging = true;
+		_lastPosition = position;
 	}
 
 	/// @brief
@@ -455,9 +411,9 @@ namespace hod::inline ui
 	{
 		ForgetRemovedNodes();
 
-		Node* hoveredNode = _hoveredNode;
-		Node* pressedNode = _pressedNode;
-		bool  dragged = _dragging;
+		Node*         hoveredNode = _hoveredNode.Get();
+		WeakPtr<Node> pressedNode = _pressedNode;
+		bool          dragged = _dragging;
 		_hoveredNode = nullptr;
 		_pressedNode = nullptr;
 		_pressHitNode = nullptr;
@@ -467,28 +423,26 @@ namespace hod::inline ui
 		SendPointerEvent(hoveredNode, PointerEvent::Type::Exit, Vector2::Zero);
 		if (dragged)
 		{
-			SendPointerEvent(pressedNode, PointerEvent::Type::DragEnd, Vector2::Zero);
-			ForgetRemovedNodes();
-			if (ContainsNode(_rootNode, pressedNode) == false)
-			{
-				return;
-			}
+			SendPointerEvent(pressedNode.Get(), PointerEvent::Type::DragEnd, Vector2::Zero);
 		}
-		SendPointerEvent(pressedNode, PointerEvent::Type::Release, Vector2::Zero);
+		if (Contains(pressedNode.Get()))
+		{
+			SendPointerEvent(pressedNode.Get(), PointerEvent::Type::Release, Vector2::Zero);
+		}
 	}
 
 	/// @brief
 	/// @return
 	Node* Canvas::GetHoveredNode() const
 	{
-		return _hoveredNode;
+		return _hoveredNode.Get();
 	}
 
 	/// @brief
 	/// @return
 	Node* Canvas::GetPressedNode() const
 	{
-		return _pressedNode;
+		return _pressedNode.Get();
 	}
 
 	/// @brief
@@ -540,18 +494,59 @@ namespace hod::inline ui
 	}
 
 	/// @brief
+	/// @param node null gives null
+	/// @param type
+	/// @param position
+	/// @param stopWhenHandled stops at the first Interaction handling it
+	/// @param scroll
+	/// @return the node that handled it, last one if not stopWhenHandled; null if none. Up the parents of node as they are
+	/// after each handler: a node destroyed by its own handler goes on with its parent if it's alive
+	Node* Canvas::BubblePointerEvent(Node* node, PointerEvent::Type type, const Vector2& position, bool stopWhenHandled, const Vector2& scroll)
+	{
+		Node* handledBy = nullptr;
+		while (node != nullptr)
+		{
+			WeakPtr<Node> sent(node);
+			WeakPtr<Node> parent(node->GetParent());
+
+			PointerEvent event;
+			event._type = type;
+			event._position = position;
+			event._scroll = scroll;
+			if (SendPointerEvent(node, event))
+			{
+				handledBy = sent.Get();
+				if (stopWhenHandled)
+				{
+					return handledBy;
+				}
+			}
+			node = (sent.Get() != nullptr) ? sent.Get()->GetParent() : parent.Get();
+		}
+		return handledBy;
+	}
+
+	/// @brief
+	/// @param node
+	/// @return
+	bool Canvas::Contains(const Node* node) const
+	{
+		return node != nullptr && (node == _rootNode || node->IsDescendantOf(_rootNode));
+	}
+
+	/// @brief
 	void Canvas::ForgetRemovedNodes()
 	{
-		if (_hoveredNode != nullptr && ContainsNode(_rootNode, _hoveredNode) == false)
+		if (Contains(_hoveredNode.Get()) == false)
 		{
 			_hoveredNode = nullptr;
 		}
-		if (_pressedNode != nullptr && ContainsNode(_rootNode, _pressedNode) == false)
+		if (Contains(_pressedNode.Get()) == false)
 		{
 			_pressedNode = nullptr;
 			_dragging = false;
 		}
-		if (_pressHitNode != nullptr && ContainsNode(_rootNode, _pressHitNode) == false)
+		if (Contains(_pressHitNode.Get()) == false)
 		{
 			_pressHitNode = nullptr;
 		}

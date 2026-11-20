@@ -5,6 +5,7 @@
 #include <HodEngine/Core/Event.hpp>
 #include <HodEngine/Core/Reflection/ReflectionMacros.hpp>
 #include <HodEngine/Core/String.hpp>
+#include <HodEngine/Core/Weakable/WeakPtr.hpp>
 #include <HodEngine/Math/Matrix4.hpp>
 #include <HodEngine/Math/Vector2.hpp>
 #include <HodEngine/Renderer/RenderView.hpp>
@@ -157,10 +158,14 @@ namespace hod::inline ui
 		// From the node hit by the press up: the first Interaction handling DragBegin holds the press from then on (the one that
 		// held it gets its Release, without Click). Tried once per press.
 		void	TryBeginDrag(const Vector2& position);
+		// Sends the event to node then up its parents (see the .cpp)
+		Node*	BubblePointerEvent(Node* node, PointerEvent::Type type, const Vector2& position, bool stopWhenHandled, const Vector2& scroll = Vector2::Zero);
 
-		// Drops the tracked nodes (hovered, pressed) that are not in the tree anymore: removed and deleted since the last
-		// pointer update. Only compares addresses, never reads a node that may be deleted.
+		// Drops the tracked nodes (hovered, pressed, press hit) destroyed (their WeakPtr null) or removed from the tree since the
+		// last pointer update, by an event's handler typically
 		void	ForgetRemovedNodes();
+		// Whether node, alive, is the root or in its tree: walks up its parents, not the tree
+		bool	Contains(const Node* node) const;
 
 	private:
 
@@ -172,10 +177,11 @@ namespace hod::inline ui
 		Vector2			_layoutSize = Vector2(1920.0f, 1080.0f);
 		float			_scaleFactor = 1.0f;
 
-		Node*			_hoveredNode = nullptr;
-		Node*			_pressedNode = nullptr;
+		// Weak: an event's handler may destroy them (see ForgetRemovedNodes)
+		WeakPtr<Node>	_hoveredNode;
+		WeakPtr<Node>	_pressedNode;
 		bool			_pointerPressed = false;
-		Node*			_pressHitNode = nullptr; // what the press hit, where DragBegin bubbles from
+		WeakPtr<Node>	_pressHitNode; // what the press hit, where DragBegin bubbles from
 		Vector2			_pressPosition = Vector2::Zero;
 		Vector2			_lastPosition = Vector2::Zero;
 		bool			_dragTried = false;
