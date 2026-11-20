@@ -106,7 +106,7 @@ namespace hod::inline renderer
 		}
 
 		/*
-		Font* font = _fontResource.Lock()->GetFont();
+		Font* font = _fontResource.GetResource()->GetFont();
 
 		float atlasWidth = (float)font->GetTexture()->GetWidth();
 		float atlasHeight = (float)font->GetTexture()->GetHeight();

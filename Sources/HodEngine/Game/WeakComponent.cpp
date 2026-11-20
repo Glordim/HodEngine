@@ -60,7 +60,7 @@ namespace hod::inline game
 
     /// @brief 
     /// @return 
-    Component* WeakComponentBase::Lock() const
+    Component* WeakComponentBase::Get() const
     {
         return _pointer.Get();
     }

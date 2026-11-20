@@ -476,7 +476,7 @@ namespace hod::inline game
 		if (WeakComponentBase::GetReflectionDescriptor().IsCompatible(reflectionDescriptor))
 		{
 			const WeakComponentBase* weakComponent = static_cast<const WeakComponentBase*>(instance);
-			Component*               component = weakComponent->Lock();
+			Component*               component = weakComponent->Get();
 			if (component != nullptr)
 			{
 				Entity* entity = component->GetOwner();

@@ -39,7 +39,7 @@ namespace hod::inline editor
 	{
 		const WeakComponentBase& value = values.Get();
 		bool                     mixed = values.IsMixed();
-		Component*               referenced = mixed ? nullptr : value.Lock();
+		Component*               referenced = mixed ? nullptr : value.Get();
 
 		if (scopeWorld == nullptr)
 		{

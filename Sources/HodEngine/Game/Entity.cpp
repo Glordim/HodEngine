@@ -58,7 +58,7 @@ namespace hod::inline game
 	/// @brief
 	Entity::~Entity()
 	{
-		if (_scene != nullptr && _parent.Lock() == nullptr)
+		if (_scene != nullptr && _parent.Get() == nullptr)
 		{
 			_scene->RemoveRoot(this);
 		}
@@ -170,9 +170,9 @@ namespace hod::inline game
 			return component;
 		}
 
-		if (_parent.Lock() != nullptr)
+		if (_parent.Get() != nullptr)
 		{
-			return _parent.Lock()->GetComponentInParent(descriptor);
+			return _parent.Get()->GetComponentInParent(descriptor);
 		}
 
 		return nullptr;
@@ -191,7 +191,7 @@ namespace hod::inline game
 
 		for (const WeakEntity& child : _children)
 		{
-			if (Entity* childEntity = child.Lock())
+			if (Entity* childEntity = child.Get())
 			{
 				component = childEntity->GetComponentInChildren(descriptor);
 				if (component != nullptr)
@@ -459,7 +459,7 @@ namespace hod::inline game
 	/// @return
 	Entity* Entity::ChildrenView::Iterator::operator*() const
 	{
-		return (*_children)[_index].Lock();
+		return (*_children)[_index].Get();
 	}
 
 	/// @brief
@@ -467,7 +467,7 @@ namespace hod::inline game
 	/// @return
 	Entity* Entity::ChildrenView::operator[](uint32_t index) const
 	{
-		return _children[index].Lock();
+		return _children[index].Get();
 	}
 
 	/// @brief
@@ -478,7 +478,7 @@ namespace hod::inline game
 		children.Reserve(_children.Size());
 		for (const WeakEntity& child : _children)
 		{
-			children.PushBack(child.Lock());
+			children.PushBack(child.Get());
 		}
 		return children;
 	}
@@ -495,7 +495,7 @@ namespace hod::inline game
 	/// @return
 	Entity* Entity::GetChild(uint32_t index) const
 	{
-		return _children[index].Lock();
+		return _children[index].Get();
 	}
 
 	/// @brief
@@ -509,12 +509,12 @@ namespace hod::inline game
 	/// @return
 	uint32_t Entity::GetSiblingIndex() const
 	{
-		Entity* parentLock = _parent.Lock();
+		Entity* parentLock = _parent.Get();
 		if (parentLock != nullptr)
 		{
 			for (uint32_t index = 0; index < parentLock->_children.Size(); ++index)
 			{
-				if (parentLock->_children[index].Lock() == this)
+				if (parentLock->_children[index].Get() == this)
 				{
 					return index;
 				}
@@ -531,7 +531,7 @@ namespace hod::inline game
 	/// @param index
 	void Entity::SetSiblingIndex(uint32_t index)
 	{
-		Entity* parentLock = _parent.Lock();
+		Entity* parentLock = _parent.Get();
 		if (parentLock == nullptr)
 		{
 			if (_scene != nullptr)
@@ -566,20 +566,20 @@ namespace hod::inline game
 	/// @param parent
 	void Entity::SetParent(const WeakEntity& parent)
 	{
-		assert(parent.Lock() != this);
+		assert(parent.Get() != this);
 
-		if (_parent.Lock() == parent.Lock())
+		if (_parent.Get() == parent.Get())
 		{
 			return;
 		}
 
-		Entity* previousParentLock = _parent.Lock();
+		Entity* previousParentLock = _parent.Get();
 		if (previousParentLock != nullptr)
 		{
 			auto itEnd = previousParentLock->_children.End();
 			for (auto it = previousParentLock->_children.Begin(); it != itEnd; ++it)
 			{
-				if (it->Lock() == this)
+				if (it->Get() == this)
 				{
 					previousParentLock->_children.Erase(it);
 					break;
@@ -588,13 +588,13 @@ namespace hod::inline game
 			// todo assert
 		}
 
-		Entity* newParentLock = parent.Lock();
+		Entity* newParentLock = parent.Get();
 		if (newParentLock != nullptr)
 		{
 			bool exist = false;
 			for (const WeakEntity& child : newParentLock->_children)
 			{
-				if (child.Lock() == this)
+				if (child.Get() == this)
 				{
 					exist = true;
 					break;
@@ -639,7 +639,7 @@ namespace hod::inline game
 	/// @return
 	Entity* Entity::GetParent() const
 	{
-		return _parent.Lock();
+		return _parent.Get();
 	}
 
 	Entity::ChildrenChangedEvent& Entity::GetChildrenChangedEvent()
@@ -657,7 +657,7 @@ namespace hod::inline game
 		}
 
 		// A root is one of its scene's roots (see Scene::GetRootEntities)
-		if (_parent.Lock() == nullptr)
+		if (_parent.Get() == nullptr)
 		{
 			if (_scene != nullptr)
 			{
@@ -683,7 +683,7 @@ namespace hod::inline game
 	{
 		Construct();
 
-		if (_active && (_parent.Lock() == nullptr || _parent.Lock()->IsActiveInHierarchy()))
+		if (_active && (_parent.Get() == nullptr || _parent.Get()->IsActiveInHierarchy()))
 		{
 			if (GetScene()->GetWorld()->GetEditorPlaying())
 			{
@@ -725,7 +725,7 @@ namespace hod::inline game
 
 		for (const WeakEntity& child : _children)
 		{
-			Entity* childEntity = child.Lock();
+			Entity* childEntity = child.Get();
 			childEntity->Construct();
 		}
 	}
@@ -744,7 +744,7 @@ namespace hod::inline game
 
 		for (const WeakEntity& child : _children)
 		{
-			Entity* childEntity = child.Lock();
+			Entity* childEntity = child.Get();
 			if (childEntity->GetActive() == true)
 			{
 				childEntity->Awake();
@@ -772,7 +772,7 @@ namespace hod::inline game
 
 		for (const WeakEntity& child : _children)
 		{
-			Entity* childEntity = child.Lock();
+			Entity* childEntity = child.Get();
 			if (childEntity->GetActive() == true)
 			{
 				childEntity->Enable();
@@ -794,7 +794,7 @@ namespace hod::inline game
 
 		for (const WeakEntity& child : _children)
 		{
-			Entity* childEntity = child.Lock();
+			Entity* childEntity = child.Get();
 			if (childEntity->GetActive() == true)
 			{
 				childEntity->Start();
@@ -812,7 +812,7 @@ namespace hod::inline game
 
 		for (const WeakEntity& child : _children)
 		{
-			Entity* childEntity = child.Lock();
+			Entity* childEntity = child.Get();
 			if (childEntity->GetActive() == true)
 			{
 				childEntity->Disable();
@@ -838,7 +838,7 @@ namespace hod::inline game
 
 		for (const WeakEntity& child : _children)
 		{
-			Entity* childEntity = child.Lock();
+			Entity* childEntity = child.Get();
 			childEntity->Destruct();
 		}
 

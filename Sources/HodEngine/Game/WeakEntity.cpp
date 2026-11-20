@@ -78,7 +78,7 @@ namespace hod::inline game
 
     /// @brief 
     /// @return 
-    Entity* WeakEntity::Lock() const
+    Entity* WeakEntity::Get() const
     {
         return _pointer.Get();
     }

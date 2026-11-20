@@ -30,7 +30,8 @@ namespace hod::inline game
 
     public:
 
-        Entity*                     Lock() const;
+        /// @return Its entity, nullptr once destroyed (nothing kept alive)
+        Entity*                     Get() const;
         uint64_t                    GetInstanceId() const;
         uint64_t                    GetForSerialization() const;
 

@@ -31,7 +31,8 @@ namespace hod::inline game
 
     public:
 
-        Component*                  Lock() const;
+        /// @return Its component, nullptr once destroyed (nothing kept alive)
+        Component*                  Get() const;
 
         ReflectionDescriptor*       GetComponentDescriptor() const;
 
@@ -70,9 +71,9 @@ namespace hod::inline game
 
         /// @brief 
         /// @return 
-        _Component_* Lock() const
+        _Component_* Get() const
         {
-            return static_cast<_Component_*>(WeakComponentBase::Lock());
+            return static_cast<_Component_*>(WeakComponentBase::Get());
         }
 
         void operator = (std::shared_ptr<_Component_> pointer)
