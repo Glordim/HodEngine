@@ -50,7 +50,7 @@ namespace hod::inline editor
 	Vector<UID> FontSettings::GetFallbacks(const UID& font) const
 	{
 		Vector<UID> fallbacks;
-		for (const WeakResource<FontResource>& fallback : _fallbacks)
+		for (const ResourceRef<FontResource>& fallback : _fallbacks)
 		{
 			if (fallback.GetUid().IsValid() == false || fallback.GetUid() == font)
 			{

@@ -121,7 +121,7 @@ namespace hod::inline editor
 				ImGui::SameLine(ImGui::GetContentRegionAvail().x * 0.4f);
 				if (ReflectionDrawer::DrawValue(textureParameter._value))
 				{
-					std::shared_ptr<hod::TextureResource> textureResource = textureParameter._value.Lock();
+					std::shared_ptr<hod::TextureResource> textureResource = textureParameter._value.GetResource();
 					if (textureResource != nullptr)
 					{
 						GetOwner<MaterialInstanceEditorTab>()->GetMaterialInstance()->GetMaterialInstance()->SetTexture(textureParameter._name, textureResource->GetTexture());

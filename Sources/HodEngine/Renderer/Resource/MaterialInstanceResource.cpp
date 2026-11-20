@@ -55,7 +55,7 @@ namespace hod::inline renderer
 			return false;
 		}
 
-		std::shared_ptr<MaterialResource> materialResource = _material.Lock();
+		std::shared_ptr<MaterialResource> materialResource = _material.GetResource();
 		if (materialResource == nullptr)
 		{
 			OUTPUT_ERROR("MaterialInstanceResource::Initialize: MaterialResource is nullptr");

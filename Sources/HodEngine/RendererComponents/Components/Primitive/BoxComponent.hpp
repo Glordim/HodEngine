@@ -2,7 +2,7 @@
 #include "HodEngine/RendererComponents/Export.hpp"
 
 #include "HodEngine/RendererComponents/Components/Primitive/PrimitiveComponent.hpp"
-#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceRef.hpp"
 #include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
 
 namespace hod::inline renderer { class MaterialInstance; }
@@ -35,11 +35,11 @@ namespace hod::inline renderer
 
 		MaterialInstance*		GetMaterialInstance() const;
 
-		void							SetMaterialInstanceResource(const WeakResource<MaterialInstanceResource>& materialInstance);
+		void							SetMaterialInstanceResource(const ResourceRef<MaterialInstanceResource>& materialInstance);
 
 	private:
 
-		WeakResource<MaterialInstanceResource>	_material;
+		ResourceRef<MaterialInstanceResource>	_material;
 
 		MaterialInstance*							_materialInstance = nullptr;
 	};

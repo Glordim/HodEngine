@@ -1,5 +1,5 @@
 #include "HodEngine/CoreEditor/Pch.hpp"
-#include "HodEngine/CoreEditor/PropertyDrawer/WeakResourceDrawer.hpp"
+#include "HodEngine/CoreEditor/PropertyDrawer/ResourceRefDrawer.hpp"
 
 #include "HodEngine/Math/Vector2.hpp"
 
@@ -7,7 +7,7 @@
 #include "HodEngine/ImGui/Helper.hpp"
 #include "HodEngine/ImGui/Widgets.hpp"
 
-#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceRef.hpp"
 
 #include "HodEngine/Editor/Asset.hpp"
 #include "HodEngine/Editor/AssetDatabase.hpp"
@@ -25,17 +25,17 @@
 
 namespace hod::inline editor
 {
-	Vector<const Vector<UID>*> WeakResourceDrawer::_excludedResources;
+	Vector<const Vector<UID>*> ResourceRefDrawer::_excludedResources;
 
 	/// @brief
 	/// @param excludedResources
-	void WeakResourceDrawer::PushExcludedResources(const Vector<UID>& excludedResources)
+	void ResourceRefDrawer::PushExcludedResources(const Vector<UID>& excludedResources)
 	{
 		_excludedResources.PushBack(&excludedResources);
 	}
 
 	/// @brief
-	void WeakResourceDrawer::PopExcludedResources()
+	void ResourceRefDrawer::PopExcludedResources()
 	{
 		_excludedResources.PopBack();
 	}
@@ -43,7 +43,7 @@ namespace hod::inline editor
 	/// @brief
 	/// @param uid
 	/// @return
-	bool WeakResourceDrawer::IsResourceExcluded(const UID& uid)
+	bool ResourceRefDrawer::IsResourceExcluded(const UID& uid)
 	{
 		for (const Vector<UID>* excludedResources : _excludedResources)
 		{
@@ -61,31 +61,31 @@ namespace hod::inline editor
 	/// @brief
 	/// @param values
 	/// @return
-	bool WeakResourceDrawer::OnDraw(const PropertyValues<WeakResourceBase>& values)
+	bool ResourceRefDrawer::OnDraw(const PropertyValues<ResourceRefBase>& values)
 	{
 		UID picked;
 		if (DrawPicker(values.Get(), values.IsMixed(), picked) == false)
 		{
 			return false;
 		}
-		values.Edit([&picked](WeakResourceBase& weakResource) { weakResource.SetUid(picked); });
+		values.Edit([&picked](ResourceRefBase& resourceRef) { resourceRef.SetUid(picked); });
 		return true;
 	}
 
 	/// @brief
-	/// @param weakResource
+	/// @param resourceRef
 	/// @param mixed
 	/// @param picked
 	/// @return
-	bool WeakResourceDrawer::DrawPicker(const WeakResourceBase& weakResource, bool mixed, UID& picked)
+	bool ResourceRefDrawer::DrawPicker(const ResourceRefBase& resourceRef, bool mixed, UID& picked)
 	{
 		static Vector<AssetDatabase::FileSystemMapping*> assetList;
 
 		bool changed = false;
-		ImGui::PushID(&weakResource);
+		ImGui::PushID(&resourceRef);
 
 		AssetDatabase*         assetDatabase = AssetDatabase::GetInstance();
-		std::shared_ptr<Asset> asset = mixed ? nullptr : assetDatabase->Find(weakResource.GetUid());
+		std::shared_ptr<Asset> asset = mixed ? nullptr : assetDatabase->Find(resourceRef.GetUid());
 
 		float height = 50;
 
@@ -133,7 +133,7 @@ namespace hod::inline editor
 					clicked = true;
 
 					assetList.Clear();
-					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), *weakResource.GetResourceDescriptor(), weakResource.GetExpectedSubType());
+					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), *resourceRef.GetResourceDescriptor(), resourceRef.GetExpectedSubType());
 				}
 			}
 		}
@@ -153,7 +153,7 @@ namespace hod::inline editor
 					clicked = true;
 
 					assetList.Clear();
-					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), *weakResource.GetResourceDescriptor(), weakResource.GetExpectedSubType());
+					assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), *resourceRef.GetResourceDescriptor(), resourceRef.GetExpectedSubType());
 				}
 			}
 		}
@@ -243,7 +243,7 @@ namespace hod::inline editor
 		    assetList.clear();
 		    assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), value->GetResourceDescriptor());
 
-		    ImGui::OpenPopup("WeakResourceFindPopup");
+		    ImGui::OpenPopup("ResourceRefFindPopup");
 		}
 		else if (clicked == true && asset != nullptr)
 		{
@@ -272,10 +272,10 @@ namespace hod::inline editor
 		    assetList.clear();
 		    assetDatabase->ListAsset(assetList, assetDatabase->GetAssetRootNode(), value->GetResourceDescriptor());
 
-		    ImGui::OpenPopup("WeakResourceFindPopup");
+		    ImGui::OpenPopup("ResourceRefFindPopup");
 		}
 		*/
-		if (ImGui::BeginPopup("WeakResourceFindPopup"))
+		if (ImGui::BeginPopup("ResourceRefFindPopup"))
 		{
 			ImGui::AlignTextToFramePadding();
 			ImGui::TextUnformatted("Name:");

@@ -3,9 +3,6 @@
 
 #include "HodEngine/Editor/Cooker/Cooker.hpp"
 
-#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
-#include "HodEngine/Renderer/Resource/MaterialResource.hpp"
-
 namespace hod::inline editor
 {
 	class HOD_RENDERER_EDITOR_API MaterialInstanceCooker : public Cooker

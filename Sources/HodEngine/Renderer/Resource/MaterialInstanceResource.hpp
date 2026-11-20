@@ -2,7 +2,7 @@
 #include "HodEngine/Renderer/Export.hpp"
 
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
-#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceRef.hpp"
 
 #include "HodEngine/Renderer/Material.hpp"
 #include "HodEngine/Renderer/Resource/MaterialResource.hpp"
@@ -40,9 +40,9 @@ namespace hod::inline renderer
 
 		MaterialInstance*				_materialInstance = nullptr;
 
-		WeakResource<MaterialResource>	_material;
+		ResourceRef<MaterialResource>	_material;
 		Document						_params;
 
-		Vector<WeakResource<TextureResource>> _textureResources;
+		Vector<ResourceRef<TextureResource>> _textureResources;
 	};
 }

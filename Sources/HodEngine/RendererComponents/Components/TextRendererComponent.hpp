@@ -1,7 +1,7 @@
 #pragma once
 #include "HodEngine/RendererComponents/Export.hpp"
 
-#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceRef.hpp"
 #include "HodEngine/RendererComponents/Components/RendererComponent.hpp"
 #include "HodEngine/Renderer/Resource/FontResource.hpp"
 
@@ -33,7 +33,7 @@ namespace hod::inline renderer
 		MaterialInstance* GetMaterialInstance() const;
 		void                        SetMaterialInstance(MaterialInstance* materialInstance);
 
-		void SetFont(const WeakResource<FontResource>& font);
+		void SetFont(const ResourceRef<FontResource>& font);
 		// void							SetText(const std::string_view& text);
 
 		void PushRenderCommand(RenderView& renderView) override;
@@ -42,7 +42,7 @@ namespace hod::inline renderer
 	private:
 		String _text = "EditMe";
 
-		WeakResource<FontResource> _fontResource;
+		ResourceRef<FontResource> _fontResource;
 
 		MaterialInstance* _materialInstance = nullptr;
 	};

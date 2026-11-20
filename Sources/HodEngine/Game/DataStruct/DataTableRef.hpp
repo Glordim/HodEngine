@@ -6,7 +6,7 @@
 #include <HodEngine/Core/Assert.hpp>
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/UID.hpp>
-#include <HodEngine/GameSystems/Resource/WeakResource.hpp>
+#include <HodEngine/GameSystems/Resource/ResourceRef.hpp>
 
 #include <memory>
 #include <string_view>
@@ -15,15 +15,15 @@
 namespace hod::inline game
 {
 	/// @brief A data table asset whose rows are _DataStruct_, read as an array of them: `for (const T& row : _table)`,
-	/// `_table[index]`, `_table.FindRow("Key")`. The editor's pickers only offer those. Serialized as any WeakResource (its UID).
+	/// `_table[index]`, `_table.FindRow("Key")`. The editor's pickers only offer those. Serialized as any ResourceRef (its UID).
 	/// Without a table, or when its rows are of another struct (an error, once per asset), it reads as an empty table.
-	/// A row is valid while the WeakDataTable references its table (it keeps it alive once resolved)
+	/// A row is valid while the DataTableRef references its table (it keeps it alive once resolved)
 	template<typename _DataStruct_>
-	class WeakDataTable : public WeakResource<DataTableResource>
+	class DataTableRef : public ResourceRef<DataTableResource>
 	{
-		REFLECTED_CLASS(WeakDataTable<_DataStruct_>, WeakResource<DataTableResource>)
+		REFLECTED_CLASS(DataTableRef<_DataStruct_>, ResourceRef<DataTableResource>)
 
-		static_assert(std::is_base_of<DataStruct, _DataStruct_>::value, "WeakDataTable<T>: T is a DataStruct");
+		static_assert(std::is_base_of<DataStruct, _DataStruct_>::value, "DataTableRef<T>: T is a DataStruct");
 
 	public:
 		RttiType GetExpectedSubType() const override
@@ -73,10 +73,10 @@ namespace hod::inline game
 		}
 
 	private:
-		/// @return Its table (alive while referenced: Lock keeps it), null without one or when its rows aren't _DataStruct_
+		/// @return Its table (alive while referenced: GetResource keeps it), null without one or when its rows aren't _DataStruct_
 		const DataTableResource* GetTable() const
 		{
-			std::shared_ptr<DataTableResource> resource = Lock();
+			std::shared_ptr<DataTableResource> resource = GetResource();
 			if (resource == nullptr)
 			{
 				return nullptr;
@@ -103,7 +103,7 @@ namespace hod::inline game
 	};
 
 	template<typename _DataStruct_>
-	void WeakDataTable<_DataStruct_>::FillReflectionDescriptorUser([[maybe_unused]] ReflectionDescriptor& reflectionDescriptor)
+	void DataTableRef<_DataStruct_>::FillReflectionDescriptorUser([[maybe_unused]] ReflectionDescriptor& reflectionDescriptor)
 	{
 	}
 }

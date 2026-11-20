@@ -1,19 +1,19 @@
 #include "HodEngine/GameSystems/Pch.hpp"
-#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceRef.hpp"
 
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
 #include "HodEngine/GameSystems/Resource/ResourceManager.hpp"
 
 namespace hod::inline gamesystems
 {
-	DESCRIBE_REFLECTED_CLASS(WeakResourceBase)
+	DESCRIBE_REFLECTED_CLASS(ResourceRefBase)
 	{
 		HOD_PROPERTY(_uid);
 	}
 
 	/// @brief
 	/// @param pointer
-	WeakResourceBase::WeakResourceBase(ReflectionDescriptor* resourceDescriptor)
+	ResourceRefBase::ResourceRefBase(ReflectionDescriptor* resourceDescriptor)
 	: _resourceDescriptor(resourceDescriptor)
 	, _uid(UID::INVALID_UID)
 	{
@@ -21,14 +21,14 @@ namespace hod::inline gamesystems
 
 	/// @brief
 	/// @param pointer
-	WeakResourceBase::WeakResourceBase(ReflectionDescriptor* resourceDescriptor, const std::shared_ptr<Resource>& pointer)
+	ResourceRefBase::ResourceRefBase(ReflectionDescriptor* resourceDescriptor, const std::shared_ptr<Resource>& pointer)
 	: _resourceDescriptor(resourceDescriptor)
 	, _uid(UID::INVALID_UID)
 	, _pointer(pointer)
 	{
 	}
 
-	WeakResourceBase::WeakResourceBase(const WeakResourceBase& copy)
+	ResourceRefBase::ResourceRefBase(const ResourceRefBase& copy)
 	{
 		_uid = copy._uid;
 		_pointer = copy._pointer;
@@ -36,11 +36,11 @@ namespace hod::inline gamesystems
 	}
 
 	/// @brief
-	WeakResourceBase::~WeakResourceBase() {}
+	ResourceRefBase::~ResourceRefBase() {}
 
 	/// @brief
 	/// @param pointer
-	WeakResourceBase& WeakResourceBase::operator=(const WeakResourceBase& copy)
+	ResourceRefBase& ResourceRefBase::operator=(const ResourceRefBase& copy)
 	{
 		_uid = copy._uid;
 		_pointer = copy._pointer;
@@ -50,7 +50,7 @@ namespace hod::inline gamesystems
 
 	/// @brief
 	/// @param pointer
-	WeakResourceBase& WeakResourceBase::operator=(const std::weak_ptr<Resource>& pointer)
+	ResourceRefBase& ResourceRefBase::operator=(const std::weak_ptr<Resource>& pointer)
 	{
 		_pointer = pointer.lock();
 		return *this;
@@ -59,14 +59,14 @@ namespace hod::inline gamesystems
 	/// @brief
 	/// @param other
 	/// @return
-	bool WeakResourceBase::operator==(const WeakResourceBase& other) const
+	bool ResourceRefBase::operator==(const ResourceRefBase& other) const
 	{
 		return _uid == other._uid;
 	}
 
 	/// @brief
 	/// @return
-	std::shared_ptr<Resource> WeakResourceBase::Lock() const
+	std::shared_ptr<Resource> ResourceRefBase::GetResource() const
 	{
 		if (_uid == UID::INVALID_UID)
 		{
@@ -82,23 +82,23 @@ namespace hod::inline gamesystems
 
 	/// @brief
 	/// @return
-	const UID& WeakResourceBase::GetUid() const
+	const UID& ResourceRefBase::GetUid() const
 	{
 		return _uid;
 	}
 
-	void WeakResourceBase::SetUid(const UID& uid)
+	void ResourceRefBase::SetUid(const UID& uid)
 	{
 		_uid = uid;
 	}
 
-	ReflectionDescriptor* WeakResourceBase::GetResourceDescriptor() const
+	ReflectionDescriptor* ResourceRefBase::GetResourceDescriptor() const
 	{
 		return _resourceDescriptor;
 	}
 
 	/// @brief
-	RttiType WeakResourceBase::GetExpectedSubType() const
+	RttiType ResourceRefBase::GetExpectedSubType() const
 	{
 		return 0;
 	}

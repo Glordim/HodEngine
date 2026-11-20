@@ -4,7 +4,6 @@
 
 #include "HodEngine/GameSystems/Job/MemberFunctionJob.hpp"
 #include "HodEngine/Core/Singleton.hpp"
-#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
 #include <cstdint>
 #include <unordered_map>
 #include <atomic>

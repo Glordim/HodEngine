@@ -3,7 +3,7 @@
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 
 #include <HodEngine/Core/Document/Document.hpp>
-#include <HodEngine/GameSystems/Resource/WeakResource.hpp>
+#include <HodEngine/GameSystems/Resource/ResourceRef.hpp>
 
 #include "HodEngine/Core/String.hpp"
 #include "HodEngine/Core/Vector.hpp"
@@ -47,8 +47,8 @@ namespace hod::inline renderer
 	public:
 		static void GenerateParameters(const Material& material, Vector<ShaderParameter>& params);
 
-		static void ApplyParamsFromDocument(MaterialInstance& materialInstance, const DocumentNode& paramsNode, Vector<WeakResource<TextureResource>>& textureResources);
+		static void ApplyParamsFromDocument(MaterialInstance& materialInstance, const DocumentNode& paramsNode, Vector<ResourceRef<TextureResource>>& textureResources);
 		static void ApplyReflectedParams(MaterialInstance& materialInstance, const ReflectionDescriptor& reflectionDescriptor, void* instance, String path,
-		                                 Vector<WeakResource<TextureResource>>& textureResources);
+		                                 Vector<ResourceRef<TextureResource>>& textureResources);
 	};
 }

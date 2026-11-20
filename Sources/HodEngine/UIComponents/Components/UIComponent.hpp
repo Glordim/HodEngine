@@ -3,7 +3,7 @@
 
 #include "HodEngine/RendererComponents/Components/RendererComponent.hpp"
 
-#include <HodEngine/GameSystems/Resource/WeakResource.hpp>
+#include <HodEngine/GameSystems/Resource/ResourceRef.hpp>
 #include <HodEngine/UI/Canvas.hpp>
 #include <HodEngine/UI/Node.hpp>
 #include <HodEngine/UI/PrefabInstance.hpp>
@@ -54,8 +54,8 @@ namespace hod::inline ui
 
 		// The prefab displayed: the canvas is built again from it (what the game changed in it is lost). Not from one of its
 		// actions' handlers: the canvas emitting it would be deleted.
-		const WeakResource<UIPrefabResource>&	GetPrefab() const;
-		void									SetPrefab(const WeakResource<UIPrefabResource>& prefab);
+		const ResourceRef<UIPrefabResource>&	GetPrefab() const;
+		void									SetPrefab(const ResourceRef<UIPrefabResource>& prefab);
 
 		RenderMode		GetRenderMode() const;
 		bool			IsScreenSpace() const;
@@ -116,7 +116,7 @@ namespace hod::inline ui
 
 	private:
 
-		WeakResource<UIPrefabResource>	_prefab;
+		ResourceRef<UIPrefabResource>	_prefab;
 		RenderMode						_renderMode = RenderMode::Screen;
 		int32_t							_sortingOrder = 0;
 		float							_pixelsPerUnit = 100.0f;

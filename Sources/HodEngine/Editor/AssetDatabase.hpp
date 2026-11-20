@@ -123,7 +123,7 @@ namespace hod::inline editor
 
 		/// @brief The assets of the types cooking into resourceDescriptor (AssetType::GetCookedResource()). expectedSubType, when
 		/// non-zero, additionally restricts the result to assets whose cooked asset subType (row/item RttiType, see
-		/// WeakResourceBase::GetExpectedSubType) matches.
+		/// ResourceRefBase::GetExpectedSubType) matches.
 		void ListAsset(Vector<FileSystemMapping*>& result, const FileSystemMapping& from, const ReflectionDescriptor& resourceDescriptor, uint64_t expectedSubType = 0);
 
 		void UpdateFileWatchers();

@@ -20,7 +20,7 @@ namespace hod::inline game
 {
 	/// @brief A data table at runtime (cooked from the editor's DataTableAssetData), read only: its rows constructed in one block,
 	/// in the table's order (GetRow(index), GetRows<T>() as an array), and its key hashes sorted by the cooker (FindRow, a binary
-	/// search), the keys themselves aren't cooked. Read typed through WeakDataTable<T>
+	/// search), the keys themselves aren't cooked. Read typed through DataTableRef<T>
 	class HOD_GAME_API DataTableResource : public Resource
 	{
 		REFLECTED_CLASS(DataTableResource, Resource)

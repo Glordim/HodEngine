@@ -2,7 +2,7 @@
 #include "HodEngine/RendererComponents/Export.hpp"
 
 #include "HodEngine/RendererComponents/Components/RendererComponent.hpp"
-#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceRef.hpp"
 #include "HodEngine/Renderer/Sprite.hpp"
 
 namespace hod::inline renderer { class MaterialInstance; }
@@ -39,7 +39,7 @@ namespace hod::inline renderer
 
 	private:
 
-		WeakResource<Sprite>		_sprite;
+		ResourceRef<Sprite>		_sprite;
 		MaterialInstance*			_materialInstance = nullptr;
 	};
 }

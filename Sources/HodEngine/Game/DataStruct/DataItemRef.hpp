@@ -5,7 +5,7 @@
 
 #include <HodEngine/Core/Output/OutputService.hpp>
 #include <HodEngine/Core/UID.hpp>
-#include <HodEngine/GameSystems/Resource/WeakResource.hpp>
+#include <HodEngine/GameSystems/Resource/ResourceRef.hpp>
 
 #include <memory>
 #include <type_traits>
@@ -13,14 +13,14 @@
 namespace hod::inline game
 {
 	/// @brief A data item asset holding a _DataStruct_ (or a struct deriving from it), read typed by Get(). The editor's pickers
-	/// only offer those. Serialized as any WeakResource (its UID).
-	/// Its data is valid while the WeakDataItem references its asset (it keeps it alive once resolved)
+	/// only offer those. Serialized as any ResourceRef (its UID).
+	/// Its data is valid while the DataItemRef references its asset (it keeps it alive once resolved)
 	template<typename _DataStruct_>
-	class WeakDataItem : public WeakResource<DataItemResource>
+	class DataItemRef : public ResourceRef<DataItemResource>
 	{
-		REFLECTED_CLASS(WeakDataItem<_DataStruct_>, WeakResource<DataItemResource>)
+		REFLECTED_CLASS(DataItemRef<_DataStruct_>, ResourceRef<DataItemResource>)
 
-		static_assert(std::is_base_of<DataStruct, _DataStruct_>::value, "WeakDataItem<T>: T is a DataStruct");
+		static_assert(std::is_base_of<DataStruct, _DataStruct_>::value, "DataItemRef<T>: T is a DataStruct");
 
 	public:
 		RttiType GetExpectedSubType() const override
@@ -31,7 +31,7 @@ namespace hod::inline game
 		/// @return Its data. Null without an asset, or when the asset holds another struct (an error, once per asset)
 		const _DataStruct_* Get() const
 		{
-			std::shared_ptr<DataItemResource> resource = Lock();
+			std::shared_ptr<DataItemResource> resource = GetResource();
 			if (resource == nullptr)
 			{
 				return nullptr;
@@ -61,7 +61,7 @@ namespace hod::inline game
 	};
 
 	template<typename _DataStruct_>
-	void WeakDataItem<_DataStruct_>::FillReflectionDescriptorUser([[maybe_unused]] ReflectionDescriptor& reflectionDescriptor)
+	void DataItemRef<_DataStruct_>::FillReflectionDescriptorUser([[maybe_unused]] ReflectionDescriptor& reflectionDescriptor)
 	{
 	}
 }

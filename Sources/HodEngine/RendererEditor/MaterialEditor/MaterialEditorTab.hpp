@@ -6,7 +6,7 @@
 #include <HodEngine/Core/TypeTrait.hpp>
 #include <HodEngine/Math/Vector2.hpp>
 #include <HodEngine/Math/Vector4.hpp>
-#include <HodEngine/GameSystems/Resource/WeakResource.hpp>
+#include <HodEngine/GameSystems/Resource/ResourceRef.hpp>
 #include <memory>
 #include "HodEngine/Core/Vector.hpp"
 #include <unordered_map>
@@ -57,7 +57,7 @@ namespace hod::inline editor
 
 		struct ShaderParamTexture : ShaderParameter
 		{
-			WeakResource<TextureResource> _value;
+			ResourceRef<TextureResource> _value;
 		};
 
 		struct ShaderParamVec2 : ShaderParameter

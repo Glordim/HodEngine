@@ -3,7 +3,7 @@
 #include "HodEngine/AudioComponents/Export.hpp"
 
 #include "HodEngine/Game/Component.hpp"
-#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceRef.hpp"
 
 #include <HodEngine/Audio/AudioManager.hpp>
 
@@ -33,7 +33,7 @@ namespace hod::inline audio
 
 	private:
 
-		WeakResource<AudioResource>	_audioResource;
+		ResourceRef<AudioResource>	_audioResource;
 		bool						_loop = true;
 
 		AudioManager::PlayingId _playingId = AudioManager::InvalidPlayingId;

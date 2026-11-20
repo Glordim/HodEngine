@@ -161,7 +161,7 @@ namespace hod::inline editor
 					}
 					for (const ShaderParamTexture& param : _textureParameters)
 					{
-						std::shared_ptr<TextureResource> textureResource = param._value.Lock();
+						std::shared_ptr<TextureResource> textureResource = param._value.GetResource();
 						if (textureResource != nullptr)
 						{
 							materialInstance->SetTexture(param._name, textureResource->GetTexture());

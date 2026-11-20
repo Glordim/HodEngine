@@ -100,7 +100,7 @@ namespace hod::inline renderer
 	{
 		(void)renderView; // TODO
 
-		if (_text.Empty() || _fontResource.Lock() == nullptr)
+		if (_text.Empty() || _fontResource.GetResource() == nullptr)
 		{
 			return;
 		}
@@ -165,7 +165,7 @@ namespace hod::inline renderer
 
 	/// @brief
 	/// @param texture
-	void TextRendererComponent::SetFont(const WeakResource<FontResource>& font)
+	void TextRendererComponent::SetFont(const ResourceRef<FontResource>& font)
 	{
 		_fontResource = font; // TODO: drawn as UI TextNode is, see PushRenderCommand
 	}

@@ -70,7 +70,7 @@ namespace hod::inline editor
 	void PropertyValuesBase::Edit(EditFunction edit, void* userData) const
 	{
 		// A member with a set method: given an edited copy (a set method skipping a value equal to the current one would ignore an edit in
-		// place), copied with the property's own type (the drawer's type may be a base of it: WeakResourceBase for a WeakResource<Texture>)
+		// place), copied with the property's own type (the drawer's type may be a base of it: ResourceRefBase for a ResourceRef<Texture>)
 		ReflectionPropertyObject* objectProperty = nullptr;
 		if (_property != nullptr && _property->GetReflectionProperty()->GetRttiType() == ReflectionPropertyObject::GetRttiTypeStatic())
 		{

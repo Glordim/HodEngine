@@ -47,7 +47,7 @@ namespace hod::inline renderer
 	/// @brief
 	void TextureRendererComponent::OnConstruct()
 	{
-		std::shared_ptr<MaterialInstanceResource> materialInstanceResource = _material.Lock();
+		std::shared_ptr<MaterialInstanceResource> materialInstanceResource = _material.GetResource();
 		if (materialInstanceResource != nullptr)
 		{
 			_materialInstance = materialInstanceResource->GetMaterialInstance();
@@ -77,10 +77,10 @@ namespace hod::inline renderer
 
 	/// @brief
 	/// @param materialInstance
-	void TextureRendererComponent::SetMaterialInstanceResource(const WeakResource<MaterialInstanceResource>& weakMaterialInstanceResource)
+	void TextureRendererComponent::SetMaterialInstanceResource(const ResourceRef<MaterialInstanceResource>& material)
 	{
-		_material = weakMaterialInstanceResource;
-		std::shared_ptr<MaterialInstanceResource> materialInstanceResource = _material.Lock();
+		_material = material;
+		std::shared_ptr<MaterialInstanceResource> materialInstanceResource = _material.GetResource();
 		if (materialInstanceResource != nullptr)
 		{
 			_materialInstance = materialInstanceResource->GetMaterialInstance();
@@ -141,7 +141,7 @@ namespace hod::inline renderer
 
 	/// @brief
 	/// @param texture
-	void TextureRendererComponent::SetTexture(const WeakResource<TextureResource>& texture)
+	void TextureRendererComponent::SetTexture(const ResourceRef<TextureResource>& texture)
 	{
 		_texture = texture;
 		RefreshMaterialInstance();
@@ -152,7 +152,7 @@ namespace hod::inline renderer
 	{
 		if (_materialInstance != nullptr)
 		{
-			std::shared_ptr<TextureResource> textureResourceLock = _texture.Lock();
+			std::shared_ptr<TextureResource> textureResourceLock = _texture.GetResource();
 			if (textureResourceLock != nullptr)
 			{
 				_materialInstance->SetTexture("image", textureResourceLock->GetTexture());
@@ -178,7 +178,7 @@ namespace hod::inline renderer
 		float width = _pixelPerUnit;
 		float height = _pixelPerUnit;
 
-		std::shared_ptr<TextureResource> textureResourceLock = _texture.Lock();
+		std::shared_ptr<TextureResource> textureResourceLock = _texture.GetResource();
 		if (textureResourceLock != nullptr)
 		{
 			width = (float)textureResourceLock->GetTexture()->GetWidth();

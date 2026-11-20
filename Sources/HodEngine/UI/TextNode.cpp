@@ -65,14 +65,14 @@ namespace hod::inline ui
 
 	/// @brief
 	/// @return
-	const WeakResource<FontResource>& TextNode::GetFont() const
+	const ResourceRef<FontResource>& TextNode::GetFont() const
 	{
 		return _font;
 	}
 
 	/// @brief
 	/// @param font
-	void TextNode::SetFont(const WeakResource<FontResource>& font)
+	void TextNode::SetFont(const ResourceRef<FontResource>& font)
 	{
 		if (_font != font)
 		{
@@ -277,7 +277,7 @@ namespace hod::inline ui
 	/// @return
 	const TextLayout* TextNode::UpdateLayout() const
 	{
-		const bool chainChanged = _fontChain.Update(_font.Lock(), _fontWeight, _italic);
+		const bool chainChanged = _fontChain.Update(_font.GetResource(), _fontWeight, _italic);
 		if (_fontChain.Empty() || _fontSize <= 0.0f)
 		{
 			return nullptr;

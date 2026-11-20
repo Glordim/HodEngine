@@ -9,6 +9,7 @@
 #include "HodEngine/Editor/AssetDatabase.hpp"
 #include "HodEngine/Editor/EditorRegistrar.hpp"
 
+#include <HodEngine/Renderer/Resource/MaterialResource.hpp>
 #include <HodEngine/Renderer/Resource/MaterialInstanceResource.hpp>
 
 #include <HodEngine/Core/Document/Document.hpp>

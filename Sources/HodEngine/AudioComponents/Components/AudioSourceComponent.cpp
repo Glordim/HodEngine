@@ -21,7 +21,7 @@ namespace hod::inline audio
 
 	void AudioSourceComponent::OnStart()
 	{
-		_playingId = AudioManager::GetInstance()->Play(_audioResource.Lock(), _loop);
+		_playingId = AudioManager::GetInstance()->Play(_audioResource.GetResource(), _loop);
 	}
 
 	void AudioSourceComponent::OnEnable()

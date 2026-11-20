@@ -3,17 +3,16 @@
 
 #include "HodEngine/Editor/EditorTab.hpp"
 
-#include "HodEngine/RendererEditor/MaterialInstanceEditor/MaterialInstanceCooker.hpp"
-
 #include <HodEngine/Core/TypeTrait.hpp>
 #include <HodEngine/Math/Vector2.hpp>
 #include <HodEngine/Math/Vector4.hpp>
-#include <HodEngine/GameSystems/Resource/WeakResource.hpp>
+#include <HodEngine/GameSystems/Resource/ResourceRef.hpp>
 #include <memory>
 #include "HodEngine/Core/Vector.hpp"
 
 #include "HodEngine/Renderer/Resource/MaterialSerializationHelper.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
+#include "HodEngine/Renderer/Resource/MaterialResource.hpp"
 
 namespace hod::inline renderer
 {
@@ -28,7 +27,7 @@ namespace hod::inline editor
 
 		virtual ~MaterialInstanceSettings() = default;
 
-		WeakResource<MaterialResource>	_material;
+		ResourceRef<MaterialResource>	_material;
 		Document						_params;
 	};
 
@@ -49,7 +48,7 @@ namespace hod::inline editor
 
 		struct ShaderParamTexture : ShaderParameter
 		{
-			WeakResource<TextureResource> _value;
+			ResourceRef<TextureResource> _value;
 		};
 
 		struct ShaderParamVec2 : ShaderParameter

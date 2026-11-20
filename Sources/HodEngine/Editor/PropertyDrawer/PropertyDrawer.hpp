@@ -38,7 +38,7 @@ namespace hod::inline editor
 	/// a material's parameter...). Only the value: its label, override marker and context menu are ReflectionDrawer's, around it. Registered by
 	/// an editor module (EditorRegistrar::RegisterPropertyDrawer), one instance for every value of the type. What it needs from where it is drawn
 	/// (the world of the scene tab, the nodes of the UI prefab...) is set around the drawing by the one knowing it (a scope of the drawer)
-	/// @tparam _Type_ The type drawn: a reflected class or struct (Vector2, Color, WeakResourceBase...)
+	/// @tparam _Type_ The type drawn: a reflected class or struct (Vector2, Color, ResourceRefBase...)
 	template<typename _Type_>
 	class PropertyDrawer : public PropertyDrawerBase
 	{

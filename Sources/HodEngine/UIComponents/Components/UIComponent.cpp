@@ -287,13 +287,13 @@ namespace hod::inline ui
 		return boundingBox;
 	}
 
-	const WeakResource<UIPrefabResource>& UIComponent::GetPrefab() const
+	const ResourceRef<UIPrefabResource>& UIComponent::GetPrefab() const
 	{
 		return _prefab;
 	}
 
 	// May run before OnConstruct (deserialization): OnConstruct builds the canvas then.
-	void UIComponent::SetPrefab(const WeakResource<UIPrefabResource>& prefab)
+	void UIComponent::SetPrefab(const ResourceRef<UIPrefabResource>& prefab)
 	{
 		_prefab = prefab;
 		BuildCanvas();

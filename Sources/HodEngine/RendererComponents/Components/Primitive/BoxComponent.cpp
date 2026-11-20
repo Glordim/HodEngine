@@ -60,7 +60,7 @@ namespace hod::inline renderer
 
 	void BoxComponent::OnConstruct()
 	{
-		std::shared_ptr<MaterialInstanceResource> materialInstanceResource = _material.Lock();
+		std::shared_ptr<MaterialInstanceResource> materialInstanceResource = _material.GetResource();
 		if (materialInstanceResource != nullptr)
 		{
 			_materialInstance = materialInstanceResource->GetMaterialInstance();
@@ -69,10 +69,10 @@ namespace hod::inline renderer
 
 	/// @brief
 	/// @param materialInstance
-	void BoxComponent::SetMaterialInstanceResource(const WeakResource<MaterialInstanceResource>& weakMaterialInstanceResource)
+	void BoxComponent::SetMaterialInstanceResource(const ResourceRef<MaterialInstanceResource>& material)
 	{
-		_material = weakMaterialInstanceResource;
-		std::shared_ptr<MaterialInstanceResource> materialInstanceResource = _material.Lock();
+		_material = material;
+		std::shared_ptr<MaterialInstanceResource> materialInstanceResource = _material.GetResource();
 		if (materialInstanceResource != nullptr)
 		{
 			_materialInstance = materialInstanceResource->GetMaterialInstance();

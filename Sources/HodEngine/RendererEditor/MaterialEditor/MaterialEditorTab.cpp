@@ -145,7 +145,7 @@ namespace hod::inline editor
 		}
 		for (ShaderParamTexture& param : _textureParameters)
 		{
-			param._value = WeakResource<TextureResource>();
+			param._value = ResourceRef<TextureResource>();
 		}
 
 		const DocumentNode* paramNode = _materialSettings._defaultInstanceParams.GetRootNode().GetFirstChild();
@@ -224,7 +224,7 @@ namespace hod::inline editor
 		}
 		for (const ShaderParamTexture& param : _textureParameters)
 		{
-			std::shared_ptr<TextureResource> textureResource = param._value.Lock();
+			std::shared_ptr<TextureResource> textureResource = param._value.GetResource();
 			defaultInstance->SetTexture(param._name, textureResource != nullptr ? textureResource->GetTexture() : nullptr);
 		}
 	}

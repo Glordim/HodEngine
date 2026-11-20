@@ -2,7 +2,7 @@
 #include "HodEngine/UI/Export.hpp"
 #include "HodEngine/UI/Node.hpp"
 
-#include <HodEngine/GameSystems/Resource/WeakResource.hpp>
+#include <HodEngine/GameSystems/Resource/ResourceRef.hpp>
 #include <HodEngine/Math/Color.hpp>
 #include <HodEngine/Math/RectOffsets.hpp>
 #include <HodEngine/Renderer/Resource/TextureResource.hpp>
@@ -23,8 +23,8 @@ namespace hod::inline ui
 
 												ImageNode();
 
-		const WeakResource<TextureResource>&	GetTexture() const;
-		void									SetTexture(const WeakResource<TextureResource>& texture);
+		const ResourceRef<TextureResource>&	GetTexture() const;
+		void									SetTexture(const ResourceRef<TextureResource>& texture);
 
 		const Color&							GetColor() const;
 		void									SetColor(const Color& color);
@@ -44,7 +44,7 @@ namespace hod::inline ui
 
 	private:
 
-		WeakResource<TextureResource>			_texture;
+		ResourceRef<TextureResource>			_texture;
 		Color									_color = Color(1.0f, 1.0f, 1.0f, 1.0f);
 		RectOffsets								_slices; // in pixels of the texture, from each of its edges. All 0: not sliced
 		float									_sliceScale = 1.0f; // node units per pixel of the texture, for the corners and sides

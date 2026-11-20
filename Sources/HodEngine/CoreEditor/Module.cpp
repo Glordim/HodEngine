@@ -5,13 +5,13 @@
 #include "HodEngine/Math/Color.hpp"
 #include "HodEngine/Math/Vector2.hpp"
 #include "HodEngine/Math/Vector4.hpp"
-#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceRef.hpp"
 
 #include "HodEngine/Editor/EditorRegistrar.hpp"
 #include "HodEngine/CoreEditor/PropertyDrawer/ColorDrawer.hpp"
 #include "HodEngine/CoreEditor/PropertyDrawer/Vector2Drawer.hpp"
 #include "HodEngine/CoreEditor/PropertyDrawer/Vector4Drawer.hpp"
-#include "HodEngine/CoreEditor/PropertyDrawer/WeakResourceDrawer.hpp"
+#include "HodEngine/CoreEditor/PropertyDrawer/ResourceRefDrawer.hpp"
 
 REDIRECT_NEW_DELETE_OPERATOR_TO_MEMORY_MANAGER
 
@@ -23,7 +23,7 @@ namespace hod::inline core
 		editorRegistrar.RegisterPropertyDrawer<ColorDrawer>();
 		editorRegistrar.RegisterPropertyDrawer<Vector2Drawer>();
 		editorRegistrar.RegisterPropertyDrawer<Vector4Drawer>();
-		editorRegistrar.RegisterPropertyDrawer<WeakResourceDrawer>();
+		editorRegistrar.RegisterPropertyDrawer<ResourceRefDrawer>();
 		return true;
 	}
 }

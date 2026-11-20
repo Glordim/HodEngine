@@ -3,7 +3,7 @@
 #include "HodEngine/UI/Node.hpp"
 
 #include <HodEngine/Core/String.hpp>
-#include <HodEngine/GameSystems/Resource/WeakResource.hpp>
+#include <HodEngine/GameSystems/Resource/ResourceRef.hpp>
 #include <HodEngine/Math/Color.hpp>
 #include <HodEngine/Renderer/Resource/FontFaceResource.hpp>
 #include <HodEngine/Renderer/Resource/FontResource.hpp>
@@ -53,8 +53,8 @@ namespace hod::inline ui
 
 	public:
 
-		const WeakResource<FontResource>&	GetFont() const;
-		void								SetFont(const WeakResource<FontResource>& font);
+		const ResourceRef<FontResource>&	GetFont() const;
+		void								SetFont(const ResourceRef<FontResource>& font);
 
 		const String&						GetValue() const;
 		void								SetValue(const String& value);
@@ -115,7 +115,7 @@ namespace hod::inline ui
 
 	private:
 
-		WeakResource<FontResource>			_font;
+		ResourceRef<FontResource>			_font;
 		String								_value;
 		float								_fontSize = 48.0f;
 		FontResource::Weight				_fontWeight = FontResource::Weight::Regular;

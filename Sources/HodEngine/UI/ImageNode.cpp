@@ -35,14 +35,14 @@ namespace hod::inline ui
 
 	/// @brief
 	/// @return
-	const WeakResource<TextureResource>& ImageNode::GetTexture() const
+	const ResourceRef<TextureResource>& ImageNode::GetTexture() const
 	{
 		return _texture;
 	}
 
 	/// @brief
 	/// @param texture
-	void ImageNode::SetTexture(const WeakResource<TextureResource>& texture)
+	void ImageNode::SetTexture(const ResourceRef<TextureResource>& texture)
 	{
 		if (_texture != texture)
 		{
@@ -119,7 +119,7 @@ namespace hod::inline ui
 	{
 		(void)availableSize;
 
-		std::shared_ptr<TextureResource> textureResource = _texture.Lock();
+		std::shared_ptr<TextureResource> textureResource = _texture.GetResource();
 		Texture*                         texture = textureResource != nullptr ? textureResource->GetTexture() : nullptr;
 		if (texture == nullptr)
 		{
@@ -134,7 +134,7 @@ namespace hod::inline ui
 	{
 		// Without a (loaded) texture the node is a plain quad of its color, so a fresh Image is visible
 		// right away and doubles as a colored rectangle.
-		std::shared_ptr<TextureResource> textureResource = _texture.Lock();
+		std::shared_ptr<TextureResource> textureResource = _texture.GetResource();
 		Texture*                         texture = textureResource != nullptr ? textureResource->GetTexture() : nullptr;
 
 		const Vector2& size = GetSize();

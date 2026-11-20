@@ -2,7 +2,7 @@
 #include "HodEngine/RendererComponents/Export.hpp"
 
 #include "HodEngine/RendererComponents/Components/RendererComponent.hpp"
-#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceRef.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
 #include "HodEngine/Renderer/Resource/MaterialInstanceResource.hpp"
 #include <HodEngine/Math/Rect.hpp>
@@ -35,9 +35,9 @@ namespace hod::inline renderer
 
 		MaterialInstance*		GetMaterialInstance() const;
 
-		void							SetMaterialInstanceResource(const WeakResource<MaterialInstanceResource>& materialInstance);
+		void							SetMaterialInstanceResource(const ResourceRef<MaterialInstanceResource>& materialInstance);
 
-		void							SetTexture(const WeakResource<TextureResource>& texture);
+		void							SetTexture(const ResourceRef<TextureResource>& texture);
 
 		void							PushRenderCommand(RenderView& renderView) override;
 
@@ -52,8 +52,8 @@ namespace hod::inline renderer
 
 	private:
 
-		WeakResource<TextureResource>				_texture;
-		WeakResource<MaterialInstanceResource>	_material;
+		ResourceRef<TextureResource>				_texture;
+		ResourceRef<MaterialInstanceResource>	_material;
 		float												_pixelPerUnit = 100.0f;
 
 		Color												_color;

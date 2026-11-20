@@ -5,7 +5,7 @@
 #include "HodEngine/Renderer/MaterialInstance.hpp"
 
 #include <HodEngine/Core/Output/OutputService.hpp>
-#include <HodEngine/GameSystems/Resource/WeakResource.hpp>
+#include <HodEngine/GameSystems/Resource/ResourceRef.hpp>
 #include <HodEngine/Core/Serialization/Serializer.hpp>
 
 #include "HodEngine/RHI/ShaderSetDescriptor.hpp"
@@ -52,7 +52,7 @@ namespace hod::inline renderer
 
 	/// @brief
 	void MaterialSerializationHelper::ApplyParamsFromDocument(MaterialInstance& materialInstance, const DocumentNode& paramsNode,
-	                                                          Vector<WeakResource<TextureResource>>& textureResources)
+	                                                          Vector<ResourceRef<TextureResource>>& textureResources)
 	{
 		const DocumentNode* paramNode = paramsNode.GetFirstChild();
 		while (paramNode != nullptr)
@@ -87,9 +87,9 @@ namespace hod::inline renderer
 
 				case ShaderParameter::Type::Texture:
 				{
-					WeakResource<TextureResource> value;
+					ResourceRef<TextureResource> value;
 					Serializer::Deserialize(value, *valueNode);
-					std::shared_ptr<TextureResource> textureResource = value.Lock();
+					std::shared_ptr<TextureResource> textureResource = value.GetResource();
 					if (textureResource != nullptr)
 					{
 						materialInstance.SetTexture(name, textureResource->GetTexture());
@@ -118,7 +118,7 @@ namespace hod::inline renderer
 	/// @param instance
 	/// @param path
 	void MaterialSerializationHelper::ApplyReflectedParams(MaterialInstance& materialInstance, const ReflectionDescriptor& reflectionDescriptor, void* instance, String path,
-	                                                       Vector<WeakResource<TextureResource>>& textureResources)
+	                                                       Vector<ResourceRef<TextureResource>>& textureResources)
 	{
 		for (ReflectionProperty* property : reflectionDescriptor.GetProperties())
 		{
@@ -165,13 +165,13 @@ namespace hod::inline renderer
 					Vector4* value = static_cast<Vector4*>(propertyObject->GetInstance(instance));
 					materialInstance.SetVec4(newPath, *value);
 				}
-				else if (propertyObject->GetReflectionDescriptor() == &WeakResource<TextureResource>::GetReflectionDescriptor())
+				else if (propertyObject->GetReflectionDescriptor() == &ResourceRef<TextureResource>::GetReflectionDescriptor())
 				{
-					WeakResource<TextureResource>* value = static_cast<WeakResource<TextureResource>*>(propertyObject->GetInstance(instance));
-					WeakResource<TextureResource>  retain;
+					ResourceRef<TextureResource>* value = static_cast<ResourceRef<TextureResource>*>(propertyObject->GetInstance(instance));
+					ResourceRef<TextureResource>  retain;
 					retain.SetUid(value->GetUid());
 
-					std::shared_ptr<TextureResource> textureResource = retain.Lock();
+					std::shared_ptr<TextureResource> textureResource = retain.GetResource();
 					if (textureResource != nullptr)
 					{
 						textureResources.push_back(retain);

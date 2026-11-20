@@ -12,7 +12,7 @@
 #include "HodEngine/Editor/EditorReflectedProperty.hpp"
 #include "HodEngine/Editor/ReflectionDrawer.hpp"
 
-#include <HodEngine/CoreEditor/PropertyDrawer/WeakResourceDrawer.hpp>
+#include <HodEngine/CoreEditor/PropertyDrawer/ResourceRefDrawer.hpp>
 
 #include <HodEngine/Core/Reflection/EnumDescriptor.hpp>
 #include <HodEngine/Core/Reflection/ReflectionHelper.hpp>
@@ -138,7 +138,7 @@ namespace hod::inline editor
 				}
 
 				// What the file says, when it is not the style it is drawn for: not wrong (a Bold drawn for Black...), to know
-				std::shared_ptr<FontFaceResource> face = style._face.Lock();
+				std::shared_ptr<FontFaceResource> face = style._face.GetResource();
 				if (face != nullptr && face->GetFontFace().IsLoaded())
 				{
 					const FontSettings::Style fileStyle = FontHelper::DetectStyle(face->GetFontFace());
@@ -224,14 +224,14 @@ namespace hod::inline editor
 			{
 				excludedFonts.PushBack(fontAsset->GetUid());
 			}
-			for (const WeakResource<FontResource>& fallback : fontSettings._fallbacks)
+			for (const ResourceRef<FontResource>& fallback : fontSettings._fallbacks)
 			{
 				if (fallback.GetUid().IsValid())
 				{
 					excludedFonts.PushBack(fallback.GetUid());
 				}
 			}
-			WeakResourceDrawer::PushExcludedResources(excludedFonts);
+			ResourceRefDrawer::PushExcludedResources(excludedFonts);
 
 			const uint32_t fallbackCount = fontSettings._fallbacks.Size();
 			for (uint32_t index = 0; index < fallbackCount; ++index)
@@ -284,7 +284,7 @@ namespace hod::inline editor
 				}
 				ImGui::PopID();
 			}
-			WeakResourceDrawer::PopExcludedResources();
+			ResourceRefDrawer::PopExcludedResources();
 			ImGui::EndTable();
 		}
 

@@ -6,13 +6,13 @@
 
 namespace hod::inline gamesystems
 {
-	class WeakResourceBase;
+	class ResourceRefBase;
 }
 
 namespace hod::inline editor
 {
-	/// @brief A reference to a resource (WeakResource<T>): the asset it references, picked among the ones of its type
-	class HOD_CORE_EDITOR_API WeakResourceDrawer : public PropertyDrawer<WeakResourceBase>
+	/// @brief A reference to a resource (ResourceRef<T>): the asset it references, picked among the ones of its type
+	class HOD_CORE_EDITOR_API ResourceRefDrawer : public PropertyDrawer<ResourceRefBase>
 	{
 	public:
 		/// @brief Left out of the pickers drawn until the pop (the font itself, the ones already in a list...). Not copied: alive until then
@@ -21,14 +21,14 @@ namespace hod::inline editor
 		static bool IsResourceExcluded(const UID& uid);
 
 	protected:
-		bool OnDraw(const PropertyValues<WeakResourceBase>& values) override;
+		bool OnDraw(const PropertyValues<ResourceRefBase>& values) override;
 
 	private:
-		/// @brief The asset picker of weakResource: only the assets holding the data it expects (WeakResourceBase::GetExpectedSubType)
-		/// @param mixed the values edited together reference different resources: shows the mixed value label in place of weakResource's
+		/// @brief The asset picker of resourceRef: only the assets holding the data it expects (ResourceRefBase::GetExpectedSubType)
+		/// @param mixed the values edited together reference different resources: shows the mixed value label in place of resourceRef's
 		/// @param picked The resource picked (invalid: None)
 		/// @return true if one was picked
-		static bool DrawPicker(const WeakResourceBase& weakResource, bool mixed, UID& picked);
+		static bool DrawPicker(const ResourceRefBase& resourceRef, bool mixed, UID& picked);
 
 		static Vector<const Vector<UID>*> _excludedResources;
 	};

@@ -5,7 +5,7 @@
 #include "HodEngine/Core/Reflection/ReflectionMacros.hpp"
 #include "HodEngine/Renderer/Resource/FontFaceResource.hpp"
 #include "HodEngine/Renderer/Resource/FontResource.hpp"
-#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceRef.hpp"
 
 namespace hod::inline editor
 {
@@ -21,7 +21,7 @@ namespace hod::inline editor
 		{
 			REFLECTED_CLASS_NO_VIRTUAL(Style)
 
-			WeakResource<FontFaceResource>	_face;
+			ResourceRef<FontFaceResource>	_face;
 			FontResource::Weight			_weight = FontResource::Weight::Regular;
 			bool							_italic = false;
 		};
@@ -33,7 +33,7 @@ namespace hod::inline editor
 
 	public:
 		Vector<Style>						_styles;
-		Vector<WeakResource<FontResource>>	_fallbacks; // see FontResource::GetFallbacks
+		Vector<ResourceRef<FontResource>>	_fallbacks; // see FontResource::GetFallbacks
 	};
 
 	class HOD_RENDERER_EDITOR_API FontCooker : public Cooker

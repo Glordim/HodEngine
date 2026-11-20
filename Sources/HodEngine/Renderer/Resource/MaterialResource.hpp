@@ -2,7 +2,7 @@
 #include "HodEngine/Renderer/Export.hpp"
 
 #include "HodEngine/GameSystems/Resource/Resource.hpp"
-#include "HodEngine/GameSystems/Resource/WeakResource.hpp"
+#include "HodEngine/GameSystems/Resource/ResourceRef.hpp"
 
 #include "HodEngine/Renderer/Material.hpp"
 #include "HodEngine/Renderer/Resource/TextureResource.hpp"
@@ -63,6 +63,6 @@ namespace hod::inline renderer
 		bool					_depthWrite = false;
 
 		Document									_defaultInstanceParams;
-		Vector<WeakResource<TextureResource>>	_textureResources;
+		Vector<ResourceRef<TextureResource>>	_textureResources;
 	};
 }

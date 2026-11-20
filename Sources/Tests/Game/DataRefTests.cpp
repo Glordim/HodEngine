@@ -3,8 +3,8 @@
 #include <HodEngine/Game/DataStruct/DataStruct.hpp>
 #include <HodEngine/Game/DataStruct/DataStructFactory.hpp>
 #include <HodEngine/Game/DataStruct/DataTableResource.hpp>
-#include <HodEngine/Game/DataStruct/WeakDataItem.hpp>
-#include <HodEngine/Game/DataStruct/WeakDataTable.hpp>
+#include <HodEngine/Game/DataStruct/DataItemRef.hpp>
+#include <HodEngine/Game/DataStruct/DataTableRef.hpp>
 
 #include <HodEngine/Core/Document/Document.hpp>
 #include <HodEngine/Core/Document/DocumentWriterJson.hpp>
@@ -19,81 +19,81 @@
 
 namespace hod
 {
-	class WeakDataTestStruct : public DataStruct
+	class DataRefTestStruct : public DataStruct
 	{
-		REFLECTED_CLASS(WeakDataTestStruct, DataStruct)
+		REFLECTED_CLASS(DataRefTestStruct, DataStruct)
 	};
 
-	DESCRIBE_REFLECTED_CLASS(WeakDataTestStruct) {}
+	DESCRIBE_REFLECTED_CLASS(DataRefTestStruct) {}
 
-	class WeakDataTestRow : public DataStruct
+	class DataRefTestRow : public DataStruct
 	{
-		REFLECTED_CLASS(WeakDataTestRow, DataStruct)
+		REFLECTED_CLASS(DataRefTestRow, DataStruct)
 
 	public:
 		int32_t _value = 0;
 		String  _name; // Constructed and destroyed in the table's block
 	};
 
-	DESCRIBE_REFLECTED_CLASS(WeakDataTestRow)
+	DESCRIBE_REFLECTED_CLASS(DataRefTestRow)
 	{
 		HOD_PROPERTY(_value);
 		HOD_PROPERTY(_name);
 	}
 
-	class WeakDataTestDerivedRow : public WeakDataTestRow
+	class DataRefTestDerivedRow : public DataRefTestRow
 	{
-		REFLECTED_CLASS(WeakDataTestDerivedRow, WeakDataTestRow)
+		REFLECTED_CLASS(DataRefTestDerivedRow, DataRefTestRow)
 
 	public:
 		float _extra = 0.0f;
 	};
 
-	DESCRIBE_REFLECTED_CLASS(WeakDataTestDerivedRow)
+	DESCRIBE_REFLECTED_CLASS(DataRefTestDerivedRow)
 	{
 		HOD_PROPERTY(_extra);
 	}
 
 	/// @brief What a component would hold
-	class WeakDataTestHolder
+	class DataRefTestHolder
 	{
-		REFLECTED_CLASS_NO_VIRTUAL(WeakDataTestHolder)
+		REFLECTED_CLASS_NO_VIRTUAL(DataRefTestHolder)
 
 	public:
-		WeakDataItem<WeakDataTestStruct>         _item;
-		Vector<WeakDataItem<WeakDataTestStruct>> _items;
-		WeakDataTable<WeakDataTestStruct>        _table;
+		DataItemRef<DataRefTestStruct>         _item;
+		Vector<DataItemRef<DataRefTestStruct>> _items;
+		DataTableRef<DataRefTestStruct>        _table;
 	};
 
-	DESCRIBE_REFLECTED_CLASS(WeakDataTestHolder)
+	DESCRIBE_REFLECTED_CLASS(DataRefTestHolder)
 	{
 		HOD_PROPERTY(_item);
 		HOD_PROPERTY(_items);
 		HOD_PROPERTY(_table);
 	}
 
-	TEST(WeakData, ExpectTheirStruct)
+	TEST(DataRef, ExpectTheirStruct)
 	{
-		const RttiType structType = WeakDataTestStruct::GetReflectionDescriptor().GetType();
+		const RttiType structType = DataRefTestStruct::GetReflectionDescriptor().GetType();
 
-		WeakDataItem<WeakDataTestStruct>  item;
-		WeakDataTable<WeakDataTestStruct> table;
-		const WeakResourceBase&           itemAsBase = item; // What the editor's picker holds
-		const WeakResourceBase&           tableAsBase = table;
+		DataItemRef<DataRefTestStruct>  item;
+		DataTableRef<DataRefTestStruct> table;
+		const ResourceRefBase&           itemAsBase = item; // What the editor's picker holds
+		const ResourceRefBase&           tableAsBase = table;
 		EXPECT_EQ(itemAsBase.GetExpectedSubType(), structType);
 		EXPECT_EQ(tableAsBase.GetExpectedSubType(), structType);
 
 		// Any data item
-		WeakResource<DataItemResource> anyItem;
+		ResourceRef<DataItemResource> anyItem;
 		EXPECT_EQ(anyItem.GetExpectedSubType(), 0u);
 	}
 
-	TEST(WeakData, SerializedAsTheirUid)
+	TEST(DataRef, SerializedAsTheirUid)
 	{
-		WeakDataTestHolder written;
+		DataRefTestHolder written;
 		written._item.SetUid(UID::GenerateUID());
-		written._items.push_back(WeakDataItem<WeakDataTestStruct>());
-		written._items.push_back(WeakDataItem<WeakDataTestStruct>());
+		written._items.push_back(DataItemRef<DataRefTestStruct>());
+		written._items.push_back(DataItemRef<DataRefTestStruct>());
 		written._items[0].SetUid(UID::GenerateUID());
 		written._items[1].SetUid(UID::GenerateUID());
 		written._table.SetUid(UID::GenerateUID());
@@ -101,7 +101,7 @@ namespace hod
 		Document document;
 		ASSERT_TRUE(Serializer::Serialize(written, document.GetRootNode()));
 
-		WeakDataTestHolder read;
+		DataRefTestHolder read;
 		ASSERT_TRUE(Serializer::Deserialize(read, document.GetRootNode()));
 		EXPECT_EQ(read._item.GetUid(), written._item.GetUid());
 		ASSERT_EQ(read._items.Size(), 2u);
@@ -110,22 +110,22 @@ namespace hod
 		EXPECT_EQ(read._table.GetUid(), written._table.GetUid());
 
 		// The elements keep their type: their expectation too
-		EXPECT_EQ(static_cast<const WeakResourceBase&>(read._items[1]).GetExpectedSubType(), WeakDataTestStruct::GetReflectionDescriptor().GetType());
+		EXPECT_EQ(static_cast<const ResourceRefBase&>(read._items[1]).GetExpectedSubType(), DataRefTestStruct::GetReflectionDescriptor().GetType());
 	}
 
-	TEST(WeakData, WithoutAssetLockIsNull)
+	TEST(DataRef, WithoutAssetIsNull)
 	{
-		WeakDataItem<WeakDataTestStruct>  item;
-		WeakDataTable<WeakDataTestStruct> table;
-		EXPECT_EQ(item.Lock(), nullptr);
+		DataItemRef<DataRefTestStruct>  item;
+		DataTableRef<DataRefTestStruct> table;
+		EXPECT_EQ(item.GetResource(), nullptr);
 		EXPECT_EQ(item.Get(), nullptr);
-		EXPECT_EQ(table.Lock(), nullptr);
+		EXPECT_EQ(table.GetResource(), nullptr);
 		EXPECT_EQ(table.GetRowCount(), 0u); // An empty table
 		EXPECT_EQ(table.FindRow("Key"), nullptr);
 		EXPECT_EQ(table.begin(), table.end());
 	}
 
-	/// @brief Data resources as cooked (tables of WeakDataTestRow, items), read without the ResourceManager
+	/// @brief Data resources as cooked (tables of DataRefTestRow, items), read without the ResourceManager
 	class DataResourceTest : public ::testing::Test
 	{
 	protected:
@@ -136,16 +136,16 @@ namespace hod
 				DataStructFactory::CreateInstance();
 				_factoryCreated = true;
 			}
-			DataStructFactory::GetInstance()->Register<WeakDataTestRow>();
-			DataStructFactory::GetInstance()->Register<WeakDataTestDerivedRow>();
-			DataStructFactory::GetInstance()->Register<WeakDataTestStruct>();
+			DataStructFactory::GetInstance()->Register<DataRefTestRow>();
+			DataStructFactory::GetInstance()->Register<DataRefTestDerivedRow>();
+			DataStructFactory::GetInstance()->Register<DataRefTestStruct>();
 		}
 
 		void TearDown() override
 		{
-			DataStructFactory::GetInstance()->Unregister<WeakDataTestStruct>();
-			DataStructFactory::GetInstance()->Unregister<WeakDataTestDerivedRow>();
-			DataStructFactory::GetInstance()->Unregister<WeakDataTestRow>();
+			DataStructFactory::GetInstance()->Unregister<DataRefTestStruct>();
+			DataStructFactory::GetInstance()->Unregister<DataRefTestDerivedRow>();
+			DataStructFactory::GetInstance()->Unregister<DataRefTestRow>();
 			if (_factoryCreated)
 			{
 				DataStructFactory::DestroyInstance();
@@ -155,7 +155,7 @@ namespace hod
 		/// @brief Cooks these rows, in this order, as DataTableCooker: key hashes sorted (unless sortKeys is false), with their row index
 		std::shared_ptr<DataTableResource> Cook(const Vector<std::pair<const char*, int32_t>>& rows, bool sortKeys = true)
 		{
-			RttiType rowType = WeakDataTestRow::GetReflectionDescriptor().GetType();
+			RttiType rowType = DataRefTestRow::GetReflectionDescriptor().GetType();
 			uint32_t rowCount = rows.Size();
 			_stream.Write(&rowType, sizeof(rowType));
 			_stream.Write(&rowCount, sizeof(rowCount));
@@ -167,7 +167,7 @@ namespace hod
 			{
 				keyHashRows.PushBack({Hash::ComputeXxh3_64(std::string_view(row.first)), keyHashRows.Size()});
 
-				WeakDataTestRow data;
+				DataRefTestRow data;
 				data._value = row.second;
 				data._name = row.first;
 				Serializer::Serialize(data, rowsNode.AddChild(""));
@@ -197,14 +197,14 @@ namespace hod
 			return resource->Initialize(container) ? resource : nullptr;
 		}
 
-		/// @brief A WeakDataTable resolved to this table, without the ResourceManager
+		/// @brief A DataTableRef resolved to this table, without the ResourceManager
 		template<typename _DataStruct_>
-		static WeakDataTable<_DataStruct_> Reference(const std::shared_ptr<DataTableResource>& resource)
+		static DataTableRef<_DataStruct_> Reference(const std::shared_ptr<DataTableResource>& resource)
 		{
 			resource->SetUid(UID::GenerateUID());
-			WeakDataTable<_DataStruct_> table;
+			DataTableRef<_DataStruct_> table;
 			table.SetUid(resource->GetUid());
-			static_cast<WeakResourceBase&>(table) = std::weak_ptr<Resource>(resource);
+			static_cast<ResourceRefBase&>(table) = std::weak_ptr<Resource>(resource);
 			return table;
 		}
 
@@ -224,14 +224,14 @@ namespace hod
 			return resource->Initialize(container) ? resource : nullptr;
 		}
 
-		/// @brief A WeakDataItem resolved to this item, without the ResourceManager
+		/// @brief A DataItemRef resolved to this item, without the ResourceManager
 		template<typename _DataStruct_>
-		static WeakDataItem<_DataStruct_> ReferenceItem(const std::shared_ptr<DataItemResource>& resource)
+		static DataItemRef<_DataStruct_> ReferenceItem(const std::shared_ptr<DataItemResource>& resource)
 		{
 			resource->SetUid(UID::GenerateUID());
-			WeakDataItem<_DataStruct_> item;
+			DataItemRef<_DataStruct_> item;
 			item.SetUid(resource->GetUid());
-			static_cast<WeakResourceBase&>(item) = std::weak_ptr<Resource>(resource);
+			static_cast<ResourceRefBase&>(item) = std::weak_ptr<Resource>(resource);
 			return item;
 		}
 
@@ -247,7 +247,7 @@ namespace hod
 		std::shared_ptr<DataTableResource> resource = Cook({{"Zeta", 1}, {"Alpha", 2}, {"Mu", 3}, {"Beta", 4}});
 		ASSERT_NE(resource, nullptr);
 
-		WeakDataTable<WeakDataTestRow> rows = Reference<WeakDataTestRow>(resource);
+		DataTableRef<DataRefTestRow> rows = Reference<DataRefTestRow>(resource);
 		ASSERT_EQ(rows.GetRowCount(), 4u);
 		EXPECT_EQ(rows[0]._value, 1);
 		EXPECT_EQ(rows[1]._value, 2);
@@ -257,7 +257,7 @@ namespace hod
 		EXPECT_EQ(rows.end() - rows.begin(), 4);
 
 		Vector<int32_t> iterated;
-		for (const WeakDataTestRow& row : rows)
+		for (const DataRefTestRow& row : rows)
 		{
 			iterated.PushBack(row._value);
 		}
@@ -269,7 +269,7 @@ namespace hod
 		std::shared_ptr<DataTableResource> resource = Cook({{"Zeta", 1}, {"Alpha", 2}});
 		ASSERT_NE(resource, nullptr);
 
-		WeakDataTable<WeakDataTestRow> rows = Reference<WeakDataTestRow>(resource);
+		DataTableRef<DataRefTestRow> rows = Reference<DataRefTestRow>(resource);
 		ASSERT_NE(rows.FindRow("Alpha"), nullptr);
 		EXPECT_EQ(rows.FindRow("Alpha")->_value, 2);
 		ASSERT_NE(rows.FindRow(Hash::ComputeXxh3_64(std::string_view("Zeta"))), nullptr);
@@ -288,10 +288,10 @@ namespace hod
 		std::shared_ptr<DataTableResource> resource = Cook(written);
 		ASSERT_NE(resource, nullptr);
 
-		WeakDataTable<WeakDataTestRow> rows = Reference<WeakDataTestRow>(resource);
+		DataTableRef<DataRefTestRow> rows = Reference<DataRefTestRow>(resource);
 		for (int32_t index = 0; index < 13; ++index)
 		{
-			const WeakDataTestRow* row = rows.FindRow(keys[index]);
+			const DataRefTestRow* row = rows.FindRow(keys[index]);
 			ASSERT_NE(row, nullptr) << keys[index];
 			EXPECT_EQ(row->_value, index);
 			EXPECT_EQ(row, &rows[static_cast<uint32_t>(index)]); // In the block, not a copy
@@ -315,7 +315,7 @@ namespace hod
 		std::shared_ptr<DataTableResource> resource = Cook({});
 		ASSERT_NE(resource, nullptr);
 
-		WeakDataTable<WeakDataTestRow> rows = Reference<WeakDataTestRow>(resource);
+		DataTableRef<DataRefTestRow> rows = Reference<DataRefTestRow>(resource);
 		EXPECT_EQ(rows.GetRowCount(), 0u);
 		EXPECT_EQ(rows.begin(), rows.end());
 	}
@@ -325,8 +325,8 @@ namespace hod
 		std::shared_ptr<DataTableResource> resource = Cook({{"Alpha", 1}});
 		ASSERT_NE(resource, nullptr);
 
-		// Its rows are WeakDataTestRow: an error, an empty table
-		WeakDataTable<WeakDataTestStruct> rows = Reference<WeakDataTestStruct>(resource);
+		// Its rows are DataRefTestRow: an error, an empty table
+		DataTableRef<DataRefTestStruct> rows = Reference<DataRefTestStruct>(resource);
 		EXPECT_EQ(rows.GetRowCount(), 0u);
 		EXPECT_EQ(rows.FindRow("Alpha"), nullptr);
 		EXPECT_EQ(rows.begin(), rows.end());
@@ -334,13 +334,13 @@ namespace hod
 
 	TEST_F(DataResourceTest, ItemReadTyped)
 	{
-		WeakDataTestRow written;
+		DataRefTestRow written;
 		written._value = 7;
 		std::shared_ptr<DataItemResource> resource = CookItem(written);
 		ASSERT_NE(resource, nullptr);
 
-		WeakDataItem<WeakDataTestRow> item = ReferenceItem<WeakDataTestRow>(resource);
-		const WeakDataTestRow*        data = item.Get();
+		DataItemRef<DataRefTestRow> item = ReferenceItem<DataRefTestRow>(resource);
+		const DataRefTestRow*        data = item.Get();
 		ASSERT_NE(data, nullptr);
 		EXPECT_EQ(data->_value, 7);
 		EXPECT_EQ(item.Get(), data); // The resource's, not a copy
@@ -348,26 +348,26 @@ namespace hod
 
 	TEST_F(DataResourceTest, ItemOfDerivedStruct)
 	{
-		WeakDataTestDerivedRow written;
+		DataRefTestDerivedRow written;
 		written._value = 3;
 		written._extra = 1.5f;
 		std::shared_ptr<DataItemResource> resource = CookItem(written);
 		ASSERT_NE(resource, nullptr);
 
 		// Read as its base
-		WeakDataItem<WeakDataTestRow> item = ReferenceItem<WeakDataTestRow>(resource);
+		DataItemRef<DataRefTestRow> item = ReferenceItem<DataRefTestRow>(resource);
 		ASSERT_NE(item.Get(), nullptr);
 		EXPECT_EQ(item.Get()->_value, 3);
 	}
 
 	TEST_F(DataResourceTest, ItemOfOtherStructIsNull)
 	{
-		WeakDataTestRow                   written;
+		DataRefTestRow                   written;
 		std::shared_ptr<DataItemResource> resource = CookItem(written);
 		ASSERT_NE(resource, nullptr);
 
-		// It holds a WeakDataTestRow: an error, null
-		WeakDataItem<WeakDataTestStruct> item = ReferenceItem<WeakDataTestStruct>(resource);
+		// It holds a DataRefTestRow: an error, null
+		DataItemRef<DataRefTestStruct> item = ReferenceItem<DataRefTestStruct>(resource);
 		EXPECT_EQ(item.Get(), nullptr);
 		EXPECT_EQ(item.Get(), nullptr);
 	}
@@ -380,19 +380,19 @@ namespace hod
 
 	TEST_F(DataResourceTest, WithTypeRoundTrip)
 	{
-		WeakDataTestDerivedRow written;
+		DataRefTestDerivedRow written;
 		written._value = 5;
 		written._name = "Five";
 		written._extra = 2.5f;
 
 		Document document;
-		ASSERT_TRUE(Serializer::SerializeWithType(static_cast<const WeakDataTestRow&>(written), document.GetRootNode())); // Its concrete type
-		EXPECT_EQ(Serializer::ReadType(document.GetRootNode()), WeakDataTestDerivedRow::GetReflectionDescriptor().GetType());
+		ASSERT_TRUE(Serializer::SerializeWithType(static_cast<const DataRefTestRow&>(written), document.GetRootNode())); // Its concrete type
+		EXPECT_EQ(Serializer::ReadType(document.GetRootNode()), DataRefTestDerivedRow::GetReflectionDescriptor().GetType());
 
 		DataStruct* read = Serializer::DeserializeWithType<DataStruct>(document.GetRootNode(), &FindDataStruct);
 		ASSERT_NE(read, nullptr);
-		ASSERT_EQ(read->GetReflectionDescriptorV().GetType(), WeakDataTestDerivedRow::GetReflectionDescriptor().GetType());
-		const WeakDataTestDerivedRow* readRow = static_cast<const WeakDataTestDerivedRow*>(read);
+		ASSERT_EQ(read->GetReflectionDescriptorV().GetType(), DataRefTestDerivedRow::GetReflectionDescriptor().GetType());
+		const DataRefTestDerivedRow* readRow = static_cast<const DataRefTestDerivedRow*>(read);
 		EXPECT_EQ(readRow->_value, 5);
 		EXPECT_EQ(readRow->_name, "Five");
 		EXPECT_EQ(readRow->_extra, 2.5f);
@@ -401,7 +401,7 @@ namespace hod
 
 	TEST_F(DataResourceTest, WithTypeUnknownOrUnexpected)
 	{
-		WeakDataTestRow written;
+		DataRefTestRow written;
 		Document        document;
 		ASSERT_TRUE(Serializer::SerializeWithType(written, document.GetRootNode()));
 
@@ -409,7 +409,7 @@ namespace hod
 		EXPECT_EQ(Serializer::DeserializeWithType<DataStruct>(document.GetRootNode(), [](RttiType) -> const ReflectionDescriptor* { return nullptr; }), nullptr);
 
 		// Known, but not of the expected base: null (an error)
-		EXPECT_EQ(Serializer::DeserializeWithType<WeakDataTestDerivedRow>(document.GetRootNode(), &FindDataStruct), nullptr);
+		EXPECT_EQ(Serializer::DeserializeWithType<DataRefTestDerivedRow>(document.GetRootNode(), &FindDataStruct), nullptr);
 
 		// No type written
 		Document untyped;
@@ -420,9 +420,9 @@ namespace hod
 
 	TEST_F(DataResourceTest, ItemOfUnknownStructRefused)
 	{
-		WeakDataTestRow written;
-		DataStructFactory::GetInstance()->Unregister<WeakDataTestRow>(); // Its module not loaded
+		DataRefTestRow written;
+		DataStructFactory::GetInstance()->Unregister<DataRefTestRow>(); // Its module not loaded
 		EXPECT_EQ(CookItem(written), nullptr);
-		DataStructFactory::GetInstance()->Register<WeakDataTestRow>();
+		DataStructFactory::GetInstance()->Register<DataRefTestRow>();
 	}
 }
